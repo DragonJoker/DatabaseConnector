@@ -1,0 +1,32 @@
+/************************************************************************//**
+ * @file DatabaseTestUtilities.h
+ * @author Sylvain Doremus
+ * @version 1.0
+ * @date 07/01/2014 18:26:13 PM
+ *
+ * @brief DatabaseTest utilities
+ *
+ * @details This file contains all DatabaseTest instructions
+ *
+ * @remarks Don't edit this generated file.
+ *          Modifications will be lost at next generation with CMake.
+ *          Edit the file DatabaseTestPath.h.in and relaunch CMake.
+ *
+ ***************************************************************************/
+
+#ifndef __DATABASE_TEST_UTILITIES_H__
+#define __DATABASE_TEST_UTILITIES_H__
+
+#include "DatabaseTestPrerequisites.h"
+
+BEGIN_NAMESPACE_DATABASE_TEST
+{
+    /// Path to the ODBC batch files
+    static const String ODBC_BATCH_FILES_DIR = STR( "${ODBC_BATCH_FILES_DIR}" );
+    
+    /// Path to the database scripts
+    static const String DATABASE_BATCH_FILES_DIR = STR( "${DATABASE_BATCH_FILES_DIR}" );
+}
+END_NAMESPACE_DATABASE_TEST
+
+#endif // __DATABASE_TEST_UTILITIES_H__
