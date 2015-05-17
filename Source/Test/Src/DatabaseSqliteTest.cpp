@@ -31,7 +31,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	static const String DB_USER = STR( "ariaUser" );
 	static const String DB_PASS = STR( "ariaPwd" );
 
-	static const String DATABASE_MYSQL_TYPE = STR( "Aria.Database.MySql" );
+	static const String DATABASE_MYSQL_TYPE = STR( "Database.SQLite" );
 
 	CDatabaseSqliteTest::CDatabaseSqliteTest()
 	{
@@ -62,6 +62,52 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	{
 		CLogger::LogMessage( StringStream() << "**** Start TestCase_CreateDatabase ****" );
 		InstallSqliteDatabase( DB_DATABASE );
+		LoadPlugins( InitializeSingletons(), false, true, false, false );
+		Database::CDatabase * database = InstantiateDatabase( DATABASE_MYSQL_TYPE );
+
+		if ( database )
+		{
+			Database::DatabaseConnectionPtr connection = CreateConnection( database, DB_SERVER, DB_DATABASE, DB_USER, DB_PASS );
+
+			if ( connection )
+			{
+				String query;
+				query += STR( "CREATE TABLE [Test]" );
+				query += STR( "(	IDTest INTEGER PRIMARY KEY" );
+				query += STR( ",	IntField INT" );
+				query += STR( ",	IntegerField INTEGER" );
+				query += STR( ",	TinyIntField TINYINT" );
+				query += STR( ",	SmallIntField SMALLINT" );
+				query += STR( ",	MediumIntField MEDIUMINT" );
+				query += STR( ",	BigIntField BIGINT" );
+				query += STR( ",	UnsignedBigIntField UNSIGNED BIG INT" );
+				query += STR( ",	Int2Field INT2" );
+				query += STR( ",	Int8Field INT8" );
+				query += STR( ",	RealField REAL" );
+				query += STR( ",	DoubleField DOUBLE" );
+				query += STR( ",	DoublePrecisionField DOUBLE PRECISION" );
+				query += STR( ",	FloatField FLOAT" );
+				query += STR( ",	NumericField NUMERIC" );
+				query += STR( ",	DecimalField DECIMAL(10,5)" );
+				query += STR( ",	BooleanField BOOLEAN" );
+				query += STR( ",	DateField DATE" );
+				query += STR( ",	DateTimeField DATETIME" );
+				query += STR( ",	CharacterField CHARACTER(20)" );
+				query += STR( ",	VarcharField VARCHAR(255)" );
+				query += STR( ",	VaryingcharField VARYING CHARACTER(255)" );
+				query += STR( ",	NcharField NCHAR(55)" );
+				query += STR( ",	NativeCharField NATIVE CHARACTER(70)" );
+				query += STR( ",	NVarcharField NVARCHAR(100)" );
+				query += STR( ",	TextField TEXT" );
+				query += STR( ",	ClobField CLOB" );
+				query += STR( ",	BlobField BLOB" );
+				query += STR( ");" );
+				connection->ExecuteUpdate( query );
+			}
+		}
+
+		delete database;
+		UnloadPlugins();
 		CLogger::LogMessage( StringStream() << "**** End TestCase_CreateDatabase ****" );
 	}
 

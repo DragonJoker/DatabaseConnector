@@ -31,7 +31,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	static const String DB_USER = STR( "ariaUser" );
 	static const String DB_PASS = STR( "ariaPwd" );
 
-	static const String DATABASE_MYSQL_TYPE = STR( "Aria.Database.MySql" );
+	static const String DATABASE_MYSQL_TYPE = STR( "Database.MySql" );
 
 	CDatabaseMySqlTest::CDatabaseMySqlTest()
 	{

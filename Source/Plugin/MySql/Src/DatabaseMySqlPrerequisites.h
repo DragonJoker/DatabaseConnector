@@ -49,7 +49,6 @@ BEGIN_NAMESPACE_DATABASE
 		// so decreases dependencies between files
 		class CDatabaseConnectionMySql;
 		class CDatabaseMySql;
-		class CDatabaseResultMySql;
 		class CDatabaseStatementMySql;
 		class CDatabaseStatementParameterMySql;
 		class CExceptionDatabaseMySql;
@@ -61,13 +60,12 @@ BEGIN_NAMESPACE_DATABASE
 		typedef std::shared_ptr< CDatabaseConnectionMySql > DatabaseConnectionMySqlPtr;
 		typedef std::shared_ptr< CDatabaseStatementMySql > DatabaseStatementMySqlPtr;
 		typedef std::shared_ptr< CDatabaseStatementParameterMySql > DatabaseStatementParameterMySqlPtr;
-		typedef std::shared_ptr< CDatabaseResultMySql > DatabaseResultMySqlPtr;
 
 		// Factory constants
 		const String FACTORY_DATABASE_MYSQL = STR( "Factory Database MySql" );
 
 		// Plugin constants
-		const String DATABASE_MYSQL_TYPE = STR( "Aria.Database.MySql" );
+		const String DATABASE_MYSQL_TYPE = STR( "Database.MySql" );
 		const String PLUGIN_NAME_DATABASE_MYSQL = STR( "Plugin Database MySql" );
 	}
 }

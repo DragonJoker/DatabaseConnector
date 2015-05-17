@@ -17,7 +17,6 @@
 
 #include "DatabaseConnectionMySql.h"
 #include "DatabaseMySql.h"
-#include "DatabaseResultMySql.h"
 #include "DatabaseStatementParameterMySql.h"
 #include "ExceptionDatabaseMySql.h"
 
@@ -181,10 +180,8 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	DatabaseResultPtr CDatabaseStatementMySql::ExecuteSelect( EErrorType * result )
 	{
 		DoPreExecute( result );
-
-		DatabaseResultMySqlPtr pReturn;
 		EErrorType eResult = EErrorType_NONE;
-		pReturn = _connectionMySql->ExecuteSelect( _statement );
+		DatabaseResultPtr pReturn = _connectionMySql->ExecuteSelect( _statement );
 		DoPostExecute( result );
 
 		if ( result )

@@ -307,7 +307,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		@return
 		    The result
 		*/
-		DatabaseResultMySqlPtr ExecuteSelect( std::shared_ptr< sql::PreparedStatement > statement );
+		DatabaseResultPtr ExecuteSelect( std::shared_ptr< sql::PreparedStatement > statement );
 
 		/** Executes a statement and retrieves the result set if needed
 		@param statement
@@ -327,7 +327,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		@return
 		    The result
 		*/
-		DatabaseResultMySqlPtr ExecuteSelect( std::shared_ptr< sql::Statement > statement, const String & query );
+		DatabaseResultPtr ExecuteSelect( std::shared_ptr< sql::Statement > statement, const String & query );
 
 	protected:
 		/** Connect to the database.
@@ -388,7 +388,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		@param rs
 		    The result set
 		*/
-		DatabaseResultMySqlPtr DoRetrieveResults( std::shared_ptr< sql::Statement > statement, std::shared_ptr< sql::ResultSet > rs );
+		DatabaseResultPtr DoRetrieveResults( std::shared_ptr< sql::Statement > statement, std::shared_ptr< sql::ResultSet > rs );
 
 	protected:
 		/// MySQL driver

@@ -15,7 +15,6 @@
 
 #include "DatabaseConnectionMySql.h"
 
-#include "DatabaseResultMySql.h"
 #include "DatabaseStatementMySql.h"
 #include "ExceptionDatabaseMySql.h"
 
@@ -45,6 +44,8 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	static const String ERROR_MYSQL_NOT_CONNECTED = STR( "Not connected" );
 	static const String ERROR_MYSQL_ALREADY_IN_TRANSACTION = STR( "Already in a transaction" );
 	static const String ERROR_MYSQL_NOT_IN_TRANSACTION = STR( "Not in a transaction" );
+	static const String ERROR_MYSQL_DRIVER = STR( "MYSQL Driver error : " );
+	static const String ERROR_MYSQL_UNKNOWN = STR( "Unknown error encountered while executing query" );
 
 	static const std::string MYSQL_NULL_STDSTRING = "NULL";
 	static const std::wstring MYSQL_NULL_STDWSTRING = L"NULL";
@@ -495,9 +496,9 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		return result;
 	}
 
-	DatabaseResultMySqlPtr CDatabaseConnectionMySql::ExecuteSelect( std::shared_ptr< sql::PreparedStatement > statement )
+	DatabaseResultPtr CDatabaseConnectionMySql::ExecuteSelect( std::shared_ptr< sql::PreparedStatement > statement )
 	{
-		DatabaseResultMySqlPtr result;
+		DatabaseResultPtr result;
 
 		try
 		{
@@ -537,10 +538,10 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		return result;
 	}
 
-	DatabaseResultMySqlPtr CDatabaseConnectionMySql::ExecuteSelect( std::shared_ptr< sql::Statement > statement, const String & query )
+	DatabaseResultPtr CDatabaseConnectionMySql::ExecuteSelect( std::shared_ptr< sql::Statement > statement, const String & query )
 	{
 		CLogger::LogMessage( STR( "Executing select : " ) + query );
-		DatabaseResultMySqlPtr result;
+		DatabaseResultPtr result;
 
 		try
 		{
@@ -692,16 +693,239 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		return pReturn;
 	}
 
-	DatabaseResultMySqlPtr CDatabaseConnectionMySql::DoRetrieveResults( std::shared_ptr< sql::Statement > statement, std::shared_ptr< sql::ResultSet > rs )
+	EFieldType GetFieldTypeFromSqlType( int sqlType )
 	{
-		DatabaseResultMySqlPtr pResult;
+		static EFieldType types[] =
+		{
+			EFieldType_NULL,            //!< UNKNOWN = 0
+			EFieldType_BOOL,            //!< BIT
+			EFieldType_SMALL_INTEGER,   //!< TINYINT
+			EFieldType_SMALL_INTEGER,   //!< SMALLINT
+			EFieldType_INTEGER,         //!< MEDIUMINT
+			EFieldType_INTEGER,         //!< INTEGER
+			EFieldType_LONG_INTEGER,    //!< BIGINT
+			EFieldType_FLOAT,           //!< REAL
+			EFieldType_DOUBLE,          //!< DOUBLE
+			EFieldType_DOUBLE,          //!< DECIMAL
+			EFieldType_DOUBLE,          //!< NUMERIC
+			EFieldType_VARCHAR,         //!< CHAR
+			EFieldType_BINARY,          //!< BINARY
+			EFieldType_VARCHAR,         //!< VARCHAR
+			EFieldType_VARBINARY,       //!< VARBINARY
+			EFieldType_TEXT,            //!< LONGVARCHAR
+			EFieldType_LONG_VARBINARY,  //!< LONGVARBINARY
+			EFieldType_DATETIME,        //!< TIMESTAMP
+			EFieldType_DATE,            //!< DATE
+			EFieldType_TIME,            //!< TIME
+			EFieldType_INTEGER,         //!< YEAR
+			EFieldType_NULL,            //!< GEOMETRY
+			EFieldType_NULL,            //!< ENUM
+			EFieldType_NULL,            //!< SET
+			EFieldType_NULL,            //!< SQLNULL
+		};
+
+		return types[sqlType];
+	}
+
+	DatabaseFieldInfosPtrArray GetColumns( std::shared_ptr< sql::ResultSet > rs, DatabaseConnectionPtr pConnexion )
+	{
+		DatabaseFieldInfosPtrArray arrayReturn;
+		StringArray aColumns;
+		String strColumnName;
+		sql::ResultSetMetaData * data = rs->getMetaData();
+		int iColumnCount = data->getColumnCount();
+
+		for ( int i = 0; i < iColumnCount; i++ )
+		{
+			strColumnName = CStrUtils::ToString( data->getColumnName( i ).asStdString() );
+			aColumns.push_back( strColumnName );
+			arrayReturn.push_back( std::make_shared< CDatabaseFieldInfos >( pConnexion, aColumns[i], GetFieldTypeFromSqlType( data->getColumnType( i ) ), data->getColumnDisplaySize( i ) ) );
+		}
+
+		return arrayReturn;
+	}
+
+	DatabaseResultPtr Execute( std::shared_ptr< sql::Statement > statement, std::shared_ptr< sql::ResultSet > rs, DatabaseFieldInfosPtrArray const & arrayColumns, DatabaseConnectionPtr pConnexion )
+	{
+		DatabaseResultPtr pReturn;
+
+		try
+		{
+			if ( pConnexion->IsConnected() )
+			{
+				pReturn = std::make_unique< CDatabaseResult >( pConnexion, arrayColumns );
+				int iNbColumns = int( arrayColumns.size() );
+
+				while ( rs->next() )
+				{
+					DatabaseRowPtr pRow = std::make_shared< CDatabaseRow >( pConnexion );
+
+					for ( int i = 0; i < iNbColumns; i++ )
+					{
+						DatabaseFieldInfosPtr pInfos;
+						DatabaseFieldPtr field;
+						bool null = true;
+
+						try
+						{
+							pInfos = pReturn->GetFieldInfos( i );
+						}
+						catch ( CExceptionDatabase & )
+						{
+							throw;
+						}
+
+						field = std::make_shared< CDatabaseField >( pInfos, null, String() );
+
+						MySQLTry( null = rs->isNull( i ), STR( "Is parameter null retrieval" ) );
+
+						if ( !null )
+						{
+							switch ( pInfos->GetType() )
+							{
+							case EFieldType_BOOL:
+								field->SetValueFast( rs->getBoolean( i ) );
+								break;
+
+							case EFieldType_SMALL_INTEGER:
+								field->SetValueFast( short( rs->getInt( i ) ) );
+								break;
+
+							case EFieldType_INTEGER:
+								field->SetValueFast( rs->getInt( i ) );
+								break;
+
+							case EFieldType_LONG_INTEGER:
+								field->SetValueFast( rs->getInt64( i ) );
+								break;
+
+							case EFieldType_FLOAT:
+								field->SetValueFast( float( rs->getDouble( i ) ) );
+								break;
+
+							case EFieldType_DOUBLE:
+								field->SetValueFast( double( rs->getDouble( i ) ) );
+								break;
+
+							case EFieldType_VARCHAR:
+								field->SetValueFast( std::string( rs->getString( i ) ).c_str() );
+								break;
+
+							case EFieldType_TEXT:
+								field->SetValueFast( std::string( rs->getString( i ) ) );
+								break;
+
+							case EFieldType_NVARCHAR:
+								field->SetValueFast( CStrUtils::ToWStr( rs->getString( i ) ).c_str() );
+								break;
+
+							case EFieldType_NTEXT:
+								field->SetValueFast( CStrUtils::ToWStr( rs->getString( i ) ) );
+								break;
+
+							case EFieldType_DATE:
+								field->SetValue( rs->getString( i ).asStdString() );
+								break;
+
+							case EFieldType_DATETIME:
+								field->SetValue( rs->getString( i ).asStdString() );
+								break;
+
+							case EFieldType_TIME:
+								field->SetValue( rs->getString( i ).asStdString() );
+								break;
+
+							case EFieldType_BINARY:
+							case EFieldType_VARBINARY:
+							case EFieldType_LONG_VARBINARY:
+								{
+									std::istream * blob = rs->getBlob( i );
+									std::vector< uint8_t > in;
+									std::copy(
+										std::istream_iterator< uint8_t >( *blob ),
+										std::istream_iterator< uint8_t >(),
+										std::back_inserter( in ) );
+									field->SetValueFast( in );
+									delete blob;
+								}
+								break;
+							}
+						}
+
+						pRow->AddField( field );
+					}
+
+					pReturn->AddRow( pRow );
+				}
+
+				if ( rs )
+				{
+					///@remarks Consume the result set
+					while ( rs->next() );
+					rs.reset();
+				}
+
+				///@remarks Flush the statement
+				try
+				{
+					bool hasResult = false;
+
+					while ( hasResult = statement->getMoreResults() )
+					{
+						rs.reset( statement->getResultSet() );
+						CLogger::LogDebug( "Success : Result set retrieval" );
+					}
+				}
+				catch ( sql::SQLException & e )
+				{
+					StringStream stream;
+					stream << "Failure : " << "Get more results" << std::endl;
+					stream << "    MySQL Error code : " << e.getErrorCode() << std::endl;
+					stream << "    SQL State : " << e.getSQLState().c_str() << std::endl;
+					stream << "    Why : " << e.what() << std::endl;
+					CLogger::LogDebug( stream.str() );
+				}
+			}
+		}
+		catch ( const CExceptionDatabase & e )
+		{
+			StringStream message;
+			message << ERROR_MYSQL_DRIVER << STR( " - " )
+					<< e.what();
+			CLogger::LogError( message );
+			throw CExceptionDatabaseMySql( EDatabaseMySqlExceptionCodes_GenericError, message.str(), __FUNCTION__, __FILE__, __LINE__ );
+		}
+		catch ( const std::exception & e )
+		{
+			StringStream message;
+			message << ERROR_MYSQL_DRIVER << STR( " - " )
+					<< e.what();
+			CLogger::LogError( message );
+			throw CExceptionDatabaseMySql( EDatabaseMySqlExceptionCodes_GenericError, message.str(), __FUNCTION__, __FILE__, __LINE__ );
+		}
+		catch ( ... )
+		{
+			StringStream message;
+			message << ERROR_MYSQL_DRIVER << STR( " - " )
+					<< ERROR_MYSQL_UNKNOWN;
+			CLogger::LogError( message );
+			throw CExceptionDatabaseMySql( EDatabaseMySqlExceptionCodes_UnknownError, message.str(), __FUNCTION__, __FILE__, __LINE__ );
+		}
+
+		return pReturn;
+	}
+
+	DatabaseResultPtr CDatabaseConnectionMySql::DoRetrieveResults( std::shared_ptr< sql::Statement > statement, std::shared_ptr< sql::ResultSet > rs )
+	{
+		DatabaseResultPtr pResult;
 
 		try
 		{
 			if ( rs )
 			{
-				pResult = std::make_shared< CDatabaseResultMySql >( shared_from_this(), statement );
-				pResult->Initialize( rs );
+				DatabaseConnectionPtr connection = shared_from_this();
+				DatabaseFieldInfosPtrArray columns = GetColumns( rs, connection );
+				pResult = Execute( statement, rs, columns, connection );
 			}
 		}
 		catch ( std::exception & exc )

@@ -473,7 +473,6 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			CLogger::LogError( std::string( exc.what() ) );
 		}
 
-		SQLite::Finalize( statement );
 		return result;
 	}
 
@@ -571,6 +570,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			else
 			{
 				ret = ExecuteUpdate( statement );
+				SQLite::Finalize( statement );
 			}
 		}
 		catch ( std::exception & exc )
@@ -617,6 +617,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			else
 			{
 				ret = ExecuteSelect( statement );
+				SQLite::Finalize( statement );
 			}
 		}
 		catch ( std::exception & exc )

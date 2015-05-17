@@ -120,14 +120,18 @@ if ( WIN32 )
     )
     
     find_library( MYSQL_CPP_LIBRARY_DYNAMIC_DEBUG
-        NAMES mysqlcppconnd
+        NAMES
+            mysqlcppconn
+            mysqlcppconnd
         PATHS
             ${MYSQL_CPP_ROOT_DIR}/lib/debug
         DOC "The MySQL library"
     )
 
     find_library( MYSQL_CPP_LIBRARY_STATIC_DEBUG
-        NAMES mysqlcppconn-staticd
+        NAMES
+            mysqlcppconn-static
+            mysqlcppconn-staticd
         PATHS
             ${MYSQL_CPP_ROOT_DIR}/lib/debug
         DOC "The MySQL static library"

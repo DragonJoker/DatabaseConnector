@@ -77,6 +77,220 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		return arrayReturn;
 	}
 
+	template< typename Value >
+	DatabaseFieldPtr ConstructField( SQLite::Statement * pStatement, int i, DatabaseFieldInfosPtr pInfos, Value value )
+	{
+		int iSize = SQLite::ColumnBytes( pStatement, i );
+		DatabaseFieldPtr pField;
+
+		if ( iSize == 0 )
+		{
+			pField = std::make_shared< CDatabaseField >( pInfos, true, String() );
+		}
+		else
+		{
+			pField = std::make_shared< CDatabaseField >( pInfos, value );
+		}
+
+		return pField;
+	}
+	
+	template< EFieldType Type > DatabaseFieldPtr GetValue( SQLite::Statement * pStatement, int i, DatabaseFieldInfosPtr pInfos );
+
+	template<>
+	DatabaseFieldPtr GetValue< EFieldType_BOOL >( SQLite::Statement * pStatement, int i, DatabaseFieldInfosPtr pInfos )
+	{
+		bool value = SQLite::ColumnInt( pStatement, i ) != 0;
+		return ConstructField( pStatement, i, pInfos, value );
+	}
+
+	template<>
+	DatabaseFieldPtr GetValue< EFieldType_SMALL_INTEGER >( SQLite::Statement * pStatement, int i, DatabaseFieldInfosPtr pInfos )
+	{
+		int value = SQLite::ColumnInt( pStatement, i );
+		return ConstructField( pStatement, i, pInfos, value );
+	}
+
+	template<>
+	DatabaseFieldPtr GetValue< EFieldType_INTEGER >( SQLite::Statement * pStatement, int i, DatabaseFieldInfosPtr pInfos )
+	{
+		int value = SQLite::ColumnInt( pStatement, i );
+		return ConstructField( pStatement, i, pInfos, value );
+	}
+
+	template<>
+	DatabaseFieldPtr GetValue< EFieldType_LONG_INTEGER >( SQLite::Statement * pStatement, int i, DatabaseFieldInfosPtr pInfos )
+	{
+		int64_t value = SQLite::ColumnInt64( pStatement, i );
+		return ConstructField( pStatement, i, pInfos, value );
+	}
+
+	template<>
+	DatabaseFieldPtr GetValue< EFieldType_FLOAT >( SQLite::Statement * pStatement, int i, DatabaseFieldInfosPtr pInfos )
+	{
+		float value = float( SQLite::ColumnDouble( pStatement, i ) );
+		return ConstructField( pStatement, i, pInfos, value );
+	}
+
+	template<>
+	DatabaseFieldPtr GetValue< EFieldType_DOUBLE >( SQLite::Statement * pStatement, int i, DatabaseFieldInfosPtr pInfos )
+	{
+		double value = SQLite::ColumnDouble( pStatement, i );
+		return ConstructField( pStatement, i, pInfos, value );
+	}
+
+	template<>
+	DatabaseFieldPtr GetValue< EFieldType_VARCHAR >( SQLite::Statement * pStatement, int i, DatabaseFieldInfosPtr pInfos )
+	{
+		DatabaseFieldPtr pField;
+		char * value = ( char * )SQLite::ColumnText( pStatement, i );
+		int iSize = SQLite::ColumnBytes( pStatement, i );
+
+		if ( !value || iSize == 0 )
+		{
+			pField = std::make_shared< CDatabaseField >( pInfos, true, String() );
+		}
+		else
+		{
+			pField = std::make_shared< CDatabaseField >( pInfos, value );
+		}
+
+		return pField;
+	}
+
+	template<>
+	DatabaseFieldPtr GetValue< EFieldType_TEXT >( SQLite::Statement * pStatement, int i, DatabaseFieldInfosPtr pInfos )
+	{
+		DatabaseFieldPtr pField;
+		char * value = ( char * )SQLite::ColumnText( pStatement, i );
+		int iSize = SQLite::ColumnBytes( pStatement, i );
+
+		if ( !value || iSize == 0 )
+		{
+			pField = std::make_shared< CDatabaseField >( pInfos, true, String() );
+		}
+		else
+		{
+			pField = std::make_shared< CDatabaseField >( pInfos, std::string( value ) );
+		}
+
+		return pField;
+	}
+
+	template<>
+	DatabaseFieldPtr GetValue< EFieldType_NVARCHAR >( SQLite::Statement * pStatement, int i, DatabaseFieldInfosPtr pInfos )
+	{
+		DatabaseFieldPtr pField;
+		wchar_t * value = ( wchar_t * )SQLite::ColumnText16( pStatement, i );
+		int iSize = SQLite::ColumnBytes( pStatement, i );
+
+		if ( !value || iSize == 0 )
+		{
+			pField = std::make_shared< CDatabaseField >( pInfos, true, String() );
+		}
+		else
+		{
+			pField = std::make_shared< CDatabaseField >( pInfos, value );
+		}
+
+		return pField;
+	}
+
+	template<>
+	DatabaseFieldPtr GetValue< EFieldType_NTEXT >( SQLite::Statement * pStatement, int i, DatabaseFieldInfosPtr pInfos )
+	{
+		DatabaseFieldPtr pField;
+		wchar_t * value = ( wchar_t * )SQLite::ColumnText16( pStatement, i );
+		int iSize = SQLite::ColumnBytes( pStatement, i );
+
+		if ( !value || iSize == 0 )
+		{
+			pField = std::make_shared< CDatabaseField >( pInfos, true, String() );
+		}
+		else
+		{
+			pField = std::make_shared< CDatabaseField >( pInfos, std::wstring( value ) );
+		}
+
+		return pField;
+	}
+
+	template<>
+	DatabaseFieldPtr GetValue< EFieldType_BINARY >( SQLite::Statement * pStatement, int i, DatabaseFieldInfosPtr pInfos )
+	{
+		DatabaseFieldPtr pField;
+		uint8_t * value = ( uint8_t * )SQLite::ColumnBlob( pStatement, i );
+		int iSize = SQLite::ColumnBytes( pStatement, i );
+
+		if ( !value || iSize == 0 )
+		{
+			pField = std::make_shared< CDatabaseField >( pInfos, true, String() );
+		}
+		else
+		{
+			pField = std::make_shared< CDatabaseField >( pInfos, value, value + iSize );
+		}
+
+		return pField;
+	}
+
+	template<>
+	DatabaseFieldPtr GetValue< EFieldType_VARBINARY >( SQLite::Statement * pStatement, int i, DatabaseFieldInfosPtr pInfos )
+	{
+		DatabaseFieldPtr pField;
+		uint8_t * value = ( uint8_t * )SQLite::ColumnBlob( pStatement, i );
+		int iSize = SQLite::ColumnBytes( pStatement, i );
+
+		if ( !value || iSize == 0 )
+		{
+			pField = std::make_shared< CDatabaseField >( pInfos, true, String() );
+		}
+		else
+		{
+			pField = std::make_shared< CDatabaseField >( pInfos, value, value + iSize );
+		}
+
+		return pField;
+	}
+
+	template<>
+	DatabaseFieldPtr GetValue< EFieldType_LONG_VARBINARY >( SQLite::Statement * pStatement, int i, DatabaseFieldInfosPtr pInfos )
+	{
+		DatabaseFieldPtr pField;
+		uint8_t * value = ( uint8_t * )SQLite::ColumnBlob( pStatement, i );
+		int iSize = SQLite::ColumnBytes( pStatement, i );
+
+		if ( !value || iSize == 0 )
+		{
+			pField = std::make_shared< CDatabaseField >( pInfos, true, String() );
+		}
+		else
+		{
+			pField = std::make_shared< CDatabaseField >( pInfos, value, value + iSize );
+		}
+
+		return pField;
+	}
+
+	template<>
+	DatabaseFieldPtr GetValue< EFieldType_NULL >( SQLite::Statement * pStatement, int i, DatabaseFieldInfosPtr pInfos )
+	{
+		DatabaseFieldPtr pField;
+		char * value = ( char * )SQLite::ColumnText( pStatement, i );
+		int iSize = SQLite::ColumnBytes( pStatement, i );
+
+		if ( !value || iSize == 0 )
+		{
+			pField = std::make_shared< CDatabaseField >( pInfos, true, String() );
+		}
+		else
+		{
+			pField = std::make_shared< CDatabaseField >( pInfos, !value, CStrUtils::ToString( value ) );
+		}
+
+		return pField;
+	}
+
 	DatabaseResultPtr SqliteExecute( SQLite::Statement * pStatement, SQLite::eCODE & code, DatabaseFieldInfosPtrArray const & arrayColumns, DatabaseConnectionPtr pConnexion )
 	{
 		DatabaseResultPtr pReturn;
@@ -86,19 +300,6 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 			pReturn = std::make_unique< CDatabaseResult >( pConnexion, arrayColumns );
 			code = SQLite::eCODE_OK;
-
-			bool bNull = false;
-			DatabaseFieldInfosPtr pInfos;
-			DatabaseRowPtr pRow;
-			DatabaseFieldPtr pField;
-			char * szValue;
-			unsigned char * pbyValue;
-			wchar_t * wszValue;
-			int iValue;
-			int64_t i64Value;
-			float fValue;
-			double dValue;
-			int iSize;
 			int iResult;
 			int iNbColumns = int( arrayColumns.size() );
 
@@ -106,10 +307,13 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			{
 				if ( iResult == SQLITE_ROW )
 				{
-					pRow = std::make_shared< CDatabaseRow >( pConnexion );
+					DatabaseRowPtr pRow = std::make_shared< CDatabaseRow >( pConnexion );
 
 					for ( int i = 0; i < iNbColumns; i++ )
 					{
+						DatabaseFieldInfosPtr pInfos;
+						DatabaseFieldPtr pField;
+
 						try
 						{
 							pInfos = pReturn->GetFieldInfos( i );
@@ -122,176 +326,55 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 						switch ( pInfos->GetType() )
 						{
 						case EFieldType_BOOL:
-							iValue = SQLite::ColumnInt( pStatement, i );
-							iSize = SQLite::ColumnBytes( pStatement, i );
-
-							if ( iSize == 0 )
-							{
-								pField = std::make_shared< CDatabaseField >( pInfos, true, String() );
-							}
-							else
-							{
-								pField = std::make_shared< CDatabaseField >( pInfos, bool( iValue != 0 ) );
-							}
-
+							pField = GetValue< EFieldType_BOOL >( pStatement, i, pInfos );
 							break;
 
 						case EFieldType_INTEGER:
-							iValue = SQLite::ColumnInt( pStatement, i );
-							iSize = SQLite::ColumnBytes( pStatement, i );
-
-							if ( iSize == 0 )
-							{
-								pField = std::make_shared< CDatabaseField >( pInfos, true, String() );
-							}
-							else
-							{
-								pField = std::make_shared< CDatabaseField >( pInfos, iValue );
-							}
-
+							pField = GetValue< EFieldType_INTEGER >( pStatement, i, pInfos );
 							break;
 
 						case EFieldType_LONG_INTEGER:
-							i64Value = SQLite::ColumnInt64( pStatement, i );
-							iSize = SQLite::ColumnBytes( pStatement, i );
-
-							if ( iSize == 0 )
-							{
-								pField = std::make_shared< CDatabaseField >( pInfos, true, String() );
-							}
-							else
-							{
-								pField = std::make_shared< CDatabaseField >( pInfos, i64Value );
-							}
-
+							pField = GetValue< EFieldType_LONG_INTEGER >( pStatement, i, pInfos );
 							break;
 
 						case EFieldType_FLOAT:
-							fValue = float( SQLite::ColumnDouble( pStatement, i ) );
-							iSize = SQLite::ColumnBytes( pStatement, i );
-
-							if ( iSize == 0 )
-							{
-								pField = std::make_shared< CDatabaseField >( pInfos, true, String() );
-							}
-							else
-							{
-								pField = std::make_shared< CDatabaseField >( pInfos, fValue );
-							}
-
+							pField = GetValue< EFieldType_FLOAT >( pStatement, i, pInfos );
 							break;
 
 						case EFieldType_DOUBLE:
-							dValue = SQLite::ColumnDouble( pStatement, i );
-							iSize = SQLite::ColumnBytes( pStatement, i );
-
-							if ( iSize == 0 )
-							{
-								pField = std::make_shared< CDatabaseField >( pInfos, true, String() );
-							}
-							else
-							{
-								pField = std::make_shared< CDatabaseField >( pInfos, dValue );
-							}
-
+							pField = GetValue< EFieldType_DOUBLE >( pStatement, i, pInfos );
 							break;
 
 						case EFieldType_VARCHAR:
-							szValue = ( char * )SQLite::ColumnText( pStatement, i );
-							iSize = SQLite::ColumnBytes( pStatement, i );
-							bNull = szValue ? false : true;
-
-							if ( bNull )
-							{
-								pField = std::make_shared< CDatabaseField >( pInfos, true, String() );
-							}
-							else
-							{
-								pField = std::make_shared< CDatabaseField >( pInfos, szValue );
-							}
-
+							pField = GetValue< EFieldType_VARCHAR >( pStatement, i, pInfos );
 							break;
 
 						case EFieldType_TEXT:
-							szValue = ( char * )SQLite::ColumnText( pStatement, i );
-							iSize = SQLite::ColumnBytes( pStatement, i );
-							bNull = szValue ? false : true;
-
-							if ( bNull )
-							{
-								pField = std::make_shared< CDatabaseField >( pInfos, true, String() );
-							}
-							else
-							{
-								pField = std::make_shared< CDatabaseField >( pInfos, std::string( szValue ) );
-							}
-
+							pField = GetValue< EFieldType_TEXT >( pStatement, i, pInfos );
 							break;
 
 						case EFieldType_NVARCHAR:
-							wszValue = ( wchar_t * )SQLite::ColumnText16( pStatement, i );
-							iSize = SQLite::ColumnBytes16( pStatement, i );
-							bNull = wszValue ? false : true;
-
-							if ( bNull )
-							{
-								pField = std::make_shared< CDatabaseField >( pInfos, true, String() );
-							}
-							else
-							{
-								pField = std::make_shared< CDatabaseField >( pInfos, wszValue );
-							}
-
+							pField = GetValue< EFieldType_NVARCHAR >( pStatement, i, pInfos );
 							break;
 
 						case EFieldType_NTEXT:
-							wszValue = ( wchar_t * )SQLite::ColumnText16( pStatement, i );
-							iSize = SQLite::ColumnBytes16( pStatement, i );
-							bNull = wszValue ? false : true;
-
-							if ( bNull )
-							{
-								pField = std::make_shared< CDatabaseField >( pInfos, true, String() );
-							}
-							else
-							{
-								pField = std::make_shared< CDatabaseField >( pInfos, std::wstring( wszValue ) );
-							}
-
+							pField = GetValue< EFieldType_NTEXT >( pStatement, i, pInfos );
 							break;
 
 						case EFieldType_BINARY:
+							pField = GetValue< EFieldType_BINARY >( pStatement, i, pInfos );
+							break;
+
 						case EFieldType_VARBINARY:
+							pField = GetValue< EFieldType_VARBINARY >( pStatement, i, pInfos );
+							break;
+
 						case EFieldType_LONG_VARBINARY:
-							pbyValue = ( unsigned char * )SQLite::ColumnBlob( pStatement, i );
-							iSize = SQLite::ColumnBytes( pStatement, i );
-							bNull = pbyValue ? false : true;
-
-							if ( bNull || iSize == 0 )
-							{
-								pField = std::make_shared< CDatabaseField >( pInfos, true, String() );
-							}
-							else
-							{
-								pField = std::make_shared< CDatabaseField >( pInfos, pbyValue, pbyValue + iSize );
-							}
-
+							pField = GetValue< EFieldType_LONG_VARBINARY >( pStatement, i, pInfos );
 							break;
 
 						default:
-							szValue = ( char * )SQLite::ColumnText( pStatement, i );
-							iSize = SQLite::ColumnBytes( pStatement, i );
-							bNull = szValue ? false : true;
-
-							if ( bNull || iSize == 0 )
-							{
-								pField = std::make_shared< CDatabaseField >( pInfos, true, String() );
-							}
-							else
-							{
-								pField = std::make_shared< CDatabaseField >( pInfos, bNull, CStrUtils::ToString( szValue ) );
-							}
-
+							pField = GetValue< EFieldType_NULL >( pStatement, i, pInfos );
 							break;
 						}
 
