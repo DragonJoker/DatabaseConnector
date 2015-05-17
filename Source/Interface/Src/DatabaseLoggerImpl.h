@@ -37,7 +37,7 @@ BEGIN_NAMESPACE_DATABASE
 	 *\param[in]	p_strLog	Le texte écrit
 	 *\param[in]	p_eLogType	Le type de log
 	 */
-	typedef void (LogCallback)( void * p_pCaller, String const & p_strLog, eLOG_TYPE p_eLogType );
+	typedef void ( LogCallback )( void * p_pCaller, String const & p_strLog, eLOG_TYPE p_eLogType );
 	/**
 	 *\~english
 	 *\brief		Typedef over a pointer to the logging callback function
@@ -61,7 +61,7 @@ BEGIN_NAMESPACE_DATABASE
 		struct stLOGGER_CALLBACK
 		{
 			PLogCallback	m_pfnCallback;
-			void *			m_pCaller;
+			void 	*		m_pCaller;
 		};
 		DECLARE_MAP( std::thread::id, stLOGGER_CALLBACK, LoggerCallback );
 		String				m_logFilePath[eLOG_TYPE_COUNT];
@@ -75,17 +75,17 @@ BEGIN_NAMESPACE_DATABASE
 		ILoggerImpl( eLOG_TYPE p_eLogLevel );
 		virtual ~ILoggerImpl();
 
-		void Initialise		( CLogger * p_pLogger );
-		void SetCallback	( PLogCallback p_pfnCallback, void * p_pCaller );
+		void Initialise( CLogger * p_pLogger );
+		void SetCallback( PLogCallback p_pfnCallback, void * p_pCaller );
 
-		void SetFileName	( String const & p_logFilePath, eLOG_TYPE p_eLogType );
+		void SetFileName( String const & p_logFilePath, eLOG_TYPE p_eLogType );
 
-		virtual void LogDebug	( String const & p_strToLog );
-		virtual void LogMessage	( String const & p_strToLog );
-		virtual void LogWarning	( String const & p_strToLog );
-		virtual bool LogError	( String const & p_strToLog );
+		virtual void LogDebug( String const & p_strToLog );
+		virtual void LogMessage( String const & p_strToLog );
+		virtual void LogWarning( String const & p_strToLog );
+		virtual bool LogError( String const & p_strToLog );
 
-		inline eLOG_TYPE	GetLogLevel	()const { return m_eLogLevel; }
+		inline eLOG_TYPE	GetLogLevel()const { return m_eLogLevel; }
 
 	private:
 		void DoLogMessage( String const & p_strToLog, eLOG_TYPE p_eLogType );

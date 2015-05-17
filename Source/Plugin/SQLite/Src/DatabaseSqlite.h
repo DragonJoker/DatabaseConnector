@@ -3,7 +3,7 @@
  * @author Sylvain Doremus
  * @version 1.0
  * @date 3/20/2014 2:47:39 PM
- * 
+ *
  *
  * @brief CDatabase class declaration.
  *
@@ -20,37 +20,37 @@
 
 BEGIN_NAMESPACE_DATABASE_SQLITE
 {
-    /** Describes an SQLite database.
-    */
-    class CDatabaseSqlite
-        : public CDatabase
-    {
-    public:
-    
-        /** Default constructor.
-         */
-        DatabaseSqliteExport CDatabaseSqlite();
-        
-        /** Destructor.
-         */
-        DatabaseSqliteExport virtual ~CDatabaseSqlite();
-        
-        ///@copydoc Areva::ARIA::Native::CObject::GetType
-        DatabaseSqliteExport virtual const String & GetType()const;
-        
-        /** Creator function
-         */
-        DatabaseSqliteExport static CDatabase * Create();
-        
-    protected:
-        /** Create a connection to the database.
-        @param[out] connectionString
-            Created connection string.
-        @return
-            Database connection.
-        */
-        DatabaseSqliteExport virtual DatabaseConnectionPtr DoCreateConnection( String & connectionString ) const;
-    };
+	/** Describes an SQLite database.
+	*/
+	class CDatabaseSqlite
+		: public CDatabase
+	{
+	public:
+
+		/** Default constructor.
+		 */
+		DatabaseSqliteExport CDatabaseSqlite();
+
+		/** Destructor.
+		 */
+		DatabaseSqliteExport virtual ~CDatabaseSqlite();
+
+		///@copydoc Areva::ARIA::Native::CObject::GetType
+		DatabaseSqliteExport virtual const String & GetType()const;
+
+		/** Creator function
+		 */
+		DatabaseSqliteExport static CDatabase * Create();
+
+	protected:
+		/** Create a connection to the database.
+		@param[out] connectionString
+		    Created connection string.
+		@return
+		    Database connection.
+		*/
+		DatabaseSqliteExport virtual DatabaseConnectionPtr DoCreateConnection( String & connectionString ) const;
+	};
 }
 END_NAMESPACE_DATABASE_SQLITE
 

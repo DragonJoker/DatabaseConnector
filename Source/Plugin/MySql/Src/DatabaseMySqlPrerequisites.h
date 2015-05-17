@@ -3,7 +3,7 @@
  * @author Sylvain Doremus
  * @version 1.0
  * @date 03/14/2014 11:48:00 AM
- * 
+ *
  *
  * @brief Database MYSQL prerequisite header.
  *
@@ -26,10 +26,10 @@
 
 BEGIN_NAMESPACE_DATABASE
 {
-    /** MYSQL namespace
-    */
-    namespace MySql
-    {
+	/** MYSQL namespace
+	*/
+	namespace MySql
+	{
 #if ( PLATFORM == PLATFORM_WIN32 ) && !defined ( __MINGW32__ ) && !defined ( STATIC_LIB )
 #    ifdef DatabasePluginMySql_EXPORTS
 #        define DatabaseMySqlExport __declspec ( dllexport )
@@ -43,33 +43,33 @@ BEGIN_NAMESPACE_DATABASE
 #else
 #    define DatabaseMySqlExport
 #endif
-        
-        // Pre-declare classes
-        // Allows use of pointers in header files without including individual .h
-        // so decreases dependencies between files
-        class CDatabaseConnectionMySql;
-        class CDatabaseMySql;
-        class CDatabaseResultMySql;
-        class CDatabaseStatementMySql;
-        class CDatabaseStatementParameterMySql;
-        class CExceptionDatabaseMySql;
-        class CPluginDatabaseMySql;
-        class CFactoryDatabaseMySql;
-        struct SParameterValueSetterBase;
-        
-        // Pointers
-        typedef std::shared_ptr< CDatabaseConnectionMySql > DatabaseConnectionMySqlPtr;
-        typedef std::shared_ptr< CDatabaseStatementMySql > DatabaseStatementMySqlPtr;
-        typedef std::shared_ptr< CDatabaseStatementParameterMySql > DatabaseStatementParameterMySqlPtr;
-        typedef std::shared_ptr< CDatabaseResultMySql > DatabaseResultMySqlPtr;
-        
-        // Factory constants
-        const String FACTORY_DATABASE_MYSQL = STR( "Factory Database MySql" );
-        
-        // Plugin constants
-        const String DATABASE_MYSQL_TYPE = STR( "Aria.Database.MySql" );
-        const String PLUGIN_NAME_DATABASE_MYSQL = STR( "Plugin Database MySql" );
-    }
+
+		// Pre-declare classes
+		// Allows use of pointers in header files without including individual .h
+		// so decreases dependencies between files
+		class CDatabaseConnectionMySql;
+		class CDatabaseMySql;
+		class CDatabaseResultMySql;
+		class CDatabaseStatementMySql;
+		class CDatabaseStatementParameterMySql;
+		class CExceptionDatabaseMySql;
+		class CPluginDatabaseMySql;
+		class CFactoryDatabaseMySql;
+		struct SParameterValueSetterBase;
+
+		// Pointers
+		typedef std::shared_ptr< CDatabaseConnectionMySql > DatabaseConnectionMySqlPtr;
+		typedef std::shared_ptr< CDatabaseStatementMySql > DatabaseStatementMySqlPtr;
+		typedef std::shared_ptr< CDatabaseStatementParameterMySql > DatabaseStatementParameterMySqlPtr;
+		typedef std::shared_ptr< CDatabaseResultMySql > DatabaseResultMySqlPtr;
+
+		// Factory constants
+		const String FACTORY_DATABASE_MYSQL = STR( "Factory Database MySql" );
+
+		// Plugin constants
+		const String DATABASE_MYSQL_TYPE = STR( "Aria.Database.MySql" );
+		const String PLUGIN_NAME_DATABASE_MYSQL = STR( "Plugin Database MySql" );
+	}
 }
 END_NAMESPACE_DATABASE
 

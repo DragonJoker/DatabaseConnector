@@ -22,4 +22,5 @@ add_target(
 )
 
 set_property( TARGET DatabasePluginSqlite PROPERTY FOLDER "Plugin/SQLite" )
+add_target_astyle( DatabasePluginSqlite ".h;.hpp;.inl;.cpp" )
 set( Build "yes" PARENT_SCOPE )

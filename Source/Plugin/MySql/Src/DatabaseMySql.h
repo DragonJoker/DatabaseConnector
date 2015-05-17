@@ -3,7 +3,7 @@
  * @author Sylvain Doremus
  * @version 1.0
  * @date 3/20/2014 2:47:39 PM
- * 
+ *
  *
  * @brief CDatabase class declaration.
  *
@@ -22,41 +22,41 @@
 
 BEGIN_NAMESPACE_DATABASE_MYSQL
 {
-    /** Describes an MYSQL database.
-    */
-    class CDatabaseMySql
-        : public CDatabase
-    {
-    public:
-    
-        /** Default constructor.
-         */
-        DatabaseMySqlExport CDatabaseMySql();
-        
-        /** Destructor.
-         */
-        DatabaseMySqlExport virtual ~CDatabaseMySql();
-        
-        ///@copydoc Areva::ARIA::Native::CObject::GetType
-        DatabaseMySqlExport virtual const String & GetType()const;
-        
-        /** Creator function
-         */
-        DatabaseMySqlExport static CDatabase * Create();
-        
-    protected:
-        /** Create a connection to the database.
-        @param[out] connectionString
-            Created connection string.
-        @return
-            Database connection.
-        */
-        DatabaseMySqlExport virtual DatabaseConnectionPtr DoCreateConnection( String & connectionString ) const;
-        
-        /// MySQL driver
-        sql::Driver * _driver;
-        
-    };
+	/** Describes an MYSQL database.
+	*/
+	class CDatabaseMySql
+		: public CDatabase
+	{
+	public:
+
+		/** Default constructor.
+		 */
+		DatabaseMySqlExport CDatabaseMySql();
+
+		/** Destructor.
+		 */
+		DatabaseMySqlExport virtual ~CDatabaseMySql();
+
+		///@copydoc Areva::ARIA::Native::CObject::GetType
+		DatabaseMySqlExport virtual const String & GetType()const;
+
+		/** Creator function
+		 */
+		DatabaseMySqlExport static CDatabase * Create();
+
+	protected:
+		/** Create a connection to the database.
+		@param[out] connectionString
+		    Created connection string.
+		@return
+		    Database connection.
+		*/
+		DatabaseMySqlExport virtual DatabaseConnectionPtr DoCreateConnection( String & connectionString ) const;
+
+		/// MySQL driver
+		sql::Driver * _driver;
+
+	};
 }
 END_NAMESPACE_DATABASE_MYSQL
 

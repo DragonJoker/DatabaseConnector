@@ -1,35 +1,25 @@
-#--------------------------------------------------------------------------------------------------
-#	Macro :	msg_debug
-#	Used to print debug messages
-#--------------------------------------------------------------------------------------------------
-macro(msg_debug	msg)
-#	message( STATUS "${msg}")
-endmacro(msg_debug)
-#--------------------------------------------------------------------------------------------------
-#	Macro :	copy_languages
-#	Used to copy language files for TargetName from SrcFolder to DstFolder
-#--------------------------------------------------------------------------------------------------
-macro( copy_languages TargetName SrcFolder DstFolder )
-	# Copying internationalisation files (french, for now) for ${TargetName}
-	if( MSVC )
-		file( MAKE_DIRECTORY "${PROJECTS_BINARIES_OUTPUT_PATH}/Debug/share/${DstFolder}")
-		file( MAKE_DIRECTORY "${PROJECTS_BINARIES_OUTPUT_PATH}/Debug/share/${DstFolder}/fr")
-		file( MAKE_DIRECTORY "${PROJECTS_BINARIES_OUTPUT_PATH}/Release/share/${DstFolder}")
-		file( MAKE_DIRECTORY "${PROJECTS_BINARIES_OUTPUT_PATH}/Release/share/${DstFolder}/fr")
-		file( COPY ${SrcFolder}/po/fr/${TargetName}.mo DESTINATION ${PLUGINS_OUTPUT_PATH}/Debug/${DstFolder}/fr)
-		file( COPY ${SrcFolder}/po/fr/${TargetName}.mo DESTINATION ${PLUGINS_OUTPUT_PATH}/Release/${DstFolder}/fr)
-		file( COPY ${SrcFolder}/po/fr/${TargetName}.mo DESTINATION ${PROJECTS_BINARIES_OUTPUT_PATH}/Debug/share/${DstFolder}/fr)
-		file( COPY ${SrcFolder}/po/fr/${TargetName}.mo DESTINATION ${PROJECTS_BINARIES_OUTPUT_PATH}/Release/share/${DstFolder}/fr)
-	else()
-		file( MAKE_DIRECTORY "${PROJECTS_BINARIES_OUTPUT_PATH}/share/${DstFolder}")
-		file( MAKE_DIRECTORY "${PROJECTS_BINARIES_OUTPUT_PATH}/share/${DstFolder}/fr")
-		file( COPY ${SrcFolder}/po/fr/${TargetName}.mo DESTINATION ${PROJECTS_BINARIES_OUTPUT_PATH}/share/${DstFolder}/fr)
-		install(
-			FILES ${SrcFolder}/po/fr/${TargetName}.mo
-			DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${DstFolder}/fr/
-		)
+include( Languages )
+include( Logging )
+include( CompilerVersion )
+include( CompilationFlags )
+include( ComputeAbi )
+
+if( MSVC )
+	find_package( VLD )
+endif()
+if( VLD_FOUND )
+	message( STATUS "+ Found Visual Leak Detector" )
+	option( PROJECTS_USE_VLD "Use Visual Leaks Detector" TRUE )
+	if ( PROJECTS_USE_VLD )
+		include_directories( ${VLD_INCLUDE_DIR} )
+		link_directories( ${VLD_LIBRARY_DIR} )
+		set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DVLD_AVAILABLE")
+		set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -DVLD_AVAILABLE")
+		msg_debug( "Using Visual Leak Detector to check for Memory leaks" )
 	endif()
-endmacro()
+else ()
+	set( PROJECTS_USE_VLD FALSE )
+endif ()
 
 set( PROJECTS_VERSION "" )
 set( PROJECTS_SOVERSION "" )
@@ -40,507 +30,347 @@ endif()
 #--------------------------------------------------------------------------------------------------
 #	Defining output paths for each project configuration
 #--------------------------------------------------------------------------------------------------
-if(MSVC)
-	if( (CMAKE_CL_64 OR CMAKE_GENERATOR MATCHES Win64) )
-        option( PROJECTS_AMD64 "Compile in 64 bits (for AMD64 or X64)" TRUE )
-    else()
-        option( PROJECTS_AMD64 "Compile in 64 bits (for AMD64 or X64)" FALSE )
-	endif()
-elseif(CMAKE_COMPILER_IS_GNUCXX)
-	if( (${CMAKE_SIZEOF_VOID_P} EQUAL 8) )
-        option( PROJECTS_AMD64 "Compile in 64 bits (for AMD64 or X64)" TRUE )
-    else()
-        option( PROJECTS_AMD64 "Compile in 64 bits (for AMD64 or X64)" FALSE )
-	endif()
-elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
-	if( (${CMAKE_SIZEOF_VOID_P} EQUAL 8) )
-        option( PROJECTS_AMD64 "Compile in 64 bits (for AMD64 or X64)" TRUE )
-    else()
-        option( PROJECTS_AMD64 "Compile in 64 bits (for AMD64 or X64)" FALSE )
-	endif()
+if ( MSVC )
+	option( PROJECTS_PROFILING "Activate code profiling or not" FALSE )
 endif()
-set( PLATFORM "x86" )
-if(MSVC)
-	if( (CMAKE_CL_64 OR CMAKE_GENERATOR MATCHES Win64) AND ${PROJECTS_AMD64} )
-		set(PROJECTS_PLATFORM_FLAGS "/MACHINE:X64")
-        set( PLATFORM "x64" )
-	else()
-		set(PROJECTS_PLATFORM_FLAGS "/MACHINE:X86")
-	endif()
-elseif(CMAKE_COMPILER_IS_GNUCXX)
-	if( (${CMAKE_SIZEOF_VOID_P} EQUAL 8) AND ${PROJECTS_AMD64} )
-		set(PROJECTS_PLATFORM_FLAGS "-m64")
-        set( PLATFORM "x64" )
-	else()
-		set(PROJECTS_PLATFORM_FLAGS "-m32")
-	endif()
-elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
-	if( (${CMAKE_SIZEOF_VOID_P} EQUAL 8) AND ${PROJECTS_AMD64} )
-		set(PROJECTS_PLATFORM_FLAGS "-m64")
-        set( PLATFORM "x64" )
-	else()
-		set(PROJECTS_PLATFORM_FLAGS "-m32")
-	endif()
-endif()
-if(MSVC)
-	if("${PROJECTS_PROFILING}" STREQUAL "")
-		set( PROJECTS_PROFILING 	0 CACHE BOOL "Activate code profiling or not")
-	endif()
-endif()
-if("${PROJECTS_BINARIES_OUTPUT_PATH}" STREQUAL "")
-    set( PROJECTS_BINARIES_OUTPUT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../binaries/${PLATFORM}" CACHE PATH "The path to the built binaries" )
-endif()
-if(NOT "${CMAKE_BUILD_TYPE}" STREQUAL "")
-	set( PROJECTS_BINARIES_OUTPUT_PATH	"${PROJECTS_BINARIES_OUTPUT_PATH}/${CMAKE_BUILD_TYPE}")
-	set( EXECUTABLE_OUTPUT_PATH 		"${PROJECTS_BINARIES_OUTPUT_PATH}/bin")
-	set( LIBRARY_OUTPUT_PATH 			"${PROJECTS_BINARIES_OUTPUT_PATH}/lib")
-	set( RUNTIME_OUTPUT_DIRECTORY		"${PROJECTS_BINARIES_OUTPUT_PATH}/bin")
-	set( PLUGINS_OUTPUT_PATH 			"${PROJECTS_BINARIES_OUTPUT_PATH}/share/${ProjectName}")
-	#Creating folders
-	file( MAKE_DIRECTORY "${PROJECTS_BINARIES_OUTPUT_PATH}/bin")
-	file( MAKE_DIRECTORY "${PROJECTS_BINARIES_OUTPUT_PATH}/lib")
-	file( MAKE_DIRECTORY "${PROJECTS_BINARIES_OUTPUT_PATH}/share")
-	file( MAKE_DIRECTORY "${PROJECTS_BINARIES_OUTPUT_PATH}/share/${ProjectName}")
-elseif(MSVC)
-	# With VisualStudio, we build in a temp dir then we copy in binaries dir
-    if("${PROJECTS_BINTEMP_OUTPUT_PATH}" STREQUAL "")
-        set( PROJECTS_BINTEMP_OUTPUT_PATH 	"${CMAKE_CURRENT_SOURCE_DIR}/../bin_temp/${PLATFORM}" CACHE PATH "Path to temporary binaries")
-    endif()
-	set( EXECUTABLE_OUTPUT_PATH 	"${PROJECTS_BINTEMP_OUTPUT_PATH}/bin")
-	set( LIBRARY_OUTPUT_PATH 		"${PROJECTS_BINTEMP_OUTPUT_PATH}/lib")
-	set( RUNTIME_OUTPUT_DIRECTORY	"${PROJECTS_BINTEMP_OUTPUT_PATH}/bin")
-	set( PLUGINS_OUTPUT_PATH 		"${PROJECTS_BINTEMP_OUTPUT_PATH}/share")
-	#Creating folders
-	file( MAKE_DIRECTORY "${PROJECTS_BINARIES_OUTPUT_PATH}/Debug/bin")
-	file( MAKE_DIRECTORY "${PROJECTS_BINARIES_OUTPUT_PATH}/Debug/lib")
-	file( MAKE_DIRECTORY "${PROJECTS_BINARIES_OUTPUT_PATH}/Debug/share")
-	file( MAKE_DIRECTORY "${PROJECTS_BINARIES_OUTPUT_PATH}/Debug/share/${ProjectName}")
-	file( MAKE_DIRECTORY "${PROJECTS_BINARIES_OUTPUT_PATH}/Release/bin")
-	file( MAKE_DIRECTORY "${PROJECTS_BINARIES_OUTPUT_PATH}/Release/lib")
-	file( MAKE_DIRECTORY "${PROJECTS_BINARIES_OUTPUT_PATH}/Release/share")
-	file( MAKE_DIRECTORY "${PROJECTS_BINARIES_OUTPUT_PATH}/Release/share/${ProjectName}")
-else ()
-	MESSAGE( ERROR " Choose CMAKE_BUILD_TYPE please" )
-endif()
-msg_debug(	"BINARIES_OUTPUT_PATH :     ${PROJECTS_BINARIES_OUTPUT_PATH}"	)
-msg_debug(	"EXECUTABLE_OUTPUT_PATH :   ${EXECUTABLE_OUTPUT_PATH}"			)
-msg_debug(	"LIBRARY_OUTPUT_PATH :      ${LIBRARY_OUTPUT_PATH}"				)
-msg_debug(	"RUNTIME_OUTPUT_DIRECTORY : ${RUNTIME_OUTPUT_DIRECTORY}"		)
-msg_debug(	"PLUGINS_OUTPUT_PATH :      ${PLUGINS_OUTPUT_PATH}"				)
 
-#--------------------------------------------------------------------------------------------------
-#	Function :	COMPILER_DUMPVERSION
-# 	Function which gives the GNU Compiler version, used to build name of project's libs
-#--------------------------------------------------------------------------------------------------
-function( COMPILER_DUMPVERSION OUTPUT_VERSION)
-	exec_program(${CMAKE_CXX_COMPILER} ARGS ${CMAKE_CXX_COMPILER_ARG1} -dumpversion OUTPUT_VARIABLE COMPILER_VERSION)
-	string(REGEX REPLACE "([0-9])\\.([0-9])(\\.[0-9])?" "\\1\\2" COMPILER_VERSION ${COMPILER_VERSION})
-	set(${OUTPUT_VERSION} ${COMPILER_VERSION} PARENT_SCOPE)
-endfunction()
+set( PROJECTS_PLATFORM "x86" )
+if ( MSVC )
+	if( (CMAKE_CL_64 OR CMAKE_GENERATOR MATCHES Win64) )
+		set( PROJECTS_PLATFORM_FLAGS "/MACHINE:X64" )
+		set( PROJECTS_PLATFORM "x64" )
+	else()
+		set( PROJECTS_PLATFORM_FLAGS "/MACHINE:X86" )
+	endif()
+else()
+	if( (${CMAKE_SIZEOF_VOID_P} EQUAL 8) AND NOT MINGW )
+		set( PROJECTS_PLATFORM_FLAGS "-m64" )
+		if ( WIN32 )
+			set( PROJECTS_PLATFORM "x64" )
+		else ()
+			set( PROJECTS_PLATFORM "amd64" )
+		endif ()
+	else()
+		set( PROJECTS_PLATFORM_FLAGS "-m32" )
+	endif()
+endif()
+
+get_filename_component( CMAKE_PARENT_DIR ${CMAKE_CURRENT_SOURCE_DIR} PATH )
+
+set( PROJECTS_TEMPLATES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/CMake/Templates )
+
+if("${PROJECTS_BINARIES_OUTPUT_DIR}" STREQUAL "")
+    set( PROJECTS_BINARIES_OUTPUT_DIR "${CMAKE_PARENT_DIR}/binaries/${PROJECTS_PLATFORM}" CACHE PATH "The path to the built binaries" )
+endif()
+if("${PROJECTS_SETUP_OUTPUT_DIR}" STREQUAL "")
+    set( PROJECTS_SETUP_OUTPUT_DIR "${CMAKE_PARENT_DIR}/setup/${PROJECTS_PLATFORM}" CACHE PATH "The path to the built setup packages" )
+endif()
+if("${PROJECTS_DOCUMENTATION_OUTPUT_DIR}" STREQUAL "")
+    set( PROJECTS_DOCUMENTATION_OUTPUT_DIR "${CMAKE_PARENT_DIR}/doc/${PROJECTS_PLATFORM}" CACHE PATH "The path to the built documentation" )
+endif()
+
+set( PROJECTS_BINARIES_OUTPUT_DIR_RELEASE ${PROJECTS_BINARIES_OUTPUT_DIR}/Release )
+set( PROJECTS_BINARIES_OUTPUT_DIR_DEBUG ${PROJECTS_BINARIES_OUTPUT_DIR}/Debug )
+
+set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG "${PROJECTS_BINARIES_OUTPUT_DIR_DEBUG}/lib/" )
+set( CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG "${PROJECTS_BINARIES_OUTPUT_DIR_DEBUG}/lib/" )
+set( CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${PROJECTS_BINARIES_OUTPUT_DIR_DEBUG}/bin/" )
+set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE "${PROJECTS_BINARIES_OUTPUT_DIR_RELEASE}/lib/" )
+set( CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE "${PROJECTS_BINARIES_OUTPUT_DIR_RELEASE}/lib/" )
+set( CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${PROJECTS_BINARIES_OUTPUT_DIR_RELEASE}/bin/" )
+
+msg_debug(	"PROJECTS_BINARIES_OUTPUT_DIR               ${PROJECTS_BINARIES_OUTPUT_DIR}" )
+msg_debug(	"CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG       ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG}" )
+msg_debug(	"CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG       ${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}" )
+msg_debug(	"CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG       ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}" )
+msg_debug(	"CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE     ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE}" )
+msg_debug(	"CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE     ${CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE}" )
+msg_debug(	"CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE     ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}" )
 
 #--------------------------------------------------------------------------------------------------
 #	Function :	add_target
 #	Main function, used to create a target of given type, with it's dependencies and libraries
 #--------------------------------------------------------------------------------------------------
-function( add_target TargetName StrType Dependencies Links PchHeader PchCpp OptCFlags OptCxxFlags SrcPrefix)
+function( add_target TARGET_NAME TARGET_TYPE TARGET_DEPENDENCIES TARGET_LINKS )# ARGV4=PCH_HEADER ARGV5=PCH_CPP ARGV6=OPT_C_FLAGS ARGV7=OPT_CXX_FLAGS ARGV8=OPT_LINK_FLAGS ARGV9=OPT_FILES
+	set( PCH_HEADER "${ARGV4}" )
+	set( PCH_CPP "${ARGV5}" )
+	set( OPT_C_FLAGS "${ARGV6}" )
+	set( OPT_CXX_FLAGS "${ARGV7}" )
+	set( OPT_LINK_FLAGS "${ARGV8}" )
+	set( OPT_FILES "${ARGV9}" )
 	if((NOT "${CMAKE_BUILD_TYPE}" STREQUAL "") OR MSVC)
-		msg_debug("----------------------------------------------------------------------------------------------------")
-		message( STATUS "Type :  ${StrType}  - Target :  ${TargetName}" )
+		msg_debug( "----------------------------------------------------------------------------------------------------" )
+		msg_debug( "Type : 	${TARGET_TYPE} 	- Target : 	${TARGET_NAME}" )
+		msg_debug( "PCH_HEADER            [${PCH_HEADER}]" )
+		msg_debug( "PCH_CPP               [${PCH_CPP}]" )
+		msg_debug( "OPT_C_FLAGS           [${OPT_C_FLAGS}]" )
+		msg_debug( "OPT_CXX_FLAGS         [${OPT_CXX_FLAGS}]" )
 		#First we retrieve the kind of target we will build
-		string( COMPARE EQUAL ${StrType} 	"dll" 				IsDll)		#A dll will be installed in <install_dir>/bin
-		string( COMPARE EQUAL ${StrType} 	"lib" 				IsLib)		#A lib will be installed in <install_dir>/lib
-		string( COMPARE EQUAL ${StrType} 	"bin" 				IsBin)		#A binary will be installed in <install_dir>/bin
-		string( COMPARE EQUAL ${StrType}	"bin_dos"			IsBinDos)	#A dos binary will be installed in <install_dir>/bin and will have a console
-		string( COMPARE EQUAL ${StrType} 	"plugin"			IsPlugin)	#A plugin will be installed in <install_dir>/share/${ProjectName}
-		string( COMPARE EQUAL ${TargetName} "GlRenderSystem"	IsGlDll)
-		string( COMPARE EQUAL ${TargetName} "Dx9RenderSystem"	IsDx9Dll)
-		string( COMPARE EQUAL ${TargetName}	"CastorUtils" 		IsUtils)
-		string( COMPARE EQUAL ${TargetName}	"GuiCommon" 		IsGuiCommon)
-		SET( ${TargetName}_SrcPrefix "" )
-		if( NOT "${SrcPrefix}" STREQUAL "" )
-			SET( ${TargetName}_SrcPrefix "${SrcPrefix}/" )
-			include_directories( ${${TargetName}_SrcPrefix}include )
-		endif()
-		#Optional prefix (for lib, dll and plugin)
-		set( ${TargetName}_Prefix 	"")
-		#Optional suffix
-		set( ${TargetName}_Suffix 	"")
-		#We now compute the ABI name of the target (dlls and plugins only)
-		if (IsDll)
-			set( OptCFlags "${OptCFlags} -D${TargetName}_EXPORTS" )
-			set( OptCxxFlags "${OptCxxFlags} -D${TargetName}_EXPORTS" )
-			set( OptCFlags "${OptCFlags} -D${TargetName}_SHARED" )
-			set( OptCxxFlags "${OptCxxFlags} -D${TargetName}_SHARED" )
-			if (WIN32)
-				set( ${TargetName}_Suffix 	".dll")
-			else()
-				set( ${TargetName}_Suffix 	".so")
-			endif()
-		elseif (IsPlugin)
-			set( OptCFlags "${OptCFlags} -D${TargetName}_EXPORTS" )
-			set( OptCxxFlags "${OptCxxFlags} -D${TargetName}_EXPORTS" )
-			if (WIN32)
-				set( ${TargetName}_Suffix 	".dll")
-			else()
-				set( ${TargetName}_Suffix 	".so")
-			endif()
-			if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel" OR "${CMAKE_CXX_COMPILER}" MATCHES "icl" OR "${CMAKE_CXX_COMPILER}" MATCHES "icpc")
-				set( ${TargetName}_Prefix "")
-			elseif (MSVC)
-				set( ${TargetName}_Prefix "")
-			elseif (BORLAND)
-				set( ${TargetName}_Prefix "")
-			elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "SunPro")
-				set( ${TargetName}_Prefix "")
-			elseif (MINGW)
-				set( ${TargetName}_Prefix "lib")
-			elseif (UNIX)
-				set( ${TargetName}_Prefix "lib")
-			else ()
-				set( ${TargetName}_Prefix "lib")
-			endif()
-		elseif (IsLib)
-			if (WIN32)
-				set( ${TargetName}_Suffix 	".lib")
-			else()
-				set( ${TargetName}_Suffix 	".a")
-			endif()
-			if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel" OR "${CMAKE_CXX_COMPILER}" MATCHES "icl" OR "${CMAKE_CXX_COMPILER}" MATCHES "icpc")
-				#Intel compiler
-				if(WIN32)
-					set( ${TargetName}_ABI_Name "-iw")
-				else()
-					set( ${TargetName}_ABI_Name "-il")
-				endif()
-				set( ${TargetName}_ABI_Name_Debug "-d")
-			elseif (MSVC12)
-				#Visual Studio 2013
-				set( ${TargetName}_ABI_Name "-vc120")
-				set( ${TargetName}_ABI_Name_Debug "-d")
-			elseif (MSVC11)
-				#Visual Studio 2012
-				set( ${TargetName}_ABI_Name "-vc110")
-				set( ${TargetName}_ABI_Name_Debug "-d")
-			elseif (MSVC10)
-				#Visual Studio 2010
-				set( ${TargetName}_ABI_Name "-vc100")
-				set( ${TargetName}_ABI_Name_Debug "-d")
-			elseif (MSVC90)
-				#Visual Studio 2008
-				set( ${TargetName}_ABI_Name "-vc90")
-				set( ${TargetName}_ABI_Name_Debug "-d")
-			elseif (MSVC80)
-				#Visual Studio 2005
-				set( ${TargetName}_ABI_Name "-vc80")
-				set( ${TargetName}_ABI_Name_Debug "-d")
-			elseif (MSVC71)
-				#Visual Studio 2003
-				set( ${TargetName}_ABI_Name "-vc71")
-				set( ${TargetName}_ABI_Name_Debug "-d")
-			elseif (MSVC70)
-				#Visual Studio 7
-				set( ${TargetName}_ABI_Name "-vc7")
-				set( ${TargetName}_ABI_Name_Debug "-d")
-			elseif (MSVC60)
-				#Visual Studio 6
-				set( ${TargetName}_ABI_Name "-vc6")
-				set( ${TargetName}_ABI_Name_Debug "-d")
-			elseif (BORLAND)
-				#Borland compiler
-				set( ${TargetName}_ABI_Name "-bcb")
-				set( ${TargetName}_ABI_Name_Debug "-d")
-			elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "SunPro")
-				#Sun compiler
-				set( ${TargetName}_ABI_Name "-sw")
-				set( ${TargetName}_ABI_Name_Debug "-d")
-			elseif (MINGW)
-				#MinGW compiler
-				COMPILER_DUMPVERSION(COMPILER_VERSION)
-				set( ${TargetName}_ABI_Name "-mgw${COMPILER_VERSION}")
-				set( ${TargetName}_ABI_Name_Debug "-d")
-			elseif (UNIX)
-				#Unix system
-				if (CMAKE_COMPILER_IS_GNUCXX)
-					#GNU C/C++ compiler (can be gcc, g++, clang, ...)
-					COMPILER_DUMPVERSION(COMPILER_VERSION)
-					if(APPLE)
-						#Apple system
-						set( ${TargetName}_ABI_Name "-xgcc${COMPILER_VERSION}")
-						set( ${TargetName}_ABI_Name_Debug "-d")
-					else()
-						#GNU/Linux system
-						set( ${TargetName}_ABI_Name "-gcc${COMPILER_VERSION}")
-						set( ${TargetName}_ABI_Name_Debug "-d")
-					endif()
-				endif (CMAKE_COMPILER_IS_GNUCXX)
-			endif()
-		else ()
-			if (WIN32)
-				set( ${TargetName}_Suffix 	".exe")
-			else()
-				set( ${TargetName}_Suffix 	"")
-			endif()
-		endif()
-		#We then retrieve target files (located in include/${TargetName}, source/${TargetName} and resource/${TargetName}
+		string( COMPARE EQUAL ${TARGET_TYPE} 	"api_dll" 	IS_API_DLL )	#A dll will be installed in <install_dir>/bin, an API dll will also have its includes installed in <install_dir>/include/<TARGET_NAME>
+		string( COMPARE EQUAL ${TARGET_TYPE} 	"dll" 		IS_DLL )		#A dll will be installed in <install_dir>/bin
+		string( COMPARE EQUAL ${TARGET_TYPE} 	"lib" 		IS_LIB )		#A lib will be installed in <install_dir>/lib
+		string( COMPARE EQUAL ${TARGET_TYPE} 	"bin" 		IS_BIN )		#A binary will be installed in <install_dir>/bin
+		string( COMPARE EQUAL ${TARGET_TYPE}	"bin_dos"	IS_BIN_DOS )	#A dos binary will be installed in <install_dir>/bin and will have a console
+		string( COMPARE EQUAL ${TARGET_TYPE}	"plugin"	IS_PLUGIN )		#A plugin will be installed in <install_dir>/lib/<project_name>
+		msg_debug( "IS_API_DLL            [${IS_API_DLL}]" )
+		msg_debug( "IS_DLL                [${IS_DLL}]" )
+		msg_debug( "IS_LIB                [${IS_LIB}]" )
+		msg_debug( "IS_BIN                [${IS_BIN}]" )
+		msg_debug( "IS_BIN_DOS            [${IS_BIN_DOS}]" )
+		msg_debug( "IS_PLUGIN             [${IS_PLUGIN}]" )
+		#We now compute the extended name of the target (libs only)
+		if ( IS_LIB )
+			compute_abi_name( TARGET_ABI_NAME TARGET_ABI_NAME_DEBUG )
+			msg_debug( "TARGET_ABI_NAME       ${TARGET_ABI_NAME}" )
+			msg_debug( "TARGET_ABI_NAME_DEBUG ${TARGET_ABI_NAME_DEBUG}" )
+		endif ()
+		#We then retrieve target files (located in include/${TARGET_NAME}, source/${TARGET_NAME} and resource/${TARGET_NAME}
 		file(
 			GLOB_RECURSE
-				${TargetName}_cpp
+				TARGET_SOURCE_CPP
 				Src/*.cpp
 		)
 		file(
 			GLOB_RECURSE
-				${TargetName}_cpp_gen
-				${CMAKE_CURRENT_BINARY_DIR}/Src/*.cpp
-		)
-		file(
-			GLOB_RECURSE
-				${TargetName}_c
+				TARGET_SOURCE_C
 				Src/*.c
 		)
 		file(
 			GLOB_RECURSE
-				${TargetName}_c_gen
-				${CMAKE_CURRENT_BINARY_DIR}/Src/*.c
-		)
-		file(
-			GLOB_RECURSE
-				${TargetName}_h
+				TARGET_SOURCE_H_ONLY
 				Src/*.h
 				Src/*.hpp
 				Src/*.inl
 		)
-		file(
-			GLOB_RECURSE
-				${TargetName}_h_gen
-				${CMAKE_CURRENT_BINARY_DIR}/Src/*.h
-				${CMAKE_CURRENT_BINARY_DIR}/Src/*.hpp
-				${CMAKE_CURRENT_BINARY_DIR}/Src/*.inl
-		)
-        set( ${TargetName}_cpp
-            ${${TargetName}_cpp}
-            ${${TargetName}_cpp_gen}
-        )
-        set( ${TargetName}_c
-            ${${TargetName}_c}
-            ${${TargetName}_c_gen}
-        )
-        set( ${TargetName}_h
-            ${${TargetName}_h}
-            ${${TargetName}_h_gen}
-        )
-        include_directories( ${CMAKE_CURRENT_BINARY_DIR}/Src )
-		if( WIN32 )
-			#We include resource files in Visual Studio or MINGW with Windows
-			enable_language( RC )
-			configure_file(
-				${CMAKE_TEMPLATES_DIR}/${TargetName}.rc.in
-				${CMAKE_CURRENT_BINARY_DIR}/Src/Win32/${TargetName}.rc
-                 NEWLINE_STYLE LF
-			)
-			set( ResourceFiles
-				${CMAKE_CURRENT_BINARY_DIR}/Src/Win32/${TargetName}.rc
-				Src/Win32/resource.h
-			)
-			include_directories( 
-                Src/Win32
-                ${CMAKE_CURRENT_BINARY_DIR}/Src/Win32
+        if ( WIN32 )
+            #We include resource files in Visual Studio or MINGW with Windows
+            enable_language( RC )
+            configure_file(
+                ${CMAKE_TEMPLATES_DIR}/${TARGET_NAME}.rc.in
+                ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_NAME}.rc
+                NEWLINE_STYLE LF
             )
-			set( ${TargetName}_h
-				${${TargetName}_h}
-				${ResourceFiles}
-			)
-			source_group( Resource\ Files FILES ${ResourceFiles} )
-		endif ()
-		#We complete C/C++ compilation flags with configuration dependant ones and optional ones
-		set( ${TargetName}_C_FLAGS 			"${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_${CMAKE_BUILD_TYPE}} ${OptCFlags}")
-		set( ${TargetName}_CXX_FLAGS		"${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE}} ${OptCxxFlags}")
-		set( ${TargetName}_LINK_FLAGS		"${PROJECTS_PLATFORM_FLAGS}")
-		#On GNU compiler, we use c++0x and c++1x support, and also PIC
-		if (CMAKE_COMPILER_IS_GNUCXX)
-			COMPILER_DUMPVERSION(COMPILER_VERSION)
-			if (MINGW)
-				if (${COMPILER_VERSION} LESS "46")
-					set( ${TargetName}_CXX_FLAGS "${${TargetName}_CXX_FLAGS} -fPIC")
-					set( ${TargetName}_C_FLAGS "${${TargetName}_C_FLAGS} -fPIC")
-				elseif (${COMPILER_VERSION} LESS "47")
-					set( ${TargetName}_CXX_FLAGS "${${TargetName}_CXX_FLAGS} -fPIC -std=gnu++0x")
-					set( ${TargetName}_C_FLAGS "${${TargetName}_C_FLAGS} -fPIC")
-				else ()
-					set( ${TargetName}_CXX_FLAGS "${${TargetName}_CXX_FLAGS} -fPIC -std=gnu++11")
-					set( ${TargetName}_C_FLAGS "${${TargetName}_C_FLAGS} -fPIC")
-				endif()
-			else()
-				if (${COMPILER_VERSION} LESS "46")
-					set( ${TargetName}_CXX_FLAGS "${${TargetName}_CXX_FLAGS} -fPIC")
-					set( ${TargetName}_C_FLAGS "${${TargetName}_C_FLAGS} -fPIC")
-				elseif (${COMPILER_VERSION} LESS "47")
-					set( ${TargetName}_CXX_FLAGS "${${TargetName}_CXX_FLAGS} -fPIC -std=gnu++0x")
-					set( ${TargetName}_C_FLAGS "${${TargetName}_C_FLAGS} -fPIC")
-				else ()
-					set( ${TargetName}_CXX_FLAGS "${${TargetName}_CXX_FLAGS} -fPIC -std=c++11")
-					set( ${TargetName}_C_FLAGS "${${TargetName}_C_FLAGS} -fPIC")
-				endif()
-			endif()
-		elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
-			COMPILER_DUMPVERSION(COMPILER_VERSION)
-			set( ${TargetName}_CXX_FLAGS "${${TargetName}_CXX_FLAGS} -fPIC -std=c++11")
-			set( ${TargetName}_C_FLAGS "${${TargetName}_C_FLAGS} -fPIC")
-		endif()
+            set( TARGET_RSC
+                ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_NAME}.rc
+            )
+            if ( EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/Src/Win32/resource.h" )
+                set( TARGET_RSC
+                    ${TARGET_RSC}
+                    ${CMAKE_CURRENT_SOURCE_DIR}/Src/Win32/resource.h
+                )
+            elseif ( EXISTS "${CMAKE_CURRENT_BINARY_DIR}/Src/Win32/resource.h" )
+                set( TARGET_RSC
+                    ${TARGET_RSC}
+                    ${CMAKE_CURRENT_BINARY_DIR}/Src/Win32/resource.h
+                )
+            endif ()
+            include_directories( Src/Win32 )
+            set( TARGET_SOURCE_H
+                ${TARGET_SOURCE_H_ONLY}
+                ${TARGET_RSC}
+            )
+            source_group( "Resource Files" FILES ${TARGET_RSC} )
+        else ()
+            set( TARGET_SOURCE_H
+                ${TARGET_SOURCE_H_ONLY}
+            )
+        endif ()
+        set( TARGET_C_FLAGS "" )
+        set( TARGET_CXX_FLAGS "" )
+        set( TARGET_LINK_FLAGS "" )
+        compute_compilation_flags( ${TARGET_NAME} ${TARGET_TYPE} "${OPT_C_FLAGS}" "${OPT_CXX_FLAGS}" "${OPT_LINK_FLAGS}" TARGET_C_FLAGS TARGET_CXX_FLAGS TARGET_LINK_FLAGS )
+		# set( CPACK_SOURCE_OUTPUT_CONFIG_FILE "${CMAKE_CURRENT_BINARY_DIR}/CPackSourceConfig.cmake" )
+		# set( CPACK_OUTPUT_CONFIG_FILE "${CMAKE_CURRENT_BINARY_DIR}/CPackConfig.cmake" )
 		#We now effectively create the target
-		if (IsPlugin OR IsDll)
-			add_library( ${TargetName} SHARED ${${TargetName}_cpp} ${${TargetName}_c} ${${TargetName}_h})
-			if (IsPlugin)
-				set_target_properties( ${TargetName} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PLUGINS_OUTPUT_PATH})
-				set_target_properties( ${TargetName} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${PLUGINS_OUTPUT_PATH})
-				set_target_properties( ${TargetName} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${PLUGINS_OUTPUT_PATH})
-			else ()
-				set_target_properties( ${TargetName} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${EXECUTABLE_OUTPUT_PATH})
-				set_target_properties( ${TargetName} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${EXECUTABLE_OUTPUT_PATH})
-				set_target_properties( ${TargetName} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${EXECUTABLE_OUTPUT_PATH})
-			endif ()
-			set_target_properties( ${TargetName} PROPERTIES VERSION ${PROJECTS_VERSION} SOVERSION ${PROJECTS_SOVERSION})
-			if (IsDx9Dll AND CMAKE_COMPILER_IS_GNUCXX)
-				set( ${TargetName}_CXX_FLAGS	"${${TargetName}_CXX_FLAGS} -fcheck-new")
-				set( ${TargetName}_C_FLAGS 	"${${TargetName}_C_FLAGS} -fcheck-new")
-			endif ()
-		elseif (IsBin)
-			if (WIN32)
-				add_executable( ${TargetName} WIN32 ${${TargetName}_cpp} ${${TargetName}_c} ${${TargetName}_h} )
-			else()
-				add_executable( ${TargetName} ${${TargetName}_cpp} ${${TargetName}_c} ${${TargetName}_h})
-			endif()
-			set_target_properties( ${TargetName} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${EXECUTABLE_OUTPUT_PATH})
-			set_target_properties( ${TargetName} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${EXECUTABLE_OUTPUT_PATH})
-			set_target_properties( ${TargetName} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${EXECUTABLE_OUTPUT_PATH})
-		elseif (IsBinDos)
-			add_executable( ${TargetName} ${${TargetName}_cpp} ${${TargetName}_c} ${${TargetName}_h})
-			set_target_properties( ${TargetName} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${EXECUTABLE_OUTPUT_PATH})
-			set_target_properties( ${TargetName} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${EXECUTABLE_OUTPUT_PATH})
-			set_target_properties( ${TargetName} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${EXECUTABLE_OUTPUT_PATH})
-		elseif (IsLib)
-			add_library( ${TargetName} STATIC ${${TargetName}_cpp} ${${TargetName}_c} ${${TargetName}_h})
-			set_target_properties( ${TargetName} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${LIBRARY_OUTPUT_PATH})
-			set_target_properties( ${TargetName} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${LIBRARY_OUTPUT_PATH})
-			set_target_properties( ${TargetName} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${LIBRARY_OUTPUT_PATH})
-			#For libs, we install headers to <install_dir>/include/${TargetName}
-			if( NOT MSVC )
+		if ( IS_API_DLL )
+			set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG "${PROJECTS_BINARIES_OUTPUT_DIR_DEBUG}/lib/" )
+			set( CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG "${PROJECTS_BINARIES_OUTPUT_DIR_DEBUG}/lib/" )
+			set( CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${PROJECTS_BINARIES_OUTPUT_DIR_DEBUG}/bin/" )
+			set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE "${PROJECTS_BINARIES_OUTPUT_DIR_RELEASE}/lib/" )
+			set( CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE "${PROJECTS_BINARIES_OUTPUT_DIR_RELEASE}/lib/" )
+			set( CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${PROJECTS_BINARIES_OUTPUT_DIR_RELEASE}/bin/" )
+			add_library( ${TARGET_NAME} SHARED ${TARGET_SOURCE_CPP} ${TARGET_SOURCE_C} ${TARGET_SOURCE_H} ${OPT_FILES} )
+			set_target_properties( ${TARGET_NAME} PROPERTIES VERSION ${PROJECTS_VERSION} SOVERSION ${PROJECTS_SOVERSION} )
+            set_target_properties( ${TARGET_NAME} PROPERTIES LINK_FLAGS "${TARGET_LINK_FLAGS}" )
+			#We now build the install script
+			if ( WIN32 )
+				#We install each .dll in <install_dir>/bin folder
 				install(
-					FILES ${${TargetName}_h}
-					DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${TargetName}
-				)
-			endif ()
-		endif()
-		#We add computed ABI name to target outputs
-		set_target_properties( ${TargetName} PROPERTIES LIBRARY_OUTPUT_NAME "${TargetName}${${TargetName}_ABI_Name}")
-		set_target_properties( ${TargetName} PROPERTIES RUNTIME_OUTPUT_NAME "${TargetName}${${TargetName}_ABI_Name}")
-		set_target_properties( ${TargetName} PROPERTIES ARCHIVE_OUTPUT_NAME "${TargetName}${${TargetName}_ABI_Name}")
-		#Idem for debug
-		set_target_properties( ${TargetName} PROPERTIES LIBRARY_OUTPUT_NAME_DEBUG "${TargetName}${${TargetName}_ABI_Name}${${TargetName}_ABI_Name_Debug}")
-		set_target_properties( ${TargetName} PROPERTIES RUNTIME_OUTPUT_NAME_DEBUG "${TargetName}${${TargetName}_ABI_Name}${${TargetName}_ABI_Name_Debug}")
-		set_target_properties( ${TargetName} PROPERTIES ARCHIVE_OUTPUT_NAME_DEBUG "${TargetName}${${TargetName}_ABI_Name}${${TargetName}_ABI_Name_Debug}")
-		#We scan dependencies to add it to the target
-		FOREACH(Dependency ${Dependencies})
-			msg_debug( "Dependency          ${Dependency}")
-			add_dependencies( ${TargetName} ${Dependency})
-		ENDFOREACH()
-		#We scan libraries to add it to the linker
-		FOREACH(Link ${Links})
-			string( REPLACE "|" ";" Link2 ${Link})
-			msg_debug( "Link                ${Link2}" )
-			target_link_libraries( ${TargetName} ${Link2} )
-		ENDFOREACH()
-		#We set the compilation and link flags for target's files
-		set_target_properties( ${TargetName} PROPERTIES LINK_FLAGS "${${TargetName}_LINK_FLAGS}")
-		
-		if (MSVC)
-			set( ${TargetName}_CXX_FLAGS "${${TargetName}_CXX_FLAGS} -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS")
-			set( ${TargetName}_C_FLAGS "${${TargetName}_C_FLAGS} -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS")
-			set( ${TargetName}_PCH_FLAGS "${${TargetName}_CXX_FLAGS} -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS")
-			set_source_files_properties( ${${TargetName}_c} PROPERTIES COMPILE_FLAGS "${${TargetName}_C_FLAGS}")
-			if (PchHeader STREQUAL "")
-				msg_debug( "Precompiled headers NO" )
-				set_source_files_properties( ${${TargetName}_cpp} PROPERTIES COMPILE_FLAGS "${${TargetName}_CXX_FLAGS}")
-			else ()
-				msg_debug( "Precompiled headers YES" )
-				set( ${TargetName}_PCH_FLAGS "${${TargetName}_PCH_FLAGS} /Yc${PchHeader}")
-				set( ${TargetName}_CXX_FLAGS "${${TargetName}_CXX_FLAGS} /Yu${PchHeader}")
-				set_source_files_properties( ${${TargetName}_cpp} PROPERTIES COMPILE_FLAGS "${${TargetName}_CXX_FLAGS}")
-				set_source_files_properties( Src/${PchCpp} PROPERTIES COMPILE_FLAGS "${${TargetName}_PCH_FLAGS}")
-			endif ()
-			if (${PROJECTS_PROFILING})
-				set_target_properties( ${TargetName} PROPERTIES LINK_FLAGS_DEBUG "${${TargetName}_LINK_FLAGS} /OPT:NOREF /PROFILE")
-			endif ()
-		else()
-			set_source_files_properties( ${${TargetName}_cpp} PROPERTIES COMPILE_FLAGS "${${TargetName}_CXX_FLAGS}")
-			set_source_files_properties( ${${TargetName}_c} PROPERTIES COMPILE_FLAGS "${${TargetName}_C_FLAGS}")
-			if(NOT PchHeader STREQUAL "")
-				msg_debug( "Precompiled headers YES" )
-				add_precompiled_header( ${TargetName}, ${PchHeader}, "${${TargetName}_SrcPrefix}source/${TargetName}/${PchCpp}")
-			else()
-				msg_debug( "Precompiled headers NO" )
-			endif()
-		endif()
-		if (MSVC)
-			#With Visual Studio, we copy outputs from bin_temp to binaries folder
-			if( IsPlugin )
-				add_custom_command(	TARGET ${TargetName} POST_BUILD COMMAND "copy" ARGS "/Y" "\"$(OutDir)$(TargetName)$(TargetExt)\"" "\"${PROJECTS_BINARIES_OUTPUT_PATH}\\$(Configuration)\\share\\${ProjectName}\\$(TargetName)$(TargetExt)\"")
-			elseif( IsLib )
-				add_custom_command(	TARGET ${TargetName} POST_BUILD COMMAND "copy" ARGS "/Y" "\"$(OutDir)$(TargetName)$(TargetExt)\"" "\"${PROJECTS_BINARIES_OUTPUT_PATH}\\$(Configuration)\\lib\\$(TargetName)$(TargetExt)\"")
-			else()
-				add_custom_command(	TARGET ${TargetName} POST_BUILD COMMAND "copy" ARGS "/Y" "\"$(OutDir)$(TargetName)$(TargetExt)\"" "\"${PROJECTS_BINARIES_OUTPUT_PATH}\\$(Configuration)\\bin\\$(TargetName)$(TargetExt)\"")
-			endif()
-		endif ()
-		msg_debug( "CXX_FLAGS          ${${TargetName}_CXX_FLAGS}")
-		msg_debug( "PCH_FLAGS          ${${TargetName}_PCH_FLAGS}")
-		msg_debug( "C_FLAGS            ${${TargetName}_C_FLAGS}")
-		msg_debug( "LINK_FLAGS          ${${TargetName}_LINK_FLAGS}")
-		#We now build the install script
-		if (NOT MSVC)
-			#We copy each lib in <install_dir>/lib folder
-			if( IsPlugin )
-				install(
-					TARGETS	${TargetName}
-					ARCHIVE DESTINATION lib
-					LIBRARY DESTINATION share/${ProjectName}/
+					TARGETS	${TARGET_NAME}
 					RUNTIME DESTINATION bin
+					COMPONENT ${TARGET_NAME}
 				)
-			else()
 				install(
-					TARGETS	${TargetName}
+					TARGETS	${TARGET_NAME}
 					ARCHIVE DESTINATION lib
 					LIBRARY DESTINATION lib
-					RUNTIME DESTINATION bin
+					COMPONENT ${TARGET_NAME}_dev
+				)
+			else ()
+				#We install each .so in <install_dir>/lib folder
+				install(
+					TARGETS	${TARGET_NAME}
+					LIBRARY DESTINATION lib
+					COMPONENT ${TARGET_NAME}
 				)
 			endif()
+			#For API DLLs, we install headers to <install_dir>/include/${TARGET_NAME}
+			install(
+				FILES ${TARGET_SOURCE_H_ONLY}
+				DESTINATION include/${TARGET_NAME}
+				COMPONENT ${TARGET_NAME}_dev
+			)
+		elseif ( IS_DLL )
+			set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG "${PROJECTS_BINARIES_OUTPUT_DIR_DEBUG}/lib/" )
+			set( CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG "${PROJECTS_BINARIES_OUTPUT_DIR_DEBUG}/lib/" )
+			set( CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${PROJECTS_BINARIES_OUTPUT_DIR_DEBUG}/bin/" )
+			set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE "${PROJECTS_BINARIES_OUTPUT_DIR_RELEASE}/lib/" )
+			set( CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE "${PROJECTS_BINARIES_OUTPUT_DIR_RELEASE}/lib/" )
+			set( CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${PROJECTS_BINARIES_OUTPUT_DIR_RELEASE}/bin/" )
+			add_library( ${TARGET_NAME} SHARED ${TARGET_SOURCE_CPP} ${TARGET_SOURCE_C} ${TARGET_SOURCE_H} ${OPT_FILES} )
+			set_target_properties( ${TARGET_NAME} PROPERTIES VERSION ${PROJECTS_VERSION} SOVERSION ${PROJECTS_SOVERSION} )
+            set_target_properties( ${TARGET_NAME} PROPERTIES LINK_FLAGS "${TARGET_LINK_FLAGS}" )
+			#We now build the install script
+			if ( WIN32 )
+				#We copy each .dll in <install_dir>/bin folder
+				install(
+					TARGETS	${TARGET_NAME}
+					RUNTIME DESTINATION bin
+					COMPONENT ${TARGET_NAME}
+				)
+			else ()
+				#We copy each .so in <install_dir>/lib folder
+				install(
+					TARGETS	${TARGET_NAME}
+					LIBRARY DESTINATION lib
+					COMPONENT ${TARGET_NAME}
+				)
+			endif()
+		elseif ( IS_PLUGIN )
+			set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG "${PROJECTS_BINARIES_OUTPUT_DIR_DEBUG}/lib/${MAIN_PROJECT_NAME}/" )
+			set( CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG "${PROJECTS_BINARIES_OUTPUT_DIR_DEBUG}/lib/${MAIN_PROJECT_NAME}/" )
+			set( CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${PROJECTS_BINARIES_OUTPUT_DIR_DEBUG}/lib/${MAIN_PROJECT_NAME}/" )
+			set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE "${PROJECTS_BINARIES_OUTPUT_DIR_RELEASE}/lib/${MAIN_PROJECT_NAME}/" )
+			set( CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE "${PROJECTS_BINARIES_OUTPUT_DIR_RELEASE}/lib/${MAIN_PROJECT_NAME}/" )
+			set( CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${PROJECTS_BINARIES_OUTPUT_DIR_RELEASE}/lib/${MAIN_PROJECT_NAME}/" )
+			add_library( ${TARGET_NAME} MODULE ${TARGET_SOURCE_CPP} ${TARGET_SOURCE_C} ${TARGET_SOURCE_H} ${OPT_FILES} )
+			set_target_properties( ${TARGET_NAME} PROPERTIES VERSION ${PROJECTS_VERSION} SOVERSION ${PROJECTS_SOVERSION} )
+            set_target_properties( ${TARGET_NAME} PROPERTIES LINK_FLAGS "${TARGET_LINK_FLAGS}" )
+			if ( WIN32 )
+				#We install each plugin .dll in <install_dir>/lib/<project_name> folder
+				install(
+					FILES ${PROJECTS_BINARIES_OUTPUT_DIR}/$<CONFIG>/lib/${MAIN_PROJECT_NAME}/${TARGET_NAME}.dll
+					DESTINATION lib/${MAIN_PROJECT_NAME}
+					COMPONENT ${TARGET_NAME}
+				)
+			else ()
+				#We install each plugin .dll in <install_dir>/lib/<project_name> folder
+				install(
+					TARGETS	${TARGET_NAME}
+					LIBRARY DESTINATION lib/${MAIN_PROJECT_NAME}
+					COMPONENT ${TARGET_NAME}
+				)
+			endif ()
+		elseif ( IS_BIN )
+			set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG "${PROJECTS_BINARIES_OUTPUT_DIR_DEBUG}/lib/" )
+			set( CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG "${PROJECTS_BINARIES_OUTPUT_DIR_DEBUG}/lib/" )
+			set( CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${PROJECTS_BINARIES_OUTPUT_DIR_DEBUG}/bin/" )
+			set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE "${PROJECTS_BINARIES_OUTPUT_DIR_RELEASE}/lib/" )
+			set( CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE "${PROJECTS_BINARIES_OUTPUT_DIR_RELEASE}/lib/" )
+			set( CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${PROJECTS_BINARIES_OUTPUT_DIR_RELEASE}/bin/" )
+			if (WIN32)
+				add_executable( ${TARGET_NAME} WIN32 ${TARGET_SOURCE_CPP} ${TARGET_SOURCE_C} ${TARGET_SOURCE_H} ${OPT_FILES} )
+			else()
+				add_executable( ${TARGET_NAME} ${TARGET_SOURCE_CPP} ${TARGET_SOURCE_C} ${TARGET_SOURCE_H} ${OPT_FILES} )
+			endif()
+            set_target_properties( ${TARGET_NAME} PROPERTIES LINK_FLAGS "${TARGET_LINK_FLAGS}" )
+			#We now build the install script
+			#We copy each exe in <install_dir>/bin folder
+			install(
+				TARGETS	${TARGET_NAME}
+				RUNTIME DESTINATION bin
+				COMPONENT ${TARGET_NAME}
+			)
+		elseif ( IS_BIN_DOS )
+			set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG "${PROJECTS_BINARIES_OUTPUT_DIR_DEBUG}/lib/" )
+			set( CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG "${PROJECTS_BINARIES_OUTPUT_DIR_DEBUG}/lib/" )
+			set( CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${PROJECTS_BINARIES_OUTPUT_DIR_DEBUG}/bin/" )
+			set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE "${PROJECTS_BINARIES_OUTPUT_DIR_RELEASE}/lib/" )
+			set( CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE "${PROJECTS_BINARIES_OUTPUT_DIR_RELEASE}/lib/" )
+			set( CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${PROJECTS_BINARIES_OUTPUT_DIR_RELEASE}/bin/" )
+			add_executable( ${TARGET_NAME} ${TARGET_SOURCE_CPP} ${TARGET_SOURCE_C} ${TARGET_SOURCE_H} ${OPT_FILES} )
+            set_target_properties( ${TARGET_NAME} PROPERTIES LINK_FLAGS "${TARGET_LINK_FLAGS}" )
+			#We copy each lib in <install_dir>/lib folder
+			install(
+				TARGETS	${TARGET_NAME}
+				RUNTIME DESTINATION bin
+				COMPONENT ${TARGET_NAME}
+        	)
+		elseif ( IS_LIB )
+			set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG "${PROJECTS_BINARIES_OUTPUT_DIR_DEBUG}/lib/" )
+			set( CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG "${PROJECTS_BINARIES_OUTPUT_DIR_DEBUG}/lib/" )
+			set( CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${PROJECTS_BINARIES_OUTPUT_DIR_DEBUG}/bin/" )
+			set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE "${PROJECTS_BINARIES_OUTPUT_DIR_RELEASE}/lib/" )
+			set( CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE "${PROJECTS_BINARIES_OUTPUT_DIR_RELEASE}/lib/" )
+			set( CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${PROJECTS_BINARIES_OUTPUT_DIR_RELEASE}/bin/" )
+			add_library( ${TARGET_NAME} STATIC ${TARGET_SOURCE_CPP} ${TARGET_SOURCE_C} ${TARGET_SOURCE_H} ${OPT_FILES} )
+			add_target_compilation_flags( ${TARGET_NAME} "-D${TARGET_NAME}_STATIC" )
+			if ( MSVC )
+	            set_target_properties( ${TARGET_NAME} PROPERTIES STATIC_LIBRARY_FLAGS "${TARGET_LINK_FLAGS}" )
+	        endif()
+			#We now build the install script
+			#We copy each lib in <install_dir>/lib folder
+			install(
+				TARGETS	${TARGET_NAME}
+				ARCHIVE DESTINATION lib
+				COMPONENT ${TARGET_NAME}_dev
+        	)
+			#For libs, we install headers to <install_dir>/include/${TARGET_NAME}
+			install(
+				FILES ${TARGET_SOURCE_H_ONLY}
+				DESTINATION include/${TARGET_NAME}
+				COMPONENT ${TARGET_NAME}_dev
+			)
+        else()
+            message( FATAL_ERROR " Unknown target type : [${TARGET_TYPE}]" )
 		endif()
-	endif()
-endfunction( add_target)
-
-#--------------------------------------------------------------------------------------------------
-#	Function :	add_doc
-#	Generates doc for given target
-#--------------------------------------------------------------------------------------------------
-function( add_doc TargetName)
-	if (DOXYGEN_FOUND)
-		if (WIN32)
-			set( DOXYGEN_INPUT doc/${TargetName}_Win32.Doxyfile)
-		endif ()
+		#We add computed ABI name to target outputs
+		set_target_properties( ${TARGET_NAME} PROPERTIES LIBRARY_OUTPUT_NAME "${TARGET_NAME}${TARGET_ABI_NAME}")
+		set_target_properties( ${TARGET_NAME} PROPERTIES RUNTIME_OUTPUT_NAME "${TARGET_NAME}${TARGET_ABI_NAME}")
+		set_target_properties( ${TARGET_NAME} PROPERTIES ARCHIVE_OUTPUT_NAME "${TARGET_NAME}${TARGET_ABI_NAME}")
+		#Idem for debug
+		set_target_properties( ${TARGET_NAME} PROPERTIES LIBRARY_OUTPUT_NAME_DEBUG "${TARGET_NAME}${TARGET_ABI_NAME}${TARGET_ABI_NAME_DEBUG}")
+		set_target_properties( ${TARGET_NAME} PROPERTIES RUNTIME_OUTPUT_NAME_DEBUG "${TARGET_NAME}${TARGET_ABI_NAME}${TARGET_ABI_NAME_DEBUG}")
+		set_target_properties( ${TARGET_NAME} PROPERTIES ARCHIVE_OUTPUT_NAME_DEBUG "${TARGET_NAME}${TARGET_ABI_NAME}${TARGET_ABI_NAME_DEBUG}")
+		#We scan dependencies to add it to the target
+		foreach( TARGET_DEPENDENCY ${TARGET_DEPENDENCIES} )
+			msg_debug( "TARGET_DEPENDENCY     ${TARGET_DEPENDENCY}")
+			add_dependencies( ${TARGET_NAME} ${TARGET_DEPENDENCY} )
+		endforeach()
+		#We scan libraries to add it to the linker
+		foreach( TARGET_LINK ${TARGET_LINKS} )
+			string( REPLACE "|" ";" TARGET_LINK ${TARGET_LINK})
+			msg_debug( "TARGET_LINK           ${TARGET_LINK}" )
+			target_link_libraries( ${TARGET_NAME} ${TARGET_LINK} )
+		endforeach()
 		
-		if (NOT WIN32)
-			set( DOXYGEN_INPUT doc/${TargetName}.Doxyfile)
+        set_source_files_properties( ${TARGET_SOURCE_C} PROPERTIES COMPILE_FLAGS "${TARGET_C_FLAGS}")
+        set_source_files_properties( ${TARGET_SOURCE_CPP} PROPERTIES COMPILE_FLAGS "${TARGET_CXX_FLAGS}")
+        
+		if ( PCH_HEADER STREQUAL "" OR NOT ${PROJECTS_USE_PRECOMPILED_HEADERS} )
+			msg_debug( "PRECOMPILED HEADERS   No" )
+		else ()
+			msg_debug( "PRECOMPILED HEADERS   Yes" )
+			add_target_precompiled_header( ${TARGET_NAME} ${PCH_HEADER} ${PCH_CPP} ${TARGET_CXX_FLAGS} ${TARGET_SOURCE_CPP} )
 		endif ()
-
-		set( DOXYGEN_OUTPUT doc/${TargetName})
-
-		add_custom_command(
-			OUTPUT ${DOXYGEN_OUTPUT}
-			COMMAND ${CMAKE_COMMAND} -E echo_append "Building ${TargetName} API Documentation..."
-			COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_INPUT}
-			COMMAND ${CMAKE_COMMAND} -E echo "Done."
-			WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-			DEPENDS ${DOXYGEN_INPUT}
-		)
-
-		add_custom_target( Doc_${TargetName} ALL DEPENDS ${DOXYGEN_OUTPUT})
-	endif ()
-endfunction( add_doc)
+		if ( MSVC )
+			if ( ${PROJECTS_PROFILING} )
+				set_target_properties( ${TARGET_NAME} PROPERTIES LINK_FLAGS_DEBUG "${TARGET_LINK_FLAGS} /OPT:NOREF /PROFILE")
+			endif ()
+		endif ()
+		msg_debug( "TARGET_CXX_FLAGS:     ${TARGET_CXX_FLAGS}")
+		msg_debug( "TARGET_PCH_FLAGS:     ${TARGET_PCH_FLAGS}")
+		msg_debug( "TARGET_C_FLAGS:       ${TARGET_C_FLAGS}")
+		msg_debug( "TARGET_LINK_FLAGS:    ${TARGET_LINK_FLAGS}")
+	endif()
+endfunction( add_target )

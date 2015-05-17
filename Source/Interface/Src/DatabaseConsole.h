@@ -35,11 +35,12 @@ BEGIN_NAMESPACE_DATABASE
 	\brief		Définit les différents types de log
 	*/
 	typedef enum eLOG_TYPE : uint8_t
-	{	eLOG_TYPE_DEBUG		//!<\~english Debug type log		\~french Log de type debug
-	,	eLOG_TYPE_MESSAGE	//!<\~english Message type log		\~french Log de type message
-	,	eLOG_TYPE_WARNING	//!<\~english Warning type log		\~french Log de type avertissement
-	,	eLOG_TYPE_ERROR		//!<\~english Error type log		\~french Log de type erreur
-	,	eLOG_TYPE_COUNT		//!<\~english Number of log types	\~french Compte des logs
+	{
+		eLOG_TYPE_DEBUG		//!<\~english Debug type log		\~french Log de type debug
+		,	eLOG_TYPE_MESSAGE	//!<\~english Message type log		\~french Log de type message
+		,	eLOG_TYPE_WARNING	//!<\~english Warning type log		\~french Log de type avertissement
+		,	eLOG_TYPE_ERROR		//!<\~english Error type log		\~french Log de type erreur
+		,	eLOG_TYPE_COUNT		//!<\~english Number of log types	\~french Compte des logs
 	}	eLOG_TYPE;
 	/*!
 	\author		Sylvain DOREMUS
@@ -61,14 +62,14 @@ BEGIN_NAMESPACE_DATABASE
 		 *\~french
 		 *\brief		Constructeur
 		 */
-		IConsoleInfo(){}
+		IConsoleInfo() {}
 		/**
 		 *\~english
 		 *\brief		Destructor
 		 *\~french
 		 *\brief		Destructeur
 		 */
-		virtual ~IConsoleInfo(){}
+		virtual ~IConsoleInfo() {}
 		/**
 		 *\~english
 		 *\brief		Configures console info for the given log type
@@ -77,7 +78,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\brief		Configure les informationss de la console en fonction du type donné
 		 *\param[in]	p_eLogType	Le type de log donné
 		 */
-		virtual void BeginLog( eLOG_TYPE p_eLogType )=0;
+		virtual void BeginLog( eLOG_TYPE p_eLogType ) = 0;
 		/**
 		 *\~english
 		 *\brief		Prints a text in the console, adds the line end character if asked
@@ -88,7 +89,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_strToLog	Le texte à écrire
 		 *\param[in]	p_bNewLine	Dit si on doit ajouter le caractère de fin de ligne
 		 */
-		virtual void Print( String const & p_strToLog, bool p_bNewLine )=0;
+		virtual void Print( String const & p_strToLog, bool p_bNewLine ) = 0;
 	};
 	/*!
 	\author 	Sylvain DOREMUS
@@ -108,14 +109,14 @@ BEGIN_NAMESPACE_DATABASE
 		 *\~french
 		 *\brief		Constructeur
 		 */
-		ProgramConsole(){}
+		ProgramConsole() {}
 		/**
 		 *\~english
 		 *\brief		Destructor
 		 *\~french
 		 *\brief		Destructeur
 		 */
-		virtual ~ProgramConsole(){}
+		virtual ~ProgramConsole() {}
 		/**
 		 *\~english
 		 *\brief		Configures console info for the given log type
@@ -124,7 +125,7 @@ BEGIN_NAMESPACE_DATABASE
 		 * Configure les informationss de la console en fonction du type donné
 		 *\param[in]	p_eLogType	Le type de log donné
 		 */
-		virtual void BeginLog( eLOG_TYPE p_eLogType )=0;
+		virtual void BeginLog( eLOG_TYPE p_eLogType ) = 0;
 		/**
 		 *\~english
 		 *\brief		Prints a text in the console, adds the line end character if asked
@@ -135,7 +136,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_strToLog	Le texte à écrire
 		 *\param[in]	p_bNewLine	Dit si on doit ajouter le caractère de fin de ligne
 		 */
-		virtual void Print( String const & p_strToLog, bool p_bNewLine )=0;
+		virtual void Print( String const & p_strToLog, bool p_bNewLine ) = 0;
 	};
 	/*!
 	\author 	Sylvain DOREMUS
@@ -155,14 +156,14 @@ BEGIN_NAMESPACE_DATABASE
 		 *\~french
 		 *\brief		Constructeur
 		 */
-		DummyConsole(){}
+		DummyConsole() {}
 		/**
 		 *\~english
 		 *\brief		Destructor
 		 *\~french
 		 *\brief		Destructeur
 		 */
-		virtual ~DummyConsole(){}
+		virtual ~DummyConsole() {}
 		/**
 		 *\~english
 		 *\brief		Configures console info for the given log type
@@ -171,7 +172,7 @@ BEGIN_NAMESPACE_DATABASE
 		 * Configure les informationss de la console en fonction du type donné
 		 *\param[in]	p_eLogType	Le type de log donné
 		 */
-		virtual void BeginLog( eLOG_TYPE ){}
+		virtual void BeginLog( eLOG_TYPE ) {}
 		/**
 		 *\~english
 		 *\brief		Prints a text in the console, adds the line end character if asked
@@ -182,7 +183,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_strToLog	Le texte à écrire
 		 *\param[in]	p_bNewLine	Dit si on doit ajouter le caractère de fin de ligne
 		 */
-		virtual void Print( String const & , bool ){}
+		virtual void Print( String const &, bool ) {}
 	};
 	/*!
 	\author		Sylvain DOREMUS

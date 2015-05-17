@@ -23,3 +23,4 @@ add_target(
 )
 
 set_property( TARGET DatabasePluginOdbcMsSql PROPERTY FOLDER "Plugin/Odbc/MsSql" )
+add_target_astyle( DatabasePluginOdbcMsSql ".h;.hpp;.inl;.cpp" )

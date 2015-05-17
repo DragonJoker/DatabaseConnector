@@ -46,7 +46,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_locale	La locale (inutilisée)
 		 *\return		\p false si p_strToTest contient n'importe quel caractère autre que '0123456789'
 		 */
-		static bool IsInteger( String const & p_strToTest, std::locale const & p_locale=std::locale() );
+		static bool IsInteger( String const & p_strToTest, std::locale const & p_locale = std::locale() );
 		/**
 		 *\~english
 		 *\brief		Tests if the given String represents a floating number
@@ -59,7 +59,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_locale	La locale utilisée pour déterminer le format du séparateur '.'
 		 *\return		\p false si p_strToTest contient n'importe quel caractère autre que '0123456789.,' ou plus d'un '.'/','
 		 */
-		static bool IsFloating( String const & p_strToTest, std::locale const & p_locale=std::locale() );
+		static bool IsFloating( String const & p_strToTest, std::locale const & p_locale = std::locale() );
 		/**
 		 *\~english
 		 *\brief		Tests if the given String represents a date
@@ -74,7 +74,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_locale	La locale permettant de déterminer quel format de date est utilisé
 		 *\return		\p false si p_strToTest contient n'importe quel caractère autre que '0123456789'
 		 */
-		static bool IsDate( String const & p_strToTest, std::locale const & p_locale=std::locale() );
+		static bool IsDate( String const & p_strToTest, std::locale const & p_locale = std::locale() );
 		/**
 		 *\~english
 		 *\brief		Retrieves a short from a given String
@@ -87,7 +87,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_locale	La locale utilisée dans la conversion
 		 *\return		Le short contenu dans le String
 		 */
-		static short ToShort( String const & p_str, std::locale const & p_locale=std::locale() );
+		static short ToShort( String const & p_str, std::locale const & p_locale = std::locale() );
 		/**
 		 *\~english
 		 *\brief		Retrieves an int from a given String
@@ -100,7 +100,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_locale	La locale utilisée dans la conversion
 		 *\return		L'int contenu dans le String
 		 */
-		static int ToInt( String const & p_str, std::locale const & p_locale=std::locale() );
+		static int ToInt( String const & p_str, std::locale const & p_locale = std::locale() );
 		/**
 		 *\~english
 		 *\brief		Retrieves a long from a given String
@@ -113,7 +113,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_locale	La locale utilisée dans la conversion
 		 *\return		Le long contenu dans le String
 		 */
-		static long ToLong( String const & p_str, std::locale const & p_locale=std::locale() );
+		static long ToLong( String const & p_str, std::locale const & p_locale = std::locale() );
 		/**
 		 *\~english
 		 *\brief		Retrieves a long long from a given String
@@ -126,7 +126,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_locale	La locale utilisée dans la conversion
 		 *\return		Le long long contenu dans le String
 		 */
-		static long long ToLongLong( String const & p_str, std::locale const & p_locale=std::locale() );
+		static long long ToLongLong( String const & p_str, std::locale const & p_locale = std::locale() );
 		/**
 		 *\~english
 		 *\brief		Retrieves a float from a given String
@@ -139,7 +139,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_locale	La locale utilisée dans la conversion
 		 *\return		Le float contenu dans le String
 		 */
-		static float ToFloat( String const & p_str, std::locale const & p_locale=std::locale() );
+		static float ToFloat( String const & p_str, std::locale const & p_locale = std::locale() );
 		/**
 		 *\~english
 		 *\brief		Retrieves a double from a given String
@@ -152,7 +152,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_locale	La locale utilisée dans la conversion
 		 *\return		Le double contenu dans le String
 		 */
-		static double ToDouble( String const & p_str, std::locale const & p_locale=std::locale() );
+		static double ToDouble( String const & p_str, std::locale const & p_locale = std::locale() );
 		/**
 		 *\~english
 		 *\brief		Retrieves a double from a given String
@@ -165,7 +165,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_locale	La locale utilisée dans la conversion
 		 *\return		Le double contenu dans le String
 		 */
-		static long double ToLongDouble( String const & p_str, std::locale const & p_locale=std::locale() );
+		static long double ToLongDouble( String const & p_str, std::locale const & p_locale = std::locale() );
 		/**
 		 *\~english
 		 *\brief		Tests if the given String is upper case
@@ -308,7 +308,10 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_str		Le String
 		 *\return		Le std::wstring
 		 */
-		static std::string ToStr( std::string const & p_str ) { return p_str; }
+		static std::string ToStr( std::string const & p_str )
+		{
+			return p_str;
+		}
 		/**
 		 *\~english
 		 *\brief		Retrieves a std::wstring from a String
@@ -341,7 +344,10 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_str		Le String
 		 *\return		Le std::wstring
 		 */
-        static std::wstring ToWStr( std::wstring const & p_str ) { return p_str; }
+		static std::wstring ToWStr( std::wstring const & p_str )
+		{
+			return p_str;
+		}
 		/**
 		 *\~english
 		 *\brief		Cuts a String into substrings, using delimiter(s)
@@ -358,7 +364,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_bKeepVoid	Dit si la fonction garde les sous-chaînes vides ou pas
 		 *\return		Le tableau contenant les sous-chaînes
 		 */
-		static StringArray Split( String const & p_str, String const & p_delims, uint32_t p_maxSplits=10, bool p_bKeepVoid=true );
+		static StringArray Split( String const & p_str, String const & p_delims, uint32_t p_maxSplits = 10, bool p_bKeepVoid = true );
 		/**
 		 *\~english
 		 *\brief		Retrieves a value from the given String
@@ -366,11 +372,11 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[out]	p_val		Receives the retrieved value
 		 *\param[in]	p_locale	The locale used in the conversion
 		 *\~french
-		 *\brief		
+		 *\brief
 		 *\brief		Récupère une valeur à partir d'un String
 		 *\param[in]	p_str	Le String contenant normalement la valeur
 		 *\param[out]	p_val	Reçoit la valeur récupérée
-		 *\return		
+		 *\return
 		 */
 		template <typename T>
 		static inline void Parse( String const & p_str, T & p_val )
@@ -385,12 +391,12 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_locale	The locale used in the conversion
 		 *\param[out]	p_val		Receives the retrieved value
 		 *\~french
-		 *\brief		
+		 *\brief
 		 *\brief		Récupère une valeur à partir d'un String
 		 *\param[in]	p_str		Le String contenant normalement la valeur
 		 *\param[in]	p_locale	La locale utilisée dans la conversion
 		 *\param[out]	p_val		Reçoit la valeur récupérée
-		 *\return		
+		 *\return
 		 */
 		template <typename T>
 		static inline void Parse( String const & p_str, std::locale const & p_locale, T & p_val )
@@ -473,7 +479,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]		p_bRight	Dit si on enlève les espaces à droite
 		 *\return			La chaîne sans espaces
 		 */
-		static String & Trim( String & p_str, bool p_bLeft=true, bool p_bRight=true );
+		static String & Trim( String & p_str, bool p_bLeft = true, bool p_bRight = true );
 		/**
 		 *\~english
 		 *\brief		Puts a value into a String

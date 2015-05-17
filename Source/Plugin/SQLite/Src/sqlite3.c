@@ -20233,7 +20233,7 @@ SQLITE_PRIVATE int sqlite3OSTrace = 0;
   __declspec(naked) __inline sqlite_uint64 __cdecl sqlite3Hwtime(void){
      __asm {
         rdtsc
-        ret       ; return value at EDX:EAX
+        ret    ; return value at EDX:EAX
      }
   }
 
@@ -21769,7 +21769,7 @@ SQLITE_PRIVATE int sqlite3OSTrace = 0;
   __declspec(naked) __inline sqlite_uint64 __cdecl sqlite3Hwtime(void){
      __asm {
         rdtsc
-        ret       ; return value at EDX:EAX
+        ret    ; return value at EDX:EAX
      }
   }
 
@@ -27631,7 +27631,7 @@ SQLITE_PRIVATE int sqlite3OSTrace = 0;
   __declspec(naked) __inline sqlite_uint64 __cdecl sqlite3Hwtime(void){
      __asm {
         rdtsc
-        ret       ; return value at EDX:EAX
+        ret    ; return value at EDX:EAX
      }
   }
 
@@ -41936,7 +41936,7 @@ static int accessPayload(
     }
 #endif
 
-    for( ; rc==SQLITE_OK && amt>0 && nextPage; iIdx++){
+    for(; rc==SQLITE_OK && amt>0 && nextPage; iIdx++){
 
 #ifndef SQLITE_OMIT_INCRBLOB
       /* If required, populate the overflow page-list cache. */
@@ -52875,7 +52875,7 @@ static void registerTrace(FILE *out, int iReg, Mem *p){
   __declspec(naked) __inline sqlite_uint64 __cdecl sqlite3Hwtime(void){
      __asm {
         rdtsc
-        ret       ; return value at EDX:EAX
+        ret    ; return value at EDX:EAX
      }
   }
 
@@ -57352,7 +57352,7 @@ case OP_IdxGE: {        /* jump */
       u.bq.res++;
     }
     if( u.bq.res>0 ){
-      pc = pOp->p2 - 1 ;
+      pc = pOp->p2 - 1;
     }
   }
   break;
@@ -79539,7 +79539,7 @@ static int sqlite3InitOne(sqlite3 *db, int iDb, char **pzErrMsg){
      "  rootpage integer,\n"
      "  sql text\n"
      ")"
-  ;
+;
 #ifndef SQLITE_OMIT_TEMPDB
   static const char temp_master_schema[] = 
      "CREATE TEMP TABLE sqlite_temp_master(\n"
@@ -79549,7 +79549,7 @@ static int sqlite3InitOne(sqlite3 *db, int iDb, char **pzErrMsg){
      "  rootpage integer,\n"
      "  sql text\n"
      ")"
-  ;
+;
 #else
   #define temp_master_schema 0
 #endif
@@ -85425,8 +85425,8 @@ static int codeTriggerProgram(
     **     INSERT OR REPLACE INTO t2 VALUES(new.a, new.b);
     **   END;
     **
-    **   INSERT INTO t1 ... ;            -- insert into t2 uses REPLACE policy
-    **   INSERT OR IGNORE INTO t1 ... ;  -- insert into t2 uses IGNORE policy
+    **   INSERT INTO t1 ...;            -- insert into t2 uses REPLACE policy
+    **   INSERT OR IGNORE INTO t1 ...;  -- insert into t2 uses IGNORE policy
     */
     pParse->eOrconf = (orconf==OE_Default)?pStep->orconf:(u8)orconf;
 
@@ -98080,7 +98080,7 @@ static int openDatabase(
 #if SQLITE_DEFAULT_RECURSIVE_TRIGGERS
                  | SQLITE_RecTriggers
 #endif
-      ;
+   ;
   sqlite3HashInit(&db->aCollSeq);
 #ifndef SQLITE_OMIT_VIRTUALTABLE
   sqlite3HashInit(&db->aModule);
@@ -109129,7 +109129,7 @@ static void nodeHashDelete(Rtree *pRtree, RtreeNode *pNode){
   RtreeNode **pp;
   if( pNode->iNode!=0 ){
     pp = &pRtree->aHash[nodeHash(pNode->iNode)];
-    for( ; (*pp)!=pNode; pp = &(*pp)->pNext){ assert(*pp); }
+    for(; (*pp)!=pNode; pp = &(*pp)->pNext){ assert(*pp); }
     *pp = pNode->pNext;
     pNode->pNext = 0;
   }
@@ -110649,7 +110649,7 @@ static int splitNodeGuttman(
     float diff =  
       cellGrowth(pRtree, pBboxLeft, pNext) - 
       cellGrowth(pRtree, pBboxRight, pNext)
-    ;
+ ;
     if( (RTREE_MINCELLS(pRtree)-NCELL(pRight)==i)
      || (diff>0.0 && (RTREE_MINCELLS(pRtree)-NCELL(pLeft)!=i))
     ){

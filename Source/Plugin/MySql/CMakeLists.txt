@@ -35,4 +35,5 @@ add_target(
 )
 
 set_property( TARGET DatabasePluginMySql PROPERTY FOLDER "Plugin/MySQL" )
+add_target_astyle( DatabasePluginMySql ".h;.hpp;.inl;.cpp" )
 set( Build "yes" PARENT_SCOPE )

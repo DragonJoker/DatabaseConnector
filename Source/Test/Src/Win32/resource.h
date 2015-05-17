@@ -3,7 +3,7 @@
  * @author Sylvain Doremus
  * @version 1.0
  * @date 02/12/2013
- * 
+ *
  *
  * @brief Win32 Database Test resources
  *

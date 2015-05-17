@@ -23,3 +23,4 @@ add_target(
 )
 
 set_property( TARGET DatabasePluginOdbcMySql PROPERTY FOLDER "Plugin/Odbc/MySql" )
+add_target_astyle( DatabasePluginOdbcMySql ".h;.hpp;.inl;.cpp" )

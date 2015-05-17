@@ -3,7 +3,7 @@
  * @author Sylvain Doremus
  * @version 1.0
  * @date 3/20/2014 2:47:39 PM
- * 
+ *
  *
  * @brief CDatabaseParameterSqlite class declaration.
  *
@@ -21,37 +21,37 @@
 
 BEGIN_NAMESPACE_DATABASE_SQLITE
 {
-    /** Describes a statement parameter for SQLite database.
-    */
-    class CDatabaseParameterSqlite
-    {
-    public:
-        //! The SQLite data types associated to Database::EFieldType
-        static int SqliteDataTypes[EFieldType_COUNT];
-        
-    public:
-        /** Constructor.
-        @param[in] fieldType
-            Field type.
-        @param[in] parameterType
-            Parameter type.
-         */
-        DatabaseSqliteExport CDatabaseParameterSqlite( EFieldType fieldType );
-        
-        /** Destructor.
-         */
-        DatabaseSqliteExport virtual ~CDatabaseParameterSqlite();
-        
-        /** Retrieve the data type
-        @return
-            The type
-        */
-        DatabaseSqliteExport const int & GetDataType()const;
-        
-    protected:
-        //! The SQLite data type
-        int _dataType;
-    };
+	/** Describes a statement parameter for SQLite database.
+	*/
+	class CDatabaseParameterSqlite
+	{
+	public:
+		//! The SQLite data types associated to Database::EFieldType
+		static int SqliteDataTypes[EFieldType_COUNT];
+
+	public:
+		/** Constructor.
+		@param[in] fieldType
+		    Field type.
+		@param[in] parameterType
+		    Parameter type.
+		 */
+		DatabaseSqliteExport CDatabaseParameterSqlite( EFieldType fieldType );
+
+		/** Destructor.
+		 */
+		DatabaseSqliteExport virtual ~CDatabaseParameterSqlite();
+
+		/** Retrieve the data type
+		@return
+		    The type
+		*/
+		DatabaseSqliteExport const int & GetDataType()const;
+
+	protected:
+		//! The SQLite data type
+		int _dataType;
+	};
 }
 END_NAMESPACE_DATABASE_SQLITE
 

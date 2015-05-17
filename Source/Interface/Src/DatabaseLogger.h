@@ -38,9 +38,9 @@ BEGIN_NAMESPACE_DATABASE
 	private:
 		friend class ILoggerImpl;
 		static bool				m_bOwnInstance;
-		static CLogger *		m_pSingleton;
+		static CLogger 	*	m_pSingleton;
 		static uint32_t			m_uiCounter;
-		ILoggerImpl *			m_pImpl;
+		ILoggerImpl 	*		m_pImpl;
 		std::mutex				m_mutex;
 		String					m_strHeaders[eLOG_TYPE_COUNT];
 
@@ -107,7 +107,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_logFilePath	Le chemin du fichier
 		 *\param[in]	p_eLogType		Le type de log concerné
 		 */
-		static void SetFileName( String const & p_logFilePath, eLOG_TYPE p_eLogType=eLOG_TYPE_COUNT );
+		static void SetFileName( String const & p_logFilePath, eLOG_TYPE p_eLogType = eLOG_TYPE_COUNT );
 		/**
 		 *\~english
 		 *\brief		Logs a debug message in the log file, using va_args
@@ -136,7 +136,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\brief		Log un message debug, à partir d'un std::stringstream
 		 *\param[in]	p_msg	The line to log
 		 */
-        static void LogDebug( std::ostream const & p_msg );
+		static void LogDebug( std::ostream const & p_msg );
 		/**
 		 *\~english
 		 *\brief		Logs a unicode debug message in the log file, using va_args
@@ -165,7 +165,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\brief		Log un message debug, à partir d'un std::wstringstream
 		 *\param[in]	p_msg	The line to log
 		 */
-        static void LogDebug( std::wostream const & p_msg );
+		static void LogDebug( std::wostream const & p_msg );
 		/**
 		 *\~english
 		 *\brief		Logs a message in the log file, using va_args
@@ -194,7 +194,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\brief		Log un message debug, à partir d'un std::stringstream
 		 *\param[in]	p_msg	The line to log
 		 */
-        static void LogMessage( std::ostream const & p_msg );
+		static void LogMessage( std::ostream const & p_msg );
 		/**
 		 *\~english
 		 *\brief		Logs a unicode line in the log file, using va_args
@@ -223,7 +223,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\brief		Log un message debug, à partir d'un std::wstringstream
 		 *\param[in]	p_msg	The line to log
 		 */
-        static void LogMessage( std::wostream const & p_msg );
+		static void LogMessage( std::wostream const & p_msg );
 		/**
 		 *\~english
 		 *\brief		Logs a warning in the log file, using va_args
@@ -252,7 +252,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\brief		Log un message debug, à partir d'un std::stringstream
 		 *\param[in]	p_msg	The line to log
 		 */
-        static void LogWarning( std::ostream const & p_msg );
+		static void LogWarning( std::ostream const & p_msg );
 		/**
 		 *\~english
 		 *\brief		Logs a unicode warning in the log file, using va_args
@@ -281,7 +281,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\brief		Log un message debug, à partir d'un std::wstringstream
 		 *\param[in]	p_msg	The line to log
 		 */
-        static void LogWarning( std::wostream const & p_msg );
+		static void LogWarning( std::wostream const & p_msg );
 		/**
 		 *\~english
 		 *\brief		Logs an error in the log file, using va_args
@@ -310,7 +310,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\brief		Log un message debug, à partir d'un std::stringstream
 		 *\param[in]	p_msg	The line to log
 		 */
-        static void LogError( std::ostream const & p_msg );
+		static void LogError( std::ostream const & p_msg );
 		/**
 		 *\~english
 		 *\brief		Logs a unicode error in the log file, using va_args
@@ -339,7 +339,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\brief		Log un message debug, à partir d'un std::wstringstream
 		 *\param[in]	p_msg	The line to log
 		 */
-        static void LogError( std::wostream const & p_msg );
+		static void LogError( std::wostream const & p_msg );
 		/**
 		 *\~english
 		 *\brief		Returns a reference over the instance
@@ -361,7 +361,7 @@ BEGIN_NAMESPACE_DATABASE
 
 	private:
 		void DoSetCallback( PLogCallback p_pfnCallback, void * p_pCaller );
-		void DoSetFileName( String const & p_logFilePath, eLOG_TYPE p_eLogType=eLOG_TYPE_COUNT );
+		void DoSetFileName( String const & p_logFilePath, eLOG_TYPE p_eLogType = eLOG_TYPE_COUNT );
 	};
 }
 END_NAMESPACE_DATABASE

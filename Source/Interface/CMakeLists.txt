@@ -22,3 +22,4 @@ add_target(
 )
 
 set_property( TARGET Database PROPERTY FOLDER "Interface" )
+add_target_astyle( Database ".h;.hpp;.inl;.cpp" )

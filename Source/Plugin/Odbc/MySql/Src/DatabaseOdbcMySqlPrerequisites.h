@@ -3,7 +3,7 @@
  * @author Sylvain Doremus
  * @version 1.0
  * @date 03/14/2014 11:48:00 AM
- * 
+ *
  *
  * @brief Database ODBC prerequisite header.
  *
@@ -33,10 +33,10 @@
 BEGIN_NAMESPACE_DATABASE_ODBC
 {
 
-    /** MySql namespace
-    */
-    namespace MySql
-    {
+	/** MySql namespace
+	*/
+	namespace MySql
+	{
 #if ( PLATFORM == PLATFORM_WIN32 ) && !defined ( __MINGW32__ ) && !defined ( STATIC_LIB )
 #    ifdef DatabasePluginOdbcMySql_EXPORTS
 #        define DatabaseOdbcMySqlExport __declspec ( dllexport )
@@ -50,25 +50,25 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 #else
 #    define DatabaseOdbcMySqlExport
 #endif
-        
-        // Pre-declare classes
-        // Allows use of pointers in header files without including individual .h
-        // so decreases dependencies between files
-        class CDatabaseConnectionOdbcMySql;
-        class CPluginDatabaseOdbcMySql;
-        class CFactoryDatabaseOdbcMySql;
-        
-        // Pointers
-        typedef std::shared_ptr< CDatabaseConnectionOdbcMySql >            DatabaseConnectionOdbcMySqlPtr;
-        
-        // Factory constants
-        const String FACTORY_DATABASE_ODBC_MYSQL = STR( "Factory Database Odbc MySql" );
-        
-        // Plugin constants
-        const String DATABASE_ODBC_MYSQL_TYPE = STR( "Database.Odbc.MySql" );
-        const String PLUGIN_NAME_DATABASE_ODBC_MYSQL = STR( "Plugin Database Odbc MySql" );
-        
-        // SQL execution
+
+		// Pre-declare classes
+		// Allows use of pointers in header files without including individual .h
+		// so decreases dependencies between files
+		class CDatabaseConnectionOdbcMySql;
+		class CPluginDatabaseOdbcMySql;
+		class CFactoryDatabaseOdbcMySql;
+
+		// Pointers
+		typedef std::shared_ptr< CDatabaseConnectionOdbcMySql >            DatabaseConnectionOdbcMySqlPtr;
+
+		// Factory constants
+		const String FACTORY_DATABASE_ODBC_MYSQL = STR( "Factory Database Odbc MySql" );
+
+		// Plugin constants
+		const String DATABASE_ODBC_MYSQL_TYPE = STR( "Database.Odbc.MySql" );
+		const String PLUGIN_NAME_DATABASE_ODBC_MYSQL = STR( "Plugin Database Odbc MySql" );
+
+		// SQL execution
 #define SqlTry( func, handle_type, handle, text )   attemptCount = 0;\
     errorType = SqlSuccess( func, handle_type, handle, text );\
     while( errorType == EErrorType_RETRY && attemptCount < 10 )\
@@ -80,9 +80,9 @@ BEGIN_NAMESPACE_DATABASE_ODBC
     {\
         errorType = EErrorType_RECONNECT;\
     }
-        
-    } // namespace MySql
-    
+
+	} // namespace MySql
+
 } END_NAMESPACE_DATABASE_ODBC
 
 #endif // ___DATABASE_ODBC_MYSQL_PREREQUISITES_H___

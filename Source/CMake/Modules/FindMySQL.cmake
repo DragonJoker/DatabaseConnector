@@ -1,3 +1,4 @@
+
 # *******************************<+>***************************************
 #
 # File        : FindMySQL.cmake
@@ -104,25 +105,31 @@ endif( NOT MYSQL_CPP_INCLUDE_DIR )
 if ( WIN32 )
     find_library( MYSQL_CPP_LIBRARY_DYNAMIC_RELEASE
         NAMES mysqlcppconn
-        HINTS ${MYSQL_CPP_ROOT_DIR}/lib/${CONFIGURATION}
+        PATHS
+            ${MYSQL_CPP_ROOT_DIR}/lib
+            ${MYSQL_CPP_ROOT_DIR}/lib/opt
         DOC "The MySQL library"
     )
 
     find_library( MYSQL_CPP_LIBRARY_STATIC_RELEASE
         NAMES mysqlcppconn-static
-        HINTS ${MYSQL_CPP_ROOT_DIR}/lib/${CONFIGURATION}
+        PATHS
+            ${MYSQL_CPP_ROOT_DIR}/lib
+            ${MYSQL_CPP_ROOT_DIR}/lib/opt
         DOC "The MySQL static library"
     )
     
     find_library( MYSQL_CPP_LIBRARY_DYNAMIC_DEBUG
         NAMES mysqlcppconnd
-        HINTS ${MYSQL_CPP_ROOT_DIR}/lib/${CONFIGURATION}
+        PATHS
+            ${MYSQL_CPP_ROOT_DIR}/lib/debug
         DOC "The MySQL library"
     )
 
     find_library( MYSQL_CPP_LIBRARY_STATIC_DEBUG
         NAMES mysqlcppconn-staticd
-        HINTS ${MYSQL_CPP_ROOT_DIR}/lib/${CONFIGURATION}
+        PATHS
+            ${MYSQL_CPP_ROOT_DIR}/lib/debug
         DOC "The MySQL static library"
     )
     if( MYSQL_CPP_LIBRARY_DYNAMIC_RELEASE )

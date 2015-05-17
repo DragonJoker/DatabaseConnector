@@ -3,7 +3,7 @@
  * @author Sylvain Doremus
  * @version 1.0
  * @date 03/14/2013 09:21:05 AM
- * 
+ *
  *
  * @brief Database precompiled header
  *

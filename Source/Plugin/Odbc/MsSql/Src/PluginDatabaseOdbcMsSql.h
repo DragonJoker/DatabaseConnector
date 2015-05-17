@@ -3,7 +3,7 @@
  * @author Sylvain Doremus
  * @version 1.0
  * @date 4/8/2014 4:03:17 PM
- * 
+ *
  *
  * @brief Class defining a generic ODBC database plugin.
  *
@@ -20,34 +20,34 @@
 
 BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 {
-    /** Class defining a generic ODBC database plugin.
-    */
-    class CPluginDatabaseOdbcMsSql
-        : public CPluginDatabase
-    {
-    public:
-        /** Default constructor.
-        */
-        DatabaseOdbcMsSqlExport CPluginDatabaseOdbcMsSql();
-        
-        /** Destructor.
-        */
-        DatabaseOdbcMsSqlExport virtual ~CPluginDatabaseOdbcMsSql();
-        
-        ///@copydoc Areva::ARIA::Native::Core::CPlugin::GetName
-        DatabaseOdbcMsSqlExport virtual const String GetName() const;
-        
-        ///@copydoc Areva::ARIA::Native::Core::CPlugin::Initialize
-        DatabaseOdbcMsSqlExport virtual void Initialize();
-        
-        ///@copydoc Areva::ARIA::Native::Core::CPlugin::Shutdown
-        DatabaseOdbcMsSqlExport virtual void Shutdown();
-        
-    protected:
-        ///@copydoc Areva::ARIA::Native::Core::CParameterListInterface::AddBaseParameters
-        DatabaseOdbcMsSqlExport virtual void AddBaseParameters();
-    };
-    
+	/** Class defining a generic ODBC database plugin.
+	*/
+	class CPluginDatabaseOdbcMsSql
+		: public CPluginDatabase
+	{
+	public:
+		/** Default constructor.
+		*/
+		DatabaseOdbcMsSqlExport CPluginDatabaseOdbcMsSql();
+
+		/** Destructor.
+		*/
+		DatabaseOdbcMsSqlExport virtual ~CPluginDatabaseOdbcMsSql();
+
+		///@copydoc Areva::ARIA::Native::Core::CPlugin::GetName
+		DatabaseOdbcMsSqlExport virtual const String GetName() const;
+
+		///@copydoc Areva::ARIA::Native::Core::CPlugin::Initialize
+		DatabaseOdbcMsSqlExport virtual void Initialize();
+
+		///@copydoc Areva::ARIA::Native::Core::CPlugin::Shutdown
+		DatabaseOdbcMsSqlExport virtual void Shutdown();
+
+	protected:
+		///@copydoc Areva::ARIA::Native::Core::CParameterListInterface::AddBaseParameters
+		DatabaseOdbcMsSqlExport virtual void AddBaseParameters();
+	};
+
 } END_NAMESPACE_DATABASE_ODBC_MSSQL
 
 #endif // ___PLUGIN_DATABASE_ODBC_MSSQL_H___

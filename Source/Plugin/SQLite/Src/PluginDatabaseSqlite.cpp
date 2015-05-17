@@ -3,7 +3,7 @@
  * @author Sylvain Doremus
  * @version 1.0
  * @date 4/8/2014 4:03:23 PM
- * 
+ *
  *
  * @brief Class defining a generic SQLITE database plugin.
  *
@@ -18,33 +18,33 @@
 
 BEGIN_NAMESPACE_DATABASE_SQLITE
 {
-    CPluginDatabaseSqlite::CPluginDatabaseSqlite()
-        : CPluginDatabase( new CFactoryDatabaseSqlite() )
-    {
-        // Empty
-    }
-    
-    CPluginDatabaseSqlite::~CPluginDatabaseSqlite()
-    {
-        // Empty
-    }
-    
-    const String CPluginDatabaseSqlite::GetName() const
-    {
-        return Sqlite::PLUGIN_NAME_DATABASE_SQLITE;
-    }
-    
-    void CPluginDatabaseSqlite::Initialize()
-    {
-    }
-    
-    void CPluginDatabaseSqlite::Shutdown()
-    {
-    }
-    
-    void CPluginDatabaseSqlite::AddBaseParameters()
-    {
-        // Empty
-    }
-    
+	CPluginDatabaseSqlite::CPluginDatabaseSqlite()
+		: CPluginDatabase( new CFactoryDatabaseSqlite() )
+	{
+		// Empty
+	}
+
+	CPluginDatabaseSqlite::~CPluginDatabaseSqlite()
+	{
+		// Empty
+	}
+
+	const String CPluginDatabaseSqlite::GetName() const
+	{
+		return Sqlite::PLUGIN_NAME_DATABASE_SQLITE;
+	}
+
+	void CPluginDatabaseSqlite::Initialize()
+	{
+	}
+
+	void CPluginDatabaseSqlite::Shutdown()
+	{
+	}
+
+	void CPluginDatabaseSqlite::AddBaseParameters()
+	{
+		// Empty
+	}
+
 } END_NAMESPACE_DATABASE_SQLITE

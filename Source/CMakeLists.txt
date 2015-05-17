@@ -12,11 +12,12 @@ set( VERSION_BUILD	0		)
 set( VERSION_YEAR	2014	)
 
 # Used to look for external modules
-set( DATABASE_CMAKE_PATH "${CMAKE_SOURCE_DIR}/CMake" )
-# Used to look for external modules
-set( CMAKE_MODULE_PATH "${DATABASE_CMAKE_PATH}/Modules" )
+set( CMAKE_MODULE_PATH
+	${CMAKE_SOURCE_DIR}/CMake
+	${CMAKE_SOURCE_DIR}/CMake/Modules
+)
 # Experimental Precompiled headers support for GCC
-include( ${DATABASE_CMAKE_PATH}/PCHSupport.cmake )
+include( PCHSupport )
 # Force Unicode projects (MBCS is past :P)
 add_definitions( -DUNICODE -D_UNICODE )
 
@@ -26,15 +27,16 @@ enable_testing()
 # Declare the project
 project( ${ProjectName} )
 
-include( ${DATABASE_CMAKE_PATH}/Project.cmake )
-include( ${DATABASE_CMAKE_PATH}/UnitTest.cmake )
+include( Project )
+include( AStyleUtils )
+include( UnitTest )
 
 option( BUILD_STATIC "Build Static" FALSE )
 
 # Organize projects into folders
 set_property( GLOBAL PROPERTY USE_FOLDERS ON )
 
-set( CMAKE_TEMPLATES_DIR "${DATABASE_CMAKE_PATH}/Templates" )
+set( CMAKE_TEMPLATES_DIR ${CMAKE_SOURCE_DIR}/CMake/Templates )
 
 #--------------------------------------------------------------------------------------------------
 #	Looking for needed libraries

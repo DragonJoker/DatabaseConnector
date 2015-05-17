@@ -11,7 +11,7 @@ include_directories(
     ${ODBC_INCLUDE_DIR}
 )
 
-find_package( Boost REQUIRED signals )
+#find_package( Boost REQUIRED signals )
 
 if( Boost_FOUND )
     add_target(
@@ -25,6 +25,7 @@ if( Boost_FOUND )
     )
 
     set_property( TARGET DatabasePluginOdbc PROPERTY FOLDER "Plugin/Odbc" )
+    add_target_astyle( DatabasePluginOdbc ".h;.hpp;.inl;.cpp" )
 
     add_subdirectory( MsSql )
     add_subdirectory( MySql )

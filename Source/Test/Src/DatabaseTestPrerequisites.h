@@ -3,7 +3,7 @@
  * @author Sylvain Doremus
  * @version 1.0
  * @date 02/11/2013 05:09:00 PM
- * 
+ *
  *
  * @brief DatabaseTest prerequisite header.
  *
@@ -46,20 +46,14 @@
 
 BEGIN_NAMESPACE_DATABASE
 {
-    namespace Test
-    {
-#if defined( _WIN32 )
-        static const NAMESPACE_DATABASE::TChar PATH_DELIM = STR( '\\' );
-#else
-        static const NAMESPACE_DATABASE::TChar PATH_DELIM = STR( '/' );
-#endif
-        
-        String InitializeSingletons();
-        void LoadPlugins( const String & path, bool mySql, bool odbcMySql, bool odbcMsSql );
-        void UnloadPlugins();
-        Database::CDatabase * CreateDatabase( const String & type );
-        Database::DatabaseConnectionPtr CreateConnection( Database::CDatabase * database, const String & server, const String & name, const String & user, const String & pwd );
-    }
+	namespace Test
+	{
+		String InitializeSingletons();
+		void LoadPlugins( const String & path, bool mySql, bool sqlite, bool odbcMySql, bool odbcMsSql );
+		void UnloadPlugins();
+		Database::CDatabase * InstantiateDatabase( const String & type );
+		Database::DatabaseConnectionPtr CreateConnection( Database::CDatabase * database, const String & server, const String & name, const String & user, const String & pwd );
+	}
 }
 END_NAMESPACE_DATABASE
 

@@ -3,7 +3,7 @@
  * @author Sylvain Doremus
  * @version 1.0
  * @date 3/17/2014 1:26:02 PM
- * 
+ *
  *
  * @brief EDateDay enumeration declaration.
  *
@@ -19,18 +19,19 @@
 BEGIN_NAMESPACE_DATABASE
 {
 
-    /// Enumeration of days.
-    typedef enum EDateDay
-    {   EDateDay_UNDEF,
-        EDateDay_MONDAY,
-        EDateDay_TUESDAY,
-        EDateDay_WEDNESDAY,
-        EDateDay_THURSDAY,
-        EDateDay_FRIDAY,
-        EDateDay_SATURDAY,
-        EDateDay_SUNDAY
-    } EDateDay;
-    
+	/// Enumeration of days.
+	typedef enum EDateDay
+	{
+		EDateDay_UNDEF,
+		EDateDay_MONDAY,
+		EDateDay_TUESDAY,
+		EDateDay_WEDNESDAY,
+		EDateDay_THURSDAY,
+		EDateDay_FRIDAY,
+		EDateDay_SATURDAY,
+		EDateDay_SUNDAY
+	} EDateDay;
+
 }
 END_NAMESPACE_DATABASE
 
