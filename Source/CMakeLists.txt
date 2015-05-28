@@ -16,6 +16,7 @@ set( CMAKE_MODULE_PATH
 	${CMAKE_SOURCE_DIR}/CMake
 	${CMAKE_SOURCE_DIR}/CMake/Modules
 )
+set( CMAKE_TEMPLATES_DIR ${CMAKE_SOURCE_DIR}/Templates )
 # Experimental Precompiled headers support for GCC
 include( PCHSupport )
 
@@ -60,8 +61,6 @@ option( BUILD_STATIC "Build Static" FALSE )
 # Organize projects into folders
 set_property( GLOBAL PROPERTY USE_FOLDERS ON )
 
-set( CMAKE_TEMPLATES_DIR ${CMAKE_SOURCE_DIR}/CMake/Templates )
-
 #--------------------------------------------------------------------------------------------------
 #	Looking for needed libraries
 #--------------------------------------------------------------------------------------------------
@@ -79,7 +78,7 @@ if (CMAKE_COMPILER_IS_GNUCXX)
 	else()
 		find_package( Boost COMPONENTS system date_time locale )
 	endif ()
-elseif ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+elseif ( CMAKE_CXX_COMPILER_ID MATCHES "Clang" )
 	COMPILER_DUMPVERSION( COMPILER_VERSION )
 	msg_debug( "clang version : ${COMPILER_VERSION}" )
     find_package( Boost COMPONENTS system date_time locale )

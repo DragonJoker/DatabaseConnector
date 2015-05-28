@@ -1,0 +1,3 @@
+[submodule "Source/CMake"]
+	path = Source/CMake
+	url = git@github.com:DragonJoker/CMakeUtils.git
