@@ -22,7 +22,7 @@ BEGIN_NAMESPACE_DATABASE
 {
 	/** Describes a database.
 	*/
-	class DatabaseExport CDatabase
+	class CDatabase
 	{
 
 	public:
@@ -30,11 +30,11 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] type
 		    Database type.
 		*/
-		CDatabase();
+		DatabaseExport CDatabase();
 
 		/** Destructor.
 		*/
-		virtual ~CDatabase();
+		DatabaseExport virtual ~CDatabase();
 
 		/** Connect to the database.
 		@param[in] server
@@ -48,11 +48,11 @@ BEGIN_NAMESPACE_DATABASE
 		@param[out] connectionString
 		    Created connection string.
 		*/
-		void Connect( const String & server, const String & database, const String & userName, const String & password, String & connectionString );
+		DatabaseExport void Connect( const String & server, const String & database, const String & userName, const String & password, String & connectionString );
 
 		/** Close connection to the database.
 		*/
-		void Disconnect();
+		DatabaseExport void Disconnect();
 
 		/** Initialize data.
 		@param[in] server
@@ -64,23 +64,23 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] password
 		    User password.
 		*/
-		void Initialize( const String & server, const String & database, const String & userName, const String & password );
+		DatabaseExport void Initialize( const String & server, const String & database, const String & userName, const String & password );
 
 		/** Create a connection.
 		@param[out] connectionString
 		    Created connection string.
 		*/
-		void CreateConnection( String & connectionString );
+		DatabaseExport void CreateConnection( String & connectionString );
 
 		/** Retrieve connection.
 		@return
 		    Found connection.
 		*/
-		DatabaseConnectionPtr RetrieveConnection();
+		DatabaseExport DatabaseConnectionPtr RetrieveConnection();
 
 		/** Remove connection.
 		*/
-		void RemoveConnection();
+		DatabaseExport void RemoveConnection();
 
 		/** Initialize a named transaction.
 		@param[in] name
@@ -88,7 +88,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Error code.
 		*/
-		EErrorType BeginTransaction( const String & name = STR( "" ) );
+		DatabaseExport EErrorType BeginTransaction( const String & name = STR( "" ) );
 
 		/** Validate the operations of the transaction.
 		@param[in] name
@@ -96,7 +96,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Error code.
 		*/
-		EErrorType Commit( const String & name = STR( "" ) );
+		DatabaseExport EErrorType Commit( const String & name = STR( "" ) );
 
 		/** Invalidate the operations of the transaction.
 		@param[in] name
@@ -104,7 +104,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Error code.
 		*/
-		EErrorType RollBack( const String & name = STR( "" ) );
+		DatabaseExport EErrorType RollBack( const String & name = STR( "" ) );
 
 		/** Create a statement based on a request.
 		@param[in] query
@@ -114,7 +114,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Created statement.
 		*/
-		DatabaseStatementPtr CreateStatement( const String & query, EErrorType * result );
+		DatabaseExport DatabaseStatementPtr CreateStatement( const String & query, EErrorType * result );
 
 		/** Create a query based on a request.
 		@param[in] query
@@ -124,7 +124,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Created query.
 		*/
-		DatabaseQueryPtr CreateQuery( const String & query, EErrorType * result );
+		DatabaseExport DatabaseQueryPtr CreateQuery( const String & query, EErrorType * result );
 
 		/** Execute directly a request without result set.
 		@param[in] query
@@ -134,7 +134,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Results.
 		*/
-		bool ExecuteUpdate( const String & query, EErrorType * result );
+		DatabaseExport bool ExecuteUpdate( const String & query, EErrorType * result );
 
 		/** Execute directly a request with a result set.
 		@param[in] query
@@ -144,7 +144,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Results.
 		*/
-		DatabaseResultPtr ExecuteSelect( const String & query, EErrorType * result );
+		DatabaseExport DatabaseResultPtr ExecuteSelect( const String & query, EErrorType * result );
 
 		/** Format a string to insert into a request.
 		@param[in] text
@@ -152,7 +152,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Formatted value.
 		*/
-		std::string WriteText( const std::string & text ) const;
+		DatabaseExport std::string WriteText( const std::string & text ) const;
 
 		/** Format a string to insert into a request.
 		@param[in] text
@@ -160,7 +160,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Formatted value.
 		*/
-		std::wstring WriteNText( const std::wstring & text ) const;
+		DatabaseExport std::wstring WriteNText( const std::wstring & text ) const;
 
 		/** Format a string to insert into a request.
 		@param[in] name
@@ -168,7 +168,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Formatted value.
 		*/
-		String WriteName( const String & name ) const;
+		DatabaseExport String WriteName( const String & name ) const;
 
 		/** Format a date to insert into a request.
 		@param[in] date
@@ -176,7 +176,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Formatted value.
 		*/
-		std::string WriteDate( const CDate & date ) const;
+		DatabaseExport std::string WriteDate( const CDate & date ) const;
 
 		/** Format a date to insert into a request.
 		@param[in] date
@@ -186,7 +186,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Formatted value.
 		*/
-		std::string WriteDate( const std::string & date, const std::string & format ) const;
+		DatabaseExport std::string WriteDate( const std::string & date, const std::string & format ) const;
 
 		/** Format a date to insert into a statement.
 		@param[in] date
@@ -194,7 +194,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Formatted value.
 		*/
-		std::string WriteStmtDate( const CDate & date ) const;
+		DatabaseExport std::string WriteStmtDate( const CDate & date ) const;
 
 		/** Format a date to insert into a statement.
 		@param[in] date
@@ -204,7 +204,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Formatted value.
 		*/
-		std::string WriteStmtDate( const std::string & date, const std::string & format ) const;
+		DatabaseExport std::string WriteStmtDate( const std::string & date, const std::string & format ) const;
 
 		/** Format a time to insert into a request.
 		@param[in] time
@@ -212,7 +212,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Formatted value.
 		*/
-		std::string WriteTime( const CTime & time ) const;
+		DatabaseExport std::string WriteTime( const CTime & time ) const;
 
 		/** Format a time to insert into a request.
 		@param[in] time
@@ -222,7 +222,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Formatted value.
 		*/
-		std::string WriteTime( const std::string & time, const std::string & format ) const;
+		DatabaseExport std::string WriteTime( const std::string & time, const std::string & format ) const;
 
 		/** Format a time to insert into a statement.
 		@param[in] time
@@ -230,7 +230,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Formatted value.
 		*/
-		std::string WriteStmtTime( const CTime & time ) const;
+		DatabaseExport std::string WriteStmtTime( const CTime & time ) const;
 
 		/** Format a time to insert into a statement.
 		@param[in] time
@@ -240,7 +240,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Formatted value.
 		*/
-		std::string WriteStmtTime( const std::string & time, const std::string & format ) const;
+		DatabaseExport std::string WriteStmtTime( const std::string & time, const std::string & format ) const;
 
 		/** Format a date/time to insert into a request.
 		@param[in] dateTime
@@ -248,7 +248,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Formatted value.
 		*/
-		std::string WriteDateTime( const CDateTime & dateTime ) const;
+		DatabaseExport std::string WriteDateTime( const CDateTime & dateTime ) const;
 
 		/** Format a date/time to insert into a request.
 		@param[in] dateTime
@@ -258,7 +258,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Formatted value.
 		*/
-		std::string WriteDateTime( const std::string & dateTime, const std::string & format ) const;
+		DatabaseExport std::string WriteDateTime( const std::string & dateTime, const std::string & format ) const;
 
 		/** Format a date/time to insert into a statement.
 		@param[in] dateTime
@@ -266,7 +266,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Formatted value.
 		*/
-		std::string WriteStmtDateTime( const CDateTime & dateTime ) const;
+		DatabaseExport std::string WriteStmtDateTime( const CDateTime & dateTime ) const;
 
 		/** Format a date/time to insert into a statement.
 		@param[in] dateTime
@@ -276,7 +276,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Formatted value.
 		*/
-		std::string WriteStmtDateTime( const std::string & dateTime, const std::string & format ) const;
+		DatabaseExport std::string WriteStmtDateTime( const std::string & dateTime, const std::string & format ) const;
 
 		/** Format a boolean to insert into a request or statement.
 		@param[in] value
@@ -284,7 +284,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Formatted value.
 		*/
-		String WriteBool( bool value ) const;
+		DatabaseExport String WriteBool( bool value ) const;
 
 		/** Format a boolean to insert into a request or statement.
 		@param[in] value
@@ -292,7 +292,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Formatted value.
 		*/
-		String WriteBool( const String & value ) const;
+		DatabaseExport String WriteBool( const String & value ) const;
 
 		/** Convert a string from the database to a date.
 		@param[in] date
@@ -300,7 +300,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Created date with the string.
 		*/
-		CDate ParseDate( const String & date ) const;
+		DatabaseExport CDate ParseDate( const String & date ) const;
 
 		/** Convert a string from the database to a time.
 		@param[in] time
@@ -308,7 +308,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Created time with the string.
 		*/
-		CTime ParseTime( const String & time ) const;
+		DatabaseExport CTime ParseTime( const String & time ) const;
 
 		/** Convert a string from the database to a date/time.
 		@param[in] dateTime
@@ -316,19 +316,19 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Created date/time with the string.
 		*/
-		CDateTime ParseDateTime( const String & dateTime ) const;
+		DatabaseExport CDateTime ParseDateTime( const String & dateTime ) const;
 
 		/** Get the connection status.
 		@return
 		    true if connected, false otherwise.
 		*/
-		bool IsConnected() const;
+		DatabaseExport bool IsConnected() const;
 
 		/** Get the transaction status.
 		@return
 		    true if a transaction is started, false otherwise.
 		*/
-		bool IsInTransaction() const;
+		DatabaseExport bool IsInTransaction() const;
 
 	protected:
 
@@ -338,7 +338,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Database connection.
 		*/
-		virtual DatabaseConnectionPtr DoCreateConnection( String & connectionString ) const = 0;
+		DatabaseExport virtual DatabaseConnectionPtr DoCreateConnection( String & connectionString ) const = 0;
 
 	protected:
 

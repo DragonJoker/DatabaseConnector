@@ -34,6 +34,12 @@ add_target(
 	""
 )
 
+if ( WIN32 )
+	# Preparing MySQL Connector C++ DLL installation
+	install_dll( DatabasePluginMySql ${MYSQL_CPP_LIBRARY_DYNAMIC_DEBUG} Debug )
+	install_dll( DatabasePluginMySql ${MYSQL_CPP_LIBRARY_DYNAMIC_RELEASE} Release )
+endif ()
+
 set_property( TARGET DatabasePluginMySql PROPERTY FOLDER "Plugin/MySQL" )
 add_target_astyle( DatabasePluginMySql ".h;.hpp;.inl;.cpp" )
 set( Build "yes" PARENT_SCOPE )

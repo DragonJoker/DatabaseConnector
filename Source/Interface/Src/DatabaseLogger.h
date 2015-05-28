@@ -33,7 +33,7 @@ BEGIN_NAMESPACE_DATABASE
 	\brief		Classe de gestion de logs
 	\remark		Implémente les fonctions de logging. Initialise un log avec un nom de fichier puis écrit dedans
 	*/
-	class DatabaseExport CLogger
+	class CLogger
 	{
 	private:
 		friend class ILoggerImpl;
@@ -69,7 +69,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\brief		Initialise l'instance de ce Logger à une autre
 		 *\param[in]	p_pLogger	Le logger
 		 */
-		static void Initialise( CLogger * p_pLogger );
+		DatabaseExport static void Initialise( CLogger * p_pLogger );
 		/**
 		 *\~english
 		 *\brief		Initialises this logger instance level
@@ -78,14 +78,14 @@ BEGIN_NAMESPACE_DATABASE
 		 *\brief		Initialise l'instance du logger avec le niveau donné
 		 *\param[in]	p_eLogLevel		Le niveau de log
 		 */
-		static void Initialise( eLOG_TYPE p_eLogLevel );
+		DatabaseExport static void Initialise( eLOG_TYPE p_eLogLevel );
 		/**
 		 *\~english
 		 *\brief		Destroys the Logger instance
 		 *\~french
 		 *\brief		Détruit l'instance du Logger
 		 */
-		static void Cleanup();
+		DatabaseExport static void Cleanup();
 		/**
 		 *\~english
 		 *\brief		Defines the logging callback
@@ -96,7 +96,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_pfnCallback	La callback
 		 *\param[in]	p_pCaller		Pointeur sur des données utilisateur
 		 */
-		static void SetCallback( PLogCallback p_pfnCallback, void * p_pCaller );
+		DatabaseExport static void SetCallback( PLogCallback p_pfnCallback, void * p_pCaller );
 		/**
 		 *\~english
 		 *\brief		Sets the log file address
@@ -107,7 +107,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_logFilePath	Le chemin du fichier
 		 *\param[in]	p_eLogType		Le type de log concerné
 		 */
-		static void SetFileName( String const & p_logFilePath, eLOG_TYPE p_eLogType = eLOG_TYPE_COUNT );
+		DatabaseExport static void SetFileName( String const & p_logFilePath, eLOG_TYPE p_eLogType = eLOG_TYPE_COUNT );
 		/**
 		 *\~english
 		 *\brief		Logs a debug message in the log file, using va_args
@@ -118,7 +118,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_format	Le format de la ligne
 		 *\param[in]	...			Paramètres POD, utilise le format de printf
 		 */
-		static void LogDebug( char const * p_format, ... );
+		DatabaseExport static void LogDebug( char const * p_format, ... );
 		/**
 		 *\~english
 		 *\brief		Logs a debug message, from a std::string
@@ -127,7 +127,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\brief		Log un message debug, à partir d'un std::string
 		 *\param[in]	p_msg	The line to log
 		 */
-		static void LogDebug( std::string const & p_msg );
+		DatabaseExport static void LogDebug( std::string const & p_msg );
 		/**
 		 *\~english
 		 *\brief		Logs a debug message, from a std::stringstream
@@ -136,7 +136,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\brief		Log un message debug, à partir d'un std::stringstream
 		 *\param[in]	p_msg	The line to log
 		 */
-		static void LogDebug( std::ostream const & p_msg );
+		DatabaseExport static void LogDebug( std::ostream const & p_msg );
 		/**
 		 *\~english
 		 *\brief		Logs a unicode debug message in the log file, using va_args
@@ -147,7 +147,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_format	Le format de la ligne
 		 *\param[in]	...			Paramètres POD, utilise le format de printf
 		 */
-		static void LogDebug( wchar_t const * p_format , ... );
+		DatabaseExport static void LogDebug( wchar_t const * p_format , ... );
 		/**
 		 *\~english
 		 *\brief		Logs a unicode debug message, from a std::wstring
@@ -156,7 +156,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\brief		Log un message debug, à partir d'un std::wstring
 		 *\param[in]	p_msg	The line to log
 		 */
-		static void LogDebug( std::wstring const & p_msg );
+		DatabaseExport static void LogDebug( std::wstring const & p_msg );
 		/**
 		 *\~english
 		 *\brief		Logs a debug message, from a std::wstringstream
@@ -165,7 +165,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\brief		Log un message debug, à partir d'un std::wstringstream
 		 *\param[in]	p_msg	The line to log
 		 */
-		static void LogDebug( std::wostream const & p_msg );
+		DatabaseExport static void LogDebug( std::wostream const & p_msg );
 		/**
 		 *\~english
 		 *\brief		Logs a message in the log file, using va_args
@@ -176,7 +176,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_format	Le format de la ligne
 		 *\param[in]	...			Paramètres POD, utilise le format de printf
 		 */
-		static void LogMessage( char const * p_format, ... );
+		DatabaseExport static void LogMessage( char const * p_format, ... );
 		/**
 		 *\~english
 		 *\brief		Logs a message, from a std::string
@@ -185,7 +185,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\brief		Log un message, à partir d'un std::string
 		 *\param[in]	p_msg	The line to log
 		 */
-		static void LogMessage( std::string const & p_msg );
+		DatabaseExport static void LogMessage( std::string const & p_msg );
 		/**
 		 *\~english
 		 *\brief		Logs a debug message, from a std::stringstream
@@ -194,7 +194,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\brief		Log un message debug, à partir d'un std::stringstream
 		 *\param[in]	p_msg	The line to log
 		 */
-		static void LogMessage( std::ostream const & p_msg );
+		DatabaseExport static void LogMessage( std::ostream const & p_msg );
 		/**
 		 *\~english
 		 *\brief		Logs a unicode line in the log file, using va_args
@@ -205,7 +205,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_format	Le format de la ligne
 		 *\param[in]	...			Paramètres POD, utilise le format de printf
 		 */
-		static void LogMessage( wchar_t const * p_format , ... );
+		DatabaseExport static void LogMessage( wchar_t const * p_format , ... );
 		/**
 		 *\~english
 		 *\brief		Logs a message, from a std::wstring
@@ -214,7 +214,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\brief		Log un message, à partir d'un std::wstring
 		 *\param[in]	p_msg	The line to log
 		 */
-		static void LogMessage( std::wstring const & p_msg );
+		DatabaseExport static void LogMessage( std::wstring const & p_msg );
 		/**
 		 *\~english
 		 *\brief		Logs a debug message, from a std::wstringstream
@@ -223,7 +223,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\brief		Log un message debug, à partir d'un std::wstringstream
 		 *\param[in]	p_msg	The line to log
 		 */
-		static void LogMessage( std::wostream const & p_msg );
+		DatabaseExport static void LogMessage( std::wostream const & p_msg );
 		/**
 		 *\~english
 		 *\brief		Logs a warning in the log file, using va_args
@@ -234,7 +234,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_format	Le format de la ligne
 		 *\param[in]	...			Paramètres POD, utilise le format de printf
 		 */
-		static void LogWarning( char const * p_format, ... );
+		DatabaseExport static void LogWarning( char const * p_format, ... );
 		/**
 		 *\~english
 		 *\brief		Logs a warning, from a std::string
@@ -243,7 +243,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\brief		Log un avertissement, à partir d'un std::string
 		 *\param[in]	p_msg	The line to log
 		 */
-		static void LogWarning( std::string const & p_msg );
+		DatabaseExport static void LogWarning( std::string const & p_msg );
 		/**
 		 *\~english
 		 *\brief		Logs a debug message, from a std::stringstream
@@ -252,7 +252,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\brief		Log un message debug, à partir d'un std::stringstream
 		 *\param[in]	p_msg	The line to log
 		 */
-		static void LogWarning( std::ostream const & p_msg );
+		DatabaseExport static void LogWarning( std::ostream const & p_msg );
 		/**
 		 *\~english
 		 *\brief		Logs a unicode warning in the log file, using va_args
@@ -263,7 +263,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_format	Le format de la ligne
 		 *\param[in]	...			Paramètres POD, utilise le format de printf
 		 */
-		static void LogWarning( wchar_t const * p_format , ... );
+		DatabaseExport static void LogWarning( wchar_t const * p_format , ... );
 		/**
 		 *\~english
 		 *\brief		Logs a warning, from a std::wstring
@@ -272,7 +272,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\brief		Log un avertissement, à partir d'un std::wstring
 		 *\param[in]	p_msg	The line to log
 		 */
-		static void LogWarning( std::wstring const & p_msg );
+		DatabaseExport static void LogWarning( std::wstring const & p_msg );
 		/**
 		 *\~english
 		 *\brief		Logs a debug message, from a std::wstringstream
@@ -281,7 +281,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\brief		Log un message debug, à partir d'un std::wstringstream
 		 *\param[in]	p_msg	The line to log
 		 */
-		static void LogWarning( std::wostream const & p_msg );
+		DatabaseExport static void LogWarning( std::wostream const & p_msg );
 		/**
 		 *\~english
 		 *\brief		Logs an error in the log file, using va_args
@@ -292,7 +292,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_format	Le format de la ligne
 		 *\param[in]	...			Paramètres POD, utilise le format de printf
 		 */
-		static void LogError( char const * p_format, ... );
+		DatabaseExport static void LogError( char const * p_format, ... );
 		/**
 		 *\~english
 		 *\brief		Logs an error, from a std::string
@@ -301,7 +301,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\brief		Log une erreur, à partir d'un std::string
 		 *\param[in]	p_msg		The line to log
 		 */
-		static void LogError( std::string const & p_msg );
+		DatabaseExport static void LogError( std::string const & p_msg );
 		/**
 		 *\~english
 		 *\brief		Logs a debug message, from a std::stringstream
@@ -310,7 +310,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\brief		Log un message debug, à partir d'un std::stringstream
 		 *\param[in]	p_msg	The line to log
 		 */
-		static void LogError( std::ostream const & p_msg );
+		DatabaseExport static void LogError( std::ostream const & p_msg );
 		/**
 		 *\~english
 		 *\brief		Logs a unicode error in the log file, using va_args
@@ -321,7 +321,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_format	Le format de la ligne
 		 *\param[in]	...			Paramètres POD, utilise le format de printf
 		 */
-		static void LogError( wchar_t const * p_format , ... );
+		DatabaseExport static void LogError( wchar_t const * p_format , ... );
 		/**
 		 *\~english
 		 *\brief		Logs an error, from a std::wstring
@@ -330,7 +330,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\brief		Log une erreur, à partir d'un std::wstring
 		 *\param[in]	p_msg		The line to log
 		 */
-		static void LogError( std::wstring const & p_msg );
+		DatabaseExport static void LogError( std::wstring const & p_msg );
 		/**
 		 *\~english
 		 *\brief		Logs a debug message, from a std::wstringstream
@@ -339,7 +339,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\brief		Log un message debug, à partir d'un std::wstringstream
 		 *\param[in]	p_msg	The line to log
 		 */
-		static void LogError( std::wostream const & p_msg );
+		DatabaseExport static void LogError( std::wostream const & p_msg );
 		/**
 		 *\~english
 		 *\brief		Returns a reference over the instance
@@ -348,7 +348,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\brief		Retourne une référence sur l'instance
 		 *\return		L'instance
 		 */
-		static CLogger & GetSingleton();
+		DatabaseExport static CLogger & GetSingleton();
 		/**
 		 *\~english
 		 *\brief		Returns a pointer over the instance
@@ -357,7 +357,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\brief		Retourne un pointeur sur l'instance
 		 *\return		L'instance
 		 */
-		static CLogger * GetSingletonPtr();
+		DatabaseExport static CLogger * GetSingletonPtr();
 
 	private:
 		void DoSetCallback( PLogCallback p_pfnCallback, void * p_pCaller );

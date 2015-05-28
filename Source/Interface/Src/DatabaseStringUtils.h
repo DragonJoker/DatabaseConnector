@@ -31,7 +31,7 @@ BEGIN_NAMESPACE_DATABASE
 	\~french
 	\brief 		Classe regroupant des fonctions sur les chaînes de caractères
 	*/
-	class DatabaseExport CStrUtils
+	class CStrUtils
 	{
 	public:
 		/**
@@ -46,7 +46,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_locale	La locale (inutilisée)
 		 *\return		\p false si p_strToTest contient n'importe quel caractère autre que '0123456789'
 		 */
-		static bool IsInteger( String const & p_strToTest, std::locale const & p_locale = std::locale() );
+		DatabaseExport static bool IsInteger( String const & p_strToTest, std::locale const & p_locale = std::locale() );
 		/**
 		 *\~english
 		 *\brief		Tests if the given String represents a floating number
@@ -59,7 +59,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_locale	La locale utilisée pour déterminer le format du séparateur '.'
 		 *\return		\p false si p_strToTest contient n'importe quel caractère autre que '0123456789.,' ou plus d'un '.'/','
 		 */
-		static bool IsFloating( String const & p_strToTest, std::locale const & p_locale = std::locale() );
+		DatabaseExport static bool IsFloating( String const & p_strToTest, std::locale const & p_locale = std::locale() );
 		/**
 		 *\~english
 		 *\brief		Tests if the given String represents a date
@@ -74,7 +74,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_locale	La locale permettant de déterminer quel format de date est utilisé
 		 *\return		\p false si p_strToTest contient n'importe quel caractère autre que '0123456789'
 		 */
-		static bool IsDate( String const & p_strToTest, std::locale const & p_locale = std::locale() );
+		DatabaseExport static bool IsDate( String const & p_strToTest, std::locale const & p_locale = std::locale() );
 		/**
 		 *\~english
 		 *\brief		Retrieves a short from a given String
@@ -87,7 +87,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_locale	La locale utilisée dans la conversion
 		 *\return		Le short contenu dans le String
 		 */
-		static short ToShort( String const & p_str, std::locale const & p_locale = std::locale() );
+		DatabaseExport static short ToShort( String const & p_str, std::locale const & p_locale = std::locale() );
 		/**
 		 *\~english
 		 *\brief		Retrieves an int from a given String
@@ -100,7 +100,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_locale	La locale utilisée dans la conversion
 		 *\return		L'int contenu dans le String
 		 */
-		static int ToInt( String const & p_str, std::locale const & p_locale = std::locale() );
+		DatabaseExport static int ToInt( String const & p_str, std::locale const & p_locale = std::locale() );
 		/**
 		 *\~english
 		 *\brief		Retrieves a long from a given String
@@ -113,7 +113,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_locale	La locale utilisée dans la conversion
 		 *\return		Le long contenu dans le String
 		 */
-		static long ToLong( String const & p_str, std::locale const & p_locale = std::locale() );
+		DatabaseExport static long ToLong( String const & p_str, std::locale const & p_locale = std::locale() );
 		/**
 		 *\~english
 		 *\brief		Retrieves a long long from a given String
@@ -126,7 +126,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_locale	La locale utilisée dans la conversion
 		 *\return		Le long long contenu dans le String
 		 */
-		static long long ToLongLong( String const & p_str, std::locale const & p_locale = std::locale() );
+		DatabaseExport static long long ToLongLong( String const & p_str, std::locale const & p_locale = std::locale() );
 		/**
 		 *\~english
 		 *\brief		Retrieves a float from a given String
@@ -139,7 +139,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_locale	La locale utilisée dans la conversion
 		 *\return		Le float contenu dans le String
 		 */
-		static float ToFloat( String const & p_str, std::locale const & p_locale = std::locale() );
+		DatabaseExport static float ToFloat( String const & p_str, std::locale const & p_locale = std::locale() );
 		/**
 		 *\~english
 		 *\brief		Retrieves a double from a given String
@@ -152,7 +152,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_locale	La locale utilisée dans la conversion
 		 *\return		Le double contenu dans le String
 		 */
-		static double ToDouble( String const & p_str, std::locale const & p_locale = std::locale() );
+		DatabaseExport static double ToDouble( String const & p_str, std::locale const & p_locale = std::locale() );
 		/**
 		 *\~english
 		 *\brief		Retrieves a double from a given String
@@ -165,7 +165,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_locale	La locale utilisée dans la conversion
 		 *\return		Le double contenu dans le String
 		 */
-		static long double ToLongDouble( String const & p_str, std::locale const & p_locale = std::locale() );
+		DatabaseExport static long double ToLongDouble( String const & p_str, std::locale const & p_locale = std::locale() );
 		/**
 		 *\~english
 		 *\brief		Tests if the given String is upper case
@@ -176,7 +176,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_strToTest	Le String à tester
 		 *\return		\p true si p_strToTest est en majuscules
 		 */
-		static bool IsUpperCase( std::string const & p_strToTest );
+		DatabaseExport static bool IsUpperCase( std::string const & p_strToTest );
 		/**
 		 *\~english
 		 *\brief		Tests if the given String is lower case
@@ -187,7 +187,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_strToTest	Le String à tester
 		 *\return		\p true si p_strToTest est en minuscules
 		 */
-		static bool IsLowerCase( std::string const & p_strToTest );
+		DatabaseExport static bool IsLowerCase( std::string const & p_strToTest );
 		/**
 		 *\~english
 		 *\brief		Tests if the given String is upper case
@@ -198,7 +198,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_strToTest	Le String à tester
 		 *\return		\p true si p_strToTest est en majuscules
 		 */
-		static bool IsUpperCase( std::wstring const & p_strToTest );
+		DatabaseExport static bool IsUpperCase( std::wstring const & p_strToTest );
 		/**
 		 *\~english
 		 *\brief		Tests if the given String is lower case
@@ -209,7 +209,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_strToTest	Le String à tester
 		 *\return		\p true si p_strToTest est en minuscules
 		 */
-		static bool IsLowerCase( std::wstring const & p_strToTest );
+		DatabaseExport static bool IsLowerCase( std::wstring const & p_strToTest );
 		/**
 		 *\~english
 		 *\brief		Sets all characters in a String to upper case
@@ -220,7 +220,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_str	Le String à modifier, reçoit le String modifié
 		 *\return		Le String modifié
 		 */
-		static std::string UpperCase( std::string const & p_str );
+		DatabaseExport static std::string UpperCase( std::string const & p_str );
 		/**
 		 *\~english
 		 *\brief		Sets all characters in a String to lower case
@@ -231,7 +231,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_str	Le String à modifier, reçoit le String modifié
 		 *\return		Le String modifié
 		 */
-		static std::string LowerCase( std::string const & p_str );
+		DatabaseExport static std::string LowerCase( std::string const & p_str );
 		/**
 		 *\~english
 		 *\brief		Sets all characters in a String to upper case
@@ -242,7 +242,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_str	Le String à modifier, reçoit le String modifié
 		 *\return		Le String modifié
 		 */
-		static std::wstring UpperCase( std::wstring const & p_str );
+		DatabaseExport static std::wstring UpperCase( std::wstring const & p_str );
 		/**
 		 *\~english
 		 *\brief		Sets all characters in a String to lower case
@@ -253,7 +253,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_str	Le String à modifier, reçoit le String modifié
 		 *\return		Le String modifié
 		 */
-		static std::wstring LowerCase( std::wstring const & p_str );
+		DatabaseExport static std::wstring LowerCase( std::wstring const & p_str );
 		/**
 		 *\~english
 		 *\brief			Sets all characters in a String to upper case
@@ -264,7 +264,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in,out]	p_str	Le String à modifier, reçoit le String modifié
 		 *\return			Le String modifié
 		 */
-		static std::string & ToUpperCase( std::string & p_str );
+		DatabaseExport static std::string & ToUpperCase( std::string & p_str );
 		/**
 		 *\~english
 		 *\brief			Sets all characters in a String to lower case
@@ -275,7 +275,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in,out]	p_str	Le String à modifier, reçoit le String modifié
 		 *\return			Le String modifié
 		 */
-		static std::string & ToLowerCase( std::string & p_str );
+		DatabaseExport static std::string & ToLowerCase( std::string & p_str );
 		/**
 		 *\~english
 		 *\brief			Sets all characters in a String to upper case
@@ -286,7 +286,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in,out]	p_str	Le String à modifier, reçoit le String modifié
 		 *\return			Le String modifié
 		 */
-		static std::wstring & ToUpperCase( std::wstring & p_str );
+		DatabaseExport static std::wstring & ToUpperCase( std::wstring & p_str );
 		/**
 		 *\~english
 		 *\brief			Sets all characters in a String to lower case
@@ -297,7 +297,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in,out]	p_str	Le String à modifier, reçoit le String modifié
 		 *\return			Le String modifié
 		 */
-		static std::wstring & ToLowerCase( std::wstring & p_str );
+		DatabaseExport static std::wstring & ToLowerCase( std::wstring & p_str );
 		/**
 		 *\~english
 		 *\brief		Retrieves a std::string from a String
@@ -308,7 +308,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_str		Le String
 		 *\return		Le std::wstring
 		 */
-		static std::string ToStr( std::string const & p_str )
+		DatabaseExport static std::string ToStr( std::string const & p_str )
 		{
 			return p_str;
 		}
@@ -322,7 +322,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_str		Le String
 		 *\return		Le std::wstring
 		 */
-		static std::wstring ToWStr( std::string const & p_str );
+		DatabaseExport static std::wstring ToWStr( std::string const & p_str );
 		/**
 		 *\~english
 		 *\brief		Retrieves a std::string from a String
@@ -333,7 +333,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_str		Le String
 		 *\return		Le std::wstring
 		 */
-		static std::string ToStr( std::wstring const & p_str );
+		DatabaseExport static std::string ToStr( std::wstring const & p_str );
 		/**
 		 *\~english
 		 *\brief		Retrieves a std::wstring from a String
@@ -344,7 +344,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_str		Le String
 		 *\return		Le std::wstring
 		 */
-		static std::wstring ToWStr( std::wstring const & p_str )
+		DatabaseExport static std::wstring ToWStr( std::wstring const & p_str )
 		{
 			return p_str;
 		}
@@ -364,7 +364,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_bKeepVoid	Dit si la fonction garde les sous-chaînes vides ou pas
 		 *\return		Le tableau contenant les sous-chaînes
 		 */
-		static StringArray Split( String const & p_str, String const & p_delims, uint32_t p_maxSplits = 10, bool p_bKeepVoid = true );
+		DatabaseExport static StringArray Split( String const & p_str, String const & p_delims, uint32_t p_maxSplits = 10, bool p_bKeepVoid = true );
 		/**
 		 *\~english
 		 *\brief		Retrieves a value from the given String
@@ -419,7 +419,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]		p_replacement	Le TChar de remplacement
 		 *\return			Une référence sur la chaîne modifiée
 		 */
-		static String & Replace( String & p_str, TChar p_find, TChar p_replacement );
+		DatabaseExport static String & Replace( String & p_str, TChar p_find, TChar p_replacement );
 		/**
 		 *\~english
 		 *\brief			Replaces all occurences of a String by a TChar in a String
@@ -434,7 +434,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]		p_replacement	Le TChar de remplacement
 		 *\return			Une référence sur la chaîne modifiée
 		 */
-		static String & Replace( String & p_str, String const & p_find, TChar p_replacement );
+		DatabaseExport static String & Replace( String & p_str, String const & p_find, TChar p_replacement );
 		/**
 		 *\~english
 		 *\brief			Replaces all occurences of a TChar by a String in a String
@@ -449,7 +449,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]		p_replacement	Le String de remplacement
 		 *\return			Une référence sur la chaîne modifiée
 		 */
-		static String & Replace( String & p_str, TChar p_find, String const & p_replacement );
+		DatabaseExport static String & Replace( String & p_str, TChar p_find, String const & p_replacement );
 		/**
 		 *\~english
 		 *\brief			Replaces all occurences of a String in another one by a third one
@@ -464,7 +464,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]		p_replacement	Le String de remplacement
 		 *\return			Une référence sur la chaîne modifiée
 		 */
-		static String & Replace( String & p_str, String const & p_find, String const & p_replacement );
+		DatabaseExport static String & Replace( String & p_str, String const & p_find, String const & p_replacement );
 		/**
 		 *\~english
 		 *\brief			Removes spaces on the left and/or on the right of the given String
@@ -479,7 +479,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]		p_bRight	Dit si on enlève les espaces à droite
 		 *\return			La chaîne sans espaces
 		 */
-		static String & Trim( String & p_str, bool p_bLeft = true, bool p_bRight = true );
+		DatabaseExport static String & Trim( String & p_str, bool p_bLeft = true, bool p_bRight = true );
 		/**
 		 *\~english
 		 *\brief		Puts a value into a String
@@ -507,7 +507,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_strText	Le std::string
 		 *\return		Le String
 		 */
-		static String ToString( std::string const & p_strText );
+		DatabaseExport static String ToString( std::string const & p_strText );
 		/**
 		 *\~english
 		 *\brief		Sets the String value to the given std::wstring
@@ -518,7 +518,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_strText	Le std::wstring
 		 *\return		Le String
 		 */
-		static String ToString( std::wstring const & p_strText );
+		DatabaseExport static String ToString( std::wstring const & p_strText );
 		/**
 		 *\~english
 		 *\brief		Sets the String value to the given char
@@ -529,7 +529,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_char	Le char
 		 *\return		Le String
 		 */
-		static String ToString( char p_char );
+		DatabaseExport static String ToString( char p_char );
 		/**
 		 *\~english
 		 *\brief		Sets the String value to the given wchar_t
@@ -540,7 +540,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_wchar	Le wchar_t
 		 *\return		Le String
 		 */
-		static String ToString( wchar_t p_wchar );
+		DatabaseExport static String ToString( wchar_t p_wchar );
 
 	private:
 		static int DoGetMonthIndex( String const & strMonth );

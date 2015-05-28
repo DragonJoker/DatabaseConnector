@@ -62,6 +62,7 @@ BEGIN_NAMESPACE_DATABASE
 	void CDatabaseResult::AddRow( DatabaseRowPtr row )
 	{
 		_listRows.push_back( row );
+		_iterator = _listRows.begin();
 		_rowCount++;
 	}
 
@@ -85,7 +86,6 @@ BEGIN_NAMESPACE_DATABASE
 
 	DatabaseRowPtr CDatabaseResult::GetFirstRow()
 	{
-		_rowCount = 0;
 		_iterator = _listRows.begin();
 		return GetNextRow();
 	}

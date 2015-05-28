@@ -735,11 +735,11 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		sql::ResultSetMetaData * data = rs->getMetaData();
 		int iColumnCount = data->getColumnCount();
 
-		for ( int i = 0; i < iColumnCount; i++ )
+		for ( int i = 1; i <= iColumnCount; i++ )
 		{
 			strColumnName = CStrUtils::ToString( data->getColumnName( i ).asStdString() );
 			aColumns.push_back( strColumnName );
-			arrayReturn.push_back( std::make_shared< CDatabaseFieldInfos >( pConnexion, aColumns[i], GetFieldTypeFromSqlType( data->getColumnType( i ) ), data->getColumnDisplaySize( i ) ) );
+			arrayReturn.push_back( std::make_shared< CDatabaseFieldInfos >( pConnexion, aColumns[i - 1], GetFieldTypeFromSqlType( data->getColumnType( i ) ), data->getColumnDisplaySize( i ) ) );
 		}
 
 		return arrayReturn;
@@ -760,7 +760,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				{
 					DatabaseRowPtr pRow = std::make_shared< CDatabaseRow >( pConnexion );
 
-					for ( int i = 0; i < iNbColumns; i++ )
+					for ( int i = 1; i <= iNbColumns; i++ )
 					{
 						DatabaseFieldInfosPtr pInfos;
 						DatabaseFieldPtr field;
@@ -768,7 +768,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 						try
 						{
-							pInfos = pReturn->GetFieldInfos( i );
+							pInfos = pReturn->GetFieldInfos( i - 1 );
 						}
 						catch ( CExceptionDatabase & )
 						{

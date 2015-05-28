@@ -3,7 +3,7 @@ cmake_minimum_required( VERSION 2.8 )
 #	Initial configurations
 #--------------------------------------------------------------------------------------------------
 # Set project name, used in folders and in workspace creation
-set( ProjectName "DatabaseEngine" )
+set( MAIN_PROJECT_NAME "DatabaseEngine" )
 
 # Set project version numbers
 set( VERSION_MAJOR	0		)
@@ -18,18 +18,42 @@ set( CMAKE_MODULE_PATH
 )
 # Experimental Precompiled headers support for GCC
 include( PCHSupport )
-# Force Unicode projects (MBCS is past :P)
-add_definitions( -DUNICODE -D_UNICODE )
 
 # Enable CTest
 enable_testing()
     
 # Declare the project
-project( ${ProjectName} )
+project( ${MAIN_PROJECT_NAME} )
 
 include( Project )
 include( AStyleUtils )
 include( UnitTest )
+include( CompilationFlags )
+
+macro( install_dll _TARGET _LIB_FULL_PATH _CONFIGURATION )
+	get_filename_component( _DllPath ${_LIB_FULL_PATH} PATH )
+	get_filename_component( _DllName ${_LIB_FULL_PATH} NAME_WE )
+	install(
+		FILES
+			${_DllPath}/${_DllName}.dll
+		DESTINATION bin
+		COMPONENT ${_TARGET}
+		CONFIGURATIONS ${_CONFIGURATION}
+	)
+endmacro()
+
+macro( copy_dll _TARGET _LIB_FULL_PATH_NAME )
+	get_filename_component( _DllPathDebug ${${_LIB_FULL_PATH_NAME}_DEBUG} PATH )
+	get_filename_component( _DllNameDebug ${${_LIB_FULL_PATH_NAME}_DEBUG} NAME_WE )
+	get_filename_component( _DllPathRelease ${${_LIB_FULL_PATH_NAME}_RELEASE} PATH )
+	get_filename_component( _DllNameRelease ${${_LIB_FULL_PATH_NAME}_RELEASE} NAME_WE )
+	add_custom_command(
+		TARGET ${_TARGET}
+		POST_BUILD
+		$<$<CONFIG:Debug>:COMMAND ${CMAKE_COMMAND} -E copy_if_different ${_DllPathDebug}/${_DllNameDebug}.dll ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/${_DllNameDebug}.dll>
+		$<$<CONFIG:Release>:COMMAND ${CMAKE_COMMAND} -E copy_if_different ${_DllPathRelease}/${_DllNameRelease}.dll ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/${_DllNameRelease}.dll>
+	)
+endmacro()
 
 option( BUILD_STATIC "Build Static" FALSE )
 
@@ -53,18 +77,18 @@ if (CMAKE_COMPILER_IS_GNUCXX)
 	if (${COMPILER_VERSION} LESS "46" OR MINGW)
 		find_package( Boost COMPONENTS thread system chrono date_time locale )
 	else()
-		find_package( Boost COMPONENTS date_time locale )
+		find_package( Boost COMPONENTS system date_time locale )
 	endif ()
 elseif ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
 	COMPILER_DUMPVERSION( COMPILER_VERSION )
 	msg_debug( "clang version : ${COMPILER_VERSION}" )
-    find_package( Boost COMPONENTS date_time locale )
+    find_package( Boost COMPONENTS system date_time locale )
 elseif (BORLAND)
 	find_package( Boost COMPONENTS thread system date_time locale )
 elseif (NOT MSVC11 AND NOT MSVC12)
 	find_package( Boost COMPONENTS thread system chrono date_time locale )
 else()
-		find_package( Boost COMPONENTS date_time locale )
+		find_package( Boost COMPONENTS system date_time locale )
 endif ()
 
 #--------------------------------------------------------------------------------------------------
@@ -121,6 +145,17 @@ if( Boost_FOUND )
 	SET( msg "Database following plugins will be built" )
 	PluginSummary( ${msg} )
 	MESSAGE( STATUS ${msg} )
+	
+	if ( WIN32 )
+		include( InstallRequiredSystemLibraries )
+		# Preparing Boost DLLs installation
+		install_dll( DatabasePluginMySql ${Boost_DATE_TIME_LIBRARY_DEBUG} Debug )
+		install_dll( DatabasePluginMySql ${Boost_DATE_TIME_LIBRARY_RELEASE} Release )
+		install_dll( DatabasePluginMySql ${Boost_LOCALE_LIBRARY_DEBUG} Debug )
+		install_dll( DatabasePluginMySql ${Boost_LOCALE_LIBRARY_RELEASE} Release )
+		install_dll( DatabasePluginMySql ${Boost_SYSTEM_LIBRARY_DEBUG} Debug )
+		install_dll( DatabasePluginMySql ${Boost_SYSTEM_LIBRARY_RELEASE} Release )
+	endif ()
 else()
 	SET( msg "Database projects can't be built because of following missing libraries :" )
 	if( Boost_NEEDED AND NOT Boost_FOUND )

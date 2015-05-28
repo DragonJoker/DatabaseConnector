@@ -66,7 +66,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Return the library name.
 		*/
-		const String & GetName() const { return _name; }
+		inline const String & GetName() const { return _name; }
 
 		/** Return the address of the given symbol from the loaded library.
 		@param
