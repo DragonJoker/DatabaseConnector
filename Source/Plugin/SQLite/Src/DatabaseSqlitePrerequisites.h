@@ -16,6 +16,20 @@
 
 #include <DatabasePrerequisites.h>
 
+#if defined( _WIN32 ) && !defined ( __MINGW32__ ) && !defined ( STATIC_LIB )
+#    ifdef DatabasePluginSqlite_EXPORTS
+#        define DatabaseSqliteExport __declspec ( dllexport )
+#    else
+#       if defined ( __MINGW32__ )
+#           define DatabaseSqliteExport
+#       else
+#           define DatabaseSqliteExport __declspec ( dllimport )
+#       endif
+#   endif
+#else
+#    define DatabaseSqliteExport
+#endif
+
 #if defined( STATIC_LIB )
 #   define CPPCONN_PUBLIC_FUNC
 #endif
@@ -30,20 +44,6 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	namespace Sqlite
 	{
-#if ( PLATFORM == PLATFORM_WIN32 ) && !defined ( __MINGW32__ ) && !defined ( STATIC_LIB )
-#    ifdef DatabasePluginSqlite_EXPORTS
-#        define DatabaseSqliteExport __declspec ( dllexport )
-#    else
-#       if defined ( __MINGW32__ )
-#           define DatabaseSqliteExport
-#       else
-#           define DatabaseSqliteExport __declspec ( dllimport )
-#       endif
-#   endif
-#else
-#    define DatabaseSqliteExport
-#endif
-
 		// Pre-declare classes
 		// Allows use of pointers in header files without including individual .h
 		// so decreases dependencies between files

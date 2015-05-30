@@ -256,7 +256,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			char * val = reinterpret_cast< char * >( _value->GetPtrValue() );
 
-			if ( ( val != NULL ) && ( ( CStrUtils::ToUpperCase( std::string( val ) ) == "TRUE" ) || ( strcmp( val, "1" ) == 0 ) ) )
+			if ( ( val != NULL ) && ( ( CStrUtils::UpperCase( std::string( val ) ) == "TRUE" ) || ( strcmp( val, "1" ) == 0 ) ) )
 			{
 				value = true;
 			}
@@ -272,7 +272,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			wchar_t * val = reinterpret_cast< wchar_t * >( _value->GetPtrValue() );
 
-			if ( ( val != NULL ) && ( ( CStrUtils::ToUpperCase( std::wstring( val ) ) == L"TRUE" ) || ( wcscmp( val, L"1" ) == 0 ) ) )
+			if ( ( val != NULL ) && ( ( CStrUtils::UpperCase( std::wstring( val ) ) == L"TRUE" ) || ( wcscmp( val, L"1" ) == 0 ) ) )
 			{
 				value = true;
 			}

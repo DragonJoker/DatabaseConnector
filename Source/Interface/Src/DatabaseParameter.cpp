@@ -418,7 +418,7 @@ BEGIN_NAMESPACE_DATABASE
 		_updater->Update( shared_from_this() );
 	}
 
-	void CDatabaseParameter::DoSetValue( int value )
+	void CDatabaseParameter::DoSetValue( int32_t value )
 	{
 		switch ( GetType() )
 		{
@@ -451,73 +451,7 @@ BEGIN_NAMESPACE_DATABASE
 		_updater->Update( shared_from_this() );
 	}
 
-	void CDatabaseParameter::DoSetValue( unsigned int value )
-	{
-		switch ( GetType() )
-		{
-		case EFieldType_BOOL:
-			SDatabaseParameterValueSetter< bool >()( _value, value != 0 );
-			break;
-
-		case EFieldType_INTEGER:
-			SDatabaseParameterValueSetter< int32_t >()( _value, value );
-			break;
-
-		case EFieldType_LONG_INTEGER:
-			SDatabaseParameterValueSetter< int64_t >()( _value, value );
-			break;
-
-		case EFieldType_FLOAT:
-			SDatabaseParameterValueSetter< float >()( _value, float( value ) );
-			break;
-
-		case EFieldType_DOUBLE:
-			SDatabaseParameterValueSetter< double >()( _value, double( value ) );
-			break;
-
-		default:
-			CLogger::LogError( DATABASE_PARAMETER_ERROR );
-			DB_EXCEPT( EDatabaseExceptionCodes_ParameterError, DATABASE_PARAMETER_ERROR );
-			break;
-		}
-
-		_updater->Update( shared_from_this() );
-	}
-
-	void CDatabaseParameter::DoSetValue( long value )
-	{
-		switch ( GetType() )
-		{
-		case EFieldType_BOOL:
-			SDatabaseParameterValueSetter< bool >()( _value, value != 0 );
-			break;
-
-		case EFieldType_INTEGER:
-			SDatabaseParameterValueSetter< int32_t >()( _value, value );
-			break;
-
-		case EFieldType_LONG_INTEGER:
-			SDatabaseParameterValueSetter< int64_t >()( _value, value );
-			break;
-
-		case EFieldType_FLOAT:
-			SDatabaseParameterValueSetter< float >()( _value, float( value ) );
-			break;
-
-		case EFieldType_DOUBLE:
-			SDatabaseParameterValueSetter< double >()( _value, double( value ) );
-			break;
-
-		default:
-			CLogger::LogError( DATABASE_PARAMETER_ERROR );
-			DB_EXCEPT( EDatabaseExceptionCodes_ParameterError, DATABASE_PARAMETER_ERROR );
-			break;
-		}
-
-		_updater->Update( shared_from_this() );
-	}
-
-	void CDatabaseParameter::DoSetValue( unsigned long value )
+	void CDatabaseParameter::DoSetValue( uint32_t value )
 	{
 		switch ( GetType() )
 		{

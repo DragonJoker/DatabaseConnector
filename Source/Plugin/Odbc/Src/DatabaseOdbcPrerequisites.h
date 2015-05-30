@@ -17,6 +17,20 @@
 #include <DatabasePrerequisites.h>
 
 #if defined( _WIN32 )
+#   ifdef Database_EXPORTS
+#        define DatabaseOdbcExport __declspec ( dllexport )
+#   else
+#       if defined ( __MINGW32__ )
+#           define DatabaseOdbcExport
+#       else
+#           define DatabaseOdbcExport __declspec ( dllimport )
+#       endif
+#   endif
+#else
+#   define DatabaseOdbcExport
+#endif
+
+#if defined( _WIN32 )
 #   include <windows.h>
 #   include <sql.h>
 #   include <sqlext.h>
@@ -24,6 +38,9 @@
 #   undef min
 #   undef max
 #   undef abs
+#else
+#   include <sql.h>
+#   include <sqlext.h>
 #endif
 
 #define BEGIN_NAMESPACE_DATABASE_ODBC      BEGIN_NAMESPACE_DATABASE { namespace Odbc
@@ -37,19 +54,6 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	namespace Odbc
 	{
-#if ( PLATFORM == PLATFORM_WIN32 ) && !defined ( __MINGW32__ ) && !defined ( STATIC_LIB )
-#    ifdef DatabasePluginOdbc_EXPORTS
-#        define DatabaseOdbcExport __declspec ( dllexport )
-#    else
-#       if defined ( __MINGW32__ )
-#           define DatabaseOdbcExport
-#       else
-#           define DatabaseOdbcExport __declspec ( dllimport )
-#       endif
-#   endif
-#else
-#    define DatabaseOdbcExport
-#endif
 
 		// Pre-declare classes
 		// Allows use of pointers in header files without including individual .h

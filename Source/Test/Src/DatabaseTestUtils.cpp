@@ -129,18 +129,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			if ( !processId )
 			{
 				///@remarks Execute child process.
-				const char ** args = new const char * [_processArgs.size() + 1];
-				size_t i = 0;
-
-				for ( std::vector< const char * >::const_iterator it = _processArgs.begin(); it != _processArgs.end(); ++it )
-				{
-					args[i++] = it->c_str();
-				}
-
-				args[i] = NULL;
-
-				execv( _processPath.c_str(), const_cast< char * const * >( args ) );
-				delete [] args;
+				execv( processPath.c_str(), const_cast< char * const * >( args.data() ) );
 				exit( 0 );
 			}
 			else
@@ -149,7 +138,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				if ( processId == -1 )
 				{
 					StringStream ss;
-					ss << ERROR_UNABLE_TO_FORK_CHILD_PROCESS << CSystemError::GetErrorDescription();
+					ss << ERROR_UNABLE_TO_FORK_CHILD_PROCESS;
 					DB_EXCEPT( EDatabaseExceptionCodes_InternalError, ss.str() );
 				}
 			}

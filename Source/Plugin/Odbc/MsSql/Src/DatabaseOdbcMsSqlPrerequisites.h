@@ -16,17 +16,7 @@
 
 #include <DatabaseOdbcPrerequisites.h>
 
-#define BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL      BEGIN_NAMESPACE_DATABASE_ODBC { namespace MsSql
-#define NAMESPACE_DATABASE_ODBC_MSSQL            NAMESPACE_DATABASE_ODBC::MsSql
-#define END_NAMESPACE_DATABASE_ODBC_MSSQL        END_NAMESPACE_DATABASE_ODBC }
-
-BEGIN_NAMESPACE_DATABASE_ODBC
-{
-	/** MsSql namespace
-	*/
-	namespace MsSql
-	{
-#if ( PLATFORM == PLATFORM_WIN32 ) && !defined ( __MINGW32__ ) && !defined ( STATIC_LIB )
+#if defined( _WIN32 ) && !defined ( __MINGW32__ ) && !defined ( STATIC_LIB )
 #    ifdef DatabasePluginOdbcMsSql_EXPORTS
 #        define DatabaseOdbcMsSqlExport __declspec ( dllexport )
 #    else
@@ -39,6 +29,17 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 #else
 #    define DatabaseOdbcMsSqlExport
 #endif
+
+#define BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL      BEGIN_NAMESPACE_DATABASE_ODBC { namespace MsSql
+#define NAMESPACE_DATABASE_ODBC_MSSQL            NAMESPACE_DATABASE_ODBC::MsSql
+#define END_NAMESPACE_DATABASE_ODBC_MSSQL        END_NAMESPACE_DATABASE_ODBC }
+
+BEGIN_NAMESPACE_DATABASE_ODBC
+{
+	/** MsSql namespace
+	*/
+	namespace MsSql
+	{
 
 		// Pre-declare classes
 		// Allows use of pointers in header files without including individual .h

@@ -16,6 +16,20 @@
 
 #include <DatabasePrerequisites.h>
 
+#if defined( _WIN32 ) && !defined ( __MINGW32__ ) && !defined ( STATIC_LIB )
+#    ifdef DatabasePluginMySql_EXPORTS
+#        define DatabaseMySqlExport __declspec ( dllexport )
+#    else
+#       if defined ( __MINGW32__ )
+#           define DatabaseMySqlExport
+#       else
+#           define DatabaseMySqlExport __declspec ( dllimport )
+#       endif
+#   endif
+#else
+#    define DatabaseMySqlExport
+#endif
+
 #if defined( STATIC_LIB )
 #   define CPPCONN_PUBLIC_FUNC
 #endif
@@ -30,20 +44,6 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	namespace MySql
 	{
-#if ( PLATFORM == PLATFORM_WIN32 ) && !defined ( __MINGW32__ ) && !defined ( STATIC_LIB )
-#    ifdef DatabasePluginMySql_EXPORTS
-#        define DatabaseMySqlExport __declspec ( dllexport )
-#    else
-#       if defined ( __MINGW32__ )
-#           define DatabaseMySqlExport
-#       else
-#           define DatabaseMySqlExport __declspec ( dllimport )
-#       endif
-#   endif
-#else
-#    define DatabaseMySqlExport
-#endif
-
 		// Pre-declare classes
 		// Allows use of pointers in header files without including individual .h
 		// so decreases dependencies between files

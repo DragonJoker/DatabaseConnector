@@ -10,6 +10,8 @@
  * @details Describes CDatabaseQuery template methods.
  *
  ***************************************************************************/
+ 
+ #include "DatabaseLogger.h"
 
 BEGIN_NAMESPACE_DATABASE
 {

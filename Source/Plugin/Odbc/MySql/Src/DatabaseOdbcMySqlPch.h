@@ -26,10 +26,11 @@
 #include <DatabaseQueryOdbc.h>
 #include <DatabaseOdbcHelper.h>
 
-#if ( PLATFORM == PLATFORM_WIN32 )
+#if defined( _WIN32 )
 #    include <windows.h>
-#    include <sql.h>
-#    include <sqlext.h>
 #endif
+
+#include <sql.h>
+#include <sqlext.h>
 
 #endif // ___DATABASE_ODBC_MYSQL_PCH_H___

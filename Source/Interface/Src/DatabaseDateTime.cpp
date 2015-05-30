@@ -145,7 +145,7 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		time_t last_time = time( NULL );
 		std::tm tm;
-#if PLATFORM == PLATFORM_WIN32
+#if defined( _WIN32 )
 		localtime_s( &tm, &last_time );
 #else
 		tm = *std::localtime( &last_time );

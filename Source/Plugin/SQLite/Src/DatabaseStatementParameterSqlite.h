@@ -105,16 +105,10 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		virtual void DoSetValue( uint16_t value );
 
 		//!@copydoc Areva::ARIA::Native::Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( int value );
+		virtual void DoSetValue( int32_t value );
 
 		//!@copydoc Areva::ARIA::Native::Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( unsigned int value );
-
-		//!@copydoc Areva::ARIA::Native::Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( long value );
-
-		//!@copydoc Areva::ARIA::Native::Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( unsigned long value );
+		virtual void DoSetValue( uint32_t value );
 
 		//!@copydoc Areva::ARIA::Native::Database::CDatabaseParameter::DoSetValue
 		virtual void DoSetValue( int64_t value );

@@ -23,9 +23,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 #		define __FUNCTION__ ""
 #	endif
 
+#undef CASTOR_HAS_MAKE_UNIQUE
+
 #if defined( _MSC_VER)
 #	include <tchar.h>
-#	define cvsnprintf						_vsntprintf_s
 #	pragma warning( disable: 4061 )    // enum value is not *explicitly* handled in switch
 #	pragma warning( disable: 4099 )    // first seen using 'struct' now seen using 'class'
 #	pragma warning( disable: 4127 )    // conditional expression is constant
@@ -58,53 +59,43 @@ http://www.gnu.org/copyleft/lesser.txt.
 #	pragma warning( disable: 4820 )    // some padding was added
 #	pragma warning( disable: 4917 )    // a GUID can only be associated with a class, interface or namespace
 #	pragma warning( disable: 4996 )    // MSVC 9: a C std library function has been "deprecated" (says MS)
+#	if _MSC_VER >= 1800
+#		define CASTOR_HAS_MAKE_UNIQUE 							1
+#	else
+#		define CASTOR_HAS_MAKE_UNIQUE 							0
+#	endif
+#	define cvsnprintf											_vsnprintf_s
 #elif defined( __clang__)
+#	define CASTOR_HAS_MAKE_UNIQUE 								has_feature(cxx_variadic_templates)
 #	if !defined( _WIN32 )
 #		define _FILE_OFFSET_BITS								64
-#		ifndef _UNICODE
-#			define cvsnprintf( buf, sz, cnt, fmt, arg )			vsnprintf( buf, cnt, fmt, arg )
-#		else
-#			define cvsnprintf( buf, sz, cnt, fmt, arg )			vswprintf( buf, cnt, fmt, arg )
-#		endif
+#		define cvsnprintf( buf, sz, cnt, fmt, arg )				vsnprintf( buf, cnt, fmt, arg )
 #	else
 #		define _FILE_OFFSET_BITS								64
-#		ifndef _UNICODE
-#			define cvsnprintf( buf, sz, cnt, fmt, arg )			vsnprintf( buf, cnt, fmt, arg )
-#		else
-#			define cvsnprintf( buf, sz, cnt, fmt, arg )			vsnwprintf( buf, cnt, fmt, arg )
-#		endif
+#		define cvsnprintf( buf, sz, cnt, fmt, arg )				vsnprintf( buf, cnt, fmt, arg )
 #	endif
 #elif defined( __GNUG__)
+#	define GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
+#	if GCC_VERSION >= 40900
+#		define CASTOR_HAS_MAKE_UNIQUE							1
+#	else
+#		define CASTOR_HAS_MAKE_UNIQUE							0
+#	endif
 #	if !defined( _WIN32 )
 #		define _FILE_OFFSET_BITS								64
-#		ifndef _UNICODE
-#			define cvsnprintf( buf, sz, cnt, fmt, arg )			vsnprintf( buf, cnt, fmt, arg )
-#		else
-#			define cvsnprintf( buf, sz, cnt, fmt, arg )			vswprintf( buf, cnt, fmt, arg )
-#		endif
+#		define cvsnprintf( buf, sz, cnt, fmt, arg )				vsnprintf( buf, cnt, fmt, arg )
 #	else
 #		define _FILE_OFFSET_BITS								64
-#		ifndef _UNICODE
-#			define cvsnprintf( buf, sz, cnt, fmt, arg )			vsnprintf( buf, cnt, fmt, arg )
-#		else
-#			define cvsnprintf( buf, sz, cnt, fmt, arg )			vsnwprintf( buf, cnt, fmt, arg )
-#		endif
+#		define cvsnprintf( buf, sz, cnt, fmt, arg )				vsnprintf( buf, cnt, fmt, arg )
 #	endif
 #elif defined( __BORLANDC__ )
+#	define CASTOR_HAS_MAKE_UNIQUE								0
 #	if !defined( _WIN32 )
 #		define _FILE_OFFSET_BITS								64
-#		ifndef _UNICODE
-#			define cvsnprintf( buf, sz, cnt, fmt, arg )			vsnprintf( buf, cnt, fmt, arg )
-#		else
-#			define cvsnprintf( buf, sz, cnt, fmt, arg )			vswprintf( buf, cnt, fmt, arg )
-#		endif
+#		define cvsnprintf( buf, sz, cnt, fmt, arg )				vsnprintf( buf, cnt, fmt, arg )
 #	else
 #		define _FILE_OFFSET_BITS								64
-#		ifndef _UNICODE
-#			define cvsnprintf( buf, sz, cnt, fmt, arg )			vsnprintf( buf, cnt, fmt, arg )
-#		else
-#			define cvsnprintf( buf, sz, cnt, fmt, arg )			vsnwprintf( buf, cnt, fmt, arg )
-#		endif
+#		define cvsnprintf( buf, sz, cnt, fmt, arg )				vsnprintf( buf, cnt, fmt, arg )
 #	endif
 #else
 #	error "Yet unsupported compiler"

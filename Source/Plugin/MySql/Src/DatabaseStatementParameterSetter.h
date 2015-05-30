@@ -72,7 +72,7 @@ private:
 		//!@copydoc SParameterValueSetterBase::DoSetValue
 		virtual void DoSetValue( sql::PreparedStatement * statement, void * value, CDatabaseStatementParameterMySql * parameter )
 		{
-			EXCEPT( Core::CException::eExceptionCodes_NotImplemented, STR( "Unimplemented" ), __FUNCTION__ );
+			throw std::runtime_error( "DoSetValue not implemented for this data type" );
 		}
 	};
 	/** Specialization for EFieldType_BOOL

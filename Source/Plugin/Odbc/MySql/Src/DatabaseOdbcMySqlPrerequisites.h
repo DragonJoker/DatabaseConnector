@@ -16,28 +16,7 @@
 
 #include <DatabaseOdbcPrerequisites.h>
 
-#if ( PLATFORM == PLATFORM_WIN32 )
-#   include <windows.h>
-#   include <sql.h>
-#   include <sqlext.h>
-
-#   undef min
-#   undef max
-#   undef abs
-#endif
-
-#define BEGIN_NAMESPACE_DATABASE_ODBC_MYSQL      BEGIN_NAMESPACE_DATABASE_ODBC { namespace MySql
-#define NAMESPACE_DATABASE_ODBC_MYSQL            NAMESPACE_DATABASE_ODBC::MySql
-#define END_NAMESPACE_DATABASE_ODBC_MYSQL        END_NAMESPACE_DATABASE_ODBC }
-
-BEGIN_NAMESPACE_DATABASE_ODBC
-{
-
-	/** MySql namespace
-	*/
-	namespace MySql
-	{
-#if ( PLATFORM == PLATFORM_WIN32 ) && !defined ( __MINGW32__ ) && !defined ( STATIC_LIB )
+#if defined( _WIN32 ) && !defined ( __MINGW32__ ) && !defined ( STATIC_LIB )
 #    ifdef DatabasePluginOdbcMySql_EXPORTS
 #        define DatabaseOdbcMySqlExport __declspec ( dllexport )
 #    else
@@ -51,7 +30,29 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 #    define DatabaseOdbcMySqlExport
 #endif
 
-		// Pre-declare classes
+		
+#if defined( _WIN32 )
+#   include <windows.h>
+
+#   undef min
+#   undef max
+#   undef abs
+#endif
+
+#include <sql.h>
+#include <sqlext.h>
+
+#define BEGIN_NAMESPACE_DATABASE_ODBC_MYSQL      BEGIN_NAMESPACE_DATABASE_ODBC { namespace MySql
+#define NAMESPACE_DATABASE_ODBC_MYSQL            NAMESPACE_DATABASE_ODBC::MySql
+#define END_NAMESPACE_DATABASE_ODBC_MYSQL        END_NAMESPACE_DATABASE_ODBC }
+
+BEGIN_NAMESPACE_DATABASE_ODBC
+{
+
+	/** MySql namespace
+	*/
+	namespace MySql
+	{// Pre-declare classes
 		// Allows use of pointers in header files without including individual .h
 		// so decreases dependencies between files
 		class CDatabaseConnectionOdbcMySql;

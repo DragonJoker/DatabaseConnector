@@ -74,14 +74,13 @@ BEGIN_NAMESPACE_DATABASE
 			return CStrUtils::ToStr( in );
 		}
 
-		int ttoi( const std::string & in )
+		template< typename CharType >
+		int ttoi( const std::basic_string< CharType > & in )
 		{
-			return atoi( in.c_str() );
-		}
-
-		int ttoi( const std::wstring & in )
-		{
-			return _wtoi( in.c_str() );
+			std::basic_istringstream< CharType > stream( in );
+			int l_return = 0;
+			stream >> l_return;
+			return l_return;
 		}
 
 		template< typename Char >

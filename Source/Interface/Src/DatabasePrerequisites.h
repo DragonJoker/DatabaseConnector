@@ -187,5 +187,55 @@ namespace Database
 	*/
 	DatabaseExport bool CreateFolder( String const & pathFolder );
 }
+#if !_HAS_MAKE_UNIQUE
+namespace std
+{
+	template< class T >
+	unique_ptr< T > make_unique()
+	{
+		return unique_ptr< T >( new T );
+	}
+	template< class T, typename Arg1 >
+	unique_ptr< T > make_unique( Arg1 && arg1 )
+	{
+		return unique_ptr< T >( new T( arg1 ) );
+	}
+	template< class T, typename Arg1, typename Arg2 >
+	unique_ptr< T > make_unique( Arg1 && arg1, Arg2 && arg2 )
+	{
+		return unique_ptr< T >( new T( arg1, arg2 ) );
+	}
+	template< class T, typename Arg1, typename Arg2, typename Arg3 >
+	unique_ptr< T > make_unique( Arg1 && arg1, Arg2 && arg2, Arg3 && arg3 )
+	{
+		return unique_ptr< T >( new T( arg1, arg2, arg3 ) );
+	}
+	template< class T, typename Arg1, typename Arg2, typename Arg3, typename Arg4 >
+	unique_ptr< T > make_unique( Arg1 && arg1, Arg2 && arg2, Arg3 && arg3, Arg4 && arg4 )
+	{
+		return unique_ptr< T >( new T( arg1, arg2, arg3, arg4 ) );
+	}
+	template< class T, typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5 >
+	unique_ptr< T > make_unique( Arg1 && arg1, Arg2 && arg2, Arg3 && arg3, Arg4 && arg4, Arg5 && arg5 )
+	{
+		return unique_ptr< T >( new T( arg1, arg2, arg3, arg4, arg5 ) );
+	}
+	template< class T, typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5, typename Arg6 >
+	unique_ptr< T > make_unique( Arg1 && arg1, Arg2 && arg2, Arg3 && arg3, Arg4 && arg4, Arg5 && arg5, Arg6 && arg6 )
+	{
+		return unique_ptr< T >( new T( arg1, arg2, arg3, arg4, arg5, arg6 ) );
+	}
+	template< class T, typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5, typename Arg6, typename Arg7 >
+	unique_ptr< T > make_unique( Arg1 && arg1, Arg2 && arg2, Arg3 && arg3, Arg4 && arg4, Arg5 && arg5, Arg6 && arg6, Arg7 && arg7 )
+	{
+		return unique_ptr< T >( new T( arg1, arg2, arg3, arg4, arg5, arg6, arg7 ) );
+	}
+	template< class T, typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5, typename Arg6, typename Arg7, typename Arg8 >
+	unique_ptr< T > make_unique( Arg1 && arg1, Arg2 && arg2, Arg3 && arg3, Arg4 && arg4, Arg5 && arg5, Arg6 && arg6, Arg7 && arg7, Arg8 && arg8 )
+	{
+		return unique_ptr< T >( new T( arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8 ) );
+	}
+}
+#endif
 
 #endif // ___DATABASE_PREREQUISITES_H___

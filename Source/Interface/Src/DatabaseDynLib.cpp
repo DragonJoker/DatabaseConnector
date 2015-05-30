@@ -21,6 +21,8 @@
 
 #if defined( _WIN32 )
 #   include <Windows.h>
+#elif defined( __linux__ )
+#	include <dlfcn.h>
 #endif
 
 BEGIN_NAMESPACE_DATABASE

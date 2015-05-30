@@ -47,6 +47,10 @@
 
 #include "DatabaseOdbcPrerequisites.h"
 
-#include <odbcss.h>
+#include <sql.h>
+
+#if defined( _WIN32 )
+#	include <odbcss.h>
+#endif
 
 #endif // ___DATABASE_ODBC_PCH_H___

@@ -10,6 +10,8 @@
  * @details Describes a database statement.
  *
  ***************************************************************************/
+ 
+ #include "DatabaseLogger.h"
 
 BEGIN_NAMESPACE_DATABASE
 {
@@ -82,7 +84,7 @@ BEGIN_NAMESPACE_DATABASE
 		catch ( ... )
 		{
 			StringStream message;
-			message << DATABASE_QUERY_INDEX_ERROR << index;
+			message << DATABASE_STATEMENT_INDEX_ERROR << index;
 			CLogger::LogError( message.str() );
 			DB_EXCEPT( EDatabaseExceptionCodes_QueryError, message.str() );
 		}
@@ -91,7 +93,7 @@ BEGIN_NAMESPACE_DATABASE
 	template <typename T>
 	const T & CDatabaseStatement::GetParameterValue( const String & name )
 	{
-		DatabaseParameterPtrArray::iterator it = std::find_if( _arrayParams.begin(), _arrayParams.end(), QueryParameterFindCondition( name ) );
+		DatabaseParameterPtrArray::iterator it = std::find_if( _arrayParams.begin(), _arrayParams.end(), StatementParameterFindCondition( name ) );
 
 		if ( it != _arrayParams.end() )
 		{
@@ -100,7 +102,7 @@ BEGIN_NAMESPACE_DATABASE
 		else
 		{
 			StringStream message;
-			message << DATABASE_QUERY_NAME_ERROR << name;
+			message << DATABASE_STATEMENT_NAME_ERROR << name;
 			CLogger::LogError( message.str() );
 			DB_EXCEPT( EDatabaseExceptionCodes_QueryError, message.str() );
 		}

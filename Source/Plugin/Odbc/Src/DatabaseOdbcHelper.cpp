@@ -195,7 +195,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 					for ( std::vector< SDataBinding >::iterator it = columns.begin(); it != columns.end(); ++it )
 					{
-						delete [] it->TargetValuePtr;
+						delete [] ( unsigned char * )it->TargetValuePtr;
 					}
 				}
 				catch ( const std::exception & e )
@@ -437,7 +437,11 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				}
 			}
 		}
+#if defined( _WIN32 )
 		while ( errorType == EErrorType_NONE && res != SQL_NO_DATA && res != SQL_PARAM_DATA_AVAILABLE );
+#else
+		while ( errorType == EErrorType_NONE && res != SQL_NO_DATA );
+#endif
 
 		result = errorType;
 		return res;

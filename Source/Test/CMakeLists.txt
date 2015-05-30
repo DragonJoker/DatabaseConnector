@@ -1,5 +1,7 @@
 project( DatabaseTest )
 
+include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/Src )
+
 if( WIN32 )
     include_directories( 
         "Src/Win32"
@@ -22,14 +24,14 @@ if( WIN32 )
                 Uninstall_odbc.bat
                 Uninstall_odbc_aria.bat
                 Uninstall_odbc_fdms.bat
-        PATHS   ${CMAKE_SOURCE_DIR}/../Database/BatchFiles
+        PATHS   ${CMAKE_SOURCE_DIR}/../Scripts/Batch
     )
     
     # Get path to utilities for database creation
     find_path( DATABASE_BATCH_FILES_DIR
         NAMES   CreateDatabase.bat
                 DeleteDatabase.bat
-        PATHS   ${CMAKE_SOURCE_DIR}/../DataBase/BatchFiles
+        PATHS   ${CMAKE_SOURCE_DIR}/../Scripts/Batch
     )
     
     configure_file( ${CMAKE_TEMPLATES_DIR}/DatabaseTestUtilities.h.in ${CMAKE_CURRENT_BINARY_DIR}/DatabaseTestUtilities.h NEWLINE_STYLE LF )
@@ -42,7 +44,28 @@ else()
 
     set( DatabaseTest_POST_COMMAND
     )
+        
+    # Get path to utilities for (un)installing the ODBC sources
+    find_path( ODBC_BATCH_FILES_DIR
+        NAMES   Install_odbc.sh
+                Install_odbc_aria.sh
+                Install_odbc_fdms.sh
+                Uninstall_odbc.sh
+                Uninstall_odbc_aria.sh
+                Uninstall_odbc_fdms.sh
+        PATHS   ${CMAKE_SOURCE_DIR}/../Scripts/Shell
+    )
+    
+    # Get path to utilities for database creation
+    find_path( DATABASE_BATCH_FILES_DIR
+        NAMES   CreateDatabase.sh
+                DeleteDatabase.sh
+        PATHS   ${CMAKE_SOURCE_DIR}/../Scripts/Shell
+    )
 endif()
+    
+configure_file( ${CMAKE_TEMPLATES_DIR}/DatabaseTestUtilities.h.in ${CMAKE_CURRENT_BINARY_DIR}/DatabaseTestUtilities.h NEWLINE_STYLE LF )
+set( DatabaseTest_SOURCE_FILES ${CMAKE_BINARY_DIR}/Test/Src/DatabaseTestUtilities.h )
 
 set( DBT_VERSION_MAJOR	0 )
 set( DBT_VERSION_MINOR	1 )
@@ -63,6 +86,12 @@ if( BUILD_ODBC_PLUGIN )
         ${BinsDependencies}
         DatabasePluginOdbcMySql
         DatabasePluginOdbcMsSql
+    )
+endif()
+if( BUILD_SQLite_PLUGIN )
+    set( BinsDependencies
+        ${BinsDependencies}
+        DatabasePluginSqlite
     )
 endif()
 

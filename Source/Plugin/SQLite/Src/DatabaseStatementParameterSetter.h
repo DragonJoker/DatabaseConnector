@@ -69,7 +69,7 @@ private:
 		//!@copydoc SParameterValueSetterBase::DoSetValue
 		virtual SQLite::eCODE DoSetValue( SQLite::Statement * statement, void * value, CDatabaseStatementParameterSqlite * parameter )
 		{
-			EXCEPT( Core::CException::eExceptionCodes_NotImplemented, STR( "Unimplemented" ), __FUNCTION__ );
+			throw std::runtime_error( "SParameterValueSetter::DoSetValue not implemented for this data type" );
 		}
 	};
 	/** Specialization for EFieldType_BOOL

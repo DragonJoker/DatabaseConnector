@@ -572,7 +572,7 @@ END_NAMESPACE_DATABASE
 template <typename T>
 inline NAMESPACE_DATABASE::String & operator <<( NAMESPACE_DATABASE::String & p_strStream, T const & p_tVal )
 {
-	Castor::StringStream l_out;
+	NAMESPACE_DATABASE::StringStream l_out;
 	l_out << p_tVal;
 	p_strStream += l_out.str();
 	return p_strStream;

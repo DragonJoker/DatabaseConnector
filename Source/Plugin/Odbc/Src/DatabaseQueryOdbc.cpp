@@ -23,7 +23,6 @@
 #include "ExceptionDatabaseOdbc.h"
 
 #include <DatabaseStringUtils.h>
-#include <odbcss.h>
 #include <functional>
 
 #define SQL_SOPT_SS_DEFER_PREPARE (SQL_SOPT_SS_BASE+7)
@@ -258,6 +257,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 	void CDatabaseQueryOdbc::OnResultSetFullyFetched( HSTMT statementHandle, SQLRETURN info )
 	{
+#if defined( _WIN32 )
 		if ( info == SQL_PARAM_DATA_AVAILABLE )
 		{
 			EErrorType eResult = EErrorType_NONE;
@@ -281,7 +281,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 			SqlSuccess( retCode, SQL_HANDLE_STMT, statementHandle, ODBC_PARAMDATA_MSG );
 		}
-
+#endif
 		int attemptCount;
 		EErrorType errorType = EErrorType_NONE;
 		SqlTry( SQLCloseCursor( statementHandle ), SQL_HANDLE_STMT, _statementHandle, ODBC_CLOSECURSOR_MSG );

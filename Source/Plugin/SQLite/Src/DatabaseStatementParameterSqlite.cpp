@@ -182,11 +182,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 					{
 						if ( parameter->GetType() == EFieldType_VARCHAR )
 						{
-							static_cast< CDatabaseValue< SDataTypeFieldTyper< char * >::Value > * >( paramValue )->SetValue( val, uint32_t( val.size() ) );
+							static_cast< CDatabaseValue< SDataTypeFieldTyper< char * >::Value > * >( paramValue )->SetValue( val.data(), uint32_t( val.size() ) );
 						}
 						else
 						{
-							static_cast< CDatabaseValue< SDataTypeFieldTyper< std::string >::Value > * >( paramValue )->SetValue( val, uint32_t( val.size() ) );
+							static_cast< CDatabaseValue< SDataTypeFieldTyper< std::string >::Value > * >( paramValue )->SetValue( val );
 						}
 					}
 				}
@@ -198,11 +198,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 				{
 					if ( parameter->GetType() == EFieldType_VARCHAR )
 					{
-						static_cast< CDatabaseValue< SDataTypeFieldTyper< char * >::Value > * >( paramValue )->SetValue( val, uint32_t( val.size() ) );
+						static_cast< CDatabaseValue< SDataTypeFieldTyper< char * >::Value > * >( paramValue )->SetValue( val.data(), uint32_t( val.size() ) );
 					}
 					else
 					{
-						static_cast< CDatabaseValue< SDataTypeFieldTyper< std::string >::Value > * >( paramValue )->SetValue( val, uint32_t( val.size() ) );
+						static_cast< CDatabaseValue< SDataTypeFieldTyper< std::string >::Value > * >( paramValue )->SetValue( val );
 					}
 				}
 			}
@@ -224,11 +224,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 					{
 						if ( parameter->GetType() == EFieldType_NVARCHAR )
 						{
-							static_cast< CDatabaseValue< SDataTypeFieldTyper< wchar_t * >::Value > * >( paramValue )->SetValue( val, uint32_t( val.size() ) );
+							static_cast< CDatabaseValue< SDataTypeFieldTyper< wchar_t * >::Value > * >( paramValue )->SetValue( val.data(), uint32_t( val.size() ) );
 						}
 						else
 						{
-							static_cast< CDatabaseValue< SDataTypeFieldTyper< std::wstring >::Value > * >( paramValue )->SetValue( val, uint32_t( val.size() ) );
+							static_cast< CDatabaseValue< SDataTypeFieldTyper< std::wstring >::Value > * >( paramValue )->SetValue( val );
 						}
 					}
 				}
@@ -240,11 +240,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 				{
 					if ( parameter->GetType() == EFieldType_NVARCHAR )
 					{
-						static_cast< CDatabaseValue< SDataTypeFieldTyper< wchar_t * >::Value > * >( paramValue )->SetValue( val, uint32_t( val.size() ) );
+						static_cast< CDatabaseValue< SDataTypeFieldTyper< wchar_t * >::Value > * >( paramValue )->SetValue( val.data(), uint32_t( val.size() ) );
 					}
 					else
 					{
-						static_cast< CDatabaseValue< SDataTypeFieldTyper< std::wstring >::Value > * >( paramValue )->SetValue( val, uint32_t( val.size() ) );
+						static_cast< CDatabaseValue< SDataTypeFieldTyper< std::wstring >::Value > * >( paramValue )->SetValue( val );
 					}
 				}
 			}
@@ -565,7 +565,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		_updater->Update( shared_from_this() );
 	}
 
-	void CDatabaseStatementParameterSqlite::DoSetValue( int value )
+	void CDatabaseStatementParameterSqlite::DoSetValue( int32_t value )
 	{
 		switch ( GetType() )
 		{
@@ -598,7 +598,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		_updater->Update( shared_from_this() );
 	}
 
-	void CDatabaseStatementParameterSqlite::DoSetValue( unsigned int value )
+	void CDatabaseStatementParameterSqlite::DoSetValue( uint32_t value )
 	{
 		switch ( GetType() )
 		{
@@ -620,72 +620,6 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 		case EFieldType_DOUBLE:
 			SValueSetter< double, unsigned int >()( _paramSetter, value, _statement, this, _value );
-			break;
-
-		default:
-			CLogger::LogError( DATABASE_PARAMETER_TYPE_ERROR );
-			DB_EXCEPT( EDatabaseExceptionCodes_ParameterError, DATABASE_PARAMETER_TYPE_ERROR );
-			break;
-		}
-
-		_updater->Update( shared_from_this() );
-	}
-
-	void CDatabaseStatementParameterSqlite::DoSetValue( long value )
-	{
-		switch ( GetType() )
-		{
-		case EFieldType_BOOL:
-			SValueSetter< bool, long >()( _paramSetter, value, _statement, this, _value );
-			break;
-
-		case EFieldType_INTEGER:
-			SValueSetter< int32_t, long >()( _paramSetter, value, _statement, this, _value );
-			break;
-
-		case EFieldType_LONG_INTEGER:
-			SValueSetter< int64_t, long >()( _paramSetter, value, _statement, this, _value );
-			break;
-
-		case EFieldType_FLOAT:
-			SValueSetter< float, long >()( _paramSetter, value, _statement, this, _value );
-			break;
-
-		case EFieldType_DOUBLE:
-			SValueSetter< double, long >()( _paramSetter, value, _statement, this, _value );
-			break;
-
-		default:
-			CLogger::LogError( DATABASE_PARAMETER_TYPE_ERROR );
-			DB_EXCEPT( EDatabaseExceptionCodes_ParameterError, DATABASE_PARAMETER_TYPE_ERROR );
-			break;
-		}
-
-		_updater->Update( shared_from_this() );
-	}
-
-	void CDatabaseStatementParameterSqlite::DoSetValue( unsigned long value )
-	{
-		switch ( GetType() )
-		{
-		case EFieldType_BOOL:
-			SValueSetter< bool, unsigned long >()( _paramSetter, value, _statement, this, _value );
-			break;
-
-		case EFieldType_INTEGER:
-			SValueSetter< int32_t, unsigned long >()( _paramSetter, value, _statement, this, _value );
-			break;
-
-		case EFieldType_LONG_INTEGER:
-			SValueSetter< int64_t, unsigned long >()( _paramSetter, value, _statement, this, _value );
-			break;
-
-		case EFieldType_FLOAT:
-			SValueSetter< float, unsigned long >()( _paramSetter, value, _statement, this, _value );
-			break;
-
-		case EFieldType_DOUBLE:
-			SValueSetter< double, unsigned long >()( _paramSetter, value, _statement, this, _value );
 			break;
 
 		default:

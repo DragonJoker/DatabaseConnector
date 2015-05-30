@@ -19,6 +19,8 @@
 #include <DatabaseConnection.h>
 #include <DatabaseStatement.h>
 #include <DatabaseQuery.h>
+#include <DatabaseResult.h>
+#include <DatabaseRow.h>
 
 BEGIN_NAMESPACE_DATABASE_TEST
 {
@@ -89,10 +91,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	namespace DatabaseUtils
 	{
 		template< typename T >
-		static std::shared_ptr< T > CreateStmt( DatabaseConnectionPtr connection, const String & query );
+		std::shared_ptr< T > CreateStmt( DatabaseConnectionPtr connection, const String & query );
 
 		template<>
-		static std::shared_ptr< CDatabaseStatement > CreateStmt< CDatabaseStatement >( DatabaseConnectionPtr connection, const String & query )
+		inline std::shared_ptr< CDatabaseStatement > CreateStmt< CDatabaseStatement >( DatabaseConnectionPtr connection, const String & query )
 		{
 			std::shared_ptr< CDatabaseStatement > result;
 
@@ -109,7 +111,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template<>
-		static std::shared_ptr< CDatabaseQuery > CreateStmt< CDatabaseQuery >( DatabaseConnectionPtr connection, const String & query )
+		inline std::shared_ptr< CDatabaseQuery > CreateStmt< CDatabaseQuery >( DatabaseConnectionPtr connection, const String & query )
 		{
 			std::shared_ptr< CDatabaseQuery > result;
 
@@ -126,7 +128,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< typename T >
-		static void TestDirectInsert( DatabaseConnectionPtr connection )
+		inline void TestDirectInsert( DatabaseConnectionPtr connection )
 		{
 			uint8_t blobArray[] = { /*0x00, */0x02, 0x04, 0x06, 0x08, 0x10, 0x15, 0x20, 0x25, 0x30, 0x35, 0x40, 0x45, 0x50, 0x50, 0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0xF0, 0xFF };
 			std::vector< uint8_t > blob;
@@ -172,16 +174,15 @@ BEGIN_NAMESPACE_DATABASE_TEST
 						int16_t type( i + 1 );
 						stmtInsert->SetParameterValue( index++, type );
 						stmtInsert->SetParameterValue( index++, STR( "Acteur_" ) + CStrUtils::ToString( count + i ) );
-
-						if ( i % 2 )
-						{
-							stmtInsert->SetParameterValue( index++, Database::ToUtf8( L"Areva Intercontrôle", L"Windows-1252" ) );
-						}
-						else
-						{
-							stmtInsert->SetParameterValue( index++, Database::ToUtf8( "Areva Intercontrôle", "Windows-1252" ) );
-						}
-
+						//if ( i % 2 )
+						//{
+						//	stmtInsert->SetParameterValue( index++, Database::ToUtf8( L"Areva Intercontrôle", L"Windows-1252" ) );
+						//}
+						//else
+						//{
+						//	stmtInsert->SetParameterValue( index++, Database::ToUtf8( "Areva Intercontrôle", "Windows-1252" ) );
+						//}
+						stmtInsert->SetParameterValue( index++, Database::ToUtf8( "Areva Intercontr\\00\\F4le", "Windows-1252" ) );
 						stmtInsert->SetParameterValue( index++, blob );
 						stmtInsert->SetParameterValue( index++, STR( "0123456789" ) );
 						BOOST_CHECK( stmtInsert->ExecuteUpdate() );
@@ -204,7 +205,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< typename T >
-		static void TestDirectSelect( DatabaseConnectionPtr connection )
+		inline void TestDirectSelect( DatabaseConnectionPtr connection )
 		{
 			std::shared_ptr< T > stmtSelect = DatabaseUtils::CreateStmt< T >( connection, STR( "SELECT ACTOR_ID, ACTOR_TYPE, ACTOR_NAME, ACTOR_LOCATION FROM ACTORS" ) );
 			BOOST_CHECK( stmtSelect );
@@ -234,7 +235,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< typename T >
-		static void TestDirectUpdate( DatabaseConnectionPtr connection )
+		inline void TestDirectUpdate( DatabaseConnectionPtr connection )
 		{
 			std::shared_ptr< T > stmtGetMin = DatabaseUtils::CreateStmt< T >( connection, STR( "SELECT MIN( ACTOR_ID ) AS ActorID FROM actors" ) );
 			BOOST_CHECK( stmtGetMin );
@@ -276,7 +277,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< typename T >
-		static void TestDirectDelete( DatabaseConnectionPtr connection )
+		inline void TestDirectDelete( DatabaseConnectionPtr connection )
 		{
 			std::shared_ptr< T > stmtGetMin = DatabaseUtils::CreateStmt< T >( connection, STR( "SELECT MIN( ACTOR_ID ) AS ActorID FROM actors" ) );
 			BOOST_CHECK( stmtGetMin );
@@ -316,7 +317,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< typename T >
-		static void InsertLanguage( DatabaseConnectionPtr connection )
+		inline void InsertLanguage( DatabaseConnectionPtr connection )
 		{
 			std::shared_ptr< T > stmtLanguage = DatabaseUtils::CreateStmt< T >( connection, STR( "CALL SpAddUpdateLanguage(?,?,?,?)" ) );
 			BOOST_CHECK( stmtLanguage );
@@ -338,7 +339,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< typename T >
-		static void TestStoredNoParamNoReturn( DatabaseConnectionPtr connection )
+		inline void TestStoredNoParamNoReturn( DatabaseConnectionPtr connection )
 		{
 			std::shared_ptr< T > stmtClear = DatabaseUtils::CreateStmt< T >( connection, STR( "CALL SpClearAcquisitionWorkspaceTables" ) );
 			BOOST_CHECK( stmtClear );
@@ -355,7 +356,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< typename T >
-		static void TestStoredNoParamReturn( DatabaseConnectionPtr connection, const String & where )
+		inline void TestStoredNoParamReturn( DatabaseConnectionPtr connection, const String & where )
 		{
 			std::shared_ptr< T > stmtGetActors = DatabaseUtils::CreateStmt< T >( connection, STR( "CALL SpGetActors(?)" ) );
 			BOOST_CHECK( stmtGetActors );
@@ -391,7 +392,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< typename T >
-		static void TestStoredInParamNoReturn( DatabaseConnectionPtr connection )
+		inline void TestStoredInParamNoReturn( DatabaseConnectionPtr connection )
 		{
 			std::shared_ptr< T > stmtGetMin = DatabaseUtils::CreateStmt< T >( connection, STR( "SELECT MIN( ACTOR_ID ) AS ActorID FROM actors" ) );
 			BOOST_CHECK( stmtGetMin );
@@ -431,7 +432,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< typename T >
-		static void TestStoredInOutParamNoReturn( DatabaseConnectionPtr connection )
+		inline void TestStoredInOutParamNoReturn( DatabaseConnectionPtr connection )
 		{
 			std::shared_ptr< T > stmtGetCount = DatabaseUtils::CreateStmt< T >( connection, STR( "SELECT MAX( TEXT_ID ) AS TextID FROM TEXTS" ) );
 			BOOST_CHECK( stmtGetCount );
@@ -482,14 +483,16 @@ BEGIN_NAMESPACE_DATABASE_TEST
 						stmtAddUpdate->SetParameterValue( index++, STR( "18" ) );
 						stmtAddUpdate->SetParameterValue( index++, STR( "189" ) );
 						BOOST_CHECK( stmtAddUpdate->ExecuteUpdate() );
-						BOOST_CHECK_EQUAL( i + count, stmtAddUpdate->GetParameterValue< long long >( 0 ) );
+						int64_t tmp;
+						stmtAddUpdate->GetParameterValue( 0, tmp );
+						BOOST_CHECK_EQUAL( i + count, tmp );
 					}
 				}
 			}
 		}
 
 		template< typename T >
-		static void TestStoredInOutDtParamNoReturn( DatabaseConnectionPtr connection )
+		inline void TestStoredInOutDtParamNoReturn( DatabaseConnectionPtr connection )
 		{
 			uint8_t blobArray[] = { /*0x00, */0x02, 0x04, 0x06, 0x08, 0x10, 0x15, 0x20, 0x25, 0x30, 0x35, 0x40, 0x45, 0x50, 0x50, 0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0xF0, 0xFF };
 			std::vector< uint8_t > blob;
@@ -538,27 +541,30 @@ BEGIN_NAMESPACE_DATABASE_TEST
 						stmtAddUpdate->SetParameterValue( index++, type );
 						stmtAddUpdate->SetParameterValue( index++, STR( "Acteur_" ) + CStrUtils::ToString( count + i ) );
 
-						if ( i % 2 )
-						{
-							stmtAddUpdate->SetParameterValue( index++, Database::ToUtf8( L"Areva Intercontrôle", L"Windows-1252" ) );
-						}
-						else
-						{
-							stmtAddUpdate->SetParameterValue( index++, Database::ToUtf8( "Areva Intercontrôle", "Windows-1252" ) );
-						}
+						//if ( i % 2 )
+						//{
+						//	stmtAddUpdate->SetParameterValue( index++, Database::ToUtf8( L"Areva Intercontrôle", L"Windows-1252" ) );
+						//}
+						//else
+						//{
+						//	stmtAddUpdate->SetParameterValue( index++, Database::ToUtf8( "Areva Intercontrôle", "Windows-1252" ) );
+						//}
+						stmtAddUpdate->SetParameterValue( index++, Database::ToUtf8( "Areva Intercontr\\00\\F4le", "Windows-1252" ) );
 
 						stmtAddUpdate->SetParameterValue( index++, STR( "0123456789" ) );
 						stmtAddUpdate->SetParameterValue( index++, blob );
 						stmtAddUpdate->SetParameterNull( index++ );
 						BOOST_CHECK( stmtAddUpdate->ExecuteUpdate() );
-						BOOST_CHECK_EQUAL( stmtAddUpdate->GetParameterValue< long long >( 0 ), count + i );
+						int64_t tmp;
+						stmtAddUpdate->GetParameterValue( 0, tmp );
+						BOOST_CHECK_EQUAL( i + count, tmp );
 					}
 				}
 			}
 		}
 
 		template< typename T >
-		static void TestStoredUpdate( DatabaseConnectionPtr connection )
+		inline void TestStoredUpdate( DatabaseConnectionPtr connection )
 		{
 			std::shared_ptr< T > stmtLanguage = DatabaseUtils::CreateStmt< T >( connection, STR( "CALL SpAddUpdateLanguage(?,?,?,?)" ) );
 			BOOST_CHECK( stmtLanguage );
@@ -581,7 +587,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< typename T >
-		void PerfDirectSelectActors( DatabaseConnectionPtr connection, uint32_t testCount, const String & whereClause )
+		inline void PerfDirectSelectActors( DatabaseConnectionPtr connection, uint32_t testCount, const String & whereClause )
 		{
 			std::shared_ptr< T > stmtGetActors;
 
@@ -619,7 +625,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< typename T >
-		void PerfStoredProcedureSelectActors( DatabaseConnectionPtr connection, uint32_t testCount, const String & whereClause )
+		inline void PerfStoredProcedureSelectActors( DatabaseConnectionPtr connection, uint32_t testCount, const String & whereClause )
 		{
 			std::shared_ptr< T > stmtGetActors = DatabaseUtils::CreateStmt< T >( connection, STR( "CALL SpGetActors(?)" ) );
 
@@ -650,7 +656,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< typename T >
-		void PerfDirectDeleteActors( DatabaseConnectionPtr connection, uint32_t testCount )
+		inline void PerfDirectDeleteActors( DatabaseConnectionPtr connection, uint32_t testCount )
 		{
 			std::shared_ptr< T > stmtGetMin = DatabaseUtils::CreateStmt< T >( connection, STR( "SELECT MIN( ACTOR_ID ) AS ActorID FROM actors" ) );
 			int64_t min = 0;
@@ -689,7 +695,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< typename T >
-		void PerfStoredProcedureDeleteActors( DatabaseConnectionPtr connection, uint32_t testCount )
+		inline void PerfStoredProcedureDeleteActors( DatabaseConnectionPtr connection, uint32_t testCount )
 		{
 			std::shared_ptr< T > stmtGetMin = DatabaseUtils::CreateStmt< T >( connection, STR( "SELECT MIN( ACTOR_ID ) AS ActorID FROM actors" ) );
 			int64_t min = 0;
