@@ -226,8 +226,10 @@
 
 BEGIN_NAMESPACE_DATABASE_ODBC_MYSQL
 {
-	CDatabaseConnectionOdbcMySql::CDatabaseConnectionOdbcMySql( SQLHENV sqlEnvironmentHandle, const String & server, const String & database, const String & userName, const String & password, String & connectionString )
-		:   CDatabaseConnectionOdbc( sqlEnvironmentHandle, server, database, userName, password, connectionString )
+	static const String ERROR_ODBC_NOT_CONNECTED = STR( "Not connected" );
+
+	CDatabaseConnectionOdbcMySql::CDatabaseConnectionOdbcMySql( SQLHENV sqlEnvironmentHandle, const String & server, const String & userName, const String & password, String & connectionString )
+		:   CDatabaseConnectionOdbc( sqlEnvironmentHandle, server, userName, password, connectionString )
 	{
 		DoConnect( connectionString );
 	}
@@ -237,38 +239,71 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MYSQL
 		DoDisconnect();
 	}
 
-	EErrorType CDatabaseConnectionOdbcMySql::DoConnect( String & connectionString )
+	void CDatabaseConnectionOdbcMySql::CreateDatabase( const String & database )
 	{
-		EErrorType  eReturn     = EErrorType_ERROR;
-		SQLHWND     sqlHwnd     = NULL;
-		SQLRETURN   sqlReturn;
+		if ( !IsConnected() )
+		{
+			CLogger::LogError( ERROR_ODBC_NOT_CONNECTED );
+			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_ODBC_NOT_CONNECTED, __FUNCTION__, __FILE__, __LINE__ );
+		}
+
+		DoExecuteUpdate( STR( "CREATE DATABASE " ) + database + STR( " CHARACTER SET utf8 COLLATE utf8_general_ci" ), NULL );
+	}
+
+	void CDatabaseConnectionOdbcMySql::SelectDatabase( const String & database )
+	{
+		if ( !IsConnected() )
+		{
+			CLogger::LogError( ERROR_ODBC_NOT_CONNECTED );
+			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_ODBC_NOT_CONNECTED, __FUNCTION__, __FILE__, __LINE__ );
+		}
+
+		if ( !_database.empty() )
+		{
+			SQLDisconnect( _connectionHandle );
+		}
+
+		String connectionString;
 
 		if ( _userName.size() > 0 )
 		{
 			uint32_t flags = SQL_MYSQL_OPT_NO_CACHE | SQL_MYSQL_OPT_FORWARD_CURSOR | SQL_MYSQL_OPT_BIG_PACKETS | SQL_MYSQL_OPT_MULTI_STATEMENTS | SQL_MYSQL_OPT_NO_DEFAULT_CURSOR;
-			//            connectionString = STR( "Driver={MySQL ODBC 5.3 UNICODE Driver};Server=" ) + _server + STR( ";Database=" ) + _database + STR( ";User=" ) + _userName + STR( ";Password=" ) + _password + STR( ";Option=" ) + CStrUtils::ToString( SQL_MYSQL_OPT_NO_CACHE | SQL_MYSQL_OPT_FORWARD_CURSOR | SQL_MYSQL_OPT_BIG_PACKETS | SQL_MYSQL_OPT_MULTI_STATEMENTS | SQL_MYSQL_OPT_NO_DEFAULT_CURSOR ) + STR( ";" );
-			connectionString = STR( "DSN=" ) + _database
-			+ STR( ";UID=" ) + _userName
-			+ STR( ";PWD=" ) + _password
-			+ STR( ";Option=" ) + CStrUtils::ToString( flags )
-			+ STR( ";CharSet=utf8;" );
+			connectionString = STR( "DSN=" ) + database
+							   + STR( ";UID=" ) + _userName
+							   + STR( ";PWD=" ) + _password
+							   + STR( ";Option=" ) + CStrUtils::ToString( flags )
+							   + STR( ";CharSet=utf8;" );
 		}
 		else
 		{
-			connectionString = STR( "DSN=" ) + _database + STR( ";INTEGRATED SECURITY=true;Trusted_Connection=yes" );
+			connectionString = STR( "DSN=" ) + database + STR( ";INTEGRATED SECURITY=true;Trusted_Connection=yes" );
 		}
 
-		if ( SqlSuccess( SQLAllocHandle( SQL_HANDLE_DBC, _environmentHandle, &_connectionHandle ), SQL_HANDLE_ENV, _environmentHandle, STR( "SQLAllocHandle" ) ) == EErrorType_NONE )
+		SQLHWND sqlHwnd = NULL;
+		SQLRETURN sqlReturn = SQLDriverConnectA( _connectionHandle, sqlHwnd, ( SqlChar * )connectionString.c_str(), SQL_NTS, NULL, 0, NULL, SQL_DRIVER_COMPLETE_REQUIRED );
+
+		if ( SqlSuccess( sqlReturn, SQL_HANDLE_DBC, _connectionHandle, STR( "SQLDriverConnect" ) ) == EErrorType_NONE )
 		{
-			sqlReturn = SQLDriverConnectA( _connectionHandle, sqlHwnd, ( SqlChar * )connectionString.c_str(), SQL_NTS, NULL, 0, NULL, SQL_DRIVER_COMPLETE_REQUIRED );
+			_database = database;
+		}
+	}
 
-			if ( SqlSuccess( sqlReturn, SQL_HANDLE_DBC, _connectionHandle, STR( "SQLDriverConnect" ) ) == EErrorType_NONE )
-			{
-				DoSetConnected( true );
-			}
+	void CDatabaseConnectionOdbcMySql::DestroyDatabase( const String & database )
+	{
+		if ( !IsConnected() )
+		{
+			CLogger::LogError( ERROR_ODBC_NOT_CONNECTED );
+			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_ODBC_NOT_CONNECTED, __FUNCTION__, __FILE__, __LINE__ );
 		}
 
-		return eReturn;
+		DoExecuteUpdate( STR( "DROP DATABASE " ) + database, NULL );
+	}
+
+	EErrorType CDatabaseConnectionOdbcMySql::DoConnect( String & connectionString )
+	{
+		EErrorType result = SqlSuccess( SQLAllocHandle( SQL_HANDLE_DBC, _environmentHandle, &_connectionHandle ), SQL_HANDLE_ENV, _environmentHandle, STR( "SQLAllocHandle" ) );
+		DoSetConnected( result == EErrorType_NONE );
+		return result;
 	}
 
 	DatabaseStatementPtr CDatabaseConnectionOdbcMySql::DoCreateStatement( const String & request, EErrorType * result )

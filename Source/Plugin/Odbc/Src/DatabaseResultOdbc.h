@@ -24,7 +24,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 {
 	/** Links the database data during the execution of a SELECT request.
 	*/
-	struct DatabaseOdbcExport SDataBinding
+	struct SDataBinding
 	{
 		SQLSMALLINT TargetType;         ///< Data type.
 		SQLPOINTER  TargetValuePtr;     ///< Pointer to the value.
@@ -34,7 +34,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 	/** Describes a result for ODBC database.
 	*/
-	class DatabaseOdbcExport CDatabaseResultOdbc
+	class CDatabaseResultOdbc
 		: public CDatabaseResult
 	{
 		typedef void ( FuncResultSetFullyFetched )( SQLHSTMT statementHandle, SQLRETURN info );

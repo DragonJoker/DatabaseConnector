@@ -34,7 +34,8 @@ BEGIN_NAMESPACE_DATABASE
 	\~french
 	\brief		Définit les différents types de log
 	*/
-	typedef enum eLOG_TYPE : uint8_t
+	typedef enum eLOG_TYPE :
+	uint8_t
 	{
 		eLOG_TYPE_DEBUG		//!<\~english Debug type log		\~french Log de type debug
 		,	eLOG_TYPE_MESSAGE	//!<\~english Message type log		\~french Log de type message

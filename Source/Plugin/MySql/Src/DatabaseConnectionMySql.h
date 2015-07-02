@@ -45,7 +45,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		@param[out] connectionString
 		    Created connection string.
 		 */
-		DatabaseMySqlExport CDatabaseConnectionMySql( sql::Driver * driver, const String & server, const String & database, const String & userName, const String & password, String & connectionString );
+		DatabaseMySqlExport CDatabaseConnectionMySql( sql::Driver * driver, const String & server, const String & userName, const String & password, String & connectionString );
 
 		/** Destructor.
 		 */
@@ -74,6 +74,24 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		    Error code, EErrorType_NONE if no problem.
 		*/
 		DatabaseMySqlExport virtual EErrorType RollBack( const String & name );
+
+		/** Creates a database.
+		@param[in] database
+		    Database identifier (name or DSN (ODBC)).
+		*/
+		DatabaseMySqlExport virtual void CreateDatabase( const String & database );
+
+		/** Selects a database.
+		@param[in] database
+		    Database identifier (name or DSN (ODBC)).
+		*/
+		DatabaseMySqlExport virtual void SelectDatabase( const String & database );
+
+		/** Destroys a database.
+		@param[in] database
+		    Database identifier (name or DSN (ODBC)).
+		*/
+		DatabaseMySqlExport virtual void DestroyDatabase( const String & database );
 
 		/** Format a string to be supported by the DBMS.
 		@param[in] text

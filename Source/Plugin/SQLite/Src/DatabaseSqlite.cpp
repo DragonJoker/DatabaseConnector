@@ -39,7 +39,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 	DatabaseConnectionPtr CDatabaseSqlite::DoCreateConnection( String & connectionString ) const
 	{
-		return std::make_shared< CDatabaseConnectionSqlite >( _server, _database, _userName, _password, connectionString );
+		return std::make_shared< CDatabaseConnectionSqlite >( _server, _userName, _password, connectionString );
 	}
 }
 END_NAMESPACE_DATABASE_SQLITE

@@ -33,7 +33,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	@return
 	    Error code.
 	*/
-	DatabaseOdbcExport EErrorType SqlError( SQLSMALLINT typeHandle, SQLHANDLE handle, const String & query, bool error );
+	EErrorType SqlError( SQLSMALLINT typeHandle, SQLHANDLE handle, const String & query, bool error );
 
 	/** Manages an SQL success.
 	@param[in] rc
@@ -47,7 +47,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	@return
 	    Error code.
 	*/
-	DatabaseOdbcExport EErrorType SqlSuccess( SQLRETURN rc, SQLSMALLINT typeHandle = 0, SQLHANDLE handle = NULL, const String & query = STR( "" ) );
+	EErrorType SqlSuccess( SQLRETURN rc, SQLSMALLINT typeHandle = 0, SQLHANDLE handle = NULL, const String & query = STR( "" ) );
 
 	/** Convert SQL type to database field type.
 	@param[in] sqlType
@@ -55,7 +55,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	@return
 	    Database field type.
 	*/
-	DatabaseOdbcExport EFieldType GetFieldConciseType( SQLLEN sqlType );
+	EFieldType GetFieldConciseType( SQLLEN sqlType );
 
 	/** Execute an SQL operation.
 	@param[in] connection
@@ -71,7 +71,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	@return
 	    Results.
 	*/
-	DatabaseOdbcExport SQLRETURN SqlExecute( DatabaseConnectionPtr connection, SQLHSTMT statementHandle, const String & query, DatabaseResultPtr & pReturn, EErrorType & result );
+	SQLRETURN SqlExecute( DatabaseConnectionPtr connection, SQLHSTMT statementHandle, const String & query, DatabaseResultPtr & pReturn, EErrorType & result );
 }
 END_NAMESPACE_DATABASE_ODBC
 

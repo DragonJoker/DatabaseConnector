@@ -20,27 +20,7 @@
 #include "DatabaseOdbcMsSqlTest.h"
 #include "DatabaseTestPluginsStaticLoader.h"
 
-#include <DatabasePrerequisites.h>
-
 #include <boost/test/unit_test.hpp>
-
-#include <Database.h>
-
-#include <DatabaseStringUtils.h>
-#include <DatabaseFactoryManager.h>
-#include <DatabasePluginManager.h>
-
-#if defined( _WIN32 )
-static const NAMESPACE_DATABASE::String MYSQL_PLUGIN = STR( "DatabasePluginMySql.dll" );
-static const NAMESPACE_DATABASE::String SQLITE_PLUGIN = STR( "DatabasePluginSqlite.dll" );
-static const NAMESPACE_DATABASE::String ODBC_MYSQL_PLUGIN = STR( "DatabasePluginOdbcMySql.dll" );
-static const NAMESPACE_DATABASE::String ODBC_MSSQL_PLUGIN = STR( "DatabasePluginOdbcMsSql.dll" );
-#else
-static const NAMESPACE_DATABASE::String MYSQL_PLUGIN = STR( "libDatabasePluginMySql.so" );
-static const NAMESPACE_DATABASE::String SQLITE_PLUGIN = STR( "libDatabasePluginSqlite.so" );
-static const NAMESPACE_DATABASE::String ODBC_MYSQL_PLUGIN = STR( "libDatabasePluginOdbcMySql.so" );
-static const NAMESPACE_DATABASE::String ODBC_MSSQL_PLUGIN = STR( "libDatabasePluginOdbcMsSql.so" );
-#endif
 
 NAMESPACE_DATABASE::String g_path;
 
@@ -139,18 +119,6 @@ END_NAMESPACE_DATABASE_TEST
 
 BEGIN_NAMESPACE_DATABASE_TEST
 {
-	static struct SPluginsConfig
-	{
-		String _path;
-		bool _mySql;
-		bool _sqlite;
-		bool _odbcMySql;
-		bool _odbcMsSql;
-#if defined( STATIC_LIB )
-		CTestPluginsStaticLoader _loader;
-#endif
-	} pluginsConfig;
-
 	void Tests_Creation()
 	{
 		///@remarks Clear the TS' List
@@ -167,93 +135,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		{
 			boost::unit_test::framework::master_test_suite().add( *it );
 		}
-	}
-
-	String InitializeSingletons()
-	{
-		String modulePath = g_path;
-
-		CPluginManager::Instance().SetApplicationPath( modulePath );
-		CPluginManager::Instance().SetPluginsPath( modulePath );
-		CPluginManager::Instance().SetTranslationsPath( modulePath );
-
-		return modulePath;
-	}
-
-	void LoadPlugins( const String & path, bool mySql, bool sqlite, bool odbcMySql, bool odbcMsSql )
-	{
-		pluginsConfig._path = path;
-		pluginsConfig._mySql = mySql;
-		pluginsConfig._sqlite = sqlite;
-		pluginsConfig._odbcMySql = odbcMySql;
-		pluginsConfig._odbcMsSql = odbcMsSql;
-#if !defined( STATIC_LIB )
-
-		if ( pluginsConfig._odbcMsSql )
-		{
-			CPluginManager::Instance().LoadPlugin( pluginsConfig._path + ODBC_MSSQL_PLUGIN );
-		}
-
-		if ( pluginsConfig._odbcMySql )
-		{
-			CPluginManager::Instance().LoadPlugin( pluginsConfig._path + ODBC_MYSQL_PLUGIN );
-		}
-
-		if ( pluginsConfig._sqlite )
-		{
-			CPluginManager::Instance().LoadPlugin( pluginsConfig._path + SQLITE_PLUGIN );
-		}
-
-		if ( pluginsConfig._mySql )
-		{
-			CPluginManager::Instance().LoadPlugin( pluginsConfig._path + MYSQL_PLUGIN );
-		}
-
-#else
-		pluginsConfig._loader.Load( mySql, odbcMySql, odbcMsSql );
-#endif
-	}
-
-	void UnloadPlugins()
-	{
-#if !defined( STATIC_LIB )
-
-		if ( pluginsConfig._odbcMsSql )
-		{
-			CPluginManager::Instance().UnloadPlugin( pluginsConfig._path + ODBC_MSSQL_PLUGIN );
-		}
-
-		if ( pluginsConfig._odbcMySql )
-		{
-			CPluginManager::Instance().UnloadPlugin( pluginsConfig._path + ODBC_MYSQL_PLUGIN );
-		}
-
-		if ( pluginsConfig._sqlite )
-		{
-			CPluginManager::Instance().UnloadPlugin( pluginsConfig._path + SQLITE_PLUGIN );
-		}
-
-		if ( pluginsConfig._mySql )
-		{
-			CPluginManager::Instance().UnloadPlugin( pluginsConfig._path + MYSQL_PLUGIN );
-		}
-
-#else
-		pluginsConfig._loader.Unload();
-#endif
-	}
-
-	CDatabase * InstantiateDatabase( const String & type )
-	{
-		return static_cast< CDatabase * >( CFactoryManager::Instance().CreateInstance( type ) );
-	}
-
-	DatabaseConnectionPtr CreateConnection( CDatabase * database, const String & server, const String & name, const String & user, const String & pwd )
-	{
-		String connectionResult;
-		database->Initialize( server, name, user, pwd );
-		database->CreateConnection( connectionResult );
-		return database->RetrieveConnection();
 	}
 }
 END_NAMESPACE_DATABASE_TEST

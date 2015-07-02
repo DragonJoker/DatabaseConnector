@@ -18,11 +18,10 @@
 
 BEGIN_NAMESPACE_DATABASE
 {
-	CDatabaseConnection::CDatabaseConnection( const String & server, const String & database, const String & userName, const String & password )
+	CDatabaseConnection::CDatabaseConnection( const String & server, const String & userName, const String & password )
 		:   _connected( false )
 		,   _inTransaction( false )
 		,   _server( server )
-		,   _database( database )
 		,   _userName( userName )
 		,   _password( password )
 	{

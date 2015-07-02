@@ -68,11 +68,14 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 		errorType = SqlSuccess( SQLAllocHandle( SQL_HANDLE_STMT, hParentStmt, & _statementHandle ), SQL_HANDLE_STMT, hParentStmt, ODBC_HANDLE_ALLOCATION_MSG );
 #if defined( WIN32 )
+
 		if ( errorType == EErrorType_NONE )
 		{
 			SqlTry( SQLSetStmtAttr( _statementHandle, SQL_SOPT_SS_DEFER_PREPARE, SQL_DP_OFF, SQL_IS_UINTEGER ), SQL_HANDLE_STMT, _statementHandle, ODBC_SETSTMTATTR_MSG );
 		}
+
 #endif
+
 		if ( errorType == EErrorType_NONE )
 		{
 			SqlTry( SQLPrepareA( _statementHandle, ( SqlChar * )_query.c_str(), SQLINTEGER( _query.size() ) ), SQL_HANDLE_STMT, _statementHandle, ODBC_PREPARE_MSG );
@@ -279,6 +282,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		assert( statementHandle == _statementHandle );
 
 #if defined( _WIN32 )
+
 		if ( info == SQL_PARAM_DATA_AVAILABLE )
 		{
 			EErrorType eResult = EErrorType_NONE;
@@ -302,6 +306,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 			SqlSuccess( retCode, SQL_HANDLE_STMT, _statementHandle, ODBC_PARAMDATA_MSG );
 		}
+
 #endif
 		int attemptCount;
 		EErrorType errorType = EErrorType_NONE;

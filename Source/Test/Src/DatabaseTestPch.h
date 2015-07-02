@@ -25,9 +25,14 @@
  * \defgroup Database Includes
  * @{
  */
-#include <DatabaseLogger.h>
+#include <Database.h>
+#include <DatabaseDateTime.h>
 #include <DatabaseFactoryManager.h>
-#include <DatabasePrerequisites.h>
+#include <DatabaseLogger.h>
+#include <DatabasePluginManager.h>
+#include <DatabaseResult.h>
+#include <DatabaseRow.h>
+#include <DatabaseStringUtils.h>
 /**@}*/
 
 /**

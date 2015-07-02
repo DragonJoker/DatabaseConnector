@@ -21,5 +21,18 @@ add_target(
     ""	""	""
 )
 
+if ( WIN32 )
+	include( InstallRequiredSystemLibraries )
+endif ()
+
+copy_dll( ${PROJECT_NAME} "${Boost_DATE_TIME_LIBRARY_DEBUG}" Debug )
+copy_dll( ${PROJECT_NAME} "${Boost_DATE_TIME_LIBRARY_RELEASE}" Release )
+copy_dll( ${PROJECT_NAME} "${Boost_FILESYSTEM_LIBRARY_DEBUG}" Debug )
+copy_dll( ${PROJECT_NAME} "${Boost_FILESYSTEM_LIBRARY_RELEASE}" Release )
+copy_dll( ${PROJECT_NAME} "${Boost_LOCALE_LIBRARY_DEBUG}" Debug )
+copy_dll( ${PROJECT_NAME} "${Boost_LOCALE_LIBRARY_RELEASE}" Release )
+copy_dll( ${PROJECT_NAME} "${Boost_SYSTEM_LIBRARY_DEBUG}" Debug )
+copy_dll( ${PROJECT_NAME} "${Boost_SYSTEM_LIBRARY_RELEASE}" Release )
+
 set_property( TARGET Database PROPERTY FOLDER "Interface" )
 add_target_astyle( Database ".h;.hpp;.inl;.cpp" )

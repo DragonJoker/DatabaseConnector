@@ -226,7 +226,6 @@ BEGIN_NAMESPACE_DATABASE
 			///@copydoc CDatabaseParameter::SValueUpdater
 			DatabaseExport virtual void Update( DatabaseParameterPtr value );
 
-		private:
 			//! The parent query
 			CDatabaseQuery * _query;
 		};

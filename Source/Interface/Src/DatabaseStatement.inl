@@ -9,9 +9,9 @@
  *
  * @details Describes a database statement.
  *
- ***************************************************************************/
- 
- #include "DatabaseLogger.h"
+***************************************************************************/
+
+#include "DatabaseLogger.h"
 
 BEGIN_NAMESPACE_DATABASE
 {

@@ -52,7 +52,7 @@ BEGIN_NAMESPACE_DATABASE
 		void LoadPlugins( const String & path, bool mySql, bool sqlite, bool odbcMySql, bool odbcMsSql );
 		void UnloadPlugins();
 		Database::CDatabase * InstantiateDatabase( const String & type );
-		Database::DatabaseConnectionPtr CreateConnection( Database::CDatabase * database, const String & server, const String & name, const String & user, const String & pwd );
+		Database::DatabaseConnectionPtr CreateConnection( Database::CDatabase & database, const String & server, const String & user, const String & pwd );
 	}
 }
 END_NAMESPACE_DATABASE

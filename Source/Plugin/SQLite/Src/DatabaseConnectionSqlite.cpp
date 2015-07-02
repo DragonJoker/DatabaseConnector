@@ -29,6 +29,8 @@
 
 #include "sqlite3.h"
 
+#include <boost/filesystem.hpp>
+
 #if defined( _WIN32 )
 #   include <Windows.h>
 #endif
@@ -40,6 +42,8 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 	static const String SQLITE_TRANSACTION_ROLLBACK = STR( "ROLLBACK TRANSACTION " );
 
 	static const String ERROR_SQLITE_CONNECTION = STR( "Couldn't create the connection" );
+	static const String ERROR_SQLITE_SELECTION = STR( "Couldn't select the database: " );
+	static const String ERROR_SQLITE_DESTRUCTION = STR( "Couldn't destroy the database: " );
 	static const String ERROR_SQLITE_EXECUTION_ERROR = STR( "Couldn't execute the query" );
 	static const String ERROR_SQLITE_UNKNOWN_ERROR = STR( "Unknown error" );
 	static const String ERROR_SQLITE_NOT_CONNECTED = STR( "Not connected" );
@@ -50,8 +54,8 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 	static const std::wstring SQLITE_NULL_STDWSTRING = L"NULL";
 	static const String SQLITE_NULL_STRING = STR( "NULL" );
 
-	CDatabaseConnectionSqlite::CDatabaseConnectionSqlite( const String & server, const String & database, const String & userName, const String & password, String & connectionString )
-		:   CDatabaseConnection( server, database, userName, password )
+	CDatabaseConnectionSqlite::CDatabaseConnectionSqlite( const String & server, const String & userName, const String & password, String & connectionString )
+		:   CDatabaseConnection( server, userName, password )
 		,   _connection( NULL )
 	{
 		DoConnect( connectionString );
@@ -144,6 +148,97 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		}
 
 		return eReturn;
+	}
+
+	void CDatabaseConnectionSqlite::CreateDatabase( const String & database )
+	{
+		if ( !IsConnected() )
+		{
+			CLogger::LogError( ERROR_SQLITE_NOT_CONNECTED );
+			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_SQLITE_NOT_CONNECTED, __FUNCTION__, __FILE__, __LINE__ );
+		}
+
+		String filePath = _server + PATH_SEP + database;
+		String serverPath = filePath;
+
+		CStrUtils::Replace( serverPath, STR( "\\" ), PATH_SEP );
+		CStrUtils::Replace( serverPath, STR( "/" ), PATH_SEP );
+		serverPath = serverPath.substr( 0, serverPath.find_last_of( PATH_SEP ) + 1 );
+
+		if ( !FileExists( filePath ) )
+		{
+			if ( !FolderExists( serverPath ) )
+			{
+				CreateFolder( serverPath );
+			}
+
+			FILE * file;
+#if defined( _MSC_VER )
+			fopen_s( &file, CStrUtils::ToStr( filePath ).c_str(), "w" );
+#else
+			file = fopen( CStrUtils::ToStr( filePath ).c_str(), "w" );
+#endif
+
+			if ( file )
+			{
+				fclose( file );
+				file = NULL;
+			}
+		}
+	}
+
+	void CDatabaseConnectionSqlite::SelectDatabase( const String & database )
+	{
+		if ( !IsConnected() )
+		{
+			CLogger::LogError( ERROR_SQLITE_NOT_CONNECTED );
+			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_SQLITE_NOT_CONNECTED, __FUNCTION__, __FILE__, __LINE__ );
+		}
+
+		if ( !_database.empty() )
+		{
+			SQLite::Close( _connection );
+		}
+
+		String filePath = _server + PATH_SEP + database;
+		SQLite::eCODE code = SQLite::Open( CStrUtils::ToStr( filePath ).c_str(), &_connection );
+
+		if ( code != SQLite::eCODE_OK )
+		{
+			String error = ERROR_SQLITE_SELECTION + CStrUtils::ToString( SQLite::Errmsg( _connection ) );
+			CLogger::LogError( error );
+			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, error, __FUNCTION__, __FILE__, __LINE__ );
+		}
+
+		_database = database;
+	}
+
+	void CDatabaseConnectionSqlite::DestroyDatabase( const String & database )
+	{
+		if ( !IsConnected() )
+		{
+			CLogger::LogError( ERROR_SQLITE_NOT_CONNECTED );
+			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_SQLITE_NOT_CONNECTED, __FUNCTION__, __FILE__, __LINE__ );
+		}
+
+		String filePath = _server + PATH_SEP + database;
+
+		if ( FileExists( filePath ) )
+		{
+			CStrUtils::Replace( filePath, STR( "\\" ), PATH_SEP );
+			CStrUtils::Replace( filePath, STR( "/" ), PATH_SEP );
+
+			try
+			{
+				boost::filesystem::remove( filePath );
+			}
+			catch ( boost::filesystem::filesystem_error & exc )
+			{
+				String error = ERROR_SQLITE_DESTRUCTION + CStrUtils::ToString( exc.what() );
+				CLogger::LogError( error );
+				throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, error, __FUNCTION__, __FILE__, __LINE__ );
+			}
+		}
 	}
 
 	std::string CDatabaseConnectionSqlite::WriteText( const std::string & text ) const
@@ -478,51 +573,8 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 	EErrorType CDatabaseConnectionSqlite::DoConnect( String & connectionString )
 	{
-		EErrorType eReturn = EErrorType_ERROR;
-		String filePath = _server + PATH_SEP + _database;
-		String serverPath = filePath;
-
-		CStrUtils::Replace( serverPath, STR( "\\" ), PATH_SEP );
-		CStrUtils::Replace( serverPath, STR( "/" ), PATH_SEP );
-		serverPath = serverPath.substr( 0, serverPath.find_last_of( PATH_SEP ) + 1 );
-
-		if ( !FileExists( filePath ) )
-		{
-			if ( !FolderExists( serverPath ) )
-			{
-				CreateFolder( serverPath );
-			}
-
-			FILE * file;
-#if defined( _MSC_VER )
-			fopen_s( &file, CStrUtils::ToStr( filePath ).c_str(), "w" );
-#else
-			file = fopen( CStrUtils::ToStr( filePath ).c_str(), "w" );
-#endif
-
-			if ( file )
-			{
-				fclose( file );
-				file = NULL;
-			}
-		}
-
-		SQLite::eCODE code = SQLite::Open( CStrUtils::ToStr( filePath ).c_str(), &_connection );
-
-		if ( code != SQLite::eCODE_OK )
-		{
-			connectionString = STR( "Erreur de connexion à la base de données : \n" );
-			connectionString += CStrUtils::ToString( SQLite::Errmsg( _connection ) );
-			CLogger::LogMessage( connectionString );
-			DoSetConnected( false );
-		}
-		else
-		{
-			DoSetConnected( true );
-			eReturn = EErrorType_NONE;
-		}
-
-		return eReturn;
+		DoSetConnected( true );
+		return EErrorType_NONE;
 	}
 
 	void CDatabaseConnectionSqlite::DoDisconnect()

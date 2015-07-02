@@ -17,20 +17,6 @@
 #include <DatabasePrerequisites.h>
 
 #if defined( _WIN32 )
-#   ifdef Database_EXPORTS
-#        define DatabaseOdbcExport __declspec ( dllexport )
-#   else
-#       if defined ( __MINGW32__ )
-#           define DatabaseOdbcExport
-#       else
-#           define DatabaseOdbcExport __declspec ( dllimport )
-#       endif
-#   endif
-#else
-#   define DatabaseOdbcExport
-#endif
-
-#if defined( _WIN32 )
 #   include <windows.h>
 #   include <sql.h>
 #   include <sqlext.h>

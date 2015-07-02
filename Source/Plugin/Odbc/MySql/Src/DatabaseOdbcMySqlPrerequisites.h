@@ -30,7 +30,6 @@
 #    define DatabaseOdbcMySqlExport
 #endif
 
-		
 #if defined( _WIN32 )
 #   include <windows.h>
 
@@ -52,7 +51,8 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	/** MySql namespace
 	*/
 	namespace MySql
-	{// Pre-declare classes
+	{
+		// Pre-declare classes
 		// Allows use of pointers in header files without including individual .h
 		// so decreases dependencies between files
 		class CDatabaseConnectionOdbcMySql;

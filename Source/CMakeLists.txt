@@ -1,4 +1,4 @@
-cmake_minimum_required( VERSION 2.8 )
+cmake_minimum_required( VERSION 2.8.10 )
 #--------------------------------------------------------------------------------------------------
 #	Initial configurations
 #--------------------------------------------------------------------------------------------------
@@ -20,41 +20,21 @@ set( CMAKE_TEMPLATES_DIR ${CMAKE_SOURCE_DIR}/Templates )
 # Experimental Precompiled headers support for GCC
 include( PCHSupport )
 
+set( CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "Set only Debug and Release configuration types" FORCE )
+
 # Enable CTest
 enable_testing()
     
 # Declare the project
 project( ${MAIN_PROJECT_NAME} )
 
+include( Setup )
 include( Project )
-include( AStyleUtils )
+include( CompilerVersion )
 include( UnitTest )
 include( CompilationFlags )
-
-macro( install_dll _TARGET _LIB_FULL_PATH _CONFIGURATION )
-	get_filename_component( _DllPath ${_LIB_FULL_PATH} PATH )
-	get_filename_component( _DllName ${_LIB_FULL_PATH} NAME_WE )
-	install(
-		FILES
-			${_DllPath}/${_DllName}.dll
-		DESTINATION bin
-		COMPONENT ${_TARGET}
-		CONFIGURATIONS ${_CONFIGURATION}
-	)
-endmacro()
-
-macro( copy_dll _TARGET _LIB_FULL_PATH_NAME )
-	get_filename_component( _DllPathDebug ${${_LIB_FULL_PATH_NAME}_DEBUG} PATH )
-	get_filename_component( _DllNameDebug ${${_LIB_FULL_PATH_NAME}_DEBUG} NAME_WE )
-	get_filename_component( _DllPathRelease ${${_LIB_FULL_PATH_NAME}_RELEASE} PATH )
-	get_filename_component( _DllNameRelease ${${_LIB_FULL_PATH_NAME}_RELEASE} NAME_WE )
-	add_custom_command(
-		TARGET ${_TARGET}
-		POST_BUILD
-		$<$<CONFIG:Debug>:COMMAND ${CMAKE_COMMAND} -E copy_if_different ${_DllPathDebug}/${_DllNameDebug}.dll ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/${_DllNameDebug}.dll>
-		$<$<CONFIG:Release>:COMMAND ${CMAKE_COMMAND} -E copy_if_different ${_DllPathRelease}/${_DllNameRelease}.dll ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/${_DllNameRelease}.dll>
-	)
-endmacro()
+include( AStyleUtils )
+include( ExternalDependencies )
 
 option( BUILD_STATIC "Build Static" FALSE )
 
@@ -145,16 +125,101 @@ if( Boost_FOUND )
 	PluginSummary( ${msg} )
 	MESSAGE( STATUS ${msg} )
 	
-	if ( WIN32 )
-		include( InstallRequiredSystemLibraries )
-		# Preparing Boost DLLs installation
-		install_dll( DatabasePluginMySql ${Boost_DATE_TIME_LIBRARY_DEBUG} Debug )
-		install_dll( DatabasePluginMySql ${Boost_DATE_TIME_LIBRARY_RELEASE} Release )
-		install_dll( DatabasePluginMySql ${Boost_LOCALE_LIBRARY_DEBUG} Debug )
-		install_dll( DatabasePluginMySql ${Boost_LOCALE_LIBRARY_RELEASE} Release )
-		install_dll( DatabasePluginMySql ${Boost_SYSTEM_LIBRARY_DEBUG} Debug )
-		install_dll( DatabasePluginMySql ${Boost_SYSTEM_LIBRARY_RELEASE} Release )
+	if ( ( "${PROJECTS_PACKAGE_WIX}" STREQUAL "ON" ) OR ( "${PROJECTS_PACKAGE_DEB}" STREQUAL "ON" ) OR ( "${PROJECTS_PACKAGE_RPM}" STREQUAL "ON" ) )
+		get_filename_component( PARENT_DIR ${CMAKE_SOURCE_DIR} PATH )
+		file( MAKE_DIRECTORY "${PROJECTS_SETUP_OUTPUT_DIR}/${CMAKE_BUILD_TYPE}" )
+		set( CPACK_PACKAGE_NAME "${MAIN_PROJECT_NAME}" )
+		set( CPACK_PACKAGE_VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_BUILD}" )
+		set( CPACK_PACKAGE_DESCRIPTION_SUMMARY "${MAIN_PROJECT_NAME}" )
+		set( CPACK_PACKAGE_DESCRIPTION "Allows ${MAIN_PROJECT_NAME} developments" )
+		set( CPACK_PACKAGE_RELEASE 1 )
+		set( CPACK_PACKAGE_CONTACT "dragonjoker59@hotmail.com" )
+		set( CPACK_PACKAGE_VENDOR "DragonJoker" )
+		set( CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_RELEASE}.${PROJECTS_PLATFORM}" )
+		set( CPACK_OUTPUT_FILE_PREFIX "${PROJECTS_SETUP_OUTPUT_DIR}/${CMAKE_BUILD_TYPE}" )
+		set( CPACK_RESOURCE_FILE_LICENSE "${PARENT_DIR}/LGPL.txt" )
+
+		if ( "${PROJECTS_PACKAGE_WIX}" STREQUAL "ON" )
+			set( CPACK_GENERATOR "WIX" )
+			set( CPACK_PACKAGE_INSTALL_DIRECTORY "${MAIN_PROJECT_NAME}" )
+			set( CPACK_WIX_UPGRADE_GUID "3493BBBD-2073-4B4C-A7D6-8B5F8E0E55C4" )
+			set( CPACK_WIX_PRODUCT_GUID "8508AB62-560C-46CA-9EBC-DD48CCECCC36" )
+			set( CPACK_WIX_PRODUCT_ICON "${PARENT_DIR}/install/${MAIN_PROJECT_NAME}.ico" )
+			set( CPACK_WIX_UI_DIALOG "${PARENT_DIR}/install/dialog.bmp" )
+			set( CPACK_WIX_UI_BANNER "${PARENT_DIR}/install/banner.bmp" )
+			set( CPACK_WIX_PROGRAM_MENU_FOLDER "${MAIN_PROJECT_NAME}" )
+			set( CPACK_WIX_CULTURES "fr-FR;en-EN" )
+			include(CPack)
+		elseif ( "${PROJECTS_PACKAGE_DEB}" STREQUAL "ON" )
+			set( CPACK_PACKAGING_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX} )
+			set( CPACK_DEB_COMPONENT_INSTALL ON )
+			set( CPACK_GENERATOR "DEB" )
+			set( CPACK_DEBIAN_PACKAGE_MAINTAINER "Sylvain Doremus" )
+			set( CPACK_DEBIAN_PACKAGE_DEPENDS "${CPACK_DEBIAN_PACKAGE_DEPENDS}libogre (>= 2.4.2)" )
+			set( CPACK_DEBIAN_PACKAGE_ARCHITECTURE "${CMAKE_SYSTEM_ARCHITECTURE}" )
+			set( CPACK_DEBIAN_PACKAGE_SECTION "devel" )
+			set( CPACK_DEBIAN_PACKAGE_PRIORITY "optional" )
+			include(CPack)
+		elseif ( "${PROJECTS_PACKAGE_RPM}" STREQUAL "ON" )
+			set( ${PROJECT_PACKAGE_DIR} ${CMAKE_BINARY_DIR}/_CPack_Packages/Linux/RPM )
+			set( CPACK_RPM_COMPONENT_INSTALL ON )
+			set( CPACK_RPM_PACKAGE_SUMMARY "${MAIN_PROJECT_NAME}" )
+			set( CPACK_RPM_PACKAGE_ARCHITECTURE "${CMAKE_SYSTEM_ARCHITECTURE}" )
+			set( CPACK_RPM_PACKAGE_GROUP "Development/Tools/Other" )
+			set( CPACK_RPM_PACKAGE_LICENSE "LGPL" )
+			set( CPACK_RPM_SPEC_MORE_DEFINE "%define _rpmdir ${PROJECT_PACKAGE_DIR}" )
+			set( CPACK_RPM_SPEC_MORE_DEFINE "%define _rpmfilename ${CPACK_PACKAGE_FILE_NAME}.rpm" )
+			set( CPACK_RPM_SPEC_MORE_DEFINE "%define _unpackaged_files_terminate_build 0" )
+			set( CPACK_RPM_SPEC_MORE_DEFINE "%define _topdir ${PROJECT_PACKAGE_DIR}" )
+			include(CPack)
+		endif()
 	endif ()
+
+	cpack_add_install_type( Minimal )
+	cpack_add_install_type( Developer )
+	cpack_add_install_type( Full )
+	
+	cpack_add_component_group( Core
+		EXPANDED
+		DISPLAY_NAME "Core libraries"
+		DESCRIPTION "Base libraries needed to use ${MAIN_PROJECT_NAME}"
+	)
+	cpack_add_component_group( DatabasePlugins
+		DISPLAY_NAME "Plugins"
+		DESCRIPTION "Database plugins to use with ${MAIN_PROJECT_NAME}"
+	)
+	cpack_add_component_group( Development
+		DISPLAY_NAME "Development libraries and headers"
+		DESCRIPTION "All the tools needed to develop a project using ${MAIN_PROJECT_NAME}"
+	)
+	cpack_add_component_group( Documentation
+		DISPLAY_NAME "Documentation"
+		DESCRIPTION "Projects documentations"
+	)
+
+	cpack_add_component( Database
+		DISPLAY_NAME "${MAIN_PROJECT_NAME} interface"
+		DESCRIPTION "Base ${MAIN_PROJECT_NAME} interface"
+		REQUIRED
+		GROUP Core
+		INSTALL_TYPES Minimal Full
+	)
+	cpack_add_component( Database_dev
+		DISPLAY_NAME "${MAIN_PROJECT_NAME} SDK"
+		DESCRIPTION "Base ${MAIN_PROJECT_NAME} interface development libraries and includes"
+		GROUP Development
+		INSTALL_TYPES Developer Full
+	)
+
+	cpack_add_component( DatabaseTest
+		DISPLAY_NAME "${MAIN_PROJECT_NAME} test application"
+		DESCRIPTION "Base ${MAIN_PROJECT_NAME} test application"
+		REQUIRED
+		GROUP Development
+		INSTALL_TYPES Developer Full
+	)
+	
+	PluginSetup()
 else()
 	SET( msg "Database projects can't be built because of following missing libraries :" )
 	if( Boost_NEEDED AND NOT Boost_FOUND )

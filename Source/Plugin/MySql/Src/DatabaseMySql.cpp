@@ -47,7 +47,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		if ( _driver )
 		{
 			// std::make_shared limited to 5 parameters with VS2012
-			pReturn.reset( new CDatabaseConnectionMySql( _driver, _server, _database, _userName, _password, connectionString ) );
+			pReturn.reset( new CDatabaseConnectionMySql( _driver, _server, _userName, _password, connectionString ) );
 		}
 
 		return pReturn;

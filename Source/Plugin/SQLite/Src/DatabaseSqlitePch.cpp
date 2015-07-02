@@ -94,7 +94,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 		return pField;
 	}
-	
+
 	template< EFieldType Type > DatabaseFieldPtr GetValue( SQLite::Statement * pStatement, int i, DatabaseFieldInfosPtr pInfos );
 
 	template<>

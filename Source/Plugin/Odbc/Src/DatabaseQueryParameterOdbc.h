@@ -24,7 +24,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 	/** Describes a statement parameter for ODBC database.
 	*/
-	class DatabaseOdbcExport CDatabaseQueryParameterOdbc
+	class CDatabaseQueryParameterOdbc
 		: public CDatabaseParameter
 		, public CDatabaseParameterOdbc
 	{

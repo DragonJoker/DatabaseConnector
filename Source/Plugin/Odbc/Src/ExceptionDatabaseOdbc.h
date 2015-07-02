@@ -34,7 +34,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 	/** Should be thrown when a problem occured in the ODBC database plugin.
 	*/
-	class DatabaseOdbcExport CExceptionDatabaseOdbc
+	class CExceptionDatabaseOdbc
 		: public CExceptionDatabase
 	{
 	public:

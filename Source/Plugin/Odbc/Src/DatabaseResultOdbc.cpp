@@ -64,6 +64,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 					res = SQLFetchScroll( _statementHandle, SQL_FETCH_NEXT, 0 );
 
 #if defined( _WIN32 )
+
 					if ( res == SQL_NO_DATA || res == SQL_PARAM_DATA_AVAILABLE )
 #else
 					if ( res == SQL_NO_DATA )
@@ -85,7 +86,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		// free memory from the binding
 		for ( std::size_t i = 0 ; i < _arrayColumnData.size() ; i++ )
 		{
-			delete [] ( unsigned char * )_arrayColumnData[i].TargetValuePtr;
+			delete []( unsigned char * )_arrayColumnData[i].TargetValuePtr;
 		}
 	}
 
@@ -196,6 +197,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				SQLRETURN res = SQLFetchScroll( _statementHandle, orientation, 0 );
 
 #if defined( _WIN32 )
+
 				if ( res == SQL_NO_DATA || res == SQL_PARAM_DATA_AVAILABLE )
 #else
 				if ( res == SQL_NO_DATA )

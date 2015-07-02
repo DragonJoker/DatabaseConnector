@@ -195,49 +195,37 @@ BEGIN_NAMESPACE_DATABASE
 		@param[out] value
 		    Value as int.
 		*/
-		DatabaseExport virtual void DoGetValue( short & value ) const;
+		DatabaseExport virtual void DoGetValue( int16_t & value ) const;
 
 		/** Get value as unsigned short.
 		@param[out] value
 		    Value as int.
 		*/
-		DatabaseExport virtual void DoGetValue( unsigned short & value ) const;
+		DatabaseExport virtual void DoGetValue( uint16_t & value ) const;
 
 		/** Get value as int.
 		@param[out] value
 		    Value as int.
 		*/
-		DatabaseExport virtual void DoGetValue( int & value ) const;
+		DatabaseExport virtual void DoGetValue( int32_t & value ) const;
 
 		/** Get value as unsigned int.
 		@param[out] value
 		    Value as unsigned int.
 		*/
-		DatabaseExport virtual void DoGetValue( unsigned int & value ) const;
-
-		/** Get value as long.
-		@param[out] value
-		    Value as long.
-		*/
-		DatabaseExport virtual void DoGetValue( long & value ) const;
-
-		/** Get value as unsigned long.
-		@param[out] value
-		    Value as unsigned long.
-		*/
-		DatabaseExport virtual void DoGetValue( unsigned long & value ) const;
+		DatabaseExport virtual void DoGetValue( uint32_t & value ) const;
 
 		/** Get value as long long.
 		@param[out] value
 		    Value as long long.
 		*/
-		DatabaseExport virtual void DoGetValue( long long & value ) const;
+		DatabaseExport virtual void DoGetValue( int64_t & value ) const;
 
 		/** Get value as unsigned long long.
 		@param[out] value
 		    Value as unsigned long long.
 		*/
-		DatabaseExport virtual void DoGetValue( unsigned long long & value ) const;
+		DatabaseExport virtual void DoGetValue( uint64_t & value ) const;
 
 		/** Get value as float.
 		@param[out] value
@@ -301,7 +289,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[out] value
 		    Value as int.
 		*/
-		DatabaseExport virtual void DoGetValueFast( short & value ) const;
+		DatabaseExport virtual void DoGetValueFast( int16_t & value ) const;
 
 		/** Get value as unsigned short.
 		@remarks
@@ -309,7 +297,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[out] value
 		    Value as int.
 		*/
-		DatabaseExport virtual void DoGetValueFast( unsigned short & value ) const;
+		DatabaseExport virtual void DoGetValueFast( uint16_t & value ) const;
 
 		/** Get value as int.
 		@remarks
@@ -317,7 +305,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[out] value
 		    Value as int.
 		*/
-		DatabaseExport virtual void DoGetValueFast( int & value ) const;
+		DatabaseExport virtual void DoGetValueFast( int32_t & value ) const;
 
 		/** Get value as unsigned int.
 		@remarks
@@ -325,23 +313,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[out] value
 		    Value as unsigned int.
 		*/
-		DatabaseExport virtual void DoGetValueFast( unsigned int & value ) const;
-
-		/** Get value as long.
-		@remarks
-		    No check is made in this function, so the value type must match the field type
-		@param[out] value
-		    Value as long.
-		*/
-		DatabaseExport virtual void DoGetValueFast( long & value ) const;
-
-		/** Get value as unsigned long.
-		@remarks
-		    No check is made in this function, so the value type must match the field type
-		@param[out] value
-		    Value as unsigned long.
-		*/
-		DatabaseExport virtual void DoGetValueFast( unsigned long & value ) const;
+		DatabaseExport virtual void DoGetValueFast( uint32_t & value ) const;
 
 		/** Get value as long long.
 		@remarks
@@ -349,7 +321,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[out] value
 		    Value as long long.
 		*/
-		DatabaseExport virtual void DoGetValueFast( long long & value ) const;
+		DatabaseExport virtual void DoGetValueFast( int64_t & value ) const;
 
 		/** Get value as unsigned long long.
 		@remarks
@@ -357,7 +329,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[out] value
 		    Value as unsigned long long.
 		*/
-		DatabaseExport virtual void DoGetValueFast( unsigned long long & value ) const;
+		DatabaseExport virtual void DoGetValueFast( uint64_t & value ) const;
 
 		/** Get value as float.
 		@remarks
@@ -433,49 +405,37 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] value
 		    Value as int.
 		*/
-		DatabaseExport virtual void DoSetValue( const short & value );
+		DatabaseExport virtual void DoSetValue( const int16_t & value );
 
 		/** Set short value.
 		@param[in] value
 		    Value as int.
 		*/
-		DatabaseExport virtual void DoSetValue( const unsigned short & value );
+		DatabaseExport virtual void DoSetValue( const uint16_t & value );
 
 		/** Set int value.
 		@param[in] value
 		    Value as int.
 		*/
-		DatabaseExport virtual void DoSetValue( const int & value );
+		DatabaseExport virtual void DoSetValue( const int32_t & value );
 
 		/** Set unsigned int value.
 		@param[in] value
 		    Value as unsigned int.
 		*/
-		DatabaseExport virtual void DoSetValue( const unsigned int & value );
-
-		/** Set long value.
-		@param[in] value
-		    Value as long.
-		*/
-		DatabaseExport virtual void DoSetValue( const long & value );
-
-		/** Set unsigned long value.
-		@param[in] value
-		    Value as unsigned long.
-		*/
-		DatabaseExport virtual void DoSetValue( const unsigned long & value );
+		DatabaseExport virtual void DoSetValue( const uint32_t & value );
 
 		/** Set long long value.
 		@param[in] value
 		    Value as long long.
 		*/
-		DatabaseExport virtual void DoSetValue( const long long & value );
+		DatabaseExport virtual void DoSetValue( const int64_t & value );
 
 		/** Set unsigned long long value.
 		@param[in] value
 		    Value as unsigned long long.
 		*/
-		DatabaseExport virtual void DoSetValue( const unsigned long long & value );
+		DatabaseExport virtual void DoSetValue( const uint64_t & value );
 
 		/** Set float value.
 		@param[in] value
@@ -539,7 +499,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] value
 		    Value as int.
 		*/
-		DatabaseExport virtual void DoSetValueFast( const short & value );
+		DatabaseExport virtual void DoSetValueFast( const int16_t & value );
 
 		/** Set short value.
 		@remarks
@@ -547,7 +507,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] value
 		    Value as int.
 		*/
-		DatabaseExport virtual void DoSetValueFast( const unsigned short & value );
+		DatabaseExport virtual void DoSetValueFast( const uint16_t & value );
 
 		/** Set int value.
 		@remarks
@@ -555,7 +515,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] value
 		    Value as int.
 		*/
-		DatabaseExport virtual void DoSetValueFast( const int & value );
+		DatabaseExport virtual void DoSetValueFast( const int32_t & value );
 
 		/** Set unsigned int value.
 		@remarks
@@ -563,23 +523,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] value
 		    Value as unsigned int.
 		*/
-		DatabaseExport virtual void DoSetValueFast( const unsigned int & value );
-
-		/** Set long value.
-		@remarks
-		    No check is made in this function, so the value type must match the field type
-		@param[in] value
-		    Value as long.
-		*/
-		DatabaseExport virtual void DoSetValueFast( const long & value );
-
-		/** Set unsigned long value.
-		@remarks
-		    No check is made in this function, so the value type must match the field type
-		@param[in] value
-		    Value as unsigned long.
-		*/
-		DatabaseExport virtual void DoSetValueFast( const unsigned long & value );
+		DatabaseExport virtual void DoSetValueFast( const uint32_t & value );
 
 		/** Set long long value.
 		@remarks
@@ -587,7 +531,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] value
 		    Value as long long.
 		*/
-		DatabaseExport virtual void DoSetValueFast( const long long & value );
+		DatabaseExport virtual void DoSetValueFast( const int64_t & value );
 
 		/** Set unsigned long long value.
 		@remarks
@@ -595,7 +539,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] value
 		    Value as unsigned long long.
 		*/
-		DatabaseExport virtual void DoSetValueFast( const unsigned long long & value );
+		DatabaseExport virtual void DoSetValueFast( const uint64_t & value );
 
 		/** Set float value.
 		@remarks

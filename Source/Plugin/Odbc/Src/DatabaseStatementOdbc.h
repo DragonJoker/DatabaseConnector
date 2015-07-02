@@ -22,7 +22,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 {
 	/** Describes a statement for ODBC database.
 	*/
-	class DatabaseOdbcExport CDatabaseStatementOdbc
+	class CDatabaseStatementOdbc
 		: public CDatabaseStatement
 	{
 

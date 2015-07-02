@@ -41,8 +41,8 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	static const std::wstring ODBC_NULL_STDWSTRING = L"NULL";
 	static const String ODBC_NULL_STRING = STR( "NULL" );
 
-	CDatabaseConnectionOdbc::CDatabaseConnectionOdbc( SQLHENV sqlEnvironmentHandle, const String & server, const String & database, const String & userName, const String & password, String & connectionString )
-		:   CDatabaseConnection( server, database, userName, password )
+	CDatabaseConnectionOdbc::CDatabaseConnectionOdbc( SQLHENV sqlEnvironmentHandle, const String & server, const String & userName, const String & password, String & connectionString )
+		:   CDatabaseConnection( server, userName, password )
 		,   _connectionHandle( NULL )
 		,   _environmentHandle( sqlEnvironmentHandle )
 	{

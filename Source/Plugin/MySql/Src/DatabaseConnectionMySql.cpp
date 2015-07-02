@@ -51,8 +51,8 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	static const std::wstring MYSQL_NULL_STDWSTRING = L"NULL";
 	static const String MYSQL_NULL_STRING = STR( "NULL" );
 
-	CDatabaseConnectionMySql::CDatabaseConnectionMySql( sql::Driver * driver, const String & server, const String & database, const String & userName, const String & password, String & connectionString )
-		:   CDatabaseConnection( server, database, userName, password )
+	CDatabaseConnectionMySql::CDatabaseConnectionMySql( sql::Driver * driver, const String & server, const String & userName, const String & password, String & connectionString )
+		:   CDatabaseConnection( server, userName, password )
 		,   _connection( NULL )
 		,   _driver( driver )
 	{
@@ -561,6 +561,72 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		return result;
 	}
 
+	void CDatabaseConnectionMySql::CreateDatabase( const String & database )
+	{
+		if ( !IsConnected() )
+		{
+			CLogger::LogError( ERROR_MYSQL_NOT_CONNECTED );
+			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_MYSQL_NOT_CONNECTED, __FUNCTION__, __FILE__, __LINE__ );
+		}
+
+		DoExecuteUpdate( STR( "CREATE DATABASE " ) + database + STR( " CHARACTER SET utf8 COLLATE utf8_general_ci" ), NULL );
+	}
+
+	void CDatabaseConnectionMySql::SelectDatabase( const String & database )
+	{
+		if ( !IsConnected() )
+		{
+			CLogger::LogError( ERROR_MYSQL_NOT_CONNECTED );
+			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_MYSQL_NOT_CONNECTED, __FUNCTION__, __FILE__, __LINE__ );
+		}
+
+		if ( _connection )
+		{
+			_database = database;
+			MySQLTry( _connection->setSchema( CStrUtils::ToStr( database ) ), STR( "Database selection" ) );
+
+			CLogger::LogDebug( STR( "Database Metadata" ) );
+			CLogger::LogDebug( STR( "-----------------" ) );
+
+			sql::DatabaseMetaData * dbcon_meta = _connection->getMetaData();
+
+			CLogger::LogDebug( StringStream() << STR( "Database Product Name: " ) << dbcon_meta->getDatabaseProductName().c_str() );
+			CLogger::LogDebug( StringStream() << STR( "Database Product Version: " ) << dbcon_meta->getDatabaseProductVersion().c_str() );
+			CLogger::LogDebug( StringStream() << STR( "Database User Name: " ) << dbcon_meta->getUserName().c_str() );
+
+			CLogger::LogDebug( StringStream() << STR( "Driver name: " ) << dbcon_meta->getDriverName().c_str() );
+			CLogger::LogDebug( StringStream() << STR( "Driver version: " ) << dbcon_meta->getDriverVersion().c_str() );
+
+			CLogger::LogDebug( StringStream() << STR( "Database in Read-Only Mode?: " ) << dbcon_meta->isReadOnly() );
+			CLogger::LogDebug( StringStream() << STR( "Supports Transactions?: " ) << dbcon_meta->supportsTransactions() );
+			CLogger::LogDebug( StringStream() << STR( "Supports DML Transactions only?: " ) << dbcon_meta->supportsDataManipulationTransactionsOnly() );
+			CLogger::LogDebug( StringStream() << STR( "Supports Batch Updates?: " ) << dbcon_meta->supportsBatchUpdates() );
+			CLogger::LogDebug( StringStream() << STR( "Supports Outer Joins?: " ) << dbcon_meta->supportsOuterJoins() );
+			CLogger::LogDebug( StringStream() << STR( "Supports Multiple Transactions?: " ) << dbcon_meta->supportsMultipleTransactions() );
+			CLogger::LogDebug( StringStream() << STR( "Supports Named Parameters?: " ) << dbcon_meta->supportsNamedParameters() );
+			CLogger::LogDebug( StringStream() << STR( "Supports Statement Pooling?: " ) << dbcon_meta->supportsStatementPooling() );
+			CLogger::LogDebug( StringStream() << STR( "Supports Stored Procedures?: " ) << dbcon_meta->supportsStoredProcedures() );
+			CLogger::LogDebug( StringStream() << STR( "Supports Union?: " ) << dbcon_meta->supportsUnion() );
+
+			CLogger::LogDebug( StringStream() << STR( "Maximum Connections: " ) << dbcon_meta->getMaxConnections() );
+			CLogger::LogDebug( StringStream() << STR( "Maximum Columns per Table: " ) << dbcon_meta->getMaxColumnsInTable() );
+			CLogger::LogDebug( StringStream() << STR( "Maximum Columns per Index: " ) << dbcon_meta->getMaxColumnsInIndex() );
+			CLogger::LogDebug( StringStream() << STR( "Maximum Row Size per Table: " ) << dbcon_meta->getMaxRowSize() << " bytes" );
+			DoExecuteUpdate( STR( "SET NAMES 'utf8';" ), NULL );
+		}
+	}
+
+	void CDatabaseConnectionMySql::DestroyDatabase( const String & database )
+	{
+		if ( !IsConnected() )
+		{
+			CLogger::LogError( ERROR_MYSQL_NOT_CONNECTED );
+			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_MYSQL_NOT_CONNECTED, __FUNCTION__, __FILE__, __LINE__ );
+		}
+
+		DoExecuteUpdate( STR( "DROP DATABASE " ) + database, NULL );
+	}
+
 	EErrorType CDatabaseConnectionMySql::DoConnect( String & connectionString )
 	{
 		EErrorType ret = EErrorType_NONE;
@@ -568,42 +634,8 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		try
 		{
 			MySQLTry( _connection = _driver->connect( CStrUtils::ToStr( _server ), CStrUtils::ToStr( _userName ), CStrUtils::ToStr( _password ) ), STR( "Connection" ) );
-
-			if ( _connection )
-			{
-				MySQLTry( _connection->setSchema( CStrUtils::ToStr( _database ) ), STR( "Database selection" ) );
-
-				CLogger::LogDebug( STR( "Database Metadata" ) );
-				CLogger::LogDebug( STR( "-----------------" ) );
-
-				sql::DatabaseMetaData * dbcon_meta = _connection->getMetaData();
-
-				CLogger::LogDebug( StringStream() << STR( "Database Product Name: " ) << dbcon_meta->getDatabaseProductName().c_str() );
-				CLogger::LogDebug( StringStream() << STR( "Database Product Version: " ) << dbcon_meta->getDatabaseProductVersion().c_str() );
-				CLogger::LogDebug( StringStream() << STR( "Database User Name: " ) << dbcon_meta->getUserName().c_str() );
-
-				CLogger::LogDebug( StringStream() << STR( "Driver name: " ) << dbcon_meta->getDriverName().c_str() );
-				CLogger::LogDebug( StringStream() << STR( "Driver version: " ) << dbcon_meta->getDriverVersion().c_str() );
-
-				CLogger::LogDebug( StringStream() << STR( "Database in Read-Only Mode?: " ) << dbcon_meta->isReadOnly() );
-				CLogger::LogDebug( StringStream() << STR( "Supports Transactions?: " ) << dbcon_meta->supportsTransactions() );
-				CLogger::LogDebug( StringStream() << STR( "Supports DML Transactions only?: " ) << dbcon_meta->supportsDataManipulationTransactionsOnly() );
-				CLogger::LogDebug( StringStream() << STR( "Supports Batch Updates?: " ) << dbcon_meta->supportsBatchUpdates() );
-				CLogger::LogDebug( StringStream() << STR( "Supports Outer Joins?: " ) << dbcon_meta->supportsOuterJoins() );
-				CLogger::LogDebug( StringStream() << STR( "Supports Multiple Transactions?: " ) << dbcon_meta->supportsMultipleTransactions() );
-				CLogger::LogDebug( StringStream() << STR( "Supports Named Parameters?: " ) << dbcon_meta->supportsNamedParameters() );
-				CLogger::LogDebug( StringStream() << STR( "Supports Statement Pooling?: " ) << dbcon_meta->supportsStatementPooling() );
-				CLogger::LogDebug( StringStream() << STR( "Supports Stored Procedures?: " ) << dbcon_meta->supportsStoredProcedures() );
-				CLogger::LogDebug( StringStream() << STR( "Supports Union?: " ) << dbcon_meta->supportsUnion() );
-
-				CLogger::LogDebug( StringStream() << STR( "Maximum Connections: " ) << dbcon_meta->getMaxConnections() );
-				CLogger::LogDebug( StringStream() << STR( "Maximum Columns per Table: " ) << dbcon_meta->getMaxColumnsInTable() );
-				CLogger::LogDebug( StringStream() << STR( "Maximum Columns per Index: " ) << dbcon_meta->getMaxColumnsInIndex() );
-				CLogger::LogDebug( StringStream() << STR( "Maximum Row Size per Table: " ) << dbcon_meta->getMaxRowSize() << " bytes" );
-
-				_statement.reset( _connection->createStatement() );
-				DoSetConnected( true );
-			}
+			_statement.reset( _connection->createStatement() );
+			DoSetConnected( true );
 		}
 		catch ( std::exception & exc )
 		{
@@ -838,17 +870,17 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 							case EFieldType_BINARY:
 							case EFieldType_VARBINARY:
 							case EFieldType_LONG_VARBINARY:
-								{
-									std::istream * blob = rs->getBlob( i );
-									std::vector< uint8_t > in;
-									std::copy(
-										std::istream_iterator< uint8_t >( *blob ),
-										std::istream_iterator< uint8_t >(),
-										std::back_inserter( in ) );
-									field->SetValueFast( in );
-									delete blob;
-								}
-								break;
+							{
+								std::istream * blob = rs->getBlob( i );
+								std::vector< uint8_t > in;
+								std::copy(
+									std::istream_iterator< uint8_t >( *blob ),
+									std::istream_iterator< uint8_t >(),
+									std::back_inserter( in ) );
+								field->SetValueFast( in );
+								delete blob;
+							}
+							break;
 							}
 						}
 
@@ -862,6 +894,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				{
 					///@remarks Consume the result set
 					while ( rs->next() );
+
 					rs.reset();
 				}
 

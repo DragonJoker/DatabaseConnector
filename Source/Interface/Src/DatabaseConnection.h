@@ -30,26 +30,16 @@ BEGIN_NAMESPACE_DATABASE
 		/** Constructor.
 		@param[in] server
 		    Server identifier (name or address).
-		@param[in] database
-		    Database identifier (name or DSN (ODBC)).
 		@param[in] userName
 		    User name.
 		@param[in] password
 		    User password.
 		*/
-		DatabaseExport CDatabaseConnection( const String & server, const String & database, const String & userName, const String & password );
+		DatabaseExport CDatabaseConnection( const String & server, const String & userName, const String & password );
 
 		/** Destructor.
 		 */
 		DatabaseExport virtual ~CDatabaseConnection();
-
-		/** Initialize the connection to the database.
-		@param[out] connectionString
-		    Connection string in case of error.
-		@return
-		    Error code.
-		*/
-		DatabaseExport EErrorType Reconnect( String & connectionString );
 
 		/** Create a statement based on a request.
 		@param[in] query
@@ -91,6 +81,26 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport DatabaseResultPtr ExecuteSelect( const String & query, EErrorType * result = NULL );
 
+		/** Initialize the connection to the database.
+		@param[out] connectionString
+		    Connection string in case of error.
+		@return
+		    Error code.
+		*/
+		DatabaseExport EErrorType Reconnect( String & connectionString );
+
+		/** Get the connection status.
+		@return
+		    true if connected, false otherwise.
+		*/
+		DatabaseExport virtual bool IsConnected() const;
+
+		/** Get the transaction status.
+		@return
+		    true if a transaction is started, false otherwise.
+		*/
+		DatabaseExport virtual bool IsInTransaction() const;
+
 		/** Initialize a named transaction.
 		@param[in] name
 		    Transaction name.
@@ -114,6 +124,24 @@ BEGIN_NAMESPACE_DATABASE
 		    Error code, EErrorType_NONE if no problem.
 		*/
 		DatabaseExport virtual EErrorType RollBack( const String & name ) = 0;
+
+		/** Creates a database.
+		@param[in] database
+		    Database identifier (name or DSN (ODBC)).
+		*/
+		DatabaseExport virtual void CreateDatabase( const String & database ) = 0;
+
+		/** Selects a database.
+		@param[in] database
+		    Database identifier (name or DSN (ODBC)).
+		*/
+		DatabaseExport virtual void SelectDatabase( const String & database ) = 0;
+
+		/** Destroys a database.
+		@param[in] database
+		    Database identifier (name or DSN (ODBC)).
+		*/
+		DatabaseExport virtual void DestroyDatabase( const String & database ) = 0;
 
 		/** Format a string to insert into a request.
 		@param[in] text
@@ -326,18 +354,6 @@ BEGIN_NAMESPACE_DATABASE
 		    Created date/time with the string.
 		*/
 		DatabaseExport virtual CDateTime ParseDateTime( const std::wstring & dateTime ) const = 0;
-
-		/** Get the connection status.
-		@return
-		    true if connected, false otherwise.
-		*/
-		DatabaseExport virtual bool IsConnected() const;
-
-		/** Get the transaction status.
-		@return
-		    true if a transaction is started, false otherwise.
-		*/
-		DatabaseExport virtual bool IsInTransaction() const;
 
 	protected:
 

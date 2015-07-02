@@ -32,8 +32,6 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		    The SQLite driver.
 		@param[in] server
 		    Address or name of the server.
-		@param[in] database
-		    Database name or DSN.
 		@param[in] userName
 		    User name.
 		@param[in] password
@@ -41,7 +39,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@param[out] connectionString
 		    Created connection string.
 		 */
-		DatabaseSqliteExport CDatabaseConnectionSqlite( const String & server, const String & database, const String & userName, const String & password, String & connectionString );
+		DatabaseSqliteExport CDatabaseConnectionSqlite( const String & server, const String & userName, const String & password, String & connectionString );
 
 		/** Destructor.
 		 */
@@ -70,6 +68,24 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		    Error code, EErrorType_NONE if no problem.
 		*/
 		DatabaseSqliteExport virtual EErrorType RollBack( const String & name );
+
+		/** Creates a database.
+		@param[in] database
+		    Database identifier (name or DSN (ODBC)).
+		*/
+		DatabaseSqliteExport virtual void CreateDatabase( const String & database );
+
+		/** Selects a database.
+		@param[in] database
+		    Database identifier (name or DSN (ODBC)).
+		*/
+		DatabaseSqliteExport virtual void SelectDatabase( const String & database );
+
+		/** Destroys a database.
+		@param[in] database
+		    Database identifier (name or DSN (ODBC)).
+		*/
+		DatabaseSqliteExport virtual void DestroyDatabase( const String & database );
 
 		/** Format a string to be supported by the DBMS.
 		@param[in] text

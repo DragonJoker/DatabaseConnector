@@ -292,7 +292,7 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	}
 
-	void CDatabaseField::DoGetValue( short & value ) const
+	void CDatabaseField::DoGetValue( int16_t & value ) const
 	{
 		switch ( GetType() )
 		{
@@ -301,7 +301,7 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		case EFieldType_SMALL_INTEGER:
-			value = *reinterpret_cast< short * >( _value->GetPtrValue() );
+			value = *reinterpret_cast< int16_t * >( _value->GetPtrValue() );
 			break;
 
 		default:
@@ -312,7 +312,7 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	}
 
-	void CDatabaseField::DoGetValue( unsigned short & value ) const
+	void CDatabaseField::DoGetValue( uint16_t & value ) const
 	{
 		switch ( GetType() )
 		{
@@ -321,7 +321,7 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		case EFieldType_SMALL_INTEGER:
-			value = ( unsigned short ) * reinterpret_cast< short * >( _value->GetPtrValue() );
+			value = *reinterpret_cast< uint16_t * >( _value->GetPtrValue() );
 			break;
 
 		default:
@@ -332,7 +332,7 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	}
 
-	void CDatabaseField::DoGetValue( int & value ) const
+	void CDatabaseField::DoGetValue( int32_t & value ) const
 	{
 		switch ( GetType() )
 		{
@@ -341,11 +341,11 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		case EFieldType_SMALL_INTEGER:
-			value = *reinterpret_cast< short * >( _value->GetPtrValue() );
+			value = *reinterpret_cast< int16_t * >( _value->GetPtrValue() );
 			break;
 
 		case EFieldType_INTEGER:
-			value = *reinterpret_cast< int * >( _value->GetPtrValue() );
+			value = *reinterpret_cast< int32_t * >( _value->GetPtrValue() );
 			break;
 
 		default:
@@ -356,7 +356,7 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	}
 
-	void CDatabaseField::DoGetValue( unsigned int & value ) const
+	void CDatabaseField::DoGetValue( uint32_t & value ) const
 	{
 		switch ( GetType() )
 		{
@@ -365,11 +365,11 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		case EFieldType_SMALL_INTEGER:
-			value = ( unsigned int )( *reinterpret_cast< short * >( _value->GetPtrValue() ) );
+			value = *reinterpret_cast< uint16_t * >( _value->GetPtrValue() );
 			break;
 
 		case EFieldType_INTEGER:
-			value = ( unsigned int )( *reinterpret_cast< int * >( _value->GetPtrValue() ) );
+			value = *reinterpret_cast< uint32_t * >( _value->GetPtrValue() );
 			break;
 
 		default:
@@ -380,20 +380,20 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	}
 
-	void CDatabaseField::DoGetValue( long long & value ) const
+	void CDatabaseField::DoGetValue( int64_t & value ) const
 	{
 		switch ( GetType() )
 		{
 		case EFieldType_SMALL_INTEGER:
-			value = ( *reinterpret_cast< short * >( _value->GetPtrValue() ) );
+			value = *reinterpret_cast< int16_t * >( _value->GetPtrValue() );
 			break;
 
 		case EFieldType_INTEGER:
-			value = ( *reinterpret_cast< int * >( _value->GetPtrValue() ) );
+			value = *reinterpret_cast< int32_t * >( _value->GetPtrValue() );
 			break;
 
 		case EFieldType_LONG_INTEGER:
-			value = ( *reinterpret_cast< long long * >( _value->GetPtrValue() ) );
+			value = *reinterpret_cast< int64_t * >( _value->GetPtrValue() );
 			break;
 
 		default:
@@ -404,68 +404,20 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	}
 
-	void CDatabaseField::DoGetValue( unsigned long long & value ) const
+	void CDatabaseField::DoGetValue( uint64_t & value ) const
 	{
 		switch ( GetType() )
 		{
 		case EFieldType_SMALL_INTEGER:
-			value = ( unsigned long long )( *reinterpret_cast< short * >( _value->GetPtrValue() ) );
+			value = *reinterpret_cast< uint16_t * >( _value->GetPtrValue() );
 			break;
 
 		case EFieldType_INTEGER:
-			value = ( unsigned long long )( *reinterpret_cast< int * >( _value->GetPtrValue() ) );
+			value = *reinterpret_cast< uint32_t * >( _value->GetPtrValue() );
 			break;
 
 		case EFieldType_LONG_INTEGER:
-			value = ( unsigned long long )( *reinterpret_cast< long long * >( _value->GetPtrValue() ) );
-			break;
-
-		default:
-			String errMsg = DATABASE_FIELD_GETVALUE_TYPE_ERROR + this->GetName();
-			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_GETVALUE_TYPE_ERROR );
-			break;
-		}
-	}
-
-	void CDatabaseField::DoGetValue( long & value ) const
-	{
-		switch ( GetType() )
-		{
-		case EFieldType_SMALL_INTEGER:
-			value = long( *reinterpret_cast< short * >( _value->GetPtrValue() ) );
-			break;
-
-		case EFieldType_INTEGER:
-			value = long( *reinterpret_cast< int * >( _value->GetPtrValue() ) );
-			break;
-
-		case EFieldType_LONG_INTEGER:
-			value = ( *reinterpret_cast< long * >( _value->GetPtrValue() ) );
-			break;
-
-		default:
-			String errMsg = DATABASE_FIELD_GETVALUE_TYPE_ERROR + this->GetName();
-			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_GETVALUE_TYPE_ERROR );
-			break;
-		}
-	}
-
-	void CDatabaseField::DoGetValue( unsigned long & value ) const
-	{
-		switch ( GetType() )
-		{
-		case EFieldType_SMALL_INTEGER:
-			value = ( unsigned long )( *reinterpret_cast< short * >( _value->GetPtrValue() ) );
-			break;
-
-		case EFieldType_INTEGER:
-			value = ( unsigned long )( *reinterpret_cast< int * >( _value->GetPtrValue() ) );
-			break;
-
-		case EFieldType_LONG_INTEGER:
-			value = ( unsigned long )( *reinterpret_cast< long * >( _value->GetPtrValue() ) );
+			value = *reinterpret_cast< uint64_t * >( _value->GetPtrValue() );
 			break;
 
 		default:
@@ -547,6 +499,7 @@ BEGIN_NAMESPACE_DATABASE
 		switch ( GetType() )
 		{
 		case EFieldType_TEXT:
+
 			if ( _value->GetPtrValue() )
 			{
 				value = *reinterpret_cast< std::string * >( _value->GetPtrValue() );
@@ -555,6 +508,7 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		case EFieldType_VARCHAR:
+
 			if ( _value->GetPtrValue() )
 			{
 				value = reinterpret_cast< char * >( _value->GetPtrValue() );
@@ -563,6 +517,7 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		case EFieldType_NTEXT:
+
 			if ( _value->GetPtrValue() )
 			{
 				value = CStrUtils::ToStr( *reinterpret_cast< std::wstring * >( _value->GetPtrValue() ) );
@@ -571,6 +526,7 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		case EFieldType_NVARCHAR:
+
 			if ( _value->GetPtrValue() )
 			{
 				value = CStrUtils::ToStr( reinterpret_cast< wchar_t * >( _value->GetPtrValue() ) );
@@ -591,6 +547,7 @@ BEGIN_NAMESPACE_DATABASE
 		switch ( GetType() )
 		{
 		case EFieldType_TEXT:
+
 			if ( _value->GetPtrValue() )
 			{
 				value = CStrUtils::ToWStr( *reinterpret_cast< std::string * >( _value->GetPtrValue() ) );
@@ -599,6 +556,7 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		case EFieldType_VARCHAR:
+
 			if ( _value->GetPtrValue() )
 			{
 				value = CStrUtils::ToWStr( reinterpret_cast< char * >( _value->GetPtrValue() ) );
@@ -607,6 +565,7 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		case EFieldType_NTEXT:
+
 			if ( _value->GetPtrValue() )
 			{
 				value = *reinterpret_cast< std::wstring * >( _value->GetPtrValue() );
@@ -615,6 +574,7 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		case EFieldType_NVARCHAR:
+
 			if ( _value->GetPtrValue() )
 			{
 				value = reinterpret_cast< wchar_t * >( _value->GetPtrValue() );
@@ -699,6 +659,7 @@ BEGIN_NAMESPACE_DATABASE
 		case EFieldType_BINARY:
 		case EFieldType_VARBINARY:
 		case EFieldType_LONG_VARBINARY:
+
 			if ( _value->GetPtrValue() )
 			{
 				value = *reinterpret_cast< std::vector< uint8_t > * >( _value->GetPtrValue() );
@@ -720,49 +681,37 @@ BEGIN_NAMESPACE_DATABASE
 		value = static_cast< CDatabaseValue< EFieldType_BOOL > * >( _value )->GetValue();
 	}
 
-	void CDatabaseField::DoGetValueFast( short & value ) const
+	void CDatabaseField::DoGetValueFast( int16_t & value ) const
 	{
 		assert( GetType() == EFieldType_SMALL_INTEGER );
 		value = static_cast< CDatabaseValue< EFieldType_SMALL_INTEGER > * >( _value )->GetValue();
 	}
 
-	void CDatabaseField::DoGetValueFast( unsigned short & value ) const
+	void CDatabaseField::DoGetValueFast( uint16_t & value ) const
 	{
 		assert( GetType() == EFieldType_SMALL_INTEGER );
 		value = static_cast< CDatabaseValue< EFieldType_SMALL_INTEGER > * >( _value )->GetValue();
 	}
 
-	void CDatabaseField::DoGetValueFast( int & value ) const
+	void CDatabaseField::DoGetValueFast( int32_t & value ) const
 	{
 		assert( GetType() == EFieldType_INTEGER );
 		value = static_cast< CDatabaseValue< EFieldType_INTEGER > * >( _value )->GetValue();
 	}
 
-	void CDatabaseField::DoGetValueFast( unsigned int & value ) const
+	void CDatabaseField::DoGetValueFast( uint32_t & value ) const
 	{
 		assert( GetType() == EFieldType_INTEGER );
 		value = static_cast< CDatabaseValue< EFieldType_INTEGER > * >( _value )->GetValue();
 	}
 
-	void CDatabaseField::DoGetValueFast( long & value ) const
-	{
-		assert( GetType() == EFieldType_INTEGER );
-		value = static_cast< CDatabaseValue< EFieldType_INTEGER > * >( _value )->GetValue();
-	}
-
-	void CDatabaseField::DoGetValueFast( unsigned long & value ) const
-	{
-		assert( GetType() == EFieldType_INTEGER );
-		value = static_cast< CDatabaseValue< EFieldType_INTEGER > * >( _value )->GetValue();
-	}
-
-	void CDatabaseField::DoGetValueFast( long long & value ) const
+	void CDatabaseField::DoGetValueFast( int64_t & value ) const
 	{
 		assert( GetType() == EFieldType_LONG_INTEGER );
 		value = static_cast< CDatabaseValue< EFieldType_LONG_INTEGER > * >( _value )->GetValue();
 	}
 
-	void CDatabaseField::DoGetValueFast( unsigned long long & value ) const
+	void CDatabaseField::DoGetValueFast( uint64_t & value ) const
 	{
 		assert( GetType() == EFieldType_LONG_INTEGER );
 		value = static_cast< CDatabaseValue< EFieldType_LONG_INTEGER > * >( _value )->GetValue();
@@ -892,7 +841,7 @@ BEGIN_NAMESPACE_DATABASE
 		_isNull = false;
 	}
 
-	void CDatabaseField::DoSetValue( const short & value )
+	void CDatabaseField::DoSetValue( const int16_t & value )
 	{
 		switch ( GetType() )
 		{
@@ -930,7 +879,7 @@ BEGIN_NAMESPACE_DATABASE
 		_isNull = false;
 	}
 
-	void CDatabaseField::DoSetValue( const unsigned short & value )
+	void CDatabaseField::DoSetValue( const uint16_t & value )
 	{
 		switch ( GetType() )
 		{
@@ -968,7 +917,7 @@ BEGIN_NAMESPACE_DATABASE
 		_isNull = false;
 	}
 
-	void CDatabaseField::DoSetValue( const int & value )
+	void CDatabaseField::DoSetValue( const int32_t & value )
 	{
 		switch ( GetType() )
 		{
@@ -1002,7 +951,7 @@ BEGIN_NAMESPACE_DATABASE
 		_isNull = false;
 	}
 
-	void CDatabaseField::DoSetValue( const unsigned int & value )
+	void CDatabaseField::DoSetValue( const uint32_t & value )
 	{
 		switch ( GetType() )
 		{
@@ -1036,75 +985,7 @@ BEGIN_NAMESPACE_DATABASE
 		_isNull = false;
 	}
 
-	void CDatabaseField::DoSetValue( const long & value )
-	{
-		switch ( GetType() )
-		{
-		case EFieldType_BOOL:
-			static_cast< CDatabaseValue< EFieldType_BOOL > * >( _value )->SetValue( value != 0 );
-			break;
-
-		case EFieldType_INTEGER:
-			static_cast< CDatabaseValue< EFieldType_INTEGER > * >( _value )->SetValue( value );
-			break;
-
-		case EFieldType_LONG_INTEGER:
-			static_cast< CDatabaseValue< EFieldType_LONG_INTEGER > * >( _value )->SetValue( value );
-			break;
-
-		case EFieldType_FLOAT:
-			static_cast< CDatabaseValue< EFieldType_FLOAT > * >( _value )->SetValue( float( value ) );
-			break;
-
-		case EFieldType_DOUBLE:
-			static_cast< CDatabaseValue< EFieldType_DOUBLE > * >( _value )->SetValue( double( value ) );
-			break;
-
-		default:
-			String errMsg = DATABASE_FIELD_SETVALUE_TYPE_ERROR + this->GetName();
-			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_SETVALUE_TYPE_ERROR );
-			break;
-		}
-
-		_isNull = false;
-	}
-
-	void CDatabaseField::DoSetValue( const unsigned long & value )
-	{
-		switch ( GetType() )
-		{
-		case EFieldType_BOOL:
-			static_cast< CDatabaseValue< EFieldType_BOOL > * >( _value )->SetValue( value != 0 );
-			break;
-
-		case EFieldType_INTEGER:
-			static_cast< CDatabaseValue< EFieldType_INTEGER > * >( _value )->SetValue( value );
-			break;
-
-		case EFieldType_LONG_INTEGER:
-			static_cast< CDatabaseValue< EFieldType_LONG_INTEGER > * >( _value )->SetValue( value );
-			break;
-
-		case EFieldType_FLOAT:
-			static_cast< CDatabaseValue< EFieldType_FLOAT > * >( _value )->SetValue( float( value ) );
-			break;
-
-		case EFieldType_DOUBLE:
-			static_cast< CDatabaseValue< EFieldType_DOUBLE > * >( _value )->SetValue( double( value ) );
-			break;
-
-		default:
-			String errMsg = DATABASE_FIELD_SETVALUE_TYPE_ERROR + this->GetName();
-			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_SETVALUE_TYPE_ERROR );
-			break;
-		}
-
-		_isNull = false;
-	}
-
-	void CDatabaseField::DoSetValue( const long long & value )
+	void CDatabaseField::DoSetValue( const int64_t & value )
 	{
 		switch ( GetType() )
 		{
@@ -1126,7 +1007,7 @@ BEGIN_NAMESPACE_DATABASE
 		_isNull = false;
 	}
 
-	void CDatabaseField::DoSetValue( const unsigned long long & value )
+	void CDatabaseField::DoSetValue( const uint64_t & value )
 	{
 		switch ( GetType() )
 		{
@@ -1402,56 +1283,42 @@ BEGIN_NAMESPACE_DATABASE
 		_isNull = false;
 	}
 
-	void CDatabaseField::DoSetValueFast( const short & value )
+	void CDatabaseField::DoSetValueFast( const int16_t & value )
 	{
 		assert( GetType() == EFieldType_SMALL_INTEGER );
 		static_cast< CDatabaseValue< EFieldType_SMALL_INTEGER > * >( _value )->SetValue( value );
 		_isNull = false;
 	}
 
-	void CDatabaseField::DoSetValueFast( const unsigned short & value )
+	void CDatabaseField::DoSetValueFast( const uint16_t & value )
 	{
 		assert( GetType() == EFieldType_SMALL_INTEGER );
 		static_cast< CDatabaseValue< EFieldType_SMALL_INTEGER > * >( _value )->SetValue( value );
 		_isNull = false;
 	}
 
-	void CDatabaseField::DoSetValueFast( const int & value )
+	void CDatabaseField::DoSetValueFast( const int32_t & value )
 	{
 		assert( GetType() == EFieldType_INTEGER );
 		static_cast< CDatabaseValue< EFieldType_INTEGER > * >( _value )->SetValue( value );
 		_isNull = false;
 	}
 
-	void CDatabaseField::DoSetValueFast( const unsigned int & value )
+	void CDatabaseField::DoSetValueFast( const uint32_t & value )
 	{
 		assert( GetType() == EFieldType_INTEGER );
 		static_cast< CDatabaseValue< EFieldType_INTEGER > * >( _value )->SetValue( value );
 		_isNull = false;
 	}
 
-	void CDatabaseField::DoSetValueFast( const long & value )
-	{
-		assert( GetType() == EFieldType_INTEGER );
-		static_cast< CDatabaseValue< EFieldType_INTEGER > * >( _value )->SetValue( value );
-		_isNull = false;
-	}
-
-	void CDatabaseField::DoSetValueFast( const unsigned long & value )
-	{
-		assert( GetType() == EFieldType_INTEGER );
-		static_cast< CDatabaseValue< EFieldType_INTEGER > * >( _value )->SetValue( value );
-		_isNull = false;
-	}
-
-	void CDatabaseField::DoSetValueFast( const long long & value )
+	void CDatabaseField::DoSetValueFast( const int64_t & value )
 	{
 		assert( GetType() == EFieldType_LONG_INTEGER );
 		static_cast< CDatabaseValue< EFieldType_LONG_INTEGER > * >( _value )->SetValue( value );
 		_isNull = false;
 	}
 
-	void CDatabaseField::DoSetValueFast( const unsigned long long & value )
+	void CDatabaseField::DoSetValueFast( const uint64_t & value )
 	{
 		assert( GetType() == EFieldType_LONG_INTEGER );
 		static_cast< CDatabaseValue< EFieldType_LONG_INTEGER > * >( _value )->SetValue( value );

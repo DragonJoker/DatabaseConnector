@@ -26,7 +26,7 @@ BEGIN_NAMESPACE_DATABASE
 	namespace DateUtils
 	{
 		static const size_t DATE_MAX_SIZE = 100;
-		
+
 		template< typename CharOut, typename CharIn > std::basic_string< CharOut > Str( const CharIn * in );
 
 		template<> std::basic_string< char > Str< char, char >( const char * in )
@@ -510,6 +510,7 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		default:
+
 			if ( IsLeap( year ) )
 			{
 				iReturn = 29;

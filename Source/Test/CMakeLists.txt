@@ -149,6 +149,9 @@ if( Boost_UNIT_TEST_FRAMEWORK_FOUND )
         COMMAND "DatabaseTest"
         WORKING_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/RelWithDebInfo"
     )
+
+    copy_dll( ${PROJECT_NAME} "${Boost_UNIT_TEST_FRAMEWORK_LIBRARY_DEBUG}" Debug )
+    copy_dll( ${PROJECT_NAME} "${Boost_UNIT_TEST_FRAMEWORK_LIBRARY_RELEASE}" Release )
 else()
     message( STATUS "Test can't be built (missing Boost)" )
 endif()

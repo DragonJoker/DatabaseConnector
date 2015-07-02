@@ -22,7 +22,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 {
 	/** Describes a connection to a database via an ODBC driver.
 	*/
-	class DatabaseOdbcExport CDatabaseConnectionOdbc
+	class CDatabaseConnectionOdbc
 		: public CDatabaseConnection
 	{
 
@@ -32,8 +32,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		@param[in] sqlEnvironmentHandle
 		    The handle to the SQL environment.
 		@param[in] server
-		    Address or name of the server.
-		@param[in] database
 		    Database name or DSN.
 		@param[in] userName
 		    User name.
@@ -42,7 +40,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		@param[out] connectionString
 		    Created connection string.
 		 */
-		CDatabaseConnectionOdbc( SQLHENV sqlEnvironmentHandle, const String & server, const String & database, const String & userName, const String & password, String & connectionString );
+		CDatabaseConnectionOdbc( SQLHENV sqlEnvironmentHandle, const String & server, const String & userName, const String & password, String & connectionString );
 
 		/** Destructor.
 		 */

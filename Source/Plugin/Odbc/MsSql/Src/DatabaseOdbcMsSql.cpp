@@ -64,7 +64,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		if ( _sqlEnvironmentHandle != SQL_NULL_HENV )
 		{
 			// std::make_shared is limited to 5 parameters with VS2012
-			pReturn.reset( new CDatabaseConnectionOdbcMsSql( _sqlEnvironmentHandle, _server, _database, _userName, _password, connectionString ) );
+			pReturn.reset( new CDatabaseConnectionOdbcMsSql( _sqlEnvironmentHandle, _server, _userName, _password, connectionString ) );
 		}
 
 		return pReturn;

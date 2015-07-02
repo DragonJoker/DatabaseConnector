@@ -34,8 +34,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MYSQL
 		    The handle to the SQL environment.
 		@param[in] server
 		    Address or name of the server.
-		@param[in] database
-		    Database name or DSN.
 		@param[in] userName
 		    User name.
 		@param[in] password
@@ -43,11 +41,29 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MYSQL
 		@param[out] connectionString
 		    Created connection string.
 		 */
-		CDatabaseConnectionOdbcMySql( SQLHENV sqlEnvironmentHandle, const String & server, const String & database, const String & userName, const String & password, String & connectionString );
+		CDatabaseConnectionOdbcMySql( SQLHENV sqlEnvironmentHandle, const String & server, const String & userName, const String & password, String & connectionString );
 
 		/** Destructor.
 		 */
 		virtual ~CDatabaseConnectionOdbcMySql();
+
+		/** Creates a database.
+		@param[in] database
+		    Database identifier (name or DSN (ODBC)).
+		*/
+		virtual void CreateDatabase( const String & database );
+
+		/** Selects a database.
+		@param[in] database
+		    Database identifier (name or DSN (ODBC)).
+		*/
+		virtual void SelectDatabase( const String & database );
+
+		/** Destroys a database.
+		@param[in] database
+		    Database identifier (name or DSN (ODBC)).
+		*/
+		virtual void DestroyDatabase( const String & database );
 
 	protected:
 

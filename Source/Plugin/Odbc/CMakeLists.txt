@@ -11,25 +11,19 @@ include_directories(
     ${ODBC_INCLUDE_DIR}
 )
 
-#find_package( Boost REQUIRED signals )
+add_target(
+	DatabasePluginOdbc
+	lib
+	"Database"
+	"Database;${ODBC_LIBRARIES};${MinLibraries}"
+	"DatabaseOdbcPch.h"
+	"DatabaseOdbcPch.cpp"
+	"" "" ""
+)
 
-if( Boost_FOUND )
-    add_target(
-        DatabasePluginOdbc
-        dll
-        "Database"
-        "Database;${ODBC_LIBRARIES};${MinLibraries}"
-        "DatabaseOdbcPch.h"
-        "DatabaseOdbcPch.cpp"
-        "" "" ""
-    )
+set_property( TARGET DatabasePluginOdbc PROPERTY FOLDER "Plugin/Odbc" )
+add_target_astyle( DatabasePluginOdbc ".h;.hpp;.inl;.cpp" )
 
-    set_property( TARGET DatabasePluginOdbc PROPERTY FOLDER "Plugin/Odbc" )
-    add_target_astyle( DatabasePluginOdbc ".h;.hpp;.inl;.cpp" )
-
-    add_subdirectory( MsSql )
-    add_subdirectory( MySql )
-    set( Build "yes" PARENT_SCOPE )
-else()
-    set( Build "no (missing (Boost.Signals library)" PARENT_SCOPE )
-endif()
+add_subdirectory( MsSql )
+add_subdirectory( MySql )
+set( Build "yes" PARENT_SCOPE )

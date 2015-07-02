@@ -19,10 +19,14 @@
 #include <DatabaseStatementOdbc.h>
 #include <DatabaseQueryOdbc.h>
 
+#include <Odbcinst.h>
+
 BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 {
-	CDatabaseConnectionOdbcMsSql::CDatabaseConnectionOdbcMsSql( SQLHENV sqlEnvironmentHandle, const String & server, const String & database, const String & userName, const String & password, String & connectionString )
-		:   CDatabaseConnectionOdbc( sqlEnvironmentHandle, server, database, userName, password, connectionString )
+	static const String ERROR_ODBC_NOT_CONNECTED = STR( "Not connected" );
+
+	CDatabaseConnectionOdbcMsSql::CDatabaseConnectionOdbcMsSql( SQLHENV sqlEnvironmentHandle, const String & server, const String & userName, const String & password, String & connectionString )
+		:   CDatabaseConnectionOdbc( sqlEnvironmentHandle, server, userName, password, connectionString )
 	{
 		DoConnect( connectionString );
 	}
@@ -32,23 +36,55 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		DoDisconnect();
 	}
 
+	void CDatabaseConnectionOdbcMsSql::CreateDatabase( const String & database )
+	{
+		if ( !IsConnected() )
+		{
+			CLogger::LogError( ERROR_ODBC_NOT_CONNECTED );
+			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_ODBC_NOT_CONNECTED, __FUNCTION__, __FILE__, __LINE__ );
+		}
+
+		DoExecuteUpdate( STR( "CREATE DATABASE " ) + database + STR( " COLLATE utf8_BIN" ), NULL );
+	}
+
+	void CDatabaseConnectionOdbcMsSql::SelectDatabase( const String & database )
+	{
+		if ( !IsConnected() )
+		{
+			CLogger::LogError( ERROR_ODBC_NOT_CONNECTED );
+			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_ODBC_NOT_CONNECTED, __FUNCTION__, __FILE__, __LINE__ );
+		}
+
+		_database = database;
+		DoExecuteUpdate( STR( "USE " ) + database, NULL );
+	}
+
+	void CDatabaseConnectionOdbcMsSql::DestroyDatabase( const String & database )
+	{
+		if ( !IsConnected() )
+		{
+			CLogger::LogError( ERROR_ODBC_NOT_CONNECTED );
+			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_ODBC_NOT_CONNECTED, __FUNCTION__, __FILE__, __LINE__ );
+		}
+
+		DoExecuteUpdate( STR( "DROP DATABASE " ) + database, NULL );
+	}
+
 	EErrorType CDatabaseConnectionOdbcMsSql::DoConnect( String & connectionString )
 	{
 		EErrorType  eReturn     = EErrorType_ERROR;
 		SQLHWND     sqlHwnd     = NULL;
 		SQLRETURN   sqlReturn;
 
+		connectionString = STR( "DRIVER={SQL Server};SERVER=(" ) + connectionString + STR( ")" );
+
 		if ( _userName.size() > 0 )
 		{
-			connectionString = STR( "DSN=" ) + _database
-			+ STR( ";UID=" ) + _userName
-			+ STR( ";PWD=" ) + _password;
+			connectionString += STR( ";UID=" ) + _userName + STR( ";PWD=" ) + _password;
 		}
 		else
 		{
-			connectionString = STR( "DSN=" ) + _database
-							   + STR( ";INTEGRATED SECURITY=true" )
-							   + STR( ";Trusted_Connection=yes" );
+			connectionString += STR( ";INTEGRATED SECURITY=true;Trusted_Connection=yes" );
 		}
 
 		if ( SqlSuccess( SQLAllocHandle( SQL_HANDLE_DBC, _environmentHandle, &_connectionHandle ), SQL_HANDLE_ENV, _environmentHandle, STR( "SQLAllocHandle" ) ) == EErrorType_NONE )
