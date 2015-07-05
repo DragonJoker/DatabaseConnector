@@ -157,14 +157,14 @@ BEGIN_NAMESPACE_DATABASE
 		 *\~french
 		 *\brief		Constructeur
 		 */
-		DummyConsole() {}
+		DummyConsole();
 		/**
 		 *\~english
 		 *\brief		Destructor
 		 *\~french
 		 *\brief		Destructeur
 		 */
-		virtual ~DummyConsole() {}
+		virtual ~DummyConsole();
 		/**
 		 *\~english
 		 *\brief		Configures console info for the given log type
@@ -173,7 +173,7 @@ BEGIN_NAMESPACE_DATABASE
 		 * Configure les informationss de la console en fonction du type donné
 		 *\param[in]	p_eLogType	Le type de log donné
 		 */
-		virtual void BeginLog( eLOG_TYPE ) {}
+		virtual void BeginLog( eLOG_TYPE );
 		/**
 		 *\~english
 		 *\brief		Prints a text in the console, adds the line end character if asked
@@ -184,7 +184,10 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_strToLog	Le texte à écrire
 		 *\param[in]	p_bNewLine	Dit si on doit ajouter le caractère de fin de ligne
 		 */
-		virtual void Print( String const &, bool ) {}
+		virtual void Print( String const &, bool );
+
+	private:
+		IConsoleInfo * m_pConsoleInfo;
 	};
 	/*!
 	\author		Sylvain DOREMUS
@@ -197,9 +200,6 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	class DebugConsole : public ProgramConsole
 	{
-	private:
-		IConsoleInfo * m_pConsoleInfo;
-
 	public:
 		/**
 		 *\~english
@@ -235,6 +235,9 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[in]	p_bNewLine	Dit si on doit ajouter le caractère de fin de ligne
 		 */
 		virtual void Print( String const & p_strToLog, bool p_bNewLine );
+
+	private:
+		IConsoleInfo * m_pConsoleInfo;
 	};
 }
 END_NAMESPACE_DATABASE

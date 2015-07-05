@@ -142,98 +142,119 @@ BEGIN_NAMESPACE_DATABASE
 
 	/** Specialization for bool
 	*/
-	template <> struct SDataTypeFieldTyper< bool >
+	template<> struct SDataTypeFieldTyper< bool >
 	{
 		static const EFieldType Value = EFieldType_BOOL;
 	};
 
 	/** Specialization for int16_t
 	*/
-	template <> struct SDataTypeFieldTyper< int16_t >
+	template<> struct SDataTypeFieldTyper< int16_t >
 	{
 		static const EFieldType Value = EFieldType_SMALL_INTEGER;
 	};
 
 	/** Specialization for int32_t
 	*/
-	template <> struct SDataTypeFieldTyper< int32_t >
+	template<> struct SDataTypeFieldTyper< int32_t >
 	{
 		static const EFieldType Value = EFieldType_INTEGER;
 	};
 
 	/** Specialization for int64_t
 	*/
-	template <> struct SDataTypeFieldTyper< int64_t >
+	template<> struct SDataTypeFieldTyper< int64_t >
 	{
 		static const EFieldType Value = EFieldType_LONG_INTEGER;
 	};
 
 	/** Specialization for float
 	*/
-	template <> struct SDataTypeFieldTyper< float >
+	template<> struct SDataTypeFieldTyper< float >
 	{
 		static const EFieldType Value = EFieldType_FLOAT;
 	};
 
 	/** Specialization for double
 	*/
-	template <> struct SDataTypeFieldTyper< double >
+	template<> struct SDataTypeFieldTyper< double >
 	{
 		static const EFieldType Value = EFieldType_DOUBLE;
 	};
 
-	/** Specialization for char *
+	/** Specialization for std::array< char, N >
 	*/
-	template <> struct SDataTypeFieldTyper< char * >
+	template< size_t N > struct SDataTypeFieldTyper< std::array< char, N > >
 	{
 		static const EFieldType Value = EFieldType_VARCHAR;
 	};
 
+	/** Specialization for char *
+	*/
+	template<> struct SDataTypeFieldTyper< char * >
+	{
+		static const EFieldType Value = EFieldType_VARCHAR;
+	};
+
+	/** Specialization for std::array< wchar_t, N >
+	*/
+	template< size_t N > struct SDataTypeFieldTyper< std::array< wchar_t, N > >
+	{
+		static const EFieldType Value = EFieldType_NVARCHAR;
+	};
+
 	/** Specialization for wchar_t *
 	*/
-	template <> struct SDataTypeFieldTyper< wchar_t * >
+	template<> struct SDataTypeFieldTyper< wchar_t * >
 	{
 		static const EFieldType Value = EFieldType_NVARCHAR;
 	};
 
 	/** Specialization for CDateTime
 	*/
-	template <> struct SDataTypeFieldTyper< CDateTime >
+	template<> struct SDataTypeFieldTyper< CDateTime >
 	{
 		static const EFieldType Value = EFieldType_DATETIME;
 	};
 
 	/** Specialization for CDate
 	*/
-	template <> struct SDataTypeFieldTyper< CDate >
+	template<> struct SDataTypeFieldTyper< CDate >
 	{
 		static const EFieldType Value = EFieldType_DATE;
 	};
 
 	/** Specialization for CTime
 	*/
-	template <> struct SDataTypeFieldTyper< CTime >
+	template<> struct SDataTypeFieldTyper< CTime >
 	{
 		static const EFieldType Value = EFieldType_TIME;
 	};
 
 	/** Specialization for std::string
 	*/
-	template <> struct SDataTypeFieldTyper< std::string >
+	template<> struct SDataTypeFieldTyper< std::string >
 	{
 		static const EFieldType Value = EFieldType_TEXT;
 	};
 
 	/** Specialization for std::wstring
 	*/
-	template <> struct SDataTypeFieldTyper< std::wstring >
+	template<> struct SDataTypeFieldTyper< std::wstring >
 	{
 		static const EFieldType Value = EFieldType_NTEXT;
 	};
 
 	/** Specialization for uint8_t *
 	*/
-	template <> struct SDataTypeFieldTyper< uint8_t * >
+	template<> struct SDataTypeFieldTyper< uint8_t * >
+	{
+		static const EFieldType Value = EFieldType_VARBINARY;
+	};
+
+	/** Specialization for std::vector< uint8_t >
+	*/
+	template<> struct SDataTypeFieldTyper< std::vector< uint8_t > >
 	{
 		static const EFieldType Value = EFieldType_VARBINARY;
 	};
@@ -361,6 +382,292 @@ BEGIN_NAMESPACE_DATABASE
 			{
 				result += STR( "NULL" );
 			}
+		}
+	};
+
+	/** Specialization for float data type
+	*/
+	template<> class CDatabaseValuePolicy< float >
+	{
+	private:
+		typedef float value_type;
+
+	public:
+		/** Reinitializes the given value
+		@param value
+		    The value
+		*/
+		static void Reset( value_type & value )
+		{
+			value = value_type( 0 );
+		}
+
+		/** Sets the value to the given one
+		@param in
+		    The input value
+		@param out
+		    The output value
+		@param valSet
+		    Receives the new setting status for the value
+		@param strSet
+		    Receives the new setting status for the string value
+		@param size
+		    Receives the new value size
+		*/
+		static void Set( const value_type & in, value_type & out, bool & valSet, bool & strSet, long & size )
+		{
+			strSet = valSet && out == in;
+			out = in;
+			valSet = true;
+			size = sizeof( value_type );
+		}
+
+		/** Retrieves a pointer from the given value
+		@param value
+		    The value
+		*/
+		static void * Ptr( value_type & value )
+		{
+			return &value;
+		}
+
+		/** Retrieves the value from a string
+		@param string
+		    The string containing the value
+		@param strSet
+		    Tells that the string effectively contains a value
+		@param value
+		    Receives the value
+		@param valSet
+		    Tells that the value was set, receives the new set status
+		@param size
+		    The old size, receives the new value size
+		*/
+		static void FromStr( const String & string, bool strSet, value_type & value, bool & valSet, long & size )
+		{
+			if ( !valSet )
+			{
+				if ( strSet )
+				{
+					value = DoFromStr( string );
+					valSet = true;
+					size = sizeof( value_type );
+				}
+				else
+				{
+					//value = value_type();
+					//size = 0;
+				}
+			}
+		}
+
+		/** Puts the value into the given string
+		@param value
+		    The value
+		@param valSet
+		    Tells that the value is set
+		@param string
+		    Receives the string value
+		@param strSet
+		    Tells that the string was set, receives the new set status
+		*/
+		static void ToStr( const value_type & value, bool valSet, String & string, bool & strSet )
+		{
+			if ( !strSet )
+			{
+				if ( valSet )
+				{
+					string += DoToStr( value );
+					strSet = true;
+				}
+				else
+				{
+					string.clear();
+				}
+			}
+		}
+
+		/** Puts the value into the given string
+		@param value
+		    The value
+		@param valSet
+		    Tells that the value is set
+		@param connection
+		    The connection used to format the value
+		@param result
+		    Receives the insertable value
+		*/
+		static void ToInsertable( const value_type & value, bool valSet, DatabaseConnectionPtr connection, String & result )
+		{
+			if ( valSet )
+			{
+				result += DoToStr( value );
+			}
+			else
+			{
+				result += STR( "NULL" );
+			}
+		}
+
+	private:
+		static String DoToStr( const value_type & value )
+		{
+			StringStream stream;
+			stream.precision( 10 );
+			stream << value;
+			return stream.str();
+		}
+
+		static value_type DoFromStr( const String & value )
+		{
+			value_type result = value_type();
+			StringStream stream( value );
+			stream.precision( 10 );
+			stream >> result;
+			return result;
+		}
+	};
+
+	/** Specialization for double data type
+	*/
+	template<> class CDatabaseValuePolicy< double >
+	{
+	private:
+		typedef double value_type;
+
+	public:
+		/** Reinitializes the given value
+		@param value
+		    The value
+		*/
+		static void Reset( value_type & value )
+		{
+			value = value_type( 0 );
+		}
+
+		/** Sets the value to the given one
+		@param in
+		    The input value
+		@param out
+		    The output value
+		@param valSet
+		    Receives the new setting status for the value
+		@param strSet
+		    Receives the new setting status for the string value
+		@param size
+		    Receives the new value size
+		*/
+		static void Set( const value_type & in, value_type & out, bool & valSet, bool & strSet, long & size )
+		{
+			strSet = valSet && out == in;
+			out = in;
+			valSet = true;
+			size = sizeof( value_type );
+		}
+
+		/** Retrieves a pointer from the given value
+		@param value
+		    The value
+		*/
+		static void * Ptr( value_type & value )
+		{
+			return &value;
+		}
+
+		/** Retrieves the value from a string
+		@param string
+		    The string containing the value
+		@param strSet
+		    Tells that the string effectively contains a value
+		@param value
+		    Receives the value
+		@param valSet
+		    Tells that the value was set, receives the new set status
+		@param size
+		    The old size, receives the new value size
+		*/
+		static void FromStr( const String & string, bool strSet, value_type & value, bool & valSet, long & size )
+		{
+			if ( !valSet )
+			{
+				if ( strSet )
+				{
+					value = DoFromStr( string );
+					valSet = true;
+					size = sizeof( value_type );
+				}
+				else
+				{
+					//value = value_type();
+					//size = 0;
+				}
+			}
+		}
+
+		/** Puts the value into the given string
+		@param value
+		    The value
+		@param valSet
+		    Tells that the value is set
+		@param string
+		    Receives the string value
+		@param strSet
+		    Tells that the string was set, receives the new set status
+		*/
+		static void ToStr( const value_type & value, bool valSet, String & string, bool & strSet )
+		{
+			if ( !strSet )
+			{
+				if ( valSet )
+				{
+					string += DoToStr( value );
+					strSet = true;
+				}
+				else
+				{
+					string.clear();
+				}
+			}
+		}
+
+		/** Puts the value into the given string
+		@param value
+		    The value
+		@param valSet
+		    Tells that the value is set
+		@param connection
+		    The connection used to format the value
+		@param result
+		    Receives the insertable value
+		*/
+		static void ToInsertable( const value_type & value, bool valSet, DatabaseConnectionPtr connection, String & result )
+		{
+			if ( valSet )
+			{
+				result += DoToStr( value );
+			}
+			else
+			{
+				result += STR( "NULL" );
+			}
+		}
+
+	private:
+		static String DoToStr( const value_type & value )
+		{
+			StringStream stream;
+			stream.precision( 20 );
+			stream << value;
+			return stream.str();
+		}
+
+		static value_type DoFromStr( const String & value )
+		{
+			value_type result = value_type();
+			StringStream stream( value );
+			stream.precision( 20 );
+			stream >> result;
+			return result;
 		}
 	};
 
@@ -916,7 +1223,7 @@ BEGIN_NAMESPACE_DATABASE
 				{
 					stream.width( 2 );
 					stream.fill( STR( '0' ) );
-					stream << ( *it );
+					stream << int( *it );
 				}
 
 				result += STR( "X'" ) + stream.str() + STR( "'" );

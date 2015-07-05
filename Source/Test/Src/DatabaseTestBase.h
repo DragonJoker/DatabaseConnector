@@ -57,6 +57,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		*/
 		void TestCase_CreateDatabase();
 
+		/** Test insertion and retrieval of a value through DatabaseQuery
+		*/
+		void TestCase_DatabaseQueryFieldsInsertRetrieve();
+
 		/** Test direct query execution through DatabaseQuery
 		*/
 		void TestCase_DatabaseQueryDirectQuery();
@@ -65,6 +69,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		*/
 		void TestCase_DatabaseQueryStoredProcedure();
 
+		/** Test insertion and retrieval of a value through DatabaseStatement
+		*/
+		void TestCase_DatabaseStatementFieldsInsertRetrieve();
+
 		/** Test direct query execution through DatabaseStatement
 		*/
 		void TestCase_DatabaseStatementDirectQuery();
@@ -72,6 +80,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		/** Test stored procedures execution through DatabaseStatement
 		*/
 		void TestCase_DatabaseStatementStoredProcedure();
+
+		/** Test database destruction
+		*/
+		void TestCase_DestroyDatabase();
 
 #if defined( PERF_TEST )
 		/** Performance test through DatabaseStatement
@@ -82,10 +94,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		*/
 		void TestCase_DatabaseQueryPerformances();
 #endif
-
-		/** Test database destruction
-		*/
-		void TestCase_DestroyDatabase();
 		///@}
 
 	private:
@@ -93,6 +101,14 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		*/
 		virtual void DoLoadPlugins() = 0;
 
+		/** Flushes the Test table content
+		*/
+		void DoFlushTable( DatabaseConnectionPtr connection );
+
+	protected:
+		String _createTable;
+
+	private:
 		const String & _type;
 		const String & _server;
 		const String & _database;

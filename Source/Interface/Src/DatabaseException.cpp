@@ -46,7 +46,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			StringStream desc;
 
-			desc <<  "ARIA EXCEPTION ( " << "number" << ":" << _typeName << " ) : "
+			desc <<  "DATABASE EXCEPTION ( " << "number" << ":" << _typeName << " ) : "
 			<< _description
 			<< " in " << _source;
 

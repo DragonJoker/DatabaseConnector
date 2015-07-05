@@ -689,6 +689,36 @@ BEGIN_NAMESPACE_DATABASE
 
 		return l_bReturn;
 	}
+
+	std::ostream & operator << ( std::ostream & stream, std::vector< uint8_t > const & vector )
+	{
+		auto flags = stream.setf( std::ios::hex, std::ios::basefield );
+
+		for ( auto && it : vector )
+		{
+			stream.width( 2 );
+			stream.fill( '0' );
+			stream << int( it );
+		}
+
+		stream.setf( flags );
+		return stream;
+	};
+
+	std::wostream & operator << ( std::wostream & stream, std::vector< uint8_t > const & vector )
+	{
+		auto flags = stream.setf( std::ios::hex, std::ios::basefield );
+
+		for ( auto && it : vector )
+		{
+			stream.width( 2 );
+			stream.fill( L'0' );
+			stream << int( it );
+		}
+
+		stream.setf( flags );
+		return stream;
+	};
 }
 END_NAMESPACE_DATABASE
 

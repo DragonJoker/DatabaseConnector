@@ -35,7 +35,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		 */
 		DatabaseSqliteExport virtual ~CDatabaseSqlite();
 
-		///@copydoc Areva::ARIA::Native::CObject::GetType
+		///@copydoc CObject::GetType
 		DatabaseSqliteExport virtual const String & GetType()const;
 
 		/** Creator function

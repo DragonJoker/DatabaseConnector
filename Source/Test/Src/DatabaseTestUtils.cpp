@@ -23,14 +23,10 @@
 #if defined( _WIN32 )
 #   include <windows.h>
 #   include <process.h>
-#   define AriaSleep( x ) Sleep( x )
 #else
 #   include <unistd.h>
 #   include <sys/wait.h>
-#   define AriaSleep( x ) usleep( 1000 * x )
 #endif
-
-#define yield() AriaSleep( 1 )
 
 BEGIN_NAMESPACE_DATABASE_TEST
 {
@@ -167,61 +163,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 #endif
 			return nChildResult;
 		}
-	}
-
-	static const String SCRIPT_MYSQL_DATABASE_INSTALL = STR( "CreateMySqlDatabase.bat" );
-	static const String SCRIPT_MYSQL_DATABASE_UNINSTALL = STR( "DeleteMySqlDatabase.bat" );
-	static const String SCRIPT_MSSQL_DATABASE_INSTALL = STR( "CreateMsSqlDatabase.bat" );
-	static const String SCRIPT_MSSQL_DATABASE_UNINSTALL = STR( "DeleteMsSqlDatabase.bat" );
-	static const String SCRIPT_ODBC_INSTALL = STR( "Install_odbc_aria.bat" );
-	static const String SCRIPT_ODBC_UNINSTALL = STR( "Uninstall_odbc_aria.bat" );
-
-	int InstallMySqlDatabase( const String & database )
-	{
-		return ExecuteScriptSingleArg( DATABASE_BATCH_FILES_DIR, SCRIPT_MYSQL_DATABASE_INSTALL, database );
-	}
-
-	int UninstallMySqlDatabase( const String & database )
-	{
-		return ExecuteScriptSingleArg( DATABASE_BATCH_FILES_DIR, SCRIPT_MYSQL_DATABASE_UNINSTALL, database );
-	}
-
-	int InstallSqliteDatabase( const String & database )
-	{
-		FILE * file = fopen( database.c_str(), "w" );
-
-		if ( file )
-		{
-			fclose( file );
-		}
-
-		return 0;
-	}
-
-	int UninstallSqliteDatabase( const String & database )
-	{
-		std::remove( database.c_str() );
-		return 0;
-	}
-
-	int InstallMsSqlDatabase( const String & database )
-	{
-		return ExecuteScriptSingleArg( DATABASE_BATCH_FILES_DIR, SCRIPT_MSSQL_DATABASE_INSTALL, database );
-	}
-
-	int UninstallMsSqlDatabase( const String & database )
-	{
-		return ExecuteScriptSingleArg( DATABASE_BATCH_FILES_DIR, SCRIPT_MSSQL_DATABASE_UNINSTALL, database );
-	}
-
-	int InstallSourceOdbcAria( const String & dsn )
-	{
-		return ExecuteScriptSingleArg( ODBC_BATCH_FILES_DIR, SCRIPT_ODBC_INSTALL, dsn );
-	}
-
-	int UninstallSourceOdbcAria( const String & dsn )
-	{
-		return ExecuteScriptSingleArg( ODBC_BATCH_FILES_DIR, SCRIPT_ODBC_UNINSTALL, dsn );
 	}
 }
 END_NAMESPACE_DATABASE_TEST

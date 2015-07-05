@@ -152,9 +152,75 @@ BEGIN_NAMESPACE_DATABASE
 			static const SQLite::DestructorType NULL_DESTRUCTOR = 0;
 
 			typedef sqlite3_stmt Statement;
-			typedef sqlite3_value Value;
 			typedef sqlite3 Database;
 			typedef sqlite3_int64 Int64;
+
+			class Value
+			{
+			public:
+				Value( sqlite3_value * value )
+					: _value( value )
+				{
+				}
+
+				int GetType()
+				{
+					return sqlite3_value_type( _value );
+				}
+				int GetNumericType()
+				{
+					return sqlite3_value_numeric_type( _value );
+				}
+				int GetBytes()
+				{
+					return sqlite3_value_bytes( _value );
+				}
+				int GetBytes16()
+				{
+					return  sqlite3_value_bytes16( _value );
+				}
+
+				const void * AsBlob()
+				{
+					return sqlite3_value_blob( _value );
+				}
+				double AsDouble()
+				{
+					return  sqlite3_value_double( _value );
+				}
+				int AsInt()
+				{
+					return  sqlite3_value_int( _value );
+				}
+				sqlite3_int64 AsInt64()
+				{
+					return  sqlite3_value_int64( _value );
+				}
+				const unsigned char * AsText()
+				{
+					return sqlite3_value_text( _value );
+				}
+				const void * AsText16()
+				{
+					return sqlite3_value_text16( _value );
+				}
+				const void * AsText16le()
+				{
+					return sqlite3_value_text16le( _value );
+				}
+				const void * AsText16be()
+				{
+					return sqlite3_value_text16be( _value );
+				}
+
+				operator sqlite3_value const * ()const
+				{
+					return _value;
+				}
+
+			private:
+				sqlite3_value * _value;
+			};
 
 			inline eCODE Step( Statement * pStatement )
 			{
@@ -224,9 +290,9 @@ BEGIN_NAMESPACE_DATABASE
 			{
 				return sqlite3_column_type( pStatement, iCol );
 			}
-			inline Value * ColumnValue( Statement * pStatement, int iCol )
+			inline Value ColumnValue( Statement * pStatement, int iCol )
 			{
-				return sqlite3_column_value( pStatement, iCol );
+				return Value( sqlite3_column_value( pStatement, iCol ) );
 			}
 
 			inline eCODE BindBlob( Statement * pStatement, int iCol, const void * pValue, int iSizeInBytes, DestructorType pfnDestructor )
@@ -257,7 +323,7 @@ BEGIN_NAMESPACE_DATABASE
 			{
 				return eCODE( sqlite3_bind_text16( pStatement, iCol, wszValue, iSizeInBytes, pfnDestructor ) );
 			}
-			inline eCODE BindValue( Statement * pStatement, int iCol, const Value * pValue )
+			inline eCODE BindValue( Statement * pStatement, int iCol, const Value & pValue )
 			{
 				return eCODE( sqlite3_bind_value( pStatement, iCol, pValue ) );
 			}

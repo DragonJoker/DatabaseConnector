@@ -78,7 +78,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport void * GetSymbol( const String & strName ) const throw();
 
-		/** File extension used for ARIA plug-in files (platform specific)
+		/** File extension used for plugin files (platform specific)
 		*/
 		static const String LIB_EXTENSION;
 

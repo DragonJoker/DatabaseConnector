@@ -367,9 +367,29 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	};
 
+	DummyConsole::DummyConsole()
+		: m_pConsoleInfo( new GenConsoleInfo )
+	{
+	}
+
+	DummyConsole::~DummyConsole()
+	{
+		delete m_pConsoleInfo;
+	}
+
+	void DummyConsole::BeginLog( eLOG_TYPE p_eLogType )
+	{
+		m_pConsoleInfo->BeginLog( p_eLogType );
+	}
+
+	void DummyConsole::Print( String const & p_strToLog, bool p_bNewLine )
+	{
+		m_pConsoleInfo->Print( p_strToLog, p_bNewLine );
+	}
+
 	DebugConsole::DebugConsole()
 #if defined( _MSC_VER )
-		:	m_pConsoleInfo( new MsvcConsoleInfo )
+		:	m_pConsoleInfo( new GenConsoleInfo )//MsvcConsoleInfo )
 #elif defined( _WIN32 )
 		:	m_pConsoleInfo( new MswConsoleInfo )
 #else

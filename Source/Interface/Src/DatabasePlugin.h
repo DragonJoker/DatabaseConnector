@@ -37,7 +37,7 @@ BEGIN_NAMESPACE_DATABASE
 		@remarks
 		    An implementation must be supplied for this method. It must perform
 		    the startup tasks necessary to install anything else that is not dependent
-		    on system initialization, ie only dependent on the core of ARIA. It must
+		    on system initialization, ie only dependent on the core. It must
 		    not perform any operations that would create specific objects at this stage,
 		    that should be done in Initialize ().
 		*/
@@ -77,7 +77,7 @@ BEGIN_NAMESPACE_DATABASE
 		    An implementation must be supplied for this method.
 		    This method is called just before key parts of the system are unloaded.
 		    You should use this hook to free up resources and decouple custom objects
-		    from the ARIA system, whilst all the instances of other plugins still exist.
+		    from the system, whilst all the instances of other plugins still exist.
 		*/
 		DatabaseExport virtual void Shutdown() = 0;
 

@@ -53,20 +53,16 @@ BEGIN_NAMESPACE_DATABASE
 	int Replace( std::string & originalString, const std::string & searchedSubString, const std::string & replacementSubString )
 	{
 		int iReturn = 0;
-		std::size_t uiIndex = 0;
-		std::size_t uiPrev = 0;
-		std::string strReplaced;
 
 		if ( !originalString.empty() )
 		{
-			uiIndex = originalString.find( searchedSubString );
+			size_t uiIndex = originalString.find( searchedSubString );
 
-			if ( uiIndex == std::string::npos )
+			if ( uiIndex != std::string::npos )
 			{
-				strReplaced = originalString;
-			}
-			else
-			{
+				size_t uiPrev = 0;
+				std::string strReplaced;
+
 				while ( uiIndex != std::string::npos )
 				{
 					strReplaced += originalString.substr( uiPrev, uiIndex - uiPrev ) + replacementSubString;
@@ -75,9 +71,8 @@ BEGIN_NAMESPACE_DATABASE
 				}
 
 				strReplaced += originalString.substr( uiPrev );
+				originalString = strReplaced;
 			}
-
-			originalString = strReplaced;
 		}
 
 		return iReturn;
@@ -87,7 +82,7 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		formattedString.clear();
 
-		std::string strText( maxSize, 0 );
+		std::vector< char > strText( maxSize, 0 );
 
 		try
 		{
@@ -96,9 +91,9 @@ BEGIN_NAMESPACE_DATABASE
 			if ( format != NULL )
 			{
 				va_start( vaList, format );
-				vsnprintf( ( char * )strText.data(), maxSize, format, vaList );
+				vsnprintf( strText.data(), maxSize, format, vaList );
 				va_end( vaList );
-				formattedString = strText;
+				formattedString = strText.data();
 			}
 		}
 		catch ( ... )
@@ -164,7 +159,7 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		formattedString.clear();
 
-		std::wstring strText( maxSize, 0 );
+		std::vector< wchar_t > strText( maxSize, 0 );
 
 		try
 		{
@@ -173,9 +168,9 @@ BEGIN_NAMESPACE_DATABASE
 			if ( format != NULL )
 			{
 				va_start( vaList, format );
-				vswprintf( ( wchar_t * )strText.data(), maxSize, format, vaList );
+				vswprintf( strText.data(), maxSize, format, vaList );
 				va_end( vaList );
-				formattedString = strText;
+				formattedString = strText.data();
 			}
 		}
 		catch ( ... )

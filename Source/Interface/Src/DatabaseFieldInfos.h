@@ -34,10 +34,10 @@ BEGIN_NAMESPACE_DATABASE
 		    Field name.
 		@param[in] type
 		    Field type
-		@param[in] limits
-		    Field limits
+		@param[in] limprec
+		    Field limits or precision (depends on field type)
 		 */
-		DatabaseExport CDatabaseFieldInfos( DatabaseConnectionPtr connection, const String & name, EFieldType type = EFieldType_NULL, uint32_t limits = 0 );
+		DatabaseExport CDatabaseFieldInfos( DatabaseConnectionPtr connection, const String & name, EFieldType type = EFieldType_NULL, uint32_t limprec = -1 );
 
 		/** Constructor.
 		@param[in] connection
@@ -46,10 +46,10 @@ BEGIN_NAMESPACE_DATABASE
 		    Field name.
 		@param[in] type
 		    Field type as string
-		@param[in] length
-		    Field length
+		@param[in] limprec
+		    Field limits or precision (depends on field type)
 		*/
-		DatabaseExport CDatabaseFieldInfos( DatabaseConnectionPtr connection, const String & name, const String & type, int length = -1 );
+		DatabaseExport CDatabaseFieldInfos( DatabaseConnectionPtr connection, const String & name, const String & type, uint32_t limprec = -1 );
 
 		/** Copy constructor.
 		@param[in] fieldInfos
@@ -66,6 +66,12 @@ BEGIN_NAMESPACE_DATABASE
 		    Field type.
 		*/
 		DatabaseExport EFieldType GetType() const;
+
+		/** Get field type.
+		@return
+		    Field type.
+		*/
+		DatabaseExport void SetType( EFieldType type );
 
 		/** Get field name.
 		@return

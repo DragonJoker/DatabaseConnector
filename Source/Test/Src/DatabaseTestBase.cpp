@@ -16,6 +16,107 @@
 
 BEGIN_NAMESPACE_DATABASE_TEST
 {
+	String const QUERY_SELECT_MIN = STR( "SELECT MIN( IDTest ) AS TestID FROM Test" );
+	String const QUERY_GET_COUNT = STR( "SELECT COUNT( IDTest ) AS TestID FROM Test" );
+	String const QUERY_INSERT_ELEMENT = STR( "INSERT INTO Test" )
+	STR( "( IntField" )
+	STR( ", IntegerField" )
+	STR( ", TinyIntField" )
+	STR( ", SmallIntField" )
+	STR( ", MediumIntField" )
+	STR( ", BigIntField" )
+	STR( ", Int2Field" )
+	STR( ", Int8Field" )
+	STR( ", RealField" )
+	STR( ", DoubleField" )
+	STR( ", DoublePrecisionField" )
+	STR( ", FloatField" )
+	STR( ", NumericField" )
+	STR( ", DecimalField" )
+	STR( ", BooleanField" )
+	STR( ", DateField" )
+	STR( ", DateTimeField" )
+	STR( ", CharacterField" )
+	STR( ", VarcharField" )
+	STR( ", NcharField" )
+	STR( ", NVarcharField" )
+	STR( ", TextField" )
+	STR( ", BlobField ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )" );
+	String const QUERY_DIRECT_SELECT_ELEMENT = STR( "SELECT IntField\n" )
+	STR( "	, IntegerField\n" )
+	STR( "	, TinyIntField\n" )
+	STR( "	, SmallIntField\n" )
+	STR( "	, MediumIntField\n" )
+	STR( "	, BigIntField\n" )
+	STR( "	, Int2Field\n" )
+	STR( "	, Int8Field\n" )
+	STR( "	, RealField\n" )
+	STR( "	, DoubleField\n" )
+	STR( "	, DoublePrecisionField\n" )
+	STR( "	, FloatField\n" )
+	STR( "	, NumericField\n" )
+	STR( "	, DecimalField\n" )
+	STR( "	, BooleanField\n" )
+	STR( "	, DateField\n" )
+	STR( "	, DateTimeField\n" )
+	STR( "	, CharacterField\n" )
+	STR( "	, VarcharField\n" )
+	STR( "	, NcharField\n" )
+	STR( "	, NVarcharField\n" )
+	STR( "	, TextField\n" )
+	STR( "	, BlobField\n" )
+	STR( "FROM Test\n" )
+	STR( "WHERE IDTest = ?" );
+	String const QUERY_DIRECT_SELECT_ALL_ELEMENTS = STR( "SELECT IntField\n" )
+	STR( "	, IntegerField\n" )
+	STR( "	, TinyIntField\n" )
+	STR( "	, SmallIntField\n" )
+	STR( "	, MediumIntField\n" )
+	STR( "	, BigIntField\n" )
+	STR( "	, Int2Field\n" )
+	STR( "	, Int8Field\n" )
+	STR( "	, RealField\n" )
+	STR( "	, DoubleField\n" )
+	STR( "	, DoublePrecisionField\n" )
+	STR( "	, FloatField\n" )
+	STR( "	, NumericField\n" )
+	STR( "	, DecimalField\n" )
+	STR( "	, BooleanField\n" )
+	STR( "	, DateField\n" )
+	STR( "	, DateTimeField\n" )
+	STR( "	, CharacterField\n" )
+	STR( "	, VarcharField\n" )
+	STR( "	, NcharField\n" )
+	STR( "	, NVarcharField\n" )
+	STR( "	, TextField\n" )
+	STR( "	, BlobField\n" )
+	STR( "FROM Test" );
+	String const QUERY_DIRECT_UPDATE_ELEMENT = STR( "UPDATE Test SET IntField=?\n" )
+	STR( "	, IntegerField=?\n" )
+	STR( "	, TinyIntField=?\n" )
+	STR( "	, SmallIntField=?\n" )
+	STR( "	, MediumIntField=?\n" )
+	STR( "	, BigIntField=?\n" )
+	STR( "	, Int2Field=?\n" )
+	STR( "	, Int8Field=?\n" )
+	STR( "	, RealField=?\n" )
+	STR( "	, DoubleField=?\n" )
+	STR( "	, DoublePrecisionField=?\n" )
+	STR( "	, FloatField=?\n" )
+	STR( "	, NumericField=?\n" )
+	STR( "	, DecimalField=?\n" )
+	STR( "	, BooleanField=?\n" )
+	STR( "	, DateField=?\n" )
+	STR( "	, DateTimeField=?\n" )
+	STR( "	, CharacterField=?\n" )
+	STR( "	, VarcharField=?\n" )
+	STR( "	, NcharField=?\n" )
+	STR( "	, NVarcharField=?\n" )
+	STR( "	, TextField=?\n" )
+	STR( "	, BlobField=?\n" )
+	STR( "WHERE IDTest=?" );
+	String const QUERY_DIRECT_DELETE_ELEMENT = STR( "DELETE FROM Test WHERE IDTest=?" );
+
 	template< typename CleanFunc >
 	struct SBlockGuard
 	{
@@ -60,10 +161,12 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		///@remarks Add the TC to the internal TS.
 		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_CreateDatabase, this ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseQueryDirectQuery, this ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseQueryStoredProcedure, this ) ) );
+		//testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseQueryFieldsInsertRetrieve, this ) ) );
+		//testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseQueryDirectQuery, this ) ) );
+		//testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseQueryStoredProcedure, this ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseStatementFieldsInsertRetrieve, this ) ) );
 		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseStatementDirectQuery, this ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseStatementStoredProcedure, this ) ) );
+		//testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseStatementStoredProcedure, this ) ) );
 		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DestroyDatabase, this ) ) );
 
 		///@remarks Return the TS instance.
@@ -81,48 +184,70 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			{
 				UnloadPlugins();
 			} );
-			std::unique_ptr< Database::CDatabase > database( InstantiateDatabase( _type ) );
+			std::unique_ptr< CDatabase > database( InstantiateDatabase( _type ) );
 
 			if ( database )
 			{
-				Database::DatabaseConnectionPtr connection = CreateConnection( *database, _server, _user, _password );
+				DatabaseConnectionPtr connection = CreateConnection( *database, _server, _user, _password );
 				connection->CreateDatabase( _database );
 				connection->SelectDatabase( _database );
 
 				if ( connection )
 				{
-					String query;
-					query += STR( "CREATE TABLE Test" );
-					query += STR( "(	IDTest INTEGER PRIMARY KEY\n" );
-					query += STR( ",	IntField INT\n" );
-					query += STR( ",	IntegerField INTEGER\n" );
-					query += STR( ",	TinyIntField TINYINT\n" );
-					query += STR( ",	SmallIntField SMALLINT\n" );
-					query += STR( ",	MediumIntField MEDIUMINT\n" );
-					query += STR( ",	BigIntField BIGINT\n" );
-					query += STR( ",	Int2Field INT2\n" );
-					query += STR( ",	Int8Field INT8\n" );
-					query += STR( ",	RealField REAL\n" );
-					query += STR( ",	DoubleField DOUBLE\n" );
-					query += STR( ",	DoublePrecisionField DOUBLE PRECISION\n" );
-					query += STR( ",	FloatField FLOAT\n" );
-					query += STR( ",	NumericField NUMERIC\n" );
-					query += STR( ",	DecimalField DECIMAL(10,5)\n" );
-					query += STR( ",	BooleanField BOOLEAN\n" );
-					query += STR( ",	DateField DATE\n" );
-					query += STR( ",	DateTimeField DATETIME\n" );
-					query += STR( ",	CharacterField CHARACTER(20)\n" );
-					query += STR( ",	VarcharField VARCHAR(255)\n" );
-					query += STR( ",	NcharField NCHAR(55)\n" );
-					query += STR( ",	NVarcharField NVARCHAR(100)\n" );
-					query += STR( ",	TextField TEXT\n" );
-					query += STR( ",	BlobField BLOB\n" );
-					query += STR( ");" );
-					connection->ExecuteUpdate( query );
+					connection->ExecuteUpdate( _createTable );
 				}
 			}
 		}
 		CLogger::LogMessage( StringStream() << "**** End TestCase_CreateDatabase ****" );
+	}
+
+	void CDatabaseTest::TestCase_DatabaseQueryFieldsInsertRetrieve()
+	{
+		CLogger::LogMessage( StringStream() << "**** Start TestCase_DatabaseQueryFieldsInsertRetrieve ****" );
+		{
+			auto const guard = make_block_guard( [this]()
+			{
+				DoLoadPlugins();
+			}, []()
+			{
+				UnloadPlugins();
+			} );
+			std::unique_ptr< CDatabase > database( InstantiateDatabase( _type ) );
+
+			if ( database )
+			{
+				DatabaseConnectionPtr connection = CreateConnection( *database, _server, _user, _password );
+				connection->SelectDatabase( _database );
+
+				if ( connection )
+				{
+					DoFlushTable( connection );
+					DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, int32_t >( connection, STR( "IntegerField" ) );
+					DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, bool >( connection, STR( "TinyIntField" ) );
+					DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, int16_t >( connection, STR( "SmallIntField" ) );
+					DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, int32_t >( connection, STR( "MediumIntField" ) );
+					DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, int64_t >( connection, STR( "BigIntField" ) );
+					DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, int16_t >( connection, STR( "Int2Field" ) );
+					DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, int64_t >( connection, STR( "Int8Field" ) );
+					DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, float >( connection, STR( "RealField" ) );
+					DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, double >( connection, STR( "DoubleField" ) );
+					DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, double >( connection, STR( "DoublePrecisionField" ) );
+					DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, float >( connection, STR( "FloatField" ) );
+					DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, int32_t >( connection, STR( "NumericField" ) );
+					DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, double >( connection, STR( "DecimalField" ) );
+					DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, bool >( connection, STR( "BooleanField" ) );
+					DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, CDate >( connection, STR( "DateField" ) );
+					DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, CDateTime >( connection, STR( "DateTimeField" ) );
+					DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, char * >( connection, STR( "CharacterField" ) );
+					DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, char * >( connection, STR( "VarcharField" ) );
+					DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, wchar_t * >( connection, STR( "NcharField" ) );
+					DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, wchar_t * >( connection, STR( "NVarcharField" ) );
+					DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, std::string >( connection, STR( "TextField" ) );
+					DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, std::vector< uint8_t > >( connection, STR( "BlobField" ) );
+				}
+			}
+		}
+		CLogger::LogMessage( StringStream() << "**** End TestCase_DatabaseQueryFieldsInsertRetrieve ****" );
 	}
 
 	void CDatabaseTest::TestCase_DatabaseQueryDirectQuery()
@@ -136,15 +261,16 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			{
 				UnloadPlugins();
 			} );
-			std::unique_ptr< Database::CDatabase > database( InstantiateDatabase( _type ) );
+			std::unique_ptr< CDatabase > database( InstantiateDatabase( _type ) );
 
 			if ( database )
 			{
-				Database::DatabaseConnectionPtr connection = CreateConnection( *database, _server, _user, _password );
+				DatabaseConnectionPtr connection = CreateConnection( *database, _server, _user, _password );
 				connection->SelectDatabase( _database );
 
 				if ( connection )
 				{
+					DoFlushTable( connection );
 					CLogger::LogMessage( StringStream() << " Insertions" );
 					DatabaseUtils::TestDirectInsert< CDatabaseQuery >( connection );
 					CLogger::LogMessage( StringStream() << " Selection" );
@@ -153,8 +279,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					DatabaseUtils::TestDirectUpdate< CDatabaseQuery >( connection );
 					CLogger::LogMessage( StringStream() << " Deletion" );
 					DatabaseUtils::TestDirectDelete< CDatabaseQuery >( connection );
-
-					DatabaseUtils::InsertLanguage< CDatabaseQuery >( connection );
 				}
 
 				database->RemoveConnection();
@@ -174,11 +298,11 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			{
 				UnloadPlugins();
 			} );
-			std::unique_ptr< Database::CDatabase > database( InstantiateDatabase( _type ) );
+			std::unique_ptr< CDatabase > database( InstantiateDatabase( _type ) );
 
 			if ( database )
 			{
-				Database::DatabaseConnectionPtr connection = CreateConnection( *database, _server, _user, _password );
+				DatabaseConnectionPtr connection = CreateConnection( *database, _server, _user, _password );
 				connection->SelectDatabase( _database );
 
 				if ( connection )
@@ -195,14 +319,61 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					DatabaseUtils::TestStoredInOutParamNoReturn< CDatabaseQuery >( connection );
 					CLogger::LogMessage( StringStream() << " In/Out INTEGER and DATETIME parameters, No Return" );
 					DatabaseUtils::TestStoredInOutDtParamNoReturn< CDatabaseQuery >( connection );
-					CLogger::LogMessage( StringStream() << " Update" );
-					DatabaseUtils::TestStoredUpdate< CDatabaseQuery >( connection );
 				}
 
 				database->RemoveConnection();
 			}
 		}
 		CLogger::LogMessage( StringStream() << "**** End TestCase_DatabaseQueryStoredProcedure ****" );
+	}
+
+	void CDatabaseTest::TestCase_DatabaseStatementFieldsInsertRetrieve()
+	{
+		CLogger::LogMessage( StringStream() << "**** Start TestCase_DatabaseStatementFieldsInsertRetrieve ****" );
+		{
+			auto const guard = make_block_guard( [this]()
+			{
+				DoLoadPlugins();
+			}, []()
+			{
+				UnloadPlugins();
+			} );
+			std::unique_ptr< CDatabase > database( InstantiateDatabase( _type ) );
+
+			if ( database )
+			{
+				DatabaseConnectionPtr connection = CreateConnection( *database, _server, _user, _password );
+				connection->SelectDatabase( _database );
+
+				if ( connection )
+				{
+					DoFlushTable( connection );
+					DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, int32_t >( connection, STR( "IntegerField" ) );
+					DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, bool >( connection, STR( "TinyIntField" ) );
+					DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, int16_t >( connection, STR( "SmallIntField" ) );
+					DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, int32_t >( connection, STR( "MediumIntField" ) );
+					DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, int64_t >( connection, STR( "BigIntField" ) );
+					DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, int16_t >( connection, STR( "Int2Field" ) );
+					DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, int64_t >( connection, STR( "Int8Field" ) );
+					DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, float >( connection, STR( "RealField" ) );
+					DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, double >( connection, STR( "DoubleField" ) );
+					DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, double >( connection, STR( "DoublePrecisionField" ) );
+					DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, float >( connection, STR( "FloatField" ) );
+					DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, int32_t >( connection, STR( "NumericField" ) );
+					DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, double >( connection, STR( "DecimalField" ) );
+					DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, bool >( connection, STR( "BooleanField" ) );
+					DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, CDate >( connection, STR( "DateField" ) );
+					DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, CDateTime >( connection, STR( "DateTimeField" ) );
+					DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, char * >( connection, STR( "CharacterField" ) );
+					DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, char * >( connection, STR( "VarcharField" ) );
+					DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, wchar_t * >( connection, STR( "NcharField" ) );
+					DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, wchar_t * >( connection, STR( "NVarcharField" ) );
+					DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, std::string >( connection, STR( "TextField" ) );
+					DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, std::vector< uint8_t > >( connection, STR( "BlobField" ) );
+				}
+			}
+		}
+		CLogger::LogMessage( StringStream() << "**** End TestCase_DatabaseStatementFieldsInsertRetrieve ****" );
 	}
 
 	void CDatabaseTest::TestCase_DatabaseStatementDirectQuery()
@@ -216,15 +387,16 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			{
 				UnloadPlugins();
 			} );
-			std::unique_ptr< Database::CDatabase > database( InstantiateDatabase( _type ) );
+			std::unique_ptr< CDatabase > database( InstantiateDatabase( _type ) );
 
 			if ( database )
 			{
-				Database::DatabaseConnectionPtr connection = CreateConnection( *database, _server, _user, _password );
+				DatabaseConnectionPtr connection = CreateConnection( *database, _server, _user, _password );
 				connection->SelectDatabase( _database );
 
 				if ( connection )
 				{
+					DoFlushTable( connection );
 					CLogger::LogMessage( StringStream() << " Insertions" );
 					DatabaseUtils::TestDirectInsert< CDatabaseStatement >( connection );
 					CLogger::LogMessage( StringStream() << " Selection" );
@@ -233,8 +405,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					DatabaseUtils::TestDirectUpdate< CDatabaseStatement >( connection );
 					CLogger::LogMessage( StringStream() << " Deletion" );
 					DatabaseUtils::TestDirectDelete< CDatabaseStatement >( connection );
-
-					DatabaseUtils::InsertLanguage< CDatabaseStatement >( connection );
 				}
 
 				database->RemoveConnection();
@@ -254,11 +424,11 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			{
 				UnloadPlugins();
 			} );
-			std::unique_ptr< Database::CDatabase > database( InstantiateDatabase( _type ) );
+			std::unique_ptr< CDatabase > database( InstantiateDatabase( _type ) );
 
 			if ( database )
 			{
-				Database::DatabaseConnectionPtr connection = CreateConnection( *database, _server, _user, _password );
+				DatabaseConnectionPtr connection = CreateConnection( *database, _server, _user, _password );
 				connection->SelectDatabase( _database );
 
 				if ( connection )
@@ -275,8 +445,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					DatabaseUtils::TestStoredInOutParamNoReturn< CDatabaseStatement >( connection );
 					CLogger::LogMessage( StringStream() << " In/Out INTEGER and DATETIME parameters, No Return" );
 					DatabaseUtils::TestStoredInOutDtParamNoReturn< CDatabaseStatement >( connection );
-					CLogger::LogMessage( StringStream() << " Update" );
-					DatabaseUtils::TestStoredUpdate< CDatabaseStatement >( connection );
 				}
 
 				database->RemoveConnection();
@@ -296,11 +464,11 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			{
 				UnloadPlugins();
 			} );
-			std::unique_ptr< Database::CDatabase > database( InstantiateDatabase( _type ) );
+			std::unique_ptr< CDatabase > database( InstantiateDatabase( _type ) );
 
 			if ( database )
 			{
-				Database::DatabaseConnectionPtr connection = CreateConnection( *database, _server, _user, _password );
+				DatabaseConnectionPtr connection = CreateConnection( *database, _server, _user, _password );
 
 				try
 				{
@@ -315,6 +483,93 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 		}
 		CLogger::LogMessage( StringStream() << "**** End TestCase_DestroyDatabase ****" );
+	}
+
+#if defined( PERF_TEST )
+	void CDatabaseTest::TestCase_DatabaseStatementPerformances()
+	{
+		CLogger::LogMessage( StringStream() << "**** Start TestCase_DatabaseStatementPerformances ****" );
+		{
+#if defined( NDEBUG )
+			uint32_t tests = 100000;
+#else
+			uint32_t tests = 10;
+#endif
+			auto const guard = make_block_guard( [this]()
+			{
+				DoLoadPlugins();
+			}, []()
+			{
+				UnloadPlugins();
+			} );
+			std::unique_ptr< CDatabase > database( InstantiateDatabase( _type ) );
+
+			if ( database )
+			{
+				DatabaseConnectionPtr connection = CreateConnection( *database, _server, _user, _password );
+				connection->SelectDatabase( _database );
+
+				if ( connection )
+				{
+					DoFlushTable( connection );
+					CLogger::LogMessage( StringStream() << " Insert elements" );
+					PerfDirectInsertActors< CDatabaseStatement >( connection, tests, String() );
+					CLogger::LogMessage( StringStream() << " Select all elements" );
+					PerfDirectSelectActors< CDatabaseStatement >( connection, tests, String() );
+					CLogger::LogMessage( StringStream() << " Delete all elements" );
+					PerfDirectDeleteActors< CDatabaseStatement >( connection, tests );
+				}
+
+				database->RemoveConnection();
+			}
+		}
+		CLogger::LogMessage( StringStream() << "**** End TestCase_DatabaseStatementPerformances ****" );
+	}
+
+	void CDatabaseTest::TestCase_DatabaseQueryPerformances()
+	{
+		CLogger::LogMessage( StringStream() << "**** Start TestCase_DatabaseQueryPerformances ****" );
+		{
+#if defined( NDEBUG )
+			uint32_t tests = 100000;
+#else
+			uint32_t tests = 10;
+#endif
+			auto const guard = make_block_guard( [this]()
+			{
+				DoLoadPlugins();
+			}, []()
+			{
+				UnloadPlugins();
+			} );
+			std::unique_ptr< CDatabase > database( InstantiateDatabase( _type ) );
+
+			if ( database )
+			{
+				DatabaseConnectionPtr connection = CreateConnection( *database, _server, _user, _password );
+				connection->SelectDatabase( _database );
+
+				if ( connection )
+				{
+					DoFlushTable( connection );
+					CLogger::LogMessage( StringStream() << " Insert elements" );
+					PerfDirectInsertActors< CDatabaseQuery >( connection, tests, String() );
+					CLogger::LogMessage( StringStream() << " Select all elements" );
+					PerfDirectSelectActors< CDatabaseQuery >( connection, tests, String() );
+					CLogger::LogMessage( StringStream() << " Delete all elements" );
+					PerfDirectDeleteActors< CDatabaseQuery >( connection, tests );
+				}
+
+				database->RemoveConnection();
+			}
+		}
+		CLogger::LogMessage( StringStream() << "**** End TestCase_DatabaseQueryPerformances ****" );
+	}
+#endif
+
+	void CDatabaseTest::DoFlushTable( DatabaseConnectionPtr connection )
+	{
+		connection->ExecuteUpdate( STR( "DELETE FROM Test" ) );
 	}
 }
 END_NAMESPACE_DATABASE_TEST

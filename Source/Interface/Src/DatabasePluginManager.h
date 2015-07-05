@@ -55,7 +55,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Install a new plugin.
 		@remarks
-		    This function installs a new extension to ARIA.
+		    This function installs a new extension.
 		    The plugin itself may be loaded from a DLL / DSO, or it might be
 		    statically linked into your own  application.
 		    Either way, you need to call this method to get it registered
@@ -68,7 +68,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Uninstall an existing plugin.
 		@remarks
-		    This function uninstalls an extension to ARIA.
+		    This function uninstalls an extension.
 		    Plugins are automatically uninstalled at shutdown but this lets you
 		    remove them early. If the plugin was loaded from a DLL / DSO
 		    you should call UnloadPlugin which should result in this method

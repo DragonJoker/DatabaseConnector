@@ -34,7 +34,7 @@ BEGIN_NAMESPACE_DATABASE
 	const String ERROR_SYMBOL_DLL_STOP_NOT_FOUND     = STR( "Cannot find symbol DllStopPlugin in library " );
 	const String ERROR_SYMBOL_DLL_START_NOT_FOUND    = STR( "Cannot find symbol DllStartPlugin in library " );
 
-	const String LOGGER_NAME_CPLUGINMANAGER          = STR( "Areva.ARIA.Native.Core.CPluginManager" );
+	const String LOGGER_NAME_CPLUGINMANAGER          = STR( "Database.CPluginManager" );
 
 	typedef void ( *DLL_START_PLUGIN )();
 	typedef void ( *DLL_STOP_PLUGIN )();

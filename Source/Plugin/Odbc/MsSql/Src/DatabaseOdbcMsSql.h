@@ -35,7 +35,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		 */
 		virtual ~CDatabaseOdbcMsSql();
 
-		///@copydoc Areva::ARIA::Native::CObject::GetType
+		///@copydoc CObject::GetType
 		virtual const String & GetType()const;
 
 		/** Creator function

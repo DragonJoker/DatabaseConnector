@@ -34,17 +34,17 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MYSQL
 		*/
 		DatabaseOdbcMySqlExport virtual ~CPluginDatabaseOdbcMySql();
 
-		///@copydoc Areva::ARIA::Native::Core::CPlugin::GetName
+		///@copydoc Database::CPlugin::GetName
 		DatabaseOdbcMySqlExport virtual const String GetName() const;
 
-		///@copydoc Areva::ARIA::Native::Core::CPlugin::Initialize
+		///@copydoc Database::CPlugin::Initialize
 		DatabaseOdbcMySqlExport virtual void Initialize();
 
-		///@copydoc Areva::ARIA::Native::Core::CPlugin::Shutdown
+		///@copydoc Database::CPlugin::Shutdown
 		DatabaseOdbcMySqlExport virtual void Shutdown();
 
 	protected:
-		///@copydoc Areva::ARIA::Native::Core::CParameterListInterface::AddBaseParameters
+		///@copydoc Database::CParameterListInterface::AddBaseParameters
 		DatabaseOdbcMySqlExport virtual void AddBaseParameters();
 	};
 

@@ -133,6 +133,12 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		bool IsValid() const;
 
+		/** Get system current date/time.
+		@return
+		    System current date/time.
+		*/
+		static CTime Now();
+
 		/** Check time consistency.
 		@param[in] time
 		    String containing time.
@@ -231,7 +237,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		static bool DoIsTime( const std::wstring & time, const std::wstring & format, int & hours, int & minutes, int & seconds );
 
-		friend bool operator ==( const CTime & lhs, const CTime & rhs );
+		friend DatabaseExport bool operator ==( const CTime & lhs, const CTime & rhs );
 
 	protected:
 
@@ -247,7 +253,7 @@ BEGIN_NAMESPACE_DATABASE
 	@return
 	    true if objects are equal.
 	*/
-	inline bool operator ==( const CTime & lhs, const CTime & rhs );
+	DatabaseExport bool operator ==( const CTime & lhs, const CTime & rhs );
 
 	/** Check inequality of two times.
 	@param lhs
@@ -257,7 +263,27 @@ BEGIN_NAMESPACE_DATABASE
 	@return
 	    true if objects are different.
 	*/
-	inline bool operator !=( const CTime & lhs, const CTime & rhs );
+	DatabaseExport bool operator !=( const CTime & lhs, const CTime & rhs );
+
+	/** Stream operator
+	@param stream
+	    The stream.
+	@param time
+	    The time.
+	@return
+	    The stream.
+	*/
+	DatabaseExport std::ostream & operator <<( std::ostream & stream, const CTime & time );
+
+	/** Stream operator
+	@param stream
+	    The stream.
+	@param time
+	    The time.
+	@return
+	    The stream.
+	*/
+	DatabaseExport std::wostream & operator <<( std::wostream & stream, const CTime & time );
 
 }
 END_NAMESPACE_DATABASE

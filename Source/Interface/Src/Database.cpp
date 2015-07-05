@@ -22,7 +22,7 @@
 
 BEGIN_NAMESPACE_DATABASE
 {
-	const String LOGGER_NAME_CDATABASE = STR( "Areva.ARIA.Native.Database.CDatabase" );
+	const String LOGGER_NAME_CDATABASE = STR( "Database.CDatabase" );
 
 	CDatabase::CDatabase()
 	{

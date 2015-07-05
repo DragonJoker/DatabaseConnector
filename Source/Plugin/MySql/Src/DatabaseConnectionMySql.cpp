@@ -51,6 +51,24 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	static const std::wstring MYSQL_NULL_STDWSTRING = L"NULL";
 	static const String MYSQL_NULL_STRING = STR( "NULL" );
 
+	static const std::string MYSQL_STMT_DATE = "{-d %Y-%m-%d}";
+	static const std::string MYSQL_STMT_DATETIME = "{-ts %Y-%m-%d %H:%M:%S}";
+	static const std::string MYSQL_STMT_TIME = "{-t %H:%M:%S}";
+	static const std::string MYSQL_DATE = "CAST('%Y-%m-%d' AS DATE)";
+	static const std::string MYSQL_TIME = "CAST('%H:%M:%S' AS TIME)";
+	static const std::string MYSQL_DATETIME = "CAST('%Y-%m-%d %H:%M:%S' AS DATETIME)";
+	static const std::string MYSQL_DATETIME_DATE = "CAST('%Y-%m-%d 00:00:00' AS DATETIME)";
+	static const std::string MYSQL_DATETIME_TIME = "CAST('0000-00-00 %H:%M:%S' AS DATETIME)";
+
+	static const std::wstring WMYSQL_STMT_DATE = L"{-d %Y-%m-%d}";
+	static const std::wstring WMYSQL_STMT_DATETIME = L"{-ts %Y-%m-%d %H:%M:%S}";
+	static const std::wstring WMYSQL_STMT_TIME = L"{-t %H:%M:%S}";
+	static const std::wstring WMYSQL_DATE = L"CAST('%Y-%m-%d' AS DATE)";
+	static const std::wstring WMYSQL_TIME = L"CAST('%H:%M:%S' AS TIME)";
+	static const std::wstring WMYSQL_DATETIME = L"CAST('%Y-%m-%d %H:%M:%S' AS DATETIME)";
+	static const std::wstring WMYSQL_DATETIME_DATE = L"CAST('%Y-%m-%d 00:00:00' AS DATETIME)";
+	static const std::wstring WMYSQL_DATETIME_TIME = L"CAST('0000-00-00 %H:%M:%S' AS DATETIME)";
+
 	CDatabaseConnectionMySql::CDatabaseConnectionMySql( sql::Driver * driver, const String & server, const String & userName, const String & password, String & connectionString )
 		:   CDatabaseConnection( server, userName, password )
 		,   _connection( NULL )
@@ -170,14 +188,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 		if ( date.IsValid() )
 		{
-			if ( date.GetYear() < 0 )
-			{
-				Formalize( strReturn, 1024, "CAST('%05i%02i%02i' AS DATE)", date.GetYear(), date.GetMonth(), date.GetMonthDay() );
-			}
-			else
-			{
-				Formalize( strReturn, 1024, "CAST('%04i%02i%02i' AS DATE)", date.GetYear(), date.GetMonth(), date.GetMonthDay() );
-			}
+			strReturn = date.Format( MYSQL_DATE );
 		}
 		else
 		{
@@ -210,7 +221,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 		if ( time.IsValid() )
 		{
-			Formalize( strReturn, 1024, "CAST('%02i:%02i%:02i' AS TIME)", time.GetHour(), time.GetMinute(), time.GetSecond() );
+			strReturn = time.Format( MYSQL_TIME );
 		}
 		else
 		{
@@ -247,7 +258,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		}
 		else
 		{
-			Formalize( strReturn, 1024, "CAST('%04i-%02i-%02i %02i:%02i:%02i' as DATETIME)", dateTime.GetYear(), dateTime.GetMonth(), dateTime.GetMonthDay(), dateTime.GetHour(), dateTime.GetMinute(), dateTime.GetSecond() );
+			strReturn = dateTime.Format( MYSQL_DATETIME );
 		}
 
 		return strReturn;
@@ -263,7 +274,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		}
 		else
 		{
-			Formalize( strReturn, 1024, "CAST('%04i-%02i-%02i 00:00:00' as DATETIME)", date.GetYear(), date.GetMonth(), date.GetMonthDay() );
+			strReturn = date.Format( MYSQL_DATETIME_DATE );
 		}
 
 		return strReturn;
@@ -279,7 +290,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		}
 		else
 		{
-			Formalize( strReturn, 1024, "CAST('0000-00-00 %02i:%02i:%02i' as DATETIME)", time.GetHour(), time.GetMinute(), time.GetSecond() );
+			strReturn = time.Format( MYSQL_DATETIME_TIME );
 		}
 
 		return strReturn;
@@ -304,101 +315,107 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 	std::string CDatabaseConnectionMySql::WriteStmtDate( const CDate & date ) const
 	{
-		std::string strReturn;
+		//std::string strReturn;
 
-		if ( date.IsValid() )
-		{
-			Formalize( strReturn, 1024, "{-d %04i-%02i-%02i}", date.GetYear(), date.GetMonth(), date.GetMonthDay() );
-		}
-		else
-		{
-			strReturn += MYSQL_NULL_STDSTRING;
-		}
+		//if ( date.IsValid() )
+		//{
+		//	strReturn = date.Format( MYSQL_STMT_DATE );
+		//}
+		//else
+		//{
+		//	strReturn += MYSQL_NULL_STDSTRING;
+		//}
 
-		return strReturn;
+		//return strReturn;
+		return WriteDate( date );
 	}
 
 	std::string CDatabaseConnectionMySql::WriteStmtDate( const std::string & date, const std::string & format ) const
 	{
-		std::string strReturn;
-		CDate dateObj;
+		//std::string strReturn;
+		//CDate dateObj;
 
-		if ( CDate::IsDate( date, format, dateObj ) )
-		{
-			strReturn = WriteStmtDate( dateObj );
-		}
-		else
-		{
-			strReturn += MYSQL_NULL_STDSTRING;
-		}
+		//if ( CDate::IsDate( date, format, dateObj ) )
+		//{
+		//	strReturn = WriteStmtDate( dateObj );
+		//}
+		//else
+		//{
+		//	strReturn += MYSQL_NULL_STDSTRING;
+		//}
 
-		return strReturn;
+		//return strReturn;
+		return WriteDate( date, format );
 	}
 
 	std::string CDatabaseConnectionMySql::WriteStmtTime( const CTime & time ) const
 	{
-		std::string strReturn;
+		//std::string strReturn;
 
-		if ( time.IsValid() )
-		{
-			Formalize( strReturn, 1024, "{-t %02i:%02i:%02i}", time.GetHour(), time.GetMinute(), time.GetSecond() );
-		}
-		else
-		{
-			strReturn += MYSQL_NULL_STDSTRING;
-		}
+		//if ( time.IsValid() )
+		//{
+		//	strReturn = time.Format( MYSQL_STMT_TIME );
+		//}
+		//else
+		//{
+		//	strReturn += MYSQL_NULL_STDSTRING;
+		//}
 
-		return strReturn;
+		//return strReturn;
+		return WriteTime( time );
 	}
 
 	std::string CDatabaseConnectionMySql::WriteStmtTime( const std::string & time, const std::string & format ) const
 	{
-		std::string strReturn;
-		CTime timeObj;
+		//std::string strReturn;
+		//CTime timeObj;
 
-		if ( CTime::IsTime( time, format, timeObj ) )
-		{
-			strReturn = WriteStmtTime( timeObj );
-		}
-		else
-		{
-			strReturn += MYSQL_NULL_STDSTRING;
-		}
+		//if ( CTime::IsTime( time, format, timeObj ) )
+		//{
+		//	strReturn = WriteStmtTime( timeObj );
+		//}
+		//else
+		//{
+		//	strReturn += MYSQL_NULL_STDSTRING;
+		//}
 
-		return strReturn;
+		//return strReturn;
+		return WriteTime( time, format );
 	}
 
 	std::string CDatabaseConnectionMySql::WriteStmtDateTime( const CDateTime & dateTime ) const
 	{
-		std::string strReturn;
+		//std::string strReturn;
 
-		if ( dateTime.GetYear() > 0 )
-		{
-			Formalize( strReturn, 1024, "{-ts %04i-%02i-%02i %02i:%02i:%02i}", dateTime.GetYear(), dateTime.GetMonth(), dateTime.GetMonthDay(), dateTime.GetHour(), dateTime.GetMinute(), dateTime.GetSecond() );
-		}
-		else
-		{
-			strReturn += MYSQL_NULL_STDSTRING;
-		}
+		//if ( dateTime.GetYear() > 0 )
+		//{
+		//	strReturn = dateTime.Format( MYSQL_STMT_DATETIME );
+		//}
+		//else
+		//{
+		//	strReturn += MYSQL_NULL_STDSTRING;
+		//}
 
-		return strReturn;
+		//return strReturn;
+		return WriteDateTime( dateTime );
 	}
 
 	std::string CDatabaseConnectionMySql::WriteStmtDateTime( const std::string & dateTime, const std::string & format ) const
 	{
-		std::string strReturn;
-		CDateTime dateTimeObj;
+		//std::string strReturn;
+		//CDateTime dateTimeObj;
 
-		if ( CDateTime::IsDateTime( dateTime, dateTimeObj ) )
-		{
-			strReturn = WriteStmtDateTime( dateTimeObj );
-		}
-		else
-		{
-			strReturn += MYSQL_NULL_STDSTRING;
-		}
+		//if ( CDateTime::IsDateTime( dateTime, dateTimeObj ) )
+		//{
+		//	strReturn = WriteStmtDateTime( dateTimeObj );
+		//}
+		//else
+		//{
+		//	strReturn += MYSQL_NULL_STDSTRING;
+		//}
 
-		return strReturn;
+		//return strReturn;
+		return WriteDateTime( dateTime, format );
 	}
 
 	String CDatabaseConnectionMySql::WriteBool( bool value ) const
@@ -416,11 +433,11 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	{
 		CDate dateObj;
 
-		if ( !CDate::IsDate( date, "CAST('%Y%M%D' AS DATE)", dateObj )
-		&& !CDate::IsDate( date, "{-d %Y-%M-%D}", dateObj )
-		&& !CDate::IsDate( date, "%Y%M%D", dateObj )
-		&& !CDate::IsDate( date, "%Y-%M-%D", dateObj )
-		&& !CDate::IsDate( date, "%D/%M/%Y", dateObj ) )
+		if ( !CDate::IsDate( date, MYSQL_DATE, dateObj )
+		&& !CDate::IsDate( date, MYSQL_STMT_DATE, dateObj )
+		&& !CDate::IsDate( date, "%Y%m%d", dateObj )
+		&& !CDate::IsDate( date, "%Y-%m-%d", dateObj )
+		&& !CDate::IsDate( date, "%d/%m/%Y", dateObj ) )
 		{
 			dateObj = CDate( 0, EDateMonth_UNDEF, 0 );
 		}
@@ -438,7 +455,21 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	CDateTime CDatabaseConnectionMySql::ParseDateTime( const std::string & dateTime ) const
 	{
 		CDateTime dateTimeObj;
-		CDateTime::IsDateTime( dateTime, dateTimeObj );
+
+		if ( !CDateTime::IsDateTime( dateTime, MYSQL_DATETIME, dateTimeObj )
+		&& !CDateTime::IsDateTime( dateTime, MYSQL_STMT_DATETIME, dateTimeObj )
+		&& !CDateTime::IsDateTime( dateTime, "%Y%m%d %H:%M:%S", dateTimeObj )
+		&& !CDateTime::IsDateTime( dateTime, "%Y-%m-%d %H:%M:%S", dateTimeObj )
+		&& !CDateTime::IsDateTime( dateTime, "%d/%m/%Y %H:%M:%S", dateTimeObj )
+		&& !CDateTime::IsDateTime( dateTime, MYSQL_DATE, dateTimeObj )
+		&& !CDateTime::IsDateTime( dateTime, MYSQL_STMT_DATE, dateTimeObj )
+		&& !CDateTime::IsDateTime( dateTime, "%Y%m%d", dateTimeObj )
+		&& !CDateTime::IsDateTime( dateTime, "%Y-%m-%d", dateTimeObj )
+		&& !CDateTime::IsDateTime( dateTime, "%d/%m/%Y", dateTimeObj ) )
+		{
+			dateTimeObj = CDateTime();
+		}
+
 		return dateTimeObj;
 	}
 
@@ -446,11 +477,11 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	{
 		CDate dateObj;
 
-		if ( !CDate::IsDate( date, L"CAST('%Y%M%D' AS DATE)", dateObj )
-		&& !CDate::IsDate( date, L"{-d %Y-%M-%D}", dateObj )
-		&& !CDate::IsDate( date, L"%Y%M%D", dateObj )
-		&& !CDate::IsDate( date, L"%Y-%M-%D", dateObj )
-		&& !CDate::IsDate( date, L"%D/%M/%Y", dateObj ) )
+		if ( !CDate::IsDate( date, WMYSQL_DATE, dateObj )
+		&& !CDate::IsDate( date, WMYSQL_STMT_DATE, dateObj )
+		&& !CDate::IsDate( date, L"%Y%m%d", dateObj )
+		&& !CDate::IsDate( date, L"%Y-%m-%d", dateObj )
+		&& !CDate::IsDate( date, L"%d/%m/%Y", dateObj ) )
 		{
 			dateObj = CDate( 0, EDateMonth_UNDEF, 0 );
 		}
@@ -468,7 +499,21 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	CDateTime CDatabaseConnectionMySql::ParseDateTime( const std::wstring & dateTime ) const
 	{
 		CDateTime dateTimeObj;
-		CDateTime::IsDateTime( dateTime, dateTimeObj );
+
+		if ( !CDateTime::IsDateTime( dateTime, WMYSQL_DATETIME, dateTimeObj )
+		&& !CDateTime::IsDateTime( dateTime, WMYSQL_STMT_DATETIME, dateTimeObj )
+		&& !CDateTime::IsDateTime( dateTime, L"%Y%m%d %H:%M:%S", dateTimeObj )
+		&& !CDateTime::IsDateTime( dateTime, L"%Y-%m-%d %H:%M:%S", dateTimeObj )
+		&& !CDateTime::IsDateTime( dateTime, L"%d/%m/%Y %H:%M:%S", dateTimeObj )
+		&& !CDateTime::IsDateTime( dateTime, WMYSQL_DATE, dateTimeObj )
+		&& !CDateTime::IsDateTime( dateTime, WMYSQL_STMT_DATE, dateTimeObj )
+		&& !CDateTime::IsDateTime( dateTime, L"%Y%m%d", dateTimeObj )
+		&& !CDateTime::IsDateTime( dateTime, L"%Y-%m-%d", dateTimeObj )
+		&& !CDateTime::IsDateTime( dateTime, L"%d/%m/%Y", dateTimeObj ) )
+		{
+			dateTimeObj = CDateTime();
+		}
+
 		return dateTimeObj;
 	}
 
@@ -725,7 +770,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		return pReturn;
 	}
 
-	EFieldType GetFieldTypeFromSqlType( int sqlType )
+	EFieldType GetFieldTypeFromSqlType( int sqlType, int scale )
 	{
 		static EFieldType types[] =
 		{
@@ -739,7 +784,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			EFieldType_FLOAT,           //!< REAL
 			EFieldType_DOUBLE,          //!< DOUBLE
 			EFieldType_DOUBLE,          //!< DECIMAL
-			EFieldType_DOUBLE,          //!< NUMERIC
+			EFieldType_INTEGER,         //!< NUMERIC
 			EFieldType_VARCHAR,         //!< CHAR
 			EFieldType_BINARY,          //!< BINARY
 			EFieldType_VARCHAR,         //!< VARCHAR
@@ -756,6 +801,11 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			EFieldType_NULL,            //!< SQLNULL
 		};
 
+		if ( sqlType == 9 && scale == 0 )
+		{
+			sqlType = 10;
+		}
+
 		return types[sqlType];
 	}
 
@@ -771,7 +821,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		{
 			strColumnName = CStrUtils::ToString( data->getColumnName( i ).asStdString() );
 			aColumns.push_back( strColumnName );
-			arrayReturn.push_back( std::make_shared< CDatabaseFieldInfos >( pConnexion, aColumns[i - 1], GetFieldTypeFromSqlType( data->getColumnType( i ) ), data->getColumnDisplaySize( i ) ) );
+			arrayReturn.push_back( std::make_shared< CDatabaseFieldInfos >( pConnexion, aColumns[i - 1], GetFieldTypeFromSqlType( data->getColumnType( i ), data->getScale( i ) ), data->getColumnDisplaySize( i ) ) );
 		}
 
 		return arrayReturn;
@@ -872,12 +922,27 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 							case EFieldType_LONG_VARBINARY:
 							{
 								std::istream * blob = rs->getBlob( i );
-								std::vector< uint8_t > in;
-								std::copy(
-									std::istream_iterator< uint8_t >( *blob ),
-									std::istream_iterator< uint8_t >(),
-									std::back_inserter( in ) );
-								field->SetValueFast( in );
+
+								if ( blob->width() )
+								{
+									std::vector< uint8_t > in;
+									std::copy(
+										std::istream_iterator< uint8_t >( *blob ),
+										std::istream_iterator< uint8_t >(),
+										std::back_inserter( in ) );
+									field->SetValueFast( in );
+								}
+								else
+								{
+									std::string str( rs->getString( i ).asStdString() );
+									std::vector< uint8_t > in;
+									std::copy(
+										str.begin(),
+										str.end(),
+										std::back_inserter( in ) );
+									field->SetValueFast( in );
+								}
+
 								delete blob;
 							}
 							break;

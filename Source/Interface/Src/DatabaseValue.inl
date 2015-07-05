@@ -459,9 +459,9 @@ BEGIN_NAMESPACE_DATABASE
 		DatabaseExport virtual void GetInsertValue( String & result )
 		{
 			DoUpdateTValue();
-			CDate value;
-			CDate::IsDate( _tValue, value );
-			result += CStrUtils::ToString( _connection->WriteDate( value ) );
+			CDate date;
+			CDate::IsDate( _tValue, DATE_FORMAT_EXP, date );
+			result += CStrUtils::ToString( _connection->WriteDate( date ) );
 		}
 
 		/** Get a pointer to the value.
@@ -574,9 +574,9 @@ BEGIN_NAMESPACE_DATABASE
 		DatabaseExport virtual void GetInsertValue( String & result )
 		{
 			DoUpdateTValue();
-			CDateTime value;
-			CDateTime::IsDateTime( _tValue, value );
-			result += CStrUtils::ToString( _connection->WriteDateTime( value ) );
+			CDateTime dateTime;
+			CDateTime::IsDateTime( _tValue, DATETIME_FORMAT_EXP, dateTime );
+			result += CStrUtils::ToString( _connection->WriteDateTime( dateTime ) );
 		}
 
 		/** Get a pointer to the value.
@@ -689,9 +689,9 @@ BEGIN_NAMESPACE_DATABASE
 		DatabaseExport virtual void GetInsertValue( String & result )
 		{
 			DoUpdateTValue();
-			CTime value;
-			CTime::IsTime( _tValue, value );
-			result += CStrUtils::ToString( _connection->WriteTime( value ) );
+			CTime time;
+			CTime::IsTime( _tValue, TIME_FORMAT_EXP, time );
+			result += CStrUtils::ToString( _connection->WriteTime( time ) );
 		}
 
 		/** Get a pointer to the value.

@@ -69,7 +69,7 @@ BEGIN_NAMESPACE_DATABASE
 		if ( !_query.empty() )
 		{
 			_paramsCount = uint32_t( std::count( _query.begin(), _query.end(), STR( '?' ) ) );
-			_arrayQueries = CStrUtils::Split( _query, STR( "?" ) );
+			_arrayQueries = CStrUtils::Split( _query, STR( "?" ), _paramsCount + 1 );
 			eReturn = EErrorType_NONE;
 		}
 

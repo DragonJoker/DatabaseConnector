@@ -81,10 +81,10 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		 */
 		DatabaseMySqlExport virtual ~CDatabaseStatementParameterMySql();
 
-		//!@copydoc Areva::ARIA::Native::Database::CDatabaseParameter::SetNull
+		//!@copydoc Database::CDatabaseParameter::SetNull
 		virtual void SetNull();
 
-		//!@copydoc Areva::ARIA::Native::Database::CDatabaseParameter::SetValue
+		//!@copydoc Database::CDatabaseParameter::SetValue
 		void SetValue( DatabaseParameterPtr value );
 
 		/** Defines the prepared statement
@@ -97,55 +97,55 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		}
 
 	private:
-		//!@copydoc Areva::ARIA::Native::Database::CDatabaseParameter::DoSetValue
+		//!@copydoc Database::CDatabaseParameter::DoSetValue
 		virtual void DoSetValue( bool value );
 
-		//!@copydoc Areva::ARIA::Native::Database::CDatabaseParameter::DoSetValue
+		//!@copydoc Database::CDatabaseParameter::DoSetValue
 		virtual void DoSetValue( int16_t value );
 
-		//!@copydoc Areva::ARIA::Native::Database::CDatabaseParameter::DoSetValue
+		//!@copydoc Database::CDatabaseParameter::DoSetValue
 		virtual void DoSetValue( uint16_t value );
 
-		//!@copydoc Areva::ARIA::Native::Database::CDatabaseParameter::DoSetValue
+		//!@copydoc Database::CDatabaseParameter::DoSetValue
 		virtual void DoSetValue( int32_t value );
 
-		//!@copydoc Areva::ARIA::Native::Database::CDatabaseParameter::DoSetValue
+		//!@copydoc Database::CDatabaseParameter::DoSetValue
 		virtual void DoSetValue( uint32_t value );
 
-		//!@copydoc Areva::ARIA::Native::Database::CDatabaseParameter::DoSetValue
+		//!@copydoc Database::CDatabaseParameter::DoSetValue
 		virtual void DoSetValue( int64_t value );
 
-		//!@copydoc Areva::ARIA::Native::Database::CDatabaseParameter::DoSetValue
+		//!@copydoc Database::CDatabaseParameter::DoSetValue
 		virtual void DoSetValue( uint64_t value );
 
-		//!@copydoc Areva::ARIA::Native::Database::CDatabaseParameter::DoSetValue
+		//!@copydoc Database::CDatabaseParameter::DoSetValue
 		virtual void DoSetValue( float value );
 
-		//!@copydoc Areva::ARIA::Native::Database::CDatabaseParameter::DoSetValue
+		//!@copydoc Database::CDatabaseParameter::DoSetValue
 		virtual void DoSetValue( double value );
 
-		//!@copydoc Areva::ARIA::Native::Database::CDatabaseParameter::DoSetValue
+		//!@copydoc Database::CDatabaseParameter::DoSetValue
 		virtual void DoSetValue( long double value );
 
-		//!@copydoc Areva::ARIA::Native::Database::CDatabaseParameter::DoSetValue
+		//!@copydoc Database::CDatabaseParameter::DoSetValue
 		virtual void DoSetValue( const char * value );
 
-		//!@copydoc Areva::ARIA::Native::Database::CDatabaseParameter::DoSetValue
+		//!@copydoc Database::CDatabaseParameter::DoSetValue
 		virtual void DoSetValue( const wchar_t * value );
 
-		//!@copydoc Areva::ARIA::Native::Database::CDatabaseParameter::DoSetValue
+		//!@copydoc Database::CDatabaseParameter::DoSetValue
 		virtual void DoSetValue( std::vector< uint8_t > & value );
 
-		//!@copydoc Areva::ARIA::Native::Database::CDatabaseParameter::DoSetValue
+		//!@copydoc Database::CDatabaseParameter::DoSetValue
 		virtual void DoSetValue( const CDateTime & value );
 
-		//!@copydoc Areva::ARIA::Native::Database::CDatabaseParameter::DoSetValue
+		//!@copydoc Database::CDatabaseParameter::DoSetValue
 		virtual void DoSetValue( const CDate & value );
 
-		//!@copydoc Areva::ARIA::Native::Database::CDatabaseParameter::DoSetValue
+		//!@copydoc Database::CDatabaseParameter::DoSetValue
 		virtual void DoSetValue( const CTime & value );
 
-		//!@copydoc Areva::ARIA::Native::Database::CDatabaseParameter::DoSetValue
+		//!@copydoc Database::CDatabaseParameter::DoSetValue
 		virtual void DoSetValue( std::istream * value );
 
 		/** Initializes the parameter value setter

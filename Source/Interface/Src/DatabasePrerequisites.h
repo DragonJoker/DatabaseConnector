@@ -77,6 +77,26 @@ namespace Database
 	typedef std::basic_stringstream< TChar > StringStream;
 	typedef boost::basic_format< TChar > Format;
 
+	const String DATETIME_FORMAT_EXP = STR( "%Y/%m/%d %H:%M:%S" );
+	const std::string SDATETIME_FORMAT_EXP = "%Y/%m/%d %H:%M:%S";
+	const std::wstring WDATETIME_FORMAT_EXP = L"%Y/%m/%d %H:%M:%S";
+
+	const String DATETIME_TIME_FORMAT_EXP = STR( "0000/00/00 %H:%M:%S" );
+	const std::string SDATETIME_TIME_FORMAT_EXP = "0000/00/00 %H:%M:%S";
+	const std::wstring WDATETIME_TIME_FORMAT_EXP = L"0000/00/00 %H:%M:%S";
+
+	const String DATETIME_DATE_FORMAT_EXP = STR( "%Y/%m/%d 00:00:00" );
+	const std::string SDATETIME_DATE_FORMAT_EXP = "%Y/%m/%d 00:00:00";
+	const std::wstring WDATETIME_DATE_FORMAT_EXP = L"%Y/%m/%d 00:00:00";
+
+	const String TIME_FORMAT_EXP = STR( "%H:%M:%S" );
+	const std::string STIME_FORMAT_EXP = "%H:%M:%S";
+	const std::wstring WTIME_FORMAT_EXP = L"%H:%M:%S";
+
+	const String DATE_FORMAT_EXP = STR( "%Y/%m/%d" );
+	const std::string SDATE_FORMAT_EXP = "%Y/%m/%d";
+	const std::wstring WDATE_FORMAT_EXP = L"%Y/%m/%d";
+
 	// Pre-declare classes
 	// Allows use of pointers in header files without including individual .h
 	// so decreases dependencies between files

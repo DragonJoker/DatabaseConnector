@@ -81,6 +81,7 @@ END_NAMESPACE_DATABASE
     catch( sql::SQLException & e )\
     {\
         CLogger::LogError( StringStream() << STR( "Failure : " ) << msg << STR( "\n" ) << e.what() << STR( "\nMySQL State : " ) << e.getSQLState().c_str() << STR( "\nError code : " ) << e.getErrorCode() );\
+		throw;\
     }
 #else
 #   define MySQLTry( x, msg ) x;

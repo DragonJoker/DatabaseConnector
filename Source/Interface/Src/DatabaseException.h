@@ -134,7 +134,7 @@ BEGIN_NAMESPACE_DATABASE
 		String _file;
 		//! The source line
 		long _line;
-		//!< Full ARIA string error description.
+		//!< Full String error description.
 		mutable String _fullDesc;
 		//!< Full std::string error description.
 		mutable std::string _what;

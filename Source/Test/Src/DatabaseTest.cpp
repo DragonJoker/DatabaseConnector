@@ -87,6 +87,7 @@ int main( int argc, char * argv[] )
 	NAMESPACE_DATABASE::CStrUtils::Replace( g_path, STR( '\\' ), NAMESPACE_DATABASE::PATH_SEP );
 	NAMESPACE_DATABASE::CStrUtils::Replace( g_path, STR( '/' ), NAMESPACE_DATABASE::PATH_SEP );
 	g_path = g_path.substr( 0, g_path.rfind( NAMESPACE_DATABASE::PATH_SEP ) + 1 );
+	srand( uint32_t( time( NULL ) ) );
 
 	Startup();
 
@@ -125,8 +126,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		TS_List.clear();
 
 		///@remarks Create the TS' sequences
-		//TS_List.push_back( DatabaseMySqlTest->Init_Test_Suite() );
-		TS_List.push_back( DatabaseSqliteTest->Init_Test_Suite() );
+		TS_List.push_back( DatabaseMySqlTest->Init_Test_Suite() );
+		//TS_List.push_back( DatabaseSqliteTest->Init_Test_Suite() );
 		//TS_List.push_back( DatabaseOdbcMySqlTest->Init_Test_Suite() );
 		//TS_List.push_back( DatabaseOdbcMsSqlTest->Init_Test_Suite() );
 

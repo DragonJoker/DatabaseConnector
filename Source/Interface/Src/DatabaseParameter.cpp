@@ -765,9 +765,11 @@ BEGIN_NAMESPACE_DATABASE
 		switch ( GetType() )
 		{
 		case EFieldType_DATETIME:
+			SDatabaseParameterValueSetter< CDate >()( _value, value.Format( SDATETIME_DATE_FORMAT_EXP ) );
+			break;
+
 		case EFieldType_DATE:
-			strValue = _connection->WriteStmtDate( value );
-			SDatabaseParameterValueSetter< CDate >()( _value, strValue );
+			SDatabaseParameterValueSetter< CDate >()( _value, value.Format( SDATE_FORMAT_EXP ) );
 			break;
 
 		default:
@@ -786,18 +788,17 @@ BEGIN_NAMESPACE_DATABASE
 		switch ( _fieldType )
 		{
 		case EFieldType_DATE:
-			strValue = _connection->WriteStmtDate( value );
-			SDatabaseParameterValueSetter< CDate >()( _value, strValue );
+			SDatabaseParameterValueSetter< CDate >()( _value, value.Format( SDATE_FORMAT_EXP ) );
 			break;
 
 		case EFieldType_DATETIME:
 			strValue = _connection->WriteStmtDateTime( value );
-			SDatabaseParameterValueSetter< CDateTime >()( _value, strValue );
+			SDatabaseParameterValueSetter< CDateTime >()( _value, value.Format( SDATETIME_FORMAT_EXP ) );
 			break;
 
 		case EFieldType_TIME:
 			strValue = _connection->WriteStmtTime( value );
-			SDatabaseParameterValueSetter< CTime >()( _value, strValue );
+			SDatabaseParameterValueSetter< CTime >()( _value, value.Format( STIME_FORMAT_EXP ) );
 			break;
 
 		default:
@@ -816,9 +817,11 @@ BEGIN_NAMESPACE_DATABASE
 		switch ( GetType() )
 		{
 		case EFieldType_DATETIME:
+			SDatabaseParameterValueSetter< CDateTime >()( _value, value.Format( SDATETIME_TIME_FORMAT_EXP ) );
+			break;
+
 		case EFieldType_TIME:
-			strValue = _connection->WriteStmtTime( value );
-			SDatabaseParameterValueSetter< CTime >()( _value, strValue );
+			SDatabaseParameterValueSetter< CTime >()( _value, value.Format( STIME_FORMAT_EXP ) );
 			break;
 
 		default:

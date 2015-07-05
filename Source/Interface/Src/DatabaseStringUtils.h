@@ -555,6 +555,26 @@ BEGIN_NAMESPACE_DATABASE
 	\brief		Une chaîne vide
 	*/
 	static const String cuEmptyString;
+
+	/** Stream operator
+	@param stream
+	    The stream.
+	@param vector
+	    The vector.
+	@return
+	    The stream.
+	*/
+	DatabaseExport std::ostream & operator <<( std::ostream & stream, const std::vector< uint8_t > & vector );
+
+	/** Stream operator
+	@param stream
+	    The stream.
+	@param vector
+	    The vector.
+	@return
+	    The stream.
+	*/
+	DatabaseExport std::wostream & operator <<( std::wostream & stream, const std::vector< uint8_t > & vector );
 }
 END_NAMESPACE_DATABASE
 /**

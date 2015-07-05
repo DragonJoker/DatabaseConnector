@@ -83,52 +83,66 @@ BEGIN_NAMESPACE_DATABASE
 			return l_return;
 		}
 
+		template< typename CharType >
+		int ttoi( CharType const *& in, size_t count )
+		{
+			int result = ttoi( std::basic_string< CharType >( in, in + count ) );
+			in += count;
+			return result;
+		}
+
 		template< typename Char >
 		bool IsTime( const std::basic_string< Char > & time, const std::basic_string< Char > & format, int & hours, int & minutes, int & seconds )
 		{
 			typedef std::basic_string< Char > String;
-			bool bReturn = false;
+			bool bReturn = time.size() >= format.size() && !format.empty();
 
-			hours   = 0;
+			hours = 0;
 			minutes = 0;
 			seconds = 0;
 
-			if ( format == Str< Char >( "%H%M%S" ) )
+			if ( bReturn )
 			{
-				if ( time.size() >= 6 && IsInteger( time ) )
-				{
-					hours   = ttoi( time.substr( 0, 2 ) );
-					minutes = ttoi( time.substr( 2, 2 ) );
-					seconds = ttoi( time.substr( 4, 2 ) );
-				}
-			}
-			else if ( format == Str< Char >( "CONVERT( TIME, '%H%M%S' )" ) )
-			{
-				size_t uiIndex = time.find( Str< Char >( "'" ) );
+				Char const * fc = format.data();
+				Char const * dc = time.data();
 
-				if ( time.size() >= 25 && uiIndex != String::npos && IsInteger( time.substr( uiIndex + 1, 8 ) ) )
+				while ( bReturn && *fc )
 				{
-					hours   = ttoi( time.substr( uiIndex + 1, 2 ) );
-					minutes = ttoi( time.substr( uiIndex + 3, 2 ) );
-					seconds = ttoi( time.substr( uiIndex + 5, 2 ) );
-				}
-			}
-			else if ( format == Str< Char >( "{-t %H:%M:%S}" ) )
-			{
-				if ( time.size() >= 13 )
-				{
-					hours   = ttoi( time.substr( 4, 2 ) );
-					minutes = ttoi( time.substr( 7, 2 ) );
-					seconds = ttoi( time.substr( 10, 2 ) );
-				}
-			}
-			else if ( format == Str< Char >( "%H:%M:%S" ) )
-			{
-				if ( time.size() >= 8 )
-				{
-					hours   = ttoi( time.substr( 0, 2 ) );
-					minutes = ttoi( time.substr( 3, 2 ) );
-					seconds = ttoi( time.substr( 6, 2 ) );
+					if ( *fc == '%' )
+					{
+						bReturn = ++fc != NULL;
+
+						if ( bReturn )
+						{
+							switch ( *fc++ )
+							{
+							case 'H':
+								hours = ttoi( dc, 2 );
+								break;
+
+							case 'M':
+								minutes = ttoi( dc, 2 );
+								break;
+
+							case 'S':
+								seconds = ttoi( dc, 2 );
+								break;
+
+							default:
+								bReturn = false;
+								break;
+							}
+						}
+					}
+					else if ( *fc == *dc )
+					{
+						++fc;
+						++dc;
+					}
+					else
+					{
+						bReturn = false;
+					}
 				}
 			}
 
@@ -287,6 +301,19 @@ BEGIN_NAMESPACE_DATABASE
 		return bReturn;
 	}
 
+	CTime CTime::Now()
+	{
+		time_t last_time = time( NULL );
+		std::tm tm;
+#if defined( _WIN32 )
+		localtime_s( &tm, &last_time );
+#else
+		tm = *std::localtime( &last_time );
+#endif
+
+		return CTime( tm.tm_hour, tm.tm_min, tm.tm_sec );
+	}
+
 	bool CTime::IsTime( const std::string & time, const std::string & format )
 	{
 		int hours = 0;
@@ -343,6 +370,18 @@ BEGIN_NAMESPACE_DATABASE
 	bool operator !=( const CTime & lhs, const CTime & rhs )
 	{
 		return !( lhs == rhs );
+	}
+
+	std::ostream & operator <<( std::ostream & stream, const CTime & time )
+	{
+		stream << time.Format( "%H:%M:%S" );
+		return stream;
+	}
+
+	std::wostream & operator <<( std::wostream & stream, const CTime & time )
+	{
+		stream << time.Format( L"%H:%M:%S" );
+		return stream;
 	}
 
 }

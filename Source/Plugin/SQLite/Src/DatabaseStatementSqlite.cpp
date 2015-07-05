@@ -70,9 +70,8 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 		StringStream query;
 		unsigned short i = 0;
-		StringArray::iterator itQueries = _arrayQueries.begin();
-		DatabaseParameterPtrArray::iterator itParams = _arrayParams.begin();
-		DatabaseParameterPtr parameter;
+		auto && itQueries = _arrayQueries.begin();
+		auto && itParams = _arrayParams.begin();
 
 		_outInitializers.clear();
 		_arrayOutParams.clear();
@@ -83,7 +82,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		while ( itQueries != _arrayQueries.end() && itParams != _arrayParams.end() )
 		{
 			query << ( *itQueries );
-			parameter = ( *itParams );
+			DatabaseParameterPtr parameter = ( *itParams );
 
 			if ( parameter->GetParamType() == EParameterType_IN )
 			{
@@ -126,9 +125,8 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			StringStream queryInOutParam;
 			queryInOutParam << SQL_SELECT;
 
-			for ( DatabaseParameterPtrArray::const_iterator it = _arrayOutParams.begin(); it != _arrayOutParams.end(); ++it )
+			for ( auto && parameter : _arrayOutParams )
 			{
-				parameter = ( *it );
 				queryInOutParam << sep << SQL_PARAM << parameter->GetName() << SQL_AS << parameter->GetName();
 				sep = SQL_COMMA;
 			}
@@ -141,11 +139,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		std::string query2 = CStrUtils::ToStr( _query );
 		SQLiteTry( SQLite::PrepareV2( connection, query2.c_str(), query2.size(), &_statement, NULL ), STR( "Statement preparation" ) );
 
-		if ( _statement )
-		{
-			eReturn = EErrorType_NONE;
-		}
-		else
+		if ( !_statement )
 		{
 			CLogger::LogError( ERROR_SQLITE_CANT_PREPARE_STATEMENT );
 			throw CExceptionDatabase( EDatabaseExceptionCodes_StatementError, ERROR_SQLITE_CANT_PREPARE_STATEMENT, __FUNCTION__, __FILE__, __LINE__ );

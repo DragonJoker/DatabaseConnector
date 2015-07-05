@@ -44,6 +44,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 	static const String ERROR_SQLITE_CONNECTION = STR( "Couldn't create the connection" );
 	static const String ERROR_SQLITE_SELECTION = STR( "Couldn't select the database: " );
 	static const String ERROR_SQLITE_DESTRUCTION = STR( "Couldn't destroy the database: " );
+	static const String ERROR_SQLITE_PREPARATION_ERROR = STR( "Couldn't prepare the query" );
 	static const String ERROR_SQLITE_EXECUTION_ERROR = STR( "Couldn't execute the query" );
 	static const String ERROR_SQLITE_UNKNOWN_ERROR = STR( "Unknown error" );
 	static const String ERROR_SQLITE_NOT_CONNECTED = STR( "Not connected" );
@@ -53,6 +54,13 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 	static const std::string SQLITE_NULL_STDSTRING = "NULL";
 	static const std::wstring SQLITE_NULL_STDWSTRING = L"NULL";
 	static const String SQLITE_NULL_STRING = STR( "NULL" );
+
+	static const std::string SQLITE_DATE = "STRFTIME('%%Y-%%m-%%d','%04i-%02i-%02i')";
+	static const std::string SQLITE_TIME = "STRFTIME('%%H:%%M:%%S','%02i:%02i:%02i')";
+	static const std::string SQLITE_DATETIME = "STRFTIME('%%Y-%%m-%%d %%H:%%M:%%S','%04i-%02i-%02i %02i:%02i:%02i')";
+	static const std::string SQLITE_DATETIME_DATE = "STRFTIME('%%Y-%%m-%%d 00:00:00','%04i-%02i-%02i')";
+	static const std::string SQLITE_DATETIME_TIME = "STRFTIME('0000-00-00 %%H:%%M:%%S','%02i:%02i:%02i')";
+
 
 	CDatabaseConnectionSqlite::CDatabaseConnectionSqlite( const String & server, const String & userName, const String & password, String & connectionString )
 		:   CDatabaseConnection( server, userName, password )
@@ -263,7 +271,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 			Replace( strReturn, STR( "'" ), STR( "''" ) );
 			Replace( strReturn, STR( "\\" ), STR( "\\\\" ) );
-			strReturn = STR( "N'" ) + strReturn + STR( "'" );
+			strReturn = STR( "'" ) + strReturn + STR( "'" );
 		}
 
 		return CStrUtils::ToWStr( strReturn );
@@ -280,7 +288,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 		if ( date.IsValid() )
 		{
-			Formalize( strReturn, 1024, "STRFTIME('%%Y-%%m-%%d','%04i-%02i-%02i')", date.GetYear(), date.GetMonth(), date.GetMonthDay() );
+			Formalize( strReturn, 1024, SQLITE_DATE.c_str(), date.GetYear(), date.GetMonth() + 1, date.GetMonthDay() );
 		}
 		else
 		{
@@ -313,7 +321,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 		if ( time.IsValid() )
 		{
-			Formalize( strReturn, 1024, "STRFTIME('%%H:%%M:%%S','%02i:%02i:%02i')", time.GetHour(), time.GetMinute(), time.GetSecond() );
+			Formalize( strReturn, 1024, SQLITE_TIME.c_str(), time.GetHour(), time.GetMinute(), time.GetSecond() );
 		}
 		else
 		{
@@ -350,7 +358,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		}
 		else
 		{
-			Formalize( strReturn, 1024, "STRFTIME('%%Y-%%m-%%d %%H:%%M:%%S','%04i-%02i-%02i %02i:%02i:%02i')", dateTime.GetYear(), dateTime.GetMonth(), dateTime.GetMonthDay(), dateTime.GetHour(), dateTime.GetMinute(), dateTime.GetSecond() );
+			Formalize( strReturn, 1024, SQLITE_DATETIME.c_str(), dateTime.GetYear(), dateTime.GetMonth() + 1, dateTime.GetMonthDay(), dateTime.GetHour(), dateTime.GetMinute(), dateTime.GetSecond() );
 		}
 
 		return strReturn;
@@ -366,7 +374,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		}
 		else
 		{
-			Formalize( strReturn, 1024, "STRFTIME('%%Y-%%m-%%d 00:00:00','%04i-%02i-%02i %02i:%02i:%02i')", date.GetYear(), date.GetMonth(), date.GetMonthDay() );
+			Formalize( strReturn, 1024, SQLITE_DATETIME_DATE.c_str(), date.GetYear(), date.GetMonth() + 1, date.GetMonthDay() );
 		}
 
 		return strReturn;
@@ -382,7 +390,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		}
 		else
 		{
-			Formalize( strReturn, 1024, "STRFTIME('0000-00-00 %%H:%%M:%%S','%02i:%02i:%02i')", time.GetHour(), time.GetMinute(), time.GetSecond() );
+			Formalize( strReturn, 1024, SQLITE_DATETIME_TIME.c_str(), time.GetHour(), time.GetMinute(), time.GetSecond() );
 		}
 
 		return strReturn;
@@ -491,7 +499,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			if ( date != "1800-01-01" )
 			{
 				std::string stdDate = CStrUtils::ToStr( date );
-				dtReturn = CDate( stoi( stdDate.substr( 0, 4 ) ), EDateMonth( stoi( stdDate.substr( 5, 2 ) ) ), stoi( stdDate.substr( 8, 2 ) ) );
+				dtReturn = CDate( stoi( stdDate.substr( 0, 4 ) ), EDateMonth( stoi( stdDate.substr( 5, 2 ) ) - 1 ), stoi( stdDate.substr( 8, 2 ) ) );
 			}
 		}
 
@@ -521,7 +529,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			if ( date != L"1800-01-01" )
 			{
 				std::wstring stdDate = CStrUtils::ToWStr( date );
-				dtReturn = CDate( stoi( stdDate.substr( 0, 4 ) ), EDateMonth( stoi( stdDate.substr( 5, 2 ) ) ), stoi( stdDate.substr( 8, 2 ) ) );
+				dtReturn = CDate( stoi( stdDate.substr( 0, 4 ) ), EDateMonth( stoi( stdDate.substr( 5, 2 ) ) - 1 ), stoi( stdDate.substr( 8, 2 ) ) );
 			}
 		}
 
@@ -617,13 +625,19 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 			if ( !statement )
 			{
-				CLogger::LogMessage( STR( "Erreur de requête : \n" ) + query + STR( "\n" ) + CStrUtils::ToString( SQLite::Errmsg( _connection ) ) );
+				StringStream stream;
+				stream << ERROR_SQLITE_PREPARATION_ERROR << STR( " - " ) << CStrUtils::ToString( SQLite::Errmsg( _connection ) );
+				DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, stream.str() );
 			}
 			else
 			{
 				ret = ExecuteUpdate( statement );
 				SQLite::Finalize( statement );
 			}
+		}
+		catch ( CExceptionDatabase & exc )
+		{
+			CLogger::LogError( exc.what() );
 		}
 		catch ( std::exception & exc )
 		{
@@ -643,7 +657,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_SQLITE_NOT_CONNECTED, __FUNCTION__, __FILE__, __LINE__ );
 		}
 
-		CLogger::LogMessage( STR( "Executing update : " ) + query );
+		CLogger::LogMessage( STR( "Executing select : " ) + query );
 		DatabaseResultPtr ret;
 
 		try
@@ -664,13 +678,19 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 			if ( !statement )
 			{
-				CLogger::LogMessage( STR( "Erreur de requête : \n" ) + query + STR( "\n" ) + CStrUtils::ToString( SQLite::Errmsg( _connection ) ) );
+				StringStream stream;
+				stream << ERROR_SQLITE_PREPARATION_ERROR << STR( " - " ) << CStrUtils::ToString( SQLite::Errmsg( _connection ) );
+				DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, stream.str() );
 			}
 			else
 			{
 				ret = ExecuteSelect( statement );
 				SQLite::Finalize( statement );
 			}
+		}
+		catch ( CExceptionDatabase & exc )
+		{
+			CLogger::LogError( exc.what() );
 		}
 		catch ( std::exception & exc )
 		{

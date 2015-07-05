@@ -34,17 +34,17 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		*/
 		DatabaseSqliteExport virtual ~CPluginDatabaseSqlite();
 
-		///@copydoc Areva::ARIA::Native::Core::CPlugin::GetName
+		///@copydoc Database::CPlugin::GetName
 		DatabaseSqliteExport virtual const String GetName() const;
 
-		///@copydoc Areva::ARIA::Native::Core::CPlugin::Initialize
+		///@copydoc Database::CPlugin::Initialize
 		DatabaseSqliteExport virtual void Initialize();
 
-		///@copydoc Areva::ARIA::Native::Core::CPlugin::Shutdown
+		///@copydoc Database::CPlugin::Shutdown
 		DatabaseSqliteExport virtual void Shutdown();
 
 	protected:
-		///@copydoc Areva::ARIA::Native::Core::CParameterListInterface::AddBaseParameters
+		///@copydoc Database::CParameterListInterface::AddBaseParameters
 		DatabaseSqliteExport virtual void AddBaseParameters();
 	};
 

@@ -72,10 +72,15 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport virtual DatabaseConnectionPtr DoCreateConnection( String & connectionString ) const = 0;
 
+	private:
+		/** Get connection.
+		@return
+		    Database connection.
+		*/
+		DatabaseConnectionPtr DoGetConnection() const;
+
 	protected:
-
 		typedef std::map< unsigned long, DatabaseConnectionPtr > DatabaseConnectionPtrDwordMap;
-
 		///< Mutex.
 		mutable std::recursive_mutex _mutex;
 		///< Map of connections (multiple threads).
@@ -86,15 +91,6 @@ BEGIN_NAMESPACE_DATABASE
 		String _userName;
 		///< User password.
 		String _password;
-
-	private:
-
-		/** Get connection.
-		@return
-		    Database connection.
-		*/
-		DatabaseConnectionPtr DoGetConnection() const;
-
 	}; // class CDatabase
 
 }

@@ -21,13 +21,11 @@
 
 BEGIN_NAMESPACE_DATABASE
 {
-
 	/** Describes a date.
 	*/
 	class DatabaseExport CDate
 	{
 	public:
-
 		static String ShortDay[7];        ///< Array of short day names.
 		static String LongDay[7];         ///< Array of long day names.
 		static String ShortMonth[12];     ///< Array of short month names.
@@ -141,6 +139,18 @@ BEGIN_NAMESPACE_DATABASE
 		    true if valid date.
 		*/
 		bool IsValid() const;
+
+		/** Convert this object to a std::tm.
+		@return
+		    Converted date/time.
+		*/
+		std::tm ToTm() const;
+
+		/** Get system current date/time.
+		@return
+		    System current date/time.
+		*/
+		static CDate Now();
 
 		/** Check date consistency.
 		@param[in] date
@@ -256,7 +266,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    true if valid date.
 		*/
-		static bool DoIsDate( const std::string & date, const std::string & format, int & year, int & month, int & monthDay );
+		static bool DoIsDate( const std::string & date, const std::string & format, int & year, EDateMonth & month, int & monthDay );
 
 		/** Find day.
 		@param[in] date
@@ -302,7 +312,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    true if valid date.
 		*/
-		static bool DoIsDate( const std::wstring & date, const std::wstring & format, int & year, int & month, int & monthDay );
+		static bool DoIsDate( const std::wstring & date, const std::wstring & format, int & year, EDateMonth & month, int & monthDay );
 
 		/** Find day.
 		@param[in] date
@@ -334,7 +344,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		static int DoFindYear( const std::wstring & date, const std::wstring & format );
 
-		friend bool operator ==( const CDate & lhs, const CDate & rhs );
+		friend DatabaseExport bool operator ==( const CDate & lhs, const CDate & rhs );
 
 	protected:
 
@@ -354,7 +364,7 @@ BEGIN_NAMESPACE_DATABASE
 	@return
 	    true if objects are equal.
 	*/
-	inline bool operator ==( const CDate & lhs, const CDate & rhs );
+	DatabaseExport bool operator ==( const CDate & lhs, const CDate & rhs );
 
 	/** Check inequality of two dates.
 	@param lhs
@@ -364,7 +374,27 @@ BEGIN_NAMESPACE_DATABASE
 	@return
 	    true if objects are different.
 	*/
-	inline bool operator !=( const CDate & lhs, const CDate & rhs );
+	DatabaseExport bool operator !=( const CDate & lhs, const CDate & rhs );
+
+	/** Stream operator
+	@param stream
+	    The stream.
+	@param date
+	    The date.
+	@return
+	    The stream.
+	*/
+	DatabaseExport std::ostream & operator <<( std::ostream & stream, const CDate & date );
+
+	/** Stream operator
+	@param stream
+	    The stream.
+	@param date
+	    The date.
+	@return
+	    The stream.
+	*/
+	DatabaseExport std::wostream & operator <<( std::wostream & stream, const CDate & date );
 
 }
 END_NAMESPACE_DATABASE

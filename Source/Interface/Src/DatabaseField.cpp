@@ -502,7 +502,7 @@ BEGIN_NAMESPACE_DATABASE
 
 			if ( _value->GetPtrValue() )
 			{
-				value = *reinterpret_cast< std::string * >( _value->GetPtrValue() );
+				value = reinterpret_cast< char * >( _value->GetPtrValue() );
 			}
 
 			break;
@@ -520,7 +520,7 @@ BEGIN_NAMESPACE_DATABASE
 
 			if ( _value->GetPtrValue() )
 			{
-				value = CStrUtils::ToStr( *reinterpret_cast< std::wstring * >( _value->GetPtrValue() ) );
+				value = CStrUtils::ToStr( reinterpret_cast< wchar_t * >( _value->GetPtrValue() ) );
 			}
 
 			break;
@@ -662,7 +662,8 @@ BEGIN_NAMESPACE_DATABASE
 
 			if ( _value->GetPtrValue() )
 			{
-				value = *reinterpret_cast< std::vector< uint8_t > * >( _value->GetPtrValue() );
+				uint8_t * ptr = reinterpret_cast< uint8_t * >( _value->GetPtrValue() );
+				std::swap( value, std::vector< uint8_t >( ptr, ptr + _value->GetPtrSize() ) );
 			}
 
 			break;
@@ -1102,7 +1103,7 @@ BEGIN_NAMESPACE_DATABASE
 		switch ( GetType() )
 		{
 		case EFieldType_VARCHAR:
-			static_cast< CDatabaseValue< EFieldType_VARCHAR > * >( _value )->SetValue( value.c_str(), GetLimits() );
+			static_cast< CDatabaseValue< EFieldType_VARCHAR > * >( _value )->SetValue( value.c_str(), std::min( GetLimits(), uint32_t( value.size() ) ) );
 			break;
 
 		case EFieldType_TEXT:
@@ -1110,7 +1111,7 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		case EFieldType_NVARCHAR:
-			static_cast< CDatabaseValue< EFieldType_NVARCHAR > * >( _value )->SetValue( CStrUtils::ToWStr( value ).c_str(), GetLimits() );
+			static_cast< CDatabaseValue< EFieldType_NVARCHAR > * >( _value )->SetValue( CStrUtils::ToWStr( value ).c_str(), std::min( GetLimits(), uint32_t( value.size() ) ) );
 			break;
 
 		case EFieldType_NTEXT:
@@ -1148,7 +1149,7 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		case EFieldType_VARCHAR:
-			static_cast< CDatabaseValue< EFieldType_VARCHAR > * >( _value )->SetValue( CStrUtils::ToStr( value ).c_str(), GetLimits() );
+			static_cast< CDatabaseValue< EFieldType_VARCHAR > * >( _value )->SetValue( CStrUtils::ToStr( value ).c_str(), std::min( GetLimits(), uint32_t( value.size() ) ) );
 			break;
 
 		case EFieldType_NTEXT:
@@ -1156,7 +1157,7 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		case EFieldType_NVARCHAR:
-			static_cast< CDatabaseValue< EFieldType_NVARCHAR > * >( _value )->SetValue( value.c_str(), GetLimits() );
+			static_cast< CDatabaseValue< EFieldType_NVARCHAR > * >( _value )->SetValue( value.c_str(), std::min( GetLimits(), uint32_t( value.size() ) ) );
 			break;
 
 		case EFieldType_DATE:
@@ -1186,11 +1187,11 @@ BEGIN_NAMESPACE_DATABASE
 		switch ( GetType() )
 		{
 		case EFieldType_DATE:
-			static_cast< CDatabaseValue< EFieldType_DATE > * >( _value )->SetValue( value.Format( "%Y/%m/%d" ) );
+			static_cast< CDatabaseValue< EFieldType_DATE > * >( _value )->SetValue( value.Format( SDATE_FORMAT_EXP ) );
 			break;
 
 		case EFieldType_DATETIME:
-			static_cast< CDatabaseValue< EFieldType_DATETIME > * >( _value )->SetValue( value.Format( "%Y/%m/%d 00:00:00" ) );
+			static_cast< CDatabaseValue< EFieldType_DATETIME > * >( _value )->SetValue( value.Format( SDATETIME_DATE_FORMAT_EXP ) );
 			break;
 
 		default:
@@ -1233,11 +1234,11 @@ BEGIN_NAMESPACE_DATABASE
 		switch ( GetType() )
 		{
 		case EFieldType_DATETIME:
-			static_cast< CDatabaseValue< EFieldType_DATETIME > * >( _value )->SetValue( value.Format( "0000-00-00 %H:%M:%S" ) );
+			static_cast< CDatabaseValue< EFieldType_DATETIME > * >( _value )->SetValue( value.Format( SDATETIME_TIME_FORMAT_EXP ) );
 			break;
 
 		case EFieldType_TIME:
-			static_cast< CDatabaseValue< EFieldType_TIME > * >( _value )->SetValue( value.Format( "%H:%M:%S" ) );
+			static_cast< CDatabaseValue< EFieldType_TIME > * >( _value )->SetValue( value.Format( STIME_FORMAT_EXP ) );
 			break;
 
 		default:
@@ -1255,15 +1256,15 @@ BEGIN_NAMESPACE_DATABASE
 		switch ( GetType() )
 		{
 		case EFieldType_BINARY:
-			static_cast< CDatabaseValue< EFieldType_BINARY > * >( _value )->SetValue( value.data(), GetLimits() );
+			static_cast< CDatabaseValue< EFieldType_BINARY > * >( _value )->SetValue( value.data(), std::min( GetLimits(), uint32_t( value.size() ) ) );
 			break;
 
 		case EFieldType_VARBINARY:
-			static_cast< CDatabaseValue< EFieldType_VARBINARY > * >( _value )->SetValue( value.data(), GetLimits() );
+			static_cast< CDatabaseValue< EFieldType_VARBINARY > * >( _value )->SetValue( value.data(), std::min( GetLimits(), uint32_t( value.size() ) ) );
 			break;
 
 		case EFieldType_LONG_VARBINARY:
-			static_cast< CDatabaseValue< EFieldType_LONG_VARBINARY > * >( _value )->SetValue( value.data(), GetLimits() );
+			static_cast< CDatabaseValue< EFieldType_LONG_VARBINARY > * >( _value )->SetValue( value.data(), std::min( GetLimits(), uint32_t( value.size() ) ) );
 			break;
 
 		default:
@@ -1342,7 +1343,7 @@ BEGIN_NAMESPACE_DATABASE
 	void CDatabaseField::DoSetValueFast( const char * value )
 	{
 		assert( GetType() == EFieldType_VARCHAR );
-		static_cast< CDatabaseValue< EFieldType_VARCHAR > * >( _value )->SetValue( value, GetLimits() );
+		static_cast< CDatabaseValue< EFieldType_VARCHAR > * >( _value )->SetValue( value, std::min( GetLimits(), uint32_t( strlen( value ) ) ) );
 		_isNull = false;
 	}
 
@@ -1356,7 +1357,7 @@ BEGIN_NAMESPACE_DATABASE
 	void CDatabaseField::DoSetValueFast( const wchar_t * value )
 	{
 		assert( GetType() == EFieldType_NVARCHAR );
-		static_cast< CDatabaseValue< EFieldType_NVARCHAR > * >( _value )->SetValue( value, GetLimits() );
+		static_cast< CDatabaseValue< EFieldType_NVARCHAR > * >( _value )->SetValue( value, std::min( GetLimits(), uint32_t( wcslen( value ) ) ) );
 		_isNull = false;
 	}
 
@@ -1370,13 +1371,13 @@ BEGIN_NAMESPACE_DATABASE
 	void CDatabaseField::DoSetValueFast( const CDate & value )
 	{
 		assert( GetType() == EFieldType_DATE );
-		static_cast< CDatabaseValue< EFieldType_DATE > * >( _value )->SetValue( value.Format( "%Y/%m/%d" ) );
+		static_cast< CDatabaseValue< EFieldType_DATE > * >( _value )->SetValue( value.Format( SDATE_FORMAT_EXP ) );
 		_isNull = false;
 	}
 
 	void CDatabaseField::DoSetValueFast( const CDateTime & value )
 	{
-		assert( GetType() == EFieldType_DATE );
+		assert( GetType() == EFieldType_DATETIME );
 		static_cast< CDatabaseValue< EFieldType_DATETIME > * >( _value )->SetValue( value.ToStdString() );
 		_isNull = false;
 	}
@@ -1384,7 +1385,7 @@ BEGIN_NAMESPACE_DATABASE
 	void CDatabaseField::DoSetValueFast( const CTime & value )
 	{
 		assert( GetType() == EFieldType_TIME );
-		static_cast< CDatabaseValue< EFieldType_TIME > * >( _value )->SetValue( value.Format( "%H:%M:%S" ) );
+		static_cast< CDatabaseValue< EFieldType_TIME > * >( _value )->SetValue( value.Format( STIME_FORMAT_EXP ) );
 		_isNull = false;
 	}
 

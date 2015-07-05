@@ -34,17 +34,17 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		*/
 		DatabaseOdbcMsSqlExport virtual ~CPluginDatabaseOdbcMsSql();
 
-		///@copydoc Areva::ARIA::Native::Core::CPlugin::GetName
+		///@copydoc Database::CPlugin::GetName
 		DatabaseOdbcMsSqlExport virtual const String GetName() const;
 
-		///@copydoc Areva::ARIA::Native::Core::CPlugin::Initialize
+		///@copydoc Database::CPlugin::Initialize
 		DatabaseOdbcMsSqlExport virtual void Initialize();
 
-		///@copydoc Areva::ARIA::Native::Core::CPlugin::Shutdown
+		///@copydoc Database::CPlugin::Shutdown
 		DatabaseOdbcMsSqlExport virtual void Shutdown();
 
 	protected:
-		///@copydoc Areva::ARIA::Native::Core::CParameterListInterface::AddBaseParameters
+		///@copydoc Database::CParameterListInterface::AddBaseParameters
 		DatabaseOdbcMsSqlExport virtual void AddBaseParameters();
 	};
 

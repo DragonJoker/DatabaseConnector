@@ -34,17 +34,17 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		*/
 		DatabaseMySqlExport virtual ~CPluginDatabaseMySql();
 
-		///@copydoc Areva::ARIA::Native::Core::CPlugin::GetName
+		///@copydoc Database::CPlugin::GetName
 		DatabaseMySqlExport virtual const String GetName() const;
 
-		///@copydoc Areva::ARIA::Native::Core::CPlugin::Initialize
+		///@copydoc Database::CPlugin::Initialize
 		DatabaseMySqlExport virtual void Initialize();
 
-		///@copydoc Areva::ARIA::Native::Core::CPlugin::Shutdown
+		///@copydoc Database::CPlugin::Shutdown
 		DatabaseMySqlExport virtual void Shutdown();
 
 	protected:
-		///@copydoc Areva::ARIA::Native::Core::CParameterListInterface::AddBaseParameters
+		///@copydoc Database::CParameterListInterface::AddBaseParameters
 		DatabaseMySqlExport virtual void AddBaseParameters();
 	};
 

@@ -37,7 +37,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		 */
 		DatabaseMySqlExport virtual ~CDatabaseMySql();
 
-		///@copydoc Areva::ARIA::Native::CObject::GetType
+		///@copydoc Database::CDatabase::GetType
 		DatabaseMySqlExport virtual const String & GetType()const;
 
 		/** Creator function
