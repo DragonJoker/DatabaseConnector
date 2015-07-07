@@ -17,9 +17,8 @@
 #include "DatabaseMySqlPrerequisites.h"
 
 #include <DatabaseParameter.h>
-#include "DatabaseParameterMySql.h"
 
-#include <cppconn/prepared_statement.h>
+#include <mysql.h>
 
 BEGIN_NAMESPACE_DATABASE_MYSQL
 {
@@ -39,7 +38,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	*/
 	class CDatabaseStatementParameterMySql
 		: public CDatabaseParameter
-		, public CDatabaseParameterMySql
 	{
 
 	public:
@@ -87,14 +85,37 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		//!@copydoc Database::CDatabaseParameter::SetValue
 		void SetValue( DatabaseParameterPtr value );
 
+		/** Set parameter value from a field.
+		@param[in] field
+		    The field.
+		@remarks
+		    If field type is different than the value type, the value is ignored.
+		*/
+		virtual void SetValue( DatabaseFieldPtr field )
+		{
+			CDatabaseParameter::SetValue( field );
+		}
+
 		/** Defines the prepared statement
 		@param statement
 		    The statement
 		*/
-		void SetStatement( sql::PreparedStatement * statement )
+		void SetStatement( MYSQL_STMT * statement )
 		{
 			_statement = statement;
 		}
+
+		/** Defines the data binding
+		@param bind
+		    The binding
+		*/
+		void SetBinding( MYSQL_BIND * bind );
+
+		/** Retrieves the data binding
+		@return
+		    The binding
+		*/
+		MYSQL_BIND * GetBinding()const;
 
 	private:
 		//!@copydoc Database::CDatabaseParameter::DoSetValue
@@ -145,23 +166,10 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		//!@copydoc Database::CDatabaseParameter::DoSetValue
 		virtual void DoSetValue( const CTime & value );
 
-		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( std::istream * value );
-
-		/** Initializes the parameter value setter
-		@remarks
-		    Called from constructor, takes account of the fact that CDatabaseStatementParameter constructor throws an exception
-		*/
-		void DoInitializeParamSetter();
-
-		//! The parameter value setter
-		SParameterValueSetterBase * _paramSetter;
-		//! The stream value, for binary fields
-		std::istream * _streamValue;
-		//! The stream buffer
-		std::streambuf * _streamBuffer;
+		//! The data binding
+		std::unique_ptr< SParameterValueSetterBase > _setter;
 		//! The prepared statement
-		sql::PreparedStatement * _statement;
+		MYSQL_STMT * _statement;
 	};
 }
 END_NAMESPACE_DATABASE_MYSQL

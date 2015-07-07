@@ -8,11 +8,11 @@ set( DBMYSQL_VERSION_BUILD	0 )
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/Src 
     ${DATABASE_SOURCE_DIR}/Interface/Src
-    ${MYSQL_CPP_INCLUDE_DIR}
+    ${MYSQL_CLIENT_INCLUDE_DIR}
 )
 
 set( MySqlLibraries "")
-FOREACH(Lib ${MYSQL_LIBRARIES_DYNAMIC})
+FOREACH(Lib ${MYSQL_CLIENT_LIBRARY})
     if (MySqlLibraries)
         set(MySqlLibraries "${MySqlLibraries}|${Lib}")
     else()
@@ -34,8 +34,8 @@ add_target(
 	""
 )
 
-copy_dll( DatabasePluginMySql ${MYSQL_CPP_LIBRARY_DYNAMIC_DEBUG} Debug )
-copy_dll( DatabasePluginMySql ${MYSQL_CPP_LIBRARY_DYNAMIC_RELEASE} Release )
+copy_dll( DatabasePluginMySql ${MYSQL_CLIENT_LIBRARY} Debug )
+copy_dll( DatabasePluginMySql ${MYSQL_CLIENT_LIBRARY} Release )
 
 set_property( TARGET DatabasePluginMySql PROPERTY FOLDER "Plugin/MySQL" )
 add_target_astyle( DatabasePluginMySql ".h;.hpp;.inl;.cpp" )

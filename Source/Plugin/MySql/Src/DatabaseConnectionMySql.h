@@ -18,9 +18,7 @@
 
 #include <DatabaseConnection.h>
 
-#include <mysql_driver.h>
-#include <mysql_connection.h>
-#include <cppconn/resultset.h>
+#include <mysql.h>
 
 BEGIN_NAMESPACE_DATABASE_MYSQL
 {
@@ -32,8 +30,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	{
 	public:
 		/** Constructor.
-		@param[in] driver
-		    The MySQL driver.
 		@param[in] server
 		    Address or name of the server.
 		@param[in] database
@@ -45,7 +41,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		@param[out] connectionString
 		    Created connection string.
 		 */
-		DatabaseMySqlExport CDatabaseConnectionMySql( sql::Driver * driver, const String & server, const String & userName, const String & password, String & connectionString );
+		DatabaseMySqlExport CDatabaseConnectionMySql( const String & server, const String & userName, const String & password, String & connectionString );
 
 		/** Destructor.
 		 */
@@ -309,7 +305,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		@return
 		    The connection handle.
 		*/
-		DatabaseMySqlExport sql::Connection * GetConnection() const;
+		DatabaseMySqlExport MYSQL * GetConnection() const;
 
 		/** Executes a statement and retrieves the result set if needed
 		@param statement
@@ -317,7 +313,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		@return
 		    The result
 		*/
-		bool ExecuteUpdate( std::shared_ptr< sql::PreparedStatement > statement );
+		bool ExecuteUpdate( MYSQL_STMT * statement );
 
 		/** Executes a statement and retrieves the result set if needed
 		@param statement
@@ -325,27 +321,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		@return
 		    The result
 		*/
-		DatabaseResultPtr ExecuteSelect( std::shared_ptr< sql::PreparedStatement > statement );
-
-		/** Executes a statement and retrieves the result set if needed
-		@param statement
-		    The statement
-		@param query
-		    The query, if needed
-		@return
-		    The result
-		*/
-		bool ExecuteUpdate( std::shared_ptr< sql::Statement > statement, const String & query );
-
-		/** Executes a statement and retrieves the result set if needed
-		@param statement
-		    The statement
-		@param query
-		    The query, if needed
-		@return
-		    The result
-		*/
-		DatabaseResultPtr ExecuteSelect( std::shared_ptr< sql::Statement > statement, const String & query );
+		DatabaseResultPtr ExecuteSelect( MYSQL_STMT * statement );
 
 	protected:
 		/** Connect to the database.
@@ -406,17 +382,13 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		@param rs
 		    The result set
 		*/
-		DatabaseResultPtr DoRetrieveResults( std::shared_ptr< sql::Statement > statement, std::shared_ptr< sql::ResultSet > rs );
+		DatabaseResultPtr DoRetrieveResults( MYSQL_STMT * statement );
 
 	protected:
-		/// MySQL driver
-		sql::Driver * _driver;
 		//! The connection
-		sql::Connection * _connection;
-		//! The current transaction
-		sql::Savepoint * _transaction;
+		MYSQL * _connection;
 		//! The global statement used to execute direct queries
-		std::shared_ptr< sql::Statement > _statement;
+		MYSQL_STMT * _statement;
 	};
 }
 END_NAMESPACE_DATABASE_MYSQL

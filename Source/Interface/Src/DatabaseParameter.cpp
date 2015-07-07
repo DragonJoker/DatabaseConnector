@@ -734,19 +734,23 @@ BEGIN_NAMESPACE_DATABASE
 			std::istream_iterator< uint8_t >( *value ),
 			std::istream_iterator< uint8_t >(),
 			std::back_inserter( in ) );
-
+		DoSetValue( in );
+	}
+	
+	void CDatabaseParameter::DoSetBlob( uint8_t * value, uint32_t length )
+	{
 		switch ( GetType() )
 		{
 		case EFieldType_BINARY:
-			SDatabaseParameterValueSetter< uint8_t >()( _value, in.data(), std::min( _limits, uint32_t( in.size() ) ) );
+			SDatabaseParameterValueSetter< uint8_t >()( _value, value, std::min( _limits, length ) );
 			break;
 
 		case EFieldType_VARBINARY:
-			SDatabaseParameterValueSetter< uint8_t >()( _value, in.data(), std::min( _limits, uint32_t( in.size() ) ) );
+			SDatabaseParameterValueSetter< uint8_t >()( _value, value, std::min( _limits, length ) );
 			break;
 
 		case EFieldType_LONG_VARBINARY:
-			SDatabaseParameterValueSetter< uint8_t >()( _value, in.data(), std::min( _limits, uint32_t( in.size() ) ) );
+			SDatabaseParameterValueSetter< uint8_t >()( _value, value, std::min( _limits, length ) );
 			break;
 
 		default:

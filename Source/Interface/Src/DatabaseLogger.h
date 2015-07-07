@@ -36,15 +36,6 @@ BEGIN_NAMESPACE_DATABASE
 	class CLogger
 	{
 	private:
-		friend class ILoggerImpl;
-		static bool				m_bOwnInstance;
-		static CLogger 	*	m_pSingleton;
-		static uint32_t			m_uiCounter;
-		ILoggerImpl 	*		m_pImpl;
-		std::mutex				m_mutex;
-		String					m_strHeaders[eLOG_TYPE_COUNT];
-
-	private:
 		/**
 		 *\~english
 		 *\brief		Constructor
@@ -362,6 +353,16 @@ BEGIN_NAMESPACE_DATABASE
 	private:
 		void DoSetCallback( PLogCallback p_pfnCallback, void * p_pCaller );
 		void DoSetFileName( String const & p_logFilePath, eLOG_TYPE p_eLogType = eLOG_TYPE_COUNT );
+
+	private:
+		friend class ILoggerImpl;
+		static bool m_bOwnInstance;
+		static CLogger * m_pSingleton;
+		static uint32_t m_uiCounter;
+		ILoggerImpl * m_pImpl;
+		std::mutex m_mutex;
+		String m_strHeaders[eLOG_TYPE_COUNT];
+
 	};
 }
 END_NAMESPACE_DATABASE

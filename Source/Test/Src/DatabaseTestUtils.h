@@ -396,6 +396,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 						BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, valueOut ) );
 						BOOST_CHECK( valueIn == valueOut );
 					}
+					else
+					{
+						BOOST_CHECK( false );
+					}
 				}
 			}
 			catch ( ... )

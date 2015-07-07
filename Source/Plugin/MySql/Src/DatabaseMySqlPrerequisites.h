@@ -61,30 +61,135 @@ BEGIN_NAMESPACE_DATABASE
 		typedef std::shared_ptr< CDatabaseStatementMySql > DatabaseStatementMySqlPtr;
 		typedef std::shared_ptr< CDatabaseStatementParameterMySql > DatabaseStatementParameterMySqlPtr;
 
+		typedef std::vector< DatabaseStatementParameterMySqlPtr > DatabaseStatementParameterMySqlPtrArray;
+
 		// Factory constants
 		const String FACTORY_DATABASE_MYSQL = STR( "Factory Database MySql" );
 
 		// Plugin constants
 		const String DATABASE_MYSQL_TYPE = STR( "Database.MySql" );
 		const String PLUGIN_NAME_DATABASE_MYSQL = STR( "Plugin Database MySql" );
+
+		void MySQLTry( int result, TChar const * msg, EDatabaseExceptionCodes code, MYSQL * connection );
+
+		struct CMySqlBindBase
+		{
+			my_bool _null = 0;
+			unsigned long _length = 0;
+			my_bool _error = 0;
+			MYSQL_BIND & _bind;
+			
+			CMySqlBindBase( MYSQL_BIND & bind )
+				: _bind( bind )
+			{
+				bind.length = &_length;
+				bind.error = &_error;
+				bind.is_null = &_null;
+			}
+		};
+
+		template< typename T, typename U=T > struct CInMySqlBind
+			: public CMySqlBindBase
+		{
+			T _value;
+
+			CInMySqlBind( MYSQL_BIND & bind )
+				: CMySqlBindBase( bind )
+			{
+				bind.buffer = &_value;
+			}
+
+			T const & GetValue()const
+			{
+				return _value;
+			}
+		};
+
+		template<> struct CInMySqlBind< bool, bool >
+			: public CMySqlBindBase
+		{
+			int8_t _value;
+
+			CInMySqlBind( MYSQL_BIND & bind )
+				: CMySqlBindBase( bind )
+			{
+				bind.buffer = &_value;
+			}
+
+			bool GetValue()const
+			{
+				return _value != 0;
+			}
+		};
+
+		template< typename T > struct CInMySqlBind< T *, T * >
+			: public CMySqlBindBase
+		{
+			T _value[8192];
+
+			CInMySqlBind( MYSQL_BIND & bind )
+				: CMySqlBindBase( bind )
+			{
+				memset( _value, 0, sizeof( _value ) );
+				bind.buffer = _value;
+				bind.buffer_length = sizeof( _value ) / sizeof( *_value );
+			}
+
+			T const * GetValue()const
+			{
+				return _value;
+			}
+		};
+
+		template<> struct CInMySqlBind< char *, double >
+			: public CMySqlBindBase
+		{
+			char _value[8192];
+
+			CInMySqlBind( MYSQL_BIND & bind )
+				: CMySqlBindBase( bind )
+			{
+				memset( _value, 0, sizeof( _value ) );
+				bind.buffer = _value;
+				bind.buffer_length = sizeof( _value ) / sizeof( *_value );
+			}
+
+			double GetValue()const
+			{
+				return CStrUtils::ToDouble( _value );
+			}
+		};
+
+		template<> struct CInMySqlBind< char *, int32_t >
+			: public CMySqlBindBase
+		{
+			char _value[8192];
+
+			CInMySqlBind( MYSQL_BIND & bind )
+				: CMySqlBindBase( bind )
+			{
+				memset( _value, 0, sizeof( _value ) );
+				bind.buffer = _value;
+				bind.buffer_length = sizeof( _value ) / sizeof( _value );
+			}
+
+			int32_t GetValue()const
+			{
+				return CStrUtils::ToInt( _value );
+			}
+		};
+
+		CDate CDateFromMySqlTime( MYSQL_TIME const & ts );
+		CDateTime CDateTimeFromMySqlTime( MYSQL_TIME const & ts );
+		CTime CTimeFromMySqlTime( MYSQL_TIME const & ts );
+			
+		MYSQL_TIME MySqlTimeFromCDate( CDate const & ts );
+		MYSQL_TIME MySqlTimeFromCDateTime( CDateTime const & ts );
+		MYSQL_TIME MySqlTimeFromCTime( CTime const & ts );
+		
+		std::string StringFromMySqlString( MYSQL_BIND const & bind, bool truncated );
 	}
 }
 END_NAMESPACE_DATABASE
-
-#if !defined( NDEBUG )
-#   define MySQLTry( x, msg )\
-    try\
-    {\
-        x;\
-        CLogger::LogDebug( StringStream() << STR( "Success : " ) << msg );\
-    }\
-    catch( sql::SQLException & e )\
-    {\
-        CLogger::LogError( StringStream() << STR( "Failure : " ) << msg << STR( "\n" ) << e.what() << STR( "\nMySQL State : " ) << e.getSQLState().c_str() << STR( "\nError code : " ) << e.getErrorCode() );\
-		throw;\
-    }
-#else
-#   define MySQLTry( x, msg ) x;
-#endif
 
 #endif // ___DATABASE_MYSQL_PREREQUISITES_H___

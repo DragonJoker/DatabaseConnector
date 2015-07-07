@@ -35,7 +35,99 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		for ( int i = 0; i < eLOG_TYPE_COUNT; i++ )
 		{
-			m_strHeaders[i]		= p_pLogger->m_strHeaders[i];
+			m_strHeaders[i] = p_pLogger->m_strHeaders[i];
+		}
+
+		m_outThread = std::thread( [&]()
+		{
+			std::string l_line;
+			std::wstring l_wline;
+			bool ended = false;
+
+			while ( !ended )
+			{
+				std::unique_lock< std::mutex > lock( m_outMutex );
+
+				while ( !m_cout.eof() )
+				{
+					std::getline( m_cout, l_line );
+
+					if ( !l_line.empty() )
+					{
+						DoLogMessage( CStrUtils::ToString( l_line ), eLOG_TYPE_MESSAGE );
+					}
+				}
+
+				while ( !m_wcout.eof() )
+				{
+					std::getline( m_wcout, l_wline );
+					
+					if ( !l_wline.empty() )
+					{
+						DoLogMessage( CStrUtils::ToString( l_wline ), eLOG_TYPE_MESSAGE );
+					}
+				}
+				
+				m_cout.clear();
+				m_wcout.clear();
+
+				while ( !m_cerr.eof() )
+				{
+					std::getline( m_cerr, l_line );
+					
+					if ( !l_line.empty() )
+					{
+						DoLogMessage( CStrUtils::ToString( l_line ), eLOG_TYPE_ERROR );
+					}
+				}
+
+				while ( !m_wcerr.eof() )
+				{
+					std::getline( m_wcerr, l_wline );
+					
+					if ( !l_wline.empty() )
+					{
+						DoLogMessage( CStrUtils::ToString( l_wline ), eLOG_TYPE_ERROR );
+					}
+				}
+				
+				m_cerr.clear();
+				m_wcerr.clear();
+
+				while ( !m_clog.eof() )
+				{
+					std::getline( m_clog, l_line );
+
+					if ( !l_line.empty() )
+					{
+						DoLogMessage( CStrUtils::ToString( l_line ), eLOG_TYPE_DEBUG );
+					}
+				}
+
+				while ( !m_wclog.eof() )
+				{
+					std::getline( m_wclog, l_wline );
+
+					if ( !l_wline.empty() )
+					{
+						DoLogMessage( CStrUtils::ToString( l_wline ), eLOG_TYPE_DEBUG );
+					}
+				}
+				
+				m_clog.clear();
+				m_wclog.clear();
+
+				ended = m_end.wait_for( lock, std::chrono::milliseconds( 5 ) ) != std::cv_status::timeout;
+			}
+		} );
+	}
+
+	void ILoggerImpl::Cleanup()
+	{
+		if ( m_outThread.joinable() )
+		{
+			m_end.notify_one();
+			m_outThread.join();
 		}
 	}
 
@@ -64,11 +156,43 @@ BEGIN_NAMESPACE_DATABASE
 			for ( int i = 0; i < eLOG_TYPE_COUNT; i++ )
 			{
 				m_logFilePath[i] = p_logFilePath;
+
+				if ( i == eLOG_TYPE_MESSAGE )
+				{
+					std::cout.rdbuf( m_cout.rdbuf() );
+					std::wcout.rdbuf( m_wcout.rdbuf() );
+				}
+				else if ( i == eLOG_TYPE_DEBUG )
+				{
+					std::clog.rdbuf( m_clog.rdbuf() );
+					std::wclog.rdbuf( m_wclog.rdbuf() );
+				}
+				else if ( i == eLOG_TYPE_ERROR )
+				{
+					std::cerr.rdbuf( m_cerr.rdbuf() );
+					std::wcerr.rdbuf( m_wcerr.rdbuf() );
+				}
 			}
 		}
 		else
 		{
 			m_logFilePath[p_eLogType] = p_logFilePath;
+
+			if ( p_eLogType == eLOG_TYPE_MESSAGE )
+			{
+				std::cout.rdbuf( m_cout.rdbuf() );
+				std::wcout.rdbuf( m_wcout.rdbuf() );
+			}
+			else if ( p_eLogType == eLOG_TYPE_DEBUG )
+			{
+				std::clog.rdbuf( m_clog.rdbuf() );
+				std::wclog.rdbuf( m_wclog.rdbuf() );
+			}
+			else if ( p_eLogType == eLOG_TYPE_ERROR )
+			{
+				std::cerr.rdbuf( m_cerr.rdbuf() );
+				std::wcerr.rdbuf( m_wcerr.rdbuf() );
+			}
 		}
 
 		FILE * l_pFile;
@@ -82,22 +206,26 @@ BEGIN_NAMESPACE_DATABASE
 
 	void ILoggerImpl::LogDebug( String const & p_strToLog )
 	{
-		DoLogMessage( p_strToLog,  eLOG_TYPE_DEBUG );
+		std::unique_lock< std::mutex > lock( m_outMutex );
+		DoLogMessage( p_strToLog, eLOG_TYPE_DEBUG );
 	}
 
 	void ILoggerImpl::LogMessage( String const & p_strToLog )
 	{
-		DoLogMessage( p_strToLog,  eLOG_TYPE_MESSAGE );
+		std::unique_lock< std::mutex > lock( m_outMutex );
+		DoLogMessage( p_strToLog, eLOG_TYPE_MESSAGE );
 	}
 
 	void ILoggerImpl::LogWarning( String const & p_strToLog )
 	{
-		DoLogMessage( p_strToLog,  eLOG_TYPE_WARNING );
+		std::unique_lock< std::mutex > lock( m_outMutex );
+		DoLogMessage( p_strToLog, eLOG_TYPE_WARNING );
 	}
 
 	bool ILoggerImpl::LogError( String const & p_strToLog )
 	{
-		DoLogMessage( p_strToLog,  eLOG_TYPE_ERROR );
+		std::unique_lock< std::mutex > lock( m_outMutex );
+		DoLogMessage( p_strToLog, eLOG_TYPE_ERROR );
 		return true;
 	}
 
@@ -108,17 +236,13 @@ BEGIN_NAMESPACE_DATABASE
 		LoggerCallbackMapConstIt l_it;
 		std::tm l_dtToday = { 0 };
 		time_t l_tTime;
-
 		time( &l_tTime );
 		l_dtToday = *localtime( &l_tTime );
-
 		l_strToLog << ( l_dtToday.tm_year + 1900 ) << STR( "-" );
 		l_strToLog << ( l_dtToday.tm_mon + 1 < 10 ? STR( "0" ) : STR( "" ) ) << ( l_dtToday.tm_mon + 1 ) << STR( "-" ) << ( l_dtToday.tm_mday < 10 ? STR( "0" ) : STR( "" ) ) << l_dtToday.tm_mday;
 		l_strToLog << STR( " - " ) << ( l_dtToday.tm_hour < 10 ? STR( "0" ) : STR( "" ) ) << l_dtToday.tm_hour << STR( ":" ) << ( l_dtToday.tm_min < 10 ? STR( "0" ) : STR( "" ) ) << l_dtToday.tm_min << STR( ":" ) << ( l_dtToday.tm_sec < 10 ? STR( "0" ) : STR( "" ) ) << l_dtToday.tm_sec << STR( "s" );
 		l_strToLog << STR( " - " ) << m_strHeaders[p_eLogType];
-
 		l_strToLog << p_strToLog;
-
 		m_pConsole->BeginLog( p_eLogType );
 		m_pConsole->Print( p_strToLog, true );
 
@@ -142,9 +266,9 @@ BEGIN_NAMESPACE_DATABASE
 				fclose( l_logFile );
 			}
 		}
-		catch ( std::exception & exc )
+		catch ( std::exception & )
 		{
-			m_pConsole->Print( STR( "Couldn't open log file : " ) + CStrUtils::ToString( exc.what() ), true );
+			//m_pConsole->Print( STR( "Couldn't open log file : " ) + CStrUtils::ToString( exc.what() ), true );
 		}
 	}
 }

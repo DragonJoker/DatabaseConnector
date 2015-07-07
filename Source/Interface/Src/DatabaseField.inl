@@ -16,6 +16,7 @@
 BEGIN_NAMESPACE_DATABASE
 {
 	static const String DATABASE_FIELD_TYPE_ERROR = STR( "Unknown field type" );
+	static const String DATABASE_FIELD_NULL_VALUE_ERROR = STR( "Field value is null: " );
 
 	template <typename T>
 	inline CDatabaseField::CDatabaseField( DatabaseFieldInfosPtr infos, const T & value )
@@ -41,6 +42,13 @@ BEGIN_NAMESPACE_DATABASE
 	template <typename T>
 	inline void CDatabaseField::GetValue( T & value ) const
 	{
+		if ( !_value->GetPtrValue() )
+		{
+			String errMsg = DATABASE_FIELD_NULL_VALUE_ERROR + this->GetName();
+			CLogger::LogError( errMsg );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_NULL_VALUE_ERROR );
+		}
+
 		DoGetValue( value );
 	}
 
@@ -61,6 +69,13 @@ BEGIN_NAMESPACE_DATABASE
 		}
 		else
 		{
+			if ( !_value->GetPtrValue() )
+			{
+				String errMsg = DATABASE_FIELD_NULL_VALUE_ERROR + this->GetName();
+				CLogger::LogError( errMsg );
+				DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_NULL_VALUE_ERROR );
+			}
+
 			T val;
 			DoGetValue( val );
 			value = val;
@@ -78,6 +93,13 @@ BEGIN_NAMESPACE_DATABASE
 	template <typename T>
 	inline void CDatabaseField::GetValueFast( T & value ) const
 	{
+		if ( !_value->GetPtrValue() )
+		{
+			String errMsg = DATABASE_FIELD_NULL_VALUE_ERROR + this->GetName();
+			CLogger::LogError( errMsg );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_NULL_VALUE_ERROR );
+		}
+
 		DoGetValueFast( value );
 	}
 
@@ -98,6 +120,13 @@ BEGIN_NAMESPACE_DATABASE
 		}
 		else
 		{
+			if ( !_value->GetPtrValue() )
+			{
+				String errMsg = DATABASE_FIELD_NULL_VALUE_ERROR + this->GetName();
+				CLogger::LogError( errMsg );
+				DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_NULL_VALUE_ERROR );
+			}
+
 			T val;
 			DoGetValueFast( val );
 			value = val;

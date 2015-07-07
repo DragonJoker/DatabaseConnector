@@ -24,12 +24,12 @@
 
 #include <DatabaseRow.h>
 
-#include <cppconn/exception.h>
+#include <mysql.h>
 
 BEGIN_NAMESPACE_DATABASE_MYSQL
 {
 	static const String MYSQL_MISSING_INITIALIZATION_ERROR = STR( "Method Initialize must be called before calling method CreateParameter" );
-	static const String ERROR_MYSQL_CANT_PREPARE_STATEMENT = STR( "Couldn't prepare the statement" );
+	static const String ERROR_MYSQL_CANT_CREATE_STATEMENT = STR( "Couldn't create the statement" );
 	static const String ERROR_MYSQL_EXECUTION_ERROR = STR( "Couldn't execute the statement : " );
 	static const String ERROR_MYSQL_QUERY_INCONSISTENCY_ERROR = STR( "Number of parameters doesn't match the sizes of parameter containers." );
 
@@ -46,7 +46,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 	CDatabaseStatementMySql::CDatabaseStatementMySql( DatabaseConnectionMySqlPtr connection, const String & query )
 		: CDatabaseStatement( connection, query )
-		, _statement()
+		, _statement( NULL )
 		, _connectionMySql( connection )
 		, _paramsCount( 0 )
 	{
@@ -72,41 +72,46 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 		StringStream query;
 		unsigned short i = 0;
-		StringArray::iterator itQueries = _arrayQueries.begin();
-		DatabaseParameterPtrArray::iterator itParams = _arrayParams.begin();
-		DatabaseParameterPtr parameter;
+		auto && itQueries = _arrayQueries.begin();
+		auto && itParams = _arrayParams.begin();
 
 		_outInitializers.clear();
 		_arrayOutParams.clear();
 
 		_outInitializers.reserve( _arrayParams.size() );
 		_arrayOutParams.reserve( _arrayParams.size() );
+		_bindings.reserve( _arrayParams.size() );
 
 		while ( itQueries != _arrayQueries.end() && itParams != _arrayParams.end() )
 		{
 			query << ( *itQueries );
-			parameter = ( *itParams );
+			DatabaseStatementParameterMySqlPtr parameter = std::static_pointer_cast< CDatabaseStatementParameterMySql >( *itParams );
 
-			if ( parameter->GetParamType() == EParameterType_IN )
-			{
-				query << SQL_DELIM;
-			}
-			else if ( parameter->GetParamType() == EParameterType_INOUT )
-			{
-				query << SQL_PARAM + parameter->GetName();
-				DatabaseStatementPtr stmt = _connection->CreateStatement( SQL_SET + parameter->GetName() + STR( " = " ) + SQL_DELIM );
-				stmt->CreateParameter( parameter->GetName(), parameter->GetType(), parameter->GetLimits(), EParameterType_IN );
-				stmt->Initialize();
-				_inOutInitializers.push_back( std::make_pair( stmt, parameter ) );
-				_arrayOutParams.push_back( parameter );
-			}
-			else if ( parameter->GetParamType() == EParameterType_OUT )
+			if ( parameter->GetParamType() == EParameterType_OUT )
 			{
 				query << SQL_PARAM + parameter->GetName();
 				DatabaseStatementPtr stmt = _connection->CreateStatement( SQL_SET + parameter->GetName() + SQL_NULL );
 				stmt->Initialize();
 				_outInitializers.push_back( stmt );
 				_arrayOutParams.push_back( parameter );
+			}
+			else
+			{
+				if ( parameter->GetParamType() == EParameterType_IN )
+				{
+					MYSQL_BIND bind = { 0 };
+					_bindings.push_back( bind );
+					query << SQL_DELIM;
+				}
+				else
+				{
+					query << SQL_PARAM + parameter->GetName();
+					DatabaseStatementPtr stmt = _connection->CreateStatement( SQL_SET + parameter->GetName() + STR( " = " ) + SQL_DELIM );
+					stmt->CreateParameter( parameter->GetName(), parameter->GetType(), parameter->GetLimits(), EParameterType_IN );
+					stmt->Initialize();
+					_inOutInitializers.push_back( std::make_pair( stmt, parameter ) );
+					_arrayOutParams.push_back( parameter );
+				}
 			}
 
 			++i;
@@ -128,9 +133,8 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			StringStream queryInOutParam;
 			queryInOutParam << SQL_SELECT;
 
-			for ( DatabaseParameterPtrArray::const_iterator it = _arrayOutParams.begin(); it != _arrayOutParams.end(); ++it )
+			for ( auto && parameter : _arrayOutParams )
 			{
-				parameter = ( *it );
 				queryInOutParam << sep << SQL_PARAM << parameter->GetName() << SQL_AS << parameter->GetName();
 				sep = SQL_COMMA;
 			}
@@ -139,8 +143,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			_stmtOutParams->Initialize();
 		}
 
-		sql::Connection * connection = _connectionMySql->GetConnection();
-		MySQLTry( _statement.reset( connection->prepareStatement( CStrUtils::ToStr( _query ) ) ), STR( "Statement preparation" ) );
+		_statement = mysql_stmt_init( _connectionMySql->GetConnection() );
 
 		if ( _statement )
 		{
@@ -148,13 +151,18 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		}
 		else
 		{
-			CLogger::LogError( ERROR_MYSQL_CANT_PREPARE_STATEMENT );
-			throw CExceptionDatabase( EDatabaseExceptionCodes_StatementError, ERROR_MYSQL_CANT_PREPARE_STATEMENT, __FUNCTION__, __FILE__, __LINE__ );
+			CLogger::LogError( ERROR_MYSQL_CANT_CREATE_STATEMENT );
+			throw CExceptionDatabase( EDatabaseExceptionCodes_StatementError, ERROR_MYSQL_CANT_CREATE_STATEMENT, __FUNCTION__, __FILE__, __LINE__ );
 		}
 
-		for ( DatabaseParameterPtrArray::iterator it = _arrayInParams.begin(); it != _arrayInParams.end(); ++it )
+		std::string strQuery = CStrUtils::ToStr( _query );
+		MySQLTry( mysql_stmt_prepare( _statement, strQuery.c_str(), uint32_t( strQuery.size() ) ), STR( "Statement preparation" ), EDatabaseExceptionCodes_StatementError, _connectionMySql->GetConnection() );
+		size_t index = 0;
+
+		for ( auto && it : _arrayInParams )
 		{
-			std::static_pointer_cast< CDatabaseStatementParameterMySql >( *it )->SetStatement( _statement.get() );
+			it->SetStatement( _statement );
+			it->SetBinding( &_bindings[index++] );
 		}
 
 		return eReturn;
@@ -166,6 +174,12 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 		bool bReturn;
 		EErrorType eResult = EErrorType_NONE;
+
+		if ( !_bindings.empty() )
+		{
+			MySQLTry( mysql_stmt_bind_param( _statement, _bindings.data() ), STR( "Statement parameters binding" ), EDatabaseExceptionCodes_StatementError, _connectionMySql->GetConnection() );
+		}
+
 		bReturn = _connectionMySql->ExecuteUpdate( _statement );
 		DoPostExecute( result );
 
@@ -181,6 +195,12 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	{
 		DoPreExecute( result );
 		EErrorType eResult = EErrorType_NONE;
+
+		if ( !_bindings.empty() )
+		{
+			MySQLTry( mysql_stmt_bind_param( _statement, _bindings.data() ), STR( "Statement parameters binding" ), EDatabaseExceptionCodes_StatementError, _connectionMySql->GetConnection() );
+		}
+
 		DatabaseResultPtr pReturn = _connectionMySql->ExecuteSelect( _statement );
 		DoPostExecute( result );
 
@@ -196,8 +216,8 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	{
 		if ( _statement )
 		{
-			_statement->close();
-			_statement.reset();
+			mysql_stmt_close( _statement );
+			_statement = NULL;
 		}
 
 		_arrayInParams.clear();
@@ -210,8 +230,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 	DatabaseParameterPtr CDatabaseStatementMySql::CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType )
 	{
-		// std::make_shared limited to 5 parameters with VS2012
-		DatabaseParameterPtr pReturn( new CDatabaseStatementParameterMySql( _connectionMySql, name, ( unsigned short )_arrayInParams.size() + 1, fieldType, parameterType, new SValueUpdater( this ) ) );
+		DatabaseStatementParameterMySqlPtr pReturn = std::make_shared< CDatabaseStatementParameterMySql >( _connectionMySql, name, uint16_t( _arrayInParams.size() + 1 ), fieldType, parameterType, new SValueUpdater( this ) );
 
 		if ( !DoAddParameter( pReturn ) )
 		{
@@ -227,8 +246,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 	DatabaseParameterPtr CDatabaseStatementMySql::CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType )
 	{
-		// std::make_shared limited to 5 parameters with VS2012
-		DatabaseParameterPtr pReturn( new CDatabaseStatementParameterMySql( _connectionMySql, name, ( unsigned short )_arrayInParams.size() + 1, fieldType, limits, parameterType, new SValueUpdater( this ) ) );
+		DatabaseStatementParameterMySqlPtr pReturn = std::make_shared< CDatabaseStatementParameterMySql >( _connectionMySql, name, uint16_t( _arrayInParams.size() + 1 ), fieldType, limits, parameterType, new SValueUpdater( this ) );
 
 		if ( !DoAddParameter( pReturn ) )
 		{
@@ -244,23 +262,23 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 	void CDatabaseStatementMySql::DoPreExecute( EErrorType * result )
 	{
-		for ( std::vector< std::pair< DatabaseStatementPtr, DatabaseParameterPtr > >::iterator it = _inOutInitializers.begin(); it != _inOutInitializers.end(); ++it )
+		for ( auto && it : _inOutInitializers )
 		{
-			if ( it->second->IsNull() )
+			if ( it.second->IsNull() )
 			{
-				it->first->SetParameterNull( 0 );
+				it.first->SetParameterNull( 0 );
 			}
 			else
 			{
-				it->first->SetParameterValue( 0, it->second );
+				it.first->SetParameterValue( 0, it.second );
 			}
 
-			it->first->ExecuteUpdate( result );
+			it.first->ExecuteUpdate( result );
 		}
 
-		for ( std::vector< DatabaseStatementPtr >::iterator it = _outInitializers.begin(); it != _outInitializers.end(); ++it )
+		for ( auto && it : _outInitializers )
 		{
-			( *it )->ExecuteUpdate( result );
+			it->ExecuteUpdate( result );
 		}
 	}
 
@@ -272,23 +290,16 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 			if ( pReturn && pReturn->GetRowCount() )
 			{
-				DatabaseParameterPtr parameter;
 				DatabaseRowPtr row = pReturn->GetFirstRow();
-				DatabaseParameterPtrArray::const_iterator itParams = _arrayOutParams.begin();
 
-				while ( itParams != _arrayOutParams.end() )
+				for ( auto && parameter : _arrayOutParams )
 				{
-					parameter = ( *itParams );
-
 					if ( ( ( parameter->GetParamType() == EParameterType_INOUT ) ||
 							( ( parameter->GetParamType() == EParameterType_OUT ) ) ) &&
 							( row->HasField( parameter->GetName() ) ) )
 					{
-						Database::DatabaseFieldPtr field = row->GetField( parameter->GetName() );
-						parameter->SetValue( field );
+						parameter->SetValue( row->GetField( parameter->GetName() ) );
 					}
-
-					++itParams;
 				}
 			}
 		}

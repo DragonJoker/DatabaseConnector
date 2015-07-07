@@ -37,11 +37,11 @@ BEGIN_NAMESPACE_DATABASE
 	typedef enum eLOG_TYPE :
 	uint8_t
 	{
-		eLOG_TYPE_DEBUG		//!<\~english Debug type log		\~french Log de type debug
-		,	eLOG_TYPE_MESSAGE	//!<\~english Message type log		\~french Log de type message
-		,	eLOG_TYPE_WARNING	//!<\~english Warning type log		\~french Log de type avertissement
-		,	eLOG_TYPE_ERROR		//!<\~english Error type log		\~french Log de type erreur
-		,	eLOG_TYPE_COUNT		//!<\~english Number of log types	\~french Compte des logs
+		eLOG_TYPE_DEBUG,	//!<\~english Debug type log		\~french Log de type debug
+		eLOG_TYPE_MESSAGE,	//!<\~english Message type log		\~french Log de type message
+		eLOG_TYPE_WARNING,	//!<\~english Warning type log		\~french Log de type avertissement
+		eLOG_TYPE_ERROR,	//!<\~english Error type log		\~french Log de type erreur
+		eLOG_TYPE_COUNT,	//!<\~english Number of log types	\~french Compte des logs
 	}	eLOG_TYPE;
 	/*!
 	\author		Sylvain DOREMUS
@@ -148,7 +148,8 @@ BEGIN_NAMESPACE_DATABASE
 	\~french
 	\brief		Classe sans action de console
 	*/
-	class DummyConsole : public ProgramConsole
+	class DummyConsole
+		: public ProgramConsole
 	{
 	public:
 		/**
@@ -198,7 +199,8 @@ BEGIN_NAMESPACE_DATABASE
 	\~french
 	\brief		Classe de gestion de la console de debug
 	*/
-	class DebugConsole : public ProgramConsole
+	class DebugConsole
+		: public ProgramConsole
 	{
 	public:
 		/**

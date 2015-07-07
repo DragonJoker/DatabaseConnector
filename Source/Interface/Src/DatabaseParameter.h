@@ -322,6 +322,14 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport virtual void DoSetValue( std::istream * value );
 
+		/** Set parameter value as a byte array.
+		@param value
+		    New parameter value.
+		@param length
+		    New parameter length.
+		*/
+		DatabaseExport virtual void DoSetBlob( uint8_t * value, uint32_t length );
+
 	protected:
 		//! Parameter name.
 		String _name;

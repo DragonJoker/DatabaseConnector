@@ -18,7 +18,7 @@
 
 #include <Database.h>
 
-#include <mysql_driver.h>
+#include <mysql.h>
 
 BEGIN_NAMESPACE_DATABASE_MYSQL
 {
@@ -53,9 +53,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		*/
 		DatabaseMySqlExport virtual DatabaseConnectionPtr DoCreateConnection( String & connectionString ) const;
 
-		/// MySQL driver
-		sql::Driver * _driver;
-
+		MYSQL _driver;
 	};
 }
 END_NAMESPACE_DATABASE_MYSQL

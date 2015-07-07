@@ -348,6 +348,14 @@ BEGIN_NAMESPACE_DATABASE
 			value = *reinterpret_cast< int32_t * >( _value->GetPtrValue() );
 			break;
 
+		case EFieldType_FLOAT:
+			value = int32_t ( *reinterpret_cast< float * >( _value->GetPtrValue() ) );
+			break;
+
+		case EFieldType_DOUBLE:
+			value = int32_t ( *reinterpret_cast< double * >( _value->GetPtrValue() ) );
+			break;
+
 		default:
 			String errMsg = DATABASE_FIELD_GETVALUE_TYPE_ERROR + this->GetName();
 			CLogger::LogError( errMsg );
@@ -499,39 +507,13 @@ BEGIN_NAMESPACE_DATABASE
 		switch ( GetType() )
 		{
 		case EFieldType_TEXT:
-
-			if ( _value->GetPtrValue() )
-			{
-				value = reinterpret_cast< char * >( _value->GetPtrValue() );
-			}
-
-			break;
-
 		case EFieldType_VARCHAR:
-
-			if ( _value->GetPtrValue() )
-			{
-				value = reinterpret_cast< char * >( _value->GetPtrValue() );
-			}
-
+			value = reinterpret_cast< char * >( _value->GetPtrValue() );
 			break;
 
 		case EFieldType_NTEXT:
-
-			if ( _value->GetPtrValue() )
-			{
-				value = CStrUtils::ToStr( reinterpret_cast< wchar_t * >( _value->GetPtrValue() ) );
-			}
-
-			break;
-
 		case EFieldType_NVARCHAR:
-
-			if ( _value->GetPtrValue() )
-			{
-				value = CStrUtils::ToStr( reinterpret_cast< wchar_t * >( _value->GetPtrValue() ) );
-			}
-
+			value = CStrUtils::ToStr( reinterpret_cast< wchar_t * >( _value->GetPtrValue() ) );
 			break;
 
 		default:
@@ -547,39 +529,13 @@ BEGIN_NAMESPACE_DATABASE
 		switch ( GetType() )
 		{
 		case EFieldType_TEXT:
-
-			if ( _value->GetPtrValue() )
-			{
-				value = CStrUtils::ToWStr( *reinterpret_cast< std::string * >( _value->GetPtrValue() ) );
-			}
-
-			break;
-
 		case EFieldType_VARCHAR:
-
-			if ( _value->GetPtrValue() )
-			{
-				value = CStrUtils::ToWStr( reinterpret_cast< char * >( _value->GetPtrValue() ) );
-			}
-
+			value = CStrUtils::ToWStr( reinterpret_cast< char * >( _value->GetPtrValue() ) );
 			break;
 
 		case EFieldType_NTEXT:
-
-			if ( _value->GetPtrValue() )
-			{
-				value = *reinterpret_cast< std::wstring * >( _value->GetPtrValue() );
-			}
-
-			break;
-
 		case EFieldType_NVARCHAR:
-
-			if ( _value->GetPtrValue() )
-			{
-				value = reinterpret_cast< wchar_t * >( _value->GetPtrValue() );
-			}
-
+			value = reinterpret_cast< wchar_t * >( _value->GetPtrValue() );
 			break;
 
 		default:
@@ -596,6 +552,9 @@ BEGIN_NAMESPACE_DATABASE
 		{
 		case EFieldType_DATE:
 		case EFieldType_DATETIME:
+			CDate::IsDate( _value->GetStrValue(), SDATE_FORMAT_EXP, value );
+			break;
+
 		case EFieldType_NVARCHAR:// ODBC stores date as NVARCHAR
 			value = _infos->GetConnection()->ParseDate( _value->GetStrValue() );
 			break;
@@ -613,17 +572,16 @@ BEGIN_NAMESPACE_DATABASE
 		switch ( GetType() )
 		{
 		case EFieldType_DATE:
+			CDateTime::IsDateTime( _value->GetStrValue(), SDATETIME_DATE_FORMAT_EXP, value );
+			break;
+
 		case EFieldType_DATETIME:
-			value = _infos->GetConnection()->ParseDateTime( _value->GetStrValue() );
+			CDateTime::IsDateTime( _value->GetStrValue(), SDATETIME_FORMAT_EXP, value );
 			break;
 
 		case EFieldType_TIME:
-		{
-			std::tm val = { 0 };
-			_infos->GetConnection()->ParseTime( _value->GetStrValue() ).ToCLibTm( val );
-			value = CDateTime( val );
+			CDateTime::IsDateTime( _value->GetStrValue(), SDATETIME_TIME_FORMAT_EXP, value );
 			break;
-		}
 
 		default:
 			String errMsg = DATABASE_FIELD_GETVALUE_TYPE_ERROR + this->GetName();
@@ -639,7 +597,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 		case EFieldType_DATETIME:
 		case EFieldType_TIME:
-			value = _infos->GetConnection()->ParseTime( _value->GetStrValue() );
+			CTime::IsTime( _value->GetStrValue(), STIME_FORMAT_EXP, value );
 			break;
 
 		default:
@@ -1118,18 +1076,6 @@ BEGIN_NAMESPACE_DATABASE
 			static_cast< CDatabaseValue< EFieldType_NTEXT > * >( _value )->SetValue( CStrUtils::ToWStr( value ) );
 			break;
 
-		case EFieldType_DATE:
-			static_cast< CDatabaseValue< EFieldType_DATE > * >( _value )->SetValue( value );
-			break;
-
-		case EFieldType_DATETIME:
-			static_cast< CDatabaseValue< EFieldType_DATETIME > * >( _value )->SetValue( value );
-			break;
-
-		case EFieldType_TIME:
-			static_cast< CDatabaseValue< EFieldType_TIME > * >( _value )->SetValue( value );
-			break;
-
 		default:
 			String errMsg = DATABASE_FIELD_SETVALUE_TYPE_ERROR + this->GetName();
 			CLogger::LogError( errMsg );
@@ -1158,18 +1104,6 @@ BEGIN_NAMESPACE_DATABASE
 
 		case EFieldType_NVARCHAR:
 			static_cast< CDatabaseValue< EFieldType_NVARCHAR > * >( _value )->SetValue( value.c_str(), std::min( GetLimits(), uint32_t( value.size() ) ) );
-			break;
-
-		case EFieldType_DATE:
-			static_cast< CDatabaseValue< EFieldType_DATE > * >( _value )->SetValue( CStrUtils::ToStr( value ) );
-			break;
-
-		case EFieldType_DATETIME:
-			static_cast< CDatabaseValue< EFieldType_DATETIME > * >( _value )->SetValue( CStrUtils::ToStr( value ) );
-			break;
-
-		case EFieldType_TIME:
-			static_cast< CDatabaseValue< EFieldType_TIME > * >( _value )->SetValue( CStrUtils::ToStr( value ) );
 			break;
 
 		default:
@@ -1209,15 +1143,15 @@ BEGIN_NAMESPACE_DATABASE
 		switch ( GetType() )
 		{
 		case EFieldType_DATE:
-			static_cast< CDatabaseValue< EFieldType_DATE > * >( _value )->SetValue( value.ToStdString() );
+			static_cast< CDatabaseValue< EFieldType_DATE > * >( _value )->SetValue( value.Format( SDATE_FORMAT_EXP ) );
 			break;
 
 		case EFieldType_DATETIME:
-			static_cast< CDatabaseValue< EFieldType_DATETIME > * >( _value )->SetValue( value.ToStdString() );
+			static_cast< CDatabaseValue< EFieldType_DATETIME > * >( _value )->SetValue( value.Format( SDATETIME_FORMAT_EXP ) );
 			break;
 
 		case EFieldType_TIME:
-			static_cast< CDatabaseValue< EFieldType_DATE > * >( _value )->SetValue( value.ToStdString() );
+			static_cast< CDatabaseValue< EFieldType_DATE > * >( _value )->SetValue( value.Format( STIME_FORMAT_EXP ) );
 
 		default:
 			String errMsg = DATABASE_FIELD_SETVALUE_TYPE_ERROR + this->GetName();
@@ -1378,7 +1312,7 @@ BEGIN_NAMESPACE_DATABASE
 	void CDatabaseField::DoSetValueFast( const CDateTime & value )
 	{
 		assert( GetType() == EFieldType_DATETIME );
-		static_cast< CDatabaseValue< EFieldType_DATETIME > * >( _value )->SetValue( value.ToStdString() );
+		static_cast< CDatabaseValue< EFieldType_DATETIME > * >( _value )->SetValue( value.Format( SDATETIME_FORMAT_EXP ) );
 		_isNull = false;
 	}
 

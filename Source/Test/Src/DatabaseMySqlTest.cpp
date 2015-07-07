@@ -18,7 +18,7 @@
 BEGIN_NAMESPACE_DATABASE_TEST
 {
 	static const String DB_DATABASE = STR( "db_test_mysql" );
-	static const String DB_SERVER = STR( "tcp://127.0.0.1:3306" );
+	static const String DB_SERVER = STR( "127.0.0.1" );
 	static const String DB_USER = STR( "root" );
 	static const String DB_PASS = STR( "" );
 
