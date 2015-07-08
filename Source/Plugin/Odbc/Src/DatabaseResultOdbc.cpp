@@ -142,7 +142,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 							if ( errorType == EErrorType_NONE )
 							{
 								AddField( name, buffer );
-								field = std::make_shared< CDatabaseField >( GetFieldInfos( i ), true, STR( "" ) );
+								field = std::make_shared< CDatabaseField >( GetFieldInfos( i ) );
 								_row->AddField( field );
 								memset( buffer, 0, sizeof( buffer ) );
 							}
@@ -150,7 +150,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 						else
 						{
 							AddField( name, GetFieldConciseType( numeric ) );
-							field = std::make_shared< CDatabaseField >( GetFieldInfos( i ), true, STR( "" ) );
+							field = std::make_shared< CDatabaseField >( GetFieldInfos( i ) );
 							_row->AddField( field );
 						}
 
@@ -243,11 +243,11 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 						if ( !bNull )
 						{
-							field->SetStrValue( CStrUtils::ToString( strFieldValue ) );
+							field->GetObjectValue().SetStrValue( CStrUtils::ToString( strFieldValue ) );
 						}
 						else
 						{
-							field->SetNull();
+							field->GetObjectValue().SetNull();
 						}
 
 						++it;

@@ -127,7 +127,7 @@ namespace Database
 	typedef std::shared_ptr< CDatabaseConnection >  DatabaseConnectionPtr;
 	typedef std::shared_ptr< CDatabaseField >       DatabaseFieldPtr;
 	typedef std::shared_ptr< CDatabaseFieldInfos >  DatabaseFieldInfosPtr;
-	typedef std::shared_ptr< CDatabaseValueBase >   DatabaseFieldValueBasePtr;
+	typedef std::unique_ptr< CDatabaseValueBase >   DatabaseValueBasePtr;
 	typedef std::shared_ptr< CDatabaseParameter >   DatabaseParameterPtr;
 	typedef std::shared_ptr< CDatabaseQuery >       DatabaseQueryPtr;
 	typedef std::shared_ptr< CDatabaseResult >      DatabaseResultPtr;

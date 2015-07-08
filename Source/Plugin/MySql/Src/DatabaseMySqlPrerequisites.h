@@ -78,7 +78,7 @@ BEGIN_NAMESPACE_DATABASE
 			unsigned long _length = 0;
 			my_bool _error = 0;
 			MYSQL_BIND & _bind;
-			
+
 			CMySqlBindBase( MYSQL_BIND & bind )
 				: _bind( bind )
 			{
@@ -88,8 +88,8 @@ BEGIN_NAMESPACE_DATABASE
 			}
 		};
 
-		template< typename T, typename U=T > struct CInMySqlBind
-			: public CMySqlBindBase
+		template< typename T, typename U = T > struct CInMySqlBind
+				: public CMySqlBindBase
 		{
 			T _value;
 
@@ -106,7 +106,7 @@ BEGIN_NAMESPACE_DATABASE
 		};
 
 		template<> struct CInMySqlBind< bool, bool >
-			: public CMySqlBindBase
+				: public CMySqlBindBase
 		{
 			int8_t _value;
 
@@ -123,7 +123,7 @@ BEGIN_NAMESPACE_DATABASE
 		};
 
 		template< typename T > struct CInMySqlBind< T *, T * >
-			: public CMySqlBindBase
+				: public CMySqlBindBase
 		{
 			T _value[8192];
 
@@ -142,7 +142,7 @@ BEGIN_NAMESPACE_DATABASE
 		};
 
 		template<> struct CInMySqlBind< char *, double >
-			: public CMySqlBindBase
+				: public CMySqlBindBase
 		{
 			char _value[8192];
 
@@ -161,7 +161,7 @@ BEGIN_NAMESPACE_DATABASE
 		};
 
 		template<> struct CInMySqlBind< char *, int32_t >
-			: public CMySqlBindBase
+				: public CMySqlBindBase
 		{
 			char _value[8192];
 
@@ -182,11 +182,11 @@ BEGIN_NAMESPACE_DATABASE
 		CDate CDateFromMySqlTime( MYSQL_TIME const & ts );
 		CDateTime CDateTimeFromMySqlTime( MYSQL_TIME const & ts );
 		CTime CTimeFromMySqlTime( MYSQL_TIME const & ts );
-			
+
 		MYSQL_TIME MySqlTimeFromCDate( CDate const & ts );
 		MYSQL_TIME MySqlTimeFromCDateTime( CDateTime const & ts );
 		MYSQL_TIME MySqlTimeFromCTime( CTime const & ts );
-		
+
 		std::string StringFromMySqlString( MYSQL_BIND const & bind, bool truncated );
 	}
 }

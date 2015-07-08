@@ -242,7 +242,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 	{
 		for ( std::vector< std::pair< DatabaseStatementPtr, DatabaseParameterPtr > >::iterator it = _inOutInitializers.begin(); it != _inOutInitializers.end(); ++it )
 		{
-			if ( it->second->IsNull() )
+			if ( it->second->GetObjectValue().IsNull() )
 			{
 				it->first->SetParameterNull( 0 );
 			}

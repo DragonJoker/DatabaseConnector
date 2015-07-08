@@ -13,7 +13,7 @@
 #	endif
 #endif
 
-#include "DatabaseConsole.h"
+#include "DatabaseLoggerConsole.h"
 #include "DatabaseStringUtils.h"
 
 BEGIN_NAMESPACE_DATABASE
@@ -113,7 +113,7 @@ BEGIN_NAMESPACE_DATABASE
 				{
 					l_csbiInfo.dwCursorPosition.X = 0;
 					::WriteConsoleA( m_hScreenBuffer, p_strToLog.c_str(), DWORD( p_strToLog.size() ), &l_dwWritten, NULL );
-					SHORT l_sOffsetY = SHORT( 1 + l_dwWritten / l_csbiInfo.dwSize.Y );
+					SHORT l_sOffsetY = SHORT( 1 + l_dwWritten / l_csbiInfo.dwSize.X );
 
 					if ( ( l_csbiInfo.dwSize.Y - l_sOffsetY ) <= l_csbiInfo.dwCursorPosition.Y )
 					{

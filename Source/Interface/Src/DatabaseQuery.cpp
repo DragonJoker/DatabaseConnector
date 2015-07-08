@@ -46,7 +46,7 @@ BEGIN_NAMESPACE_DATABASE
 
 	void CDatabaseQuery::SValueUpdater::Update( DatabaseParameterPtr value )
 	{
-		_query->_mapParamsByPointer[value->GetPtrValue()] = value;
+		_query->_mapParamsByPointer[value->GetObjectValue().GetPtrValue()] = value;
 	}
 
 	CDatabaseQuery::CDatabaseQuery( DatabaseConnectionPtr connection, const String & query )
@@ -225,12 +225,12 @@ BEGIN_NAMESPACE_DATABASE
 
 			if ( parameter->GetParamType() == EParameterType_IN )
 			{
-				query << parameter->GetInsertValue().c_str();
+				query << parameter->GetObjectValue().GetQueryValue().c_str();
 			}
 			else if ( parameter->GetParamType() == EParameterType_INOUT )
 			{
 				query << SQL_PARAM + parameter->GetName();
-				inOutInitializers.push_back( SQL_SET + parameter->GetName() + STR( " = " ) + parameter->GetInsertValue() );
+				inOutInitializers.push_back( SQL_SET + parameter->GetName() + STR( " = " ) + parameter->GetObjectValue().GetQueryValue() );
 				outParams.push_back( parameter );
 			}
 			else if ( parameter->GetParamType() == EParameterType_OUT )

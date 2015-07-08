@@ -131,7 +131,7 @@ BEGIN_NAMESPACE_DATABASE
 		else if ( strTypel.find( STR( "CHAR" ) ) != String::npos )
 		{
 			_type = EFieldType_VARCHAR;
-			
+
 			if ( limprec == -1 )
 			{
 				_limits = RetrieveLimits( strTypel ).first;

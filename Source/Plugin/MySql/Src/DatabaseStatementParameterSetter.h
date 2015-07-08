@@ -247,7 +247,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		//!@copydoc SParameterValueSetterBase::SetValue
 		virtual void SetValue( MYSQL_STMT * statement, void * value, CDatabaseStatementParameterMySql * parameter )
 		{
-			_length = parameter->GetPtrSize();
+			_length = parameter->GetObjectValue().GetPtrSize();
 			_bind->buffer = value;
 			_bind->buffer_length = _length;
 		}
@@ -270,7 +270,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		//!@copydoc SParameterValueSetterBase::SetValue
 		virtual void SetValue( MYSQL_STMT * statement, void * value, CDatabaseStatementParameterMySql * parameter )
 		{
-			_length = parameter->GetPtrSize();
+			_length = parameter->GetObjectValue().GetPtrSize();
 			_bind->buffer = value;
 			_bind->buffer_length = _length;
 		}
@@ -409,7 +409,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		//!@copydoc SParameterValueSetterBase::SetValue
 		virtual void SetValue( MYSQL_STMT * statement, void * value, CDatabaseStatementParameterMySql * parameter )
 		{
-			_length = parameter->GetPtrSize();
+			_length = parameter->GetObjectValue().GetPtrSize();
 			_bind->buffer = value;
 			_bind->buffer_length = _length;
 		}
@@ -432,7 +432,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		//!@copydoc SParameterValueSetterBase::SetValue
 		virtual void SetValue( MYSQL_STMT * statement, void * value, CDatabaseStatementParameterMySql * parameter )
 		{
-			_length = parameter->GetPtrSize();
+			_length = parameter->GetObjectValue().GetPtrSize();
 			_bind->buffer = value;
 			_bind->buffer_length = _length;
 		}
@@ -455,7 +455,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		//!@copydoc SParameterValueSetterBase::SetValue
 		virtual void SetValue( MYSQL_STMT * statement, void * value, CDatabaseStatementParameterMySql * parameter )
 		{
-			_length = parameter->GetPtrSize();
+			_length = parameter->GetObjectValue().GetPtrSize();
 			_bind->buffer = value;
 			_bind->buffer_length = _length;
 		}

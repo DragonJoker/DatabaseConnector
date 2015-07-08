@@ -33,18 +33,18 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		template< typename T, typename U >
 		struct SValueSetter
 		{
-			void operator()( SParameterValueSetterBase * paramSetter, U & value, SQLite::Statement * statement, CDatabaseStatementParameterSqlite * parameter, CDatabaseValueBase * paramValue )
+			void operator()( SParameterValueSetterBase * paramSetter, U & value, SQLite::Statement * statement, CDatabaseStatementParameterSqlite * parameter, CDatabaseValueBase & paramValue )
 			{
 				T val = T( value );
 
 				if ( statement )
 				{
 					( *paramSetter )( statement, &val, parameter );
-					paramValue->SetNull( false );
+					paramValue.SetNull( false );
 
 					if ( parameter->GetParamType() != EParameterType_IN )
 					{
-						static_cast< CDatabaseValue< SDataTypeFieldTyper< T >::Value > * >( paramValue )->SetValue( val );
+						static_cast< CDatabaseValue< SDataTypeFieldTyper< T >::Value > & >( paramValue ).SetValue( val );
 					}
 				}
 				else if ( parameter->GetParamType() == EParameterType_IN )
@@ -53,7 +53,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 				}
 				else
 				{
-					static_cast< CDatabaseValue< SDataTypeFieldTyper< T >::Value > * >( paramValue )->SetValue( val );
+					static_cast< CDatabaseValue< SDataTypeFieldTyper< T >::Value > & >( paramValue ).SetValue( val );
 				}
 			}
 		};
@@ -61,16 +61,16 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		template< typename T >
 		struct SValueSetter< T, T >
 		{
-			void operator()( SParameterValueSetterBase * paramSetter, T & value, SQLite::Statement * statement, CDatabaseStatementParameterSqlite * parameter, CDatabaseValueBase * paramValue )
+			void operator()( SParameterValueSetterBase * paramSetter, T & value, SQLite::Statement * statement, CDatabaseStatementParameterSqlite * parameter, CDatabaseValueBase & paramValue )
 			{
 				if ( statement )
 				{
 					( *paramSetter )( statement, &value, parameter );
-					paramValue->SetNull( false );
+					paramValue.SetNull( false );
 
 					if ( parameter->GetParamType() != EParameterType_IN )
 					{
-						static_cast< CDatabaseValue< SDataTypeFieldTyper< T >::Value > * >( paramValue )->SetValue( value );
+						static_cast< CDatabaseValue< SDataTypeFieldTyper< T >::Value > & >( paramValue ).SetValue( value );
 					}
 				}
 				else if ( parameter->GetParamType() == EParameterType_IN )
@@ -79,7 +79,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 				}
 				else
 				{
-					static_cast< CDatabaseValue< SDataTypeFieldTyper< T >::Value > * >( paramValue )->SetValue( value );
+					static_cast< CDatabaseValue< SDataTypeFieldTyper< T >::Value > & >( paramValue ).SetValue( value );
 				}
 			}
 		};
@@ -87,18 +87,18 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		template< typename T >
 		struct SValueSetter< T, bool >
 		{
-			void operator()( SParameterValueSetterBase * paramSetter, bool & value, SQLite::Statement * statement, CDatabaseStatementParameterSqlite * parameter, CDatabaseValueBase * paramValue )
+			void operator()( SParameterValueSetterBase * paramSetter, bool & value, SQLite::Statement * statement, CDatabaseStatementParameterSqlite * parameter, CDatabaseValueBase & paramValue )
 			{
 				T val = value ? 1 : 0;
 
 				if ( statement )
 				{
 					( *paramSetter )( statement, &value, parameter );
-					paramValue->SetNull( false );
+					paramValue.SetNull( false );
 
 					if ( parameter->GetParamType() != EParameterType_IN )
 					{
-						static_cast< CDatabaseValue< SDataTypeFieldTyper< T >::Value > * >( paramValue )->SetValue( val );
+						static_cast< CDatabaseValue< SDataTypeFieldTyper< T >::Value > & >( paramValue ).SetValue( val );
 					}
 				}
 				else if ( parameter->GetParamType() == EParameterType_IN )
@@ -107,7 +107,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 				}
 				else
 				{
-					static_cast< CDatabaseValue< SDataTypeFieldTyper< T >::Value > * >( paramValue )->SetValue( val );
+					static_cast< CDatabaseValue< SDataTypeFieldTyper< T >::Value > & >( paramValue ).SetValue( val );
 				}
 			}
 		};
@@ -115,18 +115,18 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		template< typename T >
 		struct SValueSetter< bool, T >
 		{
-			void operator()( SParameterValueSetterBase * paramSetter, T & value, SQLite::Statement * statement, CDatabaseStatementParameterSqlite * parameter, CDatabaseValueBase * paramValue )
+			void operator()( SParameterValueSetterBase * paramSetter, T & value, SQLite::Statement * statement, CDatabaseStatementParameterSqlite * parameter, CDatabaseValueBase & paramValue )
 			{
 				bool val = value != 0;
 
 				if ( statement )
 				{
 					( *paramSetter )( statement, &value, parameter );
-					paramValue->SetNull( false );
+					paramValue.SetNull( false );
 
 					if ( parameter->GetParamType() != EParameterType_IN )
 					{
-						static_cast< CDatabaseValue< SDataTypeFieldTyper< bool >::Value > * >( paramValue )->SetValue( val );
+						static_cast< CDatabaseValue< SDataTypeFieldTyper< bool >::Value > & >( paramValue ).SetValue( val );
 					}
 				}
 				else if ( parameter->GetParamType() == EParameterType_IN )
@@ -135,7 +135,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 				}
 				else
 				{
-					static_cast< CDatabaseValue< SDataTypeFieldTyper< bool >::Value > * >( paramValue )->SetValue( val );
+					static_cast< CDatabaseValue< SDataTypeFieldTyper< bool >::Value > & >( paramValue ).SetValue( val );
 				}
 			}
 		};
@@ -143,16 +143,16 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		template<>
 		struct SValueSetter< bool, bool >
 		{
-			void operator()( SParameterValueSetterBase * paramSetter, bool & value, SQLite::Statement * statement, CDatabaseStatementParameterSqlite * parameter, CDatabaseValueBase * paramValue )
+			void operator()( SParameterValueSetterBase * paramSetter, bool & value, SQLite::Statement * statement, CDatabaseStatementParameterSqlite * parameter, CDatabaseValueBase & paramValue )
 			{
 				if ( statement )
 				{
 					( *paramSetter )( statement, &value, parameter );
-					paramValue->SetNull( false );
+					paramValue.SetNull( false );
 
 					if ( parameter->GetParamType() != EParameterType_IN )
 					{
-						static_cast< CDatabaseValue< SDataTypeFieldTyper< bool >::Value > * >( paramValue )->SetValue( value );
+						static_cast< CDatabaseValue< SDataTypeFieldTyper< bool >::Value > & >( paramValue ).SetValue( value );
 					}
 				}
 				else if ( parameter->GetParamType() == EParameterType_IN )
@@ -161,7 +161,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 				}
 				else
 				{
-					static_cast< CDatabaseValue< SDataTypeFieldTyper< bool >::Value > * >( paramValue )->SetValue( value );
+					static_cast< CDatabaseValue< SDataTypeFieldTyper< bool >::Value > & >( paramValue ).SetValue( value );
 				}
 			}
 		};
@@ -169,24 +169,24 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		template< typename T >
 		struct SValueSetter< const char *, T >
 		{
-			void operator()( SParameterValueSetterBase * paramSetter, T & value, SQLite::Statement * statement, CDatabaseStatementParameterSqlite * parameter, CDatabaseValueBase * paramValue )
+			void operator()( SParameterValueSetterBase * paramSetter, T & value, SQLite::Statement * statement, CDatabaseStatementParameterSqlite * parameter, CDatabaseValueBase & paramValue )
 			{
 				std::string val = std::to_string( value );
 
 				if ( statement )
 				{
 					( *paramSetter )( statement, ( void * )value, parameter );
-					paramValue->SetNull( false );
+					paramValue.SetNull( false );
 
 					if ( parameter->GetParamType() != EParameterType_IN )
 					{
 						if ( parameter->GetType() == EFieldType_VARCHAR )
 						{
-							static_cast< CDatabaseValue< SDataTypeFieldTyper< char * >::Value > * >( paramValue )->SetValue( val.data(), uint32_t( val.size() ) );
+							static_cast< CDatabaseValue< SDataTypeFieldTyper< char * >::Value > & >( paramValue ).SetValue( val.data(), uint32_t( val.size() ) );
 						}
 						else
 						{
-							static_cast< CDatabaseValue< SDataTypeFieldTyper< std::string >::Value > * >( paramValue )->SetValue( val );
+							static_cast< CDatabaseValue< SDataTypeFieldTyper< std::string >::Value > & >( paramValue ).SetValue( val );
 						}
 					}
 				}
@@ -198,11 +198,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 				{
 					if ( parameter->GetType() == EFieldType_VARCHAR )
 					{
-						static_cast< CDatabaseValue< SDataTypeFieldTyper< char * >::Value > * >( paramValue )->SetValue( val.data(), uint32_t( val.size() ) );
+						static_cast< CDatabaseValue< SDataTypeFieldTyper< char * >::Value > & >( paramValue ).SetValue( val.data(), uint32_t( val.size() ) );
 					}
 					else
 					{
-						static_cast< CDatabaseValue< SDataTypeFieldTyper< std::string >::Value > * >( paramValue )->SetValue( val );
+						static_cast< CDatabaseValue< SDataTypeFieldTyper< std::string >::Value > & >( paramValue ).SetValue( val );
 					}
 				}
 			}
@@ -211,24 +211,24 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		template< typename T >
 		struct SValueSetter< const wchar_t *, T >
 		{
-			void operator()( SParameterValueSetterBase * paramSetter, T & value, SQLite::Statement * statement, CDatabaseStatementParameterSqlite * parameter, CDatabaseValueBase * paramValue )
+			void operator()( SParameterValueSetterBase * paramSetter, T & value, SQLite::Statement * statement, CDatabaseStatementParameterSqlite * parameter, CDatabaseValueBase & paramValue )
 			{
 				std::wstring val = CStrUtils::ToWStr( std::to_string( value ) );
 
 				if ( statement )
 				{
 					( *paramSetter )( statement, ( void * )value, parameter );
-					paramValue->SetNull( false );
+					paramValue.SetNull( false );
 
 					if ( parameter->GetParamType() != EParameterType_IN )
 					{
 						if ( parameter->GetType() == EFieldType_NVARCHAR )
 						{
-							static_cast< CDatabaseValue< SDataTypeFieldTyper< wchar_t * >::Value > * >( paramValue )->SetValue( val.data(), uint32_t( val.size() ) );
+							static_cast< CDatabaseValue< SDataTypeFieldTyper< wchar_t * >::Value > & >( paramValue ).SetValue( val.data(), uint32_t( val.size() ) );
 						}
 						else
 						{
-							static_cast< CDatabaseValue< SDataTypeFieldTyper< std::wstring >::Value > * >( paramValue )->SetValue( val );
+							static_cast< CDatabaseValue< SDataTypeFieldTyper< std::wstring >::Value > & >( paramValue ).SetValue( val );
 						}
 					}
 				}
@@ -240,11 +240,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 				{
 					if ( parameter->GetType() == EFieldType_NVARCHAR )
 					{
-						static_cast< CDatabaseValue< SDataTypeFieldTyper< wchar_t * >::Value > * >( paramValue )->SetValue( val.data(), uint32_t( val.size() ) );
+						static_cast< CDatabaseValue< SDataTypeFieldTyper< wchar_t * >::Value > & >( paramValue ).SetValue( val.data(), uint32_t( val.size() ) );
 					}
 					else
 					{
-						static_cast< CDatabaseValue< SDataTypeFieldTyper< std::wstring >::Value > * >( paramValue )->SetValue( val );
+						static_cast< CDatabaseValue< SDataTypeFieldTyper< std::wstring >::Value > & >( paramValue ).SetValue( val );
 					}
 				}
 			}
@@ -253,22 +253,22 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		template<>
 		struct SValueSetter< const char *, const char * >
 		{
-			void operator()( SParameterValueSetterBase * paramSetter, const char * value, SQLite::Statement * statement, CDatabaseStatementParameterSqlite * parameter, CDatabaseValueBase * paramValue )
+			void operator()( SParameterValueSetterBase * paramSetter, const char * value, SQLite::Statement * statement, CDatabaseStatementParameterSqlite * parameter, CDatabaseValueBase & paramValue )
 			{
 				if ( statement )
 				{
 					( *paramSetter )( statement, ( void * )value, parameter );
-					paramValue->SetNull( false );
+					paramValue.SetNull( false );
 
 					if ( parameter->GetParamType() != EParameterType_IN )
 					{
 						if ( parameter->GetType() == EFieldType_VARCHAR )
 						{
-							static_cast< CDatabaseValue< SDataTypeFieldTyper< char * >::Value > * >( paramValue )->SetValue( value );
+							static_cast< CDatabaseValue< SDataTypeFieldTyper< char * >::Value > & >( paramValue ).SetValue( value );
 						}
 						else
 						{
-							static_cast< CDatabaseValue< SDataTypeFieldTyper< std::string >::Value > * >( paramValue )->SetValue( value );
+							static_cast< CDatabaseValue< SDataTypeFieldTyper< std::string >::Value > & >( paramValue ).SetValue( value );
 						}
 					}
 				}
@@ -280,11 +280,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 				{
 					if ( parameter->GetType() == EFieldType_VARCHAR )
 					{
-						static_cast< CDatabaseValue< SDataTypeFieldTyper< char * >::Value > * >( paramValue )->SetValue( value );
+						static_cast< CDatabaseValue< SDataTypeFieldTyper< char * >::Value > & >( paramValue ).SetValue( value );
 					}
 					else
 					{
-						static_cast< CDatabaseValue< SDataTypeFieldTyper< std::string >::Value > * >( paramValue )->SetValue( value );
+						static_cast< CDatabaseValue< SDataTypeFieldTyper< std::string >::Value > & >( paramValue ).SetValue( value );
 					}
 				}
 			}
@@ -293,24 +293,24 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		template<>
 		struct SValueSetter< const char *, const wchar_t * >
 		{
-			void operator()( SParameterValueSetterBase * paramSetter, const wchar_t * value, SQLite::Statement * statement, CDatabaseStatementParameterSqlite * parameter, CDatabaseValueBase * paramValue )
+			void operator()( SParameterValueSetterBase * paramSetter, const wchar_t * value, SQLite::Statement * statement, CDatabaseStatementParameterSqlite * parameter, CDatabaseValueBase & paramValue )
 			{
 				std::string val = CStrUtils::ToStr( value );
 
 				if ( statement )
 				{
 					( *paramSetter )( statement, &val[0], parameter );
-					paramValue->SetNull( false );
+					paramValue.SetNull( false );
 
 					if ( parameter->GetParamType() != EParameterType_IN )
 					{
 						if ( parameter->GetType() == EFieldType_VARCHAR )
 						{
-							static_cast< CDatabaseValue< SDataTypeFieldTyper< char * >::Value > * >( paramValue )->SetValue( val.c_str(), parameter->GetLimits() );
+							static_cast< CDatabaseValue< SDataTypeFieldTyper< char * >::Value > & >( paramValue ).SetValue( val.c_str(), parameter->GetLimits() );
 						}
 						else
 						{
-							static_cast< CDatabaseValue< SDataTypeFieldTyper< std::string >::Value > * >( paramValue )->SetValue( val );
+							static_cast< CDatabaseValue< SDataTypeFieldTyper< std::string >::Value > & >( paramValue ).SetValue( val );
 						}
 					}
 				}
@@ -322,11 +322,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 				{
 					if ( parameter->GetType() == EFieldType_VARCHAR )
 					{
-						static_cast< CDatabaseValue< SDataTypeFieldTyper< char * >::Value > * >( paramValue )->SetValue( val.c_str(), parameter->GetLimits() );
+						static_cast< CDatabaseValue< SDataTypeFieldTyper< char * >::Value > & >( paramValue ).SetValue( val.c_str(), parameter->GetLimits() );
 					}
 					else
 					{
-						static_cast< CDatabaseValue< SDataTypeFieldTyper< std::string >::Value > * >( paramValue )->SetValue( val );
+						static_cast< CDatabaseValue< SDataTypeFieldTyper< std::string >::Value > & >( paramValue ).SetValue( val );
 					}
 				}
 			}
@@ -383,55 +383,55 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		switch ( parameter->GetType() )
 		{
 		case EFieldType_BOOL:
-			DoSetValue( *static_cast< bool * >( parameter->GetPtrValue() ) );
+			DoSetValue( *static_cast< bool * >( parameter->GetObjectValue().GetPtrValue() ) );
 			break;
 
 		case EFieldType_SMALL_INTEGER:
-			DoSetValue( *static_cast< int16_t * >( parameter->GetPtrValue() ) );
+			DoSetValue( *static_cast< int16_t * >( parameter->GetObjectValue().GetPtrValue() ) );
 			break;
 
 		case EFieldType_INTEGER:
-			DoSetValue( *static_cast< int32_t * >( parameter->GetPtrValue() ) );
+			DoSetValue( *static_cast< int32_t * >( parameter->GetObjectValue().GetPtrValue() ) );
 			break;
 
 		case EFieldType_LONG_INTEGER:
-			DoSetValue( *static_cast< int64_t * >( parameter->GetPtrValue() ) );
+			DoSetValue( *static_cast< int64_t * >( parameter->GetObjectValue().GetPtrValue() ) );
 			break;
 
 		case EFieldType_FLOAT:
-			DoSetValue( *static_cast< float * >( parameter->GetPtrValue() ) );
+			DoSetValue( *static_cast< float * >( parameter->GetObjectValue().GetPtrValue() ) );
 			break;
 
 		case EFieldType_DOUBLE:
-			DoSetValue( *static_cast< double * >( parameter->GetPtrValue() ) );
+			DoSetValue( *static_cast< double * >( parameter->GetObjectValue().GetPtrValue() ) );
 			break;
 
 		case EFieldType_VARCHAR:
-			DoSetValue( static_cast< char * >( parameter->GetPtrValue() ) );
+			DoSetValue( static_cast< char * >( parameter->GetObjectValue().GetPtrValue() ) );
 			break;
 
 		case EFieldType_TEXT:
-			DoSetValue( static_cast< char * >( parameter->GetPtrValue() ) );
+			DoSetValue( static_cast< char * >( parameter->GetObjectValue().GetPtrValue() ) );
 			break;
 
 		case EFieldType_NVARCHAR:
-			DoSetValue( static_cast< wchar_t * >( parameter->GetPtrValue() ) );
+			DoSetValue( static_cast< wchar_t * >( parameter->GetObjectValue().GetPtrValue() ) );
 			break;
 
 		case EFieldType_NTEXT:
-			DoSetValue( static_cast< wchar_t * >( parameter->GetPtrValue() ) );
+			DoSetValue( static_cast< wchar_t * >( parameter->GetObjectValue().GetPtrValue() ) );
 			break;
 
 		case EFieldType_DATE:
-			DoSetValue( _connection->ParseDate( static_cast< char * >( parameter->GetPtrValue() ) ) );
+			DoSetValue( GetConnection()->ParseDate( static_cast< char * >( parameter->GetObjectValue().GetPtrValue() ) ) );
 			break;
 
 		case EFieldType_DATETIME:
-			DoSetValue( _connection->ParseDateTime( static_cast< char * >( parameter->GetPtrValue() ) ) );
+			DoSetValue( GetConnection()->ParseDateTime( static_cast< char * >( parameter->GetObjectValue().GetPtrValue() ) ) );
 			break;
 
 		case EFieldType_TIME:
-			DoSetValue( _connection->ParseTime( static_cast< char * >( parameter->GetPtrValue() ) ) );
+			DoSetValue( GetConnection()->ParseTime( static_cast< char * >( parameter->GetObjectValue().GetPtrValue() ) ) );
 			break;
 
 		case EFieldType_BINARY:
@@ -439,7 +439,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		case EFieldType_LONG_VARBINARY:
 		{
 			std::vector< uint8_t > data;
-			data.insert( data.end(), ( uint8_t * )parameter->GetPtrValue(), ( uint8_t * )parameter->GetPtrValue() + parameter->GetPtrSize() );
+			data.insert( data.end(), ( uint8_t * )parameter->GetObjectValue().GetPtrValue(), ( uint8_t * )parameter->GetObjectValue().GetPtrValue() + parameter->GetObjectValue().GetPtrSize() );
 			DoSetValue( data );
 
 			if ( !data.empty() )
@@ -467,19 +467,19 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		switch ( GetType() )
 		{
 		case EFieldType_BOOL:
-			SValueSetter< bool, bool >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< bool, bool >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_SMALL_INTEGER:
-			SValueSetter< int16_t, bool >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< int16_t, bool >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_INTEGER:
-			SValueSetter< int32_t, bool >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< int32_t, bool >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_LONG_INTEGER:
-			SValueSetter< int64_t, bool >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< int64_t, bool >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		default:
@@ -496,27 +496,27 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		switch ( GetType() )
 		{
 		case EFieldType_BOOL:
-			SValueSetter< bool, int16_t >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< bool, int16_t >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_SMALL_INTEGER:
-			SValueSetter< int16_t, int16_t >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< int16_t, int16_t >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_INTEGER:
-			SValueSetter< int32_t, int16_t >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< int32_t, int16_t >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_LONG_INTEGER:
-			SValueSetter< int64_t, int16_t >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< int64_t, int16_t >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_FLOAT:
-			SValueSetter< float, int16_t >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< float, int16_t >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_DOUBLE:
-			SValueSetter< double, int16_t >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< double, int16_t >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		default:
@@ -533,27 +533,27 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		switch ( GetType() )
 		{
 		case EFieldType_BOOL:
-			SValueSetter< bool, uint16_t >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< bool, uint16_t >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_SMALL_INTEGER:
-			SValueSetter< int16_t, uint16_t >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< int16_t, uint16_t >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_INTEGER:
-			SValueSetter< int32_t, uint16_t >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< int32_t, uint16_t >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_LONG_INTEGER:
-			SValueSetter< int64_t, uint16_t >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< int64_t, uint16_t >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_FLOAT:
-			SValueSetter< float, uint16_t >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< float, uint16_t >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_DOUBLE:
-			SValueSetter< double, uint16_t >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< double, uint16_t >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		default:
@@ -570,23 +570,23 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		switch ( GetType() )
 		{
 		case EFieldType_BOOL:
-			SValueSetter< bool, int >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< bool, int >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_INTEGER:
-			SValueSetter< int32_t, int >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< int32_t, int >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_LONG_INTEGER:
-			SValueSetter< int64_t, int >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< int64_t, int >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_FLOAT:
-			SValueSetter< float, int >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< float, int >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_DOUBLE:
-			SValueSetter< double, int >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< double, int >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		default:
@@ -603,23 +603,23 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		switch ( GetType() )
 		{
 		case EFieldType_BOOL:
-			SValueSetter< bool, unsigned int >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< bool, unsigned int >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_INTEGER:
-			SValueSetter< int32_t, unsigned int >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< int32_t, unsigned int >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_LONG_INTEGER:
-			SValueSetter< int64_t, unsigned int >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< int64_t, unsigned int >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_FLOAT:
-			SValueSetter< float, unsigned int >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< float, unsigned int >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_DOUBLE:
-			SValueSetter< double, unsigned int >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< double, unsigned int >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		default:
@@ -636,15 +636,15 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		switch ( GetType() )
 		{
 		case EFieldType_BOOL:
-			SValueSetter< bool, int64_t >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< bool, int64_t >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_LONG_INTEGER:
-			SValueSetter< int64_t, int64_t >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< int64_t, int64_t >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_DOUBLE:
-			SValueSetter< double, int64_t >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< double, int64_t >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		default:
@@ -661,15 +661,15 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		switch ( GetType() )
 		{
 		case EFieldType_BOOL:
-			SValueSetter< bool, uint64_t >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< bool, uint64_t >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_LONG_INTEGER:
-			SValueSetter< int64_t, uint64_t >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< int64_t, uint64_t >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_DOUBLE:
-			SValueSetter< double, uint64_t >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< double, uint64_t >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		default:
@@ -686,23 +686,23 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		switch ( GetType() )
 		{
 		case EFieldType_SMALL_INTEGER:
-			SValueSetter< int16_t, float >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< int16_t, float >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_INTEGER:
-			SValueSetter< int32_t, float >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< int32_t, float >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_LONG_INTEGER:
-			SValueSetter< int64_t, float >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< int64_t, float >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_FLOAT:
-			SValueSetter< float, float >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< float, float >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_DOUBLE:
-			SValueSetter< double, float >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< double, float >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		default:
@@ -719,23 +719,23 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		switch ( GetType() )
 		{
 		case EFieldType_SMALL_INTEGER:
-			SValueSetter< int16_t, double >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< int16_t, double >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_INTEGER:
-			SValueSetter< int32_t, double >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< int32_t, double >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_LONG_INTEGER:
-			SValueSetter< int64_t, double >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< int64_t, double >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_FLOAT:
-			SValueSetter< float, double >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< float, double >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_DOUBLE:
-			SValueSetter< double, double >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< double, double >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		default:
@@ -752,23 +752,23 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		switch ( GetType() )
 		{
 		case EFieldType_SMALL_INTEGER:
-			SValueSetter< int16_t, long double >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< int16_t, long double >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_INTEGER:
-			SValueSetter< int32_t, long double >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< int32_t, long double >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_LONG_INTEGER:
-			SValueSetter< int64_t, long double >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< int64_t, long double >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_FLOAT:
-			SValueSetter< float, long double >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< float, long double >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_DOUBLE:
-			SValueSetter< double, long double >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< double, long double >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		default:
@@ -788,7 +788,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		case EFieldType_TEXT:
 		case EFieldType_NVARCHAR:
 		case EFieldType_NTEXT:
-			SValueSetter< const char *, const char * >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< const char *, const char * >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		default:
@@ -808,7 +808,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		case EFieldType_TEXT:
 		case EFieldType_NVARCHAR:
 		case EFieldType_NTEXT:
-			SValueSetter< const char *, const wchar_t * >()( _paramSetter, value, _statement, this, _value );
+			SValueSetter< const char *, const wchar_t * >()( _paramSetter, value, _statement, this, GetObjectValue() );
 			break;
 
 		default:
@@ -826,12 +826,12 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 			if ( value.empty() )
 			{
-				SDatabaseParameterValueSetter< uint8_t >()( _value, value.data(), value.size() );
+				SDatabaseParameterValueSetter< uint8_t >()( GetObjectValue(), value.data(), value.size() );
 				SQLite::BindBlob( _statement, GetIndex(), value.data(), value.size(), SQLite::NULL_DESTRUCTOR );
 			}
 			else
 			{
-				_value->SetNull();
+				GetObjectValue().SetNull();
 				SQLite::BindNull( _statement, GetIndex() );
 			}
 		}
@@ -857,12 +857,12 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 			if ( in.empty() )
 			{
-				SDatabaseParameterValueSetter< uint8_t >()( _value, in.data(), in.size() );
+				SDatabaseParameterValueSetter< uint8_t >()( GetObjectValue(), in.data(), in.size() );
 				SQLite::BindBlob( _statement, GetIndex(), in.data(), in.size(), SQLite::NULL_DESTRUCTOR );
 			}
 			else
 			{
-				_value->SetNull();
+				GetObjectValue().SetNull();
 				SQLite::BindNull( _statement, GetIndex() );
 			}
 		}
@@ -882,21 +882,18 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		switch ( _fieldType )
 		{
 		case EFieldType_DATE:
-			strValue = _connection->WriteStmtDate( value );
-			SDatabaseParameterValueSetter< CDate >()( _value, strValue );
-			( *_paramSetter )( _statement, GetPtrValue(), this );
+			SDatabaseParameterValueSetter< CDate >()( GetObjectValue(), CDate( value ) );
+			( *_paramSetter )( _statement, GetObjectValue().GetPtrValue(), this );
 			break;
 
 		case EFieldType_DATETIME:
-			strValue = _connection->WriteStmtDateTime( value );
-			SDatabaseParameterValueSetter< CDateTime >()( _value, strValue );
-			( *_paramSetter )( _statement, GetPtrValue(), this );
+			SDatabaseParameterValueSetter< CDateTime >()( GetObjectValue(), value );
+			( *_paramSetter )( _statement, GetObjectValue().GetPtrValue(), this );
 			break;
 
 		case EFieldType_TIME:
-			strValue = _connection->WriteStmtTime( value );
-			SDatabaseParameterValueSetter< CTime >()( _value, strValue );
-			( *_paramSetter )( _statement, GetPtrValue(), this );
+			SDatabaseParameterValueSetter< CTime >()( GetObjectValue(), CTime( value ) );
+			( *_paramSetter )( _statement, GetObjectValue().GetPtrValue(), this );
 			break;
 
 		default:
@@ -915,10 +912,13 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		switch ( GetType() )
 		{
 		case EFieldType_DATETIME:
+			SDatabaseParameterValueSetter< CDateTime >()( GetObjectValue(), CDateTime( value ) );
+			( *_paramSetter )( _statement, GetObjectValue().GetPtrValue(), this );
+			break;
+
 		case EFieldType_DATE:
-			strValue = _connection->WriteStmtDate( value );
-			SDatabaseParameterValueSetter< CDate >()( _value, strValue );
-			( *_paramSetter )( _statement, GetPtrValue(), this );
+			SDatabaseParameterValueSetter< CDate >()( GetObjectValue(), value );
+			( *_paramSetter )( _statement, GetObjectValue().GetPtrValue(), this );
 			break;
 
 		default:
@@ -937,10 +937,13 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		switch ( GetType() )
 		{
 		case EFieldType_DATETIME:
+			SDatabaseParameterValueSetter< CDateTime >()( GetObjectValue(), CDateTime( value ) );
+			( *_paramSetter )( _statement, GetObjectValue().GetPtrValue(), this );
+			break;
+
 		case EFieldType_TIME:
-			strValue = _connection->WriteStmtTime( value );
-			SDatabaseParameterValueSetter< CTime >()( _value, strValue );
-			( *_paramSetter )( _statement, GetPtrValue(), this );
+			SDatabaseParameterValueSetter< CTime >()( GetObjectValue(), value );
+			( *_paramSetter )( _statement, GetObjectValue().GetPtrValue(), this );
 			break;
 
 		default:

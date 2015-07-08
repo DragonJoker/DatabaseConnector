@@ -14,7 +14,7 @@
 #ifndef ___DATABASE_PARAMETER_H___
 #define ___DATABASE_PARAMETER_H___
 
-#include "DatabasePrerequisites.h"
+#include "DatabaseValuedObject.h"
 
 #include "EFieldType.h"
 #include "EParameterType.h"
@@ -26,6 +26,7 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	class CDatabaseParameter
 		: public std::enable_shared_from_this< CDatabaseParameter >
+		, public CDatabaseValuedObject
 	{
 	public:
 		/** Structure used to inform parent that the value changed
@@ -78,6 +79,26 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport virtual ~CDatabaseParameter();
 
+		/** Get field type.
+		@return
+		    Field type.
+		*/
+		DatabaseExport virtual EFieldType GetType() const;
+
+		/** Get name.
+		@return
+		    The name.
+		*/
+		DatabaseExport virtual const String & GetName() const;
+
+		/** Get limits.
+		@return
+		    The limits.
+		@remarks
+		    The reference is here to be able to pass this method to function wanting pointer.
+		*/
+		DatabaseExport virtual const uint32_t & GetLimits() const;
+
 		/** Get parameter index.
 		@return
 		    Parameter index.
@@ -85,12 +106,6 @@ BEGIN_NAMESPACE_DATABASE
 		    The reference is here to be able to pass this method to function wanting pointer.
 		*/
 		DatabaseExport const unsigned short & GetIndex() const;
-
-		/** Get field type.
-		@return
-		    Field type.
-		*/
-		DatabaseExport EFieldType GetType() const;
 
 		/** Get parameter type.
 		@return
@@ -100,31 +115,9 @@ BEGIN_NAMESPACE_DATABASE
 		 */
 		DatabaseExport const EParameterType & GetParamType() const;
 
-		/** Get parameter name.
-		@return
-		    Parameter name.
-		@remarks
-		    The reference is here to be able to pass this method to function wanting pointer.
-		*/
-		DatabaseExport const String & GetName() const;
-
-		/** Get parameter limits.
-		@return
-		    Parameter limits.
-		@remarks
-		    The reference is here to be able to pass this method to function wanting pointer.
-		*/
-		DatabaseExport const uint32_t & GetLimits() const;
-
 		/** Set parameter value to NULL.
 		*/
 		DatabaseExport virtual void SetNull();
-
-		/** Check if value is NULL.
-		@return
-		    true if value is NULL.
-		*/
-		DatabaseExport virtual bool IsNull() const;
 
 		/** Set parameter value from a field.
 		@param[in] field
@@ -150,178 +143,45 @@ BEGIN_NAMESPACE_DATABASE
 		@remarks
 		    If field type is different than the value type, the value is ignored.
 		*/
-		template <typename T> inline void SetValue( T value )
+		template< typename T > inline void SetValue( const T & value )
 		{
 			DoSetValue( value );
 		}
 
-		/** Get parameter value.
+		/** Set parameter value.
 		@remarks
-		    If value is a std::string or std::wstring, it will be encoded in UTF-8
-		@return
-		    Parameter value.
+		    If value is a std::string or std::wstring, the user *MUST* make sure it is encoded in UTF-8
+		@param[in] value
+		    New parameter value.
+		@remarks
+		    If field type is different than the value type, the value is ignored.
 		*/
-		template <typename T> const T & GetValue()
+		template< typename T > inline void SetValueFast( const T & value )
 		{
-			return static_cast< CDatabaseValue< SDataTypeFieldTyper< T >::Value > *>( _value )->GetValue();
+			DoSetValueFast( value );
 		}
 
 		/** Get parameter value.
-		@remarks
-		    If value is a std::string or std::wstring, it will be encoded in UTF-8
+		@return
+		    Field value.
+		*/
+		template< typename T > inline T GetValue() const
+		{
+			T val;
+			DoGetValue( val );
+			return val;
+		}
+
+		/** Get parameter value.
 		@param[out] value
-		    Parameter value.
+		    Field value.
 		*/
-		template <typename T> void GetValue( T & value )
+		template< typename T > inline void GetValue( T & value ) const
 		{
-			value = static_cast< CDatabaseValue< SDataTypeFieldTyper< T >::Value > *>( _value )->GetValue();
+			DoGetValue( value );
 		}
-
-		/** Use database connection to format the parameter value.
-		@return
-		    String insertable in an SQL request.
-		*/
-		DatabaseExport String GetInsertValue() const;
-
-		/** Format the parameter value.
-		@return
-		    Value as string.
-		*/
-		DatabaseExport String GetStrValue() const;
-
-		/** Get pointer to the parameter value
-		@return
-		    Pointer to the value.
-		*/
-		DatabaseExport void * GetPtrValue();
-
-		/** Get the parameter value size.
-		@return
-		    Parameter value size.
-		*/
-		DatabaseExport const long & GetPtrSize() const;
-
-		/** Get the parameter value.
-		@return
-		    Parameter value.
-		*/
-		DatabaseExport CDatabaseValueBase * GetParameterValue() const;
 
 	protected:
-		/** Set parameter value as a boolean.
-		@param value
-		    New parameter value.
-		*/
-		DatabaseExport virtual void DoSetValue( bool value );
-
-		/** Set parameter value as an int.
-		@param value
-		    New parameter value.
-		*/
-		DatabaseExport virtual void DoSetValue( int16_t value );
-
-		/** Set parameter value as an unsigned int.
-		@param value
-		    New parameter value.
-		*/
-		DatabaseExport virtual void DoSetValue( uint16_t value );
-
-		/** Set parameter value as an int.
-		@param value
-		    New parameter value.
-		*/
-		DatabaseExport virtual void DoSetValue( int32_t value );
-
-		/** Set parameter value as an unsigned int.
-		@param value
-		    New parameter value.
-		*/
-		DatabaseExport virtual void DoSetValue( uint32_t value );
-
-		/** Set parameter value as a long long.
-		@param value
-		    New parameter value.
-		*/
-		DatabaseExport virtual void DoSetValue( int64_t value );
-
-		/** Set parameter value as an unsigned long long.
-		@param value
-		    New parameter value.
-		*/
-		DatabaseExport virtual void DoSetValue( uint64_t value );
-
-		/** Set parameter value as a float.
-		@param value
-		    New parameter value.
-		*/
-		DatabaseExport virtual void DoSetValue( float value );
-
-		/** Set parameter value as a double.
-		@param value
-		    New parameter value.
-		*/
-		DatabaseExport virtual void DoSetValue( double value );
-
-		/** Set parameter value as a double.
-		@param value
-		    New parameter value.
-		*/
-		DatabaseExport virtual void DoSetValue( long double value );
-
-		/** Set parameter value as a std::string.
-		@param value
-		    New parameter value.
-		*/
-		DatabaseExport virtual void DoSetValue( const char * value );
-
-		/** Set parameter value as a std::wstring.
-		@param value
-		    New parameter value.
-		*/
-		DatabaseExport virtual void DoSetValue( const wchar_t * value );
-
-		/** Set parameter value as a std::string.
-		@param value
-		    New parameter value.
-		*/
-		DatabaseExport void DoSetValue( const std::string & value );
-
-		/** Set parameter value as a std::wstring.
-		@param value
-		    New parameter value.
-		*/
-		DatabaseExport void DoSetValue( const std::wstring & value );
-
-		/** Set parameter value as a byte array.
-		@param value
-		    New parameter value.
-		*/
-		DatabaseExport virtual void DoSetValue( std::vector< uint8_t > & value );
-
-		/** Set parameter value as a date/time.
-		@param value
-		    New parameter value.
-		*/
-		DatabaseExport virtual void DoSetValue( const CDateTime & value );
-
-		/** Set parameter value as a date.
-		@param value
-		    New parameter value.
-		*/
-		DatabaseExport virtual void DoSetValue( const CDate & value );
-
-		/** Set parameter value as a time.
-		@param value
-		    New parameter value.
-		*/
-		DatabaseExport virtual void DoSetValue( const CTime & value );
-
-		/** Set parameter value as a byte array.
-		@param value
-		    New parameter value.
-		*/
-		DatabaseExport virtual void DoSetValue( std::istream * value );
-
 		/** Set parameter value as a byte array.
 		@param value
 		    New parameter value.
@@ -333,7 +193,7 @@ BEGIN_NAMESPACE_DATABASE
 	protected:
 		//! Parameter name.
 		String _name;
-		//! Field type.
+		//! The value type.
 		EFieldType _fieldType;
 		//! Limits (VARCHAR, etc.).
 		uint32_t _limits;
@@ -341,10 +201,6 @@ BEGIN_NAMESPACE_DATABASE
 		EParameterType _parameterType;
 		//! Parameter index.
 		unsigned short _index;
-		//! Parameter value.
-		CDatabaseValueBase * _value;
-		//! Database connection.
-		DatabaseConnectionPtr _connection;
 		//! Functor used to inform parent that the value was modified
 		SValueUpdater * _updater;
 	};

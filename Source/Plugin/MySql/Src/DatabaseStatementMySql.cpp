@@ -264,7 +264,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	{
 		for ( auto && it : _inOutInitializers )
 		{
-			if ( it.second->IsNull() )
+			if ( it.second->GetObjectValue().IsNull() )
 			{
 				it.first->SetParameterNull( 0 );
 			}

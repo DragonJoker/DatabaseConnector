@@ -33,18 +33,18 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		template< typename T, typename U >
 		struct SValueSetter
 		{
-			void operator()( SParameterValueSetterBase & paramSetter, U & value, MYSQL_STMT * statement, CDatabaseStatementParameterMySql * parameter, CDatabaseValueBase * paramValue )
+			void operator()( SParameterValueSetterBase & paramSetter, U & value, MYSQL_STMT * statement, CDatabaseStatementParameterMySql * parameter, CDatabaseValueBase & paramValue )
 			{
 				T val = T( value );
 
 				if ( statement )
 				{
 					paramSetter( statement, &val, parameter );
-					paramValue->SetNull( false );
+					paramValue.SetNull( false );
 
 					if ( parameter->GetParamType() != EParameterType_IN )
 					{
-						static_cast< CDatabaseValue< SDataTypeFieldTyper< T >::Value > * >( paramValue )->SetValue( val );
+						static_cast< CDatabaseValue< SDataTypeFieldTyper< T >::Value > & >( paramValue ).SetValue( val );
 					}
 				}
 				else if ( parameter->GetParamType() == EParameterType_IN )
@@ -53,7 +53,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				}
 				else
 				{
-					static_cast< CDatabaseValue< SDataTypeFieldTyper< T >::Value > * >( paramValue )->SetValue( val );
+					static_cast< CDatabaseValue< SDataTypeFieldTyper< T >::Value > & >( paramValue ).SetValue( val );
 				}
 			}
 		};
@@ -61,16 +61,16 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		template< typename T >
 		struct SValueSetter< T, T >
 		{
-			void operator()( SParameterValueSetterBase & paramSetter, T & value, MYSQL_STMT * statement, CDatabaseStatementParameterMySql * parameter, CDatabaseValueBase * paramValue )
+			void operator()( SParameterValueSetterBase & paramSetter, T & value, MYSQL_STMT * statement, CDatabaseStatementParameterMySql * parameter, CDatabaseValueBase & paramValue )
 			{
 				if ( statement )
 				{
 					paramSetter( statement, &value, parameter );
-					paramValue->SetNull( false );
+					paramValue.SetNull( false );
 
 					if ( parameter->GetParamType() != EParameterType_IN )
 					{
-						static_cast< CDatabaseValue< SDataTypeFieldTyper< T >::Value > * >( paramValue )->SetValue( value );
+						static_cast< CDatabaseValue< SDataTypeFieldTyper< T >::Value > & >( paramValue ).SetValue( value );
 					}
 				}
 				else if ( parameter->GetParamType() == EParameterType_IN )
@@ -79,7 +79,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				}
 				else
 				{
-					static_cast< CDatabaseValue< SDataTypeFieldTyper< T >::Value > * >( paramValue )->SetValue( value );
+					static_cast< CDatabaseValue< SDataTypeFieldTyper< T >::Value > & >( paramValue ).SetValue( value );
 				}
 			}
 		};
@@ -87,16 +87,16 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		template< typename T >
 		struct SValueSetter< T *, T * >
 		{
-			void operator()( SParameterValueSetterBase & paramSetter, T * value, MYSQL_STMT * statement, CDatabaseStatementParameterMySql * parameter, CDatabaseValueBase * paramValue )
+			void operator()( SParameterValueSetterBase & paramSetter, T * value, MYSQL_STMT * statement, CDatabaseStatementParameterMySql * parameter, CDatabaseValueBase & paramValue )
 			{
 				if ( statement )
 				{
 					paramSetter( statement, ( void * )value, parameter );
-					paramValue->SetNull( false );
+					paramValue.SetNull( false );
 
 					if ( parameter->GetParamType() != EParameterType_IN )
 					{
-						static_cast< CDatabaseValue< SDataTypeFieldTyper< T * >::Value > * >( paramValue )->SetValue( value, parameter->GetPtrSize() );
+						static_cast< CDatabaseValue< SDataTypeFieldTyper< T * >::Value > & >( paramValue ).SetValue( value, parameter->GetObjectValue().GetPtrSize() );
 					}
 				}
 				else if ( parameter->GetParamType() == EParameterType_IN )
@@ -105,7 +105,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				}
 				else
 				{
-					static_cast< CDatabaseValue< SDataTypeFieldTyper< T * >::Value > * >( paramValue )->SetValue( value, parameter->GetPtrSize() );
+					static_cast< CDatabaseValue< SDataTypeFieldTyper< T * >::Value > & >( paramValue ).SetValue( value, parameter->GetObjectValue().GetPtrSize() );
 				}
 			}
 		};
@@ -113,18 +113,18 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		template< typename T >
 		struct SValueSetter< T, bool >
 		{
-			void operator()( SParameterValueSetterBase & paramSetter, bool & value, MYSQL_STMT * statement, CDatabaseStatementParameterMySql * parameter, CDatabaseValueBase * paramValue )
+			void operator()( SParameterValueSetterBase & paramSetter, bool & value, MYSQL_STMT * statement, CDatabaseStatementParameterMySql * parameter, CDatabaseValueBase & paramValue )
 			{
 				T val = value ? 1 : 0;
 
 				if ( statement )
 				{
 					paramSetter( statement, &value, parameter );
-					paramValue->SetNull( false );
+					paramValue.SetNull( false );
 
 					if ( parameter->GetParamType() != EParameterType_IN )
 					{
-						static_cast< CDatabaseValue< SDataTypeFieldTyper< T >::Value > * >( paramValue )->SetValue( val );
+						static_cast< CDatabaseValue< SDataTypeFieldTyper< T >::Value > & >( paramValue ).SetValue( val );
 					}
 				}
 				else if ( parameter->GetParamType() == EParameterType_IN )
@@ -133,7 +133,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				}
 				else
 				{
-					static_cast< CDatabaseValue< SDataTypeFieldTyper< T >::Value > * >( paramValue )->SetValue( val );
+					static_cast< CDatabaseValue< SDataTypeFieldTyper< T >::Value > & >( paramValue ).SetValue( val );
 				}
 			}
 		};
@@ -141,18 +141,18 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		template< typename T >
 		struct SValueSetter< bool, T >
 		{
-			void operator()( SParameterValueSetterBase & paramSetter, T & value, MYSQL_STMT * statement, CDatabaseStatementParameterMySql * parameter, CDatabaseValueBase * paramValue )
+			void operator()( SParameterValueSetterBase & paramSetter, T & value, MYSQL_STMT * statement, CDatabaseStatementParameterMySql * parameter, CDatabaseValueBase & paramValue )
 			{
 				bool val = value != 0;
 
 				if ( statement )
 				{
 					paramSetter( statement, &value, parameter );
-					paramValue->SetNull( false );
+					paramValue.SetNull( false );
 
 					if ( parameter->GetParamType() != EParameterType_IN )
 					{
-						static_cast< CDatabaseValue< SDataTypeFieldTyper< bool >::Value > * >( paramValue )->SetValue( val );
+						static_cast< CDatabaseValue< SDataTypeFieldTyper< bool >::Value > & >( paramValue ).SetValue( val );
 					}
 				}
 				else if ( parameter->GetParamType() == EParameterType_IN )
@@ -161,7 +161,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				}
 				else
 				{
-					static_cast< CDatabaseValue< SDataTypeFieldTyper< bool >::Value > * >( paramValue )->SetValue( val );
+					static_cast< CDatabaseValue< SDataTypeFieldTyper< bool >::Value > & >( paramValue ).SetValue( val );
 				}
 			}
 		};
@@ -169,16 +169,16 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		template<>
 		struct SValueSetter< bool, bool >
 		{
-			void operator()( SParameterValueSetterBase & paramSetter, bool & value, MYSQL_STMT * statement, CDatabaseStatementParameterMySql * parameter, CDatabaseValueBase * paramValue )
+			void operator()( SParameterValueSetterBase & paramSetter, bool & value, MYSQL_STMT * statement, CDatabaseStatementParameterMySql * parameter, CDatabaseValueBase & paramValue )
 			{
 				if ( statement )
 				{
 					paramSetter( statement, &value, parameter );
-					paramValue->SetNull( false );
+					paramValue.SetNull( false );
 
 					if ( parameter->GetParamType() != EParameterType_IN )
 					{
-						static_cast< CDatabaseValue< SDataTypeFieldTyper< bool >::Value > * >( paramValue )->SetValue( value );
+						static_cast< CDatabaseValue< SDataTypeFieldTyper< bool >::Value > & >( paramValue ).SetValue( value );
 					}
 				}
 				else if ( parameter->GetParamType() == EParameterType_IN )
@@ -187,7 +187,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				}
 				else
 				{
-					static_cast< CDatabaseValue< SDataTypeFieldTyper< bool >::Value > * >( paramValue )->SetValue( value );
+					static_cast< CDatabaseValue< SDataTypeFieldTyper< bool >::Value > & >( paramValue ).SetValue( value );
 				}
 			}
 		};
@@ -195,24 +195,24 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		template< typename T >
 		struct SValueSetter< const char *, T >
 		{
-			void operator()( SParameterValueSetterBase & paramSetter, T & value, MYSQL_STMT * statement, CDatabaseStatementParameterMySql * parameter, CDatabaseValueBase * paramValue )
+			void operator()( SParameterValueSetterBase & paramSetter, T & value, MYSQL_STMT * statement, CDatabaseStatementParameterMySql * parameter, CDatabaseValueBase & paramValue )
 			{
 				std::string val = std::to_string( value );
 
 				if ( statement )
 				{
 					paramSetter( statement, ( void * )value, parameter );
-					paramValue->SetNull( false );
+					paramValue.SetNull( false );
 
 					if ( parameter->GetParamType() != EParameterType_IN )
 					{
 						if ( parameter->GetType() == EFieldType_VARCHAR )
 						{
-							static_cast< CDatabaseValue< SDataTypeFieldTyper< char * >::Value > * >( paramValue )->SetValue( val.data(), uint32_t( val.size() ) );
+							static_cast< CDatabaseValue< SDataTypeFieldTyper< char * >::Value > & >( paramValue ).SetValue( val.data(), uint32_t( val.size() ) );
 						}
 						else
 						{
-							static_cast< CDatabaseValue< SDataTypeFieldTyper< std::string >::Value > * >( paramValue )->SetValue( val );
+							static_cast< CDatabaseValue< SDataTypeFieldTyper< std::string >::Value > & >( paramValue ).SetValue( val );
 						}
 					}
 				}
@@ -224,11 +224,11 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				{
 					if ( parameter->GetType() == EFieldType_VARCHAR )
 					{
-						static_cast< CDatabaseValue< SDataTypeFieldTyper< char * >::Value > * >( paramValue )->SetValue( val.data(), uint32_t( val.size() ) );
+						static_cast< CDatabaseValue< SDataTypeFieldTyper< char * >::Value > & >( paramValue ).SetValue( val.data(), uint32_t( val.size() ) );
 					}
 					else
 					{
-						static_cast< CDatabaseValue< SDataTypeFieldTyper< std::string >::Value > * >( paramValue )->SetValue( val );
+						static_cast< CDatabaseValue< SDataTypeFieldTyper< std::string >::Value > & >( paramValue ).SetValue( val );
 					}
 				}
 			}
@@ -237,24 +237,24 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		template< typename T >
 		struct SValueSetter< const wchar_t *, T >
 		{
-			void operator()( SParameterValueSetterBase & paramSetter, T & value, MYSQL_STMT * statement, CDatabaseStatementParameterMySql * parameter, CDatabaseValueBase * paramValue )
+			void operator()( SParameterValueSetterBase & paramSetter, T & value, MYSQL_STMT * statement, CDatabaseStatementParameterMySql * parameter, CDatabaseValueBase & paramValue )
 			{
 				std::wstring val = CStrUtils::ToWStr( std::to_string( value ) );
 
 				if ( statement )
 				{
 					paramSetter( statement, ( void * )value, parameter );
-					paramValue->SetNull( false );
+					paramValue.SetNull( false );
 
 					if ( parameter->GetParamType() != EParameterType_IN )
 					{
 						if ( parameter->GetType() == EFieldType_NVARCHAR )
 						{
-							static_cast< CDatabaseValue< SDataTypeFieldTyper< wchar_t * >::Value > * >( paramValue )->SetValue( val.data(), uint32_t( val.size() ) );
+							static_cast< CDatabaseValue< SDataTypeFieldTyper< wchar_t * >::Value > & >( paramValue ).SetValue( val.data(), uint32_t( val.size() ) );
 						}
 						else
 						{
-							static_cast< CDatabaseValue< SDataTypeFieldTyper< std::wstring >::Value > * >( paramValue )->SetValue( val );
+							static_cast< CDatabaseValue< SDataTypeFieldTyper< std::wstring >::Value > & >( paramValue ).SetValue( val );
 						}
 					}
 				}
@@ -266,11 +266,11 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				{
 					if ( parameter->GetType() == EFieldType_NVARCHAR )
 					{
-						static_cast< CDatabaseValue< SDataTypeFieldTyper< wchar_t * >::Value > * >( paramValue )->SetValue( val.data(), uint32_t( val.size() ) );
+						static_cast< CDatabaseValue< SDataTypeFieldTyper< wchar_t * >::Value > & >( paramValue ).SetValue( val.data(), uint32_t( val.size() ) );
 					}
 					else
 					{
-						static_cast< CDatabaseValue< SDataTypeFieldTyper< std::wstring >::Value > * >( paramValue )->SetValue( val );
+						static_cast< CDatabaseValue< SDataTypeFieldTyper< std::wstring >::Value > & >( paramValue ).SetValue( val );
 					}
 				}
 			}
@@ -279,22 +279,22 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		template<>
 		struct SValueSetter< const char *, const char * >
 		{
-			void operator()( SParameterValueSetterBase & paramSetter, const char * value, MYSQL_STMT * statement, CDatabaseStatementParameterMySql * parameter, CDatabaseValueBase * paramValue )
+			void operator()( SParameterValueSetterBase & paramSetter, const char * value, MYSQL_STMT * statement, CDatabaseStatementParameterMySql * parameter, CDatabaseValueBase & paramValue )
 			{
 				if ( statement )
 				{
 					paramSetter( statement, ( void * )value, parameter );
-					paramValue->SetNull( false );
+					paramValue.SetNull( false );
 
 					if ( parameter->GetParamType() != EParameterType_IN )
 					{
 						if ( parameter->GetType() == EFieldType_VARCHAR )
 						{
-							static_cast< CDatabaseValue< SDataTypeFieldTyper< char * >::Value > * >( paramValue )->SetValue( value );
+							static_cast< CDatabaseValue< SDataTypeFieldTyper< char * >::Value > & >( paramValue ).SetValue( value );
 						}
 						else
 						{
-							static_cast< CDatabaseValue< SDataTypeFieldTyper< std::string >::Value > * >( paramValue )->SetValue( value );
+							static_cast< CDatabaseValue< SDataTypeFieldTyper< std::string >::Value > & >( paramValue ).SetValue( value );
 						}
 					}
 				}
@@ -306,11 +306,11 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				{
 					if ( parameter->GetType() == EFieldType_VARCHAR )
 					{
-						static_cast< CDatabaseValue< SDataTypeFieldTyper< char * >::Value > * >( paramValue )->SetValue( value );
+						static_cast< CDatabaseValue< SDataTypeFieldTyper< char * >::Value > & >( paramValue ).SetValue( value );
 					}
 					else
 					{
-						static_cast< CDatabaseValue< SDataTypeFieldTyper< std::string >::Value > * >( paramValue )->SetValue( value );
+						static_cast< CDatabaseValue< SDataTypeFieldTyper< std::string >::Value > & >( paramValue ).SetValue( value );
 					}
 				}
 			}
@@ -319,24 +319,24 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		template<>
 		struct SValueSetter< const char *, const wchar_t * >
 		{
-			void operator()( SParameterValueSetterBase & paramSetter, const wchar_t * value, MYSQL_STMT * statement, CDatabaseStatementParameterMySql * parameter, CDatabaseValueBase * paramValue )
+			void operator()( SParameterValueSetterBase & paramSetter, const wchar_t * value, MYSQL_STMT * statement, CDatabaseStatementParameterMySql * parameter, CDatabaseValueBase & paramValue )
 			{
 				std::string val = CStrUtils::ToStr( value );
 
 				if ( statement )
 				{
 					paramSetter( statement, &val[0], parameter );
-					paramValue->SetNull( false );
+					paramValue.SetNull( false );
 
 					if ( parameter->GetParamType() != EParameterType_IN )
 					{
 						if ( parameter->GetType() == EFieldType_VARCHAR )
 						{
-							static_cast< CDatabaseValue< SDataTypeFieldTyper< char * >::Value > * >( paramValue )->SetValue( val.c_str(), parameter->GetLimits() );
+							static_cast< CDatabaseValue< SDataTypeFieldTyper< char * >::Value > & >( paramValue ).SetValue( val.c_str(), parameter->GetLimits() );
 						}
 						else
 						{
-							static_cast< CDatabaseValue< SDataTypeFieldTyper< std::string >::Value > * >( paramValue )->SetValue( val );
+							static_cast< CDatabaseValue< SDataTypeFieldTyper< std::string >::Value > & >( paramValue ).SetValue( val );
 						}
 					}
 				}
@@ -348,16 +348,16 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				{
 					if ( parameter->GetType() == EFieldType_VARCHAR )
 					{
-						static_cast< CDatabaseValue< SDataTypeFieldTyper< char * >::Value > * >( paramValue )->SetValue( val.c_str(), parameter->GetLimits() );
+						static_cast< CDatabaseValue< SDataTypeFieldTyper< char * >::Value > & >( paramValue ).SetValue( val.c_str(), parameter->GetLimits() );
 					}
 					else
 					{
-						static_cast< CDatabaseValue< SDataTypeFieldTyper< std::string >::Value > * >( paramValue )->SetValue( val );
+						static_cast< CDatabaseValue< SDataTypeFieldTyper< std::string >::Value > & >( paramValue ).SetValue( val );
 					}
 				}
 			}
 		};
-		
+
 		template< typename T > std::unique_ptr< CMySqlBindBase > GetOutBind( MYSQL_BIND & bind )
 		{
 			return std::make_unique< COutMySqlBind< T > >( bind );
@@ -408,62 +408,62 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		switch ( parameter->GetType() )
 		{
 		case EFieldType_BOOL:
-			DoSetValue( *static_cast< bool * >( parameter->GetPtrValue() ) );
+			DoSetValue( *static_cast< bool * >( parameter->GetObjectValue().GetPtrValue() ) );
 			break;
 
 		case EFieldType_SMALL_INTEGER:
-			DoSetValue( *static_cast< int16_t * >( parameter->GetPtrValue() ) );
+			DoSetValue( *static_cast< int16_t * >( parameter->GetObjectValue().GetPtrValue() ) );
 			break;
 
 		case EFieldType_INTEGER:
-			DoSetValue( *static_cast< int32_t * >( parameter->GetPtrValue() ) );
+			DoSetValue( *static_cast< int32_t * >( parameter->GetObjectValue().GetPtrValue() ) );
 			break;
 
 		case EFieldType_LONG_INTEGER:
-			DoSetValue( *static_cast< int64_t * >( parameter->GetPtrValue() ) );
+			DoSetValue( *static_cast< int64_t * >( parameter->GetObjectValue().GetPtrValue() ) );
 			break;
 
 		case EFieldType_FLOAT:
-			DoSetValue( *static_cast< float * >( parameter->GetPtrValue() ) );
+			DoSetValue( *static_cast< float * >( parameter->GetObjectValue().GetPtrValue() ) );
 			break;
 
 		case EFieldType_DOUBLE:
-			DoSetValue( *static_cast< double * >( parameter->GetPtrValue() ) );
+			DoSetValue( *static_cast< double * >( parameter->GetObjectValue().GetPtrValue() ) );
 			break;
 
 		case EFieldType_VARCHAR:
-			DoSetValue( static_cast< char * >( parameter->GetPtrValue() ) );
+			DoSetValue( static_cast< char * >( parameter->GetObjectValue().GetPtrValue() ) );
 			break;
 
 		case EFieldType_TEXT:
-			DoSetValue( static_cast< char * >( parameter->GetPtrValue() ) );
+			DoSetValue( static_cast< char * >( parameter->GetObjectValue().GetPtrValue() ) );
 			break;
 
 		case EFieldType_NVARCHAR:
-			DoSetValue( static_cast< wchar_t * >( parameter->GetPtrValue() ) );
+			DoSetValue( static_cast< wchar_t * >( parameter->GetObjectValue().GetPtrValue() ) );
 			break;
 
 		case EFieldType_NTEXT:
-			DoSetValue( static_cast< wchar_t * >( parameter->GetPtrValue() ) );
+			DoSetValue( static_cast< wchar_t * >( parameter->GetObjectValue().GetPtrValue() ) );
 			break;
 
 		case EFieldType_DATE:
-			DoSetValue( _connection->ParseDate( static_cast< char * >( parameter->GetPtrValue() ) ) );
+			DoSetValue( GetConnection()->ParseDate( static_cast< char * >( parameter->GetObjectValue().GetPtrValue() ) ) );
 			break;
 
 		case EFieldType_DATETIME:
-			DoSetValue( _connection->ParseDateTime( static_cast< char * >( parameter->GetPtrValue() ) ) );
+			DoSetValue( GetConnection()->ParseDateTime( static_cast< char * >( parameter->GetObjectValue().GetPtrValue() ) ) );
 			break;
 
 		case EFieldType_TIME:
-			DoSetValue( _connection->ParseTime( static_cast< char * >( parameter->GetPtrValue() ) ) );
+			DoSetValue( GetConnection()->ParseTime( static_cast< char * >( parameter->GetObjectValue().GetPtrValue() ) ) );
 			break;
 
 		case EFieldType_BINARY:
 		case EFieldType_VARBINARY:
 		case EFieldType_LONG_VARBINARY:
 		{
-			DoSetBlob( static_cast< uint8_t * >( parameter->GetPtrValue() ), parameter->GetPtrSize() );
+			DoSetBlob( static_cast< uint8_t * >( parameter->GetObjectValue().GetPtrValue() ), parameter->GetObjectValue().GetPtrSize() );
 		}
 		break;
 
@@ -556,19 +556,19 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		switch ( GetType() )
 		{
 		case EFieldType_BOOL:
-			SValueSetter< bool, bool >()( *_setter, value, _statement, this, _value );
+			SValueSetter< bool, bool >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_SMALL_INTEGER:
-			SValueSetter< int16_t, bool >()( *_setter, value, _statement, this, _value );
+			SValueSetter< int16_t, bool >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_INTEGER:
-			SValueSetter< int32_t, bool >()( *_setter, value, _statement, this, _value );
+			SValueSetter< int32_t, bool >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_LONG_INTEGER:
-			SValueSetter< int64_t, bool >()( *_setter, value, _statement, this, _value );
+			SValueSetter< int64_t, bool >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		default:
@@ -585,27 +585,27 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		switch ( GetType() )
 		{
 		case EFieldType_BOOL:
-			SValueSetter< bool, int16_t >()( *_setter, value, _statement, this, _value );
+			SValueSetter< bool, int16_t >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_SMALL_INTEGER:
-			SValueSetter< int16_t, int16_t >()( *_setter, value, _statement, this, _value );
+			SValueSetter< int16_t, int16_t >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_INTEGER:
-			SValueSetter< int32_t, int16_t >()( *_setter, value, _statement, this, _value );
+			SValueSetter< int32_t, int16_t >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_LONG_INTEGER:
-			SValueSetter< int64_t, int16_t >()( *_setter, value, _statement, this, _value );
+			SValueSetter< int64_t, int16_t >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_FLOAT:
-			SValueSetter< float, int16_t >()( *_setter, value, _statement, this, _value );
+			SValueSetter< float, int16_t >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_DOUBLE:
-			SValueSetter< double, int16_t >()( *_setter, value, _statement, this, _value );
+			SValueSetter< double, int16_t >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		default:
@@ -622,27 +622,27 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		switch ( GetType() )
 		{
 		case EFieldType_BOOL:
-			SValueSetter< bool, uint16_t >()( *_setter, value, _statement, this, _value );
+			SValueSetter< bool, uint16_t >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_SMALL_INTEGER:
-			SValueSetter< int16_t, uint16_t >()( *_setter, value, _statement, this, _value );
+			SValueSetter< int16_t, uint16_t >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_INTEGER:
-			SValueSetter< int32_t, uint16_t >()( *_setter, value, _statement, this, _value );
+			SValueSetter< int32_t, uint16_t >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_LONG_INTEGER:
-			SValueSetter< int64_t, uint16_t >()( *_setter, value, _statement, this, _value );
+			SValueSetter< int64_t, uint16_t >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_FLOAT:
-			SValueSetter< float, uint16_t >()( *_setter, value, _statement, this, _value );
+			SValueSetter< float, uint16_t >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_DOUBLE:
-			SValueSetter< double, uint16_t >()( *_setter, value, _statement, this, _value );
+			SValueSetter< double, uint16_t >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		default:
@@ -659,23 +659,23 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		switch ( GetType() )
 		{
 		case EFieldType_BOOL:
-			SValueSetter< bool, int >()( *_setter, value, _statement, this, _value );
+			SValueSetter< bool, int >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_INTEGER:
-			SValueSetter< int32_t, int >()( *_setter, value, _statement, this, _value );
+			SValueSetter< int32_t, int >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_LONG_INTEGER:
-			SValueSetter< int64_t, int >()( *_setter, value, _statement, this, _value );
+			SValueSetter< int64_t, int >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_FLOAT:
-			SValueSetter< float, int >()( *_setter, value, _statement, this, _value );
+			SValueSetter< float, int >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_DOUBLE:
-			SValueSetter< double, int >()( *_setter, value, _statement, this, _value );
+			SValueSetter< double, int >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		default:
@@ -692,23 +692,23 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		switch ( GetType() )
 		{
 		case EFieldType_BOOL:
-			SValueSetter< bool, unsigned int >()( *_setter, value, _statement, this, _value );
+			SValueSetter< bool, unsigned int >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_INTEGER:
-			SValueSetter< int32_t, unsigned int >()( *_setter, value, _statement, this, _value );
+			SValueSetter< int32_t, unsigned int >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_LONG_INTEGER:
-			SValueSetter< int64_t, unsigned int >()( *_setter, value, _statement, this, _value );
+			SValueSetter< int64_t, unsigned int >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_FLOAT:
-			SValueSetter< float, unsigned int >()( *_setter, value, _statement, this, _value );
+			SValueSetter< float, unsigned int >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_DOUBLE:
-			SValueSetter< double, unsigned int >()( *_setter, value, _statement, this, _value );
+			SValueSetter< double, unsigned int >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		default:
@@ -725,15 +725,15 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		switch ( GetType() )
 		{
 		case EFieldType_BOOL:
-			SValueSetter< bool, int64_t >()( *_setter, value, _statement, this, _value );
+			SValueSetter< bool, int64_t >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_LONG_INTEGER:
-			SValueSetter< int64_t, int64_t >()( *_setter, value, _statement, this, _value );
+			SValueSetter< int64_t, int64_t >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_DOUBLE:
-			SValueSetter< double, int64_t >()( *_setter, value, _statement, this, _value );
+			SValueSetter< double, int64_t >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		default:
@@ -750,15 +750,15 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		switch ( GetType() )
 		{
 		case EFieldType_BOOL:
-			SValueSetter< bool, uint64_t >()( *_setter, value, _statement, this, _value );
+			SValueSetter< bool, uint64_t >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_LONG_INTEGER:
-			SValueSetter< int64_t, uint64_t >()( *_setter, value, _statement, this, _value );
+			SValueSetter< int64_t, uint64_t >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_DOUBLE:
-			SValueSetter< double, uint64_t >()( *_setter, value, _statement, this, _value );
+			SValueSetter< double, uint64_t >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		default:
@@ -775,23 +775,23 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		switch ( GetType() )
 		{
 		case EFieldType_SMALL_INTEGER:
-			SValueSetter< int16_t, float >()( *_setter, value, _statement, this, _value );
+			SValueSetter< int16_t, float >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_INTEGER:
-			SValueSetter< int32_t, float >()( *_setter, value, _statement, this, _value );
+			SValueSetter< int32_t, float >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_LONG_INTEGER:
-			SValueSetter< int64_t, float >()( *_setter, value, _statement, this, _value );
+			SValueSetter< int64_t, float >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_FLOAT:
-			SValueSetter< float, float >()( *_setter, value, _statement, this, _value );
+			SValueSetter< float, float >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_DOUBLE:
-			SValueSetter< double, float >()( *_setter, value, _statement, this, _value );
+			SValueSetter< double, float >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		default:
@@ -808,23 +808,23 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		switch ( GetType() )
 		{
 		case EFieldType_SMALL_INTEGER:
-			SValueSetter< int16_t, double >()( *_setter, value, _statement, this, _value );
+			SValueSetter< int16_t, double >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_INTEGER:
-			SValueSetter< int32_t, double >()( *_setter, value, _statement, this, _value );
+			SValueSetter< int32_t, double >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_LONG_INTEGER:
-			SValueSetter< int64_t, double >()( *_setter, value, _statement, this, _value );
+			SValueSetter< int64_t, double >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_FLOAT:
-			SValueSetter< float, double >()( *_setter, value, _statement, this, _value );
+			SValueSetter< float, double >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_DOUBLE:
-			SValueSetter< double, double >()( *_setter, value, _statement, this, _value );
+			SValueSetter< double, double >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		default:
@@ -841,23 +841,23 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		switch ( GetType() )
 		{
 		case EFieldType_SMALL_INTEGER:
-			SValueSetter< int16_t, long double >()( *_setter, value, _statement, this, _value );
+			SValueSetter< int16_t, long double >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_INTEGER:
-			SValueSetter< int32_t, long double >()( *_setter, value, _statement, this, _value );
+			SValueSetter< int32_t, long double >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_LONG_INTEGER:
-			SValueSetter< int64_t, long double >()( *_setter, value, _statement, this, _value );
+			SValueSetter< int64_t, long double >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_FLOAT:
-			SValueSetter< float, long double >()( *_setter, value, _statement, this, _value );
+			SValueSetter< float, long double >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		case EFieldType_DOUBLE:
-			SValueSetter< double, long double >()( *_setter, value, _statement, this, _value );
+			SValueSetter< double, long double >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		default:
@@ -877,7 +877,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		case EFieldType_TEXT:
 		case EFieldType_NVARCHAR:
 		case EFieldType_NTEXT:
-			SValueSetter< const char *, const char * >()( *_setter, value, _statement, this, _value );
+			SValueSetter< const char *, const char * >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		default:
@@ -897,7 +897,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		case EFieldType_TEXT:
 		case EFieldType_NVARCHAR:
 		case EFieldType_NTEXT:
-			SValueSetter< const char *, const wchar_t * >()( *_setter, value, _statement, this, _value );
+			SValueSetter< const char *, const wchar_t * >()( *_setter, value, _statement, this, GetObjectValue() );
 			break;
 
 		default:
@@ -915,7 +915,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		{
 			if ( !value.empty() )
 			{
-				SValueSetter< uint8_t *, uint8_t * >()( *_setter, value.data(), _statement, this, _value );
+				SValueSetter< uint8_t *, uint8_t * >()( *_setter, value.data(), _statement, this, GetObjectValue() );
 			}
 			else
 			{
@@ -938,21 +938,18 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		switch ( _fieldType )
 		{
 		case EFieldType_DATE:
-			strValue = _connection->WriteStmtDate( value );
-			SDatabaseParameterValueSetter< CDate >()( _value, strValue );
-			( *_setter )( _statement, GetPtrValue(), this );
+			SDatabaseParameterValueSetter< CDate >()( GetObjectValue(), CDate( value ) );
+			( *_setter )( _statement, GetObjectValue().GetPtrValue(), this );
 			break;
 
 		case EFieldType_DATETIME:
-			strValue = _connection->WriteStmtDateTime( value );
-			SDatabaseParameterValueSetter< CDateTime >()( _value, strValue );
-			( *_setter )( _statement, GetPtrValue(), this );
+			SDatabaseParameterValueSetter< CDateTime >()( GetObjectValue(), value );
+			( *_setter )( _statement, GetObjectValue().GetPtrValue(), this );
 			break;
 
 		case EFieldType_TIME:
-			strValue = _connection->WriteStmtTime( value );
-			SDatabaseParameterValueSetter< CTime >()( _value, strValue );
-			( *_setter )( _statement, GetPtrValue(), this );
+			SDatabaseParameterValueSetter< CTime >()( GetObjectValue(), CTime( value ) );
+			( *_setter )( _statement, GetObjectValue().GetPtrValue(), this );
 			break;
 
 		default:
@@ -971,10 +968,13 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		switch ( GetType() )
 		{
 		case EFieldType_DATETIME:
+			SDatabaseParameterValueSetter< CDateTime >()( GetObjectValue(), CDateTime( value ) );
+			( *_setter )( _statement, GetObjectValue().GetPtrValue(), this );
+			break;
+
 		case EFieldType_DATE:
-			strValue = _connection->WriteStmtDate( value );
-			SDatabaseParameterValueSetter< CDate >()( _value, strValue );
-			( *_setter )( _statement, GetPtrValue(), this );
+			SDatabaseParameterValueSetter< CDate >()( GetObjectValue(), value );
+			( *_setter )( _statement, GetObjectValue().GetPtrValue(), this );
 			break;
 
 		default:
@@ -993,10 +993,13 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		switch ( GetType() )
 		{
 		case EFieldType_DATETIME:
+			SDatabaseParameterValueSetter< CDateTime >()( GetObjectValue(), CDateTime( value ) );
+			( *_setter )( _statement, GetObjectValue().GetPtrValue(), this );
+			break;
+
 		case EFieldType_TIME:
-			strValue = _connection->WriteStmtTime( value );
-			SDatabaseParameterValueSetter< CTime >()( _value, strValue );
-			( *_setter )( _statement, GetPtrValue(), this );
+			SDatabaseParameterValueSetter< CTime >()( GetObjectValue(), value );
+			( *_setter )( _statement, GetObjectValue().GetPtrValue(), this );
 			break;
 
 		default:

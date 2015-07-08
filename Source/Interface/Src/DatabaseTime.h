@@ -39,7 +39,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param dateTime
 		    Date/time.
 		*/
-		CTime( const CDateTime & dateTime );
+		explicit CTime( const CDateTime & dateTime );
 
 		/** Constructor.
 		@param hours
@@ -132,6 +132,12 @@ BEGIN_NAMESPACE_DATABASE
 		    true if valid time.
 		*/
 		bool IsValid() const;
+
+		/** Convert this object to a std::tm.
+		@return
+		    Converted date/time.
+		*/
+		std::tm ToTm() const;
 
 		/** Get system current date/time.
 		@return

@@ -36,14 +36,14 @@ BEGIN_NAMESPACE_DATABASE
 	static const String DATABASE_STATEMENT_INDEX_ERROR = STR( "No statement parameter at index: " );
 	static const String DATABASE_STATEMENT_NAME_ERROR = STR( "No statement parameter named: " );
 
-	template <typename T>
+	template< typename T >
 	void CDatabaseStatement::SetParameterValue( uint32_t index, const T & value )
 	{
 		try
 		{
 			DatabaseParameterPtr parameter = _arrayParams[index];
 			parameter->SetValue( value );
-			_mapParamsByPointer[parameter->GetPtrValue()] = parameter;
+			_mapParamsByPointer[parameter->GetObjectValue().GetPtrValue()] = parameter;
 		}
 		catch ( ... )
 		{
@@ -54,7 +54,7 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	}
 
-	template <typename T>
+	template< typename T >
 	void CDatabaseStatement::SetParameterValue( const String & name, const T & value )
 	{
 		DatabaseParameterPtrArray::iterator it = std::find_if( _arrayParams.begin(), _arrayParams.end(), StatementParameterFindCondition( name ) );
@@ -63,7 +63,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			DatabaseParameterPtr parameter = ( *it );
 			parameter->SetValue( value );
-			_mapParamsByPointer[parameter->GetPtrValue()] = parameter;
+			_mapParamsByPointer[parameter->GetObjectValue().GetPtrValue()] = parameter;
 		}
 		else
 		{
@@ -75,7 +75,7 @@ BEGIN_NAMESPACE_DATABASE
 	}
 
 	template <typename T>
-	const T & CDatabaseStatement::GetParameterValue( uint32_t index )
+	const T & CDatabaseStatement::GetOutputValue( uint32_t index )
 	{
 		try
 		{
@@ -91,7 +91,7 @@ BEGIN_NAMESPACE_DATABASE
 	}
 
 	template <typename T>
-	const T & CDatabaseStatement::GetParameterValue( const String & name )
+	const T & CDatabaseStatement::GetOutputValue( const String & name )
 	{
 		DatabaseParameterPtrArray::iterator it = std::find_if( _arrayParams.begin(), _arrayParams.end(), StatementParameterFindCondition( name ) );
 
@@ -109,7 +109,7 @@ BEGIN_NAMESPACE_DATABASE
 	}
 
 	template <typename T>
-	void CDatabaseStatement::GetParameterValue( uint32_t index, T & value )
+	void CDatabaseStatement::GetOutputValue( uint32_t index, T & value )
 	{
 		try
 		{
@@ -125,7 +125,7 @@ BEGIN_NAMESPACE_DATABASE
 	}
 
 	template <typename T>
-	void CDatabaseStatement::GetParameterValue( const String & name, T & value )
+	void CDatabaseStatement::GetOutputValue( const String & name, T & value )
 	{
 		DatabaseParameterPtrArray::iterator it = std::find_if( _arrayParams.begin(), _arrayParams.end(), StatementParameterFindCondition( name ) );
 

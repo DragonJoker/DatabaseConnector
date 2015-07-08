@@ -23,6 +23,7 @@
 #include <DatabaseDateTime.h>
 #include <DatabaseDateTimeHelper.h>
 #include <DatabaseTime.h>
+#include <DatabaseFieldInfos.h>
 
 #include <DatabaseStringUtils.h>
 #include <DatabaseLogger.h>
@@ -42,7 +43,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	static const String ERROR_MYSQL_DRIVER = STR( "MYSQL Driver error : " );
 	static const String ERROR_MYSQL_UNKNOWN = STR( "Unknown error encountered while executing query" );
 	static const String ERROR_MYSQL_STMT_METADATA = STR( "Could not retrieve metadata from the statement" );
-	
+
 	static const String MYSQL_TRANSACTION_BEGIN = STR( "BEGIN TRANSACTION " );
 	static const String MYSQL_TRANSACTION_COMMIT = STR( "COMMIT TRANSACTION " );
 	static const String MYSQL_TRANSACTION_ROLLBACK = STR( "ROLLBACK TRANSACTION " );
@@ -141,6 +142,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				{
 					result = EFieldType_TEXT;
 				}
+
 				break;
 			}
 
@@ -272,89 +274,102 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 								throw;
 							}
 
-							DatabaseFieldPtr field = std::make_shared< CDatabaseField >( pInfos, bind->_null != 0, String() );
+							DatabaseFieldPtr field = std::make_shared< CDatabaseField >( pInfos );
 
 							if ( !bind->_null )
 							{
 								switch ( pInfos->GetType() )
 								{
 								case EFieldType_BOOL:
-									field->SetValueFast( static_cast< CInMySqlBind< bool > const & >( *bind ).GetValue() != 0 );
+									static_cast< CDatabaseValue< EFieldType_BOOL > & >( field->GetObjectValue() ).SetValue( static_cast< CInMySqlBind< bool > const & >( *bind ).GetValue() != 0 );
 									break;
 
 								case EFieldType_SMALL_INTEGER:
-									field->SetValueFast( static_cast< CInMySqlBind< int16_t > const & >( *bind ).GetValue() );
+									static_cast< CDatabaseValue< EFieldType_SMALL_INTEGER > & >( field->GetObjectValue() ).SetValue( static_cast< CInMySqlBind< int16_t > const & >( *bind ).GetValue() );
 									break;
 
 								case EFieldType_INTEGER:
-									field->SetValueFast( static_cast< CInMySqlBind< int32_t > const & >( *bind ).GetValue() );
+									static_cast< CDatabaseValue< EFieldType_INTEGER > & >( field->GetObjectValue() ).SetValue( static_cast< CInMySqlBind< int32_t > const & >( *bind ).GetValue() );
 									break;
 
 								case EFieldType_LONG_INTEGER:
-									field->SetValueFast( static_cast< CInMySqlBind< int64_t > const & >( *bind ).GetValue() );
+									static_cast< CDatabaseValue< EFieldType_LONG_INTEGER > & >( field->GetObjectValue() ).SetValue( static_cast< CInMySqlBind< int64_t > const & >( *bind ).GetValue() );
 									break;
 
 								case EFieldType_FLOAT:
-									field->SetValueFast( static_cast< CInMySqlBind< float > const & >( *bind ).GetValue() );
+									static_cast< CDatabaseValue< EFieldType_FLOAT > & >( field->GetObjectValue() ).SetValue( static_cast< CInMySqlBind< float > const & >( *bind ).GetValue() );
 									break;
 
 								case EFieldType_DOUBLE:
 									if ( bind->_bind.buffer_type == MYSQL_TYPE_NEWDECIMAL )
 									{
-										field->SetValueFast( static_cast< CInMySqlBind< char *, double > const & >( *bind ).GetValue() );
+										static_cast< CDatabaseValue< EFieldType_DOUBLE > & >( field->GetObjectValue() ).SetValue( static_cast< CInMySqlBind< char *, double > const & >( *bind ).GetValue() );
 									}
 									else
 									{
-										field->SetValueFast( static_cast< CInMySqlBind< double > const & >( *bind ).GetValue() );
+										static_cast< CDatabaseValue< EFieldType_DOUBLE > & >( field->GetObjectValue() ).SetValue( static_cast< CInMySqlBind< double > const & >( *bind ).GetValue() );
 									}
+
 									break;
 
 								case EFieldType_VARCHAR:
 								{
 									std::string value = StringFromMySqlString( bind->_bind, result != 0 );
-									field->SetValueFast( value.c_str() );
+									static_cast< CDatabaseValue< EFieldType_VARCHAR > & >( field->GetObjectValue() ).SetValue( value.c_str() );
 									break;
 								}
 
 								case EFieldType_TEXT:
 								{
 									std::string value = StringFromMySqlString( bind->_bind, result != 0 );
-									field->SetValueFast( value );
+									static_cast< CDatabaseValue< EFieldType_TEXT > & >( field->GetObjectValue() ).SetValue( value );
 									break;
 								}
 
 								case EFieldType_NVARCHAR:
 								{
 									std::string value = StringFromMySqlString( bind->_bind, result != 0 );
-									field->SetValueFast( CStrUtils::ToWStr( value ).c_str() );
+									static_cast< CDatabaseValue< EFieldType_NVARCHAR > & >( field->GetObjectValue() ).SetValue( CStrUtils::ToWStr( value ).c_str() );
 									break;
 								}
 
 								case EFieldType_NTEXT:
 								{
 									std::string value = StringFromMySqlString( bind->_bind, result != 0 );
-									field->SetValueFast( CStrUtils::ToWStr( value ) );
+									static_cast< CDatabaseValue< EFieldType_NTEXT > & >( field->GetObjectValue() ).SetValue( CStrUtils::ToWStr( value ) );
 									break;
 								}
 
 								case EFieldType_DATE:
-									field->SetValueFast( CDateFromMySqlTime( static_cast< CInMySqlBind< MYSQL_TIME > const & >( *bind ).GetValue() ) );
+									static_cast< CDatabaseValue< EFieldType_DATE > & >( field->GetObjectValue() ).SetValue( CDateFromMySqlTime( static_cast< CInMySqlBind< MYSQL_TIME > const & >( *bind ).GetValue() ) );
 									break;
 
 								case EFieldType_DATETIME:
-									field->SetValueFast( CDateTimeFromMySqlTime( static_cast< CInMySqlBind< MYSQL_TIME > const & >( *bind ).GetValue() ) );
+									static_cast< CDatabaseValue< EFieldType_DATETIME > & >( field->GetObjectValue() ).SetValue( CDateTimeFromMySqlTime( static_cast< CInMySqlBind< MYSQL_TIME > const & >( *bind ).GetValue() ) );
 									break;
 
 								case EFieldType_TIME:
-									field->SetValueFast( CTimeFromMySqlTime( static_cast< CInMySqlBind< MYSQL_TIME > const & >( *bind ).GetValue() ) );
+									static_cast< CDatabaseValue< EFieldType_TIME > & >( field->GetObjectValue() ).SetValue( CTimeFromMySqlTime( static_cast< CInMySqlBind< MYSQL_TIME > const & >( *bind ).GetValue() ) );
 									break;
 
 								case EFieldType_BINARY:
+								{
+									auto value = static_cast< CInMySqlBind< uint8_t * > const & >( *bind ).GetValue();
+									static_cast< CDatabaseValue< EFieldType_BINARY > & >( field->GetObjectValue() ).SetValue( std::vector< uint8_t >( value, value + bind->_length ) );
+									break;
+								}
+
 								case EFieldType_VARBINARY:
+								{
+									auto value = static_cast< CInMySqlBind< uint8_t * > const & >( *bind ).GetValue();
+									static_cast< CDatabaseValue< EFieldType_VARBINARY > & >( field->GetObjectValue() ).SetValue( std::vector< uint8_t >( value, value + bind->_length ) );
+									break;
+								}
+
 								case EFieldType_LONG_VARBINARY:
 								{
 									auto value = static_cast< CInMySqlBind< uint8_t * > const & >( *bind ).GetValue();
-									field->SetValueFast( std::vector< uint8_t >( value, value + bind->_length ) );
+									static_cast< CDatabaseValue< EFieldType_LONG_VARBINARY > & >( field->GetObjectValue() ).SetValue( std::vector< uint8_t >( value, value + bind->_length ) );
 									break;
 								}
 
@@ -425,7 +440,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			return pReturn;
 		}
 	}
-	
+
 	CDatabaseConnectionMySql::CDatabaseConnectionMySql( const String & server, const String & userName, const String & password, String & connectionString )
 		: CDatabaseConnection( server, userName, password )
 		, _connection( NULL )
@@ -986,7 +1001,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			{
 				CLogger::LogWarning( WARNING_MYSQL_UNKNOWN_OPTION + STR( "MYSQL_SET_CHARSET_NAME" ) );
 			}
-			
+
 			uint32_t timeout = 180;
 
 			if ( mysql_options( _connection, MYSQL_OPT_CONNECT_TIMEOUT, &timeout ) )
@@ -995,13 +1010,13 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			}
 
 			if ( !mysql_real_connect( _connection,
-				CStrUtils::ToStr( _server ).c_str(),
-				CStrUtils::ToStr( _userName ).c_str(),
-				CStrUtils::ToStr( _password ).c_str(),
-				NULL,
-				0,
-				NULL,
-				CLIENT_REMEMBER_OPTIONS | CLIENT_MULTI_RESULTS ) )
+									  CStrUtils::ToStr( _server ).c_str(),
+									  CStrUtils::ToStr( _userName ).c_str(),
+									  CStrUtils::ToStr( _password ).c_str(),
+									  NULL,
+									  0,
+									  NULL,
+									  CLIENT_REMEMBER_OPTIONS | CLIENT_MULTI_RESULTS ) )
 			{
 				StringStream error( ERROR_MYSQL_CONNECT );
 				error << mysql_error( _connection );

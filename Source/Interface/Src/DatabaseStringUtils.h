@@ -378,7 +378,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[out]	p_val	Reçoit la valeur récupérée
 		 *\return
 		 */
-		template <typename T>
+		template< typename T >
 		static inline void Parse( String const & p_str, T & p_val )
 		{
 			StringStream l_out( p_str );
@@ -398,7 +398,7 @@ BEGIN_NAMESPACE_DATABASE
 		 *\param[out]	p_val		Reçoit la valeur récupérée
 		 *\return
 		 */
-		template <typename T>
+		template< typename T >
 		static inline void Parse( String const & p_str, std::locale const & p_locale, T & p_val )
 		{
 			StringStream l_out( p_str );
@@ -589,7 +589,7 @@ END_NAMESPACE_DATABASE
  *\param[in]		p_tVal		La valeur à mettre dans le flux
  *\return			Le flux String
  */
-template <typename T>
+template< typename T >
 inline NAMESPACE_DATABASE::String & operator <<( NAMESPACE_DATABASE::String & p_strStream, T const & p_tVal )
 {
 	NAMESPACE_DATABASE::StringStream l_out;
@@ -626,7 +626,7 @@ inline NAMESPACE_DATABASE::String & operator <<( NAMESPACE_DATABASE::String & p_
  *\param[in]		p_tVal		La valeur à récupérer à partir du flux
  *\return			Le flux String
  */
-template <typename T>
+template< typename T >
 inline NAMESPACE_DATABASE::String & operator >>( NAMESPACE_DATABASE::String & p_strStream, T & p_tVal )
 {
 	NAMESPACE_DATABASE::StringStream l_out( p_strStream );

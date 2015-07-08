@@ -116,7 +116,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] value
 		    Parameter value.
 		*/
-		template <typename T> void SetParameterValue( uint32_t index, const T & value );
+		template< typename T > void SetParameterValue( uint32_t index, const T & value );
 
 		/** Set parameter value.
 		@param[in] name
@@ -124,7 +124,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] value
 		    Parameter value.
 		*/
-		template <typename T> void SetParameterValue( const String & name, const T & value );
+		template< typename T > void SetParameterValue( const String & name, const T & value );
 
 		/** Get parameter value.
 		@param[in] index
@@ -132,7 +132,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Parameter value.
 		*/
-		template <typename T> T const & GetParameterValue( uint32_t index );
+		template< typename T > T const & GetOutputValue( uint32_t index );
 
 		/** Get parameter value.
 		@param[in] name
@@ -140,7 +140,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Parameter value.
 		*/
-		template <typename T> T const & GetParameterValue( const String & name );
+		template< typename T > T const & GetOutputValue( const String & name );
 
 		/** Get parameter value.
 		@param[in] index
@@ -148,7 +148,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[out] value
 		    Parameter value.
 		*/
-		template <typename T> void GetParameterValue( uint32_t index, T & value );
+		template< typename T > void GetOutputValue( uint32_t index, T & value );
 
 		/** Get parameter value.
 		@param[in] name
@@ -156,7 +156,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[out] value
 		    Parameter value.
 		*/
-		template <typename T> void GetParameterValue( const String & name, T & value );
+		template< typename T > void GetOutputValue( const String & name, T & value );
 
 	protected:
 

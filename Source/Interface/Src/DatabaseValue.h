@@ -59,13 +59,13 @@ BEGIN_NAMESPACE_DATABASE
 		@param limits
 		    The field size limit
 		*/
-		DatabaseExport virtual void SetValue( CDatabaseValueBase * value ) = 0;
+		DatabaseExport virtual void SetValue( CDatabaseValueBase const & value ) = 0;
 
 		/** Get parameter value as a string.
-		@param[out] result
+		@return
 		    Parameter value as a string.
 		*/
-		DatabaseExport virtual void GetInsertValue( String & result ) = 0;
+		DatabaseExport virtual String GetQueryValue() = 0;
 
 		/** Get a pointer to the value.
 		@return

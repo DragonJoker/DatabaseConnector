@@ -460,6 +460,47 @@ BEGIN_NAMESPACE_DATABASE
 		return bReturn;
 	}
 
+	bool CDate::IsValid() const
+	{
+		bool bReturn = false;
+		int iMonthDay = _monthDay;
+		int iMonth = _month;
+		int iYear = _year;
+
+		if ( iMonth >= EDateMonth_JANUARY && iMonthDay > 0 && iYear != -1 )
+		{
+			if ( iMonth != EDateMonth_FEBRUARY )
+			{
+				if ( iMonthDay <= MonthMaxDays[iMonth - 1] )
+				{
+					bReturn = true;
+				}
+			}
+			else
+			{
+				int leap = IsLeap( iYear );
+
+				if ( iMonthDay <= ( MonthMaxDays[iMonth - 1] + leap ) )
+				{
+					bReturn = true;
+				}
+			}
+		}
+
+		return bReturn;
+	}
+
+	std::tm CDate::ToTm() const
+	{
+		std::tm ret = { 0 };
+		ret.tm_mday = GetMonthDay();
+		ret.tm_mon = GetMonth();
+		ret.tm_wday = GetWeekDay();
+		ret.tm_yday = GetYearDay();
+		ret.tm_year = GetYear() - 1900;
+		return ret;
+	}
+
 	CDate CDate::Now()
 	{
 		time_t last_time = time( NULL );
@@ -554,41 +595,6 @@ BEGIN_NAMESPACE_DATABASE
 	bool CDate::IsDate( const std::wstring & date, CDate & result )
 	{
 		return DateUtils::IsDate( date, result );
-	}
-
-	std::tm CDate::ToTm() const
-	{
-		return std::tm { 0, 0, 0, GetMonthDay(), GetMonth(), GetYear() - 1900, GetWeekDay(), GetYearDay(), 0 };
-	}
-
-	bool CDate::IsValid() const
-	{
-		bool bReturn = false;
-		int iMonthDay = _monthDay;
-		int iMonth = _month;
-		int iYear = _year;
-
-		if ( iMonth >= EDateMonth_JANUARY && iMonthDay > 0 && iYear != -1 )
-		{
-			if ( iMonth != EDateMonth_FEBRUARY )
-			{
-				if ( iMonthDay <= MonthMaxDays[iMonth - 1] )
-				{
-					bReturn = true;
-				}
-			}
-			else
-			{
-				int leap = IsLeap( iYear );
-
-				if ( iMonthDay <= ( MonthMaxDays[iMonth - 1] + leap ) )
-				{
-					bReturn = true;
-				}
-			}
-		}
-
-		return bReturn;
 	}
 
 	void CDate::DoCheckValidity()

@@ -755,7 +755,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 							SetParametersValue( index, i + 40, i, stmtAddElement );
 							BOOST_CHECK( stmtAddElement->ExecuteUpdate() );
 							int64_t tmp;
-							stmtAddElement->GetParameterValue( 0, tmp );
+							stmtAddElement->GetOutputValue( 0, tmp );
 							BOOST_CHECK_EQUAL( i + count, tmp );
 						}
 					}
@@ -812,7 +812,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 							stmtUpdateElement->SetParameterNull( index++ );
 							BOOST_CHECK( stmtUpdateElement->ExecuteUpdate() );
 							int64_t tmp;
-							stmtUpdateElement->GetParameterValue( 0, tmp );
+							stmtUpdateElement->GetOutputValue( 0, tmp );
 							BOOST_CHECK_EQUAL( i + count, tmp );
 						}
 					}

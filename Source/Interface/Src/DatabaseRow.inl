@@ -16,7 +16,7 @@ BEGIN_NAMESPACE_DATABASE
 	static const String DATABASE_ROW_INDEX_ERROR = STR( "Unknown error for field at index: " );
 	static const String DATABASE_ROW_NAME_ERROR = STR( "Unknown error for field named: " );
 
-	template <typename T>
+	template< typename T >
 	inline T CDatabaseRow::Get( uint32_t index )
 	{
 		T tReturn;
@@ -24,7 +24,7 @@ BEGIN_NAMESPACE_DATABASE
 		return tReturn;
 	}
 
-	template <typename T>
+	template< typename T >
 	inline T CDatabaseRow::Get( const String & name )
 	{
 		T tReturn;
@@ -32,7 +32,7 @@ BEGIN_NAMESPACE_DATABASE
 		return tReturn;
 	}
 
-	template <typename T>
+	template< typename T >
 	inline void CDatabaseRow::Get( uint32_t index, T & value )
 	{
 		try
@@ -53,7 +53,7 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	}
 
-	template <typename T>
+	template< typename T >
 	inline void CDatabaseRow::Get( const String & name, T & value )
 	{
 		try
@@ -74,7 +74,7 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	}
 
-	template <typename T>
+	template< typename T >
 	inline boost::optional< T > CDatabaseRow::GetOpt( uint32_t index )
 	{
 		boost::optional< T > tReturn;
@@ -110,7 +110,7 @@ BEGIN_NAMESPACE_DATABASE
 		return tReturn;
 	}
 
-	template <typename T>
+	template< typename T >
 	inline boost::optional< T > CDatabaseRow::GetOpt( const String & name )
 	{
 		boost::optional< T > tReturn;
@@ -146,7 +146,7 @@ BEGIN_NAMESPACE_DATABASE
 		return tReturn;
 	}
 
-	template <typename T>
+	template< typename T >
 	inline void CDatabaseRow::GetOpt( uint32_t index, boost::optional< T > & value )
 	{
 		try
@@ -178,7 +178,7 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	}
 
-	template <typename T>
+	template< typename T >
 	inline void CDatabaseRow::GetOpt( const String & name, boost::optional< T > & value )
 	{
 		try
@@ -210,7 +210,7 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	}
 
-	template <typename T>
+	template< typename T >
 	inline T CDatabaseRow::GetDefault()
 	{
 		return T();

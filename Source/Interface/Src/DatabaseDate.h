@@ -42,7 +42,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] dateTime
 		    Date/time.
 		*/
-		CDate( const CDateTime & dateTime );
+		explicit CDate( const CDateTime & dateTime );
 
 		/** Constructor
 		@param[in] year

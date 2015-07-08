@@ -36,7 +36,7 @@ BEGIN_NAMESPACE_DATABASE
 	static const String DATABASE_QUERY_INDEX_ERROR = STR( "No query parameter at index: " );
 	static const String DATABASE_QUERY_NAME_ERROR = STR( "No query parameter named: " );
 
-	template <typename T>
+	template< typename T >
 	void CDatabaseQuery::SetParameterValue( uint32_t index, const T & value )
 	{
 		try
@@ -53,7 +53,7 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	}
 
-	template <typename T>
+	template< typename T >
 	void CDatabaseQuery::SetParameterValue( const String & name, const T & value )
 	{
 		DatabaseParameterPtrArray::iterator it = std::find_if( _arrayParams.begin(), _arrayParams.end(), QueryParameterFindCondition( name ) );
@@ -72,8 +72,8 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	}
 
-	template <typename T>
-	const T & CDatabaseQuery::GetParameterValue( uint32_t index )
+	template< typename T >
+	const T & CDatabaseQuery::GetOutputValue( uint32_t index )
 	{
 		try
 		{
@@ -88,8 +88,8 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	}
 
-	template <typename T>
-	const T & CDatabaseQuery::GetParameterValue( const String & name )
+	template< typename T >
+	const T & CDatabaseQuery::GetOutputValue( const String & name )
 	{
 		DatabaseParameterPtrArray::iterator it = std::find_if( _arrayParams.begin(), _arrayParams.end(), QueryParameterFindCondition( name ) );
 
@@ -106,8 +106,8 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	}
 
-	template <typename T>
-	void CDatabaseQuery::GetParameterValue( uint32_t index, T & value )
+	template< typename T >
+	void CDatabaseQuery::GetOutputValue( uint32_t index, T & value )
 	{
 		try
 		{
@@ -122,8 +122,8 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	}
 
-	template <typename T>
-	void CDatabaseQuery::GetParameterValue( const String & name, T & value )
+	template< typename T >
+	void CDatabaseQuery::GetOutputValue( const String & name, T & value )
 	{
 		DatabaseParameterPtrArray::iterator it = std::find_if( _arrayParams.begin(), _arrayParams.end(), QueryParameterFindCondition( name ) );
 

@@ -66,29 +66,13 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport DatabaseFieldPtr GetField( uint32_t index );
 
-		/** Get value as string of a field.
-		@param[in] index
-		    Field index.
-		@return
-		    Field value as string.
-		*/
-		DatabaseExport String GetStr( uint32_t index );
-
-		/** Get value as string of a field.
-		@param[in] name
-		    Field name.
-		@return
-		    Field value as string.
-		*/
-		DatabaseExport String GetStr( const String & name );
-
 		/** Get value
 		@param[in] index
 		    Field index.
 		@return
 		    Value.
 		*/
-		template <typename T> inline T Get( uint32_t index );
+		template< typename T > inline T Get( uint32_t index );
 
 		/** Get value
 		@param[in] name
@@ -96,7 +80,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Value.
 		*/
-		template <typename T> inline T Get( const String & name );
+		template< typename T > inline T Get( const String & name );
 
 		/** Get value
 		@param[in] index
@@ -104,7 +88,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[out] value
 		    Value.
 		*/
-		template <typename T> inline void Get( uint32_t index, T & value );
+		template< typename T > inline void Get( uint32_t index, T & value );
 
 		/** Get value
 		@param[in] name
@@ -112,7 +96,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[out] value
 		    Value.
 		*/
-		template <typename T> inline void Get( const String & name, T & value );
+		template< typename T > inline void Get( const String & name, T & value );
 
 		/** Get value
 		@param[in] index
@@ -120,7 +104,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Value.
 		*/
-		template <typename T> inline boost::optional< T > GetOpt( uint32_t index );
+		template< typename T > inline boost::optional< T > GetOpt( uint32_t index );
 
 		/** Get value
 		@param[in] name
@@ -128,7 +112,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Value.
 		*/
-		template <typename T> inline boost::optional< T > GetOpt( const String & name );
+		template< typename T > inline boost::optional< T > GetOpt( const String & name );
 
 		/** Get value
 		@param[in] index
@@ -136,7 +120,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[out] value
 		    Value.
 		*/
-		template <typename T> inline void GetOpt( uint32_t index, boost::optional< T > & value );
+		template< typename T > inline void GetOpt( uint32_t index, boost::optional< T > & value );
 
 		/** Get value
 		@param[in] name
@@ -144,13 +128,13 @@ BEGIN_NAMESPACE_DATABASE
 		@param[out] value
 		    Value.
 		*/
-		template <typename T> inline void GetOpt( const String & name, boost::optional< T > & value );
+		template< typename T > inline void GetOpt( const String & name, boost::optional< T > & value );
 
 		/** Get default value.
 		@return
 		    Default value.
 		*/
-		template <typename T> inline T GetDefault();
+		template< typename T > inline T GetDefault();
 
 	protected:
 		DatabaseFieldPtrArray   _arrayFields;       ///< Array of fields.

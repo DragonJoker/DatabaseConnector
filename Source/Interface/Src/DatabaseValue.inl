@@ -32,7 +32,6 @@ BEGIN_NAMESPACE_DATABASE
 		typedef typename SFieldTypeDataTyper< Type >::value_type value_type;
 
 	public:
-
 		/** Default constructor.
 		*/
 		CDatabaseValue( DatabaseConnectionPtr connection )
@@ -55,9 +54,9 @@ BEGIN_NAMESPACE_DATABASE
 		@param limits
 		    The field size limit
 		*/
-		DatabaseExport virtual void SetValue( CDatabaseValueBase * value )
+		DatabaseExport virtual void SetValue( CDatabaseValueBase const & value )
 		{
-			SetValue( static_cast< CDatabaseValue< Type > * >( value )->_tValue );
+			SetValue( static_cast< CDatabaseValue< Type > const & >( value )._tValue );
 		}
 
 		/** Set value.
@@ -74,10 +73,10 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    The value.
 		*/
-		DatabaseExport virtual void GetInsertValue( String & result )
+		DatabaseExport virtual String GetQueryValue()
 		{
 			DoUpdateTValue();
-			CDatabaseValuePolicy< value_type >::ToInsertable( _tValue, _isValueSet, _connection, result );
+			return CDatabaseValuePolicy< value_type >::ToInsertable( _tValue, _isValueSet, _connection );
 		}
 
 		/** Get a pointer to the value.
@@ -109,7 +108,6 @@ BEGIN_NAMESPACE_DATABASE
 		}
 
 	private:
-
 		/** Update value as string from the typed value.
 		*/
 		DatabaseExport virtual void DoUpdateStrValue()
@@ -144,11 +142,7 @@ BEGIN_NAMESPACE_DATABASE
 	public:
 		typedef SFieldTypeDataTyper< EFieldType_VARCHAR >::value_type value_type;
 
-	private:
-		value_type _tValue;
-
 	public:
-
 		/** Default constructor.
 		*/
 		CDatabaseValue( DatabaseConnectionPtr connection )
@@ -171,9 +165,9 @@ BEGIN_NAMESPACE_DATABASE
 		@param limits
 		    The field size limit
 		*/
-		DatabaseExport virtual void SetValue( CDatabaseValueBase * value )
+		DatabaseExport virtual void SetValue( CDatabaseValueBase const & value )
 		{
-			SetValue( static_cast< CDatabaseValue< EFieldType_VARCHAR > * >( value )->_tValue );
+			SetValue( static_cast< CDatabaseValue< EFieldType_VARCHAR > const & >( value )._tValue );
 		}
 
 		/** Set value.
@@ -210,10 +204,10 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    The value.
 		*/
-		DatabaseExport virtual void GetInsertValue( String & result )
+		DatabaseExport virtual String GetQueryValue()
 		{
 			DoUpdateTValue();
-			CDatabaseValuePolicy< value_type >::ToInsertable( _tValue, _isValueSet, _connection, result );
+			return CDatabaseValuePolicy< value_type >::ToInsertable( _tValue, _isValueSet, _connection );
 		}
 
 		/** Get a pointer to the value.
@@ -245,7 +239,6 @@ BEGIN_NAMESPACE_DATABASE
 		}
 
 	private:
-
 		/** Update value as string from the typed value.
 		*/
 		DatabaseExport virtual void DoUpdateStrValue()
@@ -267,6 +260,9 @@ BEGIN_NAMESPACE_DATABASE
 			_tValue = value_type();
 			_valueSize = 0;
 		}
+
+	private:
+		value_type _tValue;
 	};
 
 	/** Describes a EFieldType_NVARCHAR field value.
@@ -277,11 +273,7 @@ BEGIN_NAMESPACE_DATABASE
 	public:
 		typedef SFieldTypeDataTyper< EFieldType_NVARCHAR >::value_type value_type;
 
-	private:
-		value_type _tValue;
-
 	public:
-
 		/** Default constructor.
 		*/
 		CDatabaseValue( DatabaseConnectionPtr connection )
@@ -304,9 +296,9 @@ BEGIN_NAMESPACE_DATABASE
 		@param limits
 		    The field size limit
 		*/
-		DatabaseExport virtual void SetValue( CDatabaseValueBase * value )
+		DatabaseExport virtual void SetValue( CDatabaseValueBase const & value )
 		{
-			SetValue( static_cast< CDatabaseValue< EFieldType_NVARCHAR > * >( value )->_tValue );
+			SetValue( static_cast< CDatabaseValue< EFieldType_NVARCHAR > const & >( value )._tValue );
 		}
 
 		/** Set value.
@@ -343,10 +335,10 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    The value.
 		*/
-		DatabaseExport virtual void GetInsertValue( String & result )
+		DatabaseExport virtual String GetQueryValue()
 		{
 			DoUpdateTValue();
-			CDatabaseValuePolicy< value_type >::ToInsertable( _tValue, _isValueSet, _connection, result );
+			return CDatabaseValuePolicy< value_type >::ToInsertable( _tValue, _isValueSet, _connection );
 		}
 
 		/** Get a pointer to the value.
@@ -378,7 +370,6 @@ BEGIN_NAMESPACE_DATABASE
 		}
 
 	private:
-
 		/** Update value as string from the typed value.
 		*/
 		DatabaseExport virtual void DoUpdateStrValue()
@@ -400,6 +391,9 @@ BEGIN_NAMESPACE_DATABASE
 			_tValue = value_type();
 			_valueSize = 0;
 		}
+
+	private:
+		value_type _tValue;
 	};
 
 	/** Describes a EFieldType_DATE field value.
@@ -410,11 +404,7 @@ BEGIN_NAMESPACE_DATABASE
 	public:
 		typedef SFieldTypeDataTyper< EFieldType_DATE >::value_type value_type;
 
-	private:
-		value_type _tValue;
-
 	public:
-
 		/** Default constructor.
 		*/
 		CDatabaseValue( DatabaseConnectionPtr connection )
@@ -437,31 +427,27 @@ BEGIN_NAMESPACE_DATABASE
 		@param limits
 		    The field size limit
 		*/
-		DatabaseExport virtual void SetValue( CDatabaseValueBase * value )
+		DatabaseExport virtual void SetValue( CDatabaseValueBase const & value )
 		{
-			SetValue( static_cast< CDatabaseValue< EFieldType_DATE > * >( value )->_tValue );
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_DATE > const & >( value )._tValue );
 		}
 
 		/** Set value.
 		@param[in] tValue
-		    New value.
+		    Field value.
 		*/
-		inline void SetValue( const value_type & tValue )
+		inline void SetValue( const CDate & tValue )
 		{
-			CDatabaseValuePolicy< value_type >::Set( tValue, _tValue, _isValueSet, _isValueAsStringSet, _valueSize );
-			SetNull( !_isValueSet );
+			DoSetValue( tValue.Format( SDATE_FORMAT_EXP ) );
 		}
 
 		/** Get the value.
 		@return
 		    The value.
 		*/
-		DatabaseExport virtual void GetInsertValue( String & result )
+		DatabaseExport virtual String GetQueryValue()
 		{
-			DoUpdateTValue();
-			CDate date;
-			CDate::IsDate( _tValue, DATE_FORMAT_EXP, date );
-			result += CStrUtils::ToString( _connection->WriteDate( date ) );
+			return CStrUtils::ToString( _connection->WriteDate( GetValue() ) );
 		}
 
 		/** Get a pointer to the value.
@@ -481,7 +467,9 @@ BEGIN_NAMESPACE_DATABASE
 		DatabaseExport virtual CDate GetValue()
 		{
 			DoUpdateTValue();
-			return _connection->ParseDate( _tValue );
+			CDate date;
+			CDate::IsDate( _tValue, DATE_FORMAT_EXP, date );
+			return date;
 		}
 
 		/** Re-initialize internal values.
@@ -493,7 +481,6 @@ BEGIN_NAMESPACE_DATABASE
 		}
 
 	private:
-
 		/** Update value as string from the typed value.
 		*/
 		DatabaseExport virtual void DoUpdateStrValue()
@@ -515,6 +502,19 @@ BEGIN_NAMESPACE_DATABASE
 			_tValue = value_type();
 			_valueSize = 0;
 		}
+
+		/** Set value.
+		@param[in] tValue
+		    New value.
+		*/
+		inline void DoSetValue( const value_type & tValue )
+		{
+			CDatabaseValuePolicy< value_type >::Set( tValue, _tValue, _isValueSet, _isValueAsStringSet, _valueSize );
+			SetNull( !_isValueSet );
+		}
+
+	private:
+		value_type _tValue;
 	};
 
 	/** Describes a EFieldType_DATETME field value.
@@ -525,11 +525,7 @@ BEGIN_NAMESPACE_DATABASE
 	public:
 		typedef SFieldTypeDataTyper< EFieldType_DATETIME >::value_type value_type;
 
-	private:
-		value_type _tValue;
-
 	public:
-
 		/** Default constructor.
 		*/
 		CDatabaseValue( DatabaseConnectionPtr connection )
@@ -552,31 +548,27 @@ BEGIN_NAMESPACE_DATABASE
 		@param limits
 		    The field size limit
 		*/
-		DatabaseExport virtual void SetValue( CDatabaseValueBase * value )
+		DatabaseExport virtual void SetValue( CDatabaseValueBase const & value )
 		{
-			SetValue( static_cast< CDatabaseValue< EFieldType_DATETIME > * >( value )->_tValue );
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_DATETIME > const & >( value )._tValue );
 		}
 
 		/** Set value.
 		@param[in] tValue
-		    New value.
+		    Field value.
 		*/
-		inline void SetValue( const value_type & tValue )
+		inline void SetValue( const CDateTime & tValue )
 		{
-			CDatabaseValuePolicy< value_type >::Set( tValue, _tValue, _isValueSet, _isValueAsStringSet, _valueSize );
-			SetNull( !_isValueSet );
+			DoSetValue( tValue.Format( SDATETIME_FORMAT_EXP ) );
 		}
 
 		/** Get the value.
 		@return
 		    The value.
 		*/
-		DatabaseExport virtual void GetInsertValue( String & result )
+		DatabaseExport virtual String GetQueryValue()
 		{
-			DoUpdateTValue();
-			CDateTime dateTime;
-			CDateTime::IsDateTime( _tValue, DATETIME_FORMAT_EXP, dateTime );
-			result += CStrUtils::ToString( _connection->WriteDateTime( dateTime ) );
+			return CStrUtils::ToString( _connection->WriteDateTime( GetValue() ) );
 		}
 
 		/** Get a pointer to the value.
@@ -596,7 +588,9 @@ BEGIN_NAMESPACE_DATABASE
 		DatabaseExport virtual CDateTime GetValue()
 		{
 			DoUpdateTValue();
-			return _connection->ParseDateTime( _tValue );
+			CDateTime dateTime;
+			CDateTime::IsDateTime( _tValue, DATETIME_FORMAT_EXP, dateTime );
+			return dateTime;
 		}
 
 		/** Re-initialize internal values.
@@ -608,7 +602,6 @@ BEGIN_NAMESPACE_DATABASE
 		}
 
 	private:
-
 		/** Update value as string from the typed value.
 		*/
 		DatabaseExport virtual void DoUpdateStrValue()
@@ -630,6 +623,19 @@ BEGIN_NAMESPACE_DATABASE
 			_tValue = value_type();
 			_valueSize = 0;
 		}
+
+		/** Set value.
+		@param[in] tValue
+		    New value.
+		*/
+		inline void DoSetValue( const value_type & tValue )
+		{
+			CDatabaseValuePolicy< value_type >::Set( tValue, _tValue, _isValueSet, _isValueAsStringSet, _valueSize );
+			SetNull( !_isValueSet );
+		}
+
+	private:
+		value_type _tValue;
 	};
 
 	/** Describes a EFieldType_TIME field value.
@@ -640,11 +646,7 @@ BEGIN_NAMESPACE_DATABASE
 	public:
 		typedef SFieldTypeDataTyper< EFieldType_TIME >::value_type value_type;
 
-	private:
-		value_type _tValue;
-
 	public:
-
 		/** Default constructor.
 		*/
 		CDatabaseValue( DatabaseConnectionPtr connection )
@@ -667,31 +669,27 @@ BEGIN_NAMESPACE_DATABASE
 		@param limits
 		    The field size limit
 		*/
-		DatabaseExport virtual void SetValue( CDatabaseValueBase * value )
+		DatabaseExport virtual void SetValue( CDatabaseValueBase const & value )
 		{
-			SetValue( static_cast< CDatabaseValue< EFieldType_TIME > * >( value )->_tValue );
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_TIME > const & >( value )._tValue );
 		}
 
-		/** Set value as string.
+		/** Set value.
 		@param[in] tValue
-		    Field value as string.
+		    Field value.
 		*/
-		inline void SetValue( const value_type & tValue )
+		inline void SetValue( const CTime & tValue )
 		{
-			CDatabaseValuePolicy< value_type >::Set( tValue, _tValue, _isValueSet, _isValueAsStringSet, _valueSize );
-			SetNull( !_isValueSet );
+			DoSetValue( tValue.Format( STIME_FORMAT_EXP ) );
 		}
 
 		/** Get the value.
 		@return
 		    The value.
 		*/
-		DatabaseExport virtual void GetInsertValue( String & result )
+		DatabaseExport virtual String GetQueryValue()
 		{
-			DoUpdateTValue();
-			CTime time;
-			CTime::IsTime( _tValue, TIME_FORMAT_EXP, time );
-			result += CStrUtils::ToString( _connection->WriteTime( time ) );
+			return CStrUtils::ToString( _connection->WriteTime( GetValue() ) );
 		}
 
 		/** Get a pointer to the value.
@@ -711,7 +709,9 @@ BEGIN_NAMESPACE_DATABASE
 		DatabaseExport virtual CTime GetValue()
 		{
 			DoUpdateTValue();
-			return _connection->ParseTime( _tValue );
+			CTime time;
+			CTime::IsTime( _tValue, TIME_FORMAT_EXP, time );
+			return time;
 		}
 
 		/** Re-initialize internal values.
@@ -723,7 +723,6 @@ BEGIN_NAMESPACE_DATABASE
 		}
 
 	private:
-
 		/** Update value as string from the typed value.
 		*/
 		DatabaseExport virtual void DoUpdateStrValue()
@@ -745,6 +744,19 @@ BEGIN_NAMESPACE_DATABASE
 			_tValue = value_type();
 			_valueSize = 0;
 		}
+
+		/** Set value as string.
+		@param[in] tValue
+		    Field value as string.
+		*/
+		inline void DoSetValue( const value_type & tValue )
+		{
+			CDatabaseValuePolicy< value_type >::Set( tValue, _tValue, _isValueSet, _isValueAsStringSet, _valueSize );
+			SetNull( !_isValueSet );
+		}
+
+	private:
+		value_type _tValue;
 	};
 
 	/** Describes a EFieldType_BINARY field value.
@@ -755,11 +767,7 @@ BEGIN_NAMESPACE_DATABASE
 	public:
 		typedef SFieldTypeDataTyper< EFieldType_BINARY >::value_type value_type;
 
-	private:
-		value_type _tValue;
-
 	public:
-
 		/** Default constructor.
 		*/
 		CDatabaseValue( DatabaseConnectionPtr connection )
@@ -782,9 +790,9 @@ BEGIN_NAMESPACE_DATABASE
 		@param limits
 		    The field size limit
 		*/
-		DatabaseExport virtual void SetValue( CDatabaseValueBase * value )
+		DatabaseExport virtual void SetValue( CDatabaseValueBase const & value )
 		{
-			SetValue( static_cast< CDatabaseValue< EFieldType_BINARY > * >( value )->_tValue );
+			SetValue( static_cast< CDatabaseValue< EFieldType_BINARY > const & >( value )._tValue );
 		}
 
 		/** Set value.
@@ -821,10 +829,10 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    The value.
 		*/
-		DatabaseExport virtual void GetInsertValue( String & result )
+		DatabaseExport virtual String GetQueryValue()
 		{
 			DoUpdateTValue();
-			CDatabaseValuePolicy< value_type >::ToInsertable( _tValue, _isValueSet, _connection, result );
+			return CDatabaseValuePolicy< value_type >::ToInsertable( _tValue, _isValueSet, _connection );
 		}
 
 		/** Get a pointer to the value.
@@ -856,7 +864,6 @@ BEGIN_NAMESPACE_DATABASE
 		}
 
 	private:
-
 		/** Update value as string from the typed value.
 		*/
 		DatabaseExport virtual void DoUpdateStrValue()
@@ -878,6 +885,9 @@ BEGIN_NAMESPACE_DATABASE
 			_tValue = value_type( 0 );
 			_valueSize = 0;
 		}
+
+	private:
+		value_type _tValue;
 	};
 
 	/** Describes a EFieldType_BINARY field value.
@@ -888,11 +898,7 @@ BEGIN_NAMESPACE_DATABASE
 	public:
 		typedef SFieldTypeDataTyper< EFieldType_VARBINARY >::value_type value_type;
 
-	private:
-		value_type _tValue;
-
 	public:
-
 		/** Default constructor.
 		*/
 		CDatabaseValue( DatabaseConnectionPtr connection )
@@ -915,9 +921,9 @@ BEGIN_NAMESPACE_DATABASE
 		@param limits
 		    The field size limit
 		*/
-		DatabaseExport virtual void SetValue( CDatabaseValueBase * value )
+		DatabaseExport virtual void SetValue( CDatabaseValueBase const & value )
 		{
-			SetValue( static_cast< CDatabaseValue< EFieldType_VARBINARY > * >( value )->_tValue );
+			SetValue( static_cast< CDatabaseValue< EFieldType_VARBINARY > const & >( value )._tValue );
 		}
 
 		/** Set value.
@@ -954,10 +960,10 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    The value.
 		*/
-		DatabaseExport virtual void GetInsertValue( String & result )
+		DatabaseExport virtual String GetQueryValue()
 		{
 			DoUpdateTValue();
-			CDatabaseValuePolicy< value_type >::ToInsertable( _tValue, _isValueSet, _connection, result );
+			return CDatabaseValuePolicy< value_type >::ToInsertable( _tValue, _isValueSet, _connection );
 		}
 
 		/** Get a pointer to the value.
@@ -989,7 +995,6 @@ BEGIN_NAMESPACE_DATABASE
 		}
 
 	private:
-
 		/** Update value as string from the typed value.
 		*/
 		DatabaseExport virtual void DoUpdateStrValue()
@@ -1011,6 +1016,9 @@ BEGIN_NAMESPACE_DATABASE
 			_tValue = value_type();
 			_valueSize = 0;
 		}
+
+	private:
+		value_type _tValue;
 	};
 
 	/** Describes a EFieldType_BINARY field value.
@@ -1021,11 +1029,7 @@ BEGIN_NAMESPACE_DATABASE
 	public:
 		typedef SFieldTypeDataTyper< EFieldType_LONG_VARBINARY >::value_type value_type;
 
-	private:
-		value_type _tValue;
-
 	public:
-
 		/** Default constructor.
 		*/
 		CDatabaseValue( DatabaseConnectionPtr connection )
@@ -1048,9 +1052,9 @@ BEGIN_NAMESPACE_DATABASE
 		@param limits
 		    The field size limit
 		*/
-		DatabaseExport virtual void SetValue( CDatabaseValueBase * value )
+		DatabaseExport virtual void SetValue( CDatabaseValueBase const & value )
 		{
-			SetValue( static_cast< CDatabaseValue< EFieldType_LONG_VARBINARY > * >( value )->_tValue );
+			SetValue( static_cast< CDatabaseValue< EFieldType_LONG_VARBINARY > const & >( value )._tValue );
 		}
 
 		/** Set value.
@@ -1087,10 +1091,10 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    The value.
 		*/
-		DatabaseExport virtual void GetInsertValue( String & result )
+		DatabaseExport virtual String GetQueryValue()
 		{
 			DoUpdateTValue();
-			CDatabaseValuePolicy< value_type >::ToInsertable( _tValue, _isValueSet, _connection, result );
+			return CDatabaseValuePolicy< value_type >::ToInsertable( _tValue, _isValueSet, _connection );
 		}
 
 		/** Get a pointer to the value.
@@ -1143,6 +1147,9 @@ BEGIN_NAMESPACE_DATABASE
 			_tValue = value_type();
 			_valueSize = 0;
 		}
+
+	private:
+		value_type _tValue;
 	};
 }
 END_NAMESPACE_DATABASE

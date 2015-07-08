@@ -301,6 +301,15 @@ BEGIN_NAMESPACE_DATABASE
 		return bReturn;
 	}
 
+	std::tm CTime::ToTm() const
+	{
+		std::tm ret = { 0 };
+		ret.tm_hour = GetHour();
+		ret.tm_min = GetMinute();
+		ret.tm_sec = GetSecond();
+		return ret;
+	}
+
 	CTime CTime::Now()
 	{
 		time_t last_time = time( NULL );

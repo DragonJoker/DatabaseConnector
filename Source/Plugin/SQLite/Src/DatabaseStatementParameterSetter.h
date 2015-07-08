@@ -160,7 +160,7 @@ private:
 		//!@copydoc SParameterValueSetterBase::DoSetValue
 		virtual SQLite::eCODE DoSetValue( SQLite::Statement * statement, void * value, CDatabaseStatementParameterSqlite * parameter )
 		{
-			return SQLite::BindText( statement, parameter->GetIndex(), static_cast< char * >( value ), parameter->GetPtrSize(), SQLite::NULL_DESTRUCTOR );
+			return SQLite::BindText( statement, parameter->GetIndex(), static_cast< char * >( value ), parameter->GetObjectValue().GetPtrSize(), SQLite::NULL_DESTRUCTOR );
 		}
 	};
 	/** Specialization for EFieldType_TEXT
@@ -173,7 +173,7 @@ private:
 		//!@copydoc SParameterValueSetterBase::DoSetValue
 		virtual SQLite::eCODE DoSetValue( SQLite::Statement * statement, void * value, CDatabaseStatementParameterSqlite * parameter )
 		{
-			return SQLite::BindText( statement, parameter->GetIndex(), static_cast< char * >( value ), parameter->GetPtrSize(), SQLite::NULL_DESTRUCTOR );
+			return SQLite::BindText( statement, parameter->GetIndex(), static_cast< char * >( value ), parameter->GetObjectValue().GetPtrSize(), SQLite::NULL_DESTRUCTOR );
 		}
 	};
 	/** Specialization for EFieldType_NVARCHAR
@@ -186,7 +186,7 @@ private:
 		//!@copydoc SParameterValueSetterBase::DoSetValue
 		virtual SQLite::eCODE DoSetValue( SQLite::Statement * statement, void * value, CDatabaseStatementParameterSqlite * parameter )
 		{
-			return SQLite::BindText16( statement, parameter->GetIndex(), value, parameter->GetPtrSize(), SQLite::NULL_DESTRUCTOR );
+			return SQLite::BindText16( statement, parameter->GetIndex(), value, parameter->GetObjectValue().GetPtrSize(), SQLite::NULL_DESTRUCTOR );
 		}
 	};
 	/** Specialization for EFieldType_NTEXT
@@ -199,7 +199,7 @@ private:
 		//!@copydoc SParameterValueSetterBase::DoSetValue
 		virtual SQLite::eCODE DoSetValue( SQLite::Statement * statement, void * value, CDatabaseStatementParameterSqlite * parameter )
 		{
-			return SQLite::BindText16( statement, parameter->GetIndex(), value, parameter->GetPtrSize(), SQLite::NULL_DESTRUCTOR );
+			return SQLite::BindText16( statement, parameter->GetIndex(), value, parameter->GetObjectValue().GetPtrSize(), SQLite::NULL_DESTRUCTOR );
 		}
 	};
 	/** Specialization for EFieldType_DATE
@@ -212,7 +212,7 @@ private:
 		//!@copydoc SParameterValueSetterBase::DoSetValue
 		virtual SQLite::eCODE DoSetValue( SQLite::Statement * statement, void * value, CDatabaseStatementParameterSqlite * parameter )
 		{
-			return SQLite::BindText( statement, parameter->GetIndex(), static_cast< char * >( value ), parameter->GetPtrSize(), SQLite::NULL_DESTRUCTOR );
+			return SQLite::BindText( statement, parameter->GetIndex(), static_cast< char * >( value ), parameter->GetObjectValue().GetPtrSize(), SQLite::NULL_DESTRUCTOR );
 		}
 	};
 	/** Specialization for EFieldType_DATETIME
@@ -225,7 +225,7 @@ private:
 		//!@copydoc SParameterValueSetterBase::DoSetValue
 		virtual SQLite::eCODE DoSetValue( SQLite::Statement * statement, void * value, CDatabaseStatementParameterSqlite * parameter )
 		{
-			return SQLite::BindText( statement, parameter->GetIndex(), static_cast< char * >( value ), parameter->GetPtrSize(), SQLite::NULL_DESTRUCTOR );
+			return SQLite::BindText( statement, parameter->GetIndex(), static_cast< char * >( value ), parameter->GetObjectValue().GetPtrSize(), SQLite::NULL_DESTRUCTOR );
 		}
 	};
 	/** Specialization for EFieldType_TIME
@@ -238,7 +238,7 @@ private:
 		//!@copydoc SParameterValueSetterBase::DoSetValue
 		virtual SQLite::eCODE DoSetValue( SQLite::Statement * statement, void * value, CDatabaseStatementParameterSqlite * parameter )
 		{
-			return SQLite::BindText( statement, parameter->GetIndex(), static_cast< char * >( value ), parameter->GetPtrSize(), SQLite::NULL_DESTRUCTOR );
+			return SQLite::BindText( statement, parameter->GetIndex(), static_cast< char * >( value ), parameter->GetObjectValue().GetPtrSize(), SQLite::NULL_DESTRUCTOR );
 		}
 	};
 }

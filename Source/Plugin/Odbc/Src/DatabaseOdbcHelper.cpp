@@ -31,6 +31,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	static const String ODBC_QUERY_ERROR = STR( "Error encountered while executing query: " );
 	static const String ODBC_UNKNOWN_ERROR = STR( "Unknown error encountered while executing query: " );
 	static const String ODBC_INCONSISTENCY_ERROR = STR( "Number of columns is less than retrieved data." );
+	static const String ODBC_UNDEFINED_VALUE_TYPE = STR( "Undefined field value type." );
 	static const String ODBC_QUERY_SUCCESS = STR( "Success executing action: " );
 
 	static const SQLINTEGER   ODBC_RERUN_TRANSACTION_CODE = 1205;
@@ -108,6 +109,48 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			return errorType;
 		}
 
+		void SetFieldValue( EFieldType type, CDatabaseValueBase & value, String const & text )
+		{
+			if ( text.empty() )
+			{
+				switch ( type )
+				{
+				case EFieldType_BOOL:
+				case EFieldType_SMALL_INTEGER:
+				case EFieldType_INTEGER:
+				case EFieldType_LONG_INTEGER:
+				case EFieldType_FLOAT:
+				case EFieldType_DOUBLE:
+				case EFieldType_DATE:
+				case EFieldType_DATETIME:
+				case EFieldType_TIME:
+				case EFieldType_BINARY:
+				case EFieldType_VARBINARY:
+				case EFieldType_LONG_VARBINARY:
+					value.Reset();
+					break;
+
+				case EFieldType_VARCHAR:
+				case EFieldType_TEXT:
+				case EFieldType_NVARCHAR:
+				case EFieldType_NTEXT:
+					value.SetNull( false );
+					value.Reset();
+					break;
+
+				default:
+					CLogger::LogError( ODBC_UNDEFINED_VALUE_TYPE );
+					throw CExceptionDatabaseOdbc( EDatabaseOdbcExceptionCodes_GenericError, ODBC_UNDEFINED_VALUE_TYPE, __FUNCTION__, __FILE__, __LINE__ );
+					break;
+				}
+			}
+			else
+			{
+				value.SetNull( false );
+				value.SetStrValue( text );
+			}
+		}
+
 		EErrorType FetchResultSet( DatabaseConnectionPtr connection, DatabaseResultPtr results, std::vector< SDataBinding > & columns, SQLHSTMT statementHandle )
 		{
 			int attemptCount;
@@ -166,7 +209,12 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 							try
 							{
-								field = std::make_shared< CDatabaseField >( results->GetFieldInfos( index++ ), isNull, CStrUtils::ToString( fieldValue ) );
+								field = std::make_shared< CDatabaseField >( results->GetFieldInfos( index++ ) );
+
+								if ( !isNull )
+								{
+									SetFieldValue( field->GetType(), field->GetObjectValue(), CStrUtils::ToString( fieldValue ) );
+								}
 							}
 							catch ( const CExceptionDatabase & e )
 							{

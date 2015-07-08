@@ -18,7 +18,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #ifndef ___DATABASE_LOGGER_IMPL_H___
 #define ___DATABASE_LOGGER_IMPL_H___
 
-#include "DatabaseConsole.h"
+#include "DatabaseLoggerConsole.h"
 
 #include <condition_variable>
 
@@ -97,7 +97,7 @@ BEGIN_NAMESPACE_DATABASE
 		eLOG_TYPE m_eLogLevel;
 		LoggerCallbackMap m_mapCallbacks;
 		std::mutex m_mutex;
-		
+
 		std::stringstream m_cout;
 		std::stringstream m_cerr;
 		std::stringstream m_clog;

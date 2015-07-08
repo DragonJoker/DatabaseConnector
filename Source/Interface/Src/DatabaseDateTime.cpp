@@ -16,6 +16,7 @@
 #include "DatabaseDateTime.h"
 
 #include "DatabaseDate.h"
+#include "DatabaseTime.h"
 #include "DatabaseDateTimeHelper.h"
 #include "DatabaseException.h"
 
@@ -248,6 +249,11 @@ BEGIN_NAMESPACE_DATABASE
 	{
 	}
 
+	CDateTime::CDateTime( const CTime & time )
+		:   _date( time.ToTm() )
+	{
+	}
+
 	CDateTime::~CDateTime()
 	{
 		// Empty
@@ -255,6 +261,8 @@ BEGIN_NAMESPACE_DATABASE
 
 	void CDateTime::SetDateTime( int year, EDateMonth month, int day, int hour, int minute, int second )
 	{
+		_date = std::tm { 0 };
+
 		if ( year - 1900 >= 0 )
 		{
 			_date.tm_year = year - 1900;
@@ -451,7 +459,7 @@ BEGIN_NAMESPACE_DATABASE
 					return false;
 				}
 
-				result = to_tm( t );
+				result = CDateTime( to_tm( t ) );
 			}
 			catch ( ... )
 			{
@@ -479,7 +487,7 @@ BEGIN_NAMESPACE_DATABASE
 					return false;
 				}
 
-				result = to_tm( t );
+				result = CDateTime( to_tm( t ) );
 			}
 			catch ( ... )
 			{

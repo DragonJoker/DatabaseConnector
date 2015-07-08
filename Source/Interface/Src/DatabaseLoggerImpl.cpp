@@ -61,20 +61,20 @@ BEGIN_NAMESPACE_DATABASE
 				while ( !m_wcout.eof() )
 				{
 					std::getline( m_wcout, l_wline );
-					
+
 					if ( !l_wline.empty() )
 					{
 						DoLogMessage( CStrUtils::ToString( l_wline ), eLOG_TYPE_MESSAGE );
 					}
 				}
-				
+
 				m_cout.clear();
 				m_wcout.clear();
 
 				while ( !m_cerr.eof() )
 				{
 					std::getline( m_cerr, l_line );
-					
+
 					if ( !l_line.empty() )
 					{
 						DoLogMessage( CStrUtils::ToString( l_line ), eLOG_TYPE_ERROR );
@@ -84,13 +84,13 @@ BEGIN_NAMESPACE_DATABASE
 				while ( !m_wcerr.eof() )
 				{
 					std::getline( m_wcerr, l_wline );
-					
+
 					if ( !l_wline.empty() )
 					{
 						DoLogMessage( CStrUtils::ToString( l_wline ), eLOG_TYPE_ERROR );
 					}
 				}
-				
+
 				m_cerr.clear();
 				m_wcerr.clear();
 
@@ -113,7 +113,7 @@ BEGIN_NAMESPACE_DATABASE
 						DoLogMessage( CStrUtils::ToString( l_wline ), eLOG_TYPE_DEBUG );
 					}
 				}
-				
+
 				m_clog.clear();
 				m_wclog.clear();
 

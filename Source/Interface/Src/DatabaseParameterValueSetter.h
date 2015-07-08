@@ -31,9 +31,9 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] value
 		    New value.
 		*/
-		inline void operator()( CDatabaseValueBase * parameterValue, const T & value )
+		inline void operator()( CDatabaseValueBase & parameterValue, const T & value )
 		{
-			static_cast< CDatabaseValue< SDataTypeFieldTyper< value_type >::Value > * >( parameterValue )->SetValue( value );
+			static_cast< CDatabaseValue< SDataTypeFieldTyper< value_type >::Value > & >( parameterValue ).SetValue( value );
 		}
 	};
 
@@ -50,9 +50,9 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] limits
 		    Parameter limits.
 		*/
-		inline void operator()( CDatabaseValueBase * parameterValue, const std::string & value )
+		inline void operator()( CDatabaseValueBase & parameterValue, const std::string & value )
 		{
-			static_cast< CDatabaseValue< SDataTypeFieldTyper< value_type >::Value > * >( parameterValue )->SetValue( value );
+			static_cast< CDatabaseValue< SDataTypeFieldTyper< value_type >::Value > & >( parameterValue ).SetValue( value );
 		}
 	};
 
@@ -69,9 +69,9 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] limits
 		    Parameter limits.
 		*/
-		inline void operator()( CDatabaseValueBase * parameterValue, const std::string & value )
+		inline void operator()( CDatabaseValueBase & parameterValue, const std::string & value )
 		{
-			static_cast< CDatabaseValue< SDataTypeFieldTyper< value_type >::Value > * >( parameterValue )->SetValue( value );
+			static_cast< CDatabaseValue< SDataTypeFieldTyper< value_type >::Value > & >( parameterValue ).SetValue( value );
 		}
 	};
 
@@ -88,9 +88,9 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] limits
 		    Parameter limits.
 		*/
-		inline void operator()( CDatabaseValueBase * parameterValue, const std::wstring & value )
+		inline void operator()( CDatabaseValueBase & parameterValue, const std::wstring & value )
 		{
-			static_cast< CDatabaseValue< SDataTypeFieldTyper< value_type >::Value > * >( parameterValue )->SetValue( value );
+			static_cast< CDatabaseValue< SDataTypeFieldTyper< value_type >::Value > & >( parameterValue ).SetValue( value );
 		}
 	};
 
@@ -107,9 +107,9 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] limits
 		    Parameter limits.
 		*/
-		inline void operator()( CDatabaseValueBase * parameterValue, const std::wstring & value )
+		inline void operator()( CDatabaseValueBase & parameterValue, const std::wstring & value )
 		{
-			static_cast< CDatabaseValue< SDataTypeFieldTyper< value_type >::Value > * >( parameterValue )->SetValue( value );
+			static_cast< CDatabaseValue< SDataTypeFieldTyper< value_type >::Value > & >( parameterValue ).SetValue( value );
 		}
 	};
 
@@ -124,9 +124,9 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] value
 		    New value.
 		*/
-		inline void operator()( CDatabaseValueBase * parameterValue, const std::string & value )
+		inline void operator()( CDatabaseValueBase & parameterValue, const CDate & value )
 		{
-			static_cast< CDatabaseValue< SDataTypeFieldTyper< value_type >::Value > * >( parameterValue )->SetValue( value );
+			static_cast< CDatabaseValue< SDataTypeFieldTyper< value_type >::Value > & >( parameterValue ).SetValue( value );
 		}
 	};
 
@@ -141,9 +141,9 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] value
 		    New value.
 		*/
-		inline void operator()( CDatabaseValueBase * parameterValue, const std::string & value )
+		inline void operator()( CDatabaseValueBase & parameterValue, const CDateTime & value )
 		{
-			static_cast< CDatabaseValue< SDataTypeFieldTyper< value_type >::Value > * >( parameterValue )->SetValue( value );
+			static_cast< CDatabaseValue< SDataTypeFieldTyper< value_type >::Value > & >( parameterValue ).SetValue( value );
 		}
 	};
 
@@ -158,9 +158,9 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] value
 		    New value.
 		*/
-		inline void operator()( CDatabaseValueBase * parameterValue, const std::string & value )
+		inline void operator()( CDatabaseValueBase & parameterValue, const CTime & value )
 		{
-			static_cast< CDatabaseValue< SDataTypeFieldTyper< value_type >::Value > * >( parameterValue )->SetValue( value );
+			static_cast< CDatabaseValue< SDataTypeFieldTyper< value_type >::Value > & >( parameterValue ).SetValue( value );
 		}
 	};
 
@@ -177,9 +177,9 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] size
 		    Number of bytes
 		*/
-		inline void operator()( CDatabaseValueBase * parameterValue, const uint8_t * value, uint32_t size )
+		inline void operator()( CDatabaseValueBase & parameterValue, const uint8_t * value, uint32_t size )
 		{
-			static_cast< CDatabaseValue< SDataTypeFieldTyper< value_type >::Value > * >( parameterValue )->SetValue( value, size );
+			static_cast< CDatabaseValue< SDataTypeFieldTyper< value_type >::Value > & >( parameterValue ).SetValue( value, size );
 		}
 	};
 }

@@ -259,6 +259,8 @@ BEGIN_NAMESPACE_DATABASE
 		static const EFieldType Value = EFieldType_VARBINARY;
 	};
 
+	static const String NULL_VALUE = STR( "NULL" );
+
 	/** Structure used to specialize functions for given data type
 	*/
 	template< typename T > class CDatabaseValuePolicy
@@ -372,15 +374,15 @@ BEGIN_NAMESPACE_DATABASE
 		@param result
 		    Receives the insertable value
 		*/
-		static void ToInsertable( const value_type & value, bool valSet, DatabaseConnectionPtr connection, String & result )
+		static String ToInsertable( const value_type & value, bool valSet, DatabaseConnectionPtr connection )
 		{
 			if ( valSet )
 			{
-				result += CStrUtils::ToString( value );
+				return CStrUtils::ToString( value );
 			}
 			else
 			{
-				result += STR( "NULL" );
+				return NULL_VALUE;
 			}
 		}
 	};
@@ -497,15 +499,15 @@ BEGIN_NAMESPACE_DATABASE
 		@param result
 		    Receives the insertable value
 		*/
-		static void ToInsertable( const value_type & value, bool valSet, DatabaseConnectionPtr connection, String & result )
+		static String ToInsertable( const value_type & value, bool valSet, DatabaseConnectionPtr connection )
 		{
 			if ( valSet )
 			{
-				result += DoToStr( value );
+				return DoToStr( value );
 			}
 			else
 			{
-				result += STR( "NULL" );
+				return NULL_VALUE;
 			}
 		}
 
@@ -640,15 +642,15 @@ BEGIN_NAMESPACE_DATABASE
 		@param result
 		    Receives the insertable value
 		*/
-		static void ToInsertable( const value_type & value, bool valSet, DatabaseConnectionPtr connection, String & result )
+		static String ToInsertable( const value_type & value, bool valSet, DatabaseConnectionPtr connection )
 		{
 			if ( valSet )
 			{
-				result += DoToStr( value );
+				return DoToStr( value );
 			}
 			else
 			{
-				result += STR( "NULL" );
+				return NULL_VALUE;
 			}
 		}
 
@@ -791,15 +793,15 @@ BEGIN_NAMESPACE_DATABASE
 		@param result
 		    Receives the insertable value
 		*/
-		static void ToInsertable( const value_type & value, bool valSet, DatabaseConnectionPtr connection, String & result )
+		static String ToInsertable( const value_type & value, bool valSet, DatabaseConnectionPtr connection )
 		{
 			if ( valSet )
 			{
-				result += connection->WriteBool( value );
+				return connection->WriteBool( value );
 			}
 			else
 			{
-				result += STR( "NULL" );
+				return NULL_VALUE;
 			}
 		}
 	};
@@ -922,15 +924,15 @@ BEGIN_NAMESPACE_DATABASE
 		@param result
 		    Receives the insertable value
 		*/
-		static void ToInsertable( const value_type & value, bool valSet, DatabaseConnectionPtr connection, String & result )
+		static String ToInsertable( const value_type & value, bool valSet, DatabaseConnectionPtr connection )
 		{
 			if ( valSet )
 			{
-				result += CStrUtils::ToString( connection->WriteText( value ) );
+				return CStrUtils::ToString( connection->WriteText( value ) );
 			}
 			else
 			{
-				result += STR( "NULL" );
+				return NULL_VALUE;
 			}
 		}
 	};
@@ -1053,15 +1055,15 @@ BEGIN_NAMESPACE_DATABASE
 		@param result
 		    Receives the insertable value
 		*/
-		static void ToInsertable( const value_type & value, bool valSet, DatabaseConnectionPtr connection, String & result )
+		static String ToInsertable( const value_type & value, bool valSet, DatabaseConnectionPtr connection )
 		{
 			if ( valSet )
 			{
-				result += CStrUtils::ToString( connection->WriteNText( value ) );
+				return CStrUtils::ToString( connection->WriteNText( value ) );
 			}
 			else
 			{
-				result += STR( "NULL" );
+				return NULL_VALUE;
 			}
 		}
 	};
@@ -1212,7 +1214,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param result
 		    Receives the insertable value
 		*/
-		static void ToInsertable( const value_type & value, bool valSet, DatabaseConnectionPtr connection, String & result )
+		static String ToInsertable( const value_type & value, bool valSet, DatabaseConnectionPtr connection )
 		{
 			if ( valSet )
 			{
@@ -1226,11 +1228,11 @@ BEGIN_NAMESPACE_DATABASE
 					stream << int( *it );
 				}
 
-				result += STR( "X'" ) + stream.str() + STR( "'" );
+				return STR( "X'" ) + stream.str() + STR( "'" );
 			}
 			else
 			{
-				result += STR( "NULL" );
+				return NULL_VALUE;
 			}
 		}
 	};

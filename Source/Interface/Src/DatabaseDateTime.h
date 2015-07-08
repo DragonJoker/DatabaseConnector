@@ -36,13 +36,19 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] dateTime
 		    Date/time.
 		*/
-		CDateTime( const std::tm & dateTime );
+		explicit CDateTime( const std::tm & dateTime );
 
 		/** Constructor from CDate.
 		@param[in] date
 		    Date.
 		*/
-		CDateTime( const CDate & date );
+		explicit CDateTime( const CDate & date );
+
+		/** Constructor from CDate.
+		@param[in] date
+		    Date.
+		*/
+		explicit CDateTime( const CTime & date );
 
 		/** Copy constructor.
 		@param[in] dateTime

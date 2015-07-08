@@ -34,7 +34,7 @@ BEGIN_NAMESPACE_DATABASE
 
 	void CDatabaseStatement::SValueUpdater::Update( DatabaseParameterPtr value )
 	{
-		_stmt->_mapParamsByPointer[value->GetPtrValue()] = value;
+		_stmt->_mapParamsByPointer[value->GetObjectValue().GetPtrValue()] = value;
 	}
 
 	CDatabaseStatement::CDatabaseStatement( DatabaseConnectionPtr connection, const String & query )
