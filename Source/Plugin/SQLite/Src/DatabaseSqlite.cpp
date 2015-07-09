@@ -401,7 +401,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 	{
 		DatabaseFieldPtr pField;
 		wchar_t * value = ( wchar_t * )SQLite::ColumnText16( pStatement, i );
-		int iSize = SQLite::ColumnBytes( pStatement, i );
+		int iSize = SQLite::ColumnBytes16( pStatement, i );
 		pField = std::make_shared< CDatabaseField >( pInfos );
 
 		if ( value && iSize != 0 )
@@ -417,7 +417,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 	{
 		DatabaseFieldPtr pField;
 		wchar_t * value = ( wchar_t * )SQLite::ColumnText16( pStatement, i );
-		int iSize = SQLite::ColumnBytes( pStatement, i );
+		int iSize = SQLite::ColumnBytes16( pStatement, i );
 		pField = std::make_shared< CDatabaseField >( pInfos );
 
 		if ( value && iSize != 0 )

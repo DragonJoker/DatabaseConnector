@@ -22,8 +22,6 @@ ENDFOREACH()
 
 set( DefaultTarget DatabasePluginMySql )
 
-
-
 add_target(
 	DatabasePluginMySql
 	dll

@@ -54,7 +54,7 @@ void Shutdown()
 	NAMESPACE_DATABASE::CLogger::Cleanup();
 }
 
-#if STATIC_LIB
+#if BOOST_STATIC_LIB
 /** Main Entry Point in static mode.
 @param  argc    Arguments number
 @param  argv    Aruments' list
@@ -63,9 +63,10 @@ void Shutdown()
 boost::unit_test::test_suite * init_unit_test_suite( int argc, char * argv[] )
 {
 	g_path = NAMESPACE_DATABASE::CStrUtils::ToString( argv[0] );
-	NAMESPACE_DATABASE::CStrUtils::Replace( g_path, STR( '\\' ), NAMESPACE_DATABASE_TEST::PATH_DELIM );
-	NAMESPACE_DATABASE::CStrUtils::Replace( g_path, STR( '/' ), NAMESPACE_DATABASE_TEST::PATH_DELIM );
-	g_path = g_path.substr( 0, g_path.rfind( NAMESPACE_DATABASE_TEST::PATH_DELIM ) + 1 );
+	NAMESPACE_DATABASE::CStrUtils::Replace( g_path, STR( '\\' ), NAMESPACE_DATABASE::PATH_SEP );
+	NAMESPACE_DATABASE::CStrUtils::Replace( g_path, STR( '/' ), NAMESPACE_DATABASE::PATH_SEP );
+	g_path = g_path.substr( 0, g_path.rfind( NAMESPACE_DATABASE::PATH_SEP ) + 1 );
+	srand( uint32_t( time( NULL ) ) );
 
 	Startup();
 
@@ -126,15 +127,20 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		TS_List.clear();
 
 		///@remarks Create the TS' sequences
+#if defined( TESTING_PLUGIN_MYSQL )
 		TS_List.push_back( DatabaseMySqlTest->Init_Test_Suite() );
-		//TS_List.push_back( DatabaseSqliteTest->Init_Test_Suite() );
+#endif
+#if defined( TESTING_PLUGIN_SQLITE )
+		TS_List.push_back( DatabaseSqliteTest->Init_Test_Suite() );
+#endif
+#if defined( TESTING_PLUGIN_ODBC )
 		//TS_List.push_back( DatabaseOdbcMySqlTest->Init_Test_Suite() );
 		//TS_List.push_back( DatabaseOdbcMsSqlTest->Init_Test_Suite() );
-
+#endif
 		///@remarks Add the TS' sequences into the Master TS
-		for ( TestVector::iterator it = TS_List.begin() ; it != TS_List.end(); ++it )
+		for ( auto suite : TS_List )
 		{
-			boost::unit_test::framework::master_test_suite().add( *it );
+			boost::unit_test::framework::master_test_suite().add( suite );
 		}
 	}
 }

@@ -19,7 +19,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	String const QUERY_SELECT_MIN = STR( "SELECT MIN( IDTest ) AS TestID FROM Test" );
 	String const QUERY_GET_COUNT = STR( "SELECT COUNT( IDTest ) AS TestID FROM Test" );
 	String const QUERY_INSERT_ELEMENT = STR( "INSERT INTO Test" )
-	STR( "( IntField" )
+	STR( "(\nIntField" )
 	STR( ", IntegerField" )
 	STR( ", TinyIntField" )
 	STR( ", SmallIntField" )
@@ -41,7 +41,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	STR( ", NcharField" )
 	STR( ", NVarcharField" )
 	STR( ", TextField" )
-	STR( ", BlobField ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )" );
+	STR( ", BlobField\n) VALUES (\n?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?\n)" );
 	String const QUERY_DIRECT_SELECT_ELEMENT = STR( "SELECT IntField\n" )
 	STR( "	, IntegerField\n" )
 	STR( "	, TinyIntField\n" )

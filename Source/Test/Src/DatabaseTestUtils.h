@@ -363,6 +363,60 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			CLogger::LogMessage( StringStream() << STR( "BlobField : " ) << row->Get< std::vector< uint8_t > >( index++ ) );
 		}
 
+		template< typename Type >
+		struct Compare
+		{
+			inline void operator()( Type const & a, Type const & b )
+			{
+				BOOST_CHECK_EQUAL( a, b );
+			}
+		};
+
+		template<>
+		struct Compare< float >
+		{
+			inline void operator()( float const & a, float const & b )
+			{
+				BOOST_CHECK( std::abs( a - b ) < std::numeric_limits< float >::epsilon() );
+			}
+		};
+
+		template<>
+		struct Compare< double >
+		{
+			inline void operator()( double const & a, double const & b )
+			{
+				BOOST_CHECK( std::abs( a - b ) < std::numeric_limits< double >::epsilon() );
+			}
+		};
+
+		template<>
+		struct Compare< char * >
+		{
+			inline void operator()( std::string const & a, std::string const & b )
+			{
+				BOOST_CHECK_EQUAL( a, b );
+			}
+		};
+
+		template<>
+		struct Compare< wchar_t * >
+		{
+			inline void operator()( std::wstring const & a, std::wstring const & b )
+			{
+				BOOST_CHECK( a == b );
+			}
+		};
+
+		template<>
+		struct Compare< std::vector< uint8_t > >
+		{
+			inline void operator()( std::vector< uint8_t > const & a, std::vector< uint8_t > const & b )
+			{
+				BOOST_CHECK( a == b );
+			}
+		};
+
 		template< class Stmt, typename Type >
 		inline void InsertAndRetrieve( DatabaseConnectionPtr connection, const String & name )
 		{
@@ -394,7 +448,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					{
 						Helpers< Type >::Type valueOut;
 						BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, valueOut ) );
-						BOOST_CHECK( valueIn == valueOut );
+						Compare< Type >()( valueIn, valueOut );
 					}
 					else
 					{

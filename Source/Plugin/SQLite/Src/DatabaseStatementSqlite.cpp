@@ -62,7 +62,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		if ( !_query.empty() )
 		{
 			_paramsCount = uint32_t( std::count( _query.begin(), _query.end(), STR( '?' ) ) );
-			_arrayQueries = CStrUtils::Split( _query, STR( "?" ) );
+			_arrayQueries = CStrUtils::Split( _query, STR( "?" ), _paramsCount + 1 );
 		}
 
 		CLogger::LogMessage( STR( "Preparing statement for query : " ) + _query );
@@ -137,12 +137,15 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 		SQLite::Database * connection = _connectionSqlite->GetConnection();
 		std::string query2 = CStrUtils::ToStr( _query );
-		SQLiteTry( SQLite::PrepareV2( connection, query2.c_str(), query2.size(), &_statement, NULL ), STR( "Statement preparation" ) );
+		SQLiteTry( SQLite::PrepareV2( connection, query2.c_str(), int( query2.size() ), &_statement, NULL ), STR( "Statement preparation" ) );
 
 		if ( !_statement )
 		{
 			CLogger::LogError( ERROR_SQLITE_CANT_PREPARE_STATEMENT );
-			throw CExceptionDatabase( EDatabaseExceptionCodes_StatementError, ERROR_SQLITE_CANT_PREPARE_STATEMENT, __FUNCTION__, __FILE__, __LINE__ );
+		}
+		else
+		{
+			eReturn = EErrorType_NONE;
 		}
 
 		for ( DatabaseParameterPtrArray::iterator it = _arrayInParams.begin(); it != _arrayInParams.end(); ++it )

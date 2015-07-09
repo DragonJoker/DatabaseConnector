@@ -98,12 +98,18 @@ BEGIN_NAMESPACE_DATABASE
 		LoggerCallbackMap m_mapCallbacks;
 		std::mutex m_mutex;
 
-		std::stringstream m_cout;
-		std::stringstream m_cerr;
-		std::stringstream m_clog;
-		std::wstringstream m_wcout;
-		std::wstringstream m_wcerr;
-		std::wstringstream m_wclog;
+		//std::stringstream m_cout;
+		//std::stringstream m_cerr;
+		//std::stringstream m_clog;
+		//std::wstringstream m_wcout;
+		//std::wstringstream m_wcerr;
+		//std::wstringstream m_wclog;
+		std::streambuf * m_cout;
+		std::streambuf * m_cerr;
+		std::streambuf * m_clog;
+		std::wstreambuf * m_wcout;
+		std::wstreambuf * m_wcerr;
+		std::wstreambuf * m_wclog;
 		std::thread m_outThread;
 		std::mutex m_outMutex;
 		std::condition_variable m_end;

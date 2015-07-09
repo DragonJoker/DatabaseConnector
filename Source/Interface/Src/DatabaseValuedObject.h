@@ -126,6 +126,12 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport virtual void DoGetValue( double & value ) const;
 
+		/** Get value as long double.
+		@param[out] value
+		    Value as long double.
+		*/
+		DatabaseExport virtual void DoGetValue( long double & value ) const;
+
 		/** Get value as std::string.
 		@param[out] value
 		    Value as std::string.
@@ -234,6 +240,14 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport virtual void DoGetValueFast( double & value ) const;
 
+		/** Get value as long double.
+		@remarks
+		    No check is made in this function, so the value type must match the field type
+		@param[out] value
+		    Value as long double.
+		*/
+		DatabaseExport virtual void DoGetValueFast( long double & value ) const;
+
 		/** Get value as std::string.
 		@remarks
 		    No check is made in this function, so the value type must match the field type
@@ -285,115 +299,109 @@ BEGIN_NAMESPACE_DATABASE
 		@param value
 		    New parameter value.
 		*/
-		DatabaseExport void DoSetValue( const bool & value );
+		DatabaseExport virtual void DoSetValue( const bool & value );
 
 		/** Set parameter value as a short.
 		@param value
 		    New parameter value.
 		*/
-		DatabaseExport void DoSetValue( const int16_t & value );
+		DatabaseExport virtual void DoSetValue( const int16_t & value );
 
 		/** Set parameter value as an unsigned short.
 		@param value
 		    New parameter value.
 		*/
-		DatabaseExport void DoSetValue( const uint16_t & value );
+		DatabaseExport virtual void DoSetValue( const uint16_t & value );
 
 		/** Set parameter value as a long.
 		@param value
 		    New parameter value.
 		*/
-		DatabaseExport void DoSetValue( const int32_t & value );
+		DatabaseExport virtual void DoSetValue( const int32_t & value );
 
 		/** Set parameter value as an unsigned long.
 		@param value
 		    New parameter value.
 		*/
-		DatabaseExport void DoSetValue( const uint32_t & value );
+		DatabaseExport virtual void DoSetValue( const uint32_t & value );
 
 		/** Set parameter value as a long long.
 		@param value
 		    New parameter value.
 		*/
-		DatabaseExport void DoSetValue( const int64_t & value );
+		DatabaseExport virtual void DoSetValue( const int64_t & value );
 
 		/** Set parameter value as an unsigned long long.
 		@param value
 		    New parameter value.
 		*/
-		DatabaseExport void DoSetValue( const uint64_t & value );
+		DatabaseExport virtual void DoSetValue( const uint64_t & value );
 
 		/** Set parameter value as a float.
 		@param value
 		    New parameter value.
 		*/
-		DatabaseExport void DoSetValue( const float & value );
+		DatabaseExport virtual void DoSetValue( const float & value );
 
 		/** Set parameter value as a double.
 		@param value
 		    New parameter value.
 		*/
-		DatabaseExport void DoSetValue( const double & value );
+		DatabaseExport virtual void DoSetValue( const double & value );
 
 		/** Set parameter value as a long double.
 		@param value
 		    New parameter value.
 		*/
-		DatabaseExport void DoSetValue( const long double & value );
+		DatabaseExport virtual void DoSetValue( const long double & value );
 
 		/** Set parameter value as a char *.
 		@param value
 		    New parameter value.
 		*/
-		DatabaseExport void DoSetValue( const char * value );
+		DatabaseExport virtual void DoSetValue( const char * value );
 
 		/** Set parameter value as a wchar_t *.
 		@param value
 		    New parameter value.
 		*/
-		DatabaseExport void DoSetValue( const wchar_t * value );
+		DatabaseExport virtual void DoSetValue( const wchar_t * value );
 
 		/** Set parameter value as a std::string.
 		@param value
 		    New parameter value.
 		*/
-		DatabaseExport void DoSetValue( const std::string & value );
+		DatabaseExport virtual void DoSetValue( const std::string & value );
 
 		/** Set parameter value as a std::wstring.
 		@param value
 		    New parameter value.
 		*/
-		DatabaseExport void DoSetValue( const std::wstring & value );
+		DatabaseExport virtual void DoSetValue( const std::wstring & value );
 
 		/** Set parameter value as a date/time.
 		@param value
 		    New parameter value.
 		*/
-		DatabaseExport void DoSetValue( const CDateTime & value );
+		DatabaseExport virtual void DoSetValue( const CDateTime & value );
 
 		/** Set parameter value as a date.
 		@param value
 		    New parameter value.
 		*/
-		DatabaseExport void DoSetValue( const CDate & value );
+		DatabaseExport virtual void DoSetValue( const CDate & value );
 
 		/** Set parameter value as a time.
 		@param value
 		    New parameter value.
 		*/
-		DatabaseExport void DoSetValue( const CTime & value );
+		DatabaseExport virtual void DoSetValue( const CTime & value );
 
 		/** Set parameter value as a byte array.
 		@param value
 			New parameter value.
 		*/
-		DatabaseExport void DoSetValue( const std::vector< uint8_t > & value );
-
-		/** Set parameter value as a byte array.
-		@param value
-		    New parameter value.
-		*/
-		DatabaseExport void DoSetValue( std::istream * value );
+		DatabaseExport virtual void DoSetValue( const std::vector< uint8_t > & value );
 
 		/** Set parameter value as a boolean.
 		@remarks
@@ -401,7 +409,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param value
 		    New parameter value.
 		*/
-		DatabaseExport void DoSetValueFast( const bool & value );
+		DatabaseExport virtual void DoSetValueFast( const bool & value );
 
 		/** Set parameter value as a short.
 		@remarks
@@ -409,7 +417,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param value
 		    New parameter value.
 		*/
-		DatabaseExport void DoSetValueFast( const int16_t & value );
+		DatabaseExport virtual void DoSetValueFast( const int16_t & value );
 
 		/** Set parameter value as an unsigned short.
 		@remarks
@@ -417,7 +425,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param value
 		    New parameter value.
 		*/
-		DatabaseExport void DoSetValueFast( const uint16_t & value );
+		DatabaseExport virtual void DoSetValueFast( const uint16_t & value );
 
 		/** Set parameter value as a long.
 		@remarks
@@ -425,7 +433,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param value
 		    New parameter value.
 		*/
-		DatabaseExport void DoSetValueFast( const int32_t & value );
+		DatabaseExport virtual void DoSetValueFast( const int32_t & value );
 
 		/** Set parameter value as an unsigned long.
 		@remarks
@@ -433,7 +441,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param value
 		    New parameter value.
 		*/
-		DatabaseExport void DoSetValueFast( const uint32_t & value );
+		DatabaseExport virtual void DoSetValueFast( const uint32_t & value );
 
 		/** Set parameter value as a long long.
 		@remarks
@@ -441,7 +449,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param value
 		    New parameter value.
 		*/
-		DatabaseExport void DoSetValueFast( const int64_t & value );
+		DatabaseExport virtual void DoSetValueFast( const int64_t & value );
 
 		/** Set parameter value as an unsigned long long.
 		@remarks
@@ -449,7 +457,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param value
 		    New parameter value.
 		*/
-		DatabaseExport void DoSetValueFast( const uint64_t & value );
+		DatabaseExport virtual void DoSetValueFast( const uint64_t & value );
 
 		/** Set parameter value as a float.
 		@remarks
@@ -457,7 +465,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param value
 		    New parameter value.
 		*/
-		DatabaseExport void DoSetValueFast( const float & value );
+		DatabaseExport virtual void DoSetValueFast( const float & value );
 
 		/** Set parameter value as a double.
 		@remarks
@@ -465,7 +473,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param value
 		    New parameter value.
 		*/
-		DatabaseExport void DoSetValueFast( const double & value );
+		DatabaseExport virtual void DoSetValueFast( const double & value );
 
 		/** Set parameter value as a long double.
 		@remarks
@@ -473,7 +481,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param value
 		    New parameter value.
 		*/
-		DatabaseExport void DoSetValueFast( const long double & value );
+		DatabaseExport virtual void DoSetValueFast( const long double & value );
 
 		/** Set parameter value as a char *.
 		@remarks
@@ -481,7 +489,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param value
 		    New parameter value.
 		*/
-		DatabaseExport void DoSetValueFast( const char * value );
+		DatabaseExport virtual void DoSetValueFast( const char * value );
 
 		/** Set parameter value as a std::string.
 		@remarks
@@ -489,7 +497,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param value
 		    New parameter value.
 		*/
-		DatabaseExport void DoSetValueFast( const std::string & value );
+		DatabaseExport virtual void DoSetValueFast( const std::string & value );
 
 		/** Set parameter value as a wchar_t *.
 		@remarks
@@ -497,7 +505,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param value
 		    New parameter value.
 		*/
-		DatabaseExport void DoSetValueFast( const wchar_t * value );
+		DatabaseExport virtual void DoSetValueFast( const wchar_t * value );
 
 		/** Set parameter value as a std::wstring.
 		@remarks
@@ -505,7 +513,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param value
 		    New parameter value.
 		*/
-		DatabaseExport void DoSetValueFast( const std::wstring & value );
+		DatabaseExport virtual void DoSetValueFast( const std::wstring & value );
 
 		/** Set parameter value as a date.
 		@remarks
@@ -513,7 +521,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param value
 		    New parameter value.
 		*/
-		DatabaseExport void DoSetValueFast( const CDate & value );
+		DatabaseExport virtual void DoSetValueFast( const CDate & value );
 
 		/** Set parameter value as a date/time.
 		@remarks
@@ -521,7 +529,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param value
 		    New parameter value.
 		*/
-		DatabaseExport void DoSetValueFast( const CDateTime & value );
+		DatabaseExport virtual void DoSetValueFast( const CDateTime & value );
 
 		/** Set parameter value as a time.
 		@remarks
@@ -529,7 +537,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param value
 		    New parameter value.
 		*/
-		DatabaseExport void DoSetValueFast( const CTime & value );
+		DatabaseExport virtual void DoSetValueFast( const CTime & value );
 
 		/** Set parameter value as a byte array.
 		@remarks
@@ -539,15 +547,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param value
 			New parameter value.
 		*/
-		DatabaseExport void DoSetValueFast( const std::vector< uint8_t > & value );
-
-		/** Set parameter value as a byte array.
-		@remarks
-			Don't perform type checks
-		@param value
-		    New parameter value.
-		*/
-		DatabaseExport void DoSetValueFast( std::istream * value );
+		DatabaseExport virtual void DoSetValueFast( const std::vector< uint8_t > & value );
 
 		/** Creates the field value
 		*/
