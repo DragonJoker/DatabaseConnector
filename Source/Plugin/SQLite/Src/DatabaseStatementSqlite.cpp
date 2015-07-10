@@ -31,8 +31,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 	static const String ERROR_SQLITE_EXECUTION_ERROR = STR( "Couldn't execute the statement : " );
 	static const String ERROR_SQLITE_QUERY_INCONSISTENCY_ERROR = STR( "Number of parameters doesn't match the sizes of parameter containers." );
 
-	static const String SQLITE_BIND_PARAMETER_NAME_MSG = STR( "BindParameter : " );
-	static const String SQLITE_BIND_PARAMETER_VALUE_MSG = STR( ", Value : " );
+	static const String SQLITE_STMT_PARAMS_COUNT = STR( "Bind Parameters count: " );
 
 	static const String SQL_DELIM = STR( "?" );
 	static const String SQL_PARAM = STR( "@" );
@@ -137,7 +136,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 		SQLite::Database * connection = _connectionSqlite->GetConnection();
 		std::string query2 = CStrUtils::ToStr( _query );
-		SQLiteTry( SQLite::PrepareV2( connection, query2.c_str(), int( query2.size() ), &_statement, NULL ), STR( "Statement preparation" ) );
+		SQLiteTry( SQLite::PrepareV2( connection, query2.c_str(), int( query2.size() ), &_statement, NULL ), STR( "Statement preparation" ), EDatabaseExceptionCodes_StatementError, connection );
 
 		if ( !_statement )
 		{
@@ -145,6 +144,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		}
 		else
 		{
+			CLogger::LogDebug( StringStream() << SQLITE_STMT_PARAMS_COUNT << SQLite::BindParameterCount( _statement ) );
 			eReturn = EErrorType_NONE;
 		}
 
@@ -194,8 +194,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 	{
 		if ( _statement )
 		{
-			SQLite::Database * connection = _connectionSqlite->GetConnection();
-			SQLite::Finalize( _statement );
+			SQLiteTry( SQLite::Finalize( _statement ), STR( "Statement finalisation" ), EDatabaseExceptionCodes_StatementError, _connectionSqlite->GetConnection() );
 			_statement = NULL;
 		}
 
@@ -209,8 +208,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 	DatabaseParameterPtr CDatabaseStatementSqlite::CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType )
 	{
-		// std::make_shared limited to 5 parameters with VS2012
-		DatabaseParameterPtr pReturn( new CDatabaseStatementParameterSqlite( _connectionSqlite, name, ( unsigned short )_arrayInParams.size() + 1, fieldType, parameterType, new SValueUpdater( this ) ) );
+		DatabaseParameterPtr pReturn = std::make_shared< CDatabaseStatementParameterSqlite >( _connectionSqlite, name, ( unsigned short )_arrayInParams.size() + 1, fieldType, parameterType, new SValueUpdater( this ) );
 
 		if ( !DoAddParameter( pReturn ) )
 		{
@@ -226,8 +224,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 	DatabaseParameterPtr CDatabaseStatementSqlite::CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType )
 	{
-		// std::make_shared limited to 5 parameters with VS2012
-		DatabaseParameterPtr pReturn( new CDatabaseStatementParameterSqlite( _connectionSqlite, name, ( unsigned short )_arrayInParams.size() + 1, fieldType, limits, parameterType, new SValueUpdater( this ) ) );
+		DatabaseParameterPtr pReturn = std::make_shared< CDatabaseStatementParameterSqlite >( _connectionSqlite, name, ( unsigned short )_arrayInParams.size() + 1, fieldType, limits, parameterType, new SValueUpdater( this ) );
 
 		if ( !DoAddParameter( pReturn ) )
 		{
@@ -283,14 +280,16 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 							( ( parameter->GetParamType() == EParameterType_OUT ) ) ) &&
 							( row->HasField( parameter->GetName() ) ) )
 					{
-						Database::DatabaseFieldPtr field = row->GetField( parameter->GetName() );
-						parameter->SetValue( field );
+						parameter->SetValue( row->GetField( parameter->GetName() ) );
 					}
 
 					++itParams;
 				}
 			}
 		}
+
+		SQLiteTry( SQLite::ClearBindings( _statement ), STR( "Statement bindings cleanup" ), EDatabaseExceptionCodes_StatementError, _connectionSqlite->GetConnection() );
+		SQLiteTry( SQLite::Reset( _statement ), STR( "Statement resetting" ), EDatabaseExceptionCodes_StatementError, _connectionSqlite->GetConnection() );
 	}
 }
 END_NAMESPACE_DATABASE_SQLITE

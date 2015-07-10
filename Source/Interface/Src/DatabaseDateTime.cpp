@@ -142,7 +142,7 @@ BEGIN_NAMESPACE_DATABASE
 		bool IsDateTime( const  std::basic_string< Char > & date, const  std::basic_string< Char > & format, int & year, EDateMonth & month, int & monthDay, int & hour, int & min, int & sec )
 		{
 			typedef std::basic_string< Char > String;
-			bool bReturn = date.size() >= format.size() && !format.empty();
+			bool bReturn = !format.empty();
 
 			monthDay = 0;
 			month = EDateMonth_UNDEF;
@@ -194,6 +194,9 @@ BEGIN_NAMESPACE_DATABASE
 								year = ttoi( dc, 2 ) + 1900;
 								break;
 
+							case '%':
+								break;
+
 							default:
 								bReturn = false;
 								break;
@@ -228,19 +231,33 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	}
 
+	String CDateTime::ShortDay[7] = { STR( "Mon" ), STR( "Tue." ), STR( "Wed." ), STR( "Thu" ), STR( "Fri" ), STR( "Sat" ), STR( "Sun" ) };
+	String CDateTime::LongDay[7] = { STR( "Monday" ), STR( "Tuesday" ), STR( "Wednesday" ), STR( "Thursday" ), STR( "Friday" ), STR( "Saturday" ), STR( "Sunday" ) };
+	String CDateTime::ShortMonth[12] = { STR( "Jan" ), STR( "Feb" ), STR( "Mar" ), STR( "Apr" ), STR( "May" ), STR( "Jun" ), STR( "Jul" ), STR( "Aug" ), STR( "Sep" ), STR( "Oct" ), STR( "Nov" ), STR( "Dec" ) };
+	String CDateTime::LongMonth[12] = { STR( "January" ), STR( "February" ), STR( "March" ), STR( "April" ), STR( "May" ), STR( "June" ), STR( "July" ), STR( "August" ), STR( "September" ), STR( "October" ), STR( "November" ), STR( "December" ) };
+	int CDateTime::MonthMaxDays[12] = { 31, 28, 31, 30, 31 , 30 , 31 , 31 , 30 , 31 , 30 , 31 };
+	CDateTime CDateTime::Today = CDateTime::Now();
+
 	CDateTime::CDateTime()
 	{
 		_date.tm_isdst = -1;
 	}
 
-
-	CDateTime::CDateTime( const std::tm & dateTime )
-		:   _date( dateTime )
+	CDateTime::CDateTime( const CDateTime & dateTime )
+		:   _date( dateTime.ToTm() )
 	{
 	}
 
-	CDateTime::CDateTime( const CDateTime & dateTime )
-		:   _date( dateTime.ToTm() )
+	CDateTime::CDateTime( const CDate & date, const CTime & time )
+		:   _date( date.ToTm() )
+	{
+		_date.tm_hour = time.GetHour();
+		_date.tm_min = time.GetMinute();
+		_date.tm_sec = time.GetSecond();
+	}
+
+	CDateTime::CDateTime( const std::tm & dateTime )
+		:   _date( dateTime )
 	{
 	}
 
@@ -257,6 +274,16 @@ BEGIN_NAMESPACE_DATABASE
 	CDateTime::~CDateTime()
 	{
 		// Empty
+	}
+
+	std::string CDateTime::Format( const std::string & format ) const
+	{
+		return DateTimeUtils::FormatDateTime( format, GetYear(), GetMonth(), GetYearDay(), GetMonthDay(), GetWeekDay(), GetHour(), GetMinute(), GetSecond() );
+	}
+
+	std::wstring CDateTime::Format( const std::wstring & format ) const
+	{
+		return DateTimeUtils::FormatDateTime( format, GetYear(), GetMonth(), GetYearDay(), GetMonthDay(), GetWeekDay(), GetHour(), GetMinute(), GetSecond() );
 	}
 
 	void CDateTime::SetDateTime( int year, EDateMonth month, int day, int hour, int minute, int second )
@@ -277,41 +304,7 @@ BEGIN_NAMESPACE_DATABASE
 		_date.tm_hour = hour;
 		_date.tm_min = minute;
 		_date.tm_sec = second;
-
 	}
-
-	String CDateTime::ToString() const
-	{
-		String strReturn = DATETIME_FORMAT_EXP;
-		TChar pBuffer[DATE_MAX_LENGTH];
-		strftime( pBuffer, DATE_MAX_LENGTH, strReturn.c_str(), &_date );
-		strReturn = pBuffer;
-		return strReturn;
-	}
-
-	std::string CDateTime::ToStdString() const
-	{
-		std::string strReturn = SDATETIME_FORMAT_EXP;
-		char pBuffer[DATE_MAX_LENGTH];
-		strftime( pBuffer, DATE_MAX_LENGTH, strReturn.c_str(), &_date );
-		strReturn = pBuffer;
-		return strReturn;
-	}
-
-	std::wstring CDateTime::ToStdWString() const
-	{
-		std::wstring strReturn = WDATETIME_FORMAT_EXP;
-		wchar_t pBuffer[DATE_MAX_LENGTH];
-		wcsftime( pBuffer, DATE_MAX_LENGTH, strReturn.c_str(), &_date );
-		strReturn = pBuffer;
-		return strReturn;
-	}
-
-	EDateDay CDateTime::GetWeekDay() const
-	{
-		return EDateDay( _date.tm_wday );
-	}
-
 
 	int CDateTime::GetYear() const
 	{
@@ -333,6 +326,11 @@ BEGIN_NAMESPACE_DATABASE
 		return _date.tm_yday;
 	}
 
+	EDateDay CDateTime::GetWeekDay() const
+	{
+		return EDateDay( _date.tm_wday );
+	}
+
 	int CDateTime::GetHour() const
 	{
 		return _date.tm_hour;
@@ -346,21 +344,6 @@ BEGIN_NAMESPACE_DATABASE
 	int CDateTime::GetSecond() const
 	{
 		return _date.tm_sec;
-	}
-
-	std::tm CDateTime::ToTm() const
-	{
-		return _date;
-	}
-
-	std::string CDateTime::Format( const std::string & format ) const
-	{
-		return DateTimeUtils::FormatDateTime( format, GetYear(), GetMonth(), GetYearDay(), GetMonthDay(), GetWeekDay(), GetHour(), GetMinute(), GetSecond() );
-	}
-
-	std::wstring CDateTime::Format( const std::wstring & format ) const
-	{
-		return DateTimeUtils::FormatDateTime( format, GetYear(), GetMonth(), GetYearDay(), GetMonthDay(), GetWeekDay(), GetHour(), GetMinute(), GetSecond() );
 	}
 
 	bool CDateTime::Parse( const std::string & date, const std::string & format )
@@ -393,6 +376,41 @@ BEGIN_NAMESPACE_DATABASE
 		SetDateTime( iYear, eMonth, iMonthDay, hour, min, sec );
 
 		return bReturn;
+	}
+
+	bool CDateTime::IsValid() const
+	{
+		bool bReturn = false;
+		int iMonthDay = GetMonthDay();
+		int iMonth = GetMonth();
+		int iYear = GetYear();
+
+		if ( iMonth >= EDateMonth_JANUARY && iMonthDay > 0 && iYear != -1 )
+		{
+			if ( iMonth != EDateMonth_FEBRUARY )
+			{
+				if ( iMonthDay <= MonthMaxDays[iMonth - 1] )
+				{
+					bReturn = true;
+				}
+			}
+			else
+			{
+				int leap = IsLeap( iYear );
+
+				if ( iMonthDay <= ( MonthMaxDays[iMonth - 1] + leap ) )
+				{
+					bReturn = true;
+				}
+			}
+		}
+		
+		return bReturn && _date.tm_hour < 24 && _date.tm_min < 60 && _date.tm_sec < 60;
+	}
+
+	std::tm CDateTime::ToTm() const
+	{
+		return _date;
 	}
 
 	CDateTime CDateTime::Now()
@@ -496,6 +514,224 @@ BEGIN_NAMESPACE_DATABASE
 		}
 
 		return true;
+	}
+
+	int CDateTime::GetMonthDays( int month, int year )
+	{
+		int iReturn = 0;
+
+		switch ( month )
+		{
+		case 1:
+		case 3:
+		case 5:
+		case 7:
+		case 8:
+		case 10:
+		case 12:
+			iReturn = 31;
+			break;
+
+		case 4:
+		case 6:
+		case 9:
+		case 11:
+			iReturn = 30;
+			break;
+
+		default:
+
+			if ( IsLeap( year ) )
+			{
+				iReturn = 29;
+			}
+			else
+			{
+				iReturn = 28;
+			}
+
+			break;
+		}
+
+		return iReturn;
+	}
+
+	int CDateTime::GetYearDays( int year )
+	{
+		return IsLeap( year ) ? 366 : 365;
+	}
+
+	void CDateTime::DoCheckValidity()
+	{
+		if ( GetMonth() < EDateMonth_JANUARY )
+		{
+			_date.tm_mon = EDateMonth_JANUARY;
+		}
+		else if ( GetMonth() > EDateMonth_DECEMBER )
+		{
+			_date.tm_mon = EDateMonth_DECEMBER;
+		}
+
+		if ( GetMonth() != EDateMonth_FEBRUARY )
+		{
+			if ( GetMonthDay() > MonthMaxDays[GetMonth() - 1] )
+			{
+				_date.tm_mon = EDateMonth_JANUARY;
+				_date.tm_mday = 0;
+				_date.tm_year = -1;
+			}
+		}
+		else
+		{
+			int leap = IsLeap( GetYear() );
+
+			if ( GetMonthDay() > ( MonthMaxDays[GetMonth() - 1] + leap ) )
+			{
+				_date.tm_mon = EDateMonth_JANUARY;
+				_date.tm_mday = 0;
+				_date.tm_year = -1;
+			}
+		}
+	}
+
+	void CDateTime::DoComputeWeekDay()
+	{
+		int iMonthOffset = 0;
+		int iYearOffset = 0;
+		int iCenturyOffset = 0;
+		int iDayOffset = 0;
+
+		int iCentury = GetYear() / 100;
+		iCenturyOffset = ( ( 39 - iCentury ) % 4 ) * 2;
+
+		int iYear = GetYear() - ( iCentury * 100 );
+		iYearOffset = ( ( iYear / 4 ) + iYear ) % 7;
+
+		switch ( GetMonth() )
+		{
+		case EDateMonth_JANUARY:
+			iMonthOffset = 0;
+			break;
+
+		case EDateMonth_FEBRUARY:
+			iMonthOffset = 3;
+			break;
+
+		case EDateMonth_MARCH:
+			iMonthOffset = 3;
+			break;
+
+		case EDateMonth_APRIL:
+			iMonthOffset = 6;
+			break;
+
+		case EDateMonth_MAY:
+			iMonthOffset = 1;
+			break;
+
+		case EDateMonth_JUNE:
+			iMonthOffset = 4;
+			break;
+
+		case EDateMonth_JULY:
+			iMonthOffset = 6;
+			break;
+
+		case EDateMonth_AUGUST:
+			iMonthOffset = 2;
+			break;
+
+		case EDateMonth_SEPTEMBER:
+			iMonthOffset = 5;
+			break;
+
+		case EDateMonth_OCTOBER:
+			iMonthOffset = 0;
+			break;
+
+		case EDateMonth_NOVEMBER:
+			iMonthOffset = 3;
+			break;
+
+		case EDateMonth_DECEMBER:
+			iMonthOffset = 5;
+			break;
+		}
+
+		iDayOffset = GetMonthDay() % 7;
+
+		int iTotalOffset = ( ( iCenturyOffset + iYearOffset + iMonthOffset + iDayOffset ) - 1 ) % 7;
+		_date.tm_wday = EDateDay( EDateDay_MONDAY + iTotalOffset );
+	}
+
+	void CDateTime::DoComputeYearDay()
+	{
+		int iMonthOffset = 0;
+		int iYearOffset = 0;
+		int iCenturyOffset = 0;
+		int iDayOffset = 0;
+
+		int iCentury = GetYear() / 100;
+		iCenturyOffset = ( ( 39 - iCentury ) % 4 ) * 2;
+
+		int iYear = GetYear() - ( iCentury * 100 );
+		iYearOffset = ( ( iYear / 4 ) + iYear ) % 7;
+
+		switch ( GetMonth() )
+		{
+		case EDateMonth_JANUARY:
+			iMonthOffset = 0;
+			break;
+
+		case EDateMonth_FEBRUARY:
+			iMonthOffset = 3;
+			break;
+
+		case EDateMonth_MARCH:
+			iMonthOffset = 3;
+			break;
+
+		case EDateMonth_APRIL:
+			iMonthOffset = 6;
+			break;
+
+		case EDateMonth_MAY:
+			iMonthOffset = 1;
+			break;
+
+		case EDateMonth_JUNE:
+			iMonthOffset = 4;
+			break;
+
+		case EDateMonth_JULY:
+			iMonthOffset = 6;
+			break;
+
+		case EDateMonth_AUGUST:
+			iMonthOffset = 2;
+			break;
+
+		case EDateMonth_SEPTEMBER:
+			iMonthOffset = 5;
+			break;
+
+		case EDateMonth_OCTOBER:
+			iMonthOffset = 0;
+			break;
+
+		case EDateMonth_NOVEMBER:
+			iMonthOffset = 3;
+			break;
+
+		case EDateMonth_DECEMBER:
+			iMonthOffset = 5;
+			break;
+		}
+
+		iDayOffset = GetMonthDay() % 7;
+
+		int iTotalOffset = ( ( iCenturyOffset + iYearOffset + iMonthOffset + iDayOffset ) - 1 ) % 7;
+		_date.tm_wday = EDateDay( EDateDay_MONDAY + iTotalOffset );
 	}
 
 	bool operator ==( const CDateTime & a, const CDateTime & b )

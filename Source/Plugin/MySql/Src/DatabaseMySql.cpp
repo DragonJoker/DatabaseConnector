@@ -59,8 +59,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 	void MySQLTry( int result, TChar const * msg, EDatabaseExceptionCodes code, MYSQL * connection )
 	{
-#if !defined( NDEBUG )
-
 		if ( result )
 		{
 			StringStream error( "Failure: " );
@@ -68,6 +66,9 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			error << mysql_error( connection );
 			DB_EXCEPT( code, error.str() );
 		}
+
+#if !defined( NDEBUG )
+
 		else
 		{
 			CLogger::LogDebug( StringStream() << STR( "Success : " ) << msg );

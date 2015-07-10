@@ -640,5 +640,32 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 		return pReturn;
 	}
+
+	void SQLiteTry( SQLite::eCODE code, TChar const * msg, EDatabaseExceptionCodes exc, SQLite::Database * database )
+	{
+		if ( code != SQLite::eCODE_OK )
+		{
+			StringStream error;
+			error << STR( "Error : " ) << msg << STR( " - " ) << CStrUtils::ToString( SQLite::Errmsg( database ) );
+			CLogger::LogError( error );
+			DB_EXCEPT( exc, error.str() );
+		}
+
+#if !defined( _NDEBUG )
+
+		else
+		{
+			CLogger::LogDebug( StringStream() << STR( "Success : " ) << msg );
+		}
+
+#endif
+	}
+
+	void SQLiteTry( SQLite::eCODE code, std::ostream const & stream, EDatabaseExceptionCodes exc, SQLite::Database * database )
+	{
+		std::stringstream ss;
+		ss << stream.rdbuf();
+		SQLiteTry( code, ss.str().c_str(), exc, database );
+	}
 }
 END_NAMESPACE_DATABASE_SQLITE

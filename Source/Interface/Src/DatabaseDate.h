@@ -30,8 +30,8 @@ BEGIN_NAMESPACE_DATABASE
 		static String LongDay[7];         ///< Array of long day names.
 		static String ShortMonth[12];     ///< Array of short month names.
 		static String LongMonth[12];      ///< Array of long month names.
-		static int MonthMaxDays[12];            ///< Array of max number of days per month.
-		static CDateTime Today;                 ///< Today date/time
+		static int MonthMaxDays[12];      ///< Array of max number of days per month.
+		static CDateTime Today;           ///< Today date/time
 
 	public:
 		/** Default constructor.
@@ -239,7 +239,6 @@ BEGIN_NAMESPACE_DATABASE
 		static int GetYearDays( int year );
 
 	private:
-
 		/** Check date validity.
 		*/
 		void DoCheckValidity();

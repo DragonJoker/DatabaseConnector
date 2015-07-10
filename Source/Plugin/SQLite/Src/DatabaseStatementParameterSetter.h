@@ -45,7 +45,7 @@ public:
 		*/
 		void operator()( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter )
 		{
-			SQLiteTry( DoSetValue( statement, value, parameter ), STR( "Parameter set value" ) );
+			DoSetValue( statement, value, parameter, std::static_pointer_cast< CDatabaseConnectionSqlite >( parameter->GetConnection() )->GetConnection() );
 		}
 
 protected:
@@ -57,7 +57,7 @@ protected:
 		@param parameter
 		    The parameter
 		*/
-		virtual SQLite::eCODE DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter ) = 0;
+		virtual void DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter, SQLite::Database * connection ) = 0;
 	};
 	/** Generic template class to set the parameter value
 	*/
@@ -67,7 +67,7 @@ protected:
 	{
 private:
 		//!@copydoc SSqliteParameterValueSetterBase::DoSetValue
-		virtual SQLite::eCODE DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter )
+		virtual void DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter, SQLite::Database * connection )
 		{
 			throw std::runtime_error( "SSqliteParameterValueSetter::DoSetValue not implemented for this data type" );
 		}
@@ -80,9 +80,10 @@ private:
 	{
 private:
 		//!@copydoc SSqliteParameterValueSetterBase::DoSetValue
-		virtual SQLite::eCODE DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter )
+		virtual void DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter, SQLite::Database * connection )
 		{
-			return SQLite::BindInt( statement, parameter->GetIndex(), ( *static_cast< const bool * >( value ) ) ? 1 : 0 );
+			const bool & val = *static_cast< const bool * >( value );
+			SQLiteTry( SQLite::BindInt( statement, parameter->GetIndex(), val ? 1 : 0 ), StringStream() << STR( "Parameter set value: " ) << val, EDatabaseExceptionCodes_StatementError, connection );
 		}
 	};
 	/** Specialization for EFieldType_SMALL_INTEGER
@@ -93,9 +94,10 @@ private:
 	{
 private:
 		//!@copydoc SSqliteParameterValueSetterBase::DoSetValue
-		virtual SQLite::eCODE DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter )
+		virtual void DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter, SQLite::Database * connection )
 		{
-			return SQLite::BindInt( statement, parameter->GetIndex(), *static_cast< const int16_t * >( value ) );
+			const int32_t & val = *static_cast< const int16_t * >( value );
+			SQLiteTry( SQLite::BindInt( statement, parameter->GetIndex(), val ), StringStream() << STR( "Parameter set value: " ) << val, EDatabaseExceptionCodes_StatementError, connection );
 		}
 	};
 	/** Specialization for EFieldType_INTEGER
@@ -106,9 +108,10 @@ private:
 	{
 private:
 		//!@copydoc SSqliteParameterValueSetterBase::DoSetValue
-		virtual SQLite::eCODE DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter )
+		virtual void DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter, SQLite::Database * connection )
 		{
-			return SQLite::BindInt( statement, parameter->GetIndex(), *static_cast< const int32_t * >( value ) );
+			const int32_t & val = *static_cast< const int32_t * >( value );
+			SQLiteTry( SQLite::BindInt( statement, parameter->GetIndex(), val ), StringStream() << STR( "Parameter set value: " ) << val, EDatabaseExceptionCodes_StatementError, connection );
 		}
 	};
 	/** Specialization for EFieldType_LONG_INTEGER
@@ -119,9 +122,10 @@ private:
 	{
 private:
 		//!@copydoc SSqliteParameterValueSetterBase::DoSetValue
-		virtual SQLite::eCODE DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter )
+		virtual void DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter, SQLite::Database * connection )
 		{
-			return SQLite::BindInt64( statement, parameter->GetIndex(), *static_cast< const SQLite::Int64 * >( value ) );
+			const SQLite::Int64 & val = *static_cast< const SQLite::Int64 * >( value );
+			SQLiteTry( SQLite::BindInt64( statement, parameter->GetIndex(), val ), StringStream() << STR( "Parameter set value: " ) << val, EDatabaseExceptionCodes_StatementError, connection );
 		}
 	};
 	/** Specialization for EFieldType_FLOAT
@@ -132,9 +136,10 @@ private:
 	{
 private:
 		//!@copydoc SSqliteParameterValueSetterBase::DoSetValue
-		virtual SQLite::eCODE DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter )
+		virtual void DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter, SQLite::Database * connection )
 		{
-			return SQLite::BindDouble( statement, parameter->GetIndex(), *static_cast< const float * >( value ) );
+			const float & val = *static_cast< const float * >( value );
+			SQLiteTry( SQLite::BindDouble( statement, parameter->GetIndex(), val ), StringStream() << STR( "Parameter set value: " ) << val, EDatabaseExceptionCodes_StatementError, connection );
 		}
 	};
 	/** Specialization for EFieldType_DOUBLE
@@ -145,9 +150,10 @@ private:
 	{
 private:
 		//!@copydoc SSqliteParameterValueSetterBase::DoSetValue
-		virtual SQLite::eCODE DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter )
+		virtual void DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter, SQLite::Database * connection )
 		{
-			return SQLite::BindDouble( statement, parameter->GetIndex(), *static_cast< const double * >( value ) );
+			const double & val = *static_cast< const double * >( value );
+			SQLiteTry( SQLite::BindDouble( statement, parameter->GetIndex(), val ), StringStream() << STR( "Parameter set value: " ) << val, EDatabaseExceptionCodes_StatementError, connection );
 		}
 	};
 	/** Specialization for EFieldType_VARCHAR
@@ -158,9 +164,10 @@ private:
 	{
 private:
 		//!@copydoc SSqliteParameterValueSetterBase::DoSetValue
-		virtual SQLite::eCODE DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter )
+		virtual void DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter, SQLite::Database * connection )
 		{
-			return SQLite::BindText( statement, parameter->GetIndex(), static_cast< const char * >( value ), parameter->GetObjectValue().GetPtrSize(), SQLite::NULL_DESTRUCTOR );
+			char const * val = static_cast< const char * >( value );
+			SQLiteTry( SQLite::BindText( statement, parameter->GetIndex(), val, parameter->GetObjectValue().GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << STR( "Parameter set value: " ) << val, EDatabaseExceptionCodes_StatementError, connection );
 		}
 	};
 	/** Specialization for EFieldType_TEXT
@@ -171,9 +178,10 @@ private:
 	{
 private:
 		//!@copydoc SSqliteParameterValueSetterBase::DoSetValue
-		virtual SQLite::eCODE DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter )
+		virtual void DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter, SQLite::Database * connection )
 		{
-			return SQLite::BindText( statement, parameter->GetIndex(), static_cast< const char * >( value ), parameter->GetObjectValue().GetPtrSize(), SQLite::NULL_DESTRUCTOR );
+			char const * val = static_cast< const char * >( value );
+			SQLiteTry( SQLite::BindText( statement, parameter->GetIndex(), val, parameter->GetObjectValue().GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << STR( "Parameter set value: " ) << val, EDatabaseExceptionCodes_StatementError, connection );
 		}
 	};
 	/** Specialization for EFieldType_NVARCHAR
@@ -184,9 +192,9 @@ private:
 	{
 private:
 		//!@copydoc SSqliteParameterValueSetterBase::DoSetValue
-		virtual SQLite::eCODE DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter )
+		virtual void DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter, SQLite::Database * connection )
 		{
-			return SQLite::BindText16( statement, parameter->GetIndex(), value, parameter->GetObjectValue().GetPtrSize(), SQLite::NULL_DESTRUCTOR );
+			SQLiteTry( SQLite::BindText16( statement, parameter->GetIndex(), value, parameter->GetObjectValue().GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << STR( "Parameter set value: " ) << value, EDatabaseExceptionCodes_StatementError, connection );
 		}
 	};
 	/** Specialization for EFieldType_NTEXT
@@ -197,9 +205,9 @@ private:
 	{
 private:
 		//!@copydoc SSqliteParameterValueSetterBase::DoSetValue
-		virtual SQLite::eCODE DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter )
+		virtual void DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter, SQLite::Database * connection )
 		{
-			return SQLite::BindText16( statement, parameter->GetIndex(), value, parameter->GetObjectValue().GetPtrSize(), SQLite::NULL_DESTRUCTOR );
+			SQLiteTry( SQLite::BindText16( statement, parameter->GetIndex(), value, parameter->GetObjectValue().GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << STR( "Parameter set value: " ) << value, EDatabaseExceptionCodes_StatementError, connection );
 		}
 	};
 	/** Specialization for EFieldType_DATE
@@ -210,9 +218,10 @@ private:
 	{
 private:
 		//!@copydoc SSqliteParameterValueSetterBase::DoSetValue
-		virtual SQLite::eCODE DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter )
+		virtual void DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter, SQLite::Database * connection )
 		{
-			return SQLite::BindText( statement, parameter->GetIndex(), static_cast< const char * >( value ), parameter->GetObjectValue().GetPtrSize(), SQLite::NULL_DESTRUCTOR );
+			char const * val = static_cast< const char * >( value );
+			SQLiteTry( SQLite::BindText( statement, parameter->GetIndex(), val, parameter->GetObjectValue().GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << STR( "Parameter set value: " ) << val, EDatabaseExceptionCodes_StatementError, connection );
 		}
 	};
 	/** Specialization for EFieldType_DATETIME
@@ -223,9 +232,10 @@ private:
 	{
 private:
 		//!@copydoc SSqliteParameterValueSetterBase::DoSetValue
-		virtual SQLite::eCODE DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter )
+		virtual void DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter, SQLite::Database * connection )
 		{
-			return SQLite::BindText( statement, parameter->GetIndex(), static_cast< const char * >( value ), parameter->GetObjectValue().GetPtrSize(), SQLite::NULL_DESTRUCTOR );
+			char const * val = static_cast< const char * >( value );
+			SQLiteTry( SQLite::BindText( statement, parameter->GetIndex(), val, parameter->GetObjectValue().GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << STR( "Parameter set value: " ) << val, EDatabaseExceptionCodes_StatementError, connection );
 		}
 	};
 	/** Specialization for EFieldType_TIME
@@ -236,9 +246,10 @@ private:
 	{
 private:
 		//!@copydoc SSqliteParameterValueSetterBase::DoSetValue
-		virtual SQLite::eCODE DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter )
+		virtual void DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter, SQLite::Database * connection )
 		{
-			return SQLite::BindText( statement, parameter->GetIndex(), static_cast< const char * >( value ), parameter->GetObjectValue().GetPtrSize(), SQLite::NULL_DESTRUCTOR );
+			char const * val = static_cast< const char * >( value );
+			SQLiteTry( SQLite::BindText( statement, parameter->GetIndex(), val, parameter->GetObjectValue().GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << STR( "Parameter set value: " ) << val, EDatabaseExceptionCodes_StatementError, connection );
 		}
 	};
 }

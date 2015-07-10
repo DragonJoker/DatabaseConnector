@@ -462,6 +462,8 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 	void CDatabaseStatementParameterSqlite::DoSetValue( const bool & value )
 	{
+		CDatabaseValuedObject::DoSetValue( value );
+
 		switch ( GetType() )
 		{
 		case EFieldType_BOOL:
@@ -491,6 +493,8 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 	void CDatabaseStatementParameterSqlite::DoSetValue( const int16_t & value )
 	{
+		CDatabaseValuedObject::DoSetValue( value );
+
 		switch ( GetType() )
 		{
 		case EFieldType_BOOL:
@@ -528,6 +532,8 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 	void CDatabaseStatementParameterSqlite::DoSetValue( const uint16_t & value )
 	{
+		CDatabaseValuedObject::DoSetValue( value );
+
 		switch ( GetType() )
 		{
 		case EFieldType_BOOL:
@@ -565,6 +571,8 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 	void CDatabaseStatementParameterSqlite::DoSetValue( const int32_t & value )
 	{
+		CDatabaseValuedObject::DoSetValue( value );
+
 		switch ( GetType() )
 		{
 		case EFieldType_BOOL:
@@ -598,6 +606,8 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 	void CDatabaseStatementParameterSqlite::DoSetValue( const uint32_t & value )
 	{
+		CDatabaseValuedObject::DoSetValue( value );
+
 		switch ( GetType() )
 		{
 		case EFieldType_BOOL:
@@ -631,6 +641,8 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 	void CDatabaseStatementParameterSqlite::DoSetValue( const int64_t & value )
 	{
+		CDatabaseValuedObject::DoSetValue( value );
+
 		switch ( GetType() )
 		{
 		case EFieldType_BOOL:
@@ -656,6 +668,8 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 	void CDatabaseStatementParameterSqlite::DoSetValue( const uint64_t & value )
 	{
+		CDatabaseValuedObject::DoSetValue( value );
+
 		switch ( GetType() )
 		{
 		case EFieldType_BOOL:
@@ -681,6 +695,8 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 	void CDatabaseStatementParameterSqlite::DoSetValue( const float & value )
 	{
+		CDatabaseValuedObject::DoSetValue( value );
+
 		switch ( GetType() )
 		{
 		case EFieldType_SMALL_INTEGER:
@@ -714,6 +730,8 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 	void CDatabaseStatementParameterSqlite::DoSetValue( const double & value )
 	{
+		CDatabaseValuedObject::DoSetValue( value );
+
 		switch ( GetType() )
 		{
 		case EFieldType_SMALL_INTEGER:
@@ -747,6 +765,8 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 	void CDatabaseStatementParameterSqlite::DoSetValue( const long double & value )
 	{
+		CDatabaseValuedObject::DoSetValue( value );
+
 		switch ( GetType() )
 		{
 		case EFieldType_SMALL_INTEGER:
@@ -780,81 +800,29 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 	void CDatabaseStatementParameterSqlite::DoSetValue( const char * value )
 	{
-		switch ( GetType() )
-		{
-		case EFieldType_VARCHAR:
-		case EFieldType_TEXT:
-		case EFieldType_NVARCHAR:
-		case EFieldType_NTEXT:
-			SValueSetter< const char *, const char * >()( _paramSetter, value, _statement, this, GetObjectValue() );
-			break;
-
-		default:
-			CLogger::LogError( DATABASE_PARAMETER_TYPE_ERROR );
-			DB_EXCEPT( EDatabaseExceptionCodes_ParameterError, DATABASE_PARAMETER_TYPE_ERROR );
-			break;
-		}
-
+		CDatabaseValuedObject::DoSetValue( value );
+		SValueSetter< const char *, const char * >()( _paramSetter, value, _statement, this, GetObjectValue() );
 		_updater->Update( shared_from_this() );
 	}
 
 	void CDatabaseStatementParameterSqlite::DoSetValue( const wchar_t * value )
 	{
-		switch ( GetType() )
-		{
-		case EFieldType_VARCHAR:
-		case EFieldType_TEXT:
-		case EFieldType_NVARCHAR:
-		case EFieldType_NTEXT:
-			SValueSetter< const char *, const wchar_t * >()( _paramSetter, value, _statement, this, GetObjectValue() );
-			break;
-
-		default:
-			CLogger::LogError( DATABASE_PARAMETER_TYPE_ERROR );
-			DB_EXCEPT( EDatabaseExceptionCodes_ParameterError, DATABASE_PARAMETER_TYPE_ERROR );
-			break;
-		}
-
+		CDatabaseValuedObject::DoSetValue( value );
+		SValueSetter< const char *, const wchar_t * >()( _paramSetter, value, _statement, this, GetObjectValue() );
 		_updater->Update( shared_from_this() );
 	}
 
 	void CDatabaseStatementParameterSqlite::DoSetValue( const std::string & value )
 	{
-		switch ( GetType() )
-		{
-		case EFieldType_VARCHAR:
-		case EFieldType_TEXT:
-		case EFieldType_NVARCHAR:
-		case EFieldType_NTEXT:
-			SValueSetter< const char *, const char * >()( _paramSetter, value.c_str(), _statement, this, GetObjectValue() );
-			break;
-
-		default:
-			CLogger::LogError( DATABASE_PARAMETER_TYPE_ERROR );
-			DB_EXCEPT( EDatabaseExceptionCodes_ParameterError, DATABASE_PARAMETER_TYPE_ERROR );
-			break;
-		}
-
+		CDatabaseValuedObject::DoSetValue( value );
+		SValueSetter< const char *, const char * >()( _paramSetter, value.c_str(), _statement, this, GetObjectValue() );
 		_updater->Update( shared_from_this() );
 	}
 
 	void CDatabaseStatementParameterSqlite::DoSetValue( const std::wstring & value )
 	{
-		switch ( GetType() )
-		{
-		case EFieldType_VARCHAR:
-		case EFieldType_TEXT:
-		case EFieldType_NVARCHAR:
-		case EFieldType_NTEXT:
-			SValueSetter< const char *, const wchar_t * >()( _paramSetter, value.c_str(), _statement, this, GetObjectValue() );
-			break;
-
-		default:
-			CLogger::LogError( DATABASE_PARAMETER_TYPE_ERROR );
-			DB_EXCEPT( EDatabaseExceptionCodes_ParameterError, DATABASE_PARAMETER_TYPE_ERROR );
-			break;
-		}
-
+		CDatabaseValuedObject::DoSetValue( value );
+		SValueSetter< const char *, const wchar_t * >()( _paramSetter, value.c_str(), _statement, this, GetObjectValue() );
 		_updater->Update( shared_from_this() );
 	}
 
@@ -898,84 +866,98 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 	void CDatabaseStatementParameterSqlite::DoSetValueFast( const bool & value )
 	{
+		CDatabaseValuedObject::DoSetValueFast( value );
 		SValueSetter< bool, bool >()( _paramSetter, value, _statement, this, GetObjectValue() );
 		_updater->Update( shared_from_this() );
 	}
 
 	void CDatabaseStatementParameterSqlite::DoSetValueFast( const int16_t & value )
 	{
+		CDatabaseValuedObject::DoSetValueFast( value );
 		SValueSetter< int16_t, int16_t >()( _paramSetter, value, _statement, this, GetObjectValue() );
 		_updater->Update( shared_from_this() );
 	}
 
 	void CDatabaseStatementParameterSqlite::DoSetValueFast( const uint16_t & value )
 	{
+		CDatabaseValuedObject::DoSetValueFast( value );
 		SValueSetter< int16_t, uint16_t >()( _paramSetter, value, _statement, this, GetObjectValue() );
 		_updater->Update( shared_from_this() );
 	}
 
 	void CDatabaseStatementParameterSqlite::DoSetValueFast( const int32_t & value )
 	{
+		CDatabaseValuedObject::DoSetValueFast( value );
 		SValueSetter< int32_t, int >()( _paramSetter, value, _statement, this, GetObjectValue() );
 		_updater->Update( shared_from_this() );
 	}
 
 	void CDatabaseStatementParameterSqlite::DoSetValueFast( const uint32_t & value )
 	{
+		CDatabaseValuedObject::DoSetValueFast( value );
 		SValueSetter< int32_t, unsigned int >()( _paramSetter, value, _statement, this, GetObjectValue() );
 		_updater->Update( shared_from_this() );
 	}
 
 	void CDatabaseStatementParameterSqlite::DoSetValueFast( const int64_t & value )
 	{
+		CDatabaseValuedObject::DoSetValueFast( value );
 		SValueSetter< int64_t, int64_t >()( _paramSetter, value, _statement, this, GetObjectValue() );
 		_updater->Update( shared_from_this() );
 	}
 
 	void CDatabaseStatementParameterSqlite::DoSetValueFast( const uint64_t & value )
 	{
+		CDatabaseValuedObject::DoSetValueFast( value );
 		SValueSetter< int64_t, uint64_t >()( _paramSetter, value, _statement, this, GetObjectValue() );
 		_updater->Update( shared_from_this() );
 	}
 
 	void CDatabaseStatementParameterSqlite::DoSetValueFast( const float & value )
 	{
+		CDatabaseValuedObject::DoSetValueFast( value );
 		SValueSetter< float, float >()( _paramSetter, value, _statement, this, GetObjectValue() );
 		_updater->Update( shared_from_this() );
 	}
 
 	void CDatabaseStatementParameterSqlite::DoSetValueFast( const double & value )
 	{
+		CDatabaseValuedObject::DoSetValueFast( value );
 		SValueSetter< double, double >()( _paramSetter, value, _statement, this, GetObjectValue() );
 		_updater->Update( shared_from_this() );
 	}
 
 	void CDatabaseStatementParameterSqlite::DoSetValueFast( const long double & value )
 	{
+		CDatabaseValuedObject::DoSetValueFast( value );
 		SValueSetter< double, long double >()( _paramSetter, value, _statement, this, GetObjectValue() );
 		_updater->Update( shared_from_this() );
 	}
 
 	void CDatabaseStatementParameterSqlite::DoSetValueFast( const char * value )
 	{
+		CDatabaseValuedObject::DoSetValueFast( value );
 		SValueSetter< const char *, const char * >()( _paramSetter, value, _statement, this, GetObjectValue() );
 		_updater->Update( shared_from_this() );
 	}
 
 	void CDatabaseStatementParameterSqlite::DoSetValueFast( const wchar_t * value )
 	{
+		CDatabaseValuedObject::DoSetValueFast( value );
 		SValueSetter< const char *, const wchar_t * >()( _paramSetter, value, _statement, this, GetObjectValue() );
 		_updater->Update( shared_from_this() );
 	}
 
 	void CDatabaseStatementParameterSqlite::DoSetValueFast( const std::string & value )
 	{
+		CDatabaseValuedObject::DoSetValueFast( value );
 		SValueSetter< const char *, const char * >()( _paramSetter, value.c_str(), _statement, this, GetObjectValue() );
 		_updater->Update( shared_from_this() );
 	}
 
 	void CDatabaseStatementParameterSqlite::DoSetValueFast( const std::wstring & value )
 	{
+		CDatabaseValuedObject::DoSetValueFast( value );
 		SValueSetter< const char *, const wchar_t * >()( _paramSetter, value.c_str(), _statement, this, GetObjectValue() );
 		_updater->Update( shared_from_this() );
 	}

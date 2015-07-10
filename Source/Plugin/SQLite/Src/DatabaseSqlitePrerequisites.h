@@ -234,6 +234,10 @@ BEGIN_NAMESPACE_DATABASE
 			{
 				return eCODE( sqlite3_reset( pStatement ) );
 			}
+			inline eCODE ClearBindings( Statement * pStatement )
+			{
+				return eCODE( sqlite3_clear_bindings( pStatement ) );
+			}
 			inline eCODE ColumnCount( Statement * pStatement )
 			{
 				return eCODE( sqlite3_column_count( pStatement ) );
@@ -331,6 +335,10 @@ BEGIN_NAMESPACE_DATABASE
 			{
 				return eCODE( sqlite3_bind_zeroblob( pStatement, iCol, iSizeInBytes ) );
 			}
+			inline int BindParameterCount( Statement * pStatement )
+			{
+				return sqlite3_bind_parameter_count( pStatement );
+			}
 
 			inline eCODE Errcode( Database * pDb )
 			{
@@ -390,20 +398,14 @@ BEGIN_NAMESPACE_DATABASE
 
 		DatabaseFieldInfosPtrArray SqliteGetColumns( SQLite::Statement * statement, DatabaseConnectionPtr connection );
 		DatabaseResultPtr SqliteExecute( SQLite::Statement * statement, SQLite::eCODE & code, DatabaseFieldInfosPtrArray const & columns, DatabaseConnectionPtr connection );
+		
+		void SQLiteTry( SQLite::eCODE code, TChar const * msg, EDatabaseExceptionCodes exc, SQLite::Database * database );
+		void SQLiteTry( SQLite::eCODE code, std::ostream const & stream, EDatabaseExceptionCodes exc, SQLite::Database * database );
 	}
 }
 END_NAMESPACE_DATABASE
 
 #if !defined( NDEBUG )
-#   define SQLiteTry( x, msg )\
-    if ( x == SQLite::eCODE_OK )\
-    {\
-        CLogger::LogDebug( StringStream() << STR( "Success : " ) << msg );\
-    }\
-    else\
-    {\
-        CLogger::LogDebug( StringStream() << STR( "Error : " ) << msg );\
-    }
 #else
 #   define SQLiteTry( x, msg ) x;
 #endif

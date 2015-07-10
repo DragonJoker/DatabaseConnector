@@ -245,7 +245,7 @@ BEGIN_NAMESPACE_DATABASE
 		bool IsDate( const  std::basic_string< Char > & date, const  std::basic_string< Char > & format, int & year, EDateMonth & month, int & monthDay )
 		{
 			typedef std::basic_string< Char > String;
-			bool bReturn = date.size() >= format.size() && !format.empty();
+			bool bReturn = !format.empty();
 
 			monthDay = 0;
 			month = EDateMonth_UNDEF;
@@ -260,7 +260,7 @@ BEGIN_NAMESPACE_DATABASE
 				{
 					if ( *fc == '%' )
 					{
-						bReturn = ++fc != NULL && *dc >= '0' && *dc <= '9';
+						bReturn = ++fc != NULL;
 
 						if ( bReturn )
 						{
@@ -280,6 +280,10 @@ BEGIN_NAMESPACE_DATABASE
 
 							case 'y':
 								year = ttoi( dc, 2 ) + 1900;
+								break;
+
+							case '%':
+								++dc;
 								break;
 
 							default:
@@ -389,16 +393,6 @@ BEGIN_NAMESPACE_DATABASE
 	{
 	}
 
-	void CDate::SetDate( int year, EDateMonth month, int day )
-	{
-		_year      = year;
-		_month     = month;
-		_monthDay  = day;
-		DoCheckValidity();
-		DoComputeWeekDay();
-		DoComputeYearDay();
-	}
-
 	std::string CDate::Format( const std::string & format ) const
 	{
 		return DateUtils::FormatDate( format, _year, _month, _yearDay, _monthDay, _weekDay );
@@ -407,6 +401,16 @@ BEGIN_NAMESPACE_DATABASE
 	std::wstring CDate::Format( const std::wstring & format ) const
 	{
 		return DateUtils::FormatDate( format, _year, _month, _yearDay, _monthDay, _weekDay );
+	}
+
+	void CDate::SetDate( int year, EDateMonth month, int day )
+	{
+		_year      = year;
+		_month     = month;
+		_monthDay  = day;
+		DoCheckValidity();
+		DoComputeWeekDay();
+		DoComputeYearDay();
 	}
 
 	int CDate::GetYear() const
@@ -463,9 +467,9 @@ BEGIN_NAMESPACE_DATABASE
 	bool CDate::IsValid() const
 	{
 		bool bReturn = false;
-		int iMonthDay = _monthDay;
-		int iMonth = _month;
-		int iYear = _year;
+		int iMonthDay = GetMonthDay();
+		int iMonth = GetMonth();
+		int iYear = GetYear();
 
 		if ( iMonth >= EDateMonth_JANUARY && iMonthDay > 0 && iYear != -1 )
 		{
@@ -514,6 +518,44 @@ BEGIN_NAMESPACE_DATABASE
 		return CDate( tm.tm_year + 1900, EDateMonth( tm.tm_mon ), tm.tm_mday );
 	}
 
+	bool CDate::IsDate( const std::string & date, const std::string & format )
+	{
+		int iMonthDay = 0;
+		EDateMonth eMonth = EDateMonth_UNDEF;
+		int iYear = -1;
+
+		return DateUtils::IsDate( date, format, iYear, eMonth, iMonthDay );
+	}
+
+	bool CDate::IsDate( const std::wstring & date, const std::wstring & format )
+	{
+		int iMonthDay = 0;
+		EDateMonth eMonth = EDateMonth_UNDEF;
+		int iYear = -1;
+
+		return DateUtils::IsDate( date, format, iYear, eMonth, iMonthDay );
+	}
+
+	bool CDate::IsDate( const std::string & date, const std::string & format, CDate & result )
+	{
+		return result.Parse( date, format );
+	}
+
+	bool CDate::IsDate( const std::wstring & date, const std::wstring & format, CDate & result )
+	{
+		return result.Parse( date, format );
+	}
+
+	bool CDate::IsDate( const std::string & date, CDate & result )
+	{
+		return DateUtils::IsDate( date, result );
+	}
+
+	bool CDate::IsDate( const std::wstring & date, CDate & result )
+	{
+		return DateUtils::IsDate( date, result );
+	}
+
 	int CDate::GetMonthDays( int month, int year )
 	{
 		int iReturn = 0;
@@ -559,58 +601,20 @@ BEGIN_NAMESPACE_DATABASE
 		return IsLeap( year ) ? 366 : 365;
 	}
 
-	bool CDate::IsDate( const std::string & date, const std::string & format )
-	{
-		int iMonthDay = 0;
-		EDateMonth eMonth = EDateMonth_UNDEF;
-		int iYear = -1;
-
-		return DateUtils::IsDate( date, format, iYear, eMonth, iMonthDay );
-	}
-
-	bool CDate::IsDate( const std::wstring & date, const std::wstring & format )
-	{
-		int iMonthDay = 0;
-		EDateMonth eMonth = EDateMonth_UNDEF;
-		int iYear = -1;
-
-		return DateUtils::IsDate( date, format, iYear, eMonth, iMonthDay );
-	}
-
-	bool CDate::IsDate( const std::string & date, const std::string & format, CDate & result )
-	{
-		return result.Parse( date, format );
-	}
-
-	bool CDate::IsDate( const std::wstring & date, const std::wstring & format, CDate & result )
-	{
-		return result.Parse( date, format );
-	}
-
-	bool CDate::IsDate( const std::string & date, CDate & result )
-	{
-		return DateUtils::IsDate( date, result );
-	}
-
-	bool CDate::IsDate( const std::wstring & date, CDate & result )
-	{
-		return DateUtils::IsDate( date, result );
-	}
-
 	void CDate::DoCheckValidity()
 	{
-		if ( _month < EDateMonth_JANUARY )
+		if ( GetMonth() < EDateMonth_JANUARY )
 		{
 			_month = EDateMonth_JANUARY;
 		}
-		else if ( _month > EDateMonth_DECEMBER )
+		else if ( GetMonth() > EDateMonth_DECEMBER )
 		{
 			_month = EDateMonth_DECEMBER;
 		}
 
-		if ( _month != EDateMonth_FEBRUARY )
+		if ( GetMonth() != EDateMonth_FEBRUARY )
 		{
-			if ( _monthDay > MonthMaxDays[_month - 1] )
+			if ( GetMonthDay() > MonthMaxDays[GetMonth() - 1] )
 			{
 				_month = EDateMonth_JANUARY;
 				_monthDay = 0;
@@ -619,9 +623,9 @@ BEGIN_NAMESPACE_DATABASE
 		}
 		else
 		{
-			int leap = IsLeap( _year );
+			int leap = IsLeap( GetYear() );
 
-			if ( _monthDay > ( MonthMaxDays[_month - 1] + leap ) )
+			if ( GetMonthDay() > ( MonthMaxDays[GetMonth() - 1] + leap ) )
 			{
 				_month = EDateMonth_JANUARY;
 				_monthDay = 0;
@@ -637,13 +641,13 @@ BEGIN_NAMESPACE_DATABASE
 		int iCenturyOffset = 0;
 		int iDayOffset = 0;
 
-		int iCentury = _year / 100;
+		int iCentury = GetYear() / 100;
 		iCenturyOffset = ( ( 39 - iCentury ) % 4 ) * 2;
 
-		int iYear = _year - ( iCentury * 100 );
+		int iYear = GetYear() - ( iCentury * 100 );
 		iYearOffset = ( ( iYear / 4 ) + iYear ) % 7;
 
-		switch ( _month )
+		switch ( GetMonth() )
 		{
 		case EDateMonth_JANUARY:
 			iMonthOffset = 0;
@@ -694,7 +698,7 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 		}
 
-		iDayOffset = _monthDay % 7;
+		iDayOffset = GetMonthDay() % 7;
 
 		int iTotalOffset = ( ( iCenturyOffset + iYearOffset + iMonthOffset + iDayOffset ) - 1 ) % 7;
 		_weekDay = EDateDay( EDateDay_MONDAY + iTotalOffset );

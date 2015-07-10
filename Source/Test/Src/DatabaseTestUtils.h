@@ -167,7 +167,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 			static Type InitialiseValue()
 			{
-				return float( rand() ) / rand();
+				return float( rand() ) / ( std::abs( rand() ) + 1.0f );
 			}
 		};
 
@@ -178,7 +178,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 			static Type InitialiseValue()
 			{
-				return double( rand() ) / rand();
+				return double( rand() ) / ( std::abs( rand() ) + 1.0 );
 			}
 		};
 
@@ -331,7 +331,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			stmt->SetParameterValue( index++, Helpers< char * >::InitialiseValue() );
 			stmt->SetParameterValue( index++, Helpers< char * >::InitialiseValue() );
 			stmt->SetParameterValue( index++, Helpers< wchar_t * >::InitialiseValue() );
-			stmt->SetParameterValue( index++, ToUtf8( "NVARCHAR: Areva Intercontr\\00\\F4le", "Windows-1252" ) );
+			stmt->SetParameterValue( index++, Helpers< wchar_t * >::InitialiseValue() );
 			stmt->SetParameterValue( index++, Helpers< std::string >::InitialiseValue() );
 			stmt->SetParameterValue( index++, Helpers< std::vector< uint8_t > >::InitialiseValue() );
 		}
@@ -438,6 +438,55 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					Helpers< Type >::Type valueIn = Helpers< Type >::InitialiseValue();
 					stmtInsert->SetParameterValue( 0, valueIn );
 					stmtSelect->SetParameterValue( 0, valueIn );
+
+					BOOST_CHECK( stmtInsert->ExecuteUpdate() );
+					DatabaseResultPtr result = stmtSelect->ExecuteSelect();
+					BOOST_CHECK( result );
+					BOOST_CHECK( result && result->GetRowCount() );
+
+					if ( result && result->GetRowCount() )
+					{
+						Helpers< Type >::Type valueOut;
+						BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, valueOut ) );
+						Compare< Type >()( valueIn, valueOut );
+					}
+					else
+					{
+						BOOST_CHECK( false );
+					}
+				}
+			}
+			catch ( ... )
+			{
+				BOOST_CHECK( false );
+			}
+		}
+
+		template< class Stmt, typename Type >
+		inline void InsertAndRetrieveOtherIndex( DatabaseConnectionPtr connection, const String & name )
+		{
+			try
+			{
+				auto && stmtInsert = DatabaseUtils::CreateStmt< Stmt >( connection, STR( "INSERT INTO Test (IntField, " ) + name + STR( ") VALUES (?, ?)" ) );
+				auto && stmtSelect = DatabaseUtils::CreateStmt< Stmt >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE IntField = ? AND " ) + name + STR( " = ?" ) );
+				BOOST_CHECK( stmtInsert );
+				BOOST_CHECK( stmtSelect );
+
+				if ( stmtInsert && stmtSelect )
+				{
+					BOOST_CHECK( stmtInsert->CreateParameter( STR( "IntField" ), EFieldType_INTEGER, EParameterType_IN ) );
+					BOOST_CHECK( stmtInsert->CreateParameter( name, SDataTypeFieldTyper< Type >::Value, Helpers< Type >::Limit, EParameterType_IN ) );
+					BOOST_CHECK( stmtSelect->CreateParameter( STR( "IntField" ), EFieldType_INTEGER, EParameterType_IN ) );
+					BOOST_CHECK( stmtSelect->CreateParameter( name, SDataTypeFieldTyper< Type >::Value, Helpers< Type >::Limit, EParameterType_IN ) );
+
+					BOOST_CHECK( stmtInsert->Initialize() == EErrorType_NONE );
+					BOOST_CHECK( stmtSelect->Initialize() == EErrorType_NONE );
+					
+					Helpers< Type >::Type valueIn = Helpers< Type >::InitialiseValue();
+					stmtInsert->SetParameterValue( 0, 18 );
+					stmtInsert->SetParameterValue( 1, valueIn );
+					stmtSelect->SetParameterValue( 0, 18 );
+					stmtSelect->SetParameterValue( 1, valueIn );
 
 					BOOST_CHECK( stmtInsert->ExecuteUpdate() );
 					DatabaseResultPtr result = stmtSelect->ExecuteSelect();

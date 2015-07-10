@@ -95,7 +95,7 @@ BEGIN_NAMESPACE_DATABASE
 		bool IsTime( const std::basic_string< Char > & time, const std::basic_string< Char > & format, int & hours, int & minutes, int & seconds )
 		{
 			typedef std::basic_string< Char > String;
-			bool bReturn = time.size() >= format.size() && !format.empty();
+			bool bReturn = !format.empty();
 
 			hours = 0;
 			minutes = 0;
@@ -126,6 +126,9 @@ BEGIN_NAMESPACE_DATABASE
 
 							case 'S':
 								seconds = ttoi( dc, 2 );
+								break;
+
+							case '%':
 								break;
 
 							default:

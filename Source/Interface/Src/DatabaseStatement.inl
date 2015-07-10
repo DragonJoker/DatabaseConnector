@@ -45,6 +45,11 @@ BEGIN_NAMESPACE_DATABASE
 			parameter->SetValue( value );
 			_mapParamsByPointer[parameter->GetObjectValue().GetPtrValue()] = parameter;
 		}
+		catch ( CExceptionDatabase & exc )
+		{
+			CLogger::LogError( exc.GetFullDescription() );
+			throw;
+		}
 		catch ( ... )
 		{
 			StringStream message;
@@ -81,6 +86,11 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			return _arrayParams[index]->GetValue< T >();
 		}
+		catch ( CExceptionDatabase & exc )
+		{
+			CLogger::LogError( exc.GetFullDescription() );
+			throw;
+		}
 		catch ( ... )
 		{
 			StringStream message;
@@ -114,6 +124,11 @@ BEGIN_NAMESPACE_DATABASE
 		try
 		{
 			_arrayParams[index]->GetValue( value );
+		}
+		catch ( CExceptionDatabase & exc )
+		{
+			CLogger::LogError( exc.GetFullDescription() );
+			throw;
 		}
 		catch ( ... )
 		{
