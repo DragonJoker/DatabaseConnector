@@ -18,7 +18,6 @@
 
 BEGIN_NAMESPACE_DATABASE
 {
-
 	/// Enumeration of supported error types.
 	typedef enum EErrorType
 	{
@@ -26,8 +25,7 @@ BEGIN_NAMESPACE_DATABASE
 		EErrorType_RETRY,       ///< Retry current action.
 		EErrorType_ERROR,       ///< True error.
 		EErrorType_RECONNECT    ///< Reconnection request.
-	} EErrorType;
-
+	}	EErrorType;
 }
 END_NAMESPACE_DATABASE
 

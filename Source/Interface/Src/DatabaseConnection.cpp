@@ -18,6 +18,8 @@
 
 BEGIN_NAMESPACE_DATABASE
 {
+	static const String NULL_STDSTRING = STR( "NULL" );
+
 	CDatabaseConnection::CDatabaseConnection( const String & server, const String & userName, const String & password )
 		:   _connected( false )
 		,   _inTransaction( false )
@@ -69,6 +71,108 @@ BEGIN_NAMESPACE_DATABASE
 		return _inTransaction;
 	}
 
+	std::string CDatabaseConnection::WriteDate( const std::string & date, const std::string & format ) const
+	{
+		std::string strReturn;
+		CDate dateObj;
+
+		if ( CDate::IsDate( date, format, dateObj ) )
+		{
+			strReturn = WriteDate( dateObj );
+		}
+		else
+		{
+			strReturn += NULL_STDSTRING;
+		}
+
+		return strReturn;
+	}
+
+	std::string CDatabaseConnection::WriteTime( const std::string & time, const std::string & format ) const
+	{
+		std::string strReturn;
+		CTime timeObj;
+
+		if ( CTime::IsTime( time, format, timeObj ) )
+		{
+			strReturn = WriteTime( timeObj );
+		}
+		else
+		{
+			strReturn += NULL_STDSTRING;
+		}
+
+		return strReturn;
+	}
+
+	std::string CDatabaseConnection::WriteDateTime( const std::string & dateTime, const std::string & format ) const
+	{
+		std::string strReturn;
+		CDateTime dateTimeObj;
+
+		if ( CDateTime::IsDateTime( dateTime, format, dateTimeObj ) )
+		{
+			strReturn = WriteDateTime( dateTimeObj );
+		}
+		else
+		{
+			strReturn += NULL_STDSTRING;
+		}
+
+		return strReturn;
+	}
+
+	std::string CDatabaseConnection::WriteStmtDate( const std::string & date, const std::string & format ) const
+	{
+		std::string strReturn;
+		CDate dateObj;
+
+		if ( CDate::IsDate( date, format, dateObj ) )
+		{
+			strReturn = WriteStmtDate( dateObj );
+		}
+		else
+		{
+			strReturn += NULL_STDSTRING;
+		}
+
+		return strReturn;
+	}
+
+	std::string CDatabaseConnection::WriteStmtTime( const std::string & time, const std::string & format ) const
+	{
+		std::string strReturn;
+		CTime timeObj;
+
+		if ( CTime::IsTime( time, format, timeObj ) )
+		{
+			strReturn = WriteStmtTime( timeObj );
+		}
+		else
+		{
+			strReturn += NULL_STDSTRING;
+		}
+
+		return strReturn;
+	}
+
+	std::string CDatabaseConnection::WriteStmtDateTime( const std::string & dateTime, const std::string & format ) const
+	{
+		std::string strReturn;
+		CDateTime dateTimeObj;
+
+		if ( CDateTime::IsDateTime( dateTime, format, dateTimeObj ) )
+		{
+			strReturn = WriteStmtDateTime( dateTimeObj );
+		}
+		else
+		{
+			strReturn += NULL_STDSTRING;
+		}
+
+		return strReturn;
+	}
+
 	void CDatabaseConnection::DoSetConnected( bool value )
 	{
 		_connected = value;
@@ -78,6 +182,5 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		_inTransaction = value;
 	}
-
 }
 END_NAMESPACE_DATABASE

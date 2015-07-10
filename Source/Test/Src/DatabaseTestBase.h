@@ -61,6 +61,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		*/
 		void TestCase_DatabaseQueryFieldsInsertRetrieve();
 
+		/** Test insertion and retrieval of a value through DatabaseQuery
+		*/
+		void TestCase_DatabaseQueryFieldsInsertRetrieveOtherIndex();
+
 		/** Test direct query execution through DatabaseQuery
 		*/
 		void TestCase_DatabaseQueryDirectQuery();
@@ -72,6 +76,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		/** Test insertion and retrieval of a value through DatabaseStatement
 		*/
 		void TestCase_DatabaseStatementFieldsInsertRetrieve();
+
+		/** Test insertion and retrieval of a value through DatabaseStatement
+		*/
+		void TestCase_DatabaseStatementFieldsInsertRetrieveOtherIndex();
 
 		/** Test direct query execution through DatabaseStatement
 		*/

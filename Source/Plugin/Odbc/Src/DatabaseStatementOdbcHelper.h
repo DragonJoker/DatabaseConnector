@@ -55,12 +55,13 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		{
 			EErrorType errorType;
 			int attemptCount;
+			CDatabaseValueBase & value = parameter->GetObjectValue();
 
-			if ( parameter->IsNull() )
+			if ( value.IsNull() )
 			{
-				SqlTry( SQLBindParameter( statementHandle, parameter->GetIndex(), parameter->GetInputOutputType(), parameter->GetValueType(), parameter->GetParameterType(), parameter->GetColumnSize(), 0, parameter->GetPtrValue(), parameter->GetPtrSize(), nullData ), SQL_HANDLE_STMT, statementHandle, DATABASE_BINDER_DIRECT_NULL + message );
+				SqlTry( SQLBindParameter( statementHandle, parameter->GetIndex(), parameter->GetInputOutputType(), parameter->GetValueType(), parameter->GetParameterType(), parameter->GetColumnSize(), 0, value.GetPtrValue(), value.GetPtrSize(), nullData ), SQL_HANDLE_STMT, statementHandle, DATABASE_BINDER_DIRECT_NULL + message );
 			}
-			else if ( parameter->GetPtrSize() == 0 )
+			else if ( value.GetPtrSize() == 0 )
 			{
 				switch ( parameter->GetType() )
 				{
@@ -68,17 +69,17 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				case EFieldType_TEXT:
 				case EFieldType_NVARCHAR:
 				case EFieldType_NTEXT:
-					SqlTry( SQLBindParameter( statementHandle, parameter->GetIndex(), parameter->GetInputOutputType(), parameter->GetValueType(), parameter->GetParameterType(), parameter->GetColumnSize(), 0, parameter->GetPtrValue(), parameter->GetPtrSize(), &parameter->GetColumnIndex() ), SQL_HANDLE_STMT, statementHandle, DATABASE_BINDER_DIRECT_STRING + message );
+					SqlTry( SQLBindParameter( statementHandle, parameter->GetIndex(), parameter->GetInputOutputType(), parameter->GetValueType(), parameter->GetParameterType(), parameter->GetColumnSize(), 0, value.GetPtrValue(), value.GetPtrSize(), &parameter->GetColumnIndex() ), SQL_HANDLE_STMT, statementHandle, DATABASE_BINDER_DIRECT_STRING + message );
 					break;
 
 				default:
-					SqlTry( SQLBindParameter( statementHandle, parameter->GetIndex(), parameter->GetInputOutputType(), parameter->GetValueType(), parameter->GetParameterType(), parameter->GetColumnSize(), 0, parameter->GetPtrValue(), parameter->GetPtrSize(), nullData ), SQL_HANDLE_STMT, statementHandle, DATABASE_BINDER_DIRECT_OTHER + message );
+					SqlTry( SQLBindParameter( statementHandle, parameter->GetIndex(), parameter->GetInputOutputType(), parameter->GetValueType(), parameter->GetParameterType(), parameter->GetColumnSize(), 0, value.GetPtrValue(), value.GetPtrSize(), nullData ), SQL_HANDLE_STMT, statementHandle, DATABASE_BINDER_DIRECT_OTHER + message );
 					break;
 				}
 			}
 			else
 			{
-				SqlTry( SQLBindParameter( statementHandle, parameter->GetIndex(), parameter->GetInputOutputType(), parameter->GetValueType(), parameter->GetParameterType(), parameter->GetColumnSize(), 0, parameter->GetPtrValue(), parameter->GetPtrSize(), &parameter->GetColumnIndex() ), SQL_HANDLE_STMT, statementHandle, DATABASE_BINDER_DIRECT_NOT_NULL + message );
+				SqlTry( SQLBindParameter( statementHandle, parameter->GetIndex(), parameter->GetInputOutputType(), parameter->GetValueType(), parameter->GetParameterType(), parameter->GetColumnSize(), 0, value.GetPtrValue(), value.GetPtrSize(), &parameter->GetColumnIndex() ), SQL_HANDLE_STMT, statementHandle, DATABASE_BINDER_DIRECT_NOT_NULL + message );
 			}
 
 			return errorType;
@@ -104,15 +105,16 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		{
 			EErrorType errorType;
 			int attemptCount;
+			CDatabaseValueBase & value = parameter->GetObjectValue();
 
-			if ( parameter->IsNull() )
+			if ( value.IsNull() )
 			{
 				*nullData = SQL_NULL_DATA;
-				SqlTry( SQLBindParameter( statementHandle, parameter->GetIndex(), parameter->GetInputOutputType(), parameter->GetValueType(), parameter->GetParameterType(), parameter->GetColumnSize(), 0, &date, parameter->GetPtrSize(), nullData ), SQL_HANDLE_STMT, statementHandle, DATABASE_BINDER_DIRECT_NULL + message );
+				SqlTry( SQLBindParameter( statementHandle, parameter->GetIndex(), parameter->GetInputOutputType(), parameter->GetValueType(), parameter->GetParameterType(), parameter->GetColumnSize(), 0, &date, value.GetPtrSize(), nullData ), SQL_HANDLE_STMT, statementHandle, DATABASE_BINDER_DIRECT_NULL + message );
 			}
 			else
 			{
-				SqlTry( SQLBindParameter( statementHandle, parameter->GetIndex(), parameter->GetInputOutputType(), parameter->GetValueType(), parameter->GetParameterType(), parameter->GetColumnSize(), 0, &date, parameter->GetPtrSize(), nullData ), SQL_HANDLE_STMT, statementHandle, DATABASE_BINDER_DIRECT_OTHER + message );
+				SqlTry( SQLBindParameter( statementHandle, parameter->GetIndex(), parameter->GetInputOutputType(), parameter->GetValueType(), parameter->GetParameterType(), parameter->GetColumnSize(), 0, &date, value.GetPtrSize(), nullData ), SQL_HANDLE_STMT, statementHandle, DATABASE_BINDER_DIRECT_OTHER + message );
 			}
 
 			return errorType;
@@ -138,15 +140,16 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		{
 			EErrorType errorType;
 			int attemptCount;
+			CDatabaseValueBase & value = parameter->GetObjectValue();
 
-			if ( parameter->IsNull() )
+			if ( value.IsNull() )
 			{
 				*nullData = SQL_NULL_DATA;
-				SqlTry( SQLBindParameter( statementHandle, parameter->GetIndex(), parameter->GetInputOutputType(), parameter->GetValueType(), parameter->GetParameterType(), parameter->GetColumnSize(), 0, &time, parameter->GetPtrSize(), nullData ), SQL_HANDLE_STMT, statementHandle, DATABASE_BINDER_DIRECT_NULL + message );
+				SqlTry( SQLBindParameter( statementHandle, parameter->GetIndex(), parameter->GetInputOutputType(), parameter->GetValueType(), parameter->GetParameterType(), parameter->GetColumnSize(), 0, &time, value.GetPtrSize(), nullData ), SQL_HANDLE_STMT, statementHandle, DATABASE_BINDER_DIRECT_NULL + message );
 			}
 			else
 			{
-				SqlTry( SQLBindParameter( statementHandle, parameter->GetIndex(), parameter->GetInputOutputType(), parameter->GetValueType(), parameter->GetParameterType(), parameter->GetColumnSize(), 0, &time, parameter->GetPtrSize(), nullData ), SQL_HANDLE_STMT, statementHandle, DATABASE_BINDER_DIRECT_OTHER + message );
+				SqlTry( SQLBindParameter( statementHandle, parameter->GetIndex(), parameter->GetInputOutputType(), parameter->GetValueType(), parameter->GetParameterType(), parameter->GetColumnSize(), 0, &time, value.GetPtrSize(), nullData ), SQL_HANDLE_STMT, statementHandle, DATABASE_BINDER_DIRECT_OTHER + message );
 			}
 
 			return errorType;
@@ -172,15 +175,16 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		{
 			EErrorType errorType;
 			int attemptCount;
+			CDatabaseValueBase & value = parameter->GetObjectValue();
 
-			if ( parameter->IsNull() )
+			if ( value.IsNull() )
 			{
 				*nullData = SQL_NULL_DATA;
-				SqlTry( SQLBindParameter( statementHandle, parameter->GetIndex(), parameter->GetInputOutputType(), parameter->GetValueType(), parameter->GetParameterType(), parameter->GetColumnSize(), 0, &timestamp, parameter->GetPtrSize(), nullData ), SQL_HANDLE_STMT, statementHandle, DATABASE_BINDER_DIRECT_NULL + message );
+				SqlTry( SQLBindParameter( statementHandle, parameter->GetIndex(), parameter->GetInputOutputType(), parameter->GetValueType(), parameter->GetParameterType(), parameter->GetColumnSize(), 0, &timestamp, value.GetPtrSize(), nullData ), SQL_HANDLE_STMT, statementHandle, DATABASE_BINDER_DIRECT_NULL + message );
 			}
 			else
 			{
-				SqlTry( SQLBindParameter( statementHandle, parameter->GetIndex(), parameter->GetInputOutputType(), parameter->GetValueType(), parameter->GetParameterType(), parameter->GetColumnSize(), 0, &timestamp, parameter->GetPtrSize(), nullData ), SQL_HANDLE_STMT, statementHandle, DATABASE_BINDER_DIRECT_OTHER + message );
+				SqlTry( SQLBindParameter( statementHandle, parameter->GetIndex(), parameter->GetInputOutputType(), parameter->GetValueType(), parameter->GetParameterType(), parameter->GetColumnSize(), 0, &timestamp, value.GetPtrSize(), nullData ), SQL_HANDLE_STMT, statementHandle, DATABASE_BINDER_DIRECT_OTHER + message );
 			}
 
 			return errorType;
@@ -210,12 +214,13 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		{
 			EErrorType errorType;
 			int attemptCount;
+			CDatabaseValueBase & value = parameter->GetObjectValue();
 
-			if ( parameter->IsNull() )
+			if ( value.IsNull() )
 			{
-				SqlTry( SQLBindParameter( statementHandle, parameter->GetIndex(), parameter->GetInputOutputType(), parameter->GetValueType(), parameter->GetParameterType(), 1, 0, parameter->GetPtrValue(), parameter->GetPtrSize(), nullData ), SQL_HANDLE_STMT, statementHandle, DATABASE_BINDER_EXEC_NULL + message );
+				SqlTry( SQLBindParameter( statementHandle, parameter->GetIndex(), parameter->GetInputOutputType(), parameter->GetValueType(), parameter->GetParameterType(), 1, 0, value.GetPtrValue(), value.GetPtrSize(), nullData ), SQL_HANDLE_STMT, statementHandle, DATABASE_BINDER_EXEC_NULL + message );
 			}
-			else if ( parameter->GetPtrSize() == 0 )
+			else if ( value.GetPtrSize() == 0 )
 			{
 				switch ( parameter->GetType() )
 				{
@@ -224,18 +229,18 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				case EFieldType_NVARCHAR:
 				case EFieldType_NTEXT:
 					parameter->SetColumnIndex( SQL_NTS );
-					SqlTry( SQLBindParameter( statementHandle, parameter->GetIndex(), parameter->GetInputOutputType(), parameter->GetValueType(), parameter->GetParameterType(), parameter->GetColumnSize(), 0, parameter->GetPtrValue(), parameter->GetPtrSize(), &parameter->GetColumnIndex() ), SQL_HANDLE_STMT, statementHandle, DATABASE_BINDER_EXEC_STRING + message );
+					SqlTry( SQLBindParameter( statementHandle, parameter->GetIndex(), parameter->GetInputOutputType(), parameter->GetValueType(), parameter->GetParameterType(), parameter->GetColumnSize(), 0, value.GetPtrValue(), value.GetPtrSize(), &parameter->GetColumnIndex() ), SQL_HANDLE_STMT, statementHandle, DATABASE_BINDER_EXEC_STRING + message );
 					break;
 
 				default:
-					SqlTry( SQLBindParameter( statementHandle, parameter->GetIndex(), parameter->GetInputOutputType(), parameter->GetValueType(), parameter->GetParameterType(), 1, 0, parameter->GetPtrValue(), parameter->GetPtrSize(), nullData ), SQL_HANDLE_STMT, statementHandle, DATABASE_BINDER_EXEC_OTHER + message );
+					SqlTry( SQLBindParameter( statementHandle, parameter->GetIndex(), parameter->GetInputOutputType(), parameter->GetValueType(), parameter->GetParameterType(), 1, 0, value.GetPtrValue(), value.GetPtrSize(), nullData ), SQL_HANDLE_STMT, statementHandle, DATABASE_BINDER_EXEC_OTHER + message );
 					break;
 				}
 			}
 			else
 			{
-				parameter->SetColumnIndex( SQL_LEN_DATA_AT_EXEC( parameter->GetPtrSize() ) );
-				SqlTry( SQLBindParameter( statementHandle, parameter->GetIndex(), parameter->GetInputOutputType(), parameter->GetValueType(), parameter->GetParameterType(), parameter->GetColumnSize(), 0, parameter->GetPtrValue(), parameter->GetPtrSize(), & parameter->GetColumnIndex() ), SQL_HANDLE_STMT, statementHandle, DATABASE_BINDER_EXEC_NOT_NULL + message );
+				parameter->SetColumnIndex( SQL_LEN_DATA_AT_EXEC( static_cast< const long & >( value.GetPtrSize() ) ) );
+				SqlTry( SQLBindParameter( statementHandle, parameter->GetIndex(), parameter->GetInputOutputType(), parameter->GetValueType(), parameter->GetParameterType(), parameter->GetColumnSize(), 0, value.GetPtrValue(), value.GetPtrSize(), & parameter->GetColumnIndex() ), SQL_HANDLE_STMT, statementHandle, DATABASE_BINDER_EXEC_NOT_NULL + message );
 			}
 
 			return errorType;

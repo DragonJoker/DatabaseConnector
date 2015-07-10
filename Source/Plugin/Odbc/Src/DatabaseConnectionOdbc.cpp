@@ -144,23 +144,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		return strReturn;
 	}
 
-	std::string CDatabaseConnectionOdbc::WriteDate( const std::string & date, const std::string & format ) const
-	{
-		std::string strReturn;
-		CDate dateObj;
-
-		if ( CDate::IsDate( date, format, dateObj ) )
-		{
-			strReturn = WriteDate( dateObj );
-		}
-		else
-		{
-			strReturn += ODBC_NULL_STDSTRING;
-		}
-
-		return strReturn;
-	}
-
 	std::string CDatabaseConnectionOdbc::WriteTime( const CTime & time ) const
 	{
 		std::string strReturn;
@@ -168,23 +151,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		if ( time.IsValid() )
 		{
 			Formalize( strReturn, 1024, "CONVERT(TIME, '%02i:%02i%:02i', 108)", time.GetHour(), time.GetMinute(), time.GetSecond() );
-		}
-		else
-		{
-			strReturn += ODBC_NULL_STDSTRING;
-		}
-
-		return strReturn;
-	}
-
-	std::string CDatabaseConnectionOdbc::WriteTime( const std::string & time, const std::string & format ) const
-	{
-		std::string strReturn;
-		CTime timeObj;
-
-		if ( CTime::IsTime( time, format, timeObj ) )
-		{
-			strReturn = WriteTime( timeObj );
 		}
 		else
 		{
@@ -249,23 +215,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		return strReturn;
 	}
 
-	std::string CDatabaseConnectionOdbc::WriteDateTime( const std::string & dateTime, const std::string & format ) const
-	{
-		std::string strReturn;
-		CDateTime dateTimeObj;
-
-		if ( CDateTime::IsDateTime( dateTime,  dateTimeObj ) )
-		{
-			strReturn = WriteDateTime( dateTimeObj );
-		}
-		else
-		{
-			strReturn += ODBC_NULL_STDSTRING;
-		}
-
-		return strReturn;
-	}
-
 	std::string CDatabaseConnectionOdbc::WriteStmtDate( const CDate & date ) const
 	{
 		std::string strReturn;
@@ -273,23 +222,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		if ( date.IsValid() )
 		{
 			Formalize( strReturn, 1024, "{-d %04i-%02i-%02i}", date.GetYear(), date.GetMonth(), date.GetMonthDay() );
-		}
-		else
-		{
-			strReturn += ODBC_NULL_STDSTRING;
-		}
-
-		return strReturn;
-	}
-
-	std::string CDatabaseConnectionOdbc::WriteStmtDate( const std::string & date, const std::string & format ) const
-	{
-		std::string strReturn;
-		CDate dateObj;
-
-		if ( CDate::IsDate( date, format, dateObj ) )
-		{
-			strReturn = WriteStmtDate( dateObj );
 		}
 		else
 		{
@@ -315,23 +247,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		return strReturn;
 	}
 
-	std::string CDatabaseConnectionOdbc::WriteStmtTime( const std::string & time, const std::string & format ) const
-	{
-		std::string strReturn;
-		CTime timeObj;
-
-		if ( CTime::IsTime( time, format, timeObj ) )
-		{
-			strReturn = WriteStmtTime( timeObj );
-		}
-		else
-		{
-			strReturn += ODBC_NULL_STDSTRING;
-		}
-
-		return strReturn;
-	}
-
 	std::string CDatabaseConnectionOdbc::WriteStmtDateTime( const CDateTime & dateTime ) const
 	{
 		std::string strReturn;
@@ -339,23 +254,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		if ( dateTime.GetYear() > 0 )
 		{
 			Formalize( strReturn, 1024, "{-ts %04i-%02i-%02i %02i:%02i:%02i}", dateTime.GetYear(), dateTime.GetMonth(), dateTime.GetMonthDay(), dateTime.GetHour(), dateTime.GetMinute(), dateTime.GetSecond() );
-		}
-		else
-		{
-			strReturn += ODBC_NULL_STDSTRING;
-		}
-
-		return strReturn;
-	}
-
-	std::string CDatabaseConnectionOdbc::WriteStmtDateTime( const std::string & dateTime, const std::string & format ) const
-	{
-		std::string strReturn;
-		CDateTime dateTimeObj;
-
-		if ( CDateTime::IsDateTime( dateTime, dateTimeObj ) )
-		{
-			strReturn = WriteStmtDateTime( dateTimeObj );
 		}
 		else
 		{
@@ -434,6 +332,24 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		CDateTime dateTimeObj;
 		CDateTime::IsDateTime( dateTime,  dateTimeObj );
 		return dateTimeObj;
+	}
+
+	unsigned long CDatabaseConnectionOdbc::GetStmtDateSize()const
+	{
+		//"{-d YYYY-MM-DD}"
+		return ( unsigned long )15;
+	}
+
+	unsigned long CDatabaseConnectionOdbc::GetStmtDateTimeSize()const
+	{
+		//"{-ts YYYY-MM-DD HH:MM:SS}"
+		return ( unsigned long )25;
+	}
+
+	unsigned long CDatabaseConnectionOdbc::GetStmtTimeSize()const
+	{
+		//"{-t HH:MM:SS}"
+		return ( unsigned long )13;
 	}
 
 	HDBC CDatabaseConnectionOdbc::GetHdbc() const

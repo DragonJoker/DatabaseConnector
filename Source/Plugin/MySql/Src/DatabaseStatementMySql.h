@@ -18,8 +18,6 @@
 
 #include <DatabaseStatement.h>
 
-#include <cppconn/prepared_statement.h>
-
 BEGIN_NAMESPACE_DATABASE_MYSQL
 {
 	/** Describes a statement for MYSQL database.
@@ -121,7 +119,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		void DoPostExecute( EErrorType * result );
 
 		/// Prepared statement.
-		std::shared_ptr< sql::PreparedStatement > _statement;
+		MYSQL_STMT * _statement;
 		/// Database connection.
 		DatabaseConnectionMySqlPtr _connectionMySql;
 		/// Tokenized string (delimiter is "?").
@@ -129,9 +127,11 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		/// Number of parameters (i.e. number of "?").
 		uint32_t _paramsCount;
 		/// Array of in parameters
-		DatabaseParameterPtrArray _arrayInParams;
+		DatabaseStatementParameterMySqlPtrArray _arrayInParams;
+		/// The data bindings
+		std::vector< MYSQL_BIND > _bindings;
 		/// Array of out parameters
-		DatabaseParameterPtrArray _arrayOutParams;
+		DatabaseStatementParameterMySqlPtrArray _arrayOutParams;
 		/// Array of in/out parameter initializer queries
 		std::vector< std::pair< DatabaseStatementPtr, DatabaseParameterPtr > > _inOutInitializers;
 		/// Array of out parameter initializer queries

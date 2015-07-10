@@ -54,12 +54,13 @@ BEGIN_NAMESPACE_DATABASE
 		class CExceptionDatabaseMySql;
 		class CPluginDatabaseMySql;
 		class CFactoryDatabaseMySql;
-		struct SParameterValueSetterBase;
 
 		// Pointers
 		typedef std::shared_ptr< CDatabaseConnectionMySql > DatabaseConnectionMySqlPtr;
 		typedef std::shared_ptr< CDatabaseStatementMySql > DatabaseStatementMySqlPtr;
 		typedef std::shared_ptr< CDatabaseStatementParameterMySql > DatabaseStatementParameterMySqlPtr;
+
+		typedef std::vector< DatabaseStatementParameterMySqlPtr > DatabaseStatementParameterMySqlPtrArray;
 
 		// Factory constants
 		const String FACTORY_DATABASE_MYSQL = STR( "Factory Database MySql" );
@@ -67,24 +68,153 @@ BEGIN_NAMESPACE_DATABASE
 		// Plugin constants
 		const String DATABASE_MYSQL_TYPE = STR( "Database.MySql" );
 		const String PLUGIN_NAME_DATABASE_MYSQL = STR( "Plugin Database MySql" );
+
+		struct CMySqlBindBase
+		{
+			my_bool _null = 0;
+			my_bool _error = 0;
+			MYSQL_BIND & _bind;
+
+			CMySqlBindBase( MYSQL_BIND & bind )
+				: _bind( bind )
+			{
+				bind.error = &_error;
+				bind.is_null = &_null;
+			}
+		};
+
+		struct CInMySqlBindBase
+				: public CMySqlBindBase
+		{
+			unsigned long _length = 0;
+
+			CInMySqlBindBase( MYSQL_BIND & bind )
+				: CMySqlBindBase( bind )
+			{
+				bind.length = &_length;
+			}
+		};
+
+		template< typename T, typename U = T >
+		struct CInMySqlBind
+				: public CInMySqlBindBase
+		{
+			T _value;
+
+			CInMySqlBind( MYSQL_BIND & bind )
+				: CInMySqlBindBase( bind )
+			{
+				bind.buffer = &_value;
+			}
+
+			T const & GetValue()const
+			{
+				return _value;
+			}
+		};
+
+		template<>
+		struct CInMySqlBind< bool, bool >
+				: public CInMySqlBindBase
+		{
+			int8_t _value;
+
+			CInMySqlBind( MYSQL_BIND & bind )
+				: CInMySqlBindBase( bind )
+			{
+				bind.buffer = &_value;
+			}
+
+			bool GetValue()const
+			{
+				return _value != 0;
+			}
+		};
+
+		template< typename T >
+		struct CInMySqlBind< T *, T * >
+				: public CInMySqlBindBase
+		{
+			T _value[8192];
+
+			CInMySqlBind( MYSQL_BIND & bind )
+				: CInMySqlBindBase( bind )
+			{
+				memset( _value, 0, sizeof( _value ) );
+				bind.buffer = _value;
+				bind.buffer_length = sizeof( _value ) / sizeof( *_value );
+			}
+
+			T const * GetValue()const
+			{
+				return _value;
+			}
+		};
+
+		template<>
+		struct CInMySqlBind< char *, double >
+				: public CInMySqlBindBase
+		{
+			char _value[8192];
+
+			CInMySqlBind( MYSQL_BIND & bind )
+				: CInMySqlBindBase( bind )
+			{
+				memset( _value, 0, sizeof( _value ) );
+				bind.buffer = _value;
+				bind.buffer_length = sizeof( _value ) / sizeof( *_value );
+			}
+
+			double GetValue()const
+			{
+				return CStrUtils::ToDouble( _value );
+			}
+		};
+
+		template<>
+		struct CInMySqlBind< char *, int32_t >
+				: public CInMySqlBindBase
+		{
+			char _value[8192];
+
+			CInMySqlBind( MYSQL_BIND & bind )
+				: CInMySqlBindBase( bind )
+			{
+				memset( _value, 0, sizeof( _value ) );
+				bind.buffer = _value;
+				bind.buffer_length = sizeof( _value ) / sizeof( _value );
+			}
+
+			int32_t GetValue()const
+			{
+				return CStrUtils::ToInt( _value );
+			}
+		};
+
+		struct COutMySqlBindBase
+				: public CMySqlBindBase
+		{
+			COutMySqlBindBase( MYSQL_BIND & bind, enum_field_types type, CDatabaseStatementParameterMySql & parameter );
+
+			virtual void UpdateValue() = 0;
+
+			MYSQL * _connection;
+			MYSQL_STMT * _statement;
+		};
+
+		CDate CDateFromMySqlTime( MYSQL_TIME const & ts );
+		CDateTime CDateTimeFromMySqlTime( MYSQL_TIME const & ts );
+		CTime CTimeFromMySqlTime( MYSQL_TIME const & ts );
+
+		MYSQL_TIME MySqlTimeFromCDate( CDate const & ts );
+		MYSQL_TIME MySqlTimeFromCDateTime( CDateTime const & ts );
+		MYSQL_TIME MySqlTimeFromCTime( CTime const & ts );
+
+		std::string StringFromMySqlString( MYSQL_BIND const & bind, bool truncated );
+		void MySqlSendLongData( CDatabaseValueBase & value, MYSQL_BIND const & bind, MYSQL_STMT * statement, MYSQL * connection );
+		void MySQLTry( int result, TChar const * msg, EDatabaseExceptionCodes code, MYSQL * connection );
 	}
 }
 END_NAMESPACE_DATABASE
-
-#if !defined( NDEBUG )
-#   define MySQLTry( x, msg )\
-    try\
-    {\
-        x;\
-        CLogger::LogDebug( StringStream() << STR( "Success : " ) << msg );\
-    }\
-    catch( sql::SQLException & e )\
-    {\
-        CLogger::LogError( StringStream() << STR( "Failure : " ) << msg << STR( "\n" ) << e.what() << STR( "\nMySQL State : " ) << e.getSQLState().c_str() << STR( "\nError code : " ) << e.getErrorCode() );\
-		throw;\
-    }
-#else
-#   define MySQLTry( x, msg ) x;
-#endif
 
 #endif // ___DATABASE_MYSQL_PREREQUISITES_H___

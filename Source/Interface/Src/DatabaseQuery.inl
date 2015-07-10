@@ -15,129 +15,60 @@
 
 BEGIN_NAMESPACE_DATABASE
 {
-	namespace
-	{
-		struct QueryParameterFindCondition
-		{
-			const String & _name;
-
-			QueryParameterFindCondition( const String & name )
-				: _name( name )
-			{
-			}
-
-			bool operator()( DatabaseParameterPtr parameter )
-			{
-				return parameter->GetName() == _name;
-			}
-		};
-	}
-
-	static const String DATABASE_QUERY_INDEX_ERROR = STR( "No query parameter at index: " );
-	static const String DATABASE_QUERY_NAME_ERROR = STR( "No query parameter named: " );
-
-	template <typename T>
+	template< typename T >
 	void CDatabaseQuery::SetParameterValue( uint32_t index, const T & value )
 	{
-		try
-		{
-			DatabaseParameterPtr parameter = _arrayParams[index];
-			parameter->SetValue( value );
-		}
-		catch ( ... )
-		{
-			StringStream message;
-			message << DATABASE_QUERY_INDEX_ERROR << index;
-			CLogger::LogError( message );
-			DB_EXCEPT( EDatabaseExceptionCodes_QueryError, message.str() );
-		}
+		DatabaseParameterPtr parameter = GetParameter( index );
+		parameter->SetValue( value );
+		_mapParamsByPointer[parameter->GetObjectValue().GetPtrValue()] = parameter;
 	}
 
-	template <typename T>
+	template< typename T >
 	void CDatabaseQuery::SetParameterValue( const String & name, const T & value )
 	{
-		DatabaseParameterPtrArray::iterator it = std::find_if( _arrayParams.begin(), _arrayParams.end(), QueryParameterFindCondition( name ) );
+		DatabaseParameterPtr parameter = GetParameter( name );
+		parameter->SetValue( value );
+		_mapParamsByPointer[parameter->GetObjectValue().GetPtrValue()] = parameter;
+	}
 
-		if ( it != _arrayParams.end() )
-		{
-			DatabaseParameterPtr parameter = ( *it );
-			parameter->SetValue( value );
-		}
-		else
-		{
-			StringStream message;
-			message << DATABASE_QUERY_NAME_ERROR << name;
-			CLogger::LogError( message );
-			DB_EXCEPT( EDatabaseExceptionCodes_QueryError, message.str() );
-		}
+	template< typename T >
+	void CDatabaseQuery::SetParameterValueFast( uint32_t index, const T & value )
+	{
+		DatabaseParameterPtr parameter = GetParameter( index );
+		parameter->SetValueFast( value );
+		_mapParamsByPointer[parameter->GetObjectValue().GetPtrValue()] = parameter;
+	}
+
+	template< typename T >
+	void CDatabaseQuery::SetParameterValueFast( const String & name, const T & value )
+	{
+		DatabaseParameterPtr parameter = GetParameter( name );
+		parameter->SetValueFast( value );
+		_mapParamsByPointer[parameter->GetObjectValue().GetPtrValue()] = parameter;
 	}
 
 	template <typename T>
-	const T & CDatabaseQuery::GetParameterValue( uint32_t index )
+	const T & CDatabaseQuery::GetOutputValue( uint32_t index )
 	{
-		try
-		{
-			return _arrayParams[index]->GetValue< T >();
-		}
-		catch ( ... )
-		{
-			StringStream message;
-			message << DATABASE_QUERY_INDEX_ERROR << index;
-			CLogger::LogError( message );
-			DB_EXCEPT( EDatabaseExceptionCodes_QueryError, message.str() );
-		}
+		return GetParameter( index )->GetValue< T >();
 	}
 
 	template <typename T>
-	const T & CDatabaseQuery::GetParameterValue( const String & name )
+	const T & CDatabaseQuery::GetOutputValue( const String & name )
 	{
-		DatabaseParameterPtrArray::iterator it = std::find_if( _arrayParams.begin(), _arrayParams.end(), QueryParameterFindCondition( name ) );
-
-		if ( it != _arrayParams.end() )
-		{
-			return ( *it )->GetValue< T >();
-		}
-		else
-		{
-			StringStream message;
-			message << DATABASE_QUERY_NAME_ERROR << name;
-			CLogger::LogError( message );
-			DB_EXCEPT( EDatabaseExceptionCodes_QueryError, message.str() );
-		}
+		return GetParameter( name )->GetValue< T >();
 	}
 
 	template <typename T>
-	void CDatabaseQuery::GetParameterValue( uint32_t index, T & value )
+	void CDatabaseQuery::GetOutputValue( uint32_t index, T & value )
 	{
-		try
-		{
-			_arrayParams[index]->GetValue( value );
-		}
-		catch ( ... )
-		{
-			StringStream message;
-			message << DATABASE_QUERY_INDEX_ERROR << index;
-			CLogger::LogError( message );
-			DB_EXCEPT( EDatabaseExceptionCodes_QueryError, message.str() );
-		}
+		GetParameter( index )->GetValue( value );
 	}
 
 	template <typename T>
-	void CDatabaseQuery::GetParameterValue( const String & name, T & value )
+	void CDatabaseQuery::GetOutputValue( const String & name, T & value )
 	{
-		DatabaseParameterPtrArray::iterator it = std::find_if( _arrayParams.begin(), _arrayParams.end(), QueryParameterFindCondition( name ) );
-
-		if ( it != _arrayParams.end() )
-		{
-			( *it )->GetValue( value );
-		}
-		else
-		{
-			StringStream message;
-			message << DATABASE_QUERY_NAME_ERROR << name;
-			CLogger::LogError( message );
-			DB_EXCEPT( EDatabaseExceptionCodes_QueryError, message.str() );
-		}
+		GetParameter( name )->GetValue( value );
 	}
 }
 END_NAMESPACE_DATABASE

@@ -82,7 +82,9 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		if ( m_bOwnInstance )
 		{
+			m_pImpl->Cleanup();
 			delete m_pImpl;
+			m_pImpl = NULL;
 		}
 	}
 
@@ -93,6 +95,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		if ( m_pSingleton )
 		{
+			m_uiCounter--;
 			throw "Logger instance already initialised";
 		}
 		else
@@ -100,7 +103,6 @@ BEGIN_NAMESPACE_DATABASE
 			m_bOwnInstance = false;
 			CLogger & l_logger = GetSingleton();
 			delete l_logger.m_pImpl;
-
 			l_logger.m_pImpl = p_pLogger->m_pImpl;
 
 			for ( int i = 0; i < eLOG_TYPE_COUNT; i++ )
@@ -123,7 +125,6 @@ BEGIN_NAMESPACE_DATABASE
 		else
 		{
 			m_bOwnInstance = true;
-
 			CLogger & l_logger = GetSingleton();
 			delete l_logger.m_pImpl;
 			l_logger.m_pImpl = NULL;
@@ -160,19 +161,12 @@ BEGIN_NAMESPACE_DATABASE
 
 	void CLogger::Cleanup()
 	{
-		m_uiCounter--;
-#if !defined( _WIN32 )
-
-		if ( m_uiCounter <= 0 )
+		if ( m_uiCounter > 0 )
 		{
+			m_uiCounter--;
 			delete m_pSingleton;
 			m_pSingleton = NULL;
 		}
-
-#else
-		delete m_pSingleton;
-		m_pSingleton = NULL;
-#endif
 	}
 
 	void CLogger::SetCallback( PLogCallback p_pfnCallback, void * p_pCaller )

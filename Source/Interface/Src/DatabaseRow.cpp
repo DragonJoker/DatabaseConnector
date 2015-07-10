@@ -103,16 +103,5 @@ BEGIN_NAMESPACE_DATABASE
 
 		return pReturn;
 	}
-
-	String CDatabaseRow::GetStr( uint32_t index )
-	{
-		return GetField( index )->GetStrValue();
-	}
-
-	String CDatabaseRow::GetStr( const String & name )
-	{
-		return GetField( name )->GetStrValue();
-	}
-
 }
 END_NAMESPACE_DATABASE

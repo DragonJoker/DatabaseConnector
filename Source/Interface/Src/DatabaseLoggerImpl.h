@@ -18,7 +18,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #ifndef ___DATABASE_LOGGER_IMPL_H___
 #define ___DATABASE_LOGGER_IMPL_H___
 
-#include "DatabaseConsole.h"
+#include "DatabaseLoggerConsole.h"
+
+#include <condition_variable>
 
 #pragma warning( push )
 #pragma warning( disable:4290 )
@@ -64,18 +66,13 @@ BEGIN_NAMESPACE_DATABASE
 			void 	*		m_pCaller;
 		};
 		DECLARE_MAP( std::thread::id, stLOGGER_CALLBACK, LoggerCallback );
-		String				m_logFilePath[eLOG_TYPE_COUNT];
-		String				m_strHeaders[eLOG_TYPE_COUNT];
-		ProgramConsole *	m_pConsole;
-		eLOG_TYPE			m_eLogLevel;
-		LoggerCallbackMap	m_mapCallbacks;
-		std::mutex			m_mutex;
 
 	public:
 		ILoggerImpl( eLOG_TYPE p_eLogLevel );
 		virtual ~ILoggerImpl();
 
 		void Initialise( CLogger * p_pLogger );
+		void Cleanup();
 		void SetCallback( PLogCallback p_pfnCallback, void * p_pCaller );
 
 		void SetFileName( String const & p_logFilePath, eLOG_TYPE p_eLogType );
@@ -85,10 +82,37 @@ BEGIN_NAMESPACE_DATABASE
 		virtual void LogWarning( String const & p_strToLog );
 		virtual bool LogError( String const & p_strToLog );
 
-		inline eLOG_TYPE	GetLogLevel()const { return m_eLogLevel; }
+		inline eLOG_TYPE GetLogLevel()const
+		{
+			return m_eLogLevel;
+		}
 
 	private:
 		void DoLogMessage( String const & p_strToLog, eLOG_TYPE p_eLogType );
+
+	private:
+		String m_logFilePath[eLOG_TYPE_COUNT];
+		String m_strHeaders[eLOG_TYPE_COUNT];
+		ProgramConsole * m_pConsole;
+		eLOG_TYPE m_eLogLevel;
+		LoggerCallbackMap m_mapCallbacks;
+		std::mutex m_mutex;
+
+		//std::stringstream m_cout;
+		//std::stringstream m_cerr;
+		//std::stringstream m_clog;
+		//std::wstringstream m_wcout;
+		//std::wstringstream m_wcerr;
+		//std::wstringstream m_wclog;
+		std::streambuf * m_cout;
+		std::streambuf * m_cerr;
+		std::streambuf * m_clog;
+		std::wstreambuf * m_wcout;
+		std::wstreambuf * m_wcerr;
+		std::wstreambuf * m_wclog;
+		std::thread m_outThread;
+		std::mutex m_outMutex;
+		std::condition_variable m_end;
 	};
 }
 END_NAMESPACE_DATABASE

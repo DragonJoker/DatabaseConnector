@@ -26,23 +26,18 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	class DatabaseExport CDateTime
 	{
+	public:
+		static String ShortDay[7];        ///< Array of short day names.
+		static String LongDay[7];         ///< Array of long day names.
+		static String ShortMonth[12];     ///< Array of short month names.
+		static String LongMonth[12];      ///< Array of long month names.
+		static int MonthMaxDays[12];      ///< Array of max number of days per month.
+		static CDateTime Today;           ///< Today date/time
 
 	public:
 		/** Default constructor.
 		*/
 		CDateTime();
-
-		/** Constructor from struct tm.
-		@param[in] dateTime
-		    Date/time.
-		*/
-		CDateTime( const std::tm & dateTime );
-
-		/** Constructor from CDate.
-		@param[in] date
-		    Date.
-		*/
-		CDateTime( const CDate & date );
 
 		/** Copy constructor.
 		@param[in] dateTime
@@ -50,9 +45,49 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		CDateTime( const CDateTime & dateTime );
 
+		/** Constructor from CDate and a CTime.
+		@param[in] date
+		    Date.
+		*/
+		CDateTime( const CDate & date, const CTime & time );
+
+		/** Constructor from struct tm.
+		@param[in] dateTime
+		    Date/time.
+		*/
+		explicit CDateTime( const std::tm & dateTime );
+
+		/** Constructor from CDate.
+		@param[in] date
+		    Date.
+		*/
+		explicit CDateTime( const CDate & date );
+
+		/** Constructor from CTime.
+		@param[in] time
+		    Time.
+		*/
+		explicit CDateTime( const CTime & time );
+
 		/** Destructor.
 		*/
 		~CDateTime();
+
+		/** Get date/time formatted according to the format mask.
+		@param[in] format
+		    Time format.
+		@return
+		    Formatted string.
+		*/
+		std::string Format( const std::string & format ) const;
+
+		/** Get date/time formatted according to the format mask.
+		@param[in] format
+		    Time format.
+		@return
+		    Formatted string.
+		*/
+		std::wstring Format( const std::wstring & format ) const;
 
 		/** Set date/time.
 		@param[in] year
@@ -69,30 +104,6 @@ BEGIN_NAMESPACE_DATABASE
 		    Seconds.
 		*/
 		void SetDateTime( int year, EDateMonth month, int day, int hour, int minute, int second );
-
-		/** Get date as a string with format "DD/MM/YYYY HH:mm:ss".
-		@return
-		    Date as string.
-		*/
-		String ToString() const;
-
-		/** Get date as a string with format "DD/MM/YYYY HH:mm:ss".
-		@return
-		    Date as string.
-		*/
-		std::string ToStdString() const;
-
-		/** Get date as a string with format "DD/MM/YYYY HH:mm:ss".
-		@return
-		    Date as string.
-		*/
-		std::wstring ToStdWString() const;
-
-		/** Get day of week.
-		@return
-		    Day of week (1 to 7, 1 = monday)
-		*/
-		EDateDay GetWeekDay() const;
 
 		/** Get year.
 		@return
@@ -118,6 +129,12 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		int GetYearDay() const;
 
+		/** Get week day.
+		@return
+		    Week day.
+		*/
+		EDateDay GetWeekDay() const;
+
 		/** Get hour.
 		@return
 		    Hour.
@@ -135,28 +152,6 @@ BEGIN_NAMESPACE_DATABASE
 		    Second.
 		*/
 		int GetSecond() const;
-
-		/** Convert this object to a std::tm.
-		@return
-		    Converted date/time.
-		*/
-		std::tm ToTm() const;
-
-		/** Get date/time formatted according to the format mask.
-		@param[in] format
-		    Time format.
-		@return
-		    Formatted string.
-		*/
-		std::string Format( const std::string & format ) const;
-
-		/** Get date/time formatted according to the format mask.
-		@param[in] format
-		    Time format.
-		@return
-		    Formatted string.
-		*/
-		std::wstring Format( const std::wstring & format ) const;
 
 		/** Set date.
 		@param[in] date
@@ -177,6 +172,18 @@ BEGIN_NAMESPACE_DATABASE
 		    true if success.
 		*/
 		bool Parse( const std::wstring & date, const std::wstring & format );
+
+		/** Check date consistency.
+		@return
+		    true if valid date.
+		*/
+		bool IsValid() const;
+
+		/** Convert this object to a std::tm.
+		@return
+		    Converted date/time.
+		*/
+		std::tm ToTm() const;
 
 		/** Get system current date/time.
 		@return
@@ -247,6 +254,37 @@ BEGIN_NAMESPACE_DATABASE
 		    true if valid time.
 		*/
 		static bool IsDateTime( const std::wstring & dateTime, CDateTime & result );
+
+		/** Get number of days in a month.
+		@param[in] month
+		    Month.
+		@param[in] year
+		    Year.
+		@return
+		    Number of days.
+		*/
+		static int GetMonthDays( int month, int year );
+
+		/** Get number of days in a year.
+		@param[in] year
+		    Year.
+		@return
+		    Number of days.
+		*/
+		static int GetYearDays( int year );
+
+	private:
+		/** Check date validity.
+		*/
+		void DoCheckValidity();
+
+		/** Compute week day.
+		*/
+		void DoComputeWeekDay();
+
+		/** Compute year day.
+		*/
+		void DoComputeYearDay();
 
 	protected:
 		std::tm _date;   /// Date.

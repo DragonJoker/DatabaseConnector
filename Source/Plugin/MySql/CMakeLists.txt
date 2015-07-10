@@ -6,36 +6,36 @@ set( DBMYSQL_VERSION_BUILD	0 )
 
 # Include directories
 include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}/Src 
-    ${DATABASE_SOURCE_DIR}/Interface/Src
-    ${MYSQL_CPP_INCLUDE_DIR}
+	${CMAKE_CURRENT_SOURCE_DIR}/Src 
+	${DATABASE_SOURCE_DIR}/Interface/Src
+	${MySQL_INCLUDE_DIRS}
 )
 
 set( MySqlLibraries "")
-FOREACH(Lib ${MYSQL_LIBRARIES_DYNAMIC})
-    if (MySqlLibraries)
-        set(MySqlLibraries "${MySqlLibraries}|${Lib}")
-    else()
-        set(MySqlLibraries "${Lib}")
-    endif()
+FOREACH(Lib ${MySQL_STATIC_LIBRARIES})
+	if (MySqlLibraries)
+		set(MySqlLibraries "${MySqlLibraries}|${Lib}")
+	else()
+		set(MySqlLibraries "${Lib}")
+	endif()
 ENDFOREACH()
 
 set( DefaultTarget DatabasePluginMySql )
 
 add_target(
-    DatabasePluginMySql
-    dll
-    "Database"
-    "Database;${MySqlLibraries};${MinLibraries}"
-    "DatabaseMySqlPch.h"
-    "DatabaseMySqlPch.cpp"
-    "-Dmysqlcppconn_EXPORTS"
-	"-Dmysqlcppconn_EXPORTS"
+	DatabasePluginMySql
+	dll
+	"Database"
+	"Database;${MySqlLibraries};${MinLibraries}"
+	"DatabaseMySqlPch.h"
+	"DatabaseMySqlPch.cpp"
 	""
+	""
+	"${MySQL_LINK_FLAGS}"
 )
 
-copy_dll( DatabasePluginMySql ${MYSQL_CPP_LIBRARY_DYNAMIC_DEBUG} Debug )
-copy_dll( DatabasePluginMySql ${MYSQL_CPP_LIBRARY_DYNAMIC_RELEASE} Release )
+copy_dll( DatabasePluginMySql ${MySQL_client_LIBRARY_STATIC_DEBUG} Debug )
+copy_dll( DatabasePluginMySql ${MySQL_client_LIBRARY_STATIC_RELEASE} Release )
 
 set_property( TARGET DatabasePluginMySql PROPERTY FOLDER "Plugin/MySQL" )
 add_target_astyle( DatabasePluginMySql ".h;.hpp;.inl;.cpp" )

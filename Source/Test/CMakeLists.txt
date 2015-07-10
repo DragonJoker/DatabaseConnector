@@ -75,25 +75,6 @@ set( BinsDependencies
     ${BinsDependencies}
     Database
 )
-if( BUILD_MySQLConnPP_PLUGIN )
-    set( BinsDependencies
-        ${BinsDependencies}
-        DatabasePluginMySql
-    )
-endif()
-if( BUILD_ODBC_PLUGIN )
-    set( BinsDependencies
-        ${BinsDependencies}
-        DatabasePluginOdbcMySql
-        DatabasePluginOdbcMsSql
-    )
-endif()
-if( BUILD_SQLite_PLUGIN )
-    set( BinsDependencies
-        ${BinsDependencies}
-        DatabasePluginSqlite
-    )
-endif()
 
 include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/../Plugin/MySql/Src )
@@ -104,7 +85,7 @@ include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/../Plugin/Odbc/MsSql/Src )
 find_package( Boost COMPONENTS unit_test_framework )
 
 if( Boost_UNIT_TEST_FRAMEWORK_FOUND )
-    link_directories( ${Boost_LIBRARY_DIRS} )
+    link_directories( ${Boost_LIBRARY_DIR} )
     #Boost unit test Libs
     set( BoostUnitTestLibraries "")
     FOREACH(Lib ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
@@ -114,7 +95,7 @@ if( Boost_UNIT_TEST_FRAMEWORK_FOUND )
             set(BoostUnitTestLibraries "${Lib}")
         endif()
     ENDFOREACH()
-
+    
     add_target(
         DatabaseTest
         bin_dos
@@ -122,10 +103,26 @@ if( Boost_UNIT_TEST_FRAMEWORK_FOUND )
         "${BinsDependencies};${BoostUnitTestLibraries};${MinLibraries};"
         "DatabaseTestPch.h"
         "DatabaseTestPch.cpp"
-        ""	""	""
     )
 
-    set_target_properties( DatabaseTest PROPERTIES COMPILE_DEFINITIONS BOOST_TEST_DYN_LINK )
+    if( BUILD_MySQLConnPP_PLUGIN )
+        add_dependencies( DatabaseTest DatabasePluginMySql )
+        set( ADDITIONAL_FLAGS ${ADDITIONAL_FLAGS} TESTING_PLUGIN_MYSQL )
+    endif()
+    if( BUILD_ODBC_PLUGIN )
+        add_dependencies( DatabaseTest DatabasePluginOdbcMySql DatabasePluginOdbcMsSql )
+        set( ADDITIONAL_FLAGS ${ADDITIONAL_FLAGS} TESTING_PLUGIN_ODBC )
+    endif()
+    if( BUILD_SQLite_PLUGIN )
+        add_dependencies( DatabaseTest DatabasePluginSqlite )
+        set( ADDITIONAL_FLAGS ${ADDITIONAL_FLAGS} TESTING_PLUGIN_SQLITE )
+    endif()
+
+    set( ADDITIONAL_FLAGS ${ADDITIONAL_FLAGS} BOOST_TEST_DYN_LINK )
+    
+    if ( NOT "" STREQUAL "${ADDITIONAL_FLAGS}" )
+      set_target_properties( DatabaseTest PROPERTIES COMPILE_DEFINITIONS "${ADDITIONAL_FLAGS}" )
+    endif ()
     set_property( TARGET DatabaseTest PROPERTY FOLDER "Test" )
     add_target_astyle( DatabaseTest ".h;.hpp;.inl;.cpp" )
     

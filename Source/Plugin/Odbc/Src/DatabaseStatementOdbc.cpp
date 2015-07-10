@@ -146,7 +146,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		StringStream message;
 		message << ODBC_BIND_PARAMETER_NAME_MSG << parameter->GetName()
 				<< STR( ", " )
-				<< ODBC_BIND_PARAMETER_VALUE_MSG << STR( "[" ) << parameter->GetPtrValue() << STR( "] : " ) << parameter->GetStrValue();
+				<< ODBC_BIND_PARAMETER_VALUE_MSG << STR( "[" ) << parameter->GetObjectValue().GetPtrValue() << STR( "]" );
 
 		switch ( parameter->GetType() )
 		{
@@ -170,8 +170,8 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 	EErrorType CDatabaseStatementOdbc::DoPutParameterData( DatabaseStatementParameterOdbcPtr parameter )
 	{
-		char * pData = static_cast <char *>( parameter->GetPtrValue() );
-		long lSize = parameter->GetPtrSize();
+		char * pData = static_cast <char *>( parameter->GetObjectValue().GetPtrValue() );
+		long lSize = parameter->GetObjectValue().GetPtrSize();
 		long lOffset = 0;
 		long lBatch = 5000;
 		EErrorType errorType = EErrorType_NONE;
@@ -194,8 +194,8 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 	EErrorType CDatabaseStatementOdbc::DoGetParameterData( DatabaseStatementParameterOdbcPtr parameter )
 	{
-		uint8_t * pData = static_cast< uint8_t * >( parameter->GetPtrValue() );
-		long lSize = parameter->GetPtrSize();
+		uint8_t * pData = static_cast< uint8_t * >( parameter->GetObjectValue().GetPtrValue() );
+		long lSize = parameter->GetObjectValue().GetPtrSize();
 		long lOffset = 0;
 		long lBatch = 5000;
 		SQLLEN lRetrieved;

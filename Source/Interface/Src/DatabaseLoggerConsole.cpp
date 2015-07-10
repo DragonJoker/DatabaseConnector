@@ -13,20 +13,14 @@
 #	endif
 #endif
 
-#include "DatabaseConsole.h"
+#include "DatabaseLoggerConsole.h"
+#include "DatabaseStringUtils.h"
 
 BEGIN_NAMESPACE_DATABASE
 {
 #if defined( _MSC_VER )
 	class MsvcConsoleInfo : public IConsoleInfo
 	{
-	private:
-		uint32_t				m_uiOldCP;
-		HANDLE					m_hScreenBuffer;
-		PCONSOLE_FONT_INFOEX	m_pOldInfos;
-		bool					m_bAllocated;
-		bool					m_bConsole;
-
 	public:
 		MsvcConsoleInfo()
 			:	m_uiOldCP( 0	)
@@ -164,7 +158,7 @@ BEGIN_NAMESPACE_DATABASE
 			if ( m_hScreenBuffer != INVALID_HANDLE_VALUE && ::SetConsoleActiveScreenBuffer( m_hScreenBuffer ) )
 			{
 				m_pOldInfos = new CONSOLE_FONT_INFOEX;
-				PCONSOLE_FONT_INFOEX l_pOldInfos = m_pOldInfos;
+				CONSOLE_FONT_INFOEX * l_pOldInfos = m_pOldInfos;
 				l_pOldInfos->cbSize = sizeof( CONSOLE_FONT_INFOEX );
 
 				if ( ::GetCurrentConsoleFontEx( m_hScreenBuffer, FALSE, l_pOldInfos ) )
@@ -188,6 +182,9 @@ BEGIN_NAMESPACE_DATABASE
 					delete m_pOldInfos;
 					m_pOldInfos = NULL;
 				}
+
+				COORD l_coord = { 160, 9999 };
+				::SetConsoleScreenBufferSize( m_hScreenBuffer, l_coord );
 			}
 
 			m_uiOldCP = ::GetConsoleOutputCP();
@@ -213,42 +210,60 @@ BEGIN_NAMESPACE_DATABASE
 
 			return l_bReturn;
 		}
+
+	private:
+		uint32_t m_uiOldCP;
+		HANDLE m_hScreenBuffer;
+		CONSOLE_FONT_INFOEX * m_pOldInfos;
+		bool m_bAllocated;
+		bool m_bConsole;
 	};
-#endif
-#if defined( _WIN32 )
+#elif defined( _WIN32 )
 	class MswConsoleInfo : public IConsoleInfo
 	{
-	private:
-		uint32_t		m_uiOldCP;
-		HANDLE				m_hScreenBuffer;
-
 	public:
 		MswConsoleInfo()
 			:	m_uiOldCP( 0	)
 			,	m_hScreenBuffer( INVALID_HANDLE_VALUE	)
+			,	m_bAllocated( false	)
+			,	m_bConsole( false	)
 		{
 			if ( ::AllocConsole() )
 			{
-				m_hScreenBuffer = ::CreateConsoleScreenBuffer( GENERIC_WRITE | GENERIC_READ, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL );
+				m_bAllocated = true;
+				DoInitialiseConsole();
+			}
+			else
+			{
+				DWORD l_dwLastError = ::GetLastError();
 
-				if ( m_hScreenBuffer != INVALID_HANDLE_VALUE )
+				if ( l_dwLastError == ERROR_ACCESS_DENIED )
 				{
-					::SetConsoleActiveScreenBuffer( m_hScreenBuffer );
+					DoInitialiseConsole();
 				}
-
-				m_uiOldCP = ::GetConsoleOutputCP();
-				::EnumSystemCodePagesA( &DoCodePageProc, CP_INSTALLED );
-
-				freopen( "conout$", "w", stdout );
-				freopen( "conout$", "w", stderr );
+				else
+				{
+					std::cout << "Failed to create to a new console with error " << l_dwLastError << std::endl;
+				}
 			}
 		}
 
 		DatabaseExport virtual ~MswConsoleInfo()
 		{
-			::CloseHandle( m_hScreenBuffer );
-			::SetConsoleOutputCP( m_uiOldCP );
-			::FreeConsole();
+			if ( m_hScreenBuffer != INVALID_HANDLE_VALUE )
+			{
+				::CloseHandle( m_hScreenBuffer );
+			}
+
+			if ( m_bConsole )
+			{
+				::SetConsoleOutputCP( m_uiOldCP );
+			}
+
+			if ( m_bAllocated )
+			{
+				::FreeConsole();
+			}
 		}
 
 		void BeginLog( eLOG_TYPE p_eLogType )
@@ -279,50 +294,73 @@ BEGIN_NAMESPACE_DATABASE
 
 		void Print( String const & p_strToLog, bool p_bNewLine )
 		{
-			DWORD l_dwWritten;
-			::WriteConsole( m_hScreenBuffer, p_strToLog.c_str(), DWORD( p_strToLog.size() ), & l_dwWritten, NULL );
+			::OutputDebugStringA( p_strToLog.c_str() );
+			DWORD l_dwWritten = 0;
 
 			if ( p_bNewLine )
 			{
+				::OutputDebugStringA( STR( "\n" ) );
 				CONSOLE_SCREEN_BUFFER_INFO l_csbiInfo;
 
-				if ( ::GetConsoleScreenBufferInfo( m_hScreenBuffer, & l_csbiInfo ) )
+				if ( ::GetConsoleScreenBufferInfo( m_hScreenBuffer, &l_csbiInfo ) )
 				{
 					l_csbiInfo.dwCursorPosition.X = 0;
+					::WriteConsoleA( m_hScreenBuffer, p_strToLog.c_str(), DWORD( p_strToLog.size() ), &l_dwWritten, NULL );
+					SHORT l_sOffsetY = SHORT( 1 + l_dwWritten / l_csbiInfo.dwSize.Y );
 
-					if ( ( l_csbiInfo.dwSize.Y - 1 ) == l_csbiInfo.dwCursorPosition.Y )
+					if ( ( l_csbiInfo.dwSize.Y - l_sOffsetY ) <= l_csbiInfo.dwCursorPosition.Y )
 					{
-						SMALL_RECT l_srctScrollRect, l_srctClipRect;
+						// The cursor is on the last row
+						SMALL_RECT l_srctScrollRect;
 						CHAR_INFO l_chiFill;
 						COORD l_coordDest;
-
-						l_srctScrollRect.Left = 0;
+						// The scroll rectangle is from second row to last displayed row
 						l_srctScrollRect.Top = 1;
-						l_srctScrollRect.Right = l_csbiInfo.dwSize.X - SHORT( 1 );
-						l_srctScrollRect.Bottom = l_csbiInfo.dwSize.Y - SHORT( 1 );
+						l_srctScrollRect.Bottom = l_csbiInfo.dwSize.Y - 1;
+						l_srctScrollRect.Left = 0;
+						l_srctScrollRect.Right = l_csbiInfo.dwSize.X - 1;
 						// The destination for the scroll rectangle is one row up.
 						l_coordDest.X = 0;
 						l_coordDest.Y = 0;
-						// The clipping rectangle is the same as the scrolling rectangle.
-						// The destination row is left unchanged.
-						l_srctClipRect = l_srctScrollRect;
 						// Set the fill character and attributes.
 						l_chiFill.Attributes = 0;
 						l_chiFill.Char.AsciiChar = char( ' ' );
-						// Scroll up one line.
-						::ScrollConsoleScreenBuffer( m_hScreenBuffer, & l_srctScrollRect, & l_srctClipRect, l_coordDest, & l_chiFill );
+						// Scroll
+						::ScrollConsoleScreenBuffer( m_hScreenBuffer, &l_srctScrollRect, NULL, l_coordDest, &l_chiFill );
 					}
 					else
 					{
-						l_csbiInfo.dwCursorPosition.Y += 1;
+						// The cursor isn't on the last row
+						l_csbiInfo.dwCursorPosition.Y += l_sOffsetY;
 					}
 
 					::SetConsoleCursorPosition( m_hScreenBuffer, l_csbiInfo.dwCursorPosition );
 				}
 			}
+			else
+			{
+				::WriteConsoleA( m_hScreenBuffer, p_strToLog.c_str(), DWORD( p_strToLog.size() ), &l_dwWritten, NULL );
+			}
 		}
 
 	private:
+		void DoInitialiseConsole()
+		{
+			m_hScreenBuffer = ::CreateConsoleScreenBuffer( GENERIC_WRITE | GENERIC_READ, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL );
+
+			if ( m_hScreenBuffer != INVALID_HANDLE_VALUE && ::SetConsoleActiveScreenBuffer( m_hScreenBuffer ) )
+			{
+				COORD l_coord = { 160, 9999 };
+				::SetConsoleScreenBufferSize( m_hScreenBuffer, l_coord );
+			}
+
+			m_uiOldCP = ::GetConsoleOutputCP();
+			::EnumSystemCodePages( & DoCodePageProc, CP_INSTALLED );
+			FILE * l_dump;
+			l_dump = freopen( "conout$", "w", stdout );
+			l_dump = freopen( "conout$", "w", stderr );
+			m_bConsole = true;
+		}
 		static BOOL __stdcall DoCodePageProc( TChar * pszCodePageString )
 		{
 			BOOL l_bReturn = TRUE;
@@ -338,6 +376,12 @@ BEGIN_NAMESPACE_DATABASE
 
 			return l_bReturn;
 		}
+
+	private:
+		uint32_t m_uiOldCP;
+		HANDLE m_hScreenBuffer;
+		bool m_bAllocated;
+		bool m_bConsole;
 	};
 #endif
 	class GenConsoleInfo : public IConsoleInfo
@@ -358,11 +402,11 @@ BEGIN_NAMESPACE_DATABASE
 
 		void Print( String const & p_strToLog, bool p_bNewLine )
 		{
-			tcout << p_strToLog;
+			printf( "%s", p_strToLog.c_str() );
 
 			if ( p_bNewLine )
 			{
-				tcout << std::endl;
+				printf( "\n" );
 			}
 		}
 	};
@@ -389,7 +433,7 @@ BEGIN_NAMESPACE_DATABASE
 
 	DebugConsole::DebugConsole()
 #if defined( _MSC_VER )
-		:	m_pConsoleInfo( new GenConsoleInfo )//MsvcConsoleInfo )
+		:	m_pConsoleInfo( new MsvcConsoleInfo )
 #elif defined( _WIN32 )
 		:	m_pConsoleInfo( new MswConsoleInfo )
 #else

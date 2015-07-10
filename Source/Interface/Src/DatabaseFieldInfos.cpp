@@ -40,7 +40,7 @@ BEGIN_NAMESPACE_DATABASE
 					String limit1 = type.substr( index + 1, dotIndex - index );
 					result.first = CStrUtils::ToInt( CStrUtils::Trim( limit1 ) );
 					String limit2 = type.substr( dotIndex + 1, type.find( STR( ")" ) ) - dotIndex );
-					result.second = CStrUtils::ToInt( CStrUtils::Trim( limit1 ) );
+					result.second = CStrUtils::ToInt( CStrUtils::Trim( limit2 ) );
 				}
 			}
 
@@ -131,7 +131,7 @@ BEGIN_NAMESPACE_DATABASE
 		else if ( strTypel.find( STR( "CHAR" ) ) != String::npos )
 		{
 			_type = EFieldType_VARCHAR;
-			
+
 			if ( limprec == -1 )
 			{
 				_limits = RetrieveLimits( strTypel ).first;

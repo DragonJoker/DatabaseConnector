@@ -16,7 +16,6 @@
 
 BEGIN_NAMESPACE_DATABASE
 {
-
 	/// Enumeration of supported field types.
 	typedef enum EFieldType
 	{

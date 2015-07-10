@@ -95,7 +95,7 @@ BEGIN_NAMESPACE_DATABASE
 		bool IsTime( const std::basic_string< Char > & time, const std::basic_string< Char > & format, int & hours, int & minutes, int & seconds )
 		{
 			typedef std::basic_string< Char > String;
-			bool bReturn = time.size() >= format.size() && !format.empty();
+			bool bReturn = !format.empty();
 
 			hours = 0;
 			minutes = 0;
@@ -126,6 +126,9 @@ BEGIN_NAMESPACE_DATABASE
 
 							case 'S':
 								seconds = ttoi( dc, 2 );
+								break;
+
+							case '%':
 								break;
 
 							default:
@@ -299,6 +302,15 @@ BEGIN_NAMESPACE_DATABASE
 		SetTime( hours, minutes, seconds );
 
 		return bReturn;
+	}
+
+	std::tm CTime::ToTm() const
+	{
+		std::tm ret = { 0 };
+		ret.tm_hour = GetHour();
+		ret.tm_min = GetMinute();
+		ret.tm_sec = GetSecond();
+		return ret;
 	}
 
 	CTime CTime::Now()

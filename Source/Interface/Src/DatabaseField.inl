@@ -16,21 +16,9 @@
 BEGIN_NAMESPACE_DATABASE
 {
 	static const String DATABASE_FIELD_TYPE_ERROR = STR( "Unknown field type" );
+	static const String DATABASE_FIELD_NULL_VALUE_ERROR = STR( "Field value is null: " );
 
-	template <typename T>
-	inline CDatabaseField::CDatabaseField( DatabaseFieldInfosPtr infos, const T & value )
-		:   _infos( infos )
-		,   _isNull( false )
-	{
-		_value = SDatabaseFieldValueInitializer< T >()( value, _infos );
-	}
-
-	inline CDatabaseValueBase * CDatabaseField::GetFieldValue() const
-	{
-		return _value;
-	}
-
-	template <typename T>
+	template< typename T >
 	inline T CDatabaseField::GetValue() const
 	{
 		T tReturn;
@@ -38,13 +26,13 @@ BEGIN_NAMESPACE_DATABASE
 		return tReturn;
 	}
 
-	template <typename T>
+	template< typename T >
 	inline void CDatabaseField::GetValue( T & value ) const
 	{
 		DoGetValue( value );
 	}
 
-	template <typename T>
+	template< typename T >
 	inline boost::optional< T > CDatabaseField::GetValueOpt() const
 	{
 		boost::optional< T > tReturn;
@@ -52,7 +40,7 @@ BEGIN_NAMESPACE_DATABASE
 		return tReturn;
 	}
 
-	template <typename T>
+	template< typename T >
 	inline void CDatabaseField::GetValueOpt( boost::optional< T > & value ) const
 	{
 		if ( IsNull() )
@@ -67,7 +55,7 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	}
 
-	template <typename T>
+	template< typename T >
 	inline T CDatabaseField::GetValueFast() const
 	{
 		T tReturn;
@@ -75,13 +63,13 @@ BEGIN_NAMESPACE_DATABASE
 		return tReturn;
 	}
 
-	template <typename T>
+	template< typename T >
 	inline void CDatabaseField::GetValueFast( T & value ) const
 	{
 		DoGetValueFast( value );
 	}
 
-	template <typename T>
+	template< typename T >
 	inline boost::optional< T > CDatabaseField::GetValueOptFast() const
 	{
 		boost::optional< T > tReturn;
@@ -89,7 +77,7 @@ BEGIN_NAMESPACE_DATABASE
 		return tReturn;
 	}
 
-	template <typename T>
+	template< typename T >
 	inline void CDatabaseField::GetValueOptFast( boost::optional< T > & value ) const
 	{
 		if ( IsNull() )
@@ -102,18 +90,6 @@ BEGIN_NAMESPACE_DATABASE
 			DoGetValueFast( val );
 			value = val;
 		}
-	}
-
-	template <typename T>
-	inline void CDatabaseField::SetValue( const T & value )
-	{
-		DoSetValue( value );
-	}
-
-	template <typename T>
-	inline void CDatabaseField::SetValueFast( const T & value )
-	{
-		DoSetValueFast( value );
 	}
 }
 END_NAMESPACE_DATABASE

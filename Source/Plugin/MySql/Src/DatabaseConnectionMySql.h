@@ -18,9 +18,7 @@
 
 #include <DatabaseConnection.h>
 
-#include <mysql_driver.h>
-#include <mysql_connection.h>
-#include <cppconn/resultset.h>
+#include <mysql.h>
 
 BEGIN_NAMESPACE_DATABASE_MYSQL
 {
@@ -32,8 +30,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	{
 	public:
 		/** Constructor.
-		@param[in] driver
-		    The MySQL driver.
 		@param[in] server
 		    Address or name of the server.
 		@param[in] database
@@ -45,7 +41,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		@param[out] connectionString
 		    Created connection string.
 		 */
-		DatabaseMySqlExport CDatabaseConnectionMySql( sql::Driver * driver, const String & server, const String & userName, const String & password, String & connectionString );
+		DatabaseMySqlExport CDatabaseConnectionMySql( const String & server, const String & userName, const String & password, String & connectionString );
 
 		/** Destructor.
 		 */
@@ -125,16 +121,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		*/
 		DatabaseMySqlExport virtual std::string WriteDate( const CDate & date ) const;
 
-		/** Format a date into a string to be supported by the DBMS.
-		@param[in] date
-		    Date to format.
-		@param[in] format
-		    Format to use.
-		@return
-		    The formatted date.
-		*/
-		DatabaseMySqlExport virtual std::string WriteDate( const std::string & date, const std::string & format ) const;
-
 		/** Format a date into a string for a statement to be supported by the DBMS.
 		@param[in] date
 		    Date to format.
@@ -142,16 +128,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		    The formatted date.
 		*/
 		DatabaseMySqlExport virtual std::string WriteStmtDate( const CDate & date ) const;
-
-		/** Format a date into a string for a statement to be supported by the DBMS.
-		@param[in] date
-		    Date to format.
-		@param[in] format
-		    Format to use.
-		@return
-		    The formatted date.
-		*/
-		DatabaseMySqlExport virtual std::string WriteStmtDate( const std::string & date, const std::string & format ) const;
 
 		/** Format a time into a string to be supported by the DBMS.
 		@param[in] time
@@ -161,16 +137,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		*/
 		DatabaseMySqlExport virtual std::string WriteTime( const CTime & time ) const;
 
-		/** Format a time into a string to be supported by the DBMS.
-		@param[in] time
-		    Time to format.
-		@param[in] format
-		    Format to use.
-		@return
-		    The formatted time.
-		*/
-		DatabaseMySqlExport virtual std::string WriteTime( const std::string & time, const std::string & format ) const;
-
 		/** Format a time into a string for a statement to be supported by the DBMS.
 		@param[in] time
 		    Time to format.
@@ -178,16 +144,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		    The formatted time.
 		*/
 		DatabaseMySqlExport virtual std::string WriteStmtTime( const CTime & time ) const;
-
-		/** Format a time into a string for a statement to be supported by the DBMS.
-		@param[in] time
-		    Time to format.
-		@param[in] format
-		    Format to use.
-		@return
-		    The formatted time.
-		*/
-		DatabaseMySqlExport virtual std::string WriteStmtTime( const std::string & time, const std::string & format ) const;
 
 		/** Format a date/time into a string to be supported by the DBMS.
 		@param[in] dateTime
@@ -213,16 +169,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		*/
 		virtual std::string WriteDateTime( const CTime & time ) const;
 
-		/** Format a date/time into a string to be supported by the DBMS.
-		@param[in] dateTime
-		    Date/time to format.
-		@param[in] format
-		    Format to use.
-		@return
-		    The formatted date/time.
-		*/
-		DatabaseMySqlExport virtual std::string WriteDateTime( const std::string & dateTime, const std::string & format ) const;
-
 		/** Format a date/time into a string for a statement to be supported by the DBMS.
 		@param[in] dateTime
 		    Date/time to format.
@@ -230,16 +176,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		    The formatted date/time.
 		*/
 		DatabaseMySqlExport virtual std::string WriteStmtDateTime( const CDateTime & dateTime ) const;
-
-		/** Format a date/time into a string for a statement to be supported by the DBMS.
-		@param[in] dateTime
-		    Date/time to format.
-		@param[in] format
-		    Format to use.
-		@return
-		    The formatted date/time.
-		*/
-		DatabaseMySqlExport virtual std::string WriteStmtDateTime( const std::string & dateTime, const std::string & format ) const;
 
 		/** Format a boolean into a string to be supported by the DBMS.
 		@param[in] value
@@ -305,11 +241,29 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		*/
 		DatabaseMySqlExport virtual CDateTime ParseDateTime( const std::wstring & dateTime ) const;
 
+		/** Retrieves the statement date type size
+		@return
+		    The size
+		*/
+		DatabaseMySqlExport virtual unsigned long GetStmtDateSize()const;
+
+		/** Retrieves the statement date/time type size
+		@return
+		    The size
+		*/
+		DatabaseMySqlExport virtual unsigned long GetStmtDateTimeSize()const;
+
+		/** Retrieves the statement time type size
+		@return
+		    The size
+		*/
+		DatabaseMySqlExport virtual unsigned long GetStmtTimeSize()const;
+
 		/** Get the connection handle.
 		@return
 		    The connection handle.
 		*/
-		DatabaseMySqlExport sql::Connection * GetConnection() const;
+		DatabaseMySqlExport MYSQL * GetConnection() const;
 
 		/** Executes a statement and retrieves the result set if needed
 		@param statement
@@ -317,7 +271,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		@return
 		    The result
 		*/
-		bool ExecuteUpdate( std::shared_ptr< sql::PreparedStatement > statement );
+		bool ExecuteUpdate( MYSQL_STMT * statement );
 
 		/** Executes a statement and retrieves the result set if needed
 		@param statement
@@ -325,27 +279,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		@return
 		    The result
 		*/
-		DatabaseResultPtr ExecuteSelect( std::shared_ptr< sql::PreparedStatement > statement );
-
-		/** Executes a statement and retrieves the result set if needed
-		@param statement
-		    The statement
-		@param query
-		    The query, if needed
-		@return
-		    The result
-		*/
-		bool ExecuteUpdate( std::shared_ptr< sql::Statement > statement, const String & query );
-
-		/** Executes a statement and retrieves the result set if needed
-		@param statement
-		    The statement
-		@param query
-		    The query, if needed
-		@return
-		    The result
-		*/
-		DatabaseResultPtr ExecuteSelect( std::shared_ptr< sql::Statement > statement, const String & query );
+		DatabaseResultPtr ExecuteSelect( MYSQL_STMT * statement );
 
 	protected:
 		/** Connect to the database.
@@ -406,17 +340,13 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		@param rs
 		    The result set
 		*/
-		DatabaseResultPtr DoRetrieveResults( std::shared_ptr< sql::Statement > statement, std::shared_ptr< sql::ResultSet > rs );
+		DatabaseResultPtr DoRetrieveResults( MYSQL_STMT * statement );
 
 	protected:
-		/// MySQL driver
-		sql::Driver * _driver;
 		//! The connection
-		sql::Connection * _connection;
-		//! The current transaction
-		sql::Savepoint * _transaction;
+		MYSQL * _connection;
 		//! The global statement used to execute direct queries
-		std::shared_ptr< sql::Statement > _statement;
+		MYSQL_STMT * _statement;
 	};
 }
 END_NAMESPACE_DATABASE_MYSQL

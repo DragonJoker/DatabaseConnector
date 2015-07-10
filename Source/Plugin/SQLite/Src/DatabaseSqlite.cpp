@@ -16,6 +16,8 @@
 #include "DatabaseSqlite.h"
 #include "DatabaseConnectionSqlite.h"
 
+#include <DatabaseFieldInfos.h>
+
 BEGIN_NAMESPACE_DATABASE_SQLITE
 {
 	static const String ERROR_NULL_TYPE_FIELD = STR( "Null type field" );
@@ -255,19 +257,16 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		return arrayReturn;
 	}
 
-	template< typename Value >
+	template< EFieldType Type, typename Value >
 	DatabaseFieldPtr ConstructField( SQLite::Statement * pStatement, int i, DatabaseFieldInfosPtr pInfos, Value value )
 	{
 		int iSize = SQLite::ColumnBytes( pStatement, i );
 		DatabaseFieldPtr pField;
+		pField = std::make_shared< CDatabaseField >( pInfos );
 
-		if ( iSize == 0 )
+		if ( iSize != 0 )
 		{
-			pField = std::make_shared< CDatabaseField >( pInfos, true, String() );
-		}
-		else
-		{
-			pField = std::make_shared< CDatabaseField >( pInfos, value );
+			static_cast< CDatabaseValue< Type > & >( pField->GetObjectValue() ).SetValue( value );
 		}
 
 		return pField;
@@ -279,42 +278,42 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 	DatabaseFieldPtr GetValue< EFieldType_BOOL >( SQLite::Statement * pStatement, int i, DatabaseFieldInfosPtr pInfos )
 	{
 		bool value = SQLite::ColumnInt( pStatement, i ) != 0;
-		return ConstructField( pStatement, i, pInfos, value );
+		return ConstructField< EFieldType_BOOL >( pStatement, i, pInfos, value );
 	}
 
 	template<>
 	DatabaseFieldPtr GetValue< EFieldType_SMALL_INTEGER >( SQLite::Statement * pStatement, int i, DatabaseFieldInfosPtr pInfos )
 	{
 		int value = SQLite::ColumnInt( pStatement, i );
-		return ConstructField( pStatement, i, pInfos, value );
+		return ConstructField< EFieldType_SMALL_INTEGER >( pStatement, i, pInfos, value );
 	}
 
 	template<>
 	DatabaseFieldPtr GetValue< EFieldType_INTEGER >( SQLite::Statement * pStatement, int i, DatabaseFieldInfosPtr pInfos )
 	{
 		int value = SQLite::ColumnInt( pStatement, i );
-		return ConstructField( pStatement, i, pInfos, value );
+		return ConstructField< EFieldType_INTEGER >( pStatement, i, pInfos, value );
 	}
 
 	template<>
 	DatabaseFieldPtr GetValue< EFieldType_LONG_INTEGER >( SQLite::Statement * pStatement, int i, DatabaseFieldInfosPtr pInfos )
 	{
 		int64_t value = SQLite::ColumnInt64( pStatement, i );
-		return ConstructField( pStatement, i, pInfos, value );
+		return ConstructField< EFieldType_LONG_INTEGER >( pStatement, i, pInfos, value );
 	}
 
 	template<>
 	DatabaseFieldPtr GetValue< EFieldType_FLOAT >( SQLite::Statement * pStatement, int i, DatabaseFieldInfosPtr pInfos )
 	{
 		float value = float( SQLite::ColumnDouble( pStatement, i ) );
-		return ConstructField( pStatement, i, pInfos, value );
+		return ConstructField< EFieldType_FLOAT >( pStatement, i, pInfos, value );
 	}
 
 	template<>
 	DatabaseFieldPtr GetValue< EFieldType_DOUBLE >( SQLite::Statement * pStatement, int i, DatabaseFieldInfosPtr pInfos )
 	{
 		double value = SQLite::ColumnDouble( pStatement, i );
-		return ConstructField( pStatement, i, pInfos, value );
+		return ConstructField< EFieldType_DOUBLE >( pStatement, i, pInfos, value );
 	}
 
 	template<>
@@ -323,14 +322,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		DatabaseFieldPtr pField;
 		char * value = ( char * )SQLite::ColumnText( pStatement, i );
 		int iSize = SQLite::ColumnBytes( pStatement, i );
+		pField = std::make_shared< CDatabaseField >( pInfos );
 
-		if ( !value || iSize == 0 )
+		if ( value && iSize != 0 )
 		{
-			pField = std::make_shared< CDatabaseField >( pInfos, true, String() );
-		}
-		else
-		{
-			pField = std::make_shared< CDatabaseField >( pInfos, value );
+			static_cast< CDatabaseValue< EFieldType_VARCHAR > & >( pField->GetObjectValue() ).SetValue( value );
 		}
 
 		return pField;
@@ -342,14 +338,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		DatabaseFieldPtr pField;
 		char * value = ( char * )SQLite::ColumnText( pStatement, i );
 		int iSize = SQLite::ColumnBytes( pStatement, i );
+		pField = std::make_shared< CDatabaseField >( pInfos );
 
-		if ( !value || iSize == 0 )
+		if ( value && iSize != 0 )
 		{
-			pField = std::make_shared< CDatabaseField >( pInfos, true, String() );
-		}
-		else
-		{
-			pField = std::make_shared< CDatabaseField >( pInfos, std::string( value ) );
+			static_cast< CDatabaseValue< EFieldType_TEXT > & >( pField->GetObjectValue() ).SetValue( value );
 		}
 
 		return pField;
@@ -361,14 +354,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		DatabaseFieldPtr pField;
 		char * value = ( char * )SQLite::ColumnText( pStatement, i );
 		int iSize = SQLite::ColumnBytes( pStatement, i );
+		pField = std::make_shared< CDatabaseField >( pInfos );
 
-		if ( !value || iSize == 0 )
+		if ( value && iSize != 0 )
 		{
-			pField = std::make_shared< CDatabaseField >( pInfos, true, String() );
-		}
-		else
-		{
-			pField = std::make_shared< CDatabaseField >( pInfos, pInfos->GetConnection()->ParseDate( std::string( value ) ).Format( SDATE_FORMAT_EXP ) );
+			static_cast< CDatabaseValue< EFieldType_DATE > & >( pField->GetObjectValue() ).SetValue( pInfos->GetConnection()->ParseDate( value ) );
 		}
 
 		return pField;
@@ -380,14 +370,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		DatabaseFieldPtr pField;
 		char * value = ( char * )SQLite::ColumnText( pStatement, i );
 		int iSize = SQLite::ColumnBytes( pStatement, i );
+		pField = std::make_shared< CDatabaseField >( pInfos );
 
-		if ( !value || iSize == 0 )
+		if ( value && iSize != 0 )
 		{
-			pField = std::make_shared< CDatabaseField >( pInfos, true, String() );
-		}
-		else
-		{
-			pField = std::make_shared< CDatabaseField >( pInfos, pInfos->GetConnection()->ParseDateTime( std::string( value ) ).Format( SDATETIME_FORMAT_EXP ) );
+			static_cast< CDatabaseValue< EFieldType_DATETIME > & >( pField->GetObjectValue() ).SetValue( pInfos->GetConnection()->ParseDateTime( value ) );
 		}
 
 		return pField;
@@ -399,14 +386,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		DatabaseFieldPtr pField;
 		char * value = ( char * )SQLite::ColumnText( pStatement, i );
 		int iSize = SQLite::ColumnBytes( pStatement, i );
+		pField = std::make_shared< CDatabaseField >( pInfos );
 
-		if ( !value || iSize == 0 )
+		if ( value && iSize != 0 )
 		{
-			pField = std::make_shared< CDatabaseField >( pInfos, true, String() );
-		}
-		else
-		{
-			pField = std::make_shared< CDatabaseField >( pInfos, pInfos->GetConnection()->ParseTime( std::string( value ) ).Format( STIME_FORMAT_EXP ) );
+			static_cast< CDatabaseValue< EFieldType_TIME > & >( pField->GetObjectValue() ).SetValue( pInfos->GetConnection()->ParseTime( value ) );
 		}
 
 		return pField;
@@ -417,15 +401,12 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 	{
 		DatabaseFieldPtr pField;
 		wchar_t * value = ( wchar_t * )SQLite::ColumnText16( pStatement, i );
-		int iSize = SQLite::ColumnBytes( pStatement, i );
+		int iSize = SQLite::ColumnBytes16( pStatement, i );
+		pField = std::make_shared< CDatabaseField >( pInfos );
 
-		if ( !value || iSize == 0 )
+		if ( value && iSize != 0 )
 		{
-			pField = std::make_shared< CDatabaseField >( pInfos, true, String() );
-		}
-		else
-		{
-			pField = std::make_shared< CDatabaseField >( pInfos, value );
+			static_cast< CDatabaseValue< EFieldType_NVARCHAR > & >( pField->GetObjectValue() ).SetValue( value );
 		}
 
 		return pField;
@@ -436,15 +417,12 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 	{
 		DatabaseFieldPtr pField;
 		wchar_t * value = ( wchar_t * )SQLite::ColumnText16( pStatement, i );
-		int iSize = SQLite::ColumnBytes( pStatement, i );
+		int iSize = SQLite::ColumnBytes16( pStatement, i );
+		pField = std::make_shared< CDatabaseField >( pInfos );
 
-		if ( !value || iSize == 0 )
+		if ( value && iSize != 0 )
 		{
-			pField = std::make_shared< CDatabaseField >( pInfos, true, String() );
-		}
-		else
-		{
-			pField = std::make_shared< CDatabaseField >( pInfos, std::wstring( value ) );
+			static_cast< CDatabaseValue< EFieldType_NTEXT > & >( pField->GetObjectValue() ).SetValue( value );
 		}
 
 		return pField;
@@ -456,14 +434,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		DatabaseFieldPtr pField;
 		uint8_t * value = ( uint8_t * )SQLite::ColumnBlob( pStatement, i );
 		int iSize = SQLite::ColumnBytes( pStatement, i );
+		pField = std::make_shared< CDatabaseField >( pInfos );
 
-		if ( !value || iSize == 0 )
+		if ( value && iSize != 0 )
 		{
-			pField = std::make_shared< CDatabaseField >( pInfos, true, String() );
-		}
-		else
-		{
-			pField = std::make_shared< CDatabaseField >( pInfos, value, value + iSize );
+			static_cast< CDatabaseValue< EFieldType_BINARY > & >( pField->GetObjectValue() ).SetValue( value, std::min( uint32_t( iSize ), pInfos->GetLimits() ) );
 		}
 
 		return pField;
@@ -475,14 +450,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		DatabaseFieldPtr pField;
 		uint8_t * value = ( uint8_t * )SQLite::ColumnBlob( pStatement, i );
 		int iSize = SQLite::ColumnBytes( pStatement, i );
+		pField = std::make_shared< CDatabaseField >( pInfos );
 
-		if ( !value || iSize == 0 )
+		if ( value && iSize != 0 )
 		{
-			pField = std::make_shared< CDatabaseField >( pInfos, true, String() );
-		}
-		else
-		{
-			pField = std::make_shared< CDatabaseField >( pInfos, value, value + iSize );
+			static_cast< CDatabaseValue< EFieldType_VARBINARY > & >( pField->GetObjectValue() ).SetValue( value, std::min( uint32_t( iSize ), pInfos->GetLimits() ) );
 		}
 
 		return pField;
@@ -494,14 +466,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		DatabaseFieldPtr pField;
 		uint8_t * value = ( uint8_t * )SQLite::ColumnBlob( pStatement, i );
 		int iSize = SQLite::ColumnBytes( pStatement, i );
+		pField = std::make_shared< CDatabaseField >( pInfos );
 
-		if ( !value || iSize == 0 )
+		if ( value && iSize != 0 )
 		{
-			pField = std::make_shared< CDatabaseField >( pInfos, true, String() );
-		}
-		else
-		{
-			pField = std::make_shared< CDatabaseField >( pInfos, value, value + iSize );
+			static_cast< CDatabaseValue< EFieldType_LONG_VARBINARY > & >( pField->GetObjectValue() ).SetValue( value, std::min( uint32_t( iSize ), pInfos->GetLimits() ) );
 		}
 
 		return pField;
@@ -670,6 +639,33 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		}
 
 		return pReturn;
+	}
+
+	void SQLiteTry( SQLite::eCODE code, TChar const * msg, EDatabaseExceptionCodes exc, SQLite::Database * database )
+	{
+		if ( code != SQLite::eCODE_OK )
+		{
+			StringStream error;
+			error << STR( "Error : " ) << msg << STR( " - " ) << CStrUtils::ToString( SQLite::Errmsg( database ) );
+			CLogger::LogError( error );
+			DB_EXCEPT( exc, error.str() );
+		}
+
+#if !defined( _NDEBUG )
+
+		else
+		{
+			CLogger::LogDebug( StringStream() << STR( "Success : " ) << msg );
+		}
+
+#endif
+	}
+
+	void SQLiteTry( SQLite::eCODE code, std::ostream const & stream, EDatabaseExceptionCodes exc, SQLite::Database * database )
+	{
+		std::stringstream ss;
+		ss << stream.rdbuf();
+		SQLiteTry( code, ss.str().c_str(), exc, database );
 	}
 }
 END_NAMESPACE_DATABASE_SQLITE

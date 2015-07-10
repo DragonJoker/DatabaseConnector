@@ -21,7 +21,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	typedef std::vector< boost::unit_test::test_suite * > TestVector; //!< Typedef to a vector of test_suite
 	TestVector TS_List; //!<List of all TS which will be included into the Master TS.
 
-#ifdef STATIC_LIB
+#ifdef BOOST_STATIC_LIB
 	/** Main Init Function for the framework's Suite.
 	    @return true if executed successfully else false if an error occured.
 	*/

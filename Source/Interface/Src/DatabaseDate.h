@@ -30,8 +30,8 @@ BEGIN_NAMESPACE_DATABASE
 		static String LongDay[7];         ///< Array of long day names.
 		static String ShortMonth[12];     ///< Array of short month names.
 		static String LongMonth[12];      ///< Array of long month names.
-		static int MonthMaxDays[12];            ///< Array of max number of days per month.
-		static CDateTime Today;                 ///< Today date/time
+		static int MonthMaxDays[12];      ///< Array of max number of days per month.
+		static CDateTime Today;           ///< Today date/time
 
 	public:
 		/** Default constructor.
@@ -42,7 +42,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] dateTime
 		    Date/time.
 		*/
-		CDate( const CDateTime & dateTime );
+		explicit CDate( const CDateTime & dateTime );
 
 		/** Constructor
 		@param[in] year
@@ -196,30 +196,6 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		static bool IsDate( const std::wstring & date, const std::wstring & format, CDate & result );
 
-		/** Check date consistency.
-		@param[in] date
-		    String containing date.
-		@param[in] format
-		    Format of date in string.
-		@param[out] result
-		    Resulting object.
-		@return
-		    true if valid date.
-		*/
-		static bool IsDate( const std::string & date, CDate & result );
-
-		/** Check date consistency.
-		@param[in] date
-		    String containing date.
-		@param[in] format
-		    Format of date in string.
-		@param[out] result
-		    Resulting object.
-		@return
-		    true if valid date.
-		*/
-		static bool IsDate( const std::wstring & date, CDate & result );
-
 		/** Get number of days in a month.
 		@param[in] month
 		    Month.
@@ -239,7 +215,6 @@ BEGIN_NAMESPACE_DATABASE
 		static int GetYearDays( int year );
 
 	private:
-
 		/** Check date validity.
 		*/
 		void DoCheckValidity();
