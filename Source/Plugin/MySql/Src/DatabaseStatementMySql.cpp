@@ -162,7 +162,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			it->SetBinding( &_bindings[index++] );
 		}
 
-		MySQLTry( mysql_stmt_bind_param( _statement, _bindings.data() ), STR( "Statement parameters binding" ), EDatabaseExceptionCodes_StatementError, _connectionMySql->GetConnection() );;
+		MySQLTry( mysql_stmt_bind_param( _statement, _bindings.data() ), STR( "Statement parameters binding" ), EDatabaseExceptionCodes_StatementError, _connectionMySql->GetConnection() );
 		return eReturn;
 	}
 
@@ -172,12 +172,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 		bool bReturn;
 		EErrorType eResult = EErrorType_NONE;
-
-		if ( !_bindings.empty() )
-		{
-			MySQLTry( mysql_stmt_bind_param( _statement, _bindings.data() ), STR( "Statement parameters binding" ), EDatabaseExceptionCodes_StatementError, _connectionMySql->GetConnection() );
-		}
-
 		bReturn = _connectionMySql->ExecuteUpdate( _statement );
 		DoPostExecute( result );
 
@@ -193,12 +187,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	{
 		DoPreExecute( result );
 		EErrorType eResult = EErrorType_NONE;
-
-		if ( !_bindings.empty() )
-		{
-			MySQLTry( mysql_stmt_bind_param( _statement, _bindings.data() ), STR( "Statement parameters binding" ), EDatabaseExceptionCodes_StatementError, _connectionMySql->GetConnection() );
-		}
-
 		DatabaseResultPtr pReturn = _connectionMySql->ExecuteSelect( _statement );
 		DoPostExecute( result );
 
@@ -301,6 +289,8 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				}
 			}
 		}
+
+		MySQLTry( mysql_stmt_reset( _statement ), STR( "Statement reset" ), EDatabaseExceptionCodes_StatementError, _connectionMySql->GetConnection() );
 	}
 }
 END_NAMESPACE_DATABASE_MYSQL

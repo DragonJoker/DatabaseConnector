@@ -29,7 +29,12 @@ BEGIN_NAMESPACE_DATABASE
 		// Empty
 	}
 
-	const unsigned long & CDatabaseValueBase::GetPtrSize()
+	unsigned long & CDatabaseValueBase::GetPtrSize()
+	{
+		return _valueSize;
+	}
+
+	const unsigned long & CDatabaseValueBase::GetPtrSize()const
 	{
 		return _valueSize;
 	}

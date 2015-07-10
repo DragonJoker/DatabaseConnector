@@ -21,7 +21,7 @@
 
 BEGIN_NAMESPACE_DATABASE
 {
-	static const String DATABASE_PARAMETER_ERROR = STR( "Error while treating a parameter." );
+	static const String DATABASE_INCOMPATIBLE_TYPES = STR( "Incompatible types between values, parameter: " );
 	static const String DATABASE_PARAMETER_SETVALUE_TYPE_ERROR = STR( "Type error while setting value for the parameter: " );
 
 	bool AreTypesCompatible( EFieldType typeA, EFieldType typeB )
@@ -49,7 +49,7 @@ BEGIN_NAMESPACE_DATABASE
 		: CDatabaseValuedObject( connection )
 		, _name( name )
 		, _fieldType( fieldType )
-		, _limits( 0 )
+		, _limits( -1 )
 		, _index( index )
 		, _parameterType( parameterType )
 		, _updater( updater )
@@ -107,52 +107,103 @@ BEGIN_NAMESPACE_DATABASE
 
 	void CDatabaseParameter::SetValue( DatabaseFieldPtr field )
 	{
-		if ( !AreTypesCompatible( _fieldType, field->GetType() ) )
+		if ( !AreTypesCompatible( GetType(), field->GetType() ) )
 		{
-			String errMsg = DATABASE_PARAMETER_ERROR + this->GetName();
+			String errMsg = DATABASE_INCOMPATIBLE_TYPES + this->GetName();
 			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_PARAMETER_ERROR );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, errMsg );
 		}
 
-		GetObjectValue().SetValue( field->GetObjectValue() );
-		_updater->Update( shared_from_this() );
+		SetValue( field->GetType(), field->GetObjectValue() );
 	}
 
 	void CDatabaseParameter::SetValue( DatabaseParameterPtr parameter )
 	{
 		if ( !AreTypesCompatible( GetType(), parameter->GetType() ) )
 		{
-			String errMsg = DATABASE_PARAMETER_ERROR + this->GetName();
+			String errMsg = DATABASE_INCOMPATIBLE_TYPES + this->GetName();
 			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_PARAMETER_ERROR );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, errMsg );
 		}
 
-		GetObjectValue().SetValue( parameter->GetObjectValue() );
-		_updater->Update( shared_from_this() );
+		SetValue( parameter->GetType(), parameter->GetObjectValue() );
 	}
 
-	void CDatabaseParameter::DoSetBlob( uint8_t * value, uint32_t length )
+	void CDatabaseParameter::SetValue( EFieldType type, CDatabaseValueBase const & value )
 	{
-		switch ( GetType() )
+		switch ( type )
 		{
+		case EFieldType_BOOL:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_BOOL > const & >( value ).GetValue() );
+			break;
+
+		case EFieldType_SMALL_INTEGER:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_SMALL_INTEGER > const & >( value ).GetValue() );
+			break;
+
+		case EFieldType_INTEGER:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_INTEGER > const & >( value ).GetValue() );
+			break;
+
+		case EFieldType_LONG_INTEGER:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_LONG_INTEGER > const & >( value ).GetValue() );
+			break;
+
+		case EFieldType_FLOAT:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_FLOAT > const & >( value ).GetValue() );
+			break;
+
+		case EFieldType_DOUBLE:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_DOUBLE > const & >( value ).GetValue() );
+			break;
+
+		case EFieldType_VARCHAR:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_VARCHAR > const & >( value ).GetValue() );
+			break;
+
+		case EFieldType_TEXT:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_TEXT > const & >( value ).GetValue() );
+			break;
+
+		case EFieldType_NVARCHAR:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_NVARCHAR > const & >( value ).GetValue() );
+			break;
+
+		case EFieldType_NTEXT:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_NTEXT > const & >( value ).GetValue() );
+			break;
+
+		case EFieldType_DATE:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_DATE > const & >( value ).GetValue() );
+			break;
+
+		case EFieldType_DATETIME:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_DATETIME > const & >( value ).GetValue() );
+			break;
+
+		case EFieldType_TIME:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_TIME > const & >( value ).GetValue() );
+			break;
+
 		case EFieldType_BINARY:
-			static_cast< CDatabaseValue< EFieldType_BINARY > & >( GetObjectValue() ).SetValue( value, std::min( GetLimits(), length ) );
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_BINARY > const & >( value ).GetValue() );
 			break;
 
 		case EFieldType_VARBINARY:
-			static_cast< CDatabaseValue< EFieldType_VARBINARY > & >( GetObjectValue() ).SetValue( value, std::min( GetLimits(), length ) );
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_VARBINARY > const & >( value ).GetValue() );
 			break;
 
 		case EFieldType_LONG_VARBINARY:
-			static_cast< CDatabaseValue< EFieldType_LONG_VARBINARY > & >( GetObjectValue() ).SetValue( value, std::min( GetLimits(), length ) );
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_LONG_VARBINARY > const & >( value ).GetValue() );
 			break;
 
 		default:
-			String errMsg = DATABASE_PARAMETER_SETVALUE_TYPE_ERROR + this->GetName();
-			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_PARAMETER_SETVALUE_TYPE_ERROR );
+			CLogger::LogError( DATABASE_PARAMETER_SETVALUE_TYPE_ERROR + this->GetName() );
+			DB_EXCEPT( EDatabaseExceptionCodes_ParameterError, DATABASE_PARAMETER_SETVALUE_TYPE_ERROR + this->GetName() );
 			break;
 		}
+
+		_updater->Update( shared_from_this() );
 	}
 }
 END_NAMESPACE_DATABASE

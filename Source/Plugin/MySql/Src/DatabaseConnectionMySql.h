@@ -121,16 +121,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		*/
 		DatabaseMySqlExport virtual std::string WriteDate( const CDate & date ) const;
 
-		/** Format a date into a string to be supported by the DBMS.
-		@param[in] date
-		    Date to format.
-		@param[in] format
-		    Format to use.
-		@return
-		    The formatted date.
-		*/
-		DatabaseMySqlExport virtual std::string WriteDate( const std::string & date, const std::string & format ) const;
-
 		/** Format a date into a string for a statement to be supported by the DBMS.
 		@param[in] date
 		    Date to format.
@@ -138,16 +128,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		    The formatted date.
 		*/
 		DatabaseMySqlExport virtual std::string WriteStmtDate( const CDate & date ) const;
-
-		/** Format a date into a string for a statement to be supported by the DBMS.
-		@param[in] date
-		    Date to format.
-		@param[in] format
-		    Format to use.
-		@return
-		    The formatted date.
-		*/
-		DatabaseMySqlExport virtual std::string WriteStmtDate( const std::string & date, const std::string & format ) const;
 
 		/** Format a time into a string to be supported by the DBMS.
 		@param[in] time
@@ -157,16 +137,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		*/
 		DatabaseMySqlExport virtual std::string WriteTime( const CTime & time ) const;
 
-		/** Format a time into a string to be supported by the DBMS.
-		@param[in] time
-		    Time to format.
-		@param[in] format
-		    Format to use.
-		@return
-		    The formatted time.
-		*/
-		DatabaseMySqlExport virtual std::string WriteTime( const std::string & time, const std::string & format ) const;
-
 		/** Format a time into a string for a statement to be supported by the DBMS.
 		@param[in] time
 		    Time to format.
@@ -174,16 +144,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		    The formatted time.
 		*/
 		DatabaseMySqlExport virtual std::string WriteStmtTime( const CTime & time ) const;
-
-		/** Format a time into a string for a statement to be supported by the DBMS.
-		@param[in] time
-		    Time to format.
-		@param[in] format
-		    Format to use.
-		@return
-		    The formatted time.
-		*/
-		DatabaseMySqlExport virtual std::string WriteStmtTime( const std::string & time, const std::string & format ) const;
 
 		/** Format a date/time into a string to be supported by the DBMS.
 		@param[in] dateTime
@@ -209,16 +169,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		*/
 		virtual std::string WriteDateTime( const CTime & time ) const;
 
-		/** Format a date/time into a string to be supported by the DBMS.
-		@param[in] dateTime
-		    Date/time to format.
-		@param[in] format
-		    Format to use.
-		@return
-		    The formatted date/time.
-		*/
-		DatabaseMySqlExport virtual std::string WriteDateTime( const std::string & dateTime, const std::string & format ) const;
-
 		/** Format a date/time into a string for a statement to be supported by the DBMS.
 		@param[in] dateTime
 		    Date/time to format.
@@ -226,16 +176,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		    The formatted date/time.
 		*/
 		DatabaseMySqlExport virtual std::string WriteStmtDateTime( const CDateTime & dateTime ) const;
-
-		/** Format a date/time into a string for a statement to be supported by the DBMS.
-		@param[in] dateTime
-		    Date/time to format.
-		@param[in] format
-		    Format to use.
-		@return
-		    The formatted date/time.
-		*/
-		DatabaseMySqlExport virtual std::string WriteStmtDateTime( const std::string & dateTime, const std::string & format ) const;
 
 		/** Format a boolean into a string to be supported by the DBMS.
 		@param[in] value

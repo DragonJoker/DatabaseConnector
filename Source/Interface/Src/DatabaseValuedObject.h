@@ -295,6 +295,7 @@ BEGIN_NAMESPACE_DATABASE
 		    Value as byte array.
 		*/
 		DatabaseExport virtual void DoGetValueFast( std::vector< uint8_t > & value ) const;
+
 		/** Set parameter value as a boolean.
 		@param value
 		    New parameter value.

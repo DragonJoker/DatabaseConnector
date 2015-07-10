@@ -54,7 +54,7 @@ BEGIN_NAMESPACE_DATABASE
 		class CExceptionDatabaseSqlite;
 		class CPluginDatabaseSqlite;
 		class CFactoryDatabaseSqlite;
-		struct SSqliteParameterValueSetterBase;
+		struct SSqliteBindingBase;
 
 		// Pointers
 		typedef std::shared_ptr< CDatabaseConnectionSqlite > DatabaseConnectionSqlitePtr;
@@ -398,16 +398,48 @@ BEGIN_NAMESPACE_DATABASE
 
 		DatabaseFieldInfosPtrArray SqliteGetColumns( SQLite::Statement * statement, DatabaseConnectionPtr connection );
 		DatabaseResultPtr SqliteExecute( SQLite::Statement * statement, SQLite::eCODE & code, DatabaseFieldInfosPtrArray const & columns, DatabaseConnectionPtr connection );
-		
+
 		void SQLiteTry( SQLite::eCODE code, TChar const * msg, EDatabaseExceptionCodes exc, SQLite::Database * database );
 		void SQLiteTry( SQLite::eCODE code, std::ostream const & stream, EDatabaseExceptionCodes exc, SQLite::Database * database );
+
+		/** Base binding uupdater class
+		*/
+		struct SSqliteBindingBase
+		{
+			/** Constructor
+			@param statement
+				The statement
+			@param connection
+				The database connection
+			@param index
+				The parameter index
+			*/
+			SSqliteBindingBase( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index )
+				: _statement( statement )
+				, _connection( connection )
+				, _index( index )
+			{
+			}
+
+			/** Destructor
+			*/
+			virtual ~SSqliteBindingBase()
+			{
+			}
+
+			/** Updates the SQLite binding
+			*/
+			virtual void UpdateValue() = 0;
+
+			//! The statement
+			SQLite::Statement * _statement;
+			//! The database connection
+			SQLite::Database * _connection;
+			// The parameter index
+			uint16_t _index;
+		};
 	}
 }
 END_NAMESPACE_DATABASE
-
-#if !defined( NDEBUG )
-#else
-#   define SQLiteTry( x, msg ) x;
-#endif
 
 #endif // ___DATABASE_SQLITE_PREREQUISITES_H___

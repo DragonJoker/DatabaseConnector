@@ -125,7 +125,7 @@ BEGIN_NAMESPACE_DATABASE
 		@remarks
 		    If field type is different than the value type, the value is ignored.
 		*/
-		DatabaseExport virtual void SetValue( DatabaseFieldPtr field );
+		DatabaseExport void SetValue( DatabaseFieldPtr field );
 
 		/** Set parameter value from another parameter.
 		@param[in] field
@@ -133,7 +133,15 @@ BEGIN_NAMESPACE_DATABASE
 		@remarks
 		    If field type is different than the value type, the value is ignored.
 		*/
-		DatabaseExport virtual void SetValue( DatabaseParameterPtr field );
+		DatabaseExport void SetValue( DatabaseParameterPtr field );
+
+		/** Set parameter value from another value.
+		@param[in] type
+			The value type
+		@param[in] value
+			The value.
+		*/
+		DatabaseExport void SetValue( EFieldType type, CDatabaseValueBase const & value );
 
 		/** Set parameter value.
 		@remarks
@@ -180,15 +188,6 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			DoGetValue( value );
 		}
-
-	protected:
-		/** Set parameter value as a byte array.
-		@param value
-		    New parameter value.
-		@param length
-		    New parameter length.
-		*/
-		DatabaseExport virtual void DoSetBlob( uint8_t * value, uint32_t length );
 
 	protected:
 		//! Parameter name.

@@ -404,7 +404,7 @@ BEGIN_NAMESPACE_DATABASE
 				}
 			}
 		}
-		
+
 		return bReturn && _date.tm_hour < 24 && _date.tm_min < 60 && _date.tm_sec < 60;
 	}
 

@@ -308,7 +308,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param value
 		    The value
 		*/
-		value_type * TypedPtr( value_type & value )
+		const void * Ptr( const value_type & value )const
 		{
 			return &value;
 		}
@@ -347,7 +347,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param result
 		    Receives the insertable value
 		*/
-		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )
+		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
 		{
 			if ( valSet )
 			{
@@ -407,7 +407,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param value
 		    The value
 		*/
-		value_type * TypedPtr( value_type & value )
+		const void * Ptr( const value_type & value )const
 		{
 			return &value;
 		}
@@ -447,7 +447,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param result
 		    Receives the insertable value
 		*/
-		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )
+		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
 		{
 			if ( valSet )
 			{
@@ -510,7 +510,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param value
 		    The value
 		*/
-		value_type * TypedPtr( value_type & value )
+		const void * Ptr( const value_type & value )const
 		{
 			return &value;
 		}
@@ -550,7 +550,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param result
 		    Receives the insertable value
 		*/
-		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )
+		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
 		{
 			if ( valSet )
 			{
@@ -613,7 +613,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param value
 		    The value
 		*/
-		value_type * TypedPtr( value_type & value )
+		const void * Ptr( const value_type & value )const
 		{
 			return &value;
 		}
@@ -652,7 +652,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param result
 		    Receives the insertable value
 		*/
-		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )
+		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
 		{
 			if ( valSet )
 			{
@@ -709,7 +709,7 @@ BEGIN_NAMESPACE_DATABASE
 
 			if ( !value.empty() )
 			{
-				result = ( void * )value.data();
+				result = &value[0];
 			}
 
 			return result;
@@ -719,13 +719,13 @@ BEGIN_NAMESPACE_DATABASE
 		@param value
 		    The value
 		*/
-		char * TypedPtr( value_type & value )
+		const void * Ptr( const value_type & value )const
 		{
-			char * result = NULL;
+			void const * result = NULL;
 
 			if ( !value.empty() )
 			{
-				result = &value[0];
+				result = value.data();
 			}
 
 			return result;
@@ -764,7 +764,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param result
 		    Receives the insertable value
 		*/
-		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )
+		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
 		{
 			if ( valSet )
 			{
@@ -821,7 +821,7 @@ BEGIN_NAMESPACE_DATABASE
 
 			if ( !value.empty() )
 			{
-				result = ( void * )value.data();
+				result = &value[0];
 			}
 
 			return result;
@@ -831,13 +831,13 @@ BEGIN_NAMESPACE_DATABASE
 		@param value
 		    The value
 		*/
-		wchar_t * TypedPtr( value_type & value )
+		const void * Ptr( const value_type & value )const
 		{
-			wchar_t * result = NULL;
+			void const * result = NULL;
 
 			if ( !value.empty() )
 			{
-				result = &value[0];
+				result = value.data();
 			}
 
 			return result;
@@ -876,7 +876,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param result
 		    Receives the insertable value
 		*/
-		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )
+		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
 		{
 			if ( valSet )
 			{
@@ -940,7 +940,7 @@ BEGIN_NAMESPACE_DATABASE
 
 			if ( !value.empty() )
 			{
-				result = ( void * )value.data();
+				result = value.data();
 			}
 
 			return result;
@@ -950,9 +950,9 @@ BEGIN_NAMESPACE_DATABASE
 		@param value
 		    The value
 		*/
-		uint8_t * TypedPtr( value_type & value )
+		const void * Ptr( const value_type & value )const
 		{
-			uint8_t * result = NULL;
+			void const * result = NULL;
 
 			if ( !value.empty() )
 			{
@@ -1004,7 +1004,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param result
 		    Receives the insertable value
 		*/
-		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )
+		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
 		{
 			if ( valSet )
 			{
@@ -1072,7 +1072,7 @@ BEGIN_NAMESPACE_DATABASE
 
 			if ( !_value.empty() )
 			{
-				result = ( void * )_value.data();
+				result = &_value[0];
 			}
 
 			return result;
@@ -1082,9 +1082,16 @@ BEGIN_NAMESPACE_DATABASE
 		@param value
 		    The value
 		*/
-		value_type * TypedPtr( value_type & value )
+		const void * Ptr( const value_type & value )const
 		{
-			return &value;
+			void const * result = NULL;
+
+			if ( !_value.empty() )
+			{
+				result = _value.data();
+			}
+
+			return result;
 		}
 
 		/** Retrieves the value from a string
@@ -1122,7 +1129,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param result
 		    Receives the insertable value
 		*/
-		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )
+		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
 		{
 			if ( valSet )
 			{
@@ -1183,7 +1190,7 @@ BEGIN_NAMESPACE_DATABASE
 
 			if ( !_value.empty() )
 			{
-				result = ( void * )_value.data();
+				result = &_value[0];
 			}
 
 			return result;
@@ -1193,9 +1200,16 @@ BEGIN_NAMESPACE_DATABASE
 		@param value
 		    The value
 		*/
-		value_type * TypedPtr( value_type & value )
+		const void * Ptr( const value_type & value )const
 		{
-			return &value;
+			void const * result = NULL;
+
+			if ( !_value.empty() )
+			{
+				result = _value.data();
+			}
+
+			return result;
 		}
 
 		/** Retrieves the value from a string
@@ -1233,7 +1247,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param result
 		    Receives the insertable value
 		*/
-		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )
+		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
 		{
 			if ( valSet )
 			{
@@ -1294,7 +1308,7 @@ BEGIN_NAMESPACE_DATABASE
 
 			if ( !_value.empty() )
 			{
-				result = ( void * )_value.data();
+				result = &_value[0];
 			}
 
 			return result;
@@ -1304,9 +1318,16 @@ BEGIN_NAMESPACE_DATABASE
 		@param value
 		    The value
 		*/
-		value_type * TypedPtr( value_type & value )
+		const void * Ptr( const value_type & value )const
 		{
-			return &value;
+			void const * result = NULL;
+
+			if ( !_value.empty() )
+			{
+				result = _value.data();
+			}
+
+			return result;
 		}
 
 		/** Retrieves the value from a string
@@ -1344,7 +1365,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param result
 		    Receives the insertable value
 		*/
-		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )
+		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
 		{
 			if ( valSet )
 			{

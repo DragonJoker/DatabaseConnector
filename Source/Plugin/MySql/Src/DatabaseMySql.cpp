@@ -18,6 +18,10 @@
 
 #include <mysql.h>
 
+#undef min
+#undef max
+#undef abs
+
 BEGIN_NAMESPACE_DATABASE_MYSQL
 {
 	static const String ERROR_MYSQL_INITIALISATION = STR( "Couldn't initialise MySQL" );
@@ -127,6 +131,24 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		ts.minute = value.GetMinute();
 		ts.second = value.GetSecond();
 		return ts;
+	}
+
+	void MySqlSendLongData( CDatabaseValueBase & value, MYSQL_BIND const & bind, MYSQL_STMT * statement, MYSQL * connection )
+	{
+		unsigned long const chunk = 1024;
+		unsigned long remaining = value.GetPtrSize();
+		char * data = reinterpret_cast< char * >( value.GetPtrValue() );
+		int ret = 0;
+
+		while ( remaining && !ret )
+		{
+			unsigned long length = std::min( chunk, remaining );
+			mysql_stmt_send_long_data( statement, bind.param_number, data, length );
+			data += length;
+			remaining -= length;
+		}
+
+		MySQLTry( ret, STR( "Long data sending" ), EDatabaseExceptionCodes_StatementError, connection );
 	}
 
 	std::string StringFromMySqlString( MYSQL_BIND const & bind, bool truncated )

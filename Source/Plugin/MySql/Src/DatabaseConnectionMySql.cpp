@@ -570,23 +570,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		return strReturn;
 	}
 
-	std::string CDatabaseConnectionMySql::WriteDate( const std::string & date, const std::string & format ) const
-	{
-		std::string strReturn;
-		CDate dateObj;
-
-		if ( CDate::IsDate( date, format, dateObj ) )
-		{
-			strReturn = WriteDate( dateObj );
-		}
-		else
-		{
-			strReturn += MYSQL_NULL_STDSTRING;
-		}
-
-		return strReturn;
-	}
-
 	std::string CDatabaseConnectionMySql::WriteTime( const CTime & time ) const
 	{
 		std::string strReturn;
@@ -594,23 +577,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		if ( time.IsValid() )
 		{
 			strReturn = time.Format( MYSQL_FORMAT_TIME );
-		}
-		else
-		{
-			strReturn += MYSQL_NULL_STDSTRING;
-		}
-
-		return strReturn;
-	}
-
-	std::string CDatabaseConnectionMySql::WriteTime( const std::string & time, const std::string & format ) const
-	{
-		std::string strReturn;
-		CTime timeObj;
-
-		if ( CTime::IsTime( time, format, timeObj ) )
-		{
-			strReturn = WriteTime( timeObj );
 		}
 		else
 		{
@@ -668,23 +634,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		return strReturn;
 	}
 
-	std::string CDatabaseConnectionMySql::WriteDateTime( const std::string & dateTime, const std::string & format ) const
-	{
-		std::string strReturn;
-		CDateTime dateTimeObj;
-
-		if ( CDateTime::IsDateTime( dateTime,  dateTimeObj ) )
-		{
-			strReturn = WriteDateTime( dateTimeObj );
-		}
-		else
-		{
-			strReturn += MYSQL_NULL_STDSTRING;
-		}
-
-		return strReturn;
-	}
-
 	std::string CDatabaseConnectionMySql::WriteStmtDate( const CDate & date ) const
 	{
 		std::string strReturn;
@@ -692,23 +641,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		if ( date.IsValid() )
 		{
 			strReturn = date.Format( MYSQL_FORMAT_STMT_DATE );
-		}
-		else
-		{
-			strReturn += MYSQL_NULL_STDSTRING;
-		}
-
-		return strReturn;
-	}
-
-	std::string CDatabaseConnectionMySql::WriteStmtDate( const std::string & date, const std::string & format ) const
-	{
-		std::string strReturn;
-		CDate dateObj;
-
-		if ( CDate::IsDate( date, format, dateObj ) )
-		{
-			strReturn = WriteStmtDate( dateObj );
 		}
 		else
 		{
@@ -734,23 +666,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		return strReturn;
 	}
 
-	std::string CDatabaseConnectionMySql::WriteStmtTime( const std::string & time, const std::string & format ) const
-	{
-		std::string strReturn;
-		CTime timeObj;
-
-		if ( CTime::IsTime( time, format, timeObj ) )
-		{
-			strReturn = WriteStmtTime( timeObj );
-		}
-		else
-		{
-			strReturn += MYSQL_NULL_STDSTRING;
-		}
-
-		return strReturn;
-	}
-
 	std::string CDatabaseConnectionMySql::WriteStmtDateTime( const CDateTime & dateTime ) const
 	{
 		std::string strReturn;
@@ -758,23 +673,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		if ( dateTime.GetYear() > 0 )
 		{
 			strReturn = dateTime.Format( MYSQL_FORMAT_STMT_DATETIME );
-		}
-		else
-		{
-			strReturn += MYSQL_NULL_STDSTRING;
-		}
-
-		return strReturn;
-	}
-
-	std::string CDatabaseConnectionMySql::WriteStmtDateTime( const std::string & dateTime, const std::string & format ) const
-	{
-		std::string strReturn;
-		CDateTime dateTimeObj;
-
-		if ( CDateTime::IsDateTime( dateTime, dateTimeObj ) )
-		{
-			strReturn = WriteStmtDateTime( dateTimeObj );
 		}
 		else
 		{
@@ -1048,6 +946,11 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 			DoSetConnected( true );
 		}
+		catch ( CExceptionDatabase & exc )
+		{
+			CLogger::LogError( StringStream() << ERROR_MYSQL_CONNECTION << STR( " - " ) << exc.GetFullDescription() );
+			ret = EErrorType_ERROR;
+		}
 		catch ( std::exception & exc )
 		{
 			CLogger::LogError( StringStream() << ERROR_MYSQL_CONNECTION << STR( " - " ) << exc.what() );
@@ -1157,6 +1060,12 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				DatabaseFieldInfosPtrArray columns = GetColumns( statement, connection, inbinds, binds );
 				pResult = Execute( statement, columns, connection, inbinds, binds );
 			}
+		}
+		catch ( CExceptionDatabase & exc )
+		{
+			StringStream stream;
+			stream << ERROR_MYSQL_EXECUTION_ERROR << exc.GetFullDescription();
+			CLogger::LogError( stream.str() );
 		}
 		catch ( std::exception & exc )
 		{

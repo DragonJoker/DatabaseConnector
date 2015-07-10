@@ -402,11 +402,11 @@ BEGIN_NAMESPACE_DATABASE
 
 		void Print( String const & p_strToLog, bool p_bNewLine )
 		{
-			tcout << p_strToLog;
+			printf( "%s", p_strToLog.c_str() );
 
 			if ( p_bNewLine )
 			{
-				tcout << std::endl;
+				printf( "\n" );
 			}
 		}
 	};
@@ -454,24 +454,7 @@ BEGIN_NAMESPACE_DATABASE
 
 	void DebugConsole::Print( String const & p_strToLog, bool p_bNewLine )
 	{
-		if ( p_strToLog.find( STR( '\n' ) ) != String::npos )
-		{
-			StringArray array = CStrUtils::Split( p_strToLog, STR( "\n" ), uint32_t( std::count( p_strToLog.begin(), p_strToLog.end(), STR( '\n' ) ) + 1 ) );
-			auto && lastIt = array.begin() + array.size() - 1;
-			String last = *lastIt;
-			array.erase( lastIt );
-
-			for ( auto && line : array )
-			{
-				m_pConsoleInfo->Print( line, true );
-			}
-
-			m_pConsoleInfo->Print( last, p_bNewLine );
-		}
-		else
-		{
-			m_pConsoleInfo->Print( p_strToLog, p_bNewLine );
-		}
+		m_pConsoleInfo->Print( p_strToLog, p_bNewLine );
 	}
 }
 END_NAMESPACE_DATABASE

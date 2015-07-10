@@ -97,6 +97,18 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport virtual DatabaseParameterPtr CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType ) = 0;
 
+		/** Retrieves a parameter, by index
+		@param[in] index
+		    Parameter index.
+		*/
+		DatabaseExport DatabaseParameterPtr GetParameter( uint32_t index )const;
+
+		/** Retrieves a parameter, by name
+		@param[in] name
+		    Parameter name.
+		*/
+		DatabaseExport DatabaseParameterPtr GetParameter( const String & name )const;
+
 		/** Get parameter type.
 		@param[in] index
 		    Parameter index.
@@ -149,6 +161,22 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		template< typename T > void SetParameterValue( const String & name, const T & value );
 
+		/** Set parameter value.
+		@param[in] index
+		    Parameter index.
+		@param[in] value
+		    Parameter value.
+		*/
+		template< typename T > void SetParameterValueFast( uint32_t index, const T & value );
+
+		/** Set parameter value.
+		@param[in] name
+		    Parameter name.
+		@param[in] value
+		    Parameter value.
+		*/
+		template< typename T > void SetParameterValueFast( const String & name, const T & value );
+
 		/** Get output value.
 		@param[in] index
 		    Parameter index.
@@ -182,7 +210,6 @@ BEGIN_NAMESPACE_DATABASE
 		template< typename T > void GetOutputValue( const String & name, T & value );
 
 	protected:
-
 		/** Add parameter to query.
 		@param[in] parameter
 		    Parameter to add.
@@ -215,7 +242,6 @@ BEGIN_NAMESPACE_DATABASE
 			///@copydoc CDatabaseParameter::SValueUpdater
 			DatabaseExport virtual void Update( DatabaseParameterPtr value );
 
-private:
 			//! The parent statement
 			CDatabaseStatement * _stmt;
 		};

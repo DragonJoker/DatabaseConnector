@@ -196,30 +196,6 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		static bool IsDate( const std::wstring & date, const std::wstring & format, CDate & result );
 
-		/** Check date consistency.
-		@param[in] date
-		    String containing date.
-		@param[in] format
-		    Format of date in string.
-		@param[out] result
-		    Resulting object.
-		@return
-		    true if valid date.
-		*/
-		static bool IsDate( const std::string & date, CDate & result );
-
-		/** Check date consistency.
-		@param[in] date
-		    String containing date.
-		@param[in] format
-		    Format of date in string.
-		@param[out] result
-		    Resulting object.
-		@return
-		    true if valid date.
-		*/
-		static bool IsDate( const std::wstring & date, CDate & result );
-
 		/** Get number of days in a month.
 		@param[in] month
 		    Month.

@@ -80,137 +80,285 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		DatabaseSqliteExport virtual ~CDatabaseStatementParameterSqlite();
 
 		//!@copydoc Database::CDatabaseParameter::SetNull
-		virtual void SetNull();
-
-		//!@copydoc Database::CDatabaseParameter::SetValue
-		void SetValue( DatabaseParameterPtr value );
+		DatabaseSqliteExport virtual void SetNull();
 
 		/** Defines the prepared statement
 		@param statement
 		    The statement
 		*/
-		void SetStatement( SQLite::Statement * statement )
-		{
-			_statement = statement;
-		}
+		DatabaseSqliteExport void SetStatement( SQLite::Statement * statement );
 
 	private:
-		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( const bool & value );
-
-		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( const int16_t & value );
-
-		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( const uint16_t & value );
-
-		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( const int32_t & value );
-
-		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( const uint32_t & value );
-
-		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( const int64_t & value );
-
-		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( const uint64_t & value );
-
-		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( const float & value );
-
-		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( const double & value );
-
-		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( const long double & value );
-
-		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( const char * value );
-
-		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( const wchar_t * value );
-
-		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( const std::string & value );
-
-		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( const std::wstring & value );
-
-		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( const std::vector< uint8_t > & value );
-
-		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( const CDateTime & value );
-
-		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( const CDate & value );
-
-		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( const CTime & value );
-		
-		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
-		virtual void DoSetValueFast( const bool & value );
-
-		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
-		virtual void DoSetValueFast( const int16_t & value );
-
-		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
-		virtual void DoSetValueFast( const uint16_t & value );
-
-		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
-		virtual void DoSetValueFast( const int32_t & value );
-
-		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
-		virtual void DoSetValueFast( const uint32_t & value );
-
-		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
-		virtual void DoSetValueFast( const int64_t & value );
-
-		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
-		virtual void DoSetValueFast( const uint64_t & value );
-
-		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
-		virtual void DoSetValueFast( const float & value );
-
-		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
-		virtual void DoSetValueFast( const double & value );
-
-		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
-		virtual void DoSetValueFast( const long double & value );
-
-		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
-		virtual void DoSetValueFast( const char * value );
-
-		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
-		virtual void DoSetValueFast( const wchar_t * value );
-
-		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
-		virtual void DoSetValueFast( const std::string & value );
-
-		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
-		virtual void DoSetValueFast( const std::wstring & value );
-
-		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
-		virtual void DoSetValueFast( const std::vector< uint8_t > & value );
-
-		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
-		virtual void DoSetValueFast( const CDateTime & value );
-
-		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
-		virtual void DoSetValueFast( const CDate & value );
-
-		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
-		virtual void DoSetValueFast( const CTime & value );
-
-		/** Initializes the parameter value setter
-		@remarks
-		    Called from constructor, takes account of the fact that CDatabaseStatementParameter constructor throws an exception
+		/** Set parameter value
+		@param value
+		    New parameter value.
 		*/
-		void DoInitializeParamSetter();
+		template< typename T >
+		void DoSetAndUpdateValue( const T & value )
+		{
+			CDatabaseValuedObject::DoSetValue( value );
+			_binding->UpdateValue();
+			_updater->Update( shared_from_this() );
+		}
+
+		/** Set parameter value
+		@param value
+		    New parameter value.
+		*/
+		template< typename T >
+		void DoSetAndUpdateValue( const T * value )
+		{
+			CDatabaseValuedObject::DoSetValue( value );
+			_binding->UpdateValue();
+			_updater->Update( shared_from_this() );
+		}
+
+		/** Set parameter value
+		@remarks
+			Don't perform type checks
+		@param value
+		    New parameter value.
+		*/
+		template< typename T >
+		void DoSetAndUpdateValueFast( const T & value )
+		{
+			CDatabaseValuedObject::DoSetValueFast( value );
+			_binding->UpdateValue();
+			_updater->Update( shared_from_this() );
+		}
+
+		/** Set parameter value
+		@remarks
+			Don't perform type checks
+		@param value
+		    New parameter value.
+		*/
+		template< typename T >
+		void DoSetAndUpdateValueFast( const T * value )
+		{
+			CDatabaseValuedObject::DoSetValueFast( value );
+			_binding->UpdateValue();
+			_updater->Update( shared_from_this() );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseSqliteExport virtual void DoSetValue( const bool & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseSqliteExport virtual void DoSetValue( const int16_t & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseSqliteExport virtual void DoSetValue( const uint16_t & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseSqliteExport virtual void DoSetValue( const int32_t & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseSqliteExport virtual void DoSetValue( const uint32_t & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseSqliteExport virtual void DoSetValue( const int64_t & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseSqliteExport virtual void DoSetValue( const uint64_t & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseSqliteExport virtual void DoSetValue( const float & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseSqliteExport virtual void DoSetValue( const double & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseSqliteExport virtual void DoSetValue( const long double & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseSqliteExport virtual void DoSetValue( const char * value )
+		{
+			DoSetAndUpdateValue( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseSqliteExport virtual void DoSetValue( const wchar_t * value )
+		{
+			DoSetAndUpdateValue( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseSqliteExport virtual void DoSetValue( const std::string & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseSqliteExport virtual void DoSetValue( const std::wstring & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseSqliteExport virtual void DoSetValue( const CDateTime & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseSqliteExport virtual void DoSetValue( const CDate & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseSqliteExport virtual void DoSetValue( const CTime & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseSqliteExport virtual void DoSetValue( const std::vector< uint8_t > & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseSqliteExport virtual void DoSetValueFast( const bool & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseSqliteExport virtual void DoSetValueFast( const int16_t & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseSqliteExport virtual void DoSetValueFast( const uint16_t & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseSqliteExport virtual void DoSetValueFast( const int32_t & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseSqliteExport virtual void DoSetValueFast( const uint32_t & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseSqliteExport virtual void DoSetValueFast( const int64_t & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseSqliteExport virtual void DoSetValueFast( const uint64_t & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseSqliteExport virtual void DoSetValueFast( const float & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseSqliteExport virtual void DoSetValueFast( const double & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseSqliteExport virtual void DoSetValueFast( const long double & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseSqliteExport virtual void DoSetValueFast( const char * value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseSqliteExport virtual void DoSetValueFast( const std::string & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseSqliteExport virtual void DoSetValueFast( const wchar_t * value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseSqliteExport virtual void DoSetValueFast( const std::wstring & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseSqliteExport virtual void DoSetValueFast( const CDate & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseSqliteExport virtual void DoSetValueFast( const CDateTime & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseSqliteExport virtual void DoSetValueFast( const CTime & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseSqliteExport virtual void DoSetValueFast( const std::vector< uint8_t > & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
 
 		//! The parameter value setter
-		SSqliteParameterValueSetterBase * _paramSetter;
+		std::unique_ptr< SSqliteBindingBase > _binding;
 		//! The prepared statement
 		SQLite::Statement * _statement;
 	};

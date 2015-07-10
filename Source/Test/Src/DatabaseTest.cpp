@@ -131,12 +131,13 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		TS_List.push_back( DatabaseMySqlTest->Init_Test_Suite() );
 #endif
 #if defined( TESTING_PLUGIN_SQLITE )
-		TS_List.push_back( DatabaseSqliteTest->Init_Test_Suite() );
+		//TS_List.push_back( DatabaseSqliteTest->Init_Test_Suite() );
 #endif
 #if defined( TESTING_PLUGIN_ODBC )
 		//TS_List.push_back( DatabaseOdbcMySqlTest->Init_Test_Suite() );
 		//TS_List.push_back( DatabaseOdbcMsSqlTest->Init_Test_Suite() );
 #endif
+
 		///@remarks Add the TS' sequences into the Master TS
 		for ( auto suite : TS_List )
 		{

@@ -3,6 +3,7 @@
 #include "DatabaseLoggerImpl.h"
 #include "DatabaseLogger.h"
 #include "DatabaseStringUtils.h"
+#include "DatabaseDateTime.h"
 
 BEGIN_NAMESPACE_DATABASE
 {
@@ -27,27 +28,27 @@ BEGIN_NAMESPACE_DATABASE
 
 		virtual int_type overflow( int_type c = traits_type::eof() )
 		{
-		  	if ( traits_type::eq_int_type( c, traits_type::eof() ) )
-		  	{
+			if ( traits_type::eq_int_type( c, traits_type::eof() ) )
+			{
 				sync();
-		  	}
-		  	else
-		  	{
+			}
+			else
+			{
 				m_buffer += traits_type::to_char_type( c );
-		  	}
+			}
 
-		  	return c;
+			return c;
 		}
 
 		virtual int sync()
 		{
-		  	if ( !m_buffer.empty() )
+			if ( !m_buffer.empty() )
 			{
 				LogStreambufTraits::Log( m_impl, m_buffer );
-			  	m_buffer.clear();
-		 	}
+				m_buffer.clear();
+			}
 
-		  	return 0;
+			return 0;
 		}
 
 	private:
@@ -210,38 +211,52 @@ BEGIN_NAMESPACE_DATABASE
 
 	void ILoggerImpl::DoLogMessage( String const & p_strToLog, eLOG_TYPE p_eLogType )
 	{
+		static const String LOG_TIMESTAMP = STR( "%Y-%m-%d %H:%M:%S" );
 		std::unique_lock< std::mutex > lock( m_mutex );
-		StringStream l_strToLog;
-		LoggerCallbackMapConstIt l_it;
-		std::tm l_dtToday = { 0 };
-		time_t l_tTime;
-		time( &l_tTime );
-		l_dtToday = *localtime( &l_tTime );
-		l_strToLog << ( l_dtToday.tm_year + 1900 ) << STR( "-" );
-		l_strToLog << ( l_dtToday.tm_mon + 1 < 10 ? STR( "0" ) : STR( "" ) ) << ( l_dtToday.tm_mon + 1 ) << STR( "-" ) << ( l_dtToday.tm_mday < 10 ? STR( "0" ) : STR( "" ) ) << l_dtToday.tm_mday;
-		l_strToLog << STR( " - " ) << ( l_dtToday.tm_hour < 10 ? STR( "0" ) : STR( "" ) ) << l_dtToday.tm_hour << STR( ":" ) << ( l_dtToday.tm_min < 10 ? STR( "0" ) : STR( "" ) ) << l_dtToday.tm_min << STR( ":" ) << ( l_dtToday.tm_sec < 10 ? STR( "0" ) : STR( "" ) ) << l_dtToday.tm_sec << STR( "s" );
-		l_strToLog << STR( " - " ) << m_strHeaders[p_eLogType];
-		l_strToLog << p_strToLog;
+		CDateTime l_today = CDateTime::Now();
+		StringStream l_timeStamp;
+		l_timeStamp << l_today.Format( LOG_TIMESTAMP ) << STR( " - " ) << m_strHeaders[p_eLogType];
 		m_pConsole->BeginLog( p_eLogType );
-		m_pConsole->Print( p_strToLog, true );
 
 		try
 		{
 			FILE * l_logFile = NULL;
 			Database::FOpen( l_logFile, CStrUtils::ToStr( m_logFilePath[p_eLogType] ).c_str(), "a" );
 
+			auto && l_printLine = [&l_timeStamp, &l_logFile, &p_eLogType, this]( String const p_line )
+			{
+				m_pConsole->Print( p_line, true );
+
+				if ( l_logFile )
+				{
+					String l_strLog = l_timeStamp.str() + p_line;
+					fwrite( l_strLog.c_str(), 1, l_strLog.size(), l_logFile );
+					fwrite( "\n", 1, 1, l_logFile );
+					auto && l_it = m_mapCallbacks.find( std::this_thread::get_id() );
+
+					if ( l_it != m_mapCallbacks.end() && l_it->second.m_pfnCallback )
+					{
+						l_it->second.m_pfnCallback( l_it->second.m_pCaller, l_strLog, p_eLogType );
+					}
+				}
+			};
+
+			if ( p_strToLog.find( STR( '\n' ) ) != String::npos )
+			{
+				StringArray array = CStrUtils::Split( p_strToLog, STR( "\n" ), uint32_t( std::count( p_strToLog.begin(), p_strToLog.end(), STR( '\n' ) ) + 1 ) );
+
+				for ( auto && line : array )
+				{
+					l_printLine( line );
+				}
+			}
+			else
+			{
+				l_printLine( p_strToLog );
+			}
+
 			if ( l_logFile )
 			{
-				String l_strLog = l_strToLog.str();
-				fwrite( l_strLog.c_str(), 1, l_strLog.size(), l_logFile );
-				fwrite( "\n", 1, 1, l_logFile );
-				l_it = m_mapCallbacks.find( std::this_thread::get_id() );
-
-				if ( l_it != m_mapCallbacks.end() && l_it->second.m_pfnCallback )
-				{
-					l_it->second.m_pfnCallback( l_it->second.m_pCaller, l_strLog, p_eLogType );
-				}
-
 				fclose( l_logFile );
 			}
 		}

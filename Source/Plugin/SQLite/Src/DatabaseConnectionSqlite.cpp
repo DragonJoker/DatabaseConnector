@@ -71,7 +71,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 	static const std::wstring SQLITE_STMT_WDATE = L"%Y-%m-%d";
 	static const std::wstring SQLITE_STMT_WTIME = L"%H:%M:%S";
 	static const std::wstring SQLITE_STMT_WDATETIME = L"%Y-%m-%d %H:%M:%S";
-	
+
 	//YYYY-mm-dd
 	static const unsigned long SQLITE_STMT_DATE_SIZE = 10;
 	//YYYY-mm-dd HH:MM:SS
@@ -317,23 +317,6 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		return strReturn;
 	}
 
-	std::string CDatabaseConnectionSqlite::WriteDate( const std::string & date, const std::string & format ) const
-	{
-		std::string strReturn;
-		CDate dateObj;
-
-		if ( CDate::IsDate( date, format, dateObj ) )
-		{
-			strReturn = WriteDate( dateObj );
-		}
-		else
-		{
-			strReturn += SQLITE_NULL_STDSTRING;
-		}
-
-		return strReturn;
-	}
-
 	std::string CDatabaseConnectionSqlite::WriteTime( const CTime & time ) const
 	{
 		std::string strReturn;
@@ -341,23 +324,6 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		if ( time.IsValid() )
 		{
 			Formalize( strReturn, 1024, SQLITE_TIME.c_str(), time.GetHour(), time.GetMinute(), time.GetSecond() );
-		}
-		else
-		{
-			strReturn += SQLITE_NULL_STDSTRING;
-		}
-
-		return strReturn;
-	}
-
-	std::string CDatabaseConnectionSqlite::WriteTime( const std::string & time, const std::string & format ) const
-	{
-		std::string strReturn;
-		CTime timeObj;
-
-		if ( CTime::IsTime( time, format, timeObj ) )
-		{
-			strReturn = WriteTime( timeObj );
 		}
 		else
 		{
@@ -415,23 +381,6 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		return strReturn;
 	}
 
-	std::string CDatabaseConnectionSqlite::WriteDateTime( const std::string & dateTime, const std::string & format ) const
-	{
-		std::string strReturn;
-		CDateTime dateTimeObj;
-
-		if ( CDateTime::IsDateTime( dateTime,  dateTimeObj ) )
-		{
-			strReturn = WriteDateTime( dateTimeObj );
-		}
-		else
-		{
-			strReturn += SQLITE_NULL_STDSTRING;
-		}
-
-		return strReturn;
-	}
-
 	std::string CDatabaseConnectionSqlite::WriteStmtDate( const CDate & date ) const
 	{
 		std::string strReturn;
@@ -443,23 +392,6 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		else
 		{
 			strReturn = date.Format( SQLITE_STMT_DATE );
-		}
-
-		return strReturn;
-	}
-
-	std::string CDatabaseConnectionSqlite::WriteStmtDate( const std::string & date, const std::string & format ) const
-	{
-		std::string strReturn;
-		CDate dateObj;
-
-		if ( CDate::IsDate( date, format, dateObj ) )
-		{
-			strReturn = WriteStmtDate( dateObj );
-		}
-		else
-		{
-			strReturn += SQLITE_NULL_STDSTRING;
 		}
 
 		return strReturn;
@@ -481,23 +413,6 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		return strReturn;
 	}
 
-	std::string CDatabaseConnectionSqlite::WriteStmtTime( const std::string & time, const std::string & format ) const
-	{
-		std::string strReturn;
-		CTime timeObj;
-
-		if ( CTime::IsTime( time, format, timeObj ) )
-		{
-			strReturn = WriteStmtTime( timeObj );
-		}
-		else
-		{
-			strReturn += SQLITE_NULL_STDSTRING;
-		}
-
-		return strReturn;
-	}
-
 	std::string CDatabaseConnectionSqlite::WriteStmtDateTime( const CDateTime & dateTime ) const
 	{
 		std::string strReturn;
@@ -509,23 +424,6 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		else
 		{
 			strReturn = dateTime.Format( SQLITE_STMT_DATETIME );
-		}
-
-		return strReturn;
-	}
-
-	std::string CDatabaseConnectionSqlite::WriteStmtDateTime( const std::string & dateTime, const std::string & format ) const
-	{
-		std::string strReturn;
-		CDateTime dateTimeObj;
-
-		if ( CDateTime::IsDateTime( dateTime, dateTimeObj ) )
-		{
-			strReturn = WriteStmtDateTime( dateTimeObj );
-		}
-		else
-		{
-			strReturn += SQLITE_NULL_STDSTRING;
 		}
 
 		return strReturn;
@@ -583,7 +481,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		CDateTime::IsDateTime( dateTime, SQLITE_STMT_WDATETIME, dateTimeObj );
 		return dateTimeObj;
 	}
-	
+
 	unsigned long CDatabaseConnectionSqlite::GetStmtDateSize()const
 	{
 		return SQLITE_STMT_DATE_SIZE;

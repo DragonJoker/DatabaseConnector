@@ -5,7 +5,7 @@
 * @date 3/20/2014 11:56:56 AM
 *
 *
-* @brief SSqliteParameterValueSetterBase and SSqliteParameterValueSetter classes.
+* @brief SSqliteBindingBase and SSqliteBinding classes.
 *
 * @details Functors used to set the parameter value in a statement.
 *
@@ -25,233 +25,565 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 {
 	static const String ERROR_SQLITE_PARAMETER_VALUE = STR( "Can't set parameter value" );
 
-	/** Base setter class
-	*/
-	struct SSqliteParameterValueSetterBase
-	{
-public:
-		/** Destructor
-		*/
-		virtual ~SSqliteParameterValueSetterBase()
-		{
-		}
-		/** Setter function
-		@param statement
-		    The statement
-		@param value
-		    The value pointer
-		@param parameter
-		    The parameter
-		*/
-		void operator()( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter )
-		{
-			DoSetValue( statement, value, parameter, std::static_pointer_cast< CDatabaseConnectionSqlite >( parameter->GetConnection() )->GetConnection() );
-		}
-
-protected:
-		/** Setter function, to implement in child classes
-		@param statement
-		    The statement
-		@param value
-		    The value pointer
-		@param parameter
-		    The parameter
-		*/
-		virtual void DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter, SQLite::Database * connection ) = 0;
-	};
 	/** Generic template class to set the parameter value
 	*/
 	template< EFieldType Type >
-	struct SSqliteParameterValueSetter
-			: public SSqliteParameterValueSetterBase
+	struct SSqliteBinding
+			: public SSqliteBindingBase
 	{
-private:
-		//!@copydoc SSqliteParameterValueSetterBase::DoSetValue
-		virtual void DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter, SQLite::Database * connection )
+		/** Constructor
+		@param statement
+			The statement
+		@param connection
+			The database connection
+		@param index
+			The parameter index
+		@param value
+			The parameter value
+		*/
+		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< Type > const & value )
+			: SSqliteBindingBase( statement, connection, index )
+			, _value( value )
 		{
-			throw std::runtime_error( "SSqliteParameterValueSetter::DoSetValue not implemented for this data type" );
 		}
+
+		//!@copydoc SSqliteBindingBase::DoSetValue
+		virtual void UpdateValue()
+		{
+			throw std::runtime_error( "SSqliteBinding::DoSetValue not implemented for this data type" );
+		}
+
+		//! The parameter value
+		CDatabaseValue< Type > _value;
 	};
+
 	/** Specialization for EFieldType_BOOL
 	*/
 	template<>
-	struct SSqliteParameterValueSetter< EFieldType_BOOL >
-			: public SSqliteParameterValueSetterBase
+	struct SSqliteBinding< EFieldType_BOOL >
+			: public SSqliteBindingBase
 	{
-private:
-		//!@copydoc SSqliteParameterValueSetterBase::DoSetValue
-		virtual void DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter, SQLite::Database * connection )
+		/** Constructor
+		@param statement
+			The statement
+		@param connection
+			The database connection
+		@param index
+			The parameter index
+		@param value
+			The parameter value
+		*/
+		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_BOOL > const & value )
+			: SSqliteBindingBase( statement, connection, index )
+			, _value( value )
 		{
-			const bool & val = *static_cast< const bool * >( value );
-			SQLiteTry( SQLite::BindInt( statement, parameter->GetIndex(), val ? 1 : 0 ), StringStream() << STR( "Parameter set value: " ) << val, EDatabaseExceptionCodes_StatementError, connection );
 		}
+
+		//!@copydoc SSqliteBindingBase::DoSetValue
+		virtual void UpdateValue()
+		{
+			SQLiteTry( SQLite::BindInt( _statement, _index, _value.GetValue() ? 1 : 0 ), StringStream() << STR( "Parameter set value: " ) << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+		}
+
+		//! The parameter value
+		CDatabaseValue< EFieldType_BOOL > const & _value;
 	};
+
 	/** Specialization for EFieldType_SMALL_INTEGER
 	*/
 	template<>
-	struct SSqliteParameterValueSetter< EFieldType_SMALL_INTEGER >
-			: public SSqliteParameterValueSetterBase
+	struct SSqliteBinding< EFieldType_SMALL_INTEGER >
+			: public SSqliteBindingBase
 	{
-private:
-		//!@copydoc SSqliteParameterValueSetterBase::DoSetValue
-		virtual void DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter, SQLite::Database * connection )
+		/** Constructor
+		@param statement
+			The statement
+		@param connection
+			The database connection
+		@param index
+			The parameter index
+		@param value
+			The parameter value
+		*/
+		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_SMALL_INTEGER > const & value )
+			: SSqliteBindingBase( statement, connection, index )
+			, _value( value )
 		{
-			const int32_t & val = *static_cast< const int16_t * >( value );
-			SQLiteTry( SQLite::BindInt( statement, parameter->GetIndex(), val ), StringStream() << STR( "Parameter set value: " ) << val, EDatabaseExceptionCodes_StatementError, connection );
 		}
+
+		//!@copydoc SSqliteBindingBase::DoSetValue
+		virtual void UpdateValue()
+		{
+			SQLiteTry( SQLite::BindInt( _statement, _index, _value.GetValue() ), StringStream() << STR( "Parameter set value: " ) << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+		}
+
+		//! The parameter value
+		CDatabaseValue< EFieldType_SMALL_INTEGER > const & _value;
 	};
+
 	/** Specialization for EFieldType_INTEGER
 	*/
 	template<>
-	struct SSqliteParameterValueSetter< EFieldType_INTEGER >
-			: public SSqliteParameterValueSetterBase
+	struct SSqliteBinding< EFieldType_INTEGER >
+			: public SSqliteBindingBase
 	{
-private:
-		//!@copydoc SSqliteParameterValueSetterBase::DoSetValue
-		virtual void DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter, SQLite::Database * connection )
+		/** Constructor
+		@param statement
+			The statement
+		@param connection
+			The database connection
+		@param index
+			The parameter index
+		@param value
+			The parameter value
+		*/
+		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_INTEGER > const & value )
+			: SSqliteBindingBase( statement, connection, index )
+			, _value( value )
 		{
-			const int32_t & val = *static_cast< const int32_t * >( value );
-			SQLiteTry( SQLite::BindInt( statement, parameter->GetIndex(), val ), StringStream() << STR( "Parameter set value: " ) << val, EDatabaseExceptionCodes_StatementError, connection );
 		}
+
+		//!@copydoc SSqliteBindingBase::DoSetValue
+		virtual void UpdateValue()
+		{
+			SQLiteTry( SQLite::BindInt( _statement, _index, _value.GetValue() ), StringStream() << STR( "Parameter set value: " ) << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+		}
+
+		//! The parameter value
+		CDatabaseValue< EFieldType_INTEGER > const & _value;
 	};
+
 	/** Specialization for EFieldType_LONG_INTEGER
 	*/
 	template<>
-	struct SSqliteParameterValueSetter< EFieldType_LONG_INTEGER >
-			: public SSqliteParameterValueSetterBase
+	struct SSqliteBinding< EFieldType_LONG_INTEGER >
+			: public SSqliteBindingBase
 	{
-private:
-		//!@copydoc SSqliteParameterValueSetterBase::DoSetValue
-		virtual void DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter, SQLite::Database * connection )
+		/** Constructor
+		@param statement
+			The statement
+		@param connection
+			The database connection
+		@param index
+			The parameter index
+		@param value
+			The parameter value
+		*/
+		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_LONG_INTEGER > const & value )
+			: SSqliteBindingBase( statement, connection, index )
+			, _value( value )
 		{
-			const SQLite::Int64 & val = *static_cast< const SQLite::Int64 * >( value );
-			SQLiteTry( SQLite::BindInt64( statement, parameter->GetIndex(), val ), StringStream() << STR( "Parameter set value: " ) << val, EDatabaseExceptionCodes_StatementError, connection );
 		}
+
+		//!@copydoc SSqliteBindingBase::DoSetValue
+		virtual void UpdateValue()
+		{
+			SQLiteTry( SQLite::BindInt64( _statement, _index, _value.GetValue() ), StringStream() << STR( "Parameter set value: " ) << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+		}
+
+		//! The parameter value
+		CDatabaseValue< EFieldType_LONG_INTEGER > const & _value;
 	};
+
 	/** Specialization for EFieldType_FLOAT
 	*/
 	template<>
-	struct SSqliteParameterValueSetter< EFieldType_FLOAT >
-			: public SSqliteParameterValueSetterBase
+	struct SSqliteBinding< EFieldType_FLOAT >
+			: public SSqliteBindingBase
 	{
-private:
-		//!@copydoc SSqliteParameterValueSetterBase::DoSetValue
-		virtual void DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter, SQLite::Database * connection )
+		/** Constructor
+		@param statement
+			The statement
+		@param connection
+			The database connection
+		@param index
+			The parameter index
+		@param value
+			The parameter value
+		*/
+		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_FLOAT > const & value )
+			: SSqliteBindingBase( statement, connection, index )
+			, _value( value )
 		{
-			const float & val = *static_cast< const float * >( value );
-			SQLiteTry( SQLite::BindDouble( statement, parameter->GetIndex(), val ), StringStream() << STR( "Parameter set value: " ) << val, EDatabaseExceptionCodes_StatementError, connection );
 		}
+
+		//!@copydoc SSqliteBindingBase::DoSetValue
+		virtual void UpdateValue()
+		{
+			SQLiteTry( SQLite::BindDouble( _statement, _index, _value.GetValue() ), StringStream() << STR( "Parameter set value: " ) << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+		}
+
+		//! The parameter value
+		CDatabaseValue< EFieldType_FLOAT > const & _value;
 	};
+
 	/** Specialization for EFieldType_DOUBLE
 	*/
 	template<>
-	struct SSqliteParameterValueSetter< EFieldType_DOUBLE >
-			: public SSqliteParameterValueSetterBase
+	struct SSqliteBinding< EFieldType_DOUBLE >
+			: public SSqliteBindingBase
 	{
-private:
-		//!@copydoc SSqliteParameterValueSetterBase::DoSetValue
-		virtual void DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter, SQLite::Database * connection )
+		/** Constructor
+		@param statement
+			The statement
+		@param connection
+			The database connection
+		@param index
+			The parameter index
+		@param value
+			The parameter value
+		*/
+		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_DOUBLE > const & value )
+			: SSqliteBindingBase( statement, connection, index )
+			, _value( value )
 		{
-			const double & val = *static_cast< const double * >( value );
-			SQLiteTry( SQLite::BindDouble( statement, parameter->GetIndex(), val ), StringStream() << STR( "Parameter set value: " ) << val, EDatabaseExceptionCodes_StatementError, connection );
 		}
+
+		//!@copydoc SSqliteBindingBase::DoSetValue
+		virtual void UpdateValue()
+		{
+			SQLiteTry( SQLite::BindDouble( _statement, _index, _value.GetValue() ), StringStream() << STR( "Parameter set value: " ) << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+		}
+
+		//! The parameter value
+		CDatabaseValue< EFieldType_DOUBLE > const & _value;
 	};
+
 	/** Specialization for EFieldType_VARCHAR
 	*/
 	template<>
-	struct SSqliteParameterValueSetter< EFieldType_VARCHAR >
-			: public SSqliteParameterValueSetterBase
+	struct SSqliteBinding< EFieldType_VARCHAR >
+			: public SSqliteBindingBase
 	{
-private:
-		//!@copydoc SSqliteParameterValueSetterBase::DoSetValue
-		virtual void DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter, SQLite::Database * connection )
+		/** Constructor
+		@param statement
+			The statement
+		@param connection
+			The database connection
+		@param index
+			The parameter index
+		@param value
+			The parameter value
+		*/
+		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_VARCHAR > const & value )
+			: SSqliteBindingBase( statement, connection, index )
+			, _value( value )
 		{
-			char const * val = static_cast< const char * >( value );
-			SQLiteTry( SQLite::BindText( statement, parameter->GetIndex(), val, parameter->GetObjectValue().GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << STR( "Parameter set value: " ) << val, EDatabaseExceptionCodes_StatementError, connection );
 		}
+
+		//!@copydoc SSqliteBindingBase::DoSetValue
+		virtual void UpdateValue()
+		{
+			SQLiteTry( SQLite::BindText( _statement, _index, ( const char * )_value.GetPtrValue(), _value.GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << STR( "Parameter set value: " ) << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+		}
+
+		//! The parameter value
+		CDatabaseValue< EFieldType_VARCHAR > const & _value;
 	};
+
 	/** Specialization for EFieldType_TEXT
 	*/
 	template<>
-	struct SSqliteParameterValueSetter< EFieldType_TEXT >
-			: public SSqliteParameterValueSetterBase
+	struct SSqliteBinding< EFieldType_TEXT >
+			: public SSqliteBindingBase
 	{
-private:
-		//!@copydoc SSqliteParameterValueSetterBase::DoSetValue
-		virtual void DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter, SQLite::Database * connection )
+		/** Constructor
+		@param statement
+			The statement
+		@param connection
+			The database connection
+		@param index
+			The parameter index
+		@param value
+			The parameter value
+		*/
+		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_TEXT > const & value )
+			: SSqliteBindingBase( statement, connection, index )
+			, _value( value )
 		{
-			char const * val = static_cast< const char * >( value );
-			SQLiteTry( SQLite::BindText( statement, parameter->GetIndex(), val, parameter->GetObjectValue().GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << STR( "Parameter set value: " ) << val, EDatabaseExceptionCodes_StatementError, connection );
 		}
+
+		//!@copydoc SSqliteBindingBase::DoSetValue
+		virtual void UpdateValue()
+		{
+			SQLiteTry( SQLite::BindText( _statement, _index, ( const char * )_value.GetPtrValue(), _value.GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << STR( "Parameter set value: " ) << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+		}
+
+		//! The parameter value
+		CDatabaseValue< EFieldType_TEXT > const & _value;
 	};
+
 	/** Specialization for EFieldType_NVARCHAR
 	*/
 	template<>
-	struct SSqliteParameterValueSetter< EFieldType_NVARCHAR >
-			: public SSqliteParameterValueSetterBase
+	struct SSqliteBinding< EFieldType_NVARCHAR >
+			: public SSqliteBindingBase
 	{
-private:
-		//!@copydoc SSqliteParameterValueSetterBase::DoSetValue
-		virtual void DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter, SQLite::Database * connection )
+		/** Constructor
+		@param statement
+			The statement
+		@param connection
+			The database connection
+		@param index
+			The parameter index
+		@param value
+			The parameter value
+		*/
+		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_NVARCHAR > const & value )
+			: SSqliteBindingBase( statement, connection, index )
+			, _value( value )
 		{
-			SQLiteTry( SQLite::BindText16( statement, parameter->GetIndex(), value, parameter->GetObjectValue().GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << STR( "Parameter set value: " ) << value, EDatabaseExceptionCodes_StatementError, connection );
 		}
+
+		//!@copydoc SSqliteBindingBase::DoSetValue
+		virtual void UpdateValue()
+		{
+			SQLiteTry( SQLite::BindText16( _statement, _index, _value.GetPtrValue(), _value.GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << STR( "Parameter set value: " ) << _value.GetPtrValue(), EDatabaseExceptionCodes_StatementError, _connection );
+		}
+
+		//! The parameter value
+		CDatabaseValue< EFieldType_NVARCHAR > const & _value;
 	};
+
 	/** Specialization for EFieldType_NTEXT
 	*/
 	template<>
-	struct SSqliteParameterValueSetter< EFieldType_NTEXT >
-			: public SSqliteParameterValueSetterBase
+	struct SSqliteBinding< EFieldType_NTEXT >
+			: public SSqliteBindingBase
 	{
-private:
-		//!@copydoc SSqliteParameterValueSetterBase::DoSetValue
-		virtual void DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter, SQLite::Database * connection )
+		/** Constructor
+		@param statement
+			The statement
+		@param connection
+			The database connection
+		@param index
+			The parameter index
+		@param value
+			The parameter value
+		*/
+		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_NTEXT > const & value )
+			: SSqliteBindingBase( statement, connection, index )
+			, _value( value )
 		{
-			SQLiteTry( SQLite::BindText16( statement, parameter->GetIndex(), value, parameter->GetObjectValue().GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << STR( "Parameter set value: " ) << value, EDatabaseExceptionCodes_StatementError, connection );
 		}
+
+		//!@copydoc SSqliteBindingBase::DoSetValue
+		virtual void UpdateValue()
+		{
+			SQLiteTry( SQLite::BindText16( _statement, _index, _value.GetPtrValue(), _value.GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << STR( "Parameter set value: " ) << _value.GetPtrValue(), EDatabaseExceptionCodes_StatementError, _connection );
+		}
+
+		//! The parameter value
+		CDatabaseValue< EFieldType_NTEXT > const & _value;
 	};
+
 	/** Specialization for EFieldType_DATE
 	*/
 	template<>
-	struct SSqliteParameterValueSetter< EFieldType_DATE >
-			: public SSqliteParameterValueSetterBase
+	struct SSqliteBinding< EFieldType_DATE >
+			: public SSqliteBindingBase
 	{
-private:
-		//!@copydoc SSqliteParameterValueSetterBase::DoSetValue
-		virtual void DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter, SQLite::Database * connection )
+		/** Constructor
+		@param statement
+			The statement
+		@param connection
+			The database connection
+		@param index
+			The parameter index
+		@param value
+			The parameter value
+		*/
+		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_DATE > const & value )
+			: SSqliteBindingBase( statement, connection, index )
+			, _value( value )
 		{
-			char const * val = static_cast< const char * >( value );
-			SQLiteTry( SQLite::BindText( statement, parameter->GetIndex(), val, parameter->GetObjectValue().GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << STR( "Parameter set value: " ) << val, EDatabaseExceptionCodes_StatementError, connection );
 		}
+
+		//!@copydoc SSqliteBindingBase::DoSetValue
+		virtual void UpdateValue()
+		{
+			SQLiteTry( SQLite::BindText( _statement, _index, ( const char * )_value.GetPtrValue(), _value.GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << STR( "Parameter set value: " ) << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+		}
+
+		//! The parameter value
+		CDatabaseValue< EFieldType_DATE > const & _value;
 	};
+
 	/** Specialization for EFieldType_DATETIME
 	*/
 	template<>
-	struct SSqliteParameterValueSetter< EFieldType_DATETIME >
-			: public SSqliteParameterValueSetterBase
+	struct SSqliteBinding< EFieldType_DATETIME >
+			: public SSqliteBindingBase
 	{
-private:
-		//!@copydoc SSqliteParameterValueSetterBase::DoSetValue
-		virtual void DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter, SQLite::Database * connection )
+		/** Constructor
+		@param statement
+			The statement
+		@param connection
+			The database connection
+		@param index
+			The parameter index
+		@param value
+			The parameter value
+		*/
+		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_DATETIME > const & value )
+			: SSqliteBindingBase( statement, connection, index )
+			, _value( value )
 		{
-			char const * val = static_cast< const char * >( value );
-			SQLiteTry( SQLite::BindText( statement, parameter->GetIndex(), val, parameter->GetObjectValue().GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << STR( "Parameter set value: " ) << val, EDatabaseExceptionCodes_StatementError, connection );
 		}
+
+		//!@copydoc SSqliteBindingBase::DoSetValue
+		virtual void UpdateValue()
+		{
+			SQLiteTry( SQLite::BindText( _statement, _index, ( const char * )_value.GetPtrValue(), _value.GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << STR( "Parameter set value: " ) << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+		}
+
+		//! The parameter value
+		CDatabaseValue< EFieldType_DATETIME > const & _value;
 	};
+
 	/** Specialization for EFieldType_TIME
 	*/
 	template<>
-	struct SSqliteParameterValueSetter< EFieldType_TIME >
-			: public SSqliteParameterValueSetterBase
+	struct SSqliteBinding< EFieldType_TIME >
+			: public SSqliteBindingBase
 	{
-private:
-		//!@copydoc SSqliteParameterValueSetterBase::DoSetValue
-		virtual void DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter, SQLite::Database * connection )
+		/** Constructor
+		@param statement
+			The statement
+		@param connection
+			The database connection
+		@param index
+			The parameter index
+		@param value
+			The parameter value
+		*/
+		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_TIME > const & value )
+			: SSqliteBindingBase( statement, connection, index )
+			, _value( value )
 		{
-			char const * val = static_cast< const char * >( value );
-			SQLiteTry( SQLite::BindText( statement, parameter->GetIndex(), val, parameter->GetObjectValue().GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << STR( "Parameter set value: " ) << val, EDatabaseExceptionCodes_StatementError, connection );
 		}
+
+		//!@copydoc SSqliteBindingBase::DoSetValue
+		virtual void UpdateValue()
+		{
+			SQLiteTry( SQLite::BindText( _statement, _index, ( const char * )_value.GetPtrValue(), _value.GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << STR( "Parameter set value: " ) << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+		}
+
+		//! The parameter value
+		CDatabaseValue< EFieldType_TIME > const & _value;
 	};
+
+	/** Specialization for EFieldType_BINARY
+	*/
+	template<>
+	struct SSqliteBinding< EFieldType_BINARY >
+			: public SSqliteBindingBase
+	{
+		/** Constructor
+		@param statement
+			The statement
+		@param connection
+			The database connection
+		@param index
+			The parameter index
+		@param value
+			The parameter value
+		*/
+		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_BINARY > const & value )
+			: SSqliteBindingBase( statement, connection, index )
+			, _value( value )
+		{
+		}
+
+		//!@copydoc SSqliteBindingBase::DoSetValue
+		virtual void UpdateValue()
+		{
+			SQLiteTry( SQLite::BindBlob( _statement, _index, _value.GetPtrValue(), _value.GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << STR( "Parameter set value: " ) << _value.GetPtrValue(), EDatabaseExceptionCodes_StatementError, _connection );
+		}
+
+		//! The parameter value
+		CDatabaseValue< EFieldType_BINARY > const & _value;
+	};
+
+	/** Specialization for EFieldType_BINARY
+	*/
+	template<>
+	struct SSqliteBinding< EFieldType_VARBINARY >
+			: public SSqliteBindingBase
+	{
+		/** Constructor
+		@param statement
+			The statement
+		@param connection
+			The database connection
+		@param index
+			The parameter index
+		@param value
+			The parameter value
+		*/
+		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_VARBINARY > const & value )
+			: SSqliteBindingBase( statement, connection, index )
+			, _value( value )
+		{
+		}
+
+		//!@copydoc SSqliteBindingBase::DoSetValue
+		virtual void UpdateValue()
+		{
+			SQLiteTry( SQLite::BindBlob( _statement, _index, _value.GetPtrValue(), _value.GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << STR( "Parameter set value: " ) << _value.GetPtrValue(), EDatabaseExceptionCodes_StatementError, _connection );
+		}
+
+		//! The parameter value
+		CDatabaseValue< EFieldType_VARBINARY > const & _value;
+	};
+
+	/** Specialization for EFieldType_BINARY
+	*/
+	template<>
+	struct SSqliteBinding< EFieldType_LONG_VARBINARY >
+			: public SSqliteBindingBase
+	{
+		/** Constructor
+		@param statement
+			The statement
+		@param connection
+			The database connection
+		@param index
+			The parameter index
+		@param value
+			The parameter value
+		*/
+		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_LONG_VARBINARY > const & value )
+			: SSqliteBindingBase( statement, connection, index )
+			, _value( value )
+		{
+		}
+
+		//!@copydoc SSqliteBindingBase::DoSetValue
+		virtual void UpdateValue()
+		{
+			SQLiteTry( SQLite::BindBlob( _statement, _index, _value.GetPtrValue(), _value.GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << STR( "Parameter set value: " ) << _value.GetPtrValue(), EDatabaseExceptionCodes_StatementError, _connection );
+		}
+
+		//! The parameter value
+		CDatabaseValue< EFieldType_LONG_VARBINARY > const & _value;
+	};
+
+	/** Function used to create a SSqliteBinding easily
+	@param statement
+		The statement
+	@param connection
+		The database connection
+	@param index
+		The parameter index
+	@param value
+		The parameter value
+	*/
+	template< EFieldType Type >
+	std::unique_ptr< SSqliteBindingBase > MakeSqliteBind( SQLite::Statement * statement, DatabaseConnectionPtr connection, uint16_t index, CDatabaseValueBase const & value )
+	{
+		return std::make_unique< SSqliteBinding< Type > >( statement, std::static_pointer_cast< CDatabaseConnectionSqlite >( connection )->GetConnection(), index, static_cast< CDatabaseValue< Type > const & >( value ) );
+	}
 }
 END_NAMESPACE_DATABASE_SQLITE
 

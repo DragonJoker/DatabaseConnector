@@ -110,18 +110,15 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			return result;
 		}
 
-		template< typename Type > struct Helpers
-		{
-			static const uint32_t Limit = 0;
-			Type InitialiseValue() = delete;
-		};
+		template< typename Type > struct Helpers;;
 
 		template<> struct Helpers< bool >
 		{
 			static const uint32_t Limit = -1;
-			typedef bool Type;
+			typedef bool ParamType;
+			typedef ParamType FieldType;
 
-			static Type InitialiseValue()
+			static ParamType InitialiseValue()
 			{
 				return bool( 0 == rand() % 2 );
 			}
@@ -130,9 +127,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template<> struct Helpers< int16_t >
 		{
 			static const uint32_t Limit = -1;
-			typedef int16_t Type;
+			typedef int16_t ParamType;
+			typedef ParamType FieldType;
 
-			static Type InitialiseValue()
+			static ParamType InitialiseValue()
 			{
 				return int16_t( rand() );
 			}
@@ -141,9 +139,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template<> struct Helpers< int32_t >
 		{
 			static const uint32_t Limit = -1;
-			typedef int32_t Type;
+			typedef int32_t ParamType;
+			typedef ParamType FieldType;
 
-			static Type InitialiseValue()
+			static ParamType InitialiseValue()
 			{
 				return int32_t( rand() );
 			}
@@ -152,9 +151,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template<> struct Helpers< int64_t >
 		{
 			static const uint32_t Limit = -1;
-			typedef int64_t Type;
+			typedef int64_t ParamType;
+			typedef ParamType FieldType;
 
-			static Type InitialiseValue()
+			static ParamType InitialiseValue()
 			{
 				return int64_t( rand() );
 			}
@@ -163,9 +163,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template<> struct Helpers< float >
 		{
 			static const uint32_t Limit = -1;
-			typedef float Type;
+			typedef float ParamType;
+			typedef ParamType FieldType;
 
-			static Type InitialiseValue()
+			static ParamType InitialiseValue()
 			{
 				return float( rand() ) / ( std::abs( rand() ) + 1.0f );
 			}
@@ -174,9 +175,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template<> struct Helpers< double >
 		{
 			static const uint32_t Limit = -1;
-			typedef double Type;
+			typedef double ParamType;
+			typedef ParamType FieldType;
 
-			static Type InitialiseValue()
+			static ParamType InitialiseValue()
 			{
 				return double( rand() ) / ( std::abs( rand() ) + 1.0 );
 			}
@@ -185,9 +187,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template<> struct Helpers< CDate >
 		{
 			static const uint32_t Limit = -1;
-			typedef CDate Type;
+			typedef CDate ParamType;
+			typedef ParamType FieldType;
 
-			static Type InitialiseValue()
+			static ParamType InitialiseValue()
 			{
 				return CDate::Now();
 			}
@@ -196,9 +199,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template<> struct Helpers< CDateTime >
 		{
 			static const uint32_t Limit = -1;
-			typedef CDateTime Type;
+			typedef CDateTime ParamType;
+			typedef ParamType FieldType;
 
-			static Type InitialiseValue()
+			static ParamType InitialiseValue()
 			{
 				return CDateTime::Now();
 			}
@@ -207,9 +211,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template<> struct Helpers< CTime >
 		{
 			static const uint32_t Limit = -1;
-			typedef CTime Type;
+			typedef CTime ParamType;
+			typedef ParamType FieldType;
 
-			static Type InitialiseValue()
+			static ParamType InitialiseValue()
 			{
 				return CTime::Now();
 			}
@@ -218,9 +223,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template<> struct Helpers< char * >
 		{
 			static const uint32_t Limit = 20;
-			typedef std::string Type;
+			typedef char * ParamType;
+			typedef std::string FieldType;
 
-			static Type InitialiseValue()
+			static ParamType InitialiseValue()
 			{
 				static char l_return[] = "Bonjour, comment va?";
 				return l_return;
@@ -230,9 +236,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template<> struct Helpers< wchar_t * >
 		{
 			static const uint32_t Limit = 55;
-			typedef std::wstring Type;
+			typedef wchar_t * ParamType;
+			typedef std::wstring FieldType;
 
-			static Type InitialiseValue()
+			static ParamType InitialiseValue()
 			{
 				static wchar_t l_return[] = L"Ca va bien, et toi?";
 				return l_return;
@@ -242,9 +249,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template<> struct Helpers< std::string >
 		{
 			static const uint32_t Limit = -1;
-			typedef std::string Type;
+			typedef std::string ParamType;
+			typedef std::string FieldType;
 
-			static Type InitialiseValue()
+			static ParamType InitialiseValue()
 			{
 				return std::string( "\n\
 				template< class Stmt, typename Type >\n\
@@ -267,9 +275,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template<> struct Helpers< std::vector< uint8_t > >
 		{
 			static const uint32_t Limit = 32;
-			typedef std::vector< uint8_t > Type;
+			typedef std::vector< uint8_t > ParamType;
+			typedef ParamType FieldType;
 
-			static Type InitialiseValue()
+			static ParamType InitialiseValue()
 			{
 				std::vector< uint8_t > blob =
 				{
@@ -305,7 +314,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			BOOST_CHECK( stmt->CreateParameter( STR( "NcharField" ), EFieldType_NVARCHAR, 55, EParameterType_IN ) );
 			BOOST_CHECK( stmt->CreateParameter( STR( "NVarcharField" ), EFieldType_NVARCHAR, 100, EParameterType_IN ) );
 			BOOST_CHECK( stmt->CreateParameter( STR( "TextField" ), EFieldType_TEXT, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "BlobField" ), EFieldType_VARBINARY, 32, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "BlobField" ), EFieldType_VARBINARY, EParameterType_IN ) );
 		}
 
 		template< class Stmt >
@@ -435,9 +444,9 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					BOOST_CHECK( stmtInsert->Initialize() == EErrorType_NONE );
 					BOOST_CHECK( stmtSelect->Initialize() == EErrorType_NONE );
 
-					Helpers< Type >::Type valueIn = Helpers< Type >::InitialiseValue();
-					stmtInsert->SetParameterValue( 0, valueIn );
-					stmtSelect->SetParameterValue( 0, valueIn );
+					Helpers< Type >::ParamType valueIn = Helpers< Type >::InitialiseValue();
+					BOOST_CHECK_NO_THROW( stmtInsert->SetParameterValue( 0, valueIn ) );
+					BOOST_CHECK_NO_THROW( stmtSelect->SetParameterValue( 0, valueIn ) );
 
 					BOOST_CHECK( stmtInsert->ExecuteUpdate() );
 					DatabaseResultPtr result = stmtSelect->ExecuteSelect();
@@ -446,7 +455,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 					if ( result && result->GetRowCount() )
 					{
-						Helpers< Type >::Type valueOut;
+						Helpers< Type >::FieldType valueOut;
 						BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, valueOut ) );
 						Compare< Type >()( valueIn, valueOut );
 					}
@@ -481,12 +490,12 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 					BOOST_CHECK( stmtInsert->Initialize() == EErrorType_NONE );
 					BOOST_CHECK( stmtSelect->Initialize() == EErrorType_NONE );
-					
-					Helpers< Type >::Type valueIn = Helpers< Type >::InitialiseValue();
-					stmtInsert->SetParameterValue( 0, 18 );
-					stmtInsert->SetParameterValue( 1, valueIn );
-					stmtSelect->SetParameterValue( 0, 18 );
-					stmtSelect->SetParameterValue( 1, valueIn );
+
+					Helpers< Type >::ParamType valueIn = Helpers< Type >::InitialiseValue();
+					BOOST_CHECK_NO_THROW( stmtInsert->SetParameterValueFast( 0, 18 ) );
+					BOOST_CHECK_NO_THROW( stmtInsert->SetParameterValueFast( 1, valueIn ) );
+					BOOST_CHECK_NO_THROW( stmtSelect->SetParameterValueFast( 0, 18 ) );
+					BOOST_CHECK_NO_THROW( stmtSelect->SetParameterValueFast( 1, valueIn ) );
 
 					BOOST_CHECK( stmtInsert->ExecuteUpdate() );
 					DatabaseResultPtr result = stmtSelect->ExecuteSelect();
@@ -495,7 +504,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 					if ( result && result->GetRowCount() )
 					{
-						Helpers< Type >::Type valueOut;
+						Helpers< Type >::FieldType valueOut;
 						BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, valueOut ) );
 						Compare< Type >()( valueIn, valueOut );
 					}

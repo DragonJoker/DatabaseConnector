@@ -98,6 +98,26 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport virtual DatabaseParameterPtr CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType = EParameterType_IN );
 
+		/** Retrieves a parameter, by index
+		@param[in] index
+		    Parameter index.
+		*/
+		DatabaseExport DatabaseParameterPtr GetParameter( uint32_t index )const;
+
+		/** Retrieves a parameter, by name
+		@param[in] name
+		    Parameter name.
+		*/
+		DatabaseExport DatabaseParameterPtr GetParameter( const String & name )const;
+
+		/** Get parameter type.
+		@param[in] index
+		    Parameter index.
+		@return
+		    Parameter type.
+		*/
+		DatabaseExport EFieldType GetParameterType( uint32_t index );
+
 		/** Set parameter value to NULL.
 		@param[in] index
 		    Parameter index.
@@ -109,6 +129,22 @@ BEGIN_NAMESPACE_DATABASE
 		    Parameter name.
 		*/
 		DatabaseExport void SetParameterNull( const String & name );
+
+		/** Set parameter value from another parameter.
+		@param[in] index
+		    Parameter index.
+		@param[in] parameter
+		    The parameter.
+		*/
+		DatabaseExport void SetParameterValue( uint32_t index, DatabaseParameterPtr parameter );
+
+		/** Set parameter value from another parameter.
+		@param[in] name
+		    Parameter name.
+		@param[in] parameter
+		    The parameter.
+		*/
+		DatabaseExport void SetParameterValue( const String & name, DatabaseParameterPtr parameter );
 
 		/** Set parameter value.
 		@param[in] index
@@ -125,6 +161,22 @@ BEGIN_NAMESPACE_DATABASE
 		    Parameter value.
 		*/
 		template< typename T > void SetParameterValue( const String & name, const T & value );
+
+		/** Set parameter value.
+		@param[in] index
+		    Parameter index.
+		@param[in] value
+		    Parameter value.
+		*/
+		template< typename T > void SetParameterValueFast( uint32_t index, const T & value );
+
+		/** Set parameter value.
+		@param[in] name
+		    Parameter name.
+		@param[in] value
+		    Parameter value.
+		*/
+		template< typename T > void SetParameterValueFast( const String & name, const T & value );
 
 		/** Get parameter value.
 		@param[in] index
@@ -159,7 +211,6 @@ BEGIN_NAMESPACE_DATABASE
 		template< typename T > void GetOutputValue( const String & name, T & value );
 
 	protected:
-
 		/** Add parameter to query.
 		@param[in] parameter
 		    Parameter to add.

@@ -54,7 +54,6 @@ BEGIN_NAMESPACE_DATABASE
 		class CExceptionDatabaseMySql;
 		class CPluginDatabaseMySql;
 		class CFactoryDatabaseMySql;
-		struct SMySqlParameterValueSetterBase;
 
 		// Pointers
 		typedef std::shared_ptr< CDatabaseConnectionMySql > DatabaseConnectionMySqlPtr;
@@ -69,8 +68,6 @@ BEGIN_NAMESPACE_DATABASE
 		// Plugin constants
 		const String DATABASE_MYSQL_TYPE = STR( "Database.MySql" );
 		const String PLUGIN_NAME_DATABASE_MYSQL = STR( "Plugin Database MySql" );
-
-		void MySQLTry( int result, TChar const * msg, EDatabaseExceptionCodes code, MYSQL * connection );
 
 		struct CMySqlBindBase
 		{
@@ -87,7 +84,7 @@ BEGIN_NAMESPACE_DATABASE
 		};
 
 		struct CInMySqlBindBase
-			: public CMySqlBindBase
+				: public CMySqlBindBase
 		{
 			unsigned long _length = 0;
 
@@ -100,7 +97,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		template< typename T, typename U = T >
 		struct CInMySqlBind
-			: public CInMySqlBindBase
+				: public CInMySqlBindBase
 		{
 			T _value;
 
@@ -118,7 +115,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		template<>
 		struct CInMySqlBind< bool, bool >
-			: public CInMySqlBindBase
+				: public CInMySqlBindBase
 		{
 			int8_t _value;
 
@@ -136,7 +133,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		template< typename T >
 		struct CInMySqlBind< T *, T * >
-			: public CInMySqlBindBase
+				: public CInMySqlBindBase
 		{
 			T _value[8192];
 
@@ -156,7 +153,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		template<>
 		struct CInMySqlBind< char *, double >
-			: public CInMySqlBindBase
+				: public CInMySqlBindBase
 		{
 			char _value[8192];
 
@@ -176,7 +173,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		template<>
 		struct CInMySqlBind< char *, int32_t >
-			: public CInMySqlBindBase
+				: public CInMySqlBindBase
 		{
 			char _value[8192];
 
@@ -195,13 +192,14 @@ BEGIN_NAMESPACE_DATABASE
 		};
 
 		struct COutMySqlBindBase
-			: public CMySqlBindBase
+				: public CMySqlBindBase
 		{
-			COutMySqlBindBase( MYSQL_BIND & bind, enum_field_types type )
-				: CMySqlBindBase( bind )
-			{
-				_bind.buffer_type = type;
-			}
+			COutMySqlBindBase( MYSQL_BIND & bind, enum_field_types type, CDatabaseStatementParameterMySql & parameter );
+
+			virtual void UpdateValue() = 0;
+
+			MYSQL * _connection;
+			MYSQL_STMT * _statement;
 		};
 
 		CDate CDateFromMySqlTime( MYSQL_TIME const & ts );
@@ -213,6 +211,8 @@ BEGIN_NAMESPACE_DATABASE
 		MYSQL_TIME MySqlTimeFromCTime( CTime const & ts );
 
 		std::string StringFromMySqlString( MYSQL_BIND const & bind, bool truncated );
+		void MySqlSendLongData( CDatabaseValueBase & value, MYSQL_BIND const & bind, MYSQL_STMT * statement, MYSQL * connection );
+		void MySQLTry( int result, TChar const * msg, EDatabaseExceptionCodes code, MYSQL * connection );
 	}
 }
 END_NAMESPACE_DATABASE

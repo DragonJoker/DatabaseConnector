@@ -318,33 +318,6 @@ BEGIN_NAMESPACE_DATABASE
 
 			return bReturn;
 		}
-
-		template< typename Char >
-		bool IsDate( const std::basic_string< Char > & time, CDate & result )
-		{
-			typedef std::basic_string< Char > String;
-			bool bReturn = false;
-
-			if ( !time.empty() )
-			{
-				try
-				{
-					boost::posix_time::ptime t( boost::posix_time::time_from_string( Str< char >( time ) ) );
-
-					if ( !t.is_not_a_date_time() )
-					{
-						std::tm dt = to_tm( t );
-						result.SetDate( dt.tm_year, EDateMonth( dt.tm_mon ), dt.tm_mday );
-						bReturn = true;
-					}
-				}
-				catch ( ... )
-				{
-				}
-			}
-
-			return bReturn;
-		}
 	}
 
 	static const int DATE_MAX_SIZE = 1024;
@@ -544,16 +517,6 @@ BEGIN_NAMESPACE_DATABASE
 	bool CDate::IsDate( const std::wstring & date, const std::wstring & format, CDate & result )
 	{
 		return result.Parse( date, format );
-	}
-
-	bool CDate::IsDate( const std::string & date, CDate & result )
-	{
-		return DateUtils::IsDate( date, result );
-	}
-
-	bool CDate::IsDate( const std::wstring & date, CDate & result )
-	{
-		return DateUtils::IsDate( date, result );
 	}
 
 	int CDate::GetMonthDays( int month, int year )

@@ -54,7 +54,7 @@ BEGIN_NAMESPACE_DATABASE
 		    The field size limit
 		*/
 		DatabaseExport virtual void SetValue( CDatabaseValueBase const & value ) = 0;
-		
+
 		/** Get the value.
 		@param valueSet
 			Tells if the value is set (true) or NULL (false)
@@ -69,6 +69,12 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport virtual void * GetPtrValue() = 0;
 
+		/** Get a pointer to the value.
+		@return
+		    Pointer to the value or NULL.
+		*/
+		DatabaseExport virtual const void * GetPtrValue() const = 0;
+
 		/** Re-initialize internal values.
 		*/
 		DatabaseExport virtual void Reset() = 0;
@@ -77,7 +83,13 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    The size.
 		*/
-		DatabaseExport const unsigned long & GetPtrSize();
+		DatabaseExport unsigned long & GetPtrSize();
+
+		/** Get the value pointer size
+		@return
+		    The size.
+		*/
+		DatabaseExport const unsigned long & GetPtrSize()const;
 
 		/** Check if value is NULL.
 		@return

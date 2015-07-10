@@ -68,154 +68,310 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		DatabaseMySqlExport virtual ~CDatabaseStatementParameterMySql();
 
 		//!@copydoc Database::CDatabaseParameter::SetNull
-		virtual void SetNull();
-
-		//!@copydoc Database::CDatabaseParameter::SetValue
-		void SetValue( DatabaseParameterPtr value );
-
-		/** Set parameter value from a field.
-		@param[in] field
-		    The field.
-		@remarks
-		    If field type is different than the value type, the value is ignored.
-		*/
-		virtual void SetValue( DatabaseFieldPtr field )
-		{
-			CDatabaseParameter::SetValue( field );
-		}
-
-		/** Defines the prepared statement
-		@param statement
-		    The statement
-		*/
-		void SetStatement( MYSQL_STMT * statement )
-		{
-			_statement = statement;
-		}
+		DatabaseMySqlExport virtual void SetNull();
 
 		/** Defines the data binding
 		@param bind
 		    The binding
 		*/
-		void SetBinding( MYSQL_BIND * bind );
+		DatabaseMySqlExport void SetBinding( MYSQL_BIND * bind );
+
+		/** Defines the prepared statement
+		@param statement
+		    The statement
+		*/
+		inline void SetStatement( MYSQL_STMT * statement )
+		{
+			_statement = statement;
+		}
 
 		/** Retrieves the data binding
 		@return
 		    The binding
 		*/
-		MYSQL_BIND * GetBinding()const;
+		inline MYSQL_BIND * GetBinding()const
+		{
+			return &_binding->_bind;
+		}
+
+		/** Retrieves the statement
+		@return
+		    The statement
+		*/
+		inline MYSQL_STMT * GetStatement()const
+		{
+			return _statement;
+		}
 
 	private:
-		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( const bool & value );
+		/** Set parameter value
+		@param value
+		    New parameter value.
+		*/
+		template< typename T >
+		inline void DoSetAndUpdateValue( const T & value )
+		{
+			CDatabaseValuedObject::DoSetValue( value );
+			_binding->UpdateValue();
+			_updater->Update( shared_from_this() );
+		}
 
-		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( const int16_t & value );
+		/** Set parameter value
+		@param value
+		    New parameter value.
+		*/
+		template< typename T >
+		inline void DoSetAndUpdateValue( const T * value )
+		{
+			CDatabaseValuedObject::DoSetValue( value );
+			_binding->UpdateValue();
+			_updater->Update( shared_from_this() );
+		}
 
-		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( const uint16_t & value );
+		/** Set parameter value
+		@remarks
+			Don't perform type checks
+		@param value
+		    New parameter value.
+		*/
+		template< typename T >
+		inline void DoSetAndUpdateValueFast( const T & value )
+		{
+			CDatabaseValuedObject::DoSetValueFast( value );
+			_binding->UpdateValue();
+			_updater->Update( shared_from_this() );
+		}
 
-		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( const int32_t & value );
+		/** Set parameter value
+		@remarks
+			Don't perform type checks
+		@param value
+		    New parameter value.
+		*/
+		template< typename T >
+		inline void DoSetAndUpdateValueFast( const T * value )
+		{
+			CDatabaseValuedObject::DoSetValueFast( value );
+			_binding->UpdateValue();
+			_updater->Update( shared_from_this() );
+		}
 
-		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( const uint32_t & value );
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseMySqlExport virtual void DoSetValue( const bool & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
 
-		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( const int64_t & value );
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseMySqlExport virtual void DoSetValue( const int16_t & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
 
-		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( const uint64_t & value );
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseMySqlExport virtual void DoSetValue( const uint16_t & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
 
-		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( const float & value );
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseMySqlExport virtual void DoSetValue( const int32_t & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
 
-		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( const double & value );
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseMySqlExport virtual void DoSetValue( const uint32_t & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
 
-		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( const long double & value );
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseMySqlExport virtual void DoSetValue( const int64_t & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
 
-		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( const char * value );
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseMySqlExport virtual void DoSetValue( const uint64_t & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
 
-		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( const wchar_t * value );
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseMySqlExport virtual void DoSetValue( const float & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
 
-		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( const std::string & value );
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseMySqlExport virtual void DoSetValue( const double & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
 
-		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( const std::wstring & value );
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseMySqlExport virtual void DoSetValue( const long double & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
 
-		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( const std::vector< uint8_t > & value );
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseMySqlExport virtual void DoSetValue( const char * value )
+		{
+			DoSetAndUpdateValue( value );
+		}
 
-		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( const CDateTime & value );
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseMySqlExport virtual void DoSetValue( const wchar_t * value )
+		{
+			DoSetAndUpdateValue( value );
+		}
 
-		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( const CDate & value );
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseMySqlExport virtual void DoSetValue( const std::string & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
 
-		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( const CTime & value );
-		
-		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
-		virtual void DoSetValueFast( const bool & value );
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseMySqlExport virtual void DoSetValue( const std::wstring & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
 
-		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
-		virtual void DoSetValueFast( const int16_t & value );
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseMySqlExport virtual void DoSetValue( const CDateTime & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
 
-		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
-		virtual void DoSetValueFast( const uint16_t & value );
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseMySqlExport virtual void DoSetValue( const CDate & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
 
-		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
-		virtual void DoSetValueFast( const int32_t & value );
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseMySqlExport virtual void DoSetValue( const CTime & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
 
-		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
-		virtual void DoSetValueFast( const uint32_t & value );
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseMySqlExport virtual void DoSetValue( const std::vector< uint8_t > & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
 
-		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
-		virtual void DoSetValueFast( const int64_t & value );
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseMySqlExport virtual void DoSetValueFast( const bool & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
 
-		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
-		virtual void DoSetValueFast( const uint64_t & value );
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseMySqlExport virtual void DoSetValueFast( const int16_t & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
 
-		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
-		virtual void DoSetValueFast( const float & value );
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseMySqlExport virtual void DoSetValueFast( const uint16_t & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
 
-		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
-		virtual void DoSetValueFast( const double & value );
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseMySqlExport virtual void DoSetValueFast( const int32_t & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
 
-		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
-		virtual void DoSetValueFast( const long double & value );
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseMySqlExport virtual void DoSetValueFast( const uint32_t & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
 
-		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
-		virtual void DoSetValueFast( const char * value );
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseMySqlExport virtual void DoSetValueFast( const int64_t & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
 
-		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
-		virtual void DoSetValueFast( const wchar_t * value );
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseMySqlExport virtual void DoSetValueFast( const uint64_t & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
 
-		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
-		virtual void DoSetValueFast( const std::string & value );
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseMySqlExport virtual void DoSetValueFast( const float & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
 
-		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
-		virtual void DoSetValueFast( const std::wstring & value );
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseMySqlExport virtual void DoSetValueFast( const double & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
 
-		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
-		virtual void DoSetValueFast( const std::vector< uint8_t > & value );
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseMySqlExport virtual void DoSetValueFast( const long double & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
 
-		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
-		virtual void DoSetValueFast( const CDateTime & value );
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseMySqlExport virtual void DoSetValueFast( const char * value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
 
-		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
-		virtual void DoSetValueFast( const CDate & value );
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseMySqlExport virtual void DoSetValueFast( const std::string & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
 
-		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
-		virtual void DoSetValueFast( const CTime & value );
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseMySqlExport virtual void DoSetValueFast( const wchar_t * value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
 
-		//! The value setter
-		std::unique_ptr< SMySqlParameterValueSetterBase > _setter;
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseMySqlExport virtual void DoSetValueFast( const std::wstring & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseMySqlExport virtual void DoSetValueFast( const CDate & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseMySqlExport virtual void DoSetValueFast( const CDateTime & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseMySqlExport virtual void DoSetValueFast( const CTime & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseMySqlExport virtual void DoSetValueFast( const std::vector< uint8_t > & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
+
 		//! The data binding
 		std::unique_ptr< COutMySqlBindBase > _binding;
 		//! The prepared statement

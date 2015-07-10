@@ -100,16 +100,16 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Pointer to the value or NULL.
 		*/
-		inline value_type * GetTypedPtrValue()
+		inline const void * GetPtrValue()const
 		{
-			return ValuePolicy::TypedPtr( _tValue );
+			return ValuePolicy::Ptr( _tValue );
 		}
 
 		/** Get the value.
 		@return
 		    The value.
 		*/
-		inline const value_type & GetValue()
+		inline const value_type & GetValue()const
 		{
 			return _tValue;
 		}
@@ -232,16 +232,16 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Pointer to the value or NULL.
 		*/
-		inline char * GetTypedPtrValue()
+		inline const void * GetPtrValue()const
 		{
-			return ValuePolicy::TypedPtr( _tValue );
+			return ValuePolicy::Ptr( _tValue );
 		}
 
 		/** Get the value.
 		@return
 		    The value.
 		*/
-		inline const value_type & GetValue()
+		inline const value_type & GetValue()const
 		{
 			return _tValue;
 		}
@@ -364,16 +364,16 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Pointer to the value or NULL.
 		*/
-		inline char * GetTypedPtrValue()
+		inline const void * GetPtrValue()const
 		{
-			return ValuePolicy::TypedPtr( _tValue );
+			return ValuePolicy::Ptr( _tValue );
 		}
 
 		/** Get the value.
 		@return
 		    The value.
 		*/
-		inline const value_type & GetValue()
+		inline const value_type & GetValue()const
 		{
 			return _tValue;
 		}
@@ -496,16 +496,16 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Pointer to the value or NULL.
 		*/
-		inline wchar_t * GetTypedPtrValue()
+		inline const void * GetPtrValue()const
 		{
-			return ValuePolicy::TypedPtr( _tValue );
+			return ValuePolicy::Ptr( _tValue );
 		}
 
 		/** Get the value.
 		@return
 		    The value.
 		*/
-		inline const value_type & GetValue()
+		inline const value_type & GetValue()const
 		{
 			return _tValue;
 		}
@@ -628,16 +628,16 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Pointer to the value or NULL.
 		*/
-		inline wchar_t * GetTypedPtrValue()
+		inline const void * GetPtrValue()const
 		{
-			return ValuePolicy::TypedPtr( _tValue );
+			return ValuePolicy::Ptr( _tValue );
 		}
 
 		/** Get the value.
 		@return
 		    The value.
 		*/
-		inline const value_type & GetValue()
+		inline const value_type & GetValue()const
 		{
 			return _tValue;
 		}
@@ -760,16 +760,16 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Pointer to the value or NULL.
 		*/
-		inline uint8_t * GetTypedPtrValue()
+		inline const void * GetPtrValue()const
 		{
-			return ValuePolicy::TypedPtr( _tValue );
+			return ValuePolicy::Ptr( _tValue );
 		}
 
 		/** Get the value.
 		@return
 		    The value.
 		*/
-		inline const value_type & GetValue()
+		inline const value_type & GetValue()const
 		{
 			return _tValue;
 		}
@@ -892,16 +892,16 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Pointer to the value or NULL.
 		*/
-		inline uint8_t * GetTypedPtrValue()
+		inline const void * GetPtrValue()const
 		{
-			return ValuePolicy::TypedPtr( _tValue );
+			return ValuePolicy::Ptr( _tValue );
 		}
 
 		/** Get the value.
 		@return
 		    The value.
 		*/
-		inline const value_type & GetValue()
+		inline const value_type & GetValue()const
 		{
 			return _tValue;
 		}
@@ -1024,16 +1024,16 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Pointer to the value or NULL.
 		*/
-		inline uint8_t * GetTypedPtrValue()
+		inline const void * GetPtrValue()const
 		{
-			return ValuePolicy::TypedPtr( _tValue );
+			return ValuePolicy::Ptr( _tValue );
 		}
 
 		/** Get the value.
 		@return
 		    The value.
 		*/
-		inline const value_type & GetValue()
+		inline const value_type & GetValue()const
 		{
 			return _tValue;
 		}

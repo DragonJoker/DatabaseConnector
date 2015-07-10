@@ -101,6 +101,66 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport virtual bool IsInTransaction() const;
 
+		/** Format a date to insert into a request.
+		@param[in] date
+		    Value to format.
+		@param[in] format
+		    String describing the format.
+		@return
+		    Formatted value.
+		*/
+		DatabaseExport std::string WriteDate( const std::string & date, const std::string & format ) const;
+
+		/** Format a time to insert into a request.
+		@param[in] time
+		    Value to format.
+		@param[in] format
+		    String describing the format.
+		@return
+		    Formatted value.
+		*/
+		DatabaseExport std::string WriteTime( const std::string & time, const std::string & format ) const;
+
+		/** Format a date/time to insert into a request.
+		@param[in] dateTime
+		    Value to format.
+		@param[in] format
+		    String describing the format.
+		@return
+		    Formatted value.
+		*/
+		DatabaseExport std::string WriteDateTime( const std::string & dateTime, const std::string & format ) const;
+
+		/** Format a date to insert into a statement.
+		@param[in] date
+		    Value to format.
+		@param[in] format
+		    String describing the format.
+		@return
+		    Formatted value.
+		*/
+		DatabaseExport std::string WriteStmtDate( const std::string & date, const std::string & format ) const;
+
+		/** Format a time to insert into a statement.
+		@param[in] time
+		    Value to format.
+		@param[in] format
+		    String describing the format.
+		@return
+		    Formatted value.
+		*/
+		DatabaseExport std::string WriteStmtTime( const std::string & time, const std::string & format ) const;
+
+		/** Format a date/time to insert into a statement.
+		@param[in] dateTime
+		    Value to format.
+		@param[in] format
+		    String describing the format.
+		@return
+		    Formatted value.
+		*/
+		DatabaseExport std::string WriteStmtDateTime( const std::string & dateTime, const std::string & format ) const;
+
 		/** Initialize a named transaction.
 		@param[in] name
 		    Transaction name.
@@ -175,16 +235,6 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport virtual std::string WriteDate( const CDate & date ) const = 0;
 
-		/** Format a date to insert into a request.
-		@param[in] date
-		    Value to format.
-		@param[in] format
-		    String describing the format.
-		@return
-		    Formatted value.
-		*/
-		DatabaseExport virtual std::string WriteDate( const std::string & date, const std::string & format ) const = 0;
-
 		/** Format a date to insert into a statement.
 		@param[in] date
 		    Value to format.
@@ -192,16 +242,6 @@ BEGIN_NAMESPACE_DATABASE
 		    Formatted value.
 		*/
 		DatabaseExport virtual std::string WriteStmtDate( const CDate & date ) const = 0;
-
-		/** Format a date to insert into a statement.
-		@param[in] date
-		    Value to format.
-		@param[in] format
-		    String describing the format.
-		@return
-		    Formatted value.
-		*/
-		DatabaseExport virtual std::string WriteStmtDate( const std::string & date, const std::string & format ) const = 0;
 
 		/** Format a time to insert into a request.
 		@param[in] time
@@ -211,16 +251,6 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport virtual std::string WriteTime( const CTime & time ) const = 0;
 
-		/** Format a time to insert into a request.
-		@param[in] time
-		    Value to format.
-		@param[in] format
-		    String describing the format.
-		@return
-		    Formatted value.
-		*/
-		DatabaseExport virtual std::string WriteTime( const std::string & time, const std::string & format ) const = 0;
-
 		/** Format a time to insert into a statement.
 		@param[in] time
 		    Value to format.
@@ -228,16 +258,6 @@ BEGIN_NAMESPACE_DATABASE
 		    Formatted value.
 		*/
 		DatabaseExport virtual std::string WriteStmtTime( const CTime & time ) const = 0;
-
-		/** Format a time to insert into a statement.
-		@param[in] time
-		    Value to format.
-		@param[in] format
-		    String describing the format.
-		@return
-		    Formatted value.
-		*/
-		DatabaseExport virtual std::string WriteStmtTime( const std::string & time, const std::string & format ) const = 0;
 
 		/** Format a date/time to insert into a request.
 		@param[in] dateTime
@@ -263,16 +283,6 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport virtual std::string WriteDateTime( const CTime & time ) const = 0;
 
-		/** Format a date/time to insert into a request.
-		@param[in] dateTime
-		    Value to format.
-		@param[in] format
-		    String describing the format.
-		@return
-		    Formatted value.
-		*/
-		DatabaseExport virtual std::string WriteDateTime( const std::string & dateTime, const std::string & format ) const = 0;
-
 		/** Format a date/time to insert into a statement.
 		@param[in] dateTime
 		    Value to format.
@@ -280,16 +290,6 @@ BEGIN_NAMESPACE_DATABASE
 		    Formatted value.
 		*/
 		DatabaseExport virtual std::string WriteStmtDateTime( const CDateTime & dateTime ) const = 0;
-
-		/** Format a date/time to insert into a statement.
-		@param[in] dateTime
-		    Value to format.
-		@param[in] format
-		    String describing the format.
-		@return
-		    Formatted value.
-		*/
-		DatabaseExport virtual std::string WriteStmtDateTime( const std::string & dateTime, const std::string & format ) const = 0;
 
 		/** Format a boolean to insert into a request or statement.
 		@param[in] value
