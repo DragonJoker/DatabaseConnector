@@ -146,7 +146,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		StringStream message;
 		message << ODBC_BIND_PARAMETER_NAME_MSG << parameter->GetName()
 				<< STR( ", " )
-				<< ODBC_BIND_PARAMETER_VALUE_MSG << STR( "[" ) << parameter->GetObjectValue().GetPtrValue() << STR( "] : " ) << parameter->GetObjectValue().GetStrValue();
+				<< ODBC_BIND_PARAMETER_VALUE_MSG << STR( "[" ) << parameter->GetObjectValue().GetPtrValue() << STR( "]" );
 
 		switch ( parameter->GetType() )
 		{

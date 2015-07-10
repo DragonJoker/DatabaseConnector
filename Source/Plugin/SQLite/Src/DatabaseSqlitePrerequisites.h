@@ -54,7 +54,7 @@ BEGIN_NAMESPACE_DATABASE
 		class CExceptionDatabaseSqlite;
 		class CPluginDatabaseSqlite;
 		class CFactoryDatabaseSqlite;
-		struct SParameterValueSetterBase;
+		struct SSqliteParameterValueSetterBase;
 
 		// Pointers
 		typedef std::shared_ptr< CDatabaseConnectionSqlite > DatabaseConnectionSqlitePtr;

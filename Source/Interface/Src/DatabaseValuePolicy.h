@@ -70,21 +70,21 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_DATE >
 	{
-		typedef std::string value_type;
+		typedef CDate value_type;
 	};
 
 	/** Specialization for EFieldType_DATETIME
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_DATETIME >
 	{
-		typedef std::string value_type;
+		typedef CDateTime value_type;
 	};
 
 	/** Specialization for EFieldType_TIME
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_TIME >
 	{
-		typedef std::string value_type;
+		typedef CTime value_type;
 	};
 
 	/** Specialization for EFieldType_VARCHAR
@@ -265,7 +265,7 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template< typename T > class CDatabaseValuePolicy
 	{
-	private:
+	protected:
 		typedef T value_type;
 
 	public:
@@ -273,7 +273,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param value
 		    The value
 		*/
-		static void Reset( value_type & value )
+		void Reset( value_type & value )
 		{
 			value = value_type( 0 );
 		}
@@ -283,26 +283,32 @@ BEGIN_NAMESPACE_DATABASE
 		    The input value
 		@param out
 		    The output value
-		@param valSet
-		    Receives the new setting status for the value
-		@param strSet
-		    Receives the new setting status for the string value
 		@param size
 		    Receives the new value size
+		@param connection
+		    The connection used to format the value
 		*/
-		static void Set( const value_type & in, value_type & out, bool & valSet, bool & strSet, long & size )
+		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
 		{
-			strSet = valSet && out == in;
 			out = in;
-			valSet = true;
 			size = sizeof( value_type );
+			return true;
 		}
 
 		/** Retrieves a pointer from the given value
 		@param value
 		    The value
 		*/
-		static void * Ptr( value_type & value )
+		void * Ptr( value_type & value )
+		{
+			return &value;
+		}
+
+		/** Retrieves a pointer from the given value
+		@param value
+		    The value
+		*/
+		value_type * TypedPtr( value_type & value )
 		{
 			return &value;
 		}
@@ -310,58 +316,25 @@ BEGIN_NAMESPACE_DATABASE
 		/** Retrieves the value from a string
 		@param string
 		    The string containing the value
-		@param strSet
-		    Tells that the string effectively contains a value
 		@param value
 		    Receives the value
-		@param valSet
-		    Tells that the value was set, receives the new set status
 		@param size
 		    The old size, receives the new value size
+		@param connection
+		    The connection used to format the value
 		*/
-		static void FromStr( const String & string, bool strSet, value_type & value, bool & valSet, long & size )
+		bool FromStr( const String & string, value_type & value, unsigned long & size, DatabaseConnectionPtr connection )
 		{
-			if ( !valSet )
-			{
-				if ( strSet )
-				{
-					StringStream stream( string );
-					stream >> value;
-					valSet = true;
-					size = sizeof( value_type );
-				}
-				else
-				{
-					//value = value_type();
-					//size = 0;
-				}
-			}
-		}
+			bool ret = !string.empty();
 
-		/** Puts the value into the given string
-		@param value
-		    The value
-		@param valSet
-		    Tells that the value is set
-		@param string
-		    Receives the string value
-		@param strSet
-		    Tells that the string was set, receives the new set status
-		*/
-		static void ToStr( const value_type & value, bool valSet, String & string, bool & strSet )
-		{
-			if ( !strSet )
+			if ( ret )
 			{
-				if ( valSet )
-				{
-					string += CStrUtils::ToString( value );
-					strSet = true;
-				}
-				else
-				{
-					string.clear();
-				}
+				StringStream stream( string );
+				stream >> value;
+				size = sizeof( value_type );
 			}
+
+			return ret;
 		}
 
 		/** Puts the value into the given string
@@ -374,7 +347,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param result
 		    Receives the insertable value
 		*/
-		static String ToInsertable( const value_type & value, bool valSet, DatabaseConnectionPtr connection )
+		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )
 		{
 			if ( valSet )
 			{
@@ -391,7 +364,7 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template<> class CDatabaseValuePolicy< float >
 	{
-	private:
+	protected:
 		typedef float value_type;
 
 	public:
@@ -399,7 +372,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param value
 		    The value
 		*/
-		static void Reset( value_type & value )
+		void Reset( value_type & value )
 		{
 			value = value_type( 0 );
 		}
@@ -409,26 +382,32 @@ BEGIN_NAMESPACE_DATABASE
 		    The input value
 		@param out
 		    The output value
-		@param valSet
-		    Receives the new setting status for the value
-		@param strSet
-		    Receives the new setting status for the string value
 		@param size
 		    Receives the new value size
+		@param connection
+		    The connection used to format the value
 		*/
-		static void Set( const value_type & in, value_type & out, bool & valSet, bool & strSet, long & size )
+		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
 		{
-			strSet = valSet && out == in;
 			out = in;
-			valSet = true;
 			size = sizeof( value_type );
+			return true;
 		}
 
 		/** Retrieves a pointer from the given value
 		@param value
 		    The value
 		*/
-		static void * Ptr( value_type & value )
+		void * Ptr( value_type & value )
+		{
+			return &value;
+		}
+
+		/** Retrieves a pointer from the given value
+		@param value
+		    The value
+		*/
+		value_type * TypedPtr( value_type & value )
 		{
 			return &value;
 		}
@@ -436,57 +415,26 @@ BEGIN_NAMESPACE_DATABASE
 		/** Retrieves the value from a string
 		@param string
 		    The string containing the value
-		@param strSet
-		    Tells that the string effectively contains a value
 		@param value
 		    Receives the value
-		@param valSet
-		    Tells that the value was set, receives the new set status
 		@param size
 		    The old size, receives the new value size
+		@param connection
+		    The connection used to format the value
 		*/
-		static void FromStr( const String & string, bool strSet, value_type & value, bool & valSet, long & size )
+		bool FromStr( const String & string, value_type & value, unsigned long & size, DatabaseConnectionPtr connection )
 		{
-			if ( !valSet )
-			{
-				if ( strSet )
-				{
-					value = DoFromStr( string );
-					valSet = true;
-					size = sizeof( value_type );
-				}
-				else
-				{
-					//value = value_type();
-					//size = 0;
-				}
-			}
-		}
+			bool ret = !string.empty();
 
-		/** Puts the value into the given string
-		@param value
-		    The value
-		@param valSet
-		    Tells that the value is set
-		@param string
-		    Receives the string value
-		@param strSet
-		    Tells that the string was set, receives the new set status
-		*/
-		static void ToStr( const value_type & value, bool valSet, String & string, bool & strSet )
-		{
-			if ( !strSet )
+			if ( ret )
 			{
-				if ( valSet )
-				{
-					string += DoToStr( value );
-					strSet = true;
-				}
-				else
-				{
-					string.clear();
-				}
+				StringStream stream( string );
+				stream.precision( 10 );
+				stream >> value;
+				size = sizeof( value_type );
 			}
+
+			return ret;
 		}
 
 		/** Puts the value into the given string
@@ -499,34 +447,19 @@ BEGIN_NAMESPACE_DATABASE
 		@param result
 		    Receives the insertable value
 		*/
-		static String ToInsertable( const value_type & value, bool valSet, DatabaseConnectionPtr connection )
+		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )
 		{
 			if ( valSet )
 			{
-				return DoToStr( value );
+				StringStream stream;
+				stream.precision( 10 );
+				stream << value;
+				return stream.str();
 			}
 			else
 			{
 				return NULL_VALUE;
 			}
-		}
-
-	private:
-		static String DoToStr( const value_type & value )
-		{
-			StringStream stream;
-			stream.precision( 10 );
-			stream << value;
-			return stream.str();
-		}
-
-		static value_type DoFromStr( const String & value )
-		{
-			value_type result = value_type();
-			StringStream stream( value );
-			stream.precision( 10 );
-			stream >> result;
-			return result;
 		}
 	};
 
@@ -534,7 +467,7 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template<> class CDatabaseValuePolicy< double >
 	{
-	private:
+	protected:
 		typedef double value_type;
 
 	public:
@@ -542,7 +475,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param value
 		    The value
 		*/
-		static void Reset( value_type & value )
+		void Reset( value_type & value )
 		{
 			value = value_type( 0 );
 		}
@@ -552,26 +485,32 @@ BEGIN_NAMESPACE_DATABASE
 		    The input value
 		@param out
 		    The output value
-		@param valSet
-		    Receives the new setting status for the value
-		@param strSet
-		    Receives the new setting status for the string value
 		@param size
 		    Receives the new value size
+		@param connection
+		    The connection used to format the value
 		*/
-		static void Set( const value_type & in, value_type & out, bool & valSet, bool & strSet, long & size )
+		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
 		{
-			strSet = valSet && out == in;
 			out = in;
-			valSet = true;
 			size = sizeof( value_type );
+			return true;
 		}
 
 		/** Retrieves a pointer from the given value
 		@param value
 		    The value
 		*/
-		static void * Ptr( value_type & value )
+		void * Ptr( value_type & value )
+		{
+			return &value;
+		}
+
+		/** Retrieves a pointer from the given value
+		@param value
+		    The value
+		*/
+		value_type * TypedPtr( value_type & value )
 		{
 			return &value;
 		}
@@ -579,57 +518,26 @@ BEGIN_NAMESPACE_DATABASE
 		/** Retrieves the value from a string
 		@param string
 		    The string containing the value
-		@param strSet
-		    Tells that the string effectively contains a value
 		@param value
 		    Receives the value
-		@param valSet
-		    Tells that the value was set, receives the new set status
 		@param size
 		    The old size, receives the new value size
+		@param connection
+		    The connection used to format the value
 		*/
-		static void FromStr( const String & string, bool strSet, value_type & value, bool & valSet, long & size )
+		bool FromStr( const String & string, value_type & value, unsigned long & size, DatabaseConnectionPtr connection )
 		{
-			if ( !valSet )
-			{
-				if ( strSet )
-				{
-					value = DoFromStr( string );
-					valSet = true;
-					size = sizeof( value_type );
-				}
-				else
-				{
-					//value = value_type();
-					//size = 0;
-				}
-			}
-		}
+			bool ret = !string.empty();
 
-		/** Puts the value into the given string
-		@param value
-		    The value
-		@param valSet
-		    Tells that the value is set
-		@param string
-		    Receives the string value
-		@param strSet
-		    Tells that the string was set, receives the new set status
-		*/
-		static void ToStr( const value_type & value, bool valSet, String & string, bool & strSet )
-		{
-			if ( !strSet )
+			if ( ret )
 			{
-				if ( valSet )
-				{
-					string += DoToStr( value );
-					strSet = true;
-				}
-				else
-				{
-					string.clear();
-				}
+				StringStream stream( string );
+				stream.precision( 20 );
+				stream >> value;
+				size = sizeof( value_type );
 			}
+
+			return ret;
 		}
 
 		/** Puts the value into the given string
@@ -642,34 +550,19 @@ BEGIN_NAMESPACE_DATABASE
 		@param result
 		    Receives the insertable value
 		*/
-		static String ToInsertable( const value_type & value, bool valSet, DatabaseConnectionPtr connection )
+		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )
 		{
 			if ( valSet )
 			{
-				return DoToStr( value );
+				StringStream stream;
+				stream.precision( 20 );
+				stream << value;
+				return stream.str();
 			}
 			else
 			{
 				return NULL_VALUE;
 			}
-		}
-
-	private:
-		static String DoToStr( const value_type & value )
-		{
-			StringStream stream;
-			stream.precision( 20 );
-			stream << value;
-			return stream.str();
-		}
-
-		static value_type DoFromStr( const String & value )
-		{
-			value_type result = value_type();
-			StringStream stream( value );
-			stream.precision( 20 );
-			stream >> result;
-			return result;
 		}
 	};
 
@@ -677,7 +570,7 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template<> class CDatabaseValuePolicy< bool >
 	{
-	private:
+	protected:
 		typedef bool value_type;
 
 	public:
@@ -685,7 +578,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param value
 		    The value
 		*/
-		static void Reset( value_type & value )
+		void Reset( value_type & value )
 		{
 			value = value_type();
 		}
@@ -695,26 +588,32 @@ BEGIN_NAMESPACE_DATABASE
 		    The input value
 		@param out
 		    The output value
-		@param valSet
-		    Receives the new setting status for the value
-		@param strSet
-		    Receives the new setting status for the string value
 		@param size
 		    Receives the new value size
+		@param connection
+		    The connection used to format the value
 		*/
-		static void Set( const value_type & in, value_type & out, bool & valSet, bool & strSet, long & size )
+		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
 		{
-			strSet = valSet && out == in;
 			out = in;
-			valSet = true;
 			size = sizeof( value_type );
+			return true;
 		}
 
 		/** Retrieves a pointer from the given value
 		@param value
 		    The value
 		*/
-		static void * Ptr( value_type & value )
+		void * Ptr( value_type & value )
+		{
+			return &value;
+		}
+
+		/** Retrieves a pointer from the given value
+		@param value
+		    The value
+		*/
+		value_type * TypedPtr( value_type & value )
 		{
 			return &value;
 		}
@@ -722,65 +621,25 @@ BEGIN_NAMESPACE_DATABASE
 		/** Retrieves the value from a string
 		@param string
 		    The string containing the value
-		@param strSet
-		    Tells that the string effectively contains a value
 		@param value
 		    Receives the value
-		@param valSet
-		    Tells that the value was set, receives the new set status
 		@param size
 		    The old size, receives the new value size
+		@param connection
+		    The connection used to format the value
 		*/
-		static void FromStr( const String & string, bool strSet, value_type & value, bool & valSet, long & size )
+		bool FromStr( const String & string, value_type & value, unsigned long & size, DatabaseConnectionPtr connection )
 		{
-			if ( !valSet )
-			{
-				if ( strSet )
-				{
-					String strTmp( CStrUtils::LowerCase( string ) );
-					value = strTmp == STR( "1" ) || strTmp == STR( "X" ) || strTmp == STR( "true" ) || strTmp == STR( "vrai" );
-					valSet = true;
-					size = sizeof( value_type );
-				}
-				else
-				{
-					//value = value_type();
-				}
-			}
-		}
+			bool ret = !string.empty();
 
-		/** Puts the value into the given string
-		@param value
-		    The value
-		@param valSet
-		    Tells that the value is set
-		@param string
-		    Receives the string value
-		@param strSet
-		    Tells that the string was set, receives the new set status
-		*/
-		static void ToStr( const value_type & value, bool valSet, String & string, bool & strSet )
-		{
-			if ( !strSet )
+			if ( ret )
 			{
-				if ( valSet )
-				{
-					if ( value )
-					{
-						string = STR( "1" );
-					}
-					else
-					{
-						string = STR( "0" );
-					}
-
-					strSet = true;
-				}
-				else
-				{
-					string.clear();
-				}
+				String strTmp( CStrUtils::LowerCase( string ) );
+				value = strTmp == STR( "1" ) || strTmp == STR( "X" ) || strTmp == STR( "true" ) || strTmp == STR( "vrai" );
+				size = sizeof( value_type );
 			}
+
+			return ret;
 		}
 
 		/** Puts the value into the given string
@@ -793,7 +652,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param result
 		    Receives the insertable value
 		*/
-		static String ToInsertable( const value_type & value, bool valSet, DatabaseConnectionPtr connection )
+		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )
 		{
 			if ( valSet )
 			{
@@ -810,7 +669,7 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template<> class CDatabaseValuePolicy< std::string >
 	{
-	private:
+	protected:
 		typedef std::string value_type;
 
 	public:
@@ -818,7 +677,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param value
 		    The value
 		*/
-		static void Reset( value_type & value )
+		void Reset( value_type & value )
 		{
 			value.clear();
 		}
@@ -828,26 +687,23 @@ BEGIN_NAMESPACE_DATABASE
 		    The input value
 		@param out
 		    The output value
-		@param valSet
-		    Receives the new setting status for the value
-		@param strSet
-		    Receives the new setting status for the string value
 		@param size
 		    Receives the new value size
+		@param connection
+		    The connection used to format the value
 		*/
-		static void Set( const value_type & in, value_type & out, bool & valSet, bool & strSet, long & size )
+		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
 		{
-			strSet = valSet && in == out;
 			out = in;
-			valSet = true;
-			size = long( in.size() );
+			size = ( unsigned long )( in.size() );
+			return true;
 		}
 
 		/** Retrieves a pointer from the given value
 		@param value
 		    The value
 		*/
-		static void * Ptr( value_type & value )
+		void * Ptr( value_type & value )
 		{
 			void * result = NULL;
 
@@ -859,59 +715,43 @@ BEGIN_NAMESPACE_DATABASE
 			return result;
 		}
 
+		/** Retrieves a pointer from the given value
+		@param value
+		    The value
+		*/
+		char * TypedPtr( value_type & value )
+		{
+			char * result = NULL;
+
+			if ( !value.empty() )
+			{
+				result = &value[0];
+			}
+
+			return result;
+		}
+
 		/** Retrieves the value from a string
 		@param string
 		    The string containing the value
-		@param strSet
-		    Tells that the string effectively contains a value
 		@param value
 		    Receives the value
-		@param valSet
-		    Tells that the value was set, receives the new set status
 		@param size
 		    The old size, receives the new value size
+		@param connection
+		    The connection used to format the value
 		*/
-		static void FromStr( const String & string, bool strSet, value_type & value, bool & valSet, long & size )
+		bool FromStr( const String & string, value_type & value, unsigned long & size, DatabaseConnectionPtr connection )
 		{
-			if ( !valSet )
-			{
-				if ( strSet )
-				{
-					value = CStrUtils::ToStr( string );
-					valSet = true;
-					size = long( value.size() );
-				}
-				else
-				{
-					//value = value_type();
-				}
-			}
-		}
+			bool ret = !string.empty();
 
-		/** Puts the value into the given string
-		@param value
-		    The value
-		@param valSet
-		    Tells that the value is set
-		@param string
-		    Receives the string value
-		@param strSet
-		    Tells that the string was set, receives the new set status
-		*/
-		static void ToStr( const value_type & value, bool valSet, String & string, bool & strSet )
-		{
-			if ( !strSet )
+			if ( ret )
 			{
-				if ( valSet )
-				{
-					string += CStrUtils::ToString( value );
-					strSet = true;
-				}
-				else
-				{
-					string.clear();
-				}
+				value = CStrUtils::ToStr( string );
+				size = ( unsigned long )( value.size() );
 			}
+
+			return ret;
 		}
 
 		/** Puts the value into the given string
@@ -924,7 +764,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param result
 		    Receives the insertable value
 		*/
-		static String ToInsertable( const value_type & value, bool valSet, DatabaseConnectionPtr connection )
+		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )
 		{
 			if ( valSet )
 			{
@@ -941,7 +781,7 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template<> class CDatabaseValuePolicy< std::wstring >
 	{
-	private:
+	protected:
 		typedef std::wstring value_type;
 
 	public:
@@ -949,7 +789,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param value
 		    The value
 		*/
-		static void Reset( value_type & value )
+		void Reset( value_type & value )
 		{
 			value.clear();
 		}
@@ -959,26 +799,23 @@ BEGIN_NAMESPACE_DATABASE
 		    The input value
 		@param out
 		    The output value
-		@param valSet
-		    Receives the new setting status for the value
-		@param strSet
-		    Receives the new setting status for the string value
 		@param size
 		    Receives the new value size
+		@param connection
+		    The connection used to format the value
 		*/
-		static void Set( const value_type & in, value_type & out, bool & valSet, bool & strSet, long & size )
+		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
 		{
-			strSet = valSet && in == out;
 			out = in;
-			valSet = true;
-			size = long( in.size() ) * sizeof( wchar_t );
+			size = ( unsigned long )( in.size() ) * sizeof( wchar_t );
+			return true;
 		}
 
 		/** Retrieves a pointer from the given value
 		@param value
 		    The value
 		*/
-		static void * Ptr( value_type & value )
+		void * Ptr( value_type & value )
 		{
 			void * result = NULL;
 
@@ -990,59 +827,43 @@ BEGIN_NAMESPACE_DATABASE
 			return result;
 		}
 
+		/** Retrieves a pointer from the given value
+		@param value
+		    The value
+		*/
+		wchar_t * TypedPtr( value_type & value )
+		{
+			wchar_t * result = NULL;
+
+			if ( !value.empty() )
+			{
+				result = &value[0];
+			}
+
+			return result;
+		}
+
 		/** Retrieves the value from a string
 		@param string
 		    The string containing the value
-		@param strSet
-		    Tells that the string effectively contains a value
 		@param value
 		    Receives the value
-		@param valSet
-		    Tells that the value was set, receives the new set status
 		@param size
 		    The old size, receives the new value size
+		@param connection
+		    The connection used to format the value
 		*/
-		static void FromStr( const String & string, bool strSet, value_type & value, bool & valSet, long & size )
+		bool FromStr( const String & string, value_type & value, unsigned long & size, DatabaseConnectionPtr connection )
 		{
-			if ( !valSet )
-			{
-				if ( strSet )
-				{
-					value = CStrUtils::ToWStr( string );
-					valSet = true;
-					size = long( value.size() ) * sizeof( wchar_t );
-				}
-				else
-				{
-					//value = value_type();
-				}
-			}
-		}
+			bool ret = !string.empty();
 
-		/** Puts the value into the given string
-		@param value
-		    The value
-		@param valSet
-		    Tells that the value is set
-		@param string
-		    Receives the string value
-		@param strSet
-		    Tells that the string was set, receives the new set status
-		*/
-		static void ToStr( const value_type & value, bool valSet, String & string, bool & strSet )
-		{
-			if ( !strSet )
+			if ( ret )
 			{
-				if ( valSet )
-				{
-					string += CStrUtils::ToString( value );
-					strSet = true;
-				}
-				else
-				{
-					string.clear();
-				}
+				value = CStrUtils::ToWStr( string );
+				size = ( unsigned long )( value.size() ) * sizeof( wchar_t );
 			}
+
+			return ret;
 		}
 
 		/** Puts the value into the given string
@@ -1055,7 +876,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param result
 		    Receives the insertable value
 		*/
-		static String ToInsertable( const value_type & value, bool valSet, DatabaseConnectionPtr connection )
+		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )
 		{
 			if ( valSet )
 			{
@@ -1072,7 +893,7 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template<> class CDatabaseValuePolicy< std::vector< uint8_t > >
 	{
-	private:
+	protected:
 		typedef std::vector< uint8_t > value_type;
 
 	public:
@@ -1080,7 +901,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param value
 		    The value
 		*/
-		static void Reset( value_type & value )
+		void Reset( value_type & value )
 		{
 			value.clear();
 		}
@@ -1090,33 +911,30 @@ BEGIN_NAMESPACE_DATABASE
 		    The input value
 		@param out
 		    The output value
-		@param valSet
-		    Receives the new setting status for the value
-		@param strSet
-		    Receives the new setting status for the string value
 		@param size
 		    Receives the new value size
+		@param connection
+		    The connection used to format the value
 		*/
-		static void Set( const value_type & in, value_type & out, bool & valSet, bool & strSet, long & size )
+		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
 		{
-			strSet = false;
 			out.clear();
 
 			if ( !in.empty() )
 			{
 				out.reserve( in.size() );
 				out.insert( out.end(), in.begin(), in.end() );
-				size = long( in.size() );
+				size = ( unsigned long )( in.size() );
 			}
 
-			valSet = true;
+			return true;
 		}
 
 		/** Retrieves a pointer from the given value
 		@param value
 		    The value
 		*/
-		static void * Ptr( value_type & value )
+		void * Ptr( value_type & value )
 		{
 			void * result = NULL;
 
@@ -1128,80 +946,52 @@ BEGIN_NAMESPACE_DATABASE
 			return result;
 		}
 
+		/** Retrieves a pointer from the given value
+		@param value
+		    The value
+		*/
+		uint8_t * TypedPtr( value_type & value )
+		{
+			uint8_t * result = NULL;
+
+			if ( !value.empty() )
+			{
+				result = value.data();
+			}
+
+			return result;
+		}
+
 		/** Retrieves the value from a string
 		@param string
 		    The string containing the value
-		@param strSet
-		    Tells that the string effectively contains a value
 		@param value
 		    Receives the value
-		@param valSet
-		    Tells that the value was set, receives the new set status
 		@param size
 		    The old size, receives the new value size
+		@param connection
+		    The connection used to format the value
 		*/
-		static void FromStr( const String & string, bool strSet, value_type & value, bool & valSet, long & size )
+		bool FromStr( const String & string, value_type & value, unsigned long & size, DatabaseConnectionPtr connection )
 		{
-			if ( !valSet )
-			{
-				if ( strSet )
-				{
-					if ( !string.empty() )
-					{
-						//StringStream stream( _value ); // Don't use this
-						std::istringstream stream( CStrUtils::ToStr( string ) );
-						size = long( string.size() );
-						value.reserve( size );
+			bool ret = !string.empty();
 
-						for ( long i = 0; i < size; ++i )
-						{
-							uint8_t byte;
-							stream >> byte;
-							value.push_back( byte );
-						}
-					}
-				}
-				else
+			if ( ret )
+			{
+				//StringStream stream( _value ); // Don't use this
+				std::istringstream stream( CStrUtils::ToStr( string ) );
+				size = ( unsigned long )( string.size() );
+				value.reserve( size );
+
+				for ( unsigned long i = 0; i < size; ++i )
 				{
-					//value = value_type();
+					uint8_t byte;
+					stream >> byte;
+					value.push_back( byte );
 				}
 			}
-		}
 
-		/** Puts the value into the given string
-		@param value
-		    The value
-		@param valSet
-		    Tells that the value is set
-		@param string
-		    Receives the string value
-		@param strSet
-		    Tells that the string was set, receives the new set status
-		*/
-		static void ToStr( const value_type & value, bool valSet, String & string, bool & strSet )
-		{
-			if ( !strSet )
-			{
-				if ( valSet )
-				{
-					if ( !value.empty() )
-					{
-						StringStream stream;
-
-						for ( std::vector< uint8_t >::const_iterator it = value.begin(); it != value.end(); ++it )
-						{
-							stream << ( *it );
-						}
-
-						string = stream.str();
-						strSet = true;
-					}
-				}
-				else
-				{
-					string.clear();
-				}
-			}
+			return ret;
 		}
 
 		/** Puts the value into the given string
@@ -1214,7 +1004,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param result
 		    Receives the insertable value
 		*/
-		static String ToInsertable( const value_type & value, bool valSet, DatabaseConnectionPtr connection )
+		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )
 		{
 			if ( valSet )
 			{
@@ -1235,6 +1025,339 @@ BEGIN_NAMESPACE_DATABASE
 				return NULL_VALUE;
 			}
 		}
+	};
+
+	/** Specialization for CDate data type
+	*/
+	template<> class CDatabaseValuePolicy< CDate >
+	{
+	protected:
+		typedef CDate value_type;
+
+	public:
+		/** Reinitializes the given value
+		@param value
+		    The value
+		*/
+		void Reset( value_type & value )
+		{
+			value = value_type();
+		}
+
+		/** Sets the value to the given one
+		@param in
+		    The input value
+		@param out
+		    The output value
+		@param size
+		    Receives the new value size
+		@param connection
+		    The connection used to format the value
+		*/
+		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
+		{
+			out = in;
+			size = ( unsigned long )( connection->GetStmtDateSize() );
+			_value = connection->WriteStmtDate( out );
+			return true;
+		}
+
+		/** Retrieves a pointer from the given value
+		@param value
+		    The value
+		*/
+		void * Ptr( value_type & value )
+		{
+			void * result = NULL;
+
+			if ( !_value.empty() )
+			{
+				result = ( void * )_value.data();
+			}
+
+			return result;
+		}
+
+		/** Retrieves a pointer from the given value
+		@param value
+		    The value
+		*/
+		value_type * TypedPtr( value_type & value )
+		{
+			return &value;
+		}
+
+		/** Retrieves the value from a string
+		@param string
+		    The string containing the value
+		@param value
+		    Receives the value
+		@param size
+		    The old size, receives the new value size
+		@param connection
+		    The connection used to format the value
+		*/
+		bool FromStr( const String & string, value_type & value, unsigned long & size, DatabaseConnectionPtr connection )
+		{
+			_value = string;
+			bool ret = !string.empty();
+
+			if ( ret )
+			{
+				value = connection->ParseDate( string );
+				size = ( unsigned long )( connection->GetStmtDateSize() );
+				_value = connection->WriteStmtDate( value );
+			}
+
+			return ret;
+		}
+
+		/** Puts the value into the given string
+		@param value
+		    The value
+		@param valSet
+		    Tells that the value is set
+		@param connection
+		    The connection used to format the value
+		@param result
+		    Receives the insertable value
+		*/
+		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )
+		{
+			if ( valSet )
+			{
+				return CStrUtils::ToString( connection->WriteDate( value ) );
+			}
+			else
+			{
+				return NULL_VALUE;
+			}
+		}
+
+	private:
+		std::string _value;
+	};
+
+	/** Specialization for CTime data type
+	*/
+	template<> class CDatabaseValuePolicy< CTime >
+	{
+	protected:
+		typedef CTime value_type;
+
+	public:
+		/** Reinitializes the given value
+		@param value
+		    The value
+		*/
+		void Reset( value_type & value )
+		{
+			value = value_type();
+		}
+
+		/** Sets the value to the given one
+		@param in
+		    The input value
+		@param out
+		    The output value
+		@param size
+		    Receives the new value size
+		@param connection
+		    The connection used to format the value
+		*/
+		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
+		{
+			out = in;
+			size = ( unsigned long )( connection->GetStmtTimeSize() );
+			_value = connection->WriteStmtTime( out );
+			return true;
+		}
+
+		/** Retrieves a pointer from the given value
+		@param value
+		    The value
+		*/
+		void * Ptr( value_type & value )
+		{
+			void * result = NULL;
+
+			if ( !_value.empty() )
+			{
+				result = ( void * )_value.data();
+			}
+
+			return result;
+		}
+
+		/** Retrieves a pointer from the given value
+		@param value
+		    The value
+		*/
+		value_type * TypedPtr( value_type & value )
+		{
+			return &value;
+		}
+
+		/** Retrieves the value from a string
+		@param string
+		    The string containing the value
+		@param value
+		    Receives the value
+		@param size
+		    The old size, receives the new value size
+		@param connection
+		    The connection used to format the value
+		*/
+		bool FromStr( const String & string, value_type & value, unsigned long & size, DatabaseConnectionPtr connection )
+		{
+			_value = string;
+			bool ret = !string.empty();
+
+			if ( ret )
+			{
+				value = connection->ParseTime( string );
+				size = ( unsigned long )( connection->GetStmtTimeSize() );
+				_value = connection->WriteStmtTime( value );
+			}
+
+			return ret;
+		}
+
+		/** Puts the value into the given string
+		@param value
+		    The value
+		@param valSet
+		    Tells that the value is set
+		@param connection
+		    The connection used to format the value
+		@param result
+		    Receives the insertable value
+		*/
+		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )
+		{
+			if ( valSet )
+			{
+				return CStrUtils::ToString( connection->WriteTime( value ) );
+			}
+			else
+			{
+				return NULL_VALUE;
+			}
+		}
+
+	private:
+		std::string _value;
+	};
+
+	/** Specialization for CDateTime data type
+	*/
+	template<> class CDatabaseValuePolicy< CDateTime >
+	{
+	protected:
+		typedef CDateTime value_type;
+
+	public:
+		/** Reinitializes the given value
+		@param value
+		    The value
+		*/
+		void Reset( value_type & value )
+		{
+			value = value_type();
+		}
+
+		/** Sets the value to the given one
+		@param in
+		    The input value
+		@param out
+		    The output value
+		@param size
+		    Receives the new value size
+		@param connection
+		    The connection used to format the value
+		*/
+		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
+		{
+			out = in;
+			size = ( unsigned long )( connection->GetStmtDateTimeSize() );
+			_value = connection->WriteStmtDateTime( out );
+			return true;
+		}
+
+		/** Retrieves a pointer from the given value
+		@param value
+		    The value
+		*/
+		void * Ptr( value_type & value )
+		{
+			void * result = NULL;
+
+			if ( !_value.empty() )
+			{
+				result = ( void * )_value.data();
+			}
+
+			return result;
+		}
+
+		/** Retrieves a pointer from the given value
+		@param value
+		    The value
+		*/
+		value_type * TypedPtr( value_type & value )
+		{
+			return &value;
+		}
+
+		/** Retrieves the value from a string
+		@param string
+		    The string containing the value
+		@param value
+		    Receives the value
+		@param size
+		    The old size, receives the new value size
+		@param connection
+		    The connection used to format the value
+		*/
+		bool FromStr( const String & string, value_type & value, unsigned long & size, DatabaseConnectionPtr connection )
+		{
+			_value = string;
+			bool ret = !string.empty();
+
+			if ( ret )
+			{
+				value = connection->ParseDateTime( string );
+				size = ( unsigned long )( connection->GetStmtDateTimeSize() );
+				_value = connection->WriteStmtDateTime( value );
+			}
+
+			return ret;
+		}
+
+		/** Puts the value into the given string
+		@param value
+		    The value
+		@param valSet
+		    Tells that the value is set
+		@param connection
+		    The connection used to format the value
+		@param result
+		    Receives the insertable value
+		*/
+		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )
+		{
+			if ( valSet )
+			{
+				return CStrUtils::ToString( connection->WriteDateTime( value ) );
+			}
+			else
+			{
+				return NULL_VALUE;
+			}
+		}
+
+	private:
+		std::string _value;
 	};
 }
 END_NAMESPACE_DATABASE

@@ -5,7 +5,7 @@
 * @date 3/20/2014 11:56:56 AM
 *
 *
-* @brief SParameterValueSetterBase and SParameterValueSetter classes.
+* @brief SSqliteParameterValueSetterBase and SSqliteParameterValueSetter classes.
 *
 * @details Functors used to set the parameter value in a statement.
 *
@@ -27,12 +27,12 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 	/** Base setter class
 	*/
-	struct SParameterValueSetterBase
+	struct SSqliteParameterValueSetterBase
 	{
 public:
 		/** Destructor
 		*/
-		virtual ~SParameterValueSetterBase()
+		virtual ~SSqliteParameterValueSetterBase()
 		{
 		}
 		/** Setter function
@@ -62,24 +62,24 @@ protected:
 	/** Generic template class to set the parameter value
 	*/
 	template< EFieldType Type >
-	struct SParameterValueSetter
-			: public SParameterValueSetterBase
+	struct SSqliteParameterValueSetter
+			: public SSqliteParameterValueSetterBase
 	{
 private:
-		//!@copydoc SParameterValueSetterBase::DoSetValue
+		//!@copydoc SSqliteParameterValueSetterBase::DoSetValue
 		virtual SQLite::eCODE DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter )
 		{
-			throw std::runtime_error( "SParameterValueSetter::DoSetValue not implemented for this data type" );
+			throw std::runtime_error( "SSqliteParameterValueSetter::DoSetValue not implemented for this data type" );
 		}
 	};
 	/** Specialization for EFieldType_BOOL
 	*/
 	template<>
-	struct SParameterValueSetter< EFieldType_BOOL >
-			: public SParameterValueSetterBase
+	struct SSqliteParameterValueSetter< EFieldType_BOOL >
+			: public SSqliteParameterValueSetterBase
 	{
 private:
-		//!@copydoc SParameterValueSetterBase::DoSetValue
+		//!@copydoc SSqliteParameterValueSetterBase::DoSetValue
 		virtual SQLite::eCODE DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter )
 		{
 			return SQLite::BindInt( statement, parameter->GetIndex(), ( *static_cast< const bool * >( value ) ) ? 1 : 0 );
@@ -88,11 +88,11 @@ private:
 	/** Specialization for EFieldType_SMALL_INTEGER
 	*/
 	template<>
-	struct SParameterValueSetter< EFieldType_SMALL_INTEGER >
-			: public SParameterValueSetterBase
+	struct SSqliteParameterValueSetter< EFieldType_SMALL_INTEGER >
+			: public SSqliteParameterValueSetterBase
 	{
 private:
-		//!@copydoc SParameterValueSetterBase::DoSetValue
+		//!@copydoc SSqliteParameterValueSetterBase::DoSetValue
 		virtual SQLite::eCODE DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter )
 		{
 			return SQLite::BindInt( statement, parameter->GetIndex(), *static_cast< const int16_t * >( value ) );
@@ -101,11 +101,11 @@ private:
 	/** Specialization for EFieldType_INTEGER
 	*/
 	template<>
-	struct SParameterValueSetter< EFieldType_INTEGER >
-			: public SParameterValueSetterBase
+	struct SSqliteParameterValueSetter< EFieldType_INTEGER >
+			: public SSqliteParameterValueSetterBase
 	{
 private:
-		//!@copydoc SParameterValueSetterBase::DoSetValue
+		//!@copydoc SSqliteParameterValueSetterBase::DoSetValue
 		virtual SQLite::eCODE DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter )
 		{
 			return SQLite::BindInt( statement, parameter->GetIndex(), *static_cast< const int32_t * >( value ) );
@@ -114,11 +114,11 @@ private:
 	/** Specialization for EFieldType_LONG_INTEGER
 	*/
 	template<>
-	struct SParameterValueSetter< EFieldType_LONG_INTEGER >
-			: public SParameterValueSetterBase
+	struct SSqliteParameterValueSetter< EFieldType_LONG_INTEGER >
+			: public SSqliteParameterValueSetterBase
 	{
 private:
-		//!@copydoc SParameterValueSetterBase::DoSetValue
+		//!@copydoc SSqliteParameterValueSetterBase::DoSetValue
 		virtual SQLite::eCODE DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter )
 		{
 			return SQLite::BindInt64( statement, parameter->GetIndex(), *static_cast< const SQLite::Int64 * >( value ) );
@@ -127,11 +127,11 @@ private:
 	/** Specialization for EFieldType_FLOAT
 	*/
 	template<>
-	struct SParameterValueSetter< EFieldType_FLOAT >
-			: public SParameterValueSetterBase
+	struct SSqliteParameterValueSetter< EFieldType_FLOAT >
+			: public SSqliteParameterValueSetterBase
 	{
 private:
-		//!@copydoc SParameterValueSetterBase::DoSetValue
+		//!@copydoc SSqliteParameterValueSetterBase::DoSetValue
 		virtual SQLite::eCODE DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter )
 		{
 			return SQLite::BindDouble( statement, parameter->GetIndex(), *static_cast< const float * >( value ) );
@@ -140,11 +140,11 @@ private:
 	/** Specialization for EFieldType_DOUBLE
 	*/
 	template<>
-	struct SParameterValueSetter< EFieldType_DOUBLE >
-			: public SParameterValueSetterBase
+	struct SSqliteParameterValueSetter< EFieldType_DOUBLE >
+			: public SSqliteParameterValueSetterBase
 	{
 private:
-		//!@copydoc SParameterValueSetterBase::DoSetValue
+		//!@copydoc SSqliteParameterValueSetterBase::DoSetValue
 		virtual SQLite::eCODE DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter )
 		{
 			return SQLite::BindDouble( statement, parameter->GetIndex(), *static_cast< const double * >( value ) );
@@ -153,11 +153,11 @@ private:
 	/** Specialization for EFieldType_VARCHAR
 	*/
 	template<>
-	struct SParameterValueSetter< EFieldType_VARCHAR >
-			: public SParameterValueSetterBase
+	struct SSqliteParameterValueSetter< EFieldType_VARCHAR >
+			: public SSqliteParameterValueSetterBase
 	{
 private:
-		//!@copydoc SParameterValueSetterBase::DoSetValue
+		//!@copydoc SSqliteParameterValueSetterBase::DoSetValue
 		virtual SQLite::eCODE DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter )
 		{
 			return SQLite::BindText( statement, parameter->GetIndex(), static_cast< const char * >( value ), parameter->GetObjectValue().GetPtrSize(), SQLite::NULL_DESTRUCTOR );
@@ -166,11 +166,11 @@ private:
 	/** Specialization for EFieldType_TEXT
 	*/
 	template<>
-	struct SParameterValueSetter< EFieldType_TEXT >
-			: public SParameterValueSetterBase
+	struct SSqliteParameterValueSetter< EFieldType_TEXT >
+			: public SSqliteParameterValueSetterBase
 	{
 private:
-		//!@copydoc SParameterValueSetterBase::DoSetValue
+		//!@copydoc SSqliteParameterValueSetterBase::DoSetValue
 		virtual SQLite::eCODE DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter )
 		{
 			return SQLite::BindText( statement, parameter->GetIndex(), static_cast< const char * >( value ), parameter->GetObjectValue().GetPtrSize(), SQLite::NULL_DESTRUCTOR );
@@ -179,11 +179,11 @@ private:
 	/** Specialization for EFieldType_NVARCHAR
 	*/
 	template<>
-	struct SParameterValueSetter< EFieldType_NVARCHAR >
-			: public SParameterValueSetterBase
+	struct SSqliteParameterValueSetter< EFieldType_NVARCHAR >
+			: public SSqliteParameterValueSetterBase
 	{
 private:
-		//!@copydoc SParameterValueSetterBase::DoSetValue
+		//!@copydoc SSqliteParameterValueSetterBase::DoSetValue
 		virtual SQLite::eCODE DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter )
 		{
 			return SQLite::BindText16( statement, parameter->GetIndex(), value, parameter->GetObjectValue().GetPtrSize(), SQLite::NULL_DESTRUCTOR );
@@ -192,11 +192,11 @@ private:
 	/** Specialization for EFieldType_NTEXT
 	*/
 	template<>
-	struct SParameterValueSetter< EFieldType_NTEXT >
-			: public SParameterValueSetterBase
+	struct SSqliteParameterValueSetter< EFieldType_NTEXT >
+			: public SSqliteParameterValueSetterBase
 	{
 private:
-		//!@copydoc SParameterValueSetterBase::DoSetValue
+		//!@copydoc SSqliteParameterValueSetterBase::DoSetValue
 		virtual SQLite::eCODE DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter )
 		{
 			return SQLite::BindText16( statement, parameter->GetIndex(), value, parameter->GetObjectValue().GetPtrSize(), SQLite::NULL_DESTRUCTOR );
@@ -205,11 +205,11 @@ private:
 	/** Specialization for EFieldType_DATE
 	*/
 	template<>
-	struct SParameterValueSetter< EFieldType_DATE >
-			: public SParameterValueSetterBase
+	struct SSqliteParameterValueSetter< EFieldType_DATE >
+			: public SSqliteParameterValueSetterBase
 	{
 private:
-		//!@copydoc SParameterValueSetterBase::DoSetValue
+		//!@copydoc SSqliteParameterValueSetterBase::DoSetValue
 		virtual SQLite::eCODE DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter )
 		{
 			return SQLite::BindText( statement, parameter->GetIndex(), static_cast< const char * >( value ), parameter->GetObjectValue().GetPtrSize(), SQLite::NULL_DESTRUCTOR );
@@ -218,11 +218,11 @@ private:
 	/** Specialization for EFieldType_DATETIME
 	*/
 	template<>
-	struct SParameterValueSetter< EFieldType_DATETIME >
-			: public SParameterValueSetterBase
+	struct SSqliteParameterValueSetter< EFieldType_DATETIME >
+			: public SSqliteParameterValueSetterBase
 	{
 private:
-		//!@copydoc SParameterValueSetterBase::DoSetValue
+		//!@copydoc SSqliteParameterValueSetterBase::DoSetValue
 		virtual SQLite::eCODE DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter )
 		{
 			return SQLite::BindText( statement, parameter->GetIndex(), static_cast< const char * >( value ), parameter->GetObjectValue().GetPtrSize(), SQLite::NULL_DESTRUCTOR );
@@ -231,11 +231,11 @@ private:
 	/** Specialization for EFieldType_TIME
 	*/
 	template<>
-	struct SParameterValueSetter< EFieldType_TIME >
-			: public SParameterValueSetterBase
+	struct SSqliteParameterValueSetter< EFieldType_TIME >
+			: public SSqliteParameterValueSetterBase
 	{
 private:
-		//!@copydoc SParameterValueSetterBase::DoSetValue
+		//!@copydoc SSqliteParameterValueSetterBase::DoSetValue
 		virtual SQLite::eCODE DoSetValue( SQLite::Statement * statement, const void * value, CDatabaseStatementParameterSqlite * parameter )
 		{
 			return SQLite::BindText( statement, parameter->GetIndex(), static_cast< const char * >( value ), parameter->GetObjectValue().GetPtrSize(), SQLite::NULL_DESTRUCTOR );

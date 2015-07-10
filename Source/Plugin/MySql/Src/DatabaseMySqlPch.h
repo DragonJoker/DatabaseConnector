@@ -23,7 +23,6 @@
 #include <DatabaseConnection.h>
 #include <DatabaseField.h>
 #include <DatabaseParameter.h>
-#include <DatabaseParameterValueSetter.h>
 #include <DatabaseQuery.h>
 #include <DatabaseResult.h>
 #include <DatabaseRow.h>

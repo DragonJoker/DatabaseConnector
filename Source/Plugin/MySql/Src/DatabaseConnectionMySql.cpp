@@ -149,9 +149,9 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			return result;
 		}
 
-		std::unique_ptr< CMySqlBindBase > GetInBind( enum_field_types sqlType, MYSQL_BIND & bind )
+		std::unique_ptr< CInMySqlBindBase > GetInBind( enum_field_types sqlType, MYSQL_BIND & bind )
 		{
-			std::unique_ptr< CMySqlBindBase > result;
+			std::unique_ptr< CInMySqlBindBase > result;
 			bind.buffer_type = sqlType;
 
 			switch ( sqlType )
@@ -217,7 +217,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			return result;
 		}
 
-		DatabaseFieldInfosPtrArray GetColumns( MYSQL_STMT * stmt, DatabaseConnectionPtr pConnexion, std::vector< std::unique_ptr< CMySqlBindBase > > & inbinds, std::vector< MYSQL_BIND > & binds )
+		DatabaseFieldInfosPtrArray GetColumns( MYSQL_STMT * stmt, DatabaseConnectionPtr pConnexion, std::vector< std::unique_ptr< CInMySqlBindBase > > & inbinds, std::vector< MYSQL_BIND > & binds )
 		{
 			MYSQL_RES * data = mysql_stmt_result_metadata( stmt );
 
@@ -243,7 +243,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			return arrayReturn;
 		}
 
-		DatabaseResultPtr Execute( MYSQL_STMT * statement, DatabaseFieldInfosPtrArray const & arrayColumns, DatabaseConnectionPtr pConnexion, std::vector< std::unique_ptr< CMySqlBindBase > > const & inbinds, std::vector< MYSQL_BIND > & binds )
+		DatabaseResultPtr Execute( MYSQL_STMT * statement, DatabaseFieldInfosPtrArray const & arrayColumns, DatabaseConnectionPtr pConnexion, std::vector< std::unique_ptr< CInMySqlBindBase > > const & inbinds, std::vector< MYSQL_BIND > & binds )
 		{
 			DatabaseResultPtr pReturn;
 
@@ -883,6 +883,21 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		return dateTimeObj;
 	}
 
+	unsigned long CDatabaseConnectionMySql::GetStmtDateSize()const
+	{
+		return ( unsigned long )sizeof( MYSQL_TIME );
+	}
+
+	unsigned long CDatabaseConnectionMySql::GetStmtDateTimeSize()const
+	{
+		return ( unsigned long )sizeof( MYSQL_TIME );
+	}
+
+	unsigned long CDatabaseConnectionMySql::GetStmtTimeSize()const
+	{
+		return ( unsigned long )sizeof( MYSQL_TIME );
+	}
+
 	MYSQL * CDatabaseConnectionMySql::GetConnection() const
 	{
 		return _connection;
@@ -1138,7 +1153,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			{
 				DatabaseConnectionPtr connection = shared_from_this();
 				std::vector< MYSQL_BIND > binds;
-				std::vector< std::unique_ptr< CMySqlBindBase > > inbinds;
+				std::vector< std::unique_ptr< CInMySqlBindBase > > inbinds;
 				DatabaseFieldInfosPtrArray columns = GetColumns( statement, connection, inbinds, binds );
 				pResult = Execute( statement, columns, connection, inbinds, binds );
 			}

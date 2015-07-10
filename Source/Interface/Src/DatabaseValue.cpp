@@ -18,9 +18,8 @@
 BEGIN_NAMESPACE_DATABASE
 {
 	CDatabaseValueBase::CDatabaseValueBase( DatabaseConnectionPtr connection )
-		: _isValueAsStringSet( false )
-		, _isValueSet( false )
-		, _connection( connection )
+		: _connection( connection )
+		, _valueSize( 0 )
 	{
 		// Empty
 	}
@@ -30,22 +29,8 @@ BEGIN_NAMESPACE_DATABASE
 		// Empty
 	}
 
-	void CDatabaseValueBase::SetStrValue( const String & value )
+	const unsigned long & CDatabaseValueBase::GetPtrSize()
 	{
-		_isValueAsStringSet = true;
-		_isValueSet = _value == value;
-		_value = value;
-	}
-
-	const String & CDatabaseValueBase::GetStrValue()
-	{
-		DoUpdateStrValue();
-		return _value;
-	}
-
-	const long & CDatabaseValueBase::GetPtrSize()
-	{
-		DoUpdateTValue();
 		return _valueSize;
 	}
 
@@ -62,13 +47,6 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			DoSetNull();
 		}
-	}
-
-	void CDatabaseValueBase::DoReset()
-	{
-		_value.clear();
-		_isValueAsStringSet = false;
-		_isValueSet = false;
 	}
 }
 END_NAMESPACE_DATABASE

@@ -22,18 +22,6 @@
 
 BEGIN_NAMESPACE_DATABASE_MYSQL
 {
-	/** Used to stream a byte array into an std::istream
-	*/
-	struct membuf
-			: std::streambuf
-	{
-		/** Consctructor
-		*/
-		membuf( char * begin, char * end )
-		{
-			this->setg( begin, begin, end );
-		}
-	};
 	/** Describes a statement parameter for MYSQL database.
 	*/
 	class CDatabaseStatementParameterMySql
@@ -119,34 +107,34 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 	private:
 		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( bool value );
+		virtual void DoSetValue( const bool & value );
 
 		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( int16_t value );
+		virtual void DoSetValue( const int16_t & value );
 
 		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( uint16_t value );
+		virtual void DoSetValue( const uint16_t & value );
 
 		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( int32_t value );
+		virtual void DoSetValue( const int32_t & value );
 
 		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( uint32_t value );
+		virtual void DoSetValue( const uint32_t & value );
 
 		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( int64_t value );
+		virtual void DoSetValue( const int64_t & value );
 
 		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( uint64_t value );
+		virtual void DoSetValue( const uint64_t & value );
 
 		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( float value );
+		virtual void DoSetValue( const float & value );
 
 		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( double value );
+		virtual void DoSetValue( const double & value );
 
 		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( long double value );
+		virtual void DoSetValue( const long double & value );
 
 		//!@copydoc Database::CDatabaseParameter::DoSetValue
 		virtual void DoSetValue( const char * value );
@@ -155,7 +143,13 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		virtual void DoSetValue( const wchar_t * value );
 
 		//!@copydoc Database::CDatabaseParameter::DoSetValue
-		virtual void DoSetValue( std::vector< uint8_t > & value );
+		virtual void DoSetValue( const std::string & value );
+
+		//!@copydoc Database::CDatabaseParameter::DoSetValue
+		virtual void DoSetValue( const std::wstring & value );
+
+		//!@copydoc Database::CDatabaseParameter::DoSetValue
+		virtual void DoSetValue( const std::vector< uint8_t > & value );
 
 		//!@copydoc Database::CDatabaseParameter::DoSetValue
 		virtual void DoSetValue( const CDateTime & value );
@@ -165,9 +159,65 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 		//!@copydoc Database::CDatabaseParameter::DoSetValue
 		virtual void DoSetValue( const CTime & value );
+		
+		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
+		virtual void DoSetValueFast( const bool & value );
 
+		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
+		virtual void DoSetValueFast( const int16_t & value );
+
+		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
+		virtual void DoSetValueFast( const uint16_t & value );
+
+		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
+		virtual void DoSetValueFast( const int32_t & value );
+
+		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
+		virtual void DoSetValueFast( const uint32_t & value );
+
+		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
+		virtual void DoSetValueFast( const int64_t & value );
+
+		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
+		virtual void DoSetValueFast( const uint64_t & value );
+
+		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
+		virtual void DoSetValueFast( const float & value );
+
+		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
+		virtual void DoSetValueFast( const double & value );
+
+		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
+		virtual void DoSetValueFast( const long double & value );
+
+		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
+		virtual void DoSetValueFast( const char * value );
+
+		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
+		virtual void DoSetValueFast( const wchar_t * value );
+
+		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
+		virtual void DoSetValueFast( const std::string & value );
+
+		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
+		virtual void DoSetValueFast( const std::wstring & value );
+
+		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
+		virtual void DoSetValueFast( const std::vector< uint8_t > & value );
+
+		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
+		virtual void DoSetValueFast( const CDateTime & value );
+
+		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
+		virtual void DoSetValueFast( const CDate & value );
+
+		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
+		virtual void DoSetValueFast( const CTime & value );
+
+		//! The value setter
+		std::unique_ptr< SMySqlParameterValueSetterBase > _setter;
 		//! The data binding
-		std::unique_ptr< SParameterValueSetterBase > _setter;
+		std::unique_ptr< COutMySqlBindBase > _binding;
 		//! The prepared statement
 		MYSQL_STMT * _statement;
 	};

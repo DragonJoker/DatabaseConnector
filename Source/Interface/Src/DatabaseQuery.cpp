@@ -225,12 +225,12 @@ BEGIN_NAMESPACE_DATABASE
 
 			if ( parameter->GetParamType() == EParameterType_IN )
 			{
-				query << parameter->GetObjectValue().GetQueryValue().c_str();
+				query << parameter->GetObjectValue().GetQueryValue( !parameter->GetObjectValue().IsNull() ).c_str();
 			}
 			else if ( parameter->GetParamType() == EParameterType_INOUT )
 			{
 				query << SQL_PARAM + parameter->GetName();
-				inOutInitializers.push_back( SQL_SET + parameter->GetName() + STR( " = " ) + parameter->GetObjectValue().GetQueryValue() );
+				inOutInitializers.push_back( SQL_SET + parameter->GetName() + STR( " = " ) + parameter->GetObjectValue().GetQueryValue( !parameter->GetObjectValue().IsNull() ) );
 				outParams.push_back( parameter );
 			}
 			else if ( parameter->GetParamType() == EParameterType_OUT )

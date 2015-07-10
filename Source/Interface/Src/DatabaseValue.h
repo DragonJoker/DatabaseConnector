@@ -45,13 +45,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] value
 		    Field value as string.
 		*/
-		DatabaseExport void SetStrValue( const String & value );
-
-		/** Get value as string.
-		@return
-		    Field value as string.
-		*/
-		DatabaseExport const String & GetStrValue();
+		DatabaseExport virtual void FromString( const String & value ) = 0;
 
 		/** Defines this value from the given one
 		@param value
@@ -60,12 +54,14 @@ BEGIN_NAMESPACE_DATABASE
 		    The field size limit
 		*/
 		DatabaseExport virtual void SetValue( CDatabaseValueBase const & value ) = 0;
-
-		/** Get parameter value as a string.
+		
+		/** Get the value.
+		@param valueSet
+			Tells if the value is set (true) or NULL (false)
 		@return
-		    Parameter value as a string.
+		    The value.
 		*/
-		DatabaseExport virtual String GetQueryValue() = 0;
+		DatabaseExport virtual String GetQueryValue( bool valueSet ) = 0;
 
 		/** Get a pointer to the value.
 		@return
@@ -81,7 +77,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    The size.
 		*/
-		DatabaseExport const long & GetPtrSize();
+		DatabaseExport const unsigned long & GetPtrSize();
 
 		/** Check if value is NULL.
 		@return
@@ -94,33 +90,16 @@ BEGIN_NAMESPACE_DATABASE
 		DatabaseExport void SetNull( bool null = true );
 
 	protected:
-		/** Update value as string from the typed value.
-		*/
-		DatabaseExport virtual void DoUpdateStrValue() = 0;
-
-		/** Update typed value from the value as string.
-		*/
-		DatabaseExport virtual void DoUpdateTValue() = 0;
 
 		/** Set parameter value to NULL.
 		*/
 		DatabaseExport virtual void DoSetNull() = 0;
 
-		/** Re-initialize internal values: indeterminate states.
-		 */
-		DatabaseExport void DoReset();
-
 	protected:
-		//! Value as string.
-		String _value;
 		//! Value size
-		long _valueSize;
+		unsigned long _valueSize;
 		/// Value is NULL or not.
 		bool _isNull;
-		//! Internal state.
-		bool _isValueAsStringSet;
-		//! Internal state.
-		bool _isValueSet;
 		//! The database connection
 		DatabaseConnectionPtr _connection;
 	};

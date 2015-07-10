@@ -18,7 +18,6 @@
 #include "Database.h"
 #include "DatabaseField.h"
 #include "DatabaseException.h"
-#include "DatabaseParameterValueSetter.h"
 
 BEGIN_NAMESPACE_DATABASE
 {

@@ -243,7 +243,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 						if ( !bNull )
 						{
-							field->GetObjectValue().SetStrValue( CStrUtils::ToString( strFieldValue ) );
+							field->GetObjectValue().FromString( CStrUtils::ToString( strFieldValue ) );
 						}
 						else
 						{

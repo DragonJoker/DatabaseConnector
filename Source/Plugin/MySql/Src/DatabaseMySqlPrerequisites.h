@@ -54,7 +54,7 @@ BEGIN_NAMESPACE_DATABASE
 		class CExceptionDatabaseMySql;
 		class CPluginDatabaseMySql;
 		class CFactoryDatabaseMySql;
-		struct SParameterValueSetterBase;
+		struct SMySqlParameterValueSetterBase;
 
 		// Pointers
 		typedef std::shared_ptr< CDatabaseConnectionMySql > DatabaseConnectionMySqlPtr;
@@ -75,26 +75,37 @@ BEGIN_NAMESPACE_DATABASE
 		struct CMySqlBindBase
 		{
 			my_bool _null = 0;
-			unsigned long _length = 0;
 			my_bool _error = 0;
 			MYSQL_BIND & _bind;
 
 			CMySqlBindBase( MYSQL_BIND & bind )
 				: _bind( bind )
 			{
-				bind.length = &_length;
 				bind.error = &_error;
 				bind.is_null = &_null;
 			}
 		};
 
-		template< typename T, typename U = T > struct CInMySqlBind
-				: public CMySqlBindBase
+		struct CInMySqlBindBase
+			: public CMySqlBindBase
+		{
+			unsigned long _length = 0;
+
+			CInMySqlBindBase( MYSQL_BIND & bind )
+				: CMySqlBindBase( bind )
+			{
+				bind.length = &_length;
+			}
+		};
+
+		template< typename T, typename U = T >
+		struct CInMySqlBind
+			: public CInMySqlBindBase
 		{
 			T _value;
 
 			CInMySqlBind( MYSQL_BIND & bind )
-				: CMySqlBindBase( bind )
+				: CInMySqlBindBase( bind )
 			{
 				bind.buffer = &_value;
 			}
@@ -105,13 +116,14 @@ BEGIN_NAMESPACE_DATABASE
 			}
 		};
 
-		template<> struct CInMySqlBind< bool, bool >
-				: public CMySqlBindBase
+		template<>
+		struct CInMySqlBind< bool, bool >
+			: public CInMySqlBindBase
 		{
 			int8_t _value;
 
 			CInMySqlBind( MYSQL_BIND & bind )
-				: CMySqlBindBase( bind )
+				: CInMySqlBindBase( bind )
 			{
 				bind.buffer = &_value;
 			}
@@ -122,13 +134,14 @@ BEGIN_NAMESPACE_DATABASE
 			}
 		};
 
-		template< typename T > struct CInMySqlBind< T *, T * >
-				: public CMySqlBindBase
+		template< typename T >
+		struct CInMySqlBind< T *, T * >
+			: public CInMySqlBindBase
 		{
 			T _value[8192];
 
 			CInMySqlBind( MYSQL_BIND & bind )
-				: CMySqlBindBase( bind )
+				: CInMySqlBindBase( bind )
 			{
 				memset( _value, 0, sizeof( _value ) );
 				bind.buffer = _value;
@@ -141,13 +154,14 @@ BEGIN_NAMESPACE_DATABASE
 			}
 		};
 
-		template<> struct CInMySqlBind< char *, double >
-				: public CMySqlBindBase
+		template<>
+		struct CInMySqlBind< char *, double >
+			: public CInMySqlBindBase
 		{
 			char _value[8192];
 
 			CInMySqlBind( MYSQL_BIND & bind )
-				: CMySqlBindBase( bind )
+				: CInMySqlBindBase( bind )
 			{
 				memset( _value, 0, sizeof( _value ) );
 				bind.buffer = _value;
@@ -160,13 +174,14 @@ BEGIN_NAMESPACE_DATABASE
 			}
 		};
 
-		template<> struct CInMySqlBind< char *, int32_t >
-				: public CMySqlBindBase
+		template<>
+		struct CInMySqlBind< char *, int32_t >
+			: public CInMySqlBindBase
 		{
 			char _value[8192];
 
 			CInMySqlBind( MYSQL_BIND & bind )
-				: CMySqlBindBase( bind )
+				: CInMySqlBindBase( bind )
 			{
 				memset( _value, 0, sizeof( _value ) );
 				bind.buffer = _value;
@@ -176,6 +191,16 @@ BEGIN_NAMESPACE_DATABASE
 			int32_t GetValue()const
 			{
 				return CStrUtils::ToInt( _value );
+			}
+		};
+
+		struct COutMySqlBindBase
+			: public CMySqlBindBase
+		{
+			COutMySqlBindBase( MYSQL_BIND & bind, enum_field_types type )
+				: CMySqlBindBase( bind )
+			{
+				_bind.buffer_type = type;
 			}
 		};
 

@@ -185,10 +185,10 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
 		virtual void DoSetValueFast( const wchar_t * value );
 
-		//!@copydoc Database::CDatabaseParameter::DoSetValue
+		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
 		virtual void DoSetValueFast( const std::string & value );
 
-		//!@copydoc Database::CDatabaseParameter::DoSetValue
+		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
 		virtual void DoSetValueFast( const std::wstring & value );
 
 		//!@copydoc Database::CDatabaseParameter::DoSetValueFast
@@ -210,7 +210,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		void DoInitializeParamSetter();
 
 		//! The parameter value setter
-		SParameterValueSetterBase * _paramSetter;
+		SSqliteParameterValueSetterBase * _paramSetter;
 		//! The prepared statement
 		SQLite::Statement * _statement;
 	};

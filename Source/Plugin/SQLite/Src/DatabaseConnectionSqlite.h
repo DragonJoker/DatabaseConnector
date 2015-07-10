@@ -197,7 +197,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 		    Formatted value.
 		*/
-		virtual std::string WriteDateTime( const CDate & date ) const;
+		DatabaseSqliteExport virtual std::string WriteDateTime( const CDate & date ) const;
 
 		/** Format a date/time to insert into a request.
 		@param[in] time
@@ -205,7 +205,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 		    Formatted value.
 		*/
-		virtual std::string WriteDateTime( const CTime & time ) const;
+		DatabaseSqliteExport virtual std::string WriteDateTime( const CTime & time ) const;
 
 		/** Format a date/time into a string to be supported by the DBMS.
 		@param[in] dateTime
@@ -304,6 +304,24 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		    The connection handle.
 		*/
 		DatabaseSqliteExport SQLite::Database * GetConnection() const;
+
+		/** Retrieves the statement date type size
+		@return
+		    The size
+		*/
+		DatabaseSqliteExport virtual unsigned long GetStmtDateSize()const;
+
+		/** Retrieves the statement date/time type size
+		@return
+		    The size
+		*/
+		DatabaseSqliteExport virtual unsigned long GetStmtDateTimeSize()const;
+
+		/** Retrieves the statement time type size
+		@return
+		    The size
+		*/
+		DatabaseSqliteExport virtual unsigned long GetStmtTimeSize()const;
 
 		/** Executes a statement and retrieves the result set if needed
 		@param statement

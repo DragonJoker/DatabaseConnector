@@ -550,6 +550,24 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		return dateTimeObj;
 	}
 
+	unsigned long CDatabaseConnectionSqlite::GetStmtDateSize()const
+	{
+		//"STRFTIME('%%Y-%%m-%%d','YYYY-MM-DD')"
+		return ( unsigned long )35;
+	}
+
+	unsigned long CDatabaseConnectionSqlite::GetStmtDateTimeSize()const
+	{
+		//"STRFTIME('%%Y-%%m-%%d %%H:%%M:%%S','YYYY-MM-DD HH:MM:SS')";
+		return ( unsigned long )44;
+	}
+
+	unsigned long CDatabaseConnectionSqlite::GetStmtTimeSize()const
+	{
+		//"STRFTIME('%%H:%%M:%%S','HH:MM:SS')"
+		return ( unsigned long )33;
+	}
+
 	SQLite::Database * CDatabaseConnectionSqlite::GetConnection() const
 	{
 		return _connection;

@@ -239,7 +239,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			}
 			else
 			{
-				parameter->SetColumnIndex( SQL_LEN_DATA_AT_EXEC( value.GetPtrSize() ) );
+				parameter->SetColumnIndex( SQL_LEN_DATA_AT_EXEC( static_cast< const long & >( value.GetPtrSize() ) ) );
 				SqlTry( SQLBindParameter( statementHandle, parameter->GetIndex(), parameter->GetInputOutputType(), parameter->GetValueType(), parameter->GetParameterType(), parameter->GetColumnSize(), 0, value.GetPtrValue(), value.GetPtrSize(), & parameter->GetColumnIndex() ), SQL_HANDLE_STMT, statementHandle, DATABASE_BINDER_EXEC_NOT_NULL + message );
 			}
 

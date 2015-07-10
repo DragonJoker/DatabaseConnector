@@ -95,23 +95,20 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				_outInitializers.push_back( stmt );
 				_arrayOutParams.push_back( parameter );
 			}
+			else if ( parameter->GetParamType() == EParameterType_IN )
+			{
+				MYSQL_BIND bind = { 0 };
+				_bindings.push_back( bind );
+				query << SQL_DELIM;
+			}
 			else
 			{
-				if ( parameter->GetParamType() == EParameterType_IN )
-				{
-					MYSQL_BIND bind = { 0 };
-					_bindings.push_back( bind );
-					query << SQL_DELIM;
-				}
-				else
-				{
-					query << SQL_PARAM + parameter->GetName();
-					DatabaseStatementPtr stmt = _connection->CreateStatement( SQL_SET + parameter->GetName() + STR( " = " ) + SQL_DELIM );
-					stmt->CreateParameter( parameter->GetName(), parameter->GetType(), parameter->GetLimits(), EParameterType_IN );
-					stmt->Initialize();
-					_inOutInitializers.push_back( std::make_pair( stmt, parameter ) );
-					_arrayOutParams.push_back( parameter );
-				}
+				query << SQL_PARAM + parameter->GetName();
+				DatabaseStatementPtr stmt = _connection->CreateStatement( SQL_SET + parameter->GetName() + STR( " = " ) + SQL_DELIM );
+				stmt->CreateParameter( parameter->GetName(), parameter->GetType(), parameter->GetLimits(), EParameterType_IN );
+				stmt->Initialize();
+				_inOutInitializers.push_back( std::make_pair( stmt, parameter ) );
+				_arrayOutParams.push_back( parameter );
 			}
 
 			++i;
@@ -165,6 +162,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			it->SetBinding( &_bindings[index++] );
 		}
 
+		MySQLTry( mysql_stmt_bind_param( _statement, _bindings.data() ), STR( "Statement parameters binding" ), EDatabaseExceptionCodes_StatementError, _connectionMySql->GetConnection() );;
 		return eReturn;
 	}
 

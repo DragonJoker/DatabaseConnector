@@ -5,7 +5,7 @@
 * @date 3/20/2014 11:56:56 AM
 *
 *
-* @brief SParameterValueSetterBase and SParameterValueSetter classes.
+* @brief SMySqlParameterValueSetterBase and SMySqlParameterValueSetter classes.
 *
 * @details Functors used to set the parameter value in a statement.
 *
@@ -160,25 +160,114 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		typedef std::vector< uint8_t > Type;
 	};
 
+	template< typename T >
+	struct COutMySqlBind
+		: public COutMySqlBindBase
+	{
+		COutMySqlBind( MYSQL_BIND & bind, enum_field_types type, const T * value )
+			: COutMySqlBindBase( bind, type )
+		{
+			bind.buffer = const_cast< T * >( value );
+		}
+
+		void SetValue( T const & value )
+		{
+			// Empty
+		}
+	};
+
+	template< typename T >
+	struct COutMySqlBind< T * >
+		: public COutMySqlBindBase
+	{
+		COutMySqlBind( MYSQL_BIND & bind, enum_field_types type, const T * value )
+			: COutMySqlBindBase( bind, type )
+		{
+			bind.buffer = const_cast< T * >( value );
+		}
+
+		void SetValue( T const * value )
+		{
+			// Empty
+		}
+	};
+
+	template<>
+	struct COutMySqlBind< bool >
+		: public COutMySqlBindBase
+	{
+		COutMySqlBind( MYSQL_BIND & bind, enum_field_types type, const bool * value )
+			: COutMySqlBindBase( bind, type )
+		{
+			bind.buffer = &_value;
+		}
+			
+		void SetValue( bool const & value )
+		{
+			_value = ( value ) ? 1 : 0;
+		}
+
+		int8_t _value;
+	};
+
+	template<>
+	struct COutMySqlBind< CDate >
+		: public COutMySqlBindBase
+	{
+		COutMySqlBind( MYSQL_BIND & bind, enum_field_types type, const CDate * value )
+			: COutMySqlBindBase( bind, type )
+		{
+			bind.buffer = &_value;
+		}
+			
+		void SetValue( CDate const & value )
+		{
+			_value = MySqlTimeFromCDate( value );
+		}
+
+		MYSQL_TIME _value;
+	};
+
+	template<>
+	struct COutMySqlBind< CDateTime >
+		: public COutMySqlBindBase
+	{
+		COutMySqlBind( MYSQL_BIND & bind, enum_field_types type, const CDateTime * value )
+			: COutMySqlBindBase( bind, type )
+		{
+			bind.buffer = &_value;
+		}
+			
+		void SetValue( CDateTime const & value )
+		{
+			_value = MySqlTimeFromCDateTime( value );
+		}
+
+		MYSQL_TIME _value;
+	};
+
+	template<>
+	struct COutMySqlBind< CTime >
+		: public COutMySqlBindBase
+	{
+		COutMySqlBind( MYSQL_BIND & bind, enum_field_types type, const CTime * value )
+			: COutMySqlBindBase( bind, type )
+		{
+			bind.buffer = &_value;
+		}
+			
+		void SetValue( CTime const & value )
+		{
+			_value = MySqlTimeFromCTime( value );
+		}
+
+		MYSQL_TIME _value;
+	};
+
 	/** Base setter class
 	*/
-	struct SParameterValueSetterBase
+	struct SMySqlParameterValueSetterBase
 	{
-		/** Constructor
-		*/
-		SParameterValueSetterBase( MYSQL_BIND * bind, enum_field_types type )
-			: _bind( bind )
-		{
-			_bind->length = &_length;
-			_bind->error = &_error;
-			_bind->is_null = &_null;
-			_bind->buffer_type = type;
-		}
-		/** Destructor
-		*/
-		virtual ~SParameterValueSetterBase()
-		{
-		}
 		/** Setter function
 		@param statement
 		    The statement
@@ -187,9 +276,10 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		@param parameter
 		    The parameter
 		*/
-		void operator()( MYSQL_STMT * statement, void * value, CDatabaseStatementParameterMySql * parameter )
+		void operator()( MYSQL_STMT * statement, MYSQL_BIND * bind, const void * value, CDatabaseStatementParameterMySql * parameter )
 		{
-			SetValue( statement, value, parameter );
+			bind->buffer_length = parameter->GetObjectValue().GetPtrSize();
+			SetValue( statement, bind, value, parameter );
 		}
 
 		/** Setter function, to implement in child classes
@@ -200,56 +290,29 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		@param parameter
 		    The parameter
 		*/
-		virtual void SetValue( MYSQL_STMT * statement, void * value, CDatabaseStatementParameterMySql * parameter ) = 0;
-
-		//! Tells if the parameter is null
-		my_bool _null = 0;
-		//! The parameter length
-		unsigned long _length = 0;
-		//! Tells if there is an error
-		my_bool _error = 0;
-		//! The data binding
-		MYSQL_BIND * _bind;
+		virtual void SetValue( MYSQL_STMT * statement, MYSQL_BIND * bind, const void * value, CDatabaseStatementParameterMySql * parameter ) = 0;
 	};
 	/** Generic template class to set the parameter value
 	*/
 	template< EFieldType Type >
-	struct SParameterValueSetter
-			: public SParameterValueSetterBase
+	struct SMySqlParameterValueSetter
+			: public SMySqlParameterValueSetterBase
 	{
 		static const EFieldType _type = Type;
-		/** Constructor
-		*/
-		SParameterValueSetter( MYSQL_BIND * bind )
-			: SParameterValueSetterBase( bind, SFieldTypeMySqlDataTyper< _type >::Value )
+		//!@copydoc SMySqlParameterValueSetterBase::SetValue
+		virtual void SetValue( MYSQL_STMT * statement, MYSQL_BIND * bind, const void * value, CDatabaseStatementParameterMySql * parameter )
 		{
-		}
-
-		//!@copydoc SParameterValueSetterBase::SetValue
-		virtual void SetValue( MYSQL_STMT * statement, void * value, CDatabaseStatementParameterMySql * parameter )
-		{
-			_bind->buffer = value;
 		}
 	};
 	/** Specialization for EFieldType_VARCHAR
 	*/
 	template<>
-	struct SParameterValueSetter< EFieldType_VARCHAR >
-			: public SParameterValueSetterBase
+	struct SMySqlParameterValueSetter< EFieldType_VARCHAR >
+			: public SMySqlParameterValueSetterBase
 	{
-		/** Constructor
-		*/
-		SParameterValueSetter( MYSQL_BIND * bind )
-			: SParameterValueSetterBase( bind, SFieldTypeMySqlDataTyper< _type >::Value )
+		//!@copydoc SMySqlParameterValueSetterBase::SetValue
+		virtual void SetValue( MYSQL_STMT * statement, MYSQL_BIND * bind, const void * value, CDatabaseStatementParameterMySql * parameter )
 		{
-		}
-
-		//!@copydoc SParameterValueSetterBase::SetValue
-		virtual void SetValue( MYSQL_STMT * statement, void * value, CDatabaseStatementParameterMySql * parameter )
-		{
-			_length = parameter->GetObjectValue().GetPtrSize();
-			_bind->buffer = value;
-			_bind->buffer_length = _length;
 		}
 
 		static const EFieldType _type = EFieldType_VARCHAR;
@@ -257,22 +320,12 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	/** Specialization for EFieldType_TEXT
 	*/
 	template<>
-	struct SParameterValueSetter< EFieldType_TEXT >
-			: public SParameterValueSetterBase
+	struct SMySqlParameterValueSetter< EFieldType_TEXT >
+			: public SMySqlParameterValueSetterBase
 	{
-		/** Constructor
-		*/
-		SParameterValueSetter( MYSQL_BIND * bind )
-			: SParameterValueSetterBase( bind, SFieldTypeMySqlDataTyper< _type >::Value )
+		//!@copydoc SMySqlParameterValueSetterBase::SetValue
+		virtual void SetValue( MYSQL_STMT * statement, MYSQL_BIND * bind, const void * value, CDatabaseStatementParameterMySql * parameter )
 		{
-		}
-
-		//!@copydoc SParameterValueSetterBase::SetValue
-		virtual void SetValue( MYSQL_STMT * statement, void * value, CDatabaseStatementParameterMySql * parameter )
-		{
-			_length = parameter->GetObjectValue().GetPtrSize();
-			_bind->buffer = value;
-			_bind->buffer_length = _length;
 		}
 
 		static const EFieldType _type = EFieldType_TEXT;
@@ -280,23 +333,14 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	/** Specialization for EFieldType_NVARCHAR
 	*/
 	template<>
-	struct SParameterValueSetter< EFieldType_NVARCHAR >
-			: public SParameterValueSetterBase
+	struct SMySqlParameterValueSetter< EFieldType_NVARCHAR >
+			: public SMySqlParameterValueSetterBase
 	{
-		/** Constructor
-		*/
-		SParameterValueSetter( MYSQL_BIND * bind )
-			: SParameterValueSetterBase( bind, SFieldTypeMySqlDataTyper< _type >::Value )
+		//!@copydoc SMySqlParameterValueSetterBase::SetValue
+		virtual void SetValue( MYSQL_STMT * statement, MYSQL_BIND * bind, const void * value, CDatabaseStatementParameterMySql * parameter )
 		{
-		}
-
-		//!@copydoc SParameterValueSetterBase::SetValue
-		virtual void SetValue( MYSQL_STMT * statement, void * value, CDatabaseStatementParameterMySql * parameter )
-		{
-			_value = CStrUtils::ToStr( static_cast< wchar_t * >( value ) );
-			_length = _value.size();
-			_bind->buffer = &_value[0];
-			_bind->buffer_length = _length;
+			_value = CStrUtils::ToStr( static_cast< const wchar_t * >( value ) );
+			bind->buffer = &_value[0];
 		}
 
 		static const EFieldType _type = EFieldType_NVARCHAR;
@@ -305,23 +349,14 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	/** Specialization for EFieldType_NTEXT
 	*/
 	template<>
-	struct SParameterValueSetter< EFieldType_NTEXT >
-			: public SParameterValueSetterBase
+	struct SMySqlParameterValueSetter< EFieldType_NTEXT >
+			: public SMySqlParameterValueSetterBase
 	{
-		/** Constructor
-		*/
-		SParameterValueSetter( MYSQL_BIND * bind )
-			: SParameterValueSetterBase( bind, SFieldTypeMySqlDataTyper< _type >::Value )
+		//!@copydoc SMySqlParameterValueSetterBase::SetValue
+		virtual void SetValue( MYSQL_STMT * statement, MYSQL_BIND * bind, const void * value, CDatabaseStatementParameterMySql * parameter )
 		{
-		}
-
-		//!@copydoc SParameterValueSetterBase::SetValue
-		virtual void SetValue( MYSQL_STMT * statement, void * value, CDatabaseStatementParameterMySql * parameter )
-		{
-			_value = CStrUtils::ToStr( static_cast< wchar_t * >( value ) );
-			_length = _value.size();
-			_bind->buffer = &_value[0];
-			_bind->buffer_length = _length;
+			_value = CStrUtils::ToStr( static_cast< const wchar_t * >( value ) );
+			bind->buffer = &_value[0];
 		}
 
 		static const EFieldType _type = EFieldType_NTEXT;
@@ -330,20 +365,12 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	/** Specialization for EFieldType_DATE
 	*/
 	template<>
-	struct SParameterValueSetter< EFieldType_DATE >
-			: public SParameterValueSetterBase
+	struct SMySqlParameterValueSetter< EFieldType_DATE >
+			: public SMySqlParameterValueSetterBase
 	{
-		/** Constructor
-		*/
-		SParameterValueSetter( MYSQL_BIND * bind )
-			: SParameterValueSetterBase( bind, SFieldTypeMySqlDataTyper< _type >::Value )
+		//!@copydoc SMySqlParameterValueSetterBase::SetValue
+		virtual void SetValue( MYSQL_STMT * statement, MYSQL_BIND * bind, const void * value, CDatabaseStatementParameterMySql * parameter )
 		{
-		}
-
-		//!@copydoc SParameterValueSetterBase::SetValue
-		virtual void SetValue( MYSQL_STMT * statement, void * value, CDatabaseStatementParameterMySql * parameter )
-		{
-			_bind->buffer = &_value;
 		}
 
 		static const EFieldType _type = EFieldType_DATE;
@@ -352,20 +379,12 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	/** Specialization for EFieldType_DATETIME
 	*/
 	template<>
-	struct SParameterValueSetter< EFieldType_DATETIME >
-			: public SParameterValueSetterBase
+	struct SMySqlParameterValueSetter< EFieldType_DATETIME >
+			: public SMySqlParameterValueSetterBase
 	{
-		/** Constructor
-		*/
-		SParameterValueSetter( MYSQL_BIND * bind )
-			: SParameterValueSetterBase( bind, SFieldTypeMySqlDataTyper< _type >::Value )
+		//!@copydoc SMySqlParameterValueSetterBase::SetValue
+		virtual void SetValue( MYSQL_STMT * statement, MYSQL_BIND * bind, const void * value, CDatabaseStatementParameterMySql * parameter )
 		{
-		}
-
-		//!@copydoc SParameterValueSetterBase::SetValue
-		virtual void SetValue( MYSQL_STMT * statement, void * value, CDatabaseStatementParameterMySql * parameter )
-		{
-			_bind->buffer = &_value;
 		}
 
 		static const EFieldType _type = EFieldType_DATETIME;
@@ -374,20 +393,12 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	/** Specialization for EFieldType_TIME
 	*/
 	template<>
-	struct SParameterValueSetter< EFieldType_TIME >
-			: public SParameterValueSetterBase
+	struct SMySqlParameterValueSetter< EFieldType_TIME >
+			: public SMySqlParameterValueSetterBase
 	{
-		/** Constructor
-		*/
-		SParameterValueSetter( MYSQL_BIND * bind )
-			: SParameterValueSetterBase( bind, SFieldTypeMySqlDataTyper< _type >::Value )
+		//!@copydoc SMySqlParameterValueSetterBase::SetValue
+		virtual void SetValue( MYSQL_STMT * statement, MYSQL_BIND * bind, const void * value, CDatabaseStatementParameterMySql * parameter )
 		{
-		}
-
-		//!@copydoc SParameterValueSetterBase::SetValue
-		virtual void SetValue( MYSQL_STMT * statement, void * value, CDatabaseStatementParameterMySql * parameter )
-		{
-			_bind->buffer = &_value;
 		}
 
 		static const EFieldType _type = EFieldType_TIME;
@@ -396,22 +407,12 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	/** Specialization for EFieldType_BINARY
 	*/
 	template<>
-	struct SParameterValueSetter< EFieldType_BINARY >
-			: public SParameterValueSetterBase
+	struct SMySqlParameterValueSetter< EFieldType_BINARY >
+			: public SMySqlParameterValueSetterBase
 	{
-		/** Constructor
-		*/
-		SParameterValueSetter( MYSQL_BIND * bind )
-			: SParameterValueSetterBase( bind, SFieldTypeMySqlDataTyper< _type >::Value )
+		//!@copydoc SMySqlParameterValueSetterBase::SetValue
+		virtual void SetValue( MYSQL_STMT * statement, MYSQL_BIND * bind, const void * value, CDatabaseStatementParameterMySql * parameter )
 		{
-		}
-
-		//!@copydoc SParameterValueSetterBase::SetValue
-		virtual void SetValue( MYSQL_STMT * statement, void * value, CDatabaseStatementParameterMySql * parameter )
-		{
-			_length = parameter->GetObjectValue().GetPtrSize();
-			_bind->buffer = value;
-			_bind->buffer_length = _length;
 		}
 
 		static const EFieldType _type = EFieldType_BINARY;
@@ -419,22 +420,12 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	/** Specialization for EFieldType_VARBINARY
 	*/
 	template<>
-	struct SParameterValueSetter< EFieldType_VARBINARY >
-			: public SParameterValueSetterBase
+	struct SMySqlParameterValueSetter< EFieldType_VARBINARY >
+			: public SMySqlParameterValueSetterBase
 	{
-		/** Constructor
-		*/
-		SParameterValueSetter( MYSQL_BIND * bind )
-			: SParameterValueSetterBase( bind, SFieldTypeMySqlDataTyper< _type >::Value )
+		//!@copydoc SMySqlParameterValueSetterBase::SetValue
+		virtual void SetValue( MYSQL_STMT * statement, MYSQL_BIND * bind, const void * value, CDatabaseStatementParameterMySql * parameter )
 		{
-		}
-
-		//!@copydoc SParameterValueSetterBase::SetValue
-		virtual void SetValue( MYSQL_STMT * statement, void * value, CDatabaseStatementParameterMySql * parameter )
-		{
-			_length = parameter->GetObjectValue().GetPtrSize();
-			_bind->buffer = value;
-			_bind->buffer_length = _length;
 		}
 
 		static const EFieldType _type = EFieldType_VARBINARY;
@@ -442,22 +433,12 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	/** Specialization for EFieldType_LONG_VARBINARY
 	*/
 	template<>
-	struct SParameterValueSetter< EFieldType_LONG_VARBINARY >
-			: public SParameterValueSetterBase
+	struct SMySqlParameterValueSetter< EFieldType_LONG_VARBINARY >
+			: public SMySqlParameterValueSetterBase
 	{
-		/** Constructor
-		*/
-		SParameterValueSetter( MYSQL_BIND * bind )
-			: SParameterValueSetterBase( bind, SFieldTypeMySqlDataTyper< _type >::Value )
+		//!@copydoc SMySqlParameterValueSetterBase::SetValue
+		virtual void SetValue( MYSQL_STMT * statement, MYSQL_BIND * bind, const void * value, CDatabaseStatementParameterMySql * parameter )
 		{
-		}
-
-		//!@copydoc SParameterValueSetterBase::SetValue
-		virtual void SetValue( MYSQL_STMT * statement, void * value, CDatabaseStatementParameterMySql * parameter )
-		{
-			_length = parameter->GetObjectValue().GetPtrSize();
-			_bind->buffer = value;
-			_bind->buffer_length = _length;
 		}
 
 		static const EFieldType _type = EFieldType_LONG_VARBINARY;

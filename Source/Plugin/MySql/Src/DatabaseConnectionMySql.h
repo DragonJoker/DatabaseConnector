@@ -301,6 +301,24 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		*/
 		DatabaseMySqlExport virtual CDateTime ParseDateTime( const std::wstring & dateTime ) const;
 
+		/** Retrieves the statement date type size
+		@return
+		    The size
+		*/
+		DatabaseMySqlExport virtual unsigned long GetStmtDateSize()const;
+
+		/** Retrieves the statement date/time type size
+		@return
+		    The size
+		*/
+		DatabaseMySqlExport virtual unsigned long GetStmtDateTimeSize()const;
+
+		/** Retrieves the statement time type size
+		@return
+		    The size
+		*/
+		DatabaseMySqlExport virtual unsigned long GetStmtTimeSize()const;
+
 		/** Get the connection handle.
 		@return
 		    The connection handle.

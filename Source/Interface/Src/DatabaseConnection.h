@@ -355,6 +355,24 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport virtual CDateTime ParseDateTime( const std::wstring & dateTime ) const = 0;
 
+		/** Retrieves the statement date type size
+		@return
+		    The size
+		*/
+		DatabaseExport virtual unsigned long GetStmtDateSize()const = 0;
+
+		/** Retrieves the statement date/time type size
+		@return
+		    The size
+		*/
+		DatabaseExport virtual unsigned long GetStmtDateTimeSize()const = 0;
+
+		/** Retrieves the statement time type size
+		@return
+		    The size
+		*/
+		DatabaseExport virtual unsigned long GetStmtTimeSize()const = 0;
+
 	protected:
 
 		/** Disconnect from the database.

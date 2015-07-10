@@ -8,11 +8,11 @@ set( DBMYSQL_VERSION_BUILD	0 )
 include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}/Src 
 	${DATABASE_SOURCE_DIR}/Interface/Src
-	${MYSQL_CLIENT_INCLUDE_DIR}
+	${MySQL_INCLUDE_DIRS}
 )
 
 set( MySqlLibraries "")
-FOREACH(Lib ${MYSQL_CLIENT_LIBRARY})
+FOREACH(Lib ${MySQL_STATIC_LIBRARIES})
 	if (MySqlLibraries)
 		set(MySqlLibraries "${MySqlLibraries}|${Lib}")
 	else()
@@ -29,13 +29,13 @@ add_target(
 	"Database;${MySqlLibraries};${MinLibraries}"
 	"DatabaseMySqlPch.h"
 	"DatabaseMySqlPch.cpp"
-	"-Dmysqlcppconn_EXPORTS"
-	"-Dmysqlcppconn_EXPORTS"
-	"-NODEFAULTLIB:libcmt.lib"
+	""
+	""
+	"${MySQL_LINK_FLAGS}"
 )
 
-copy_dll( DatabasePluginMySql ${MYSQL_CLIENT_LIBRARY} Debug )
-copy_dll( DatabasePluginMySql ${MYSQL_CLIENT_LIBRARY} Release )
+copy_dll( DatabasePluginMySql ${MySQL_client_LIBRARY_STATIC_DEBUG} Debug )
+copy_dll( DatabasePluginMySql ${MySQL_client_LIBRARY_STATIC_RELEASE} Release )
 
 set_property( TARGET DatabasePluginMySql PROPERTY FOLDER "Plugin/MySQL" )
 add_target_astyle( DatabasePluginMySql ".h;.hpp;.inl;.cpp" )

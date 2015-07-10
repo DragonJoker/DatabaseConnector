@@ -436,6 +436,24 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		return dateTimeObj;
 	}
 
+	unsigned long CDatabaseConnectionOdbc::GetStmtDateSize()const
+	{
+		//"{-d YYYY-MM-DD}"
+		return ( unsigned long )15;
+	}
+
+	unsigned long CDatabaseConnectionOdbc::GetStmtDateTimeSize()const
+	{
+		//"{-ts YYYY-MM-DD HH:MM:SS}"
+		return ( unsigned long )25;
+	}
+
+	unsigned long CDatabaseConnectionOdbc::GetStmtTimeSize()const
+	{
+		//"{-t HH:MM:SS}"
+		return ( unsigned long )13;
+	}
+
 	HDBC CDatabaseConnectionOdbc::GetHdbc() const
 	{
 		return _connectionHandle;

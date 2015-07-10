@@ -147,7 +147,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			else
 			{
 				value.SetNull( false );
-				value.SetStrValue( text );
+				value.FromString( text );
 			}
 		}
 
