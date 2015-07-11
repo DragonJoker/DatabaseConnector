@@ -105,7 +105,7 @@ if( Boost_UNIT_TEST_FRAMEWORK_FOUND )
         "DatabaseTestPch.cpp"
     )
 
-    if( BUILD_MySQLConnPP_PLUGIN )
+    if( BUILD_MySQL_PLUGIN )
         add_dependencies( DatabaseTest DatabasePluginMySql )
         set( ADDITIONAL_FLAGS ${ADDITIONAL_FLAGS} TESTING_PLUGIN_MYSQL )
     endif()

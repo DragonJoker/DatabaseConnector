@@ -217,18 +217,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
-		DatabaseMySqlExport virtual void DoSetValue( const char * value )
-		{
-			DoSetAndUpdateValue( value );
-		}
-
-		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
-		DatabaseMySqlExport virtual void DoSetValue( const wchar_t * value )
-		{
-			DoSetAndUpdateValue( value );
-		}
-
-		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
 		DatabaseMySqlExport virtual void DoSetValue( const std::string & value )
 		{
 			DoSetAndUpdateValue( value );
@@ -325,19 +313,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
-		DatabaseMySqlExport virtual void DoSetValueFast( const char * value )
-		{
-			DoSetAndUpdateValueFast( value );
-		}
-
-		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
 		DatabaseMySqlExport virtual void DoSetValueFast( const std::string & value )
-		{
-			DoSetAndUpdateValueFast( value );
-		}
-
-		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
-		DatabaseMySqlExport virtual void DoSetValueFast( const wchar_t * value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}

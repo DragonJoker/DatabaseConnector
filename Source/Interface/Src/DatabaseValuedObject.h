@@ -356,18 +356,6 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport virtual void DoSetValue( const long double & value );
 
-		/** Set parameter value as a char *.
-		@param value
-		    New parameter value.
-		*/
-		DatabaseExport virtual void DoSetValue( const char * value );
-
-		/** Set parameter value as a wchar_t *.
-		@param value
-		    New parameter value.
-		*/
-		DatabaseExport virtual void DoSetValue( const wchar_t * value );
-
 		/** Set parameter value as a std::string.
 		@param value
 		    New parameter value.
@@ -484,14 +472,6 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport virtual void DoSetValueFast( const long double & value );
 
-		/** Set parameter value as a char *.
-		@remarks
-			Don't perform type checks
-		@param value
-		    New parameter value.
-		*/
-		DatabaseExport virtual void DoSetValueFast( const char * value );
-
 		/** Set parameter value as a std::string.
 		@remarks
 			Don't perform type checks
@@ -499,14 +479,6 @@ BEGIN_NAMESPACE_DATABASE
 		    New parameter value.
 		*/
 		DatabaseExport virtual void DoSetValueFast( const std::string & value );
-
-		/** Set parameter value as a wchar_t *.
-		@remarks
-			Don't perform type checks
-		@param value
-		    New parameter value.
-		*/
-		DatabaseExport virtual void DoSetValueFast( const wchar_t * value );
 
 		/** Set parameter value as a std::wstring.
 		@remarks

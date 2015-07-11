@@ -19,8 +19,6 @@
 #include <DatabaseStatementOdbc.h>
 #include <DatabaseQueryOdbc.h>
 
-#include <Odbcinst.h>
-
 BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 {
 	static const String ERROR_ODBC_NOT_CONNECTED = STR( "Not connected" );

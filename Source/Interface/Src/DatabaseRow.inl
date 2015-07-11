@@ -78,35 +78,7 @@ BEGIN_NAMESPACE_DATABASE
 	inline boost::optional< T > CDatabaseRow::GetOpt( uint32_t index )
 	{
 		boost::optional< T > tReturn;
-
-		try
-		{
-			DatabaseFieldPtr field = GetField( index );
-
-			if ( field->IsNull() )
-			{
-				tReturn = boost::none;
-			}
-			else
-			{
-				T val;
-				field->GetValue( val );
-				tReturn = val;
-			}
-		}
-		catch ( const CExceptionDatabase & )
-		{
-			// Rethrow
-			throw;
-		}
-		catch ( ... )
-		{
-			StringStream message;
-			message << DATABASE_ROW_INDEX_ERROR << index;
-			CLogger::LogError( message );
-			DB_EXCEPT( EDatabaseExceptionCodes_RowError, message.str() );
-		}
-
+		GetOpt( index, tReturn );
 		return tReturn;
 	}
 
@@ -114,35 +86,7 @@ BEGIN_NAMESPACE_DATABASE
 	inline boost::optional< T > CDatabaseRow::GetOpt( const String & name )
 	{
 		boost::optional< T > tReturn;
-
-		try
-		{
-			DatabaseFieldPtr field = GetField( name );
-
-			if ( field->IsNull() )
-			{
-				tReturn = boost::none;
-			}
-			else
-			{
-				T val;
-				field->GetValue( val );
-				tReturn = val;
-			}
-		}
-		catch ( const CExceptionDatabase & )
-		{
-			// Rethrow
-			throw;
-		}
-		catch ( ... )
-		{
-			StringStream message;
-			message << DATABASE_ROW_NAME_ERROR << name;
-			CLogger::LogError( message );
-			DB_EXCEPT( EDatabaseExceptionCodes_RowError, message.str() );
-		}
-
+		GetOpt( name, tReturn );
 		return tReturn;
 	}
 
@@ -151,18 +95,7 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		try
 		{
-			DatabaseFieldPtr field = GetField( index );
-
-			if ( field->IsNull() )
-			{
-				value = boost::none;
-			}
-			else
-			{
-				T val;
-				field->GetValue( val );
-				value = val;
-			}
+			GetField( name )->GetValueOpt( value );
 		}
 		catch ( const CExceptionDatabase & )
 		{
@@ -183,18 +116,91 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		try
 		{
-			DatabaseFieldPtr field = GetField( name );
+			GetField( name )->GetValueOpt( value );
+		}
+		catch ( const CExceptionDatabase & )
+		{
+			// Rethrow
+			throw;
+		}
+		catch ( ... )
+		{
+			StringStream message;
+			message << DATABASE_ROW_NAME_ERROR << name;
+			CLogger::LogError( message );
+			DB_EXCEPT( EDatabaseExceptionCodes_RowError, message.str() );
+		}
+	}
 
-			if ( field->IsNull() )
-			{
-				value = boost::none;
-			}
-			else
-			{
-				T val;
-				field->GetValue( val );
-				value = val;
-			}
+	template< typename T >
+	inline void CDatabaseRow::GetFast( uint32_t index, T & value )
+	{
+		try
+		{
+			GetField( index )->GetValueFast( value );
+		}
+		catch ( const CExceptionDatabase & )
+		{
+			// Rethrow
+			throw;
+		}
+		catch ( ... )
+		{
+			StringStream message;
+			message << DATABASE_ROW_INDEX_ERROR << index;
+			CLogger::LogError( message );
+			DB_EXCEPT( EDatabaseExceptionCodes_RowError, message.str() );
+		}
+	}
+
+	template< typename T >
+	inline void CDatabaseRow::GetFast( const String & name, T & value )
+	{
+		try
+		{
+			GetField( name )->GetValueFast( value );
+		}
+		catch ( const CExceptionDatabase & )
+		{
+			// Rethrow
+			throw;
+		}
+		catch ( ... )
+		{
+			StringStream message;
+			message << DATABASE_ROW_NAME_ERROR << name;
+			CLogger::LogError( message );
+			DB_EXCEPT( EDatabaseExceptionCodes_RowError, message.str() );
+		}
+	}
+
+	template< typename T >
+	inline void CDatabaseRow::GetOptFast( uint32_t index, boost::optional< T > & value )
+	{
+		try
+		{
+			GetField( name )->GetValueOptFast( value );
+		}
+		catch ( const CExceptionDatabase & )
+		{
+			// Rethrow
+			throw;
+		}
+		catch ( ... )
+		{
+			StringStream message;
+			message << DATABASE_ROW_INDEX_ERROR << index;
+			CLogger::LogError( message );
+			DB_EXCEPT( EDatabaseExceptionCodes_RowError, message.str() );
+		}
+	}
+
+	template< typename T >
+	inline void CDatabaseRow::GetOptFast( const String & name, boost::optional< T > & value )
+	{
+		try
+		{
+			GetField( name )->GetValueOptFast( value );
 		}
 		catch ( const CExceptionDatabase & )
 		{

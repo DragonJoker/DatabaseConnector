@@ -28,14 +28,14 @@ BEGIN_NAMESPACE_DATABASE_TEST
 #if defined( _WIN32 )
 	static const String LIB_PREFIX;
 	static const String LIB_EXT = STR( ".dll" );
-#	if defined( NDEBUG )
-	static const String LIB_SUFFIX;
-#	else
-	static const String LIB_SUFFIX = "d";
-#	endif
 #else
 	static const String LIB_PREFIX = STR( "lib" );
 	static const String LIB_EXT = STR( ".so" );
+#endif
+#if defined( NDEBUG )
+	static const String LIB_SUFFIX;
+#else
+	static const String LIB_SUFFIX = "d";
 #endif
 	static struct SPluginsConfig
 	{
@@ -56,7 +56,24 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 	String InitializeSingletons()
 	{
-		String modulePath = g_path;
+		String modulePath = g_path.substr( 0, g_path.size() - 1 );
+		
+#if !defined( WIN32 )
+		size_t index = modulePath.rfind( STR( '/' ) );
+
+		if ( index != String::npos )
+		{
+			modulePath = modulePath.substr( 0, index + 1 );
+		}
+		else
+		{
+			modulePath = STR( "../" );
+		}
+
+		modulePath += STR( "lib" );
+#endif
+
+		modulePath += NAMESPACE_DATABASE::PATH_SEP;
 
 		CPluginManager::Instance().SetApplicationPath( modulePath );
 		CPluginManager::Instance().SetPluginsPath( modulePath );

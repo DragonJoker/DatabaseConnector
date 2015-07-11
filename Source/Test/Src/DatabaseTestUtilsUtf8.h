@@ -23,11 +23,7 @@
 
 BEGIN_NAMESPACE_DATABASE_TEST
 {
-	extern String const QUERY_SELECT_MIN;
-	extern String const QUERY_GET_COUNT;
-	extern String const QUERY_INSERT_ELEMENT;
-
-	namespace DatabaseUtils
+	namespace DatabaseUtilsUtf8
 	{
 		/** Used to stream a byte array into an std::istream
 		*/
@@ -41,6 +37,89 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				this->setg( begin, begin, end );
 			}
 		};
+
+		template< class Stmt >
+		inline void CreateParameters( std::shared_ptr< Stmt > stmt )
+		{
+			BOOST_CHECK( stmt->CreateParameter( STR( "IntField" ), EFieldType_INTEGER, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "IntegerField" ), EFieldType_INTEGER, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "TinyIntField" ), EFieldType_BOOL, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "SmallIntField" ), EFieldType_SMALL_INTEGER, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "MediumIntField" ), EFieldType_INTEGER, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "BigIntField" ), EFieldType_LONG_INTEGER, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "Int2Field" ), EFieldType_SMALL_INTEGER, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "Int8Field" ), EFieldType_LONG_INTEGER, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "RealField" ), EFieldType_FLOAT, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "DoubleField" ), EFieldType_DOUBLE, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "DoublePrecisionField" ), EFieldType_DOUBLE, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "FloatField" ), EFieldType_FLOAT, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "NumericField" ), EFieldType_INTEGER, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "DecimalField" ), EFieldType_DOUBLE, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "BooleanField" ), EFieldType_BOOL, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "DateField" ), EFieldType_DATE, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "DateTimeField" ), EFieldType_DATETIME, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "CharacterField" ), EFieldType_VARCHAR, 20, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "VarcharField" ), EFieldType_VARCHAR, 255, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "NcharField" ), EFieldType_NVARCHAR, 55, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "NVarcharField" ), EFieldType_NVARCHAR, 100, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "TextField" ), EFieldType_TEXT, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "BlobField" ), EFieldType_VARBINARY, EParameterType_IN ) );
+		}
+
+		template< class Stmt >
+		inline void SetParametersValue( uint32_t & index, int mult, int i, std::shared_ptr< Stmt > stmt )
+		{
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< int32_t >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< int32_t >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< bool >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< int16_t >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< int32_t >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< int64_t >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< int16_t >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< int64_t >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< float >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< double >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< double >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< float >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< int32_t >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< double >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< bool >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< CDate >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< CDateTime >::InitialiseValue() );
+			stmt->SetParameterValue( index++, "CHAR: Areva Intercontrôle " + std::to_string( mult * i + index ) );
+			stmt->SetParameterValue( index++, "VARCHAR: Areva Intercontrôle " + std::to_string( mult * i + index ) );
+			stmt->SetParameterValue( index++, "NCHAR: Areva Intercontrôle " + std::to_string( mult * i + index ) );
+			stmt->SetParameterValue( index++, "NVARCHAR: Areva Intercontrôle " + std::to_string( mult * i + index ) );
+			stmt->SetParameterValue( index++, "TEXT: Areva Intercontrôle " + std::to_string( mult * i + index ) );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< std::vector< uint8_t > >::InitialiseValue() );
+		}
+
+		inline void DisplayValues( uint32_t & index, DatabaseRowPtr row )
+		{
+			CLogger::LogMessage( StringStream() << STR( "IntField : " ) << row->Get< int32_t >( index++ ) );
+			CLogger::LogMessage( StringStream() << STR( "IntegerField : " ) << row->Get< int32_t >( index++ ) );
+			CLogger::LogMessage( StringStream() << STR( "TinyIntField : " ) << row->Get< bool >( index++ ) );
+			CLogger::LogMessage( StringStream() << STR( "SmallIntField : " ) << row->Get< int16_t >( index++ ) );
+			CLogger::LogMessage( StringStream() << STR( "MediumIntField : " ) << row->Get< int32_t >( index++ ) );
+			CLogger::LogMessage( StringStream() << STR( "BigIntField : " ) << row->Get< int64_t >( index++ ) );
+			CLogger::LogMessage( StringStream() << STR( "Int2Field : " ) << row->Get< int16_t >( index++ ) );
+			CLogger::LogMessage( StringStream() << STR( "Int8Field : " ) << row->Get< int64_t >( index++ ) );
+			CLogger::LogMessage( StringStream() << STR( "RealField : " ) << row->Get< float >( index++ ) );
+			CLogger::LogMessage( StringStream() << STR( "DoubleField : " ) << row->Get< double >( index++ ) );
+			CLogger::LogMessage( StringStream() << STR( "DoublePrecisionField : " ) << row->Get< double >( index++ ) );
+			CLogger::LogMessage( StringStream() << STR( "FloatField : " ) << row->Get< float >( index++ ) );
+			CLogger::LogMessage( StringStream() << STR( "NumericField : " ) << row->Get< int32_t >( index++ ) );
+			CLogger::LogMessage( StringStream() << STR( "DecimalField : " ) << row->Get< double >( index++ ) );
+			CLogger::LogMessage( StringStream() << STR( "BooleanField : " ) << row->Get< bool >( index++ ) );
+			CLogger::LogMessage( StringStream() << STR( "DateField : " ) << row->Get< CDate >( index++ ) );
+			CLogger::LogMessage( StringStream() << STR( "DateTimeField : " ) << row->Get< CDateTime >( index++ ) );
+			CLogger::LogMessage( StringStream() << STR( "CharacterField : " ) << row->Get< std::string >( index++ ) );
+			CLogger::LogMessage( StringStream() << STR( "VarcharField : " ) << row->Get< std::string >( index++ ) );
+			CLogger::LogMessage( std::wstringstream() << L"NcharField : " << row->Get< std::wstring >( index++ ) );
+			CLogger::LogMessage( std::wstringstream() << L"NVarcharField : " << row->Get< std::wstring >( index++ ) );
+			CLogger::LogMessage( StringStream() << STR( "TextField : " ) << row->Get< std::string >( index++ ) );
+			CLogger::LogMessage( StringStream() << STR( "BlobField : " ) << row->Get< std::vector< uint8_t > >( index++ ) );
+		}
 
 		template< typename T >
 		void PerfDirectInsertActors( DatabaseConnectionPtr connection, uint32_t testCount )
@@ -70,29 +149,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 					if ( stmtInsert )
 					{
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "IntField" ), EFieldType_INTEGER, EParameterType_IN ) );
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "IntegerField" ), EFieldType_INTEGER, EParameterType_IN ) );
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "TinyIntField" ), EFieldType_BOOL, EParameterType_IN ) );
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "SmallIntField" ), EFieldType_SMALL_INTEGER, EParameterType_IN ) );
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "MediumIntField" ), EFieldType_INTEGER, EParameterType_IN ) );
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "BigIntField" ), EFieldType_LONG_INTEGER, EParameterType_IN ) );
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "Int2Field" ), EFieldType_SMALL_INTEGER, EParameterType_IN ) );
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "Int8Field" ), EFieldType_LONG_INTEGER, EParameterType_IN ) );
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "RealField" ), EFieldType_FLOAT, EParameterType_IN ) );
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "DoubleField" ), EFieldType_DOUBLE, EParameterType_IN ) );
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "DoublePrecisionField" ), EFieldType_DOUBLE, EParameterType_IN ) );
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "FloatField" ), EFieldType_FLOAT, EParameterType_IN ) );
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "NumericField" ), EFieldType_DOUBLE, EParameterType_IN ) );
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "DecimalField" ), EFieldType_DOUBLE, EParameterType_IN ) );
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "BooleanField" ), EFieldType_BOOL, EParameterType_IN ) );
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "DateField" ), EFieldType_DATE, EParameterType_IN ) );
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "DateTimeField" ), EFieldType_DATETIME, EParameterType_IN ) );
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "CharacterField" ), EFieldType_VARCHAR, 20, EParameterType_IN ) );
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "VarcharField" ), EFieldType_VARCHAR, 255, EParameterType_IN ) );
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "NcharField" ), EFieldType_NVARCHAR, 55, EParameterType_IN ) );
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "NVarcharField" ), EFieldType_NVARCHAR, 100, EParameterType_IN ) );
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "TextField" ), EFieldType_TEXT, EParameterType_IN ) );
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "BlobField" ), EFieldType_VARBINARY, 25, EParameterType_IN ) );
+						CreateParameters( stmtInsert );
 						stmtInsert->Initialize();
 						std::clock_t const start = std::clock();
 						int16_t type( 1 );
@@ -100,31 +157,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 						for ( uint32_t i = 0; i < testCount; i++ )
 						{
 							uint32_t index = 0;
-							int16_t type( i + 20 );
-							stmtUpdate->SetParameterValue( index++, int32_t( type * i ) );
-							stmtUpdate->SetParameterValue( index++, int32_t( type * i + index ) );
-							stmtUpdate->SetParameterValue( index++, ( i % 2 ) == 0 );
-							stmtUpdate->SetParameterValue( index++, int16_t( type * i + index ) );
-							stmtUpdate->SetParameterValue( index++, int32_t( type * i + index ) );
-							stmtUpdate->SetParameterValue( index++, int64_t( type * i + index ) );
-							stmtUpdate->SetParameterValue( index++, int16_t( type * i + index ) );
-							stmtUpdate->SetParameterValue( index++, int64_t( type * i + index ) );
-							stmtUpdate->SetParameterValue( index++, float( type * i + index ) );
-							stmtUpdate->SetParameterValue( index++, double( type * i + index ) );
-							stmtUpdate->SetParameterValue( index++, double( type * i + index ) );
-							stmtUpdate->SetParameterValue( index++, float( type * i + index ) );
-							stmtUpdate->SetParameterValue( index++, double( type * i + index ) );
-							stmtUpdate->SetParameterValue( index++, double( type * i + index ) );
-							stmtUpdate->SetParameterValue( index++, ( i % 2 ) == 1 );
-							stmtUpdate->SetParameterValue( index++, CDate( 2015, EDateMonth_FEBRUARY, 27 ) );
-							stmtUpdate->SetParameterValue( index++, CDateTime( CDate( 2015, EDateMonth_AUGUST, 12 ) ) );
-							stmtUpdate->SetParameterValue( index++, "CHAR: Areva Intercontrôle" + std::to_string( type * i + index ) );
-							stmtUpdate->SetParameterValue( index++, "VARCHAR: Areva Intercontrôle" + std::to_string( type * i + index ) );
-							stmtUpdate->SetParameterValue( index++, L"NCHAR: Areva Intercontrôle" + CStrUtils::ToWStr( CStrUtils::ToString( type * i + index ) ) );
-							stmtUpdate->SetParameterValue( index++, L"NVARCHAR: Areva Intercontrôle" + CStrUtils::ToWStr( CStrUtils::ToString( type * i + index ) ) );
-							stmtUpdate->SetParameterValue( index++, "TEXT: Areva Intercontrôle" + CStrUtils::ToString( type * i + index ) );
-							stmtUpdate->SetParameterValue( index++, blob );
-							stmtUpdate->SetParameterValue( index++, min + i );
+							SetParametersValue( index, i + 20, i, stmtInsert );
 							stmtInsert->ExecuteUpdate();
 						}
 
@@ -166,29 +199,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 					if ( stmtAddUpdate )
 					{
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "IntField" ), EFieldType_INTEGER, EParameterType_IN ) );
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "IntegerField" ), EFieldType_INTEGER, EParameterType_IN ) );
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "TinyIntField" ), EFieldType_BOOL, EParameterType_IN ) );
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "SmallIntField" ), EFieldType_SMALL_INTEGER, EParameterType_IN ) );
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "MediumIntField" ), EFieldType_INTEGER, EParameterType_IN ) );
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "BigIntField" ), EFieldType_LONG_INTEGER, EParameterType_IN ) );
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "Int2Field" ), EFieldType_SMALL_INTEGER, EParameterType_IN ) );
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "Int8Field" ), EFieldType_LONG_INTEGER, EParameterType_IN ) );
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "RealField" ), EFieldType_FLOAT, EParameterType_IN ) );
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "DoubleField" ), EFieldType_DOUBLE, EParameterType_IN ) );
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "DoublePrecisionField" ), EFieldType_DOUBLE, EParameterType_IN ) );
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "FloatField" ), EFieldType_FLOAT, EParameterType_IN ) );
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "NumericField" ), EFieldType_DOUBLE, EParameterType_IN ) );
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "DecimalField" ), EFieldType_DOUBLE, EParameterType_IN ) );
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "BooleanField" ), EFieldType_BOOL, EParameterType_IN ) );
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "DateField" ), EFieldType_DATE, EParameterType_IN ) );
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "DateTimeField" ), EFieldType_DATETIME, EParameterType_IN ) );
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "CharacterField" ), EFieldType_VARCHAR, 20, EParameterType_IN ) );
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "VarcharField" ), EFieldType_VARCHAR, 255, EParameterType_IN ) );
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "NcharField" ), EFieldType_NVARCHAR, 55, EParameterType_IN ) );
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "NVarcharField" ), EFieldType_NVARCHAR, 100, EParameterType_IN ) );
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "TextField" ), EFieldType_TEXT, EParameterType_IN ) );
-						BOOST_CHECK( stmtInsert->CreateParameter( STR( "BlobField" ), EFieldType_VARBINARY, 25, EParameterType_IN ) );
+						CreateParameters( stmtAddUpdate );
 						stmtAddUpdate->Initialize();
 						std::clock_t const start = std::clock();
 						int16_t type( 1 );
@@ -196,31 +207,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 						for ( uint32_t i = 0; i < testCount; i++ )
 						{
 							uint32_t index = 0;
-							int16_t type( i + 20 );
-							stmtUpdate->SetParameterValue( index++, int32_t( type * i ) );
-							stmtUpdate->SetParameterValue( index++, int32_t( type * i + index ) );
-							stmtUpdate->SetParameterValue( index++, ( i % 2 ) == 0 );
-							stmtUpdate->SetParameterValue( index++, int16_t( type * i + index ) );
-							stmtUpdate->SetParameterValue( index++, int32_t( type * i + index ) );
-							stmtUpdate->SetParameterValue( index++, int64_t( type * i + index ) );
-							stmtUpdate->SetParameterValue( index++, int16_t( type * i + index ) );
-							stmtUpdate->SetParameterValue( index++, int64_t( type * i + index ) );
-							stmtUpdate->SetParameterValue( index++, float( type * i + index ) );
-							stmtUpdate->SetParameterValue( index++, double( type * i + index ) );
-							stmtUpdate->SetParameterValue( index++, double( type * i + index ) );
-							stmtUpdate->SetParameterValue( index++, float( type * i + index ) );
-							stmtUpdate->SetParameterValue( index++, double( type * i + index ) );
-							stmtUpdate->SetParameterValue( index++, double( type * i + index ) );
-							stmtUpdate->SetParameterValue( index++, ( i % 2 ) == 1 );
-							stmtUpdate->SetParameterValue( index++, CDate( 2015, EDateMonth_FEBRUARY, 27 ) );
-							stmtUpdate->SetParameterValue( index++, CDateTime( CDate( 2015, EDateMonth_AUGUST, 12 ) ) );
-							stmtUpdate->SetParameterValue( index++, "CHAR: Areva Intercontrôle" + std::to_string( type * i + index ) );
-							stmtUpdate->SetParameterValue( index++, "VARCHAR: Areva Intercontrôle" + std::to_string( type * i + index ) );
-							stmtUpdate->SetParameterValue( index++, L"NCHAR: Areva Intercontrôle" + CStrUtils::ToWStr( CStrUtils::ToString( type * i + index ) ) );
-							stmtUpdate->SetParameterValue( index++, L"NVARCHAR: Areva Intercontrôle" + CStrUtils::ToWStr( CStrUtils::ToString( type * i + index ) ) );
-							stmtUpdate->SetParameterValue( index++, "TEXT: Areva Intercontrôle" + CStrUtils::ToString( type * i + index ) );
-							stmtUpdate->SetParameterValue( index++, blob );
-							stmtUpdate->SetParameterValue( index++, min + i );
+							SetParametersValue( index, i + 20, i, stmtAddUpdate );
 							stmtAddUpdate->ExecuteUpdate();
 						}
 

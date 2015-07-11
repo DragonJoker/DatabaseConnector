@@ -505,7 +505,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	*/
 	template< EFieldType Type > std::unique_ptr< COutMySqlBindBase > MakeOutBind( MYSQL_BIND & bind, CDatabaseValueBase & value, CDatabaseStatementParameterMySql & parameter )
 	{
-		return std::make_unique< COutMySqlBind< SFieldTypeMySqlDataTyper< Type >::DataType > >( bind, SFieldTypeMySqlDataTyper< Type >::MySqlFieldType, static_cast< CDatabaseValue< Type > & >( value ), parameter );
+		return std::make_unique< COutMySqlBind< typename SFieldTypeMySqlDataTyper< Type >::DataType > >( bind, SFieldTypeMySqlDataTyper< Type >::MySqlFieldType, static_cast< CDatabaseValue< Type > & >( value ), parameter );
 	}
 }
 END_NAMESPACE_DATABASE_MYSQL

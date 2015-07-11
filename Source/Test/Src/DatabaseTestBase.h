@@ -57,6 +57,43 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		*/
 		void TestCase_CreateDatabase();
 
+		/** Test insertion and retrieval of a value
+		*/
+		template< typename StmtType >
+		void TestCase_DatabaseFieldsInsertRetrieve();
+
+		/** Test insertion and retrieval of a value
+		*/
+		template< typename StmtType >
+		void TestCase_DatabaseFieldsInsertRetrieveOtherIndex();
+
+		/** Test insertion and retrieval of a value
+		*/
+		template< typename StmtType >
+		void TestCase_DatabaseFieldsInsertRetrieveFast();
+
+		/** Test insertion and retrieval of a value
+		*/
+		template< typename StmtType >
+		void TestCase_DatabaseFieldsInsertRetrieveFastOtherIndex();
+
+		/** Test direct query execution
+		*/
+		template< typename StmtType >
+		void TestCase_DatabaseDirectQuery();
+
+		/** Test stored procedures execution
+		*/
+		template< typename StmtType >
+		void TestCase_DatabaseStoredProcedure();
+
+#if defined( PERF_TEST )
+		/** Performance test
+		*/
+		template< typename StmtType >
+		void TestCase_DatabasePerformances();
+#endif
+
 		/** Test insertion and retrieval of a value through DatabaseQuery
 		*/
 		void TestCase_DatabaseQueryFieldsInsertRetrieve();
@@ -64,6 +101,14 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		/** Test insertion and retrieval of a value through DatabaseQuery
 		*/
 		void TestCase_DatabaseQueryFieldsInsertRetrieveOtherIndex();
+
+		/** Test insertion and retrieval of a value through DatabaseQuery
+		*/
+		void TestCase_DatabaseQueryFieldsInsertRetrieveFast();
+
+		/** Test insertion and retrieval of a value through DatabaseQuery
+		*/
+		void TestCase_DatabaseQueryFieldsInsertRetrieveFastOtherIndex();
 
 		/** Test direct query execution through DatabaseQuery
 		*/
@@ -80,6 +125,14 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		/** Test insertion and retrieval of a value through DatabaseStatement
 		*/
 		void TestCase_DatabaseStatementFieldsInsertRetrieveOtherIndex();
+
+		/** Test insertion and retrieval of a value through DatabaseStatement
+		*/
+		void TestCase_DatabaseStatementFieldsInsertRetrieveFast();
+
+		/** Test insertion and retrieval of a value through DatabaseStatement
+		*/
+		void TestCase_DatabaseStatementFieldsInsertRetrieveFastOtherIndex();
 
 		/** Test direct query execution through DatabaseStatement
 		*/
@@ -125,5 +178,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	};
 }
 END_NAMESPACE_DATABASE_TEST
+
+#include "DatabaseTestBase.inl"
 
 #endif

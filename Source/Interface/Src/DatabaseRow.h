@@ -130,6 +130,38 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		template< typename T > inline void GetOpt( const String & name, boost::optional< T > & value );
 
+		/** Get value
+		@param[in] index
+		    Field index.
+		@param[out] value
+		    Value.
+		*/
+		template< typename T > inline void GetFast( uint32_t index, T & value );
+
+		/** Get value
+		@param[in] name
+		    Field name.
+		@param[out] value
+		    Value.
+		*/
+		template< typename T > inline void GetFast( const String & name, T & value );
+
+		/** Get value
+		@param[in] index
+		    Field index.
+		@param[out] value
+		    Value.
+		*/
+		template< typename T > inline void GetOptFast( uint32_t index, boost::optional< T > & value );
+
+		/** Get value
+		@param[in] name
+		    Field name.
+		@param[out] value
+		    Value.
+		*/
+		template< typename T > inline void GetOptFast( const String & name, boost::optional< T > & value );
+
 		/** Get default value.
 		@return
 		    Default value.

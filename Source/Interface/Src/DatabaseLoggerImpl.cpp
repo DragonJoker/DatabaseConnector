@@ -14,6 +14,9 @@ BEGIN_NAMESPACE_DATABASE
 		: public std::basic_streambuf< CharType >
 	{
 	public:
+		typedef typename std::basic_streambuf< CharType >::int_type int_type;
+		typedef typename std::basic_streambuf< CharType >::traits_type traits_type;
+		
 		CLogStreambuf( ILoggerImpl * p_impl, std::basic_ostream< CharType > & p_stream )
 			: m_stream( p_stream )
 			, m_impl( p_impl )
