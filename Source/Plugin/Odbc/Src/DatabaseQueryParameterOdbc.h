@@ -67,6 +67,12 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		/** Destructor.
 		 */
 		virtual ~CDatabaseQueryParameterOdbc();
+
+		/** Initializes parameter members from the given statement handle
+		@param statementHandle
+		    The statement handle
+		*/
+		void Initialize( SQLHSTMT statementHandle );
 	};
 }
 END_NAMESPACE_DATABASE_ODBC

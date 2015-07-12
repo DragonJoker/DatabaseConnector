@@ -96,8 +96,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	void CDatabaseOdbcMySqlTest::TestCase_DestroyDatabase()
 	{
 		CLogger::LogMessage( StringStream() << "**** Start TestCase_DestroyDatabase ****" );
-		UninstallSourceOdbcMySql( DB_DATABASE );
-		UninstallDatabaseMySql( DB_DATABASE, DB_USER, DB_PASS );
 		{
 			auto const guard = make_block_guard( [this]()
 			{
@@ -114,6 +112,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				try
 				{
+					connection->SelectDatabase( _database );
 					connection->ExecuteUpdate( QUERY_DROP_TABLE );
 				}
 				catch ( std::exception & )
@@ -124,6 +123,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				database->RemoveConnection();
 			}
 		}
+		UninstallSourceOdbcMySql( DB_DATABASE );
+		UninstallDatabaseMySql( DB_DATABASE, DB_USER, DB_PASS );
 		CLogger::LogMessage( StringStream() << "**** End TestCase_DestroyDatabase ****" );
 	}
 }

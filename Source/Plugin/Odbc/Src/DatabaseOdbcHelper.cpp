@@ -121,6 +121,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 			CInOdbcBind( SQLSMALLINT targetType )
 				: CInOdbcBindBase( targetType, 1 )
+				, _value()
 			{
 				_targetValuePtr = &_value;
 			}
@@ -147,6 +148,48 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			}
 
 			T const * GetValue()const
+			{
+				return _value.data();
+			}
+		};
+
+		/** Specialisation for pointer types
+		*/
+		template<>
+		struct CInOdbcBind< char *, char * >
+				: public CInOdbcBindBase
+		{
+			std::vector< char > _value;
+
+			CInOdbcBind( SQLSMALLINT targetType, uint32_t limits )
+				: CInOdbcBindBase( targetType, limits + 1 )
+				, _value( limits + 1 )
+			{
+				_targetValuePtr = _value.data();
+			}
+
+			char const * GetValue()const
+			{
+				return _value.data();
+			}
+		};
+
+		/** Specialisation for pointer types
+		*/
+		template<>
+		struct CInOdbcBind< wchar_t *, wchar_t * >
+				: public CInOdbcBindBase
+		{
+			std::vector< wchar_t > _value;
+
+			CInOdbcBind( SQLSMALLINT targetType, uint32_t limits )
+				: CInOdbcBindBase( targetType, ( limits + 1 ) )
+				, _value( limits + 1 )
+			{
+				_targetValuePtr = _value.data();
+			}
+
+			wchar_t const * GetValue()const
 			{
 				return _value.data();
 			}
@@ -209,6 +252,23 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			return std::vector< uint8_t >( bind.GetValue(), bind.GetValue() + bind._strLenOrInd );
 		}
 
+		CDate CDateFromOdbcDate( SQL_DATE_STRUCT const & ts )
+		{
+			return CDate( ts.year, EDateMonth( ts.month - 1 ), ts.day );
+		}
+
+		CDateTime CDateTimeFromOdbcTimestamp( SQL_TIMESTAMP_STRUCT const & ts )
+		{
+			CDateTime dateTime;
+			dateTime.SetDateTime( ts.year, EDateMonth( ts.month - 1 ), ts.day, ts.hour, ts.minute, ts.second );
+			return dateTime;
+		}
+
+		CTime CTimeFromOdbcTime( SQL_TIME_STRUCT const & ts )
+		{
+			return CTime( ts.hour, ts.minute, ts.second );
+		}
+
 		std::unique_ptr< CInOdbcBindBase > GetBindFromConciseType( SQLLEN sqlType, uint32_t limits )
 		{
 			std::unique_ptr< CInOdbcBindBase > result;
@@ -248,12 +308,9 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			case SQL_BIGINT:
 				result = std::make_unique< CInOdbcBind< int64_t > >( SQL_C_SBIGINT );
 				break;
-				
-			case SQL_TINYINT:
-				result = std::make_unique< CInOdbcBind< int8_t > >( SQL_C_STINYINT );
-				break;
 
 			case SQL_BIT:
+			case SQL_TINYINT:
 				result = std::make_unique< CInOdbcBind< bool > >( SQL_C_BIT );
 				break;
 
@@ -704,7 +761,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			fieldType = EFieldType_INTEGER;
 			break;
 
-		case SQL_TINYINT:
 		case SQL_SMALLINT:
 			fieldType = EFieldType_SMALL_INTEGER;
 			break;
@@ -713,6 +769,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			fieldType = EFieldType_LONG_INTEGER;
 			break;
 
+		case SQL_TINYINT:
 		case SQL_BIT:
 			fieldType = EFieldType_BOOL;
 			break;
@@ -761,9 +818,8 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		return fieldType;
 	}
 
-	DatabaseResultPtr SqlExecute( DatabaseConnectionPtr connection, SQLHSTMT statementHandle, FuncResultSetFullyFetched onFullyfetched )
+	EErrorType SqlExecute( DatabaseConnectionPtr connection, SQLHSTMT statementHandle, FuncResultSetFullyFetched onFullyfetched, DatabaseResultPtr & pReturn )
 	{
-		DatabaseResultPtr pReturn;
 		SQLRETURN res = SQL_SUCCESS;
 		EErrorType errorType = EErrorType_NONE;
 
@@ -808,22 +864,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 #endif
 
-		return pReturn;
-	}
-
-	CDate CDateFromOdbcDate( SQL_DATE_STRUCT const & ts )
-	{
-		return CDate( ts.year, EDateMonth( ts.month - 1 ), ts.day );
-	}
-
-	CDateTime CDateTimeFromOdbcTimestamp( SQL_TIMESTAMP_STRUCT const & ts )
-	{
-		return CDateTime( CDate( ts.year, EDateMonth( ts.month - 1 ), ts.day ), CTime( ts.hour, ts.minute, ts.second ) );
-	}
-
-	CTime CTimeFromOdbcTime( SQL_TIME_STRUCT const & ts )
-	{
-		return CTime( ts.hour, ts.minute, ts.second );
+		return errorType;
 	}
 }
 END_NAMESPACE_DATABASE_ODBC

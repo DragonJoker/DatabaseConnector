@@ -192,11 +192,7 @@ BEGIN_NAMESPACE_DATABASE
 			std::string l_strFormat( p_pFormat );
 			vsnprintf( l_pText, 256, l_strFormat.c_str(), l_vaList );
 			va_end( l_vaList );
-
-			if ( GetSingleton().m_pImpl )
-			{
-				GetSingleton().m_pImpl->LogDebug( CStrUtils::ToString( l_pText ) );
-			}
+			LogDebug( std::string( l_pText ) );
 		}
 	}
 
@@ -229,11 +225,7 @@ BEGIN_NAMESPACE_DATABASE
 			vswprintf( l_pText, l_strFormat.c_str(), l_vaList );
 #endif
 			va_end( l_vaList );
-
-			if ( GetSingleton().m_pImpl )
-			{
-				GetSingleton().m_pImpl->LogDebug( CStrUtils::ToString( l_pText ) );
-			}
+			LogDebug( std::wstring( l_pText ) );
 		}
 	}
 
@@ -262,11 +254,7 @@ BEGIN_NAMESPACE_DATABASE
 			std::string l_strFormat( p_pFormat );
 			vsnprintf( l_pText, 256, l_strFormat.c_str(), l_vaList );
 			va_end( l_vaList );
-
-			if ( GetSingleton().m_pImpl )
-			{
-				GetSingleton().m_pImpl->LogMessage( CStrUtils::ToString( l_pText ) );
-			}
+			LogMessage( std::string( l_pText ) );
 		}
 	}
 
@@ -299,11 +287,7 @@ BEGIN_NAMESPACE_DATABASE
 			vswprintf( l_pText, l_strFormat.c_str(), l_vaList );
 #endif
 			va_end( l_vaList );
-
-			if ( GetSingleton().m_pImpl )
-			{
-				GetSingleton().m_pImpl->LogMessage( CStrUtils::ToString( l_pText ) );
-			}
+			LogMessage( std::wstring( l_pText ) );
 		}
 	}
 
@@ -332,11 +316,7 @@ BEGIN_NAMESPACE_DATABASE
 			std::string l_strFormat( p_pFormat );
 			vsnprintf( l_pText, 256, l_strFormat.c_str(), l_vaList );
 			va_end( l_vaList );
-
-			if ( GetSingleton().m_pImpl )
-			{
-				GetSingleton().m_pImpl->LogWarning( CStrUtils::ToString( l_pText ) );
-			}
+			LogWarning( std::string( l_pText ) );
 		}
 	}
 
@@ -369,11 +349,7 @@ BEGIN_NAMESPACE_DATABASE
 			vswprintf( l_pText, l_strFormat.c_str(), l_vaList );
 #endif
 			va_end( l_vaList );
-
-			if ( GetSingleton().m_pImpl )
-			{
-				GetSingleton().m_pImpl->LogWarning( CStrUtils::ToString( l_pText ) );
-			}
+			LogWarning( std::wstring( l_pText ) );
 		}
 	}
 
@@ -402,11 +378,7 @@ BEGIN_NAMESPACE_DATABASE
 			std::string l_strFormat( p_pFormat );
 			vsnprintf( l_pText, 256, l_strFormat.c_str(), l_vaList );
 			va_end( l_vaList );
-
-			if ( GetSingleton().m_pImpl )
-			{
-				GetSingleton().m_pImpl->LogError( CStrUtils::ToString( l_pText ) );
-			}
+			LogError( std::string( l_pText ) );
 		}
 	}
 
@@ -439,11 +411,7 @@ BEGIN_NAMESPACE_DATABASE
 			vswprintf( l_pText, l_strFormat.c_str(), l_vaList );
 #endif
 			va_end( l_vaList );
-
-			if ( GetSingleton().m_pImpl )
-			{
-				GetSingleton().m_pImpl->LogError( CStrUtils::ToString( l_pText ) );
-			}
+			LogError( std::wstring( l_pText ) );
 		}
 	}
 

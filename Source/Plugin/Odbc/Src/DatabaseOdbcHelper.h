@@ -73,34 +73,12 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		Handle of statement to execute.
 	@param[in] onFullyfetched
 		Method called when the result set is fetched
+	@param[out] pReturn
+		Receives the result set, if any
 	@return
-		the result set.
+		the result.
 	*/
-	DatabaseResultPtr SqlExecute( DatabaseConnectionPtr connection, SQLHSTMT statementHandle, FuncResultSetFullyFetched onFullyfetched );
-
-	/** Retrieves a CDate from an ODBC date
-	@param ts
-		The ODBC date
-	@return
-		The CDate
-	*/
-	CDate CDateFromOdbcDate( SQL_DATE_STRUCT const & ts );
-
-	/** Retrieves a CDate from an ODBC timestamp
-	@param ts
-		The ODBC timestamp
-	@return
-		The CDateTime
-	*/
-	CDateTime CDateTimeFromOdbcTimestamp( SQL_TIMESTAMP_STRUCT const & ts );
-
-	/** Retrieves a CDate from an ODBC time
-	@param ts
-		The ODBC time
-	@return
-		The CTime
-	*/
-	CTime CTimeFromOdbcTime( SQL_TIME_STRUCT const & ts );
+	EErrorType SqlExecute( DatabaseConnectionPtr connection, SQLHSTMT statementHandle, FuncResultSetFullyFetched onFullyfetched, DatabaseResultPtr & pReturn );
 }
 END_NAMESPACE_DATABASE_ODBC
 
