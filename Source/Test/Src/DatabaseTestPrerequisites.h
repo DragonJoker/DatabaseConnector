@@ -53,7 +53,7 @@ BEGIN_NAMESPACE_DATABASE
 		void UnloadPlugins();
 		CDatabase * InstantiateDatabase( const String & type );
 		DatabaseConnectionPtr CreateConnection( CDatabase & database, const String & server, const String & user, const String & pwd );
-		
+
 		extern String const QUERY_DROP_TABLE;
 		extern String const QUERY_SELECT_MIN;
 		extern String const QUERY_GET_COUNT;

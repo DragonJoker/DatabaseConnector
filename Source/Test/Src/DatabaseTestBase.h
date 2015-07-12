@@ -89,7 +89,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template< typename StmtType >
 		void TestCase_DatabasePerformances();
 #endif
-		
+
 		/** Test database creation
 		*/
 		virtual void TestCase_CreateDatabase();

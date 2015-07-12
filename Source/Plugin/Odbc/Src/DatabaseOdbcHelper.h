@@ -49,7 +49,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		Error code.
 	*/
 	EErrorType SqlSuccess( SQLRETURN rc, SQLSMALLINT typeHandle = 0, SQLHANDLE handle = NULL, const String & query = STR( "" ) );
-	
+
 	/** Retrieves the field type corresponding to concise type.
 	@param[in] sqlType
 		SQL type identifier.
@@ -57,7 +57,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		Database field type.
 	*/
 	EFieldType GetFieldTypeFromConciseType( SQLLEN sqlType );
-	
+
 	/** Retrieves the field type corresponding to C type.
 	@param[in] sqlType
 		SQL type identifier.

@@ -39,7 +39,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		/** Loads the database plugin
 		*/
 		void DoLoadPlugins();
-		
+
 		/** Test database creation
 		*/
 		virtual void TestCase_CreateDatabase();

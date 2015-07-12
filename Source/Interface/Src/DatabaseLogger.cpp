@@ -17,6 +17,92 @@
 
 BEGIN_NAMESPACE_DATABASE
 {
+	template< typename CharType, typename LogStreambufTraits >
+	class CLogStreambuf
+		: public std::basic_streambuf< CharType >
+	{
+	public:
+		typedef typename std::basic_streambuf< CharType >::int_type int_type;
+		typedef typename std::basic_streambuf< CharType >::traits_type traits_type;
+
+		CLogStreambuf( std::basic_ostream< CharType > & p_stream )
+			: m_stream( p_stream )
+		{
+			m_old = m_stream.rdbuf( this );
+		}
+
+		virtual ~CLogStreambuf()
+		{
+			m_stream.rdbuf( m_old );
+		}
+
+		virtual int_type overflow( int_type c = traits_type::eof() )
+		{
+			if ( traits_type::eq_int_type( c, traits_type::eof() ) )
+			{
+				sync();
+			}
+			else
+			{
+				m_buffer += traits_type::to_char_type( c );
+			}
+
+			return c;
+		}
+
+		virtual int sync()
+		{
+			if ( !m_buffer.empty() )
+			{
+				LogStreambufTraits::Log( m_buffer );
+				m_buffer.clear();
+			}
+
+			return 0;
+		}
+
+	private:
+		std::basic_string< CharType > m_buffer;
+		std::basic_ostream< CharType > & m_stream;
+		std::basic_streambuf< CharType > * m_old;
+	};
+
+	template< typename CharType >
+	struct STDebugLogStreambufTraits
+	{
+		static void Log( std::basic_string< CharType > const & p_text )
+		{
+			CLogger::LogDebug( CStrUtils::ToString( p_text ) );
+		}
+	};
+
+	template< typename CharType >
+	struct STMessageLogStreambufTraits
+	{
+		static void Log( std::basic_string< CharType > const & p_text )
+		{
+			CLogger::LogMessage( CStrUtils::ToString( p_text ) );
+		}
+	};
+
+	template< typename CharType >
+	struct STWarningLogStreambufTraits
+	{
+		static void Log( std::basic_string< CharType > const & p_text )
+		{
+			CLogger::LogWarning( CStrUtils::ToString( p_text ) );
+		}
+	};
+
+	template< typename CharType >
+	struct STErrorLogStreambufTraits
+	{
+		static void Log( std::basic_string< CharType > const & p_text )
+		{
+			CLogger::LogError( CStrUtils::ToString( p_text ) );
+		}
+	};
+
 	template< eLOG_TYPE Level >	class LeveledLogger;
 
 	template <> class LeveledLogger< eLOG_TYPE_DEBUG > : public ILoggerImpl
@@ -72,14 +158,28 @@ BEGIN_NAMESPACE_DATABASE
 		:	m_pImpl( NULL	)
 	{
 		std::unique_lock< std::mutex > lock( m_mutex );
-		m_strHeaders[eLOG_TYPE_DEBUG	] = STR( "***DEBUG*** "	);
+		m_strHeaders[eLOG_TYPE_DEBUG	] = STR( "***DEBUG*** " );
 		m_strHeaders[eLOG_TYPE_MESSAGE	] = STR( "" );
-		m_strHeaders[eLOG_TYPE_WARNING	] = STR( "***WARNING*** "	);
-		m_strHeaders[eLOG_TYPE_ERROR	] = STR( "***ERROR*** "	);
+		m_strHeaders[eLOG_TYPE_WARNING	] = STR( "***WARNING*** " );
+		m_strHeaders[eLOG_TYPE_ERROR	] = STR( "***ERROR*** " );
+
+		m_cout = new CLogStreambuf< char, STMessageLogStreambufTraits< char > >( std::cout );
+		m_cerr = new CLogStreambuf< char, STErrorLogStreambufTraits< char > >( std::cerr );
+		m_clog = new CLogStreambuf< char, STDebugLogStreambufTraits< char > >( std::clog );
+		m_wcout = new CLogStreambuf< wchar_t, STMessageLogStreambufTraits< wchar_t > >( std::wcout );
+		m_wcerr = new CLogStreambuf< wchar_t, STErrorLogStreambufTraits< wchar_t > >( std::wcerr );
+		m_wclog = new CLogStreambuf< wchar_t, STDebugLogStreambufTraits< wchar_t > >( std::wclog );
 	}
 
 	CLogger::~CLogger()
 	{
+		delete m_cout;
+		delete m_cerr;
+		delete m_clog;
+		delete m_wcout;
+		delete m_wcerr;
+		delete m_wclog;
+
 		if ( m_bOwnInstance )
 		{
 			m_pImpl->Cleanup();
@@ -109,6 +209,9 @@ BEGIN_NAMESPACE_DATABASE
 			{
 				l_logger.m_strHeaders[i] = p_pLogger->m_strHeaders[i];
 			}
+
+			l_logger.m_logLevel = p_pLogger->m_logLevel;
+			l_logger.DoInitialiseThread();
 		}
 
 #endif
@@ -156,11 +259,16 @@ BEGIN_NAMESPACE_DATABASE
 			{
 				throw std::range_error( "SetLogLevel subscript error" );
 			}
+
+			l_logger.m_logLevel = p_eLogLevel;
+			l_logger.DoInitialiseThread();
 		}
 	}
 
 	void CLogger::Cleanup()
 	{
+		GetSingleton().DoCleanupThread();
+
 		if ( m_uiCounter > 0 )
 		{
 			m_uiCounter--;
@@ -198,10 +306,7 @@ BEGIN_NAMESPACE_DATABASE
 
 	void CLogger::LogDebug( std::string const & p_msg )
 	{
-		if ( GetSingleton().m_pImpl )
-		{
-			GetSingleton().m_pImpl->LogDebug( CStrUtils::ToString( p_msg ) );
-		}
+		GetSingleton().DoPushMessage( eLOG_TYPE_DEBUG, p_msg );
 	}
 
 	void CLogger::LogDebug( std::ostream const & p_msg )
@@ -231,10 +336,7 @@ BEGIN_NAMESPACE_DATABASE
 
 	void CLogger::LogDebug( std::wstring const & p_msg )
 	{
-		if ( GetSingleton().m_pImpl )
-		{
-			GetSingleton().m_pImpl->LogDebug( CStrUtils::ToString( p_msg ) );
-		}
+		GetSingleton().DoPushMessage( eLOG_TYPE_DEBUG, p_msg );
 	}
 
 	void CLogger::LogDebug( std::wostream const & p_msg )
@@ -260,10 +362,7 @@ BEGIN_NAMESPACE_DATABASE
 
 	void CLogger::LogMessage( std::string const & p_msg )
 	{
-		if ( GetSingleton().m_pImpl )
-		{
-			GetSingleton().m_pImpl->LogMessage( CStrUtils::ToString( p_msg ) );
-		}
+		GetSingleton().DoPushMessage( eLOG_TYPE_MESSAGE, p_msg );
 	}
 
 	void CLogger::LogMessage( std::ostream const & p_msg )
@@ -293,10 +392,7 @@ BEGIN_NAMESPACE_DATABASE
 
 	void CLogger::LogMessage( std::wstring const & p_msg )
 	{
-		if ( GetSingleton().m_pImpl )
-		{
-			GetSingleton().m_pImpl->LogMessage( CStrUtils::ToString( p_msg ) );
-		}
+		GetSingleton().DoPushMessage( eLOG_TYPE_MESSAGE, p_msg );
 	}
 
 	void CLogger::LogMessage( std::wostream const & p_msg )
@@ -322,10 +418,7 @@ BEGIN_NAMESPACE_DATABASE
 
 	void CLogger::LogWarning( std::string const & p_msg )
 	{
-		if ( GetSingleton().m_pImpl )
-		{
-			GetSingleton().m_pImpl->LogWarning( CStrUtils::ToString( p_msg ) );
-		}
+		GetSingleton().DoPushMessage( eLOG_TYPE_WARNING, p_msg );
 	}
 
 	void CLogger::LogWarning( std::ostream const & p_msg )
@@ -355,10 +448,7 @@ BEGIN_NAMESPACE_DATABASE
 
 	void CLogger::LogWarning( std::wstring const & p_msg )
 	{
-		if ( GetSingleton().m_pImpl )
-		{
-			GetSingleton().m_pImpl->LogWarning( CStrUtils::ToString( p_msg ) );
-		}
+		GetSingleton().DoPushMessage( eLOG_TYPE_WARNING, p_msg );
 	}
 
 	void CLogger::LogWarning( std::wostream const & p_msg )
@@ -384,10 +474,7 @@ BEGIN_NAMESPACE_DATABASE
 
 	void CLogger::LogError( std::string const & p_msg )
 	{
-		if ( GetSingleton().m_pImpl )
-		{
-			GetSingleton().m_pImpl->LogError( CStrUtils::ToString( p_msg ) );
-		}
+		GetSingleton().DoPushMessage( eLOG_TYPE_ERROR, p_msg );
 	}
 
 	void CLogger::LogError( std::ostream const & p_msg )
@@ -417,10 +504,7 @@ BEGIN_NAMESPACE_DATABASE
 
 	void CLogger::LogError( std::wstring const & p_msg )
 	{
-		if ( GetSingleton().m_pImpl )
-		{
-			GetSingleton().m_pImpl->LogError( CStrUtils::ToString( p_msg ) );
-		}
+		GetSingleton().DoPushMessage( eLOG_TYPE_ERROR, p_msg );
 	}
 
 	void CLogger::LogError( std::wostream const & p_msg )
@@ -454,6 +538,72 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		std::unique_lock< std::mutex > lock( m_mutex );
 		m_pImpl->SetFileName( p_logFilePath, p_eLogType );
+	}
+
+	void CLogger::DoPushMessage( eLOG_TYPE p_type, std::string const & p_message )
+	{
+		if ( p_type >= m_logLevel )
+		{
+			std::unique_lock< std::mutex > l_lock( m_mutexQueue );
+			m_queue.push_back( std::make_unique< SMessage >( p_type, p_message ) );
+		}
+	}
+
+	void CLogger::DoPushMessage( eLOG_TYPE p_type, std::wstring const & p_message )
+	{
+		if ( p_type >= m_logLevel )
+		{
+			std::unique_lock< std::mutex > l_lock( m_mutexQueue );
+			m_queue.push_back( std::make_unique< SWMessage >( p_type, p_message ) );
+		}
+	}
+
+	void CLogger::DoFlushQueue( bool p_display )
+	{
+		if ( !m_queue.empty() )
+		{
+			MessageQueue l_queue;
+
+			{
+				std::unique_lock< std::mutex > l_lock( m_mutexQueue );
+				std::swap( l_queue, m_queue );
+			}
+
+			m_pImpl->LogMessageQueue( l_queue, p_display );
+		}
+	}
+
+	void CLogger::DoInitialiseThread()
+	{
+		m_stopped = false;
+
+		m_logThread = std::thread( [this]()
+		{
+			while ( !m_stopped )
+			{
+				DoFlushQueue( true );
+				std::this_thread::sleep_for( std::chrono::milliseconds( 10 ) );
+			}
+
+			DoFlushQueue( true );
+
+			{
+				std::unique_lock< std::mutex > l_lock( m_mutexThreadEnded );
+				m_threadEnded.notify_one();
+			}
+		} );
+	}
+
+	void CLogger::DoCleanupThread()
+	{
+		m_stopped = true;
+
+		{
+			std::unique_lock< std::mutex > l_lock( m_mutexThreadEnded );
+			m_threadEnded.wait( l_lock );
+		}
+
+		m_logThread.join();
 	}
 }
 END_NAMESPACE_DATABASE

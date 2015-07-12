@@ -175,7 +175,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 #else
 	static const String SCRIPT_EXT = STR( ".sh" );
 #endif
-	
+
 	static const String MYSQL = STR( "MySql" );
 	static const String MSSQL = STR( "MsSql" );
 

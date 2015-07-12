@@ -20,6 +20,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "DatabaseLoggerImpl.h"
 
+#include <deque>
+#include <mutex>
+#include <atomic>
+
 BEGIN_NAMESPACE_DATABASE
 {
 	/*!
@@ -353,16 +357,36 @@ BEGIN_NAMESPACE_DATABASE
 	private:
 		void DoSetCallback( PLogCallback p_pfnCallback, void * p_pCaller );
 		void DoSetFileName( String const & p_logFilePath, eLOG_TYPE p_eLogType = eLOG_TYPE_COUNT );
+		void DoPushMessage( eLOG_TYPE p_type, std::string const & p_message );
+		void DoPushMessage( eLOG_TYPE p_type, std::wstring const & p_message );
+		void DoInitialiseThread();
+		void DoCleanupThread();
+		void DoFlushQueue( bool p_display );
 
 	private:
 		friend class ILoggerImpl;
+
 		static bool m_bOwnInstance;
 		static CLogger * m_pSingleton;
 		static uint32_t m_uiCounter;
+
+		std::streambuf * m_cout;
+		std::streambuf * m_cerr;
+		std::streambuf * m_clog;
+		std::wstreambuf * m_wcout;
+		std::wstreambuf * m_wcerr;
+		std::wstreambuf * m_wclog;
+
 		ILoggerImpl * m_pImpl;
+		eLOG_TYPE m_logLevel;
 		std::mutex m_mutex;
 		String m_strHeaders[eLOG_TYPE_COUNT];
-
+		std::mutex m_mutexQueue;
+		MessageQueue m_queue;
+		std::thread m_logThread;
+		std::atomic_bool m_stopped;
+		std::mutex m_mutexThreadEnded;
+		std::condition_variable m_threadEnded;
 	};
 }
 END_NAMESPACE_DATABASE
