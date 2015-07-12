@@ -149,13 +149,13 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 				case SQLITE_FLOAT:
 					if ( type.find( "FLOA" ) != std::string::npos
-						|| type == "SUM" )
+							|| type == "SUM" )
 					{
 						infos = std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, EFieldType_FLOAT );
 					}
 					else if ( type.find( "DOUB" ) != std::string::npos
-							|| type.find( "REAL" ) != std::string::npos
-							|| type.find( "DECIMAL" ) != std::string::npos )
+							  || type.find( "REAL" ) != std::string::npos
+							  || type.find( "DECIMAL" ) != std::string::npos )
 					{
 						infos = std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, EFieldType_DOUBLE );
 					}

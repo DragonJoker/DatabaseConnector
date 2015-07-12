@@ -21,12 +21,73 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "DatabaseLoggerConsole.h"
 
 #include <condition_variable>
+#include <deque>
 
 #pragma warning( push )
 #pragma warning( disable:4290 )
 
 BEGIN_NAMESPACE_DATABASE
 {
+	/** Base class for a message representation
+	*/
+	struct SMessageBase
+	{
+		/** Constructor
+		@param[in] type
+			The message type
+		*/
+		SMessageBase( eLOG_TYPE type )
+			: m_type( type )
+		{
+		}
+
+		/** Retrieves the message content
+		@return
+			The message text
+		*/
+		virtual String GetMessage() = 0;
+
+		//! The message type
+		eLOG_TYPE m_type;
+	};
+
+	/** Template class, holding character type dependant message text
+	*/
+	template< typename Char >
+	struct SBasicMessage
+			: public SMessageBase
+	{
+		typedef std::basic_string< Char > string_type;
+
+		/** Constructor
+		@param[in] type
+			The message type
+		@param[in] message
+			The message text
+		*/
+		SBasicMessage( eLOG_TYPE type, string_type const & message )
+			: SMessageBase( type )
+			, m_message( message )
+		{
+		}
+
+		//@copydoc Database::SMessageBase::GetMessage
+		virtual String GetMessage()
+		{
+			return CStrUtils::ToString( m_message );
+		}
+
+		//! The message text
+		string_type m_message;
+	};
+
+	//! A char message
+	typedef SBasicMessage< char > SMessage;
+	//! A wchar_t message
+	typedef SBasicMessage< wchar_t > SWMessage;
+	//! A message queue
+	typedef std::deque< std::unique_ptr< SMessageBase > > MessageQueue;
+
 	/**
 	 *\~english
 	 *\brief		Logging callback function
@@ -77,10 +138,8 @@ BEGIN_NAMESPACE_DATABASE
 
 		void SetFileName( String const & p_logFilePath, eLOG_TYPE p_eLogType );
 
-		virtual void LogDebug( String const & p_strToLog );
-		virtual void LogMessage( String const & p_strToLog );
-		virtual void LogWarning( String const & p_strToLog );
-		virtual bool LogError( String const & p_strToLog );
+		void LogMessageQueue( MessageQueue const & p_queue, bool p_display );
+		void LogMessage( eLOG_TYPE p_eLogType, String const & p_strToLog, bool p_display );
 
 		inline eLOG_TYPE GetLogLevel()const
 		{
@@ -88,7 +147,7 @@ BEGIN_NAMESPACE_DATABASE
 		}
 
 	private:
-		void DoLogMessage( String const & p_strToLog, eLOG_TYPE p_eLogType );
+		void DoLogLine( String const & timestamp, String const & p_line, FILE * p_logFile, eLOG_TYPE p_eLogType, bool p_display );
 
 	private:
 		String m_logFilePath[eLOG_TYPE_COUNT];
@@ -98,18 +157,6 @@ BEGIN_NAMESPACE_DATABASE
 		LoggerCallbackMap m_mapCallbacks;
 		std::mutex m_mutex;
 
-		//std::stringstream m_cout;
-		//std::stringstream m_cerr;
-		//std::stringstream m_clog;
-		//std::wstringstream m_wcout;
-		//std::wstringstream m_wcerr;
-		//std::wstringstream m_wclog;
-		std::streambuf * m_cout;
-		std::streambuf * m_cerr;
-		std::streambuf * m_clog;
-		std::wstreambuf * m_wcout;
-		std::wstreambuf * m_wcerr;
-		std::wstreambuf * m_wclog;
 		std::thread m_outThread;
 		std::mutex m_outMutex;
 		std::condition_variable m_end;

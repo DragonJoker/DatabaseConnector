@@ -352,7 +352,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		{
 			std::unique_ptr< CInOdbcBindBase > result;
 
-			switch( type )
+			switch ( type )
 			{
 			case EFieldType_BOOL:
 				result = std::make_unique< CInOdbcBind< bool > >( SQL_C_BIT );
@@ -460,7 +460,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 					bind = GetBindFromConciseType( numericAttribute, limits );
 					infos = std::make_shared< CDatabaseFieldInfos >( connection, name, GetFieldTypeFromConciseType( numericAttribute ), limits );
 				}
-				
+
 				SqlTry( SQLBindCol( stmt, i, bind->_targetType, bind->_targetValuePtr, bind->_bufferLength, &( bind->_strLenOrInd ) ), SQL_HANDLE_STMT, stmt, ODBC_BindCol_MSG );
 				columns.push_back( std::move( bind ) );
 				result.push_back( infos );
