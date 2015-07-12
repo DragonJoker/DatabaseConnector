@@ -60,8 +60,12 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 		switch ( GetType() )
 		{
-		case EFieldType_BOOL:
-			_binding = MakeOutBind< EFieldType_BOOL >( *bind, GetObjectValue(), *this );
+		case EFieldType_BIT:
+			_binding = MakeOutBind< EFieldType_BIT >( *bind, GetObjectValue(), *this );
+			break;
+
+		case EFieldType_TINY_INTEGER:
+			_binding = MakeOutBind< EFieldType_TINY_INTEGER >( *bind, GetObjectValue(), *this );
 			break;
 
 		case EFieldType_SMALL_INTEGER:
@@ -76,12 +80,16 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			_binding = MakeOutBind< EFieldType_LONG_INTEGER >( *bind, GetObjectValue(), *this );
 			break;
 
-		case EFieldType_FLOAT:
-			_binding = MakeOutBind< EFieldType_FLOAT >( *bind, GetObjectValue(), *this );
+		case EFieldType_FLOATING_POINT_SIMPLE:
+			_binding = MakeOutBind< EFieldType_FLOATING_POINT_SIMPLE >( *bind, GetObjectValue(), *this );
 			break;
 
-		case EFieldType_DOUBLE:
-			_binding = MakeOutBind< EFieldType_DOUBLE >( *bind, GetObjectValue(), *this );
+		case EFieldType_FLOATING_POINT_DOUBLE:
+			_binding = MakeOutBind< EFieldType_FLOATING_POINT_DOUBLE >( *bind, GetObjectValue(), *this );
+			break;
+
+		case EFieldType_FIXED_POINT:
+			_binding = MakeOutBind< EFieldType_FIXED_POINT >( *bind, GetObjectValue(), *this );
 			break;
 
 		case EFieldType_VARCHAR:

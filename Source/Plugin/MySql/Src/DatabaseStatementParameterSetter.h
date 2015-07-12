@@ -38,10 +38,18 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 	/** Specialization for EFieldType_BOOL
 	*/
-	template<> struct SFieldTypeMySqlDataTyper< EFieldType_BOOL >
+	template<> struct SFieldTypeMySqlDataTyper< EFieldType_BIT >
+	{
+		static const enum_field_types MySqlFieldType = MYSQL_TYPE_BIT;
+		typedef bool DataType;
+	};
+
+	/** Specialization for EFieldType_TINY_INTEGER
+	*/
+	template<> struct SFieldTypeMySqlDataTyper< EFieldType_TINY_INTEGER >
 	{
 		static const enum_field_types MySqlFieldType = MYSQL_TYPE_TINY;
-		typedef bool DataType;
+		typedef int8_t DataType;
 	};
 
 	/** Specialization for EFieldType_SMALL_INTEGER
@@ -68,20 +76,28 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		typedef int64_t DataType;
 	};
 
-	/** Specialization for EFieldType_FLOAT
+	/** Specialization for EFieldType_FLOATING_POINT_SIMPLE
 	*/
-	template<> struct SFieldTypeMySqlDataTyper< EFieldType_FLOAT >
+	template<> struct SFieldTypeMySqlDataTyper< EFieldType_FLOATING_POINT_SIMPLE >
 	{
 		static const enum_field_types MySqlFieldType = MYSQL_TYPE_FLOAT;
 		typedef float DataType;
 	};
 
-	/** Specialization for EFieldType_DOUBLE
+	/** Specialization for EFieldType_FLOATING_POINT_DOUBLE
 	*/
-	template<> struct SFieldTypeMySqlDataTyper< EFieldType_DOUBLE >
+	template<> struct SFieldTypeMySqlDataTyper< EFieldType_FLOATING_POINT_DOUBLE >
 	{
 		static const enum_field_types MySqlFieldType = MYSQL_TYPE_DOUBLE;
 		typedef double DataType;
+	};
+
+	/** Specialization for EFieldType_FIXED_POINT
+	*/
+	template<> struct SFieldTypeMySqlDataTyper< EFieldType_FIXED_POINT >
+	{
+		static const enum_field_types MySqlFieldType = MYSQL_TYPE_NEWDECIMAL;
+		typedef char * DataType;
 	};
 
 	/** Specialization for EFieldType_DATE
@@ -367,7 +383,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		@param parameter
 		    The parameter
 		*/
-		COutMySqlBind( MYSQL_BIND & bind, enum_field_types type, CDatabaseValue< EFieldType_BOOL > & value, CDatabaseStatementParameterMySql & parameter )
+		COutMySqlBind( MYSQL_BIND & bind, enum_field_types type, CDatabaseValue< EFieldType_BIT > & value, CDatabaseStatementParameterMySql & parameter )
 			: COutMySqlBindBase( bind, type, parameter )
 			, _value( value )
 		{
@@ -382,7 +398,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		}
 
 		//! The parameter value
-		CDatabaseValue< EFieldType_BOOL > & _value;
+		CDatabaseValue< EFieldType_BIT > & _value;
 		//! The value holder
 		int8_t _holder;
 	};

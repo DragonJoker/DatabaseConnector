@@ -45,17 +45,23 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] name
 		    Field name.
 		@param[in] type
+		    Field type
+		@param[in] precision
+		    Field precision
+		 */
+		DatabaseExport CDatabaseFieldInfos( DatabaseConnectionPtr connection, const String & name, EFieldType type, std::pair< uint32_t, uint32_t > _precision );
+
+		/** Constructor.
+		@param[in] connection
+		    Database connection.
+		@param[in] name
+		    Field name.
+		@param[in] type
 		    Field type as string
 		@param[in] limprec
 		    Field limits or precision (depends on field type)
 		*/
 		DatabaseExport CDatabaseFieldInfos( DatabaseConnectionPtr connection, const String & name, const String & type, uint32_t limprec = -1 );
-
-		/** Copy constructor.
-		@param[in] fieldInfos
-		    Field information to copy.
-		*/
-		DatabaseExport CDatabaseFieldInfos( const CDatabaseFieldInfos & fieldInfos );
 
 		/** Destructor.
 		*/
@@ -85,6 +91,12 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport const uint32_t & GetLimits() const;
 
+		/** Get field limits.
+		@return
+		    Field limits.
+		*/
+		DatabaseExport const std::pair< uint32_t, uint32_t > & GetPrecision() const;
+
 		/** Get connection.
 		@return
 		    Database connexion.
@@ -92,10 +104,14 @@ BEGIN_NAMESPACE_DATABASE
 		DatabaseExport DatabaseConnectionPtr GetConnection() const;
 
 	protected:
-		String _name; ///< Field name.
-		EFieldType _type; ///< Field type.
-		uint32_t _limits; ///< Limits (char, varchar, etc.).
-		DatabaseConnectionPtr _connection; ///< Database connection.
+		/// Field name.
+		String _name;
+		/// Field type.
+		EFieldType _type;
+		/// Precision (floating and fixed points), _precision.first is also used as field limit (char, varchar, ...)
+		std::pair< uint32_t, uint32_t > _precision;
+		/// Database connection.
+		DatabaseConnectionPtr _connection;
 
 	}; // class CDatabaseFieldInfos
 

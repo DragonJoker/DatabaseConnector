@@ -87,8 +87,12 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				result = EFieldType_NULL;
 				break;
 
+			case MYSQL_TYPE_BIT:
+				result = EFieldType_BIT;
+				break;
+
 			case MYSQL_TYPE_TINY:
-				result = EFieldType_BOOL;
+				result = EFieldType_TINY_INTEGER;
 				break;
 
 			case MYSQL_TYPE_SHORT:
@@ -105,12 +109,15 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				break;
 
 			case MYSQL_TYPE_FLOAT:
-				result = EFieldType_FLOAT;
+				result = EFieldType_FLOATING_POINT_SIMPLE;
+				break;
+
+			case MYSQL_TYPE_DOUBLE:
+				result = EFieldType_FLOATING_POINT_DOUBLE;
 				break;
 
 			case MYSQL_TYPE_NEWDECIMAL:
-			case MYSQL_TYPE_DOUBLE:
-				result = EFieldType_DOUBLE;
+				result = EFieldType_FIXED_POINT;
 				break;
 
 			case MYSQL_TYPE_VAR_STRING:
@@ -190,16 +197,16 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				bind.is_unsigned = false;
 				break;
 
+			case MYSQL_TYPE_NEWDECIMAL:
+				result = std::make_unique< CInMySqlBind< char *, CFixedPoint > >( bind );
+				bind.is_unsigned = false;
+				break;
+
 			case MYSQL_TYPE_TIMESTAMP:
 			case MYSQL_TYPE_DATE:
 			case MYSQL_TYPE_DATETIME:
 			case MYSQL_TYPE_TIME:
 				result = std::make_unique< CInMySqlBind< MYSQL_TIME > >( bind );
-				bind.is_unsigned = false;
-				break;
-
-			case MYSQL_TYPE_NEWDECIMAL:
-				result = std::make_unique< CInMySqlBind< char *, double > >( bind );
 				bind.is_unsigned = false;
 				break;
 
@@ -280,8 +287,12 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 							{
 								switch ( pInfos->GetType() )
 								{
-								case EFieldType_BOOL:
-									static_cast< CDatabaseValue< EFieldType_BOOL > & >( field->GetObjectValue() ).SetValue( static_cast< CInMySqlBind< bool > const & >( *bind ).GetValue() != 0 );
+								case EFieldType_BIT:
+									static_cast< CDatabaseValue< EFieldType_BIT > & >( field->GetObjectValue() ).SetValue( static_cast< CInMySqlBind< bool > const & >( *bind ).GetValue() != 0 );
+									break;
+
+								case EFieldType_TINY_INTEGER:
+									static_cast< CDatabaseValue< EFieldType_TINY_INTEGER > & >( field->GetObjectValue() ).SetValue( static_cast< CInMySqlBind< int8_t > const & >( *bind ).GetValue() );
 									break;
 
 								case EFieldType_SMALL_INTEGER:
@@ -296,20 +307,16 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 									static_cast< CDatabaseValue< EFieldType_LONG_INTEGER > & >( field->GetObjectValue() ).SetValue( static_cast< CInMySqlBind< int64_t > const & >( *bind ).GetValue() );
 									break;
 
-								case EFieldType_FLOAT:
-									static_cast< CDatabaseValue< EFieldType_FLOAT > & >( field->GetObjectValue() ).SetValue( static_cast< CInMySqlBind< float > const & >( *bind ).GetValue() );
+								case EFieldType_FLOATING_POINT_SIMPLE:
+									static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_SIMPLE > & >( field->GetObjectValue() ).SetValue( static_cast< CInMySqlBind< float > const & >( *bind ).GetValue() );
 									break;
 
-								case EFieldType_DOUBLE:
-									if ( bind->_bind.buffer_type == MYSQL_TYPE_NEWDECIMAL )
-									{
-										static_cast< CDatabaseValue< EFieldType_DOUBLE > & >( field->GetObjectValue() ).SetValue( static_cast< CInMySqlBind< char *, double > const & >( *bind ).GetValue() );
-									}
-									else
-									{
-										static_cast< CDatabaseValue< EFieldType_DOUBLE > & >( field->GetObjectValue() ).SetValue( static_cast< CInMySqlBind< double > const & >( *bind ).GetValue() );
-									}
+								case EFieldType_FLOATING_POINT_DOUBLE:
+									static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_DOUBLE > & >( field->GetObjectValue() ).SetValue( static_cast< CInMySqlBind< double > const & >( *bind ).GetValue() );
+									break;
 
+								case EFieldType_FIXED_POINT:
+									static_cast< CDatabaseValue< EFieldType_FIXED_POINT > & >( field->GetObjectValue() ).SetValue( static_cast< CInMySqlBind< char *, CFixedPoint > const & >( *bind ).GetValue() );
 									break;
 
 								case EFieldType_VARCHAR:

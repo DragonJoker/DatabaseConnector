@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DatabaseParameter.h
- * @author Sylvain Doremus
- * @version 1.0
- * @date 3/20/2014 2:47:39 PM
- *
- *
- * @brief CDatabaseParameter class declaration.
- *
- * @details Describes a parameter for a query or a statement.
- *
- ***************************************************************************/
+* @file DatabaseParameter.h
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/20/2014 2:47:39 PM
+*
+*
+* @brief CDatabaseParameter class declaration.
+*
+* @details Describes a parameter for a query or a statement.
+*
+***************************************************************************/
 
 #ifndef ___DATABASE_PARAMETER_H___
 #define ___DATABASE_PARAMETER_H___
@@ -35,7 +35,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			/** Updates the parent
 			@param parameter
-			    The parameter
+				The parameter
 			*/
 			DatabaseExport virtual void Update( DatabaseParameterPtr parameter ) = 0;
 		};
@@ -43,37 +43,55 @@ BEGIN_NAMESPACE_DATABASE
 	public:
 		/** Constructor.
 		@param[in] connection
-		    Database connection.
+			Database connection.
 		@param[in] name
-		    Parameter name.
+			Parameter name.
 		@param[in] index
-		    Parameter index.
+			Parameter index.
 		@param[in] fieldType
-		    Field type.
+			Field type.
 		@param[in] parameterType
-		    Parameter type (in, inout, out).
+			Parameter type (in, inout, out).
 		@param[in] updater
-		    The parent updater
+			The parent updater
 		*/
 		DatabaseExport CDatabaseParameter( DatabaseConnectionPtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, SValueUpdater * updater );
 
 		/** Constructor.
 		@param[in] connection
-		    Database connection.
+			Database connection.
 		@param[in] name
-		    Parameter name.
+			Parameter name.
 		@param[in] index
-		    Parameter index.
+			Parameter index.
 		@param[in] fieldType
-		    Field type.
+			Field type.
 		@param[in] limits
-		    Filed limits (for VARCHAR, etc.)
+			Filed limits (for VARCHAR, etc.)
 		@param[in] parameterType
-		    Parameter type (in, inout, out).
+			Parameter type (in, inout, out).
 		@param[in] updater
-		    The parent updater
+			The parent updater
 		*/
 		DatabaseExport CDatabaseParameter( DatabaseConnectionPtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, SValueUpdater * updater );
+
+		/** Constructor.
+		@param[in] connection
+			Database connection.
+		@param[in] name
+			Parameter name.
+		@param[in] index
+			Parameter index.
+		@param[in] fieldType
+			Field type.
+		@param[in] precision
+			Precision (floating and fixed points)
+		@param[in] parameterType
+			Parameter type (in, inout, out).
+		@param[in] updater
+			The parent updater
+		*/
+		DatabaseExport CDatabaseParameter( DatabaseConnectionPtr connection, const String & name, unsigned short index, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType, SValueUpdater * updater );
 
 		/** Desctructor.
 		*/
@@ -81,38 +99,44 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Get field type.
 		@return
-		    Field type.
+			Field type.
 		*/
 		DatabaseExport virtual EFieldType GetType() const;
 
 		/** Get name.
 		@return
-		    The name.
+			The name.
 		*/
 		DatabaseExport virtual const String & GetName() const;
 
 		/** Get limits.
 		@return
-		    The limits.
+			The limits.
 		@remarks
-		    The reference is here to be able to pass this method to function wanting pointer.
+			The reference is here to be able to pass this method to function wanting pointer.
 		*/
 		DatabaseExport virtual const uint32_t & GetLimits() const;
 
+		/** Get precision.
+		@return
+			The precision.
+		*/
+		DatabaseExport virtual const std::pair< uint32_t, uint32_t > & GetPrecision() const;
+
 		/** Get parameter index.
 		@return
-		    Parameter index.
+			Parameter index.
 		@remarks
-		    The reference is here to be able to pass this method to function wanting pointer.
+			The reference is here to be able to pass this method to function wanting pointer.
 		*/
 		DatabaseExport const unsigned short & GetIndex() const;
 
 		/** Get parameter type.
 		@return
-		    Parameter type.
+			Parameter type.
 		@remarks
-		    The reference is here to be able to pass this method to function wanting pointer.
-		 */
+			The reference is here to be able to pass this method to function wanting pointer.
+			*/
 		DatabaseExport const EParameterType & GetParamType() const;
 
 		/** Set parameter value to NULL.
@@ -121,17 +145,17 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Set parameter value from a field.
 		@param[in] field
-		    The field.
+			The field.
 		@remarks
-		    If field type is different than the value type, the value is ignored.
+			If field type is different than the value type, the value is ignored.
 		*/
 		DatabaseExport void SetValue( DatabaseFieldPtr field );
 
 		/** Set parameter value from another parameter.
 		@param[in] field
-		    The field.
+			The field.
 		@remarks
-		    If field type is different than the value type, the value is ignored.
+			If field type is different than the value type, the value is ignored.
 		*/
 		DatabaseExport void SetValue( DatabaseParameterPtr field );
 
@@ -145,11 +169,11 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Set parameter value.
 		@remarks
-		    If value is a std::string or std::wstring, the user *MUST* make sure it is encoded in UTF-8
+			If value is a std::string or std::wstring, the user *MUST* make sure it is encoded in UTF-8
 		@param[in] value
-		    New parameter value.
+			New parameter value.
 		@remarks
-		    If field type is different than the value type, the value is ignored.
+			If field type is different than the value type, the value is ignored.
 		*/
 		template< typename T > inline void SetValue( const T & value )
 		{
@@ -158,11 +182,11 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Set parameter value.
 		@remarks
-		    If value is a std::string or std::wstring, the user *MUST* make sure it is encoded in UTF-8
+			If value is a std::string or std::wstring, the user *MUST* make sure it is encoded in UTF-8
 		@param[in] value
-		    New parameter value.
+			New parameter value.
 		@remarks
-		    If field type is different than the value type, the value is ignored.
+			If field type is different than the value type, the value is ignored.
 		*/
 		template< typename T > inline void SetValueFast( const T & value )
 		{
@@ -171,7 +195,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Get parameter value.
 		@return
-		    Field value.
+			Field value.
 		*/
 		template< typename T > inline T GetValue() const
 		{
@@ -182,7 +206,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Get parameter value.
 		@param[out] value
-		    Field value.
+			Field value.
 		*/
 		template< typename T > inline void GetValue( T & value ) const
 		{
@@ -194,8 +218,8 @@ BEGIN_NAMESPACE_DATABASE
 		String _name;
 		//! The value type.
 		EFieldType _fieldType;
-		//! Limits (VARCHAR, etc.).
-		uint32_t _limits;
+		//! Precision (floating and fixed points), _precision.first is also used as field limit (char, varchar, ...)
+		std::pair< uint32_t, uint32_t > _precision;
 		//! Parameter type (in, out, inout).
 		EParameterType _parameterType;
 		//! Parameter index.

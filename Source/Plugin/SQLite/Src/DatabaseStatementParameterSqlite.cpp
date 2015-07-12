@@ -61,8 +61,12 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 		switch ( GetType() )
 		{
-		case EFieldType_BOOL:
-			_binding = MakeSqliteBind< EFieldType_BOOL >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
+		case EFieldType_BIT:
+			_binding = MakeSqliteBind< EFieldType_BIT >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
+			break;
+
+		case EFieldType_TINY_INTEGER:
+			_binding = MakeSqliteBind< EFieldType_TINY_INTEGER >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
 			break;
 
 		case EFieldType_SMALL_INTEGER:
@@ -77,12 +81,16 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			_binding = MakeSqliteBind< EFieldType_LONG_INTEGER >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
 			break;
 
-		case EFieldType_FLOAT:
-			_binding = MakeSqliteBind< EFieldType_FLOAT >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
+		case EFieldType_FLOATING_POINT_SIMPLE:
+			_binding = MakeSqliteBind< EFieldType_FLOATING_POINT_SIMPLE >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
 			break;
 
-		case EFieldType_DOUBLE:
-			_binding = MakeSqliteBind< EFieldType_DOUBLE >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
+		case EFieldType_FLOATING_POINT_DOUBLE:
+			_binding = MakeSqliteBind< EFieldType_FLOATING_POINT_DOUBLE >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
+			break;
+
+		case EFieldType_FIXED_POINT:
+			_binding = MakeSqliteBind< EFieldType_FIXED_POINT >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
 			break;
 
 		case EFieldType_VARCHAR:

@@ -292,9 +292,13 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				break;
 
 			case SQL_REAL:
-			case SQL_DECIMAL:
 			case SQL_DOUBLE:
 				result = std::make_unique< CInOdbcBind< double > >( SQL_C_DOUBLE );
+				break;
+
+			case SQL_DECIMAL:
+			case SQL_NUMERIC:
+				result = std::make_unique< CInOdbcBind< SQL_NUMERIC_STRUCT > >( SQL_C_NUMERIC );
 				break;
 
 			case SQL_INTEGER:
@@ -310,8 +314,11 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				break;
 
 			case SQL_BIT:
-			case SQL_TINYINT:
 				result = std::make_unique< CInOdbcBind< bool > >( SQL_C_BIT );
+				break;
+
+			case SQL_TINYINT:
+				result = std::make_unique< CInOdbcBind< int8_t > >( SQL_C_BIT );
 				break;
 
 			case SQL_BINARY:
@@ -354,8 +361,12 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 			switch ( type )
 			{
-			case EFieldType_BOOL:
+			case EFieldType_BIT:
 				result = std::make_unique< CInOdbcBind< bool > >( SQL_C_BIT );
+				break;
+
+			case EFieldType_TINY_INTEGER:
+				result = std::make_unique< CInOdbcBind< int16_t > >( SQL_C_SSHORT );
 				break;
 
 			case EFieldType_SMALL_INTEGER:
@@ -370,12 +381,16 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				result = std::make_unique< CInOdbcBind< int64_t > >( SQL_C_SBIGINT );
 				break;
 
-			case EFieldType_FLOAT:
+			case EFieldType_FLOATING_POINT_SIMPLE:
 				result = std::make_unique< CInOdbcBind< float > >( SQL_C_FLOAT );
 				break;
 
-			case EFieldType_DOUBLE:
+			case EFieldType_FLOATING_POINT_DOUBLE:
 				result = std::make_unique< CInOdbcBind< double > >( SQL_C_DOUBLE );
+				break;
+
+			case EFieldType_FIXED_POINT:
+				result = std::make_unique< CInOdbcBind< SQL_NUMERIC_STRUCT > >( SQL_C_DOUBLE );
 				break;
 
 			case EFieldType_VARCHAR:
@@ -473,8 +488,12 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		{
 			switch ( type )
 			{
-			case EFieldType_BOOL:
-				static_cast< CDatabaseValue< EFieldType_BOOL > & >( value ).SetValue( static_cast< CInOdbcBind< bool > const & >( bind ).GetValue() != 0 );
+			case EFieldType_BIT:
+				static_cast< CDatabaseValue< EFieldType_BIT > & >( value ).SetValue( static_cast< CInOdbcBind< bool > const & >( bind ).GetValue() != 0 );
+				break;
+
+			case EFieldType_TINY_INTEGER:
+				static_cast< CDatabaseValue< EFieldType_TINY_INTEGER > & >( value ).SetValue( static_cast< CInOdbcBind< int8_t > const & >( bind ).GetValue() );
 				break;
 
 			case EFieldType_SMALL_INTEGER:
@@ -489,12 +508,16 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				static_cast< CDatabaseValue< EFieldType_LONG_INTEGER > & >( value ).SetValue( static_cast< CInOdbcBind< int64_t > const & >( bind ).GetValue() );
 				break;
 
-			case EFieldType_FLOAT:
-				static_cast< CDatabaseValue< EFieldType_FLOAT > & >( value ).SetValue( static_cast< CInOdbcBind< float > const & >( bind ).GetValue() );
+			case EFieldType_FLOATING_POINT_SIMPLE:
+				static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_SIMPLE > & >( value ).SetValue( static_cast< CInOdbcBind< float > const & >( bind ).GetValue() );
 				break;
 
-			case EFieldType_DOUBLE:
-				static_cast< CDatabaseValue< EFieldType_DOUBLE > & >( value ).SetValue( static_cast< CInOdbcBind< double > const & >( bind ).GetValue() );
+			case EFieldType_FLOATING_POINT_DOUBLE:
+				static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_DOUBLE > & >( value ).SetValue( static_cast< CInOdbcBind< double > const & >( bind ).GetValue() );
+				break;
+
+			case EFieldType_FIXED_POINT:
+				static_cast< CDatabaseValue< EFieldType_FIXED_POINT > & >( value ).SetValue( static_cast< CInOdbcBind< CFixedPoint > const & >( bind ).GetValue() );
 				break;
 
 			case EFieldType_VARCHAR:
@@ -749,12 +772,16 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 		case SQL_FLOAT:
 		case SQL_REAL:
-			fieldType = EFieldType_FLOAT;
+			fieldType = EFieldType_FLOATING_POINT_SIMPLE;
 			break;
 
-		case SQL_DECIMAL:
 		case SQL_DOUBLE:
-			fieldType = EFieldType_DOUBLE;
+			fieldType = EFieldType_FLOATING_POINT_DOUBLE;
+			break;
+			
+		case SQL_DECIMAL:
+		case SQL_NUMERIC:
+			fieldType = EFieldType_FIXED_POINT;
 			break;
 
 		case SQL_INTEGER:
@@ -770,8 +797,11 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			break;
 
 		case SQL_TINYINT:
+			fieldType = EFieldType_TINY_INTEGER;
+			break;
+
 		case SQL_BIT:
-			fieldType = EFieldType_BOOL;
+			fieldType = EFieldType_BIT;
 			break;
 
 		case SQL_BINARY:

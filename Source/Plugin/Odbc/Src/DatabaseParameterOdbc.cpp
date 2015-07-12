@@ -184,8 +184,12 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	{
 		switch ( parameter.GetType() )
 		{
-		case EFieldType_BOOL:
-			_binding = MakeOutBind< EFieldType_BOOL >( statementHandle, parameter, parameter.GetObjectValue() );
+		case EFieldType_BIT:
+			_binding = MakeOutBind< EFieldType_BIT >( statementHandle, parameter, parameter.GetObjectValue() );
+			break;
+
+		case EFieldType_TINY_INTEGER:
+			_binding = MakeOutBind< EFieldType_TINY_INTEGER >( statementHandle, parameter, parameter.GetObjectValue() );
 			break;
 
 		case EFieldType_SMALL_INTEGER:
@@ -200,12 +204,16 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			_binding = MakeOutBind< EFieldType_LONG_INTEGER >( statementHandle, parameter, parameter.GetObjectValue() );
 			break;
 
-		case EFieldType_FLOAT:
-			_binding = MakeOutBind< EFieldType_FLOAT >( statementHandle, parameter, parameter.GetObjectValue() );
+		case EFieldType_FLOATING_POINT_SIMPLE:
+			_binding = MakeOutBind< EFieldType_FLOATING_POINT_SIMPLE >( statementHandle, parameter, parameter.GetObjectValue() );
 			break;
 
-		case EFieldType_DOUBLE:
-			_binding = MakeOutBind< EFieldType_DOUBLE >( statementHandle, parameter, parameter.GetObjectValue() );
+		case EFieldType_FLOATING_POINT_DOUBLE:
+			_binding = MakeOutBind< EFieldType_FLOATING_POINT_DOUBLE >( statementHandle, parameter, parameter.GetObjectValue() );
+			break;
+
+		case EFieldType_FIXED_POINT:
+			_binding = MakeOutBind< EFieldType_FIXED_POINT >( statementHandle, parameter, parameter.GetObjectValue() );
 			break;
 
 		case EFieldType_VARCHAR:

@@ -17,6 +17,7 @@
 #include "DatabasePrerequisites.h" // Help doxygen
 
 #include "DatabaseStringUtils.h"
+#include "DatabaseFixedPoint.h"
 
 BEGIN_NAMESPACE_DATABASE
 {
@@ -24,11 +25,18 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template< EFieldType Type > class SFieldTypeDataTyper;
 
-	/** Specialization for EFieldType_BOOL
+	/** Specialization for EFieldType_BIT
 	*/
-	template<> struct SFieldTypeDataTyper< EFieldType_BOOL >
+	template<> struct SFieldTypeDataTyper< EFieldType_BIT >
 	{
 		typedef bool value_type;
+	};
+
+	/** Specialization for EFieldType_TINY_INTEGER
+	*/
+	template<> struct SFieldTypeDataTyper< EFieldType_TINY_INTEGER >
+	{
+		typedef int8_t value_type;
 	};
 
 	/** Specialization for EFieldType_SMALL_INTEGER
@@ -52,18 +60,25 @@ BEGIN_NAMESPACE_DATABASE
 		typedef int64_t value_type;
 	};
 
-	/** Specialization for EFieldType_FLOAT
+	/** Specialization for EFieldType_FLOATING_POINT_SIMPLE
 	*/
-	template<> struct SFieldTypeDataTyper< EFieldType_FLOAT >
+	template<> struct SFieldTypeDataTyper< EFieldType_FLOATING_POINT_SIMPLE >
 	{
 		typedef float value_type;
 	};
 
-	/** Specialization for EFieldType_DOUBLE
+	/** Specialization for EFieldType_FLOATING_POINT_DOUBLE
 	*/
-	template<> struct SFieldTypeDataTyper< EFieldType_DOUBLE >
+	template<> struct SFieldTypeDataTyper< EFieldType_FLOATING_POINT_DOUBLE >
 	{
 		typedef double value_type;
+	};
+
+	/** Specialization for EFieldType_FIXED_POINT
+	*/
+	template<> struct SFieldTypeDataTyper< EFieldType_FIXED_POINT >
+	{
+		typedef CFixedPoint value_type;
 	};
 
 	/** Specialization for EFieldType_DATE
@@ -144,7 +159,14 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template<> struct SDataTypeFieldTyper< bool >
 	{
-		static const EFieldType Value = EFieldType_BOOL;
+		static const EFieldType Value = EFieldType_BIT;
+	};
+
+	/** Specialization for int8_t
+	*/
+	template<> struct SDataTypeFieldTyper< int8_t >
+	{
+		static const EFieldType Value = EFieldType_TINY_INTEGER;
 	};
 
 	/** Specialization for int16_t
@@ -172,14 +194,21 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template<> struct SDataTypeFieldTyper< float >
 	{
-		static const EFieldType Value = EFieldType_FLOAT;
+		static const EFieldType Value = EFieldType_FLOATING_POINT_SIMPLE;
 	};
 
 	/** Specialization for double
 	*/
 	template<> struct SDataTypeFieldTyper< double >
 	{
-		static const EFieldType Value = EFieldType_DOUBLE;
+		static const EFieldType Value = EFieldType_FLOATING_POINT_DOUBLE;
+	};
+
+	/** Specialization for double
+	*/
+	template<> struct SDataTypeFieldTyper< CFixedPoint >
+	{
+		static const EFieldType Value = EFieldType_FIXED_POINT;
 	};
 
 	/** Specialization for std::array< char, N >
@@ -352,6 +381,104 @@ BEGIN_NAMESPACE_DATABASE
 			if ( valSet )
 			{
 				return CStrUtils::ToString( value );
+			}
+			else
+			{
+				return NULL_VALUE;
+			}
+		}
+	};
+
+	/** Structure used to specialize functions for given data type
+	*/
+	template<> class CDatabaseValuePolicy< int8_t >
+	{
+	protected:
+		typedef int8_t value_type;
+
+	public:
+		/** Reinitializes the given value
+		@param value
+		    The value
+		*/
+		void Reset( value_type & value )
+		{
+			value = value_type( 0 );
+		}
+
+		/** Sets the value to the given one
+		@param in
+		    The input value
+		@param out
+		    The output value
+		@param size
+		    Receives the new value size
+		@param connection
+		    The connection used to format the value
+		*/
+		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
+		{
+			out = in;
+			size = sizeof( value_type );
+			return true;
+		}
+
+		/** Retrieves a pointer from the given value
+		@param value
+		    The value
+		*/
+		void * Ptr( value_type & value )
+		{
+			return &value;
+		}
+
+		/** Retrieves a pointer from the given value
+		@param value
+		    The value
+		*/
+		const void * Ptr( const value_type & value )const
+		{
+			return &value;
+		}
+
+		/** Retrieves the value from a string
+		@param string
+		    The string containing the value
+		@param value
+		    Receives the value
+		@param size
+		    The old size, receives the new value size
+		@param connection
+		    The connection used to format the value
+		*/
+		bool FromStr( const String & string, value_type & value, unsigned long & size, DatabaseConnectionPtr connection )
+		{
+			bool ret = !string.empty();
+
+			if ( ret )
+			{
+				value = string[0];
+				size = sizeof( value_type );
+			}
+
+			return ret;
+		}
+
+		/** Puts the value into the given string
+		@param value
+		    The value
+		@param valSet
+		    Tells that the value is set
+		@param connection
+		    The connection used to format the value
+		@param result
+		    Receives the insertable value
+		*/
+		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
+		{
+			if ( valSet )
+			{
+				return CStrUtils::ToString( int( value ) );
 			}
 			else
 			{
@@ -1370,6 +1497,122 @@ BEGIN_NAMESPACE_DATABASE
 			if ( valSet )
 			{
 				return CStrUtils::ToString( connection->WriteDateTime( value ) );
+			}
+			else
+			{
+				return NULL_VALUE;
+			}
+		}
+
+	private:
+		std::string _value;
+	};
+
+	/** Specialization for CDateTime data type
+	*/
+	template<> class CDatabaseValuePolicy< CFixedPoint >
+	{
+	protected:
+		typedef CFixedPoint value_type;
+
+	public:
+		/** Reinitializes the given value
+		@param value
+		    The value
+		*/
+		void Reset( value_type & value )
+		{
+			value = value_type();
+		}
+
+		/** Sets the value to the given one
+		@param in
+		    The input value
+		@param out
+		    The output value
+		@param size
+		    Receives the new value size
+		@param connection
+		    The connection used to format the value
+		*/
+		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
+		{
+			out = in;
+			size = out.GetPrecision();
+			return true;
+		}
+
+		/** Retrieves a pointer from the given value
+		@param value
+		    The value
+		*/
+		void * Ptr( value_type & value )
+		{
+			void * result = NULL;
+
+			if ( !value.ToString().empty() )
+			{
+				result = ( void * )&value.ToString()[0];
+			}
+
+			return result;
+		}
+
+		/** Retrieves a pointer from the given value
+		@param value
+		    The value
+		*/
+		const void * Ptr( const value_type & value )const
+		{
+			void const * result = NULL;
+
+			if ( !_value.empty() )
+			{
+				result = &value.ToString()[0];
+			}
+
+			return result;
+		}
+
+		/** Retrieves the value from a string
+		@param string
+		    The string containing the value
+		@param value
+		    Receives the value
+		@param size
+		    The old size, receives the new value size
+		@param connection
+		    The connection used to format the value
+		*/
+		bool FromStr( const String & string, value_type & value, unsigned long & size, DatabaseConnectionPtr connection )
+		{
+			_value = string;
+			bool ret = !string.empty();
+
+			if ( ret )
+			{
+				value = CFixedPoint( string, string.size(), 1 );
+				size = value.GetPrecision();
+			}
+
+			return ret;
+		}
+
+		/** Puts the value into the given string
+		@param value
+		    The value
+		@param valSet
+		    Tells that the value is set
+		@param connection
+		    The connection used to format the value
+		@param result
+		    Receives the insertable value
+		*/
+		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
+		{
+			if ( valSet )
+			{
+				return value.ToString();
 			}
 			else
 			{
