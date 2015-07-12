@@ -15,9 +15,9 @@
 
 #include "DatabaseOdbcHelper.h"
 
-#include "DatabaseResultOdbc.h"
 #include "ExceptionDatabaseOdbc.h"
 
+#include <DatabaseFieldInfos.h>
 #include <DatabaseField.h>
 #include <DatabaseResult.h>
 #include <DatabaseRow.h>
@@ -42,12 +42,15 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 	static const String ODBC_NumResultCols_MSG = STR( "SQLNumResultCols: " );
 	static const String ODBC_ColAttributeLabel_MSG = STR( "SQLColAttribute - SQL_DESC_LABEL: " );
-	static const String ODBC_ColAttributeDescType_MSG = STR( "SQLColAttribute - SQL_DESC_TYPE: " );
+	static const String ODBC_ColAttributeDescLength_MSG = STR( "SQLColAttribute - SQL_DESC_TYPE: " );
+	static const String ODBC_ColAttributeDescType_MSG = STR( "SQLColAttribute - SQL_DESC_LENGTH: " );
 	static const String ODBC_ColAttributeTypeName_MSG = STR( "SQLColAttribute - SQL_TYPE_NAME: " );
+	static const String ODBC_BindCol_MSG = STR( "SQLBindCol: " );
 	static const String ODBC_Fetch_MSG = STR( "SQLFetch: " );
 	static const String ODBC_MoreResults_MSG = STR( "SQLMoreResults" );
 	static const String ODBC_RowCount_MSG = STR( "SQLRowCount" );
 	static const String ODBC_FreeStmt_MSG = STR( "SQLFreeStmt" );
+	static const String ODBC_CloseCursor_MSG = STR( "SQLCloseCursor" );
 
 	static const String ODBC_EXECUTE_REQUEST_MSG = STR( "Execute request: " );
 
@@ -55,109 +58,438 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 	namespace
 	{
-		EErrorType InitializeColumns( DatabaseResultPtr results, std::vector< SDataBinding > & columns, SQLHSTMT statementHandle )
+		/** Links the database data during the execution of a SELECT request.
+		*/
+		struct CInOdbcBindBase
+		{
+			/** Constructor
+			@param targetType
+				Data type.
+			@param targetValuePtr
+				Pointer to the value.
+			@param bufferLength
+				Size of the buffer containing the value.
+			@param strLenOrInd
+				String length or indicator.
+			*/
+			CInOdbcBindBase( SQLSMALLINT targetType, SQLINTEGER bufferLength )
+				: _targetType( targetType )
+				, _bufferLength( bufferLength )
+				, _strLenOrInd( 0 )
+				, _targetValuePtr( NULL )
+			{
+			}
+
+			/// Data type.
+			SQLSMALLINT _targetType;
+			/// Pointer to the value.
+			SQLPOINTER  _targetValuePtr;
+			/// Size of the buffer containing the value.
+			SQLINTEGER  _bufferLength;
+			/// String length or indicator.
+			SQLLEN _strLenOrInd;
+		};
+
+		/** Template class to link the database data during the execution of a SELECT request.
+		*/
+		template< typename T, typename U = T >
+		struct CInOdbcBind
+				: public CInOdbcBindBase
+		{
+			T _value;
+
+			CInOdbcBind( SQLSMALLINT targetType )
+				: CInOdbcBindBase( targetType, sizeof( T ) )
+				, _value()
+			{
+				_targetValuePtr = &_value;
+			}
+
+			T const & GetValue()const
+			{
+				return _value;
+			}
+		};
+
+		/** Specialisation for bool type
+		*/
+		template<>
+		struct CInOdbcBind< bool, bool >
+				: public CInOdbcBindBase
+		{
+			int8_t _value;
+
+			CInOdbcBind( SQLSMALLINT targetType )
+				: CInOdbcBindBase( targetType, 1 )
+			{
+				_targetValuePtr = &_value;
+			}
+
+			bool GetValue()const
+			{
+				return _value != 0;
+			}
+		};
+
+		/** Specialisation for pointer types
+		*/
+		template< typename T >
+		struct CInOdbcBind< T *, T * >
+				: public CInOdbcBindBase
+		{
+			std::vector< T > _value;
+
+			CInOdbcBind( SQLSMALLINT targetType, uint32_t limits )
+				: CInOdbcBindBase( targetType, limits * sizeof( T ) )
+				, _value( limits )
+			{
+				_targetValuePtr = _value.data();
+			}
+
+			T const * GetValue()const
+			{
+				return _value.data();
+			}
+		};
+
+		/** Specialisation for double stored as char pointers
+		*/
+		template<>
+		struct CInOdbcBind< char *, double >
+				: public CInOdbcBindBase
+		{
+			char _value[8192];
+
+			CInOdbcBind( SQLSMALLINT targetType )
+				: CInOdbcBindBase( targetType, 8192 )
+			{
+				memset( _value, 0, sizeof( _value ) );
+				_targetValuePtr = _value;
+			}
+
+			double GetValue()const
+			{
+				return CStrUtils::ToDouble( _value );
+			}
+		};
+
+		/** Specialisation for int32_t stored as char pointers
+		*/
+		template<>
+		struct CInOdbcBind< char *, int32_t >
+				: public CInOdbcBindBase
+		{
+			char _value[8192];
+
+			CInOdbcBind( SQLSMALLINT targetType )
+				: CInOdbcBindBase( targetType, 8192 )
+			{
+				memset( _value, 0, sizeof( _value ) );
+				_targetValuePtr = _value;
+			}
+
+			int32_t GetValue()const
+			{
+				return CStrUtils::ToInt( _value );
+			}
+		};
+
+		std::string StringFromOdbcString( CInOdbcBind< char * > const & bind )
+		{
+			return std::string( bind.GetValue(), bind.GetValue() + bind._strLenOrInd );
+		}
+
+		std::wstring StringFromOdbcWString( CInOdbcBind< wchar_t * > const & bind )
+		{
+			return std::wstring( bind.GetValue(), bind.GetValue() + bind._strLenOrInd );
+		}
+
+		std::vector< uint8_t > VectorFromOdbcBinary( CInOdbcBind< uint8_t * > const & bind )
+		{
+			return std::vector< uint8_t >( bind.GetValue(), bind.GetValue() + bind._strLenOrInd );
+		}
+
+		std::unique_ptr< CInOdbcBindBase > GetBindFromConciseType( SQLLEN sqlType, uint32_t limits )
+		{
+			std::unique_ptr< CInOdbcBindBase > result;
+
+			switch ( sqlType )
+			{
+			case SQL_CHAR:
+			case SQL_VARCHAR:
+			case SQL_LONGVARCHAR:
+				result = std::make_unique< CInOdbcBind< char * > >( SQL_C_CHAR, limits );
+				break;
+
+			case SQL_WCHAR:
+			case SQL_WVARCHAR:
+			case SQL_WLONGVARCHAR:
+				result = std::make_unique< CInOdbcBind< wchar_t * > >( SQL_C_WCHAR, limits );
+				break;
+
+			case SQL_FLOAT:
+				result = std::make_unique< CInOdbcBind< float > >( SQL_C_FLOAT );
+				break;
+
+			case SQL_REAL:
+			case SQL_DECIMAL:
+			case SQL_DOUBLE:
+				result = std::make_unique< CInOdbcBind< double > >( SQL_C_DOUBLE );
+				break;
+
+			case SQL_INTEGER:
+				result = std::make_unique< CInOdbcBind< int32_t > >( SQL_C_SLONG );
+				break;
+
+			case SQL_SMALLINT:
+				result = std::make_unique< CInOdbcBind< int16_t > >( SQL_C_SSHORT );
+				break;
+
+			case SQL_BIGINT:
+				result = std::make_unique< CInOdbcBind< int64_t > >( SQL_C_SBIGINT );
+				break;
+				
+			case SQL_TINYINT:
+				result = std::make_unique< CInOdbcBind< int8_t > >( SQL_C_STINYINT );
+				break;
+
+			case SQL_BIT:
+				result = std::make_unique< CInOdbcBind< bool > >( SQL_C_BIT );
+				break;
+
+			case SQL_BINARY:
+			case SQL_VARBINARY:
+			case SQL_LONGVARBINARY:
+				result = std::make_unique< CInOdbcBind< uint8_t * > >( SQL_C_BINARY, limits );
+				break;
+
+			case SQL_TYPE_DATE:
+			case SQL_INTERVAL_MONTH:
+			case SQL_INTERVAL_YEAR:
+			case SQL_INTERVAL_YEAR_TO_MONTH:
+			case SQL_INTERVAL_DAY:
+				result = std::make_unique< CInOdbcBind< DATE_STRUCT > >( SQL_C_TYPE_DATE );
+				break;
+
+			case SQL_TYPE_TIME:
+			case SQL_INTERVAL_HOUR:
+			case SQL_INTERVAL_MINUTE:
+			case SQL_INTERVAL_SECOND:
+			case SQL_INTERVAL_HOUR_TO_MINUTE:
+			case SQL_INTERVAL_HOUR_TO_SECOND:
+				result = std::make_unique< CInOdbcBind< TIME_STRUCT > >( SQL_C_TYPE_TIME );
+				break;
+
+			case SQL_TYPE_TIMESTAMP:
+			case SQL_INTERVAL_DAY_TO_HOUR:
+			case SQL_INTERVAL_DAY_TO_MINUTE:
+			case SQL_INTERVAL_DAY_TO_SECOND:
+				result = std::make_unique< CInOdbcBind< TIMESTAMP_STRUCT > >( SQL_C_TYPE_TIMESTAMP );
+				break;
+			}
+
+			return result;
+		}
+
+		std::unique_ptr< CInOdbcBindBase > GetBindFromFieldType( EFieldType type, uint32_t limits )
+		{
+			std::unique_ptr< CInOdbcBindBase > result;
+
+			switch( type )
+			{
+			case EFieldType_BOOL:
+				result = std::make_unique< CInOdbcBind< bool > >( SQL_C_BIT );
+				break;
+
+			case EFieldType_SMALL_INTEGER:
+				result = std::make_unique< CInOdbcBind< int16_t > >( SQL_C_SSHORT );
+				break;
+
+			case EFieldType_INTEGER:
+				result = std::make_unique< CInOdbcBind< int32_t > >( SQL_C_SLONG );
+				break;
+
+			case EFieldType_LONG_INTEGER:
+				result = std::make_unique< CInOdbcBind< int64_t > >( SQL_C_SBIGINT );
+				break;
+
+			case EFieldType_FLOAT:
+				result = std::make_unique< CInOdbcBind< float > >( SQL_C_FLOAT );
+				break;
+
+			case EFieldType_DOUBLE:
+				result = std::make_unique< CInOdbcBind< double > >( SQL_C_DOUBLE );
+				break;
+
+			case EFieldType_VARCHAR:
+			case EFieldType_TEXT:
+				result = std::make_unique< CInOdbcBind< char * > >( SQL_C_CHAR, limits );
+				break;
+
+			case EFieldType_NVARCHAR:
+			case EFieldType_NTEXT:
+				result = std::make_unique< CInOdbcBind< char * > >( SQL_C_WCHAR, limits );
+				break;
+
+			case EFieldType_DATE:
+				result = std::make_unique< CInOdbcBind< DATE_STRUCT > >( SQL_C_TYPE_DATE );
+				break;
+
+			case EFieldType_DATETIME:
+				result = std::make_unique< CInOdbcBind< TIMESTAMP_STRUCT > >( SQL_C_TYPE_TIMESTAMP );
+				break;
+
+			case EFieldType_TIME:
+				result = std::make_unique< CInOdbcBind< TIME_STRUCT > >( SQL_C_TYPE_TIME );
+				break;
+
+			case EFieldType_BINARY:
+			case EFieldType_VARBINARY:
+			case EFieldType_LONG_VARBINARY:
+				result = std::make_unique< CInOdbcBind< uint8_t * > >( SQL_C_BINARY, limits );
+				break;
+			}
+
+			return result;
+		}
+
+		DatabaseFieldInfosPtrArray InitializeColumns( SQLSMALLINT columnCount, DatabaseConnectionPtr connection, std::vector< std::unique_ptr< CInOdbcBindBase > > & columns, SQLHSTMT stmt )
 		{
 			static const SQLSMALLINT BUFFER_SIZE = 255;
-			int attemptCount;
 			EErrorType errorType = EErrorType_NONE;
-			String name;
-			std::vector< SDataBinding >::iterator it = columns.begin();
-			uint32_t index = 0;
-			SQLSMALLINT numResults;
-			SQLLEN numeric;
-			char buffer[BUFFER_SIZE];
+			DatabaseFieldInfosPtrArray result;
 
-			for ( SQLSMALLINT i = 1 ; i <= SQLSMALLINT( columns.size() ) ; i++ )
+			for ( SQLSMALLINT i = 1; i <= columnCount; ++i )
 			{
-				SqlTry( SQLColAttributeA( statementHandle, i, SQL_DESC_LABEL, SQLPOINTER( buffer ), BUFFER_SIZE, &numResults, &numeric ), SQL_HANDLE_STMT, statementHandle, ODBC_ColAttributeLabel_MSG );
+				TCHAR buffer[BUFFER_SIZE] = { 0 };
+				SQLSMALLINT stringLength = 0;
+				SQLLEN numericAttribute = 0;
+				DatabaseFieldInfosPtr infos;
+				std::unique_ptr< CInOdbcBindBase > bind;
 
-				if ( errorType == EErrorType_NONE )
+				// Retrieeve the column name
+				SqlTry( SQLColAttribute( stmt, i, SQL_DESC_LABEL, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, ODBC_ColAttributeLabel_MSG );
+				String name = CStrUtils::ToString( buffer );
+
+				// Its length
+				std::memset( buffer, 0, BUFFER_SIZE );
+				stringLength = 0;
+				numericAttribute = 0;
+				SqlTry( SQLColAttribute( stmt, i, SQL_DESC_LENGTH, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, ODBC_ColAttributeDescLength_MSG );
+				uint32_t limits = numericAttribute;
+
+				// The column type
+				std::memset( buffer, 0, BUFFER_SIZE );
+				stringLength = 0;
+				numericAttribute = 0;
+				SqlTry( SQLColAttribute( stmt, i, SQL_DESC_CONCISE_TYPE, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, ODBC_ColAttributeDescType_MSG );
+
+				if ( numericAttribute == SQL_NTS )
 				{
-					name = buffer;
-					numResults = 0;
-					memset( buffer, 0, sizeof( buffer ) );
-					SqlTry( SQLColAttributeA( statementHandle, i, SQL_DESC_CONCISE_TYPE, SQLPOINTER( buffer ), BUFFER_SIZE, &numResults, &numeric ), SQL_HANDLE_STMT, statementHandle, ODBC_ColAttributeDescType_MSG );
+					// The type name
+					std::memset( buffer, 0, BUFFER_SIZE );
+					stringLength = 0;
+					numericAttribute = 0;
+					SqlTry( SQLColAttribute( stmt, i, SQL_DESC_TYPE_NAME, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, ODBC_ColAttributeTypeName_MSG );
 
 					if ( errorType == EErrorType_NONE )
 					{
-						if ( numeric == SQL_NTS )
-						{
-							SqlTry( SQLColAttributeA( statementHandle, i, SQL_DESC_TYPE_NAME, SQLPOINTER( buffer ), BUFFER_SIZE, &numResults, &numeric ), SQL_HANDLE_STMT, statementHandle, ODBC_ColAttributeTypeName_MSG );
-
-							if ( errorType == EErrorType_NONE )
-							{
-								results->AddField( name, buffer );
-								memset( buffer, 0, sizeof( buffer ) );
-							}
-						}
-						else
-						{
-							results->AddField( name, GetFieldConciseType( numeric ) );
-						}
-
-						// allocate memory for the binding, and set it up
-						it->TargetType = SQL_C_WCHAR;
-						it->BufferLength = COLUMN_BUFFER_SIZE + 1;
-						it->TargetValuePtr = new unsigned char[it->BufferLength];
-						it->StrLen_or_Ind = 0;
-						SqlTry( SQLBindCol( statementHandle, ( SQLUSMALLINT )++index, it->TargetType, it->TargetValuePtr, it->BufferLength, &( it->StrLen_or_Ind ) ), SQL_HANDLE_STMT, statementHandle, STR( "SQLBindCol\n" ) );
-						++it;
+						infos = std::make_shared< CDatabaseFieldInfos >( connection, name, buffer );
+						bind = GetBindFromFieldType( infos->GetType(), limits );
 					}
 				}
-			}
-
-			return errorType;
-		}
-
-		void SetFieldValue( EFieldType type, CDatabaseValueBase & value, String const & text )
-		{
-			if ( text.empty() )
-			{
-				switch ( type )
+				else
 				{
-				case EFieldType_BOOL:
-				case EFieldType_SMALL_INTEGER:
-				case EFieldType_INTEGER:
-				case EFieldType_LONG_INTEGER:
-				case EFieldType_FLOAT:
-				case EFieldType_DOUBLE:
-				case EFieldType_DATE:
-				case EFieldType_DATETIME:
-				case EFieldType_TIME:
-				case EFieldType_BINARY:
-				case EFieldType_VARBINARY:
-				case EFieldType_LONG_VARBINARY:
-					value.Reset();
-					break;
-
-				case EFieldType_VARCHAR:
-				case EFieldType_TEXT:
-				case EFieldType_NVARCHAR:
-				case EFieldType_NTEXT:
-					value.SetNull( false );
-					value.Reset();
-					break;
-
-				default:
-					CLogger::LogError( ODBC_UNDEFINED_VALUE_TYPE );
-					throw CExceptionDatabaseOdbc( EDatabaseOdbcExceptionCodes_GenericError, ODBC_UNDEFINED_VALUE_TYPE, __FUNCTION__, __FILE__, __LINE__ );
-					break;
+					bind = GetBindFromConciseType( numericAttribute, limits );
+					infos = std::make_shared< CDatabaseFieldInfos >( connection, name, GetFieldTypeFromConciseType( numericAttribute ), limits );
 				}
+				
+				SqlTry( SQLBindCol( stmt, i, bind->_targetType, bind->_targetValuePtr, bind->_bufferLength, &( bind->_strLenOrInd ) ), SQL_HANDLE_STMT, stmt, ODBC_BindCol_MSG );
+				columns.push_back( std::move( bind ) );
+				result.push_back( infos );
 			}
-			else
+
+			return result;
+		}
+
+		void SetFieldValue( EFieldType type, CDatabaseValueBase & value, CInOdbcBindBase const & bind )
+		{
+			switch ( type )
 			{
-				value.SetNull( false );
-				value.FromString( text );
+			case EFieldType_BOOL:
+				static_cast< CDatabaseValue< EFieldType_BOOL > & >( value ).SetValue( static_cast< CInOdbcBind< bool > const & >( bind ).GetValue() != 0 );
+				break;
+
+			case EFieldType_SMALL_INTEGER:
+				static_cast< CDatabaseValue< EFieldType_SMALL_INTEGER > & >( value ).SetValue( static_cast< CInOdbcBind< int16_t > const & >( bind ).GetValue() );
+				break;
+
+			case EFieldType_INTEGER:
+				static_cast< CDatabaseValue< EFieldType_INTEGER > & >( value ).SetValue( static_cast< CInOdbcBind< int32_t > const & >( bind ).GetValue() );
+				break;
+
+			case EFieldType_LONG_INTEGER:
+				static_cast< CDatabaseValue< EFieldType_LONG_INTEGER > & >( value ).SetValue( static_cast< CInOdbcBind< int64_t > const & >( bind ).GetValue() );
+				break;
+
+			case EFieldType_FLOAT:
+				static_cast< CDatabaseValue< EFieldType_FLOAT > & >( value ).SetValue( static_cast< CInOdbcBind< float > const & >( bind ).GetValue() );
+				break;
+
+			case EFieldType_DOUBLE:
+				static_cast< CDatabaseValue< EFieldType_DOUBLE > & >( value ).SetValue( static_cast< CInOdbcBind< double > const & >( bind ).GetValue() );
+				break;
+
+			case EFieldType_VARCHAR:
+				static_cast< CDatabaseValue< EFieldType_VARCHAR > & >( value ).SetValue( StringFromOdbcString( static_cast< CInOdbcBind< char * > const & >( bind ) ) );
+				break;
+
+			case EFieldType_TEXT:
+				static_cast< CDatabaseValue< EFieldType_TEXT > & >( value ).SetValue( StringFromOdbcString( static_cast< CInOdbcBind< char * > const & >( bind ) ) );
+				break;
+
+			case EFieldType_NVARCHAR:
+				static_cast< CDatabaseValue< EFieldType_NVARCHAR > & >( value ).SetValue( StringFromOdbcWString( static_cast< CInOdbcBind< wchar_t * > const & >( bind ) ) );
+				break;
+
+			case EFieldType_NTEXT:
+				static_cast< CDatabaseValue< EFieldType_NTEXT > & >( value ).SetValue( StringFromOdbcWString( static_cast< CInOdbcBind< wchar_t * > const & >( bind ) ) );
+				break;
+
+			case EFieldType_DATE:
+				static_cast< CDatabaseValue< EFieldType_DATE > & >( value ).SetValue( CDateFromOdbcDate( static_cast< CInOdbcBind< DATE_STRUCT > const & >( bind ).GetValue() ) );
+				break;
+
+			case EFieldType_DATETIME:
+				static_cast< CDatabaseValue< EFieldType_DATETIME > & >( value ).SetValue( CDateTimeFromOdbcTimestamp( static_cast< CInOdbcBind< TIMESTAMP_STRUCT > const & >( bind ).GetValue() ) );
+				break;
+
+			case EFieldType_TIME:
+				static_cast< CDatabaseValue< EFieldType_TIME > & >( value ).SetValue( CTimeFromOdbcTime( static_cast< CInOdbcBind< TIME_STRUCT > const & >( bind ).GetValue() ) );
+				break;
+
+			case EFieldType_BINARY:
+				static_cast< CDatabaseValue< EFieldType_BINARY > & >( value ).SetValue( VectorFromOdbcBinary( static_cast< CInOdbcBind< uint8_t * > const & >( bind ) ) );
+				break;
+
+			case EFieldType_VARBINARY:
+				static_cast< CDatabaseValue< EFieldType_VARBINARY > & >( value ).SetValue( VectorFromOdbcBinary( static_cast< CInOdbcBind< uint8_t * > const & >( bind ) ) );
+				break;
+
+			case EFieldType_LONG_VARBINARY:
+				static_cast< CDatabaseValue< EFieldType_LONG_VARBINARY > & >( value ).SetValue( VectorFromOdbcBinary( static_cast< CInOdbcBind< uint8_t * > const & >( bind ) ) );
+				break;
+
+			default:
+				break;
 			}
 		}
 
-		EErrorType FetchResultSet( DatabaseConnectionPtr connection, DatabaseResultPtr results, std::vector< SDataBinding > & columns, SQLHSTMT statementHandle )
+		EErrorType FetchResultSet( DatabaseConnectionPtr connection, DatabaseResultPtr results, std::vector< std::unique_ptr< CInOdbcBindBase > > & bindings, SQLHSTMT statementHandle )
 		{
-			int attemptCount;
 			EErrorType errorType = EErrorType_NONE;
 			SQLRETURN res;
 			SQLLEN rowCount = 0;
-
 			SqlTry( SQLRowCount( statementHandle, &rowCount ), SQL_HANDLE_STMT, statementHandle, ODBC_RowCount_MSG );
 
 			if ( errorType == EErrorType_NONE && rowCount )
@@ -175,37 +507,15 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 						CLogger::LogDebug( STR( "Void result" ) );
 					}
 
-					std::wstring fieldValue;
-					bool isNull = false;
-					uint32_t index;
-
 					while ( errorType == EErrorType_NONE && res != SQL_NO_DATA )
 					{
 						DatabaseRowPtr row = std::make_shared< CDatabaseRow >( connection );
-						DatabaseFieldPtr field;
-						index = 0;
+						uint32_t index = 0;
 
-						for ( std::vector< SDataBinding >::iterator it = columns.begin(); it != columns.end(); ++it )
+						for ( auto && bind : bindings )
 						{
-							if ( it->StrLen_or_Ind == SQL_NULL_DATA )
-							{
-								isNull = true;
-								fieldValue.clear();
-							}
-							else
-							{
-								assert( it->StrLen_or_Ind < COLUMN_BUFFER_SIZE );
-								isNull = false;
-
-								if ( it->StrLen_or_Ind >= 0 && it->TargetValuePtr )
-								{
-									fieldValue = ( wchar_t * )it->TargetValuePtr;
-								}
-								else
-								{
-									fieldValue.clear();
-								}
-							}
+							bool isNull = bind->_strLenOrInd == SQL_NULL_DATA;
+							DatabaseFieldPtr field;
 
 							try
 							{
@@ -213,14 +523,14 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 								if ( !isNull )
 								{
-									SetFieldValue( field->GetType(), field->GetObjectValue(), CStrUtils::ToString( fieldValue ) );
+									SetFieldValue( field->GetType(), field->GetObjectValue(), *bind );
 								}
 							}
 							catch ( const CExceptionDatabase & e )
 							{
 								StringStream message;
-								message << ODBC_DRIVER_ERROR << std::endl
-										<< e.what();
+								message << ODBC_DRIVER_ERROR << std::endl;
+								message << e.what();
 								CLogger::LogError( message );
 								throw CExceptionDatabaseOdbc( EDatabaseOdbcExceptionCodes_GenericError, message.str(), __FUNCTION__, __FILE__, __LINE__ );
 							}
@@ -240,25 +550,20 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 					// free memory from the binding
 					SqlTry( SQLFreeStmt( statementHandle, SQL_UNBIND ), SQL_HANDLE_STMT, statementHandle, ODBC_FreeStmt_MSG );
-
-					for ( std::vector< SDataBinding >::iterator it = columns.begin(); it != columns.end(); ++it )
-					{
-						delete []( unsigned char * )it->TargetValuePtr;
-					}
 				}
 				catch ( const std::exception & e )
 				{
 					StringStream message;
-					message << ODBC_DRIVER_ERROR << std::endl
-							<< e.what();
+					message << ODBC_DRIVER_ERROR << std::endl;
+					message << e.what();
 					CLogger::LogError( message );
 					throw CExceptionDatabaseOdbc( EDatabaseOdbcExceptionCodes_GenericError, message.str(), __FUNCTION__, __FILE__, __LINE__ );
 				}
 				catch ( ... )
 				{
 					StringStream message;
-					message << ODBC_DRIVER_ERROR << std::endl
-							<< ODBC_UNKNOWN_ERROR;
+					message << ODBC_DRIVER_ERROR << std::endl;
+					message << ODBC_UNKNOWN_ERROR;
 					CLogger::LogError( message );
 					throw CExceptionDatabaseOdbc( EDatabaseOdbcExceptionCodes_UnknownError, message.str(), __FUNCTION__, __FILE__, __LINE__ );
 				}
@@ -327,6 +632,10 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				CLogger::LogWarning( logMessage.str() );
 			}
 		}
+		else if ( sqlReturn == SQL_NO_DATA )
+		{
+			errorType = EErrorType_NONE;
+		}
 
 		return errorType;
 	}
@@ -357,7 +666,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		return errorType;
 	}
 
-	EFieldType GetFieldConciseType( SQLLEN sqlType )
+	EFieldType GetFieldTypeFromConciseType( SQLLEN sqlType )
 	{
 		EFieldType fieldType = EFieldType_NULL;
 
@@ -452,37 +761,40 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		return fieldType;
 	}
 
-	SQLRETURN SqlExecute( DatabaseConnectionPtr connection, SQLHSTMT statementHandle, const String & query, DatabaseResultPtr & pReturn, EErrorType & result )
+	DatabaseResultPtr SqlExecute( DatabaseConnectionPtr connection, SQLHSTMT statementHandle, FuncResultSetFullyFetched onFullyfetched )
 	{
-		CLogger::LogMessage( ODBC_EXECUTE_REQUEST_MSG + query );
-
-		pReturn = std::make_shared< CDatabaseResult >( connection );
-
+		DatabaseResultPtr pReturn;
 		SQLRETURN res = SQL_SUCCESS;
-		int attemptCount;
-		EErrorType errorType;
-		SQLSMALLINT numColumns;
+		EErrorType errorType = EErrorType_NONE;
 
 		do
 		{
+			SQLSMALLINT numColumns;
 			SqlTry( SQLNumResultCols( statementHandle, &numColumns ), SQL_HANDLE_STMT, statementHandle, ODBC_NumResultCols_MSG );
 
-			if ( errorType == EErrorType_NONE )
+			if ( numColumns )
 			{
-				if ( numColumns )
-				{
-					std::vector< SDataBinding > arrayColumnData( numColumns );
-					InitializeColumns( pReturn, arrayColumnData, statementHandle );
-					FetchResultSet( connection, pReturn, arrayColumnData, statementHandle );
-				}
+				std::vector< std::unique_ptr< CInOdbcBindBase > > arrayColumnData;
+				DatabaseFieldInfosPtrArray columns = InitializeColumns( numColumns, connection, arrayColumnData, statementHandle );
+				pReturn = std::make_shared< CDatabaseResult >( connection, columns );
+				FetchResultSet( connection, pReturn, arrayColumnData, statementHandle );
+			}
 
-				res = SQLMoreResults( statementHandle );
-				SqlTry( res, SQL_HANDLE_STMT, statementHandle, ODBC_MoreResults_MSG );
+			res = SQLMoreResults( statementHandle );
+			SqlTry( res, SQL_HANDLE_STMT, statementHandle, ODBC_MoreResults_MSG );
 
-				if ( res != SQL_NO_DATA && errorType == EErrorType_NONE )
-				{
-					CLogger::LogMessage( STR( "Additional result detected" ) );
-				}
+			if ( res != SQL_NO_DATA && errorType == EErrorType_NONE )
+			{
+				CLogger::LogMessage( STR( "Additional result detected" ) );
+			}
+			else
+			{
+				onFullyfetched( statementHandle, res );
+				EErrorType errorType = EErrorType_NONE;
+				SqlTry( SQLCloseCursor( statementHandle ), SQL_HANDLE_STMT, statementHandle, ODBC_CloseCursor_MSG );
+				SqlTry( SQLFreeStmt( statementHandle, SQL_CLOSE ), SQL_HANDLE_STMT, statementHandle, ODBC_FreeStmt_MSG + STR( " (Close)" ) );
+				SqlTry( SQLFreeStmt( statementHandle, SQL_UNBIND ), SQL_HANDLE_STMT, statementHandle, ODBC_FreeStmt_MSG + STR( " (Unbind)" ) );
+				SqlTry( SQLFreeStmt( statementHandle, SQL_RESET_PARAMS ), SQL_HANDLE_STMT, statementHandle, ODBC_FreeStmt_MSG + STR( " (ResetParams)" ) );
 			}
 		}
 
@@ -496,9 +808,22 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 #endif
 
-		result = errorType;
-		return res;
+		return pReturn;
 	}
 
+	CDate CDateFromOdbcDate( SQL_DATE_STRUCT const & ts )
+	{
+		return CDate( ts.year, EDateMonth( ts.month - 1 ), ts.day );
+	}
+
+	CDateTime CDateTimeFromOdbcTimestamp( SQL_TIMESTAMP_STRUCT const & ts )
+	{
+		return CDateTime( CDate( ts.year, EDateMonth( ts.month - 1 ), ts.day ), CTime( ts.hour, ts.minute, ts.second ) );
+	}
+
+	CTime CTimeFromOdbcTime( SQL_TIME_STRUCT const & ts )
+	{
+		return CTime( ts.hour, ts.minute, ts.second );
+	}
 }
 END_NAMESPACE_DATABASE_ODBC

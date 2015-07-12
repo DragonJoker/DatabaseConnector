@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DatabaseTestUtils.h
- * @author Sylvain Doremus
- * @version 1.0
- * @date 06/18/2014 12:04:36
- *
- *
- * @brief Utils for Database tests.
- *
- * @details Utils for Database tests.
- *
- ***************************************************************************/
+* @file DatabaseTestUtils.h
+* @author Sylvain Doremus
+* @version 1.0
+* @date 06/18/2014 12:04:36
+*
+*
+* @brief Utils for Database tests.
+*
+* @details Utils for Database tests.
+*
+***************************************************************************/
 
 #ifndef ___DATABASE_TEST_UTILS_H___
 #define ___DATABASE_TEST_UTILS_H___
@@ -24,45 +24,85 @@
 
 BEGIN_NAMESPACE_DATABASE_TEST
 {
-	/** Deletes a SQLite database.
+	/** Creates a MySql database.
 	@param database
-	    Database name.
+		Database name.
+	@param user
+		User name.
+	@param pass
+		User password.
 	@return
-	    Exit code of the CProcess executing the batch file.
+		Exit code of the CProcess executing the script file.
 	*/
-	int UninstallSqliteDatabase( const String & database );
+	int InstallDatabaseMySql( const String & database, const String & user, const String & pass );
+
+	/** Deletes a MySql database.
+	@param database
+		Database name.
+	@param user
+		User name.
+	@param pass
+		User password.
+	@return
+		Exit code of the CProcess executing the script file.
+	*/
+	int UninstallDatabaseMySql( const String & database, const String & user, const String & pass );
+
+	/** Creates an ODBC source for a MySql database.
+	@param dsn
+		ODBC source name.
+	@return
+		Exit code of the CProcess executing the script file.
+	*/
+	int InstallSourceOdbcMySql( const String & database );
+
+	/** Deletes an ODBC source for a MySql database.
+	@param dsn
+		ODBC source name.
+	@return
+		Exit code of the CProcess executing the script file.
+	*/
+	int UninstallSourceOdbcMySql( const String & database );
 
 	/** Creates a MsSql database.
 	@param database
-	    Database name.
+		Database name.
+	@param user
+		User name.
+	@param pass
+		User password.
 	@return
-	    Exit code of the CProcess executing the batch file.
+		Exit code of the CProcess executing the script file.
 	*/
-	int InstallMsSqlDatabase( const String & database );
+	int InstallDatabaseMsSql( const String & database, const String & user, const String & pass );
 
 	/** Deletes a MsSql database.
 	@param database
-	    Database name.
+		Database name.
+	@param user
+		User name.
+	@param pass
+		User password.
 	@return
-	    Exit code of the CProcess executing the batch file.
+		Exit code of the CProcess executing the script file.
 	*/
-	int UninstallMsSqlDatabase( const String & database );
+	int UninstallDatabaseMsSql( const String & database, const String & user, const String & pass );
 
-	/** Creates an ODBC source for a test database.
+	/** Creates an ODBC source for a MsSql database.
 	@param dsn
-	    ODBC source name.
+		ODBC source name.
 	@return
-	    Exit code of the CProcess executing the batch file.
+		Exit code of the CProcess executing the script file.
 	*/
-	int InstallSourceOdbc( const String & dsn );
+	int InstallSourceOdbcMsSql( const String & database );
 
-	/** Deletes an ODBC source for a test database.
+	/** Deletes an ODBC source for a MsSql database.
 	@param dsn
-	    ODBC source name.
+		ODBC source name.
 	@return
-	    Exit code of the CProcess executing the batch file.
+		Exit code of the CProcess executing the script file.
 	*/
-	int UninstallSourceOdbc( const String & dsn );
+	int UninstallSourceOdbcMsSql( const String & database );
 
 	namespace DatabaseUtils
 	{

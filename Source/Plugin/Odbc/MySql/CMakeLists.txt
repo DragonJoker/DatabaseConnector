@@ -14,7 +14,7 @@ include_directories(
 
 add_target(
     DatabasePluginOdbcMySql
-    dll
+    plugin
     "Database"
     "Database;DatabasePluginOdbc;${ODBC_LIBRARIES_DYNAMIC};${MinLibraries}"
     "DatabaseOdbcMySqlPch.h"

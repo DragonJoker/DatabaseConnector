@@ -17,7 +17,6 @@
 
 #include "DatabaseConnectionOdbc.h"
 #include "DatabaseOdbcHelper.h"
-#include "DatabaseResultOdbc.h"
 #include "DatabaseStatementOdbcHelper.h"
 #include "DatabaseStatementParameterOdbc.h"
 #include "ExceptionDatabaseOdbc.h"
@@ -62,11 +61,10 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	EErrorType CDatabaseStatementOdbc::Initialize()
 	{
 		EErrorType errorType;
-		int attemptCount;
 		HDBC hParentStmt = _connectionOdbc->GetHdbc();
 		CLogger::LogMessage( STR( "Preparing statement for query : " ) + _query );
 
-		errorType = SqlSuccess( SQLAllocHandle( SQL_HANDLE_STMT, hParentStmt, & _statementHandle ), SQL_HANDLE_STMT, hParentStmt, ODBC_HANDLE_ALLOCATION_MSG );
+		errorType = SqlSuccess( SQLAllocHandle( SQL_HANDLE_STMT, hParentStmt, &_statementHandle ), SQL_HANDLE_STMT, hParentStmt, ODBC_HANDLE_ALLOCATION_MSG );
 #if defined( WIN32 )
 
 		if ( errorType == EErrorType_NONE )
@@ -175,7 +173,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		long lOffset = 0;
 		long lBatch = 5000;
 		EErrorType errorType = EErrorType_NONE;
-		int attemptCount;
 
 		while ( lSize > lBatch && errorType == EErrorType_NONE )
 		{
@@ -200,7 +197,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		long lBatch = 5000;
 		SQLLEN lRetrieved;
 		EErrorType errorType = EErrorType_NONE;
-		int attemptCount;
 
 		while ( lSize > lBatch && errorType == EErrorType_NONE )
 		{
@@ -263,10 +259,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 		if ( eResult == EErrorType_NONE )
 		{
-			DatabaseResultOdbcPtr pRet = std::make_shared< CDatabaseResultOdbc >( _connection );
-			pRet->sResultSetFullyFetched.connect( std::bind( &CDatabaseStatementOdbc::OnResultSetFullyFetched, this, std::placeholders::_1, std::placeholders::_2 ) );
-			pRet->Initialize( _statementHandle );
-			pReturn = pRet;
+			pReturn = SqlExecute( _connection, _statementHandle, std::bind( &CDatabaseStatementOdbc::OnResultSetFullyFetched, this, std::placeholders::_1, std::placeholders::_2 ) );
 		}
 
 		if ( result )
@@ -308,12 +301,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		}
 
 #endif
-		int attemptCount;
-		EErrorType errorType = EErrorType_NONE;
-		SqlTry( SQLCloseCursor( _statementHandle ), SQL_HANDLE_STMT, _statementHandle, ODBC_CLOSECURSOR_MSG );
-		SqlTry( SQLFreeStmt( _statementHandle, SQL_CLOSE ), SQL_HANDLE_STMT, _statementHandle, ODBC_FREESTMT_MSG + STR( " (Close)" ) );
-		SqlTry( SQLFreeStmt( _statementHandle, SQL_UNBIND ), SQL_HANDLE_STMT, _statementHandle, ODBC_FREESTMT_MSG + STR( " (Unbind)" ) );
-		SqlTry( SQLFreeStmt( _statementHandle, SQL_RESET_PARAMS ), SQL_HANDLE_STMT, _statementHandle, ODBC_FREESTMT_MSG + STR( " (ResetParams)" ) );
 	}
 }
 END_NAMESPACE_DATABASE_ODBC

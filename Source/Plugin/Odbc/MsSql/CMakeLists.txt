@@ -14,7 +14,7 @@ include_directories(
 
 add_target(
     DatabasePluginOdbcMsSql
-    dll
+    plugin
     "Database"
     "Database;DatabasePluginOdbc;${ODBC_LIBRARIES_DYNAMIC};${MinLibraries}"
     "DatabaseOdbcMsSqlPch.h"

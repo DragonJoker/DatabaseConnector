@@ -17,7 +17,6 @@
 #include "DatabaseOdbcPrerequisites.h"
 
 #include "DatabaseStatementParameterOdbc.h"
-#include "DatabaseQueryParameterOdbc.h"
 #include <EErrorType.h>
 
 BEGIN_NAMESPACE_DATABASE_ODBC
@@ -54,7 +53,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		inline EErrorType operator()( SQLHSTMT statementHandle, std::shared_ptr< T > parameter, SQLLEN * nullData, const String & message, const String & query )
 		{
 			EErrorType errorType;
-			int attemptCount;
 			CDatabaseValueBase & value = parameter->GetObjectValue();
 
 			if ( value.IsNull() )
@@ -104,7 +102,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		inline EErrorType operator()( SQLHSTMT statementHandle, std::shared_ptr< T > parameter, SQL_DATE_STRUCT & date, SQLLEN * nullData, const String & message, const String & query )
 		{
 			EErrorType errorType;
-			int attemptCount;
 			CDatabaseValueBase & value = parameter->GetObjectValue();
 
 			if ( value.IsNull() )
@@ -139,7 +136,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		inline EErrorType operator()( SQLHSTMT statementHandle, std::shared_ptr< T > parameter, SQL_TIME_STRUCT & time, SQLLEN * nullData, const String & message, const String & query )
 		{
 			EErrorType errorType;
-			int attemptCount;
 			CDatabaseValueBase & value = parameter->GetObjectValue();
 
 			if ( value.IsNull() )
@@ -174,7 +170,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		inline EErrorType operator()( SQLHSTMT statementHandle, std::shared_ptr< T > parameter, SQL_TIMESTAMP_STRUCT & timestamp, SQLLEN * nullData, const String & message, const String & query )
 		{
 			EErrorType errorType;
-			int attemptCount;
 			CDatabaseValueBase & value = parameter->GetObjectValue();
 
 			if ( value.IsNull() )
@@ -213,7 +208,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		inline EErrorType operator()( SQLHSTMT statementHandle, std::shared_ptr< T > parameter, SQLLEN * nullData, const String & message, const String & query )
 		{
 			EErrorType errorType;
-			int attemptCount;
 			CDatabaseValueBase & value = parameter->GetObjectValue();
 
 			if ( value.IsNull() )

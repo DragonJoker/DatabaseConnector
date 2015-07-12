@@ -49,7 +49,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		SQLSMALLINT iNullable = 0;
 
 		EErrorType errorType;
-		int attemptCount;
 		SqlTry( SQLDescribeParam( statementHandle, ( SQLUSMALLINT )GetIndex(), &iDataType, &_columnSize, &_decimalDigits, &iNullable ), SQL_HANDLE_STMT, statementHandle, ODBC_DescribeParam_MSG );
 
 		_isNullable = iNullable != 0;

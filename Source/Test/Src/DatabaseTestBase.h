@@ -53,10 +53,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		*  TCs' implementation
 		*/
 		///@{
-		/** Test database creation
-		*/
-		void TestCase_CreateDatabase();
-
 		/** Test insertion and retrieval of a value
 		*/
 		template< typename StmtType >
@@ -93,6 +89,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template< typename StmtType >
 		void TestCase_DatabasePerformances();
 #endif
+		
+		/** Test database creation
+		*/
+		virtual void TestCase_CreateDatabase();
 
 		/** Test insertion and retrieval of a value through DatabaseQuery
 		*/
@@ -144,7 +144,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		/** Test database destruction
 		*/
-		void TestCase_DestroyDatabase();
+		virtual void TestCase_DestroyDatabase();
 
 #if defined( PERF_TEST )
 		/** Performance test through DatabaseStatement
@@ -168,8 +168,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 	protected:
 		String _createTable;
-
-	private:
 		const String & _type;
 		const String & _server;
 		const String & _database;

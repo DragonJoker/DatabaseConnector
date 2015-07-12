@@ -17,7 +17,7 @@
 
 #include <DatabaseOdbcHelper.h>
 #include <DatabaseStatementOdbc.h>
-#include <DatabaseQueryOdbc.h>
+#include <DatabaseQuery.h>
 
 BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 {
@@ -103,11 +103,14 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		DatabaseStatementPtr pReturn;
 		EErrorType eResult = EErrorType_ERROR;
 
-		if ( IsConnected() )
+		if ( !IsConnected() )
 		{
-			pReturn = std::make_shared< CDatabaseStatementOdbc >( shared_from_this(), request );
-			eResult = EErrorType_NONE;
+			CLogger::LogError( ERROR_ODBC_NOT_CONNECTED );
+			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_ODBC_NOT_CONNECTED, __FUNCTION__, __FILE__, __LINE__ );
 		}
+
+		pReturn = std::make_shared< CDatabaseStatementOdbc >( shared_from_this(), request );
+		eResult = EErrorType_NONE;
 
 		if ( result )
 		{
@@ -122,11 +125,14 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		DatabaseQueryPtr l_pReturn;
 		EErrorType eResult = EErrorType_ERROR;
 
-		if ( IsConnected() )
+		if ( !IsConnected() )
 		{
-			l_pReturn = std::make_shared< CDatabaseQueryOdbc >( shared_from_this(), request );
-			eResult = EErrorType_NONE;
+			CLogger::LogError( ERROR_ODBC_NOT_CONNECTED );
+			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_ODBC_NOT_CONNECTED, __FUNCTION__, __FILE__, __LINE__ );
 		}
+
+		l_pReturn = std::make_shared< CDatabaseQuery >( shared_from_this(), request );
+		eResult = EErrorType_NONE;
 
 		if ( result )
 		{

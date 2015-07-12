@@ -16,6 +16,7 @@
 
 BEGIN_NAMESPACE_DATABASE_TEST
 {
+	String const QUERY_DROP_TABLE = STR( "DROP TABLE Test" );
 	String const QUERY_SELECT_MIN = STR( "SELECT MIN( IDTest ) AS TestID\n" )
 	STR( "FROM\n" )
 	STR( "	Test" );
@@ -290,6 +291,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				try
 				{
+					connection->ExecuteUpdate( QUERY_DROP_TABLE );
 					connection->DestroyDatabase( _database );
 				}
 				catch ( std::exception & )

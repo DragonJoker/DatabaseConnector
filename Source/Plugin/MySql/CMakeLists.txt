@@ -24,7 +24,7 @@ set( DefaultTarget DatabasePluginMySql )
 
 add_target(
 	DatabasePluginMySql
-	dll
+	plugin
 	"Database"
 	"Database;${MySqlLibraries};${MinLibraries}"
 	"DatabaseMySqlPch.h"

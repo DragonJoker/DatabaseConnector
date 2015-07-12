@@ -34,9 +34,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	static const String ODBC_TRANSACTION_COMMIT = STR( "COMMIT TRANSACTION " );
 	static const String ODBC_TRANSACTION_ROLLBACK = STR( "ROLLBACK TRANSACTION " );
 
-	static const String ODBC_DRIVER_ERROR = STR( "ODBC Driver error" );
-	static const String ODBC_UNKNOWN_ERROR = STR( "Unknown error encountered while executing query: " );
-
 	static const std::string ODBC_NULL_STDSTRING = "NULL";
 	static const std::wstring ODBC_NULL_STDWSTRING = L"NULL";
 	static const String ODBC_NULL_STRING = STR( "NULL" );

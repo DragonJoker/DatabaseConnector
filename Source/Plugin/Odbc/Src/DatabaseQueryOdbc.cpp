@@ -19,7 +19,6 @@
 #include "DatabaseOdbcHelper.h"
 #include "DatabaseStatementOdbcHelper.h"
 #include "DatabaseQueryParameterOdbc.h"
-#include "DatabaseResultOdbc.h"
 #include "ExceptionDatabaseOdbc.h"
 
 #include <DatabaseStringUtils.h>
@@ -45,9 +44,9 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	static const String ODBC_FREESTMT_MSG = STR( "SQLFreeStmt" );
 
 	CDatabaseQueryOdbc::CDatabaseQueryOdbc( DatabaseConnectionOdbcPtr connection, const String & query )
-		:   CDatabaseQuery( connection, query )
-		,   _strLenIndPtr( SQL_NULL_DATA )
-		,   _connectionOdbc( connection )
+		: CDatabaseQuery( connection, query )
+		, _strLenIndPtr( SQL_NULL_DATA )
+		, _connectionOdbc( connection )
 		, _statementHandle( SQL_NULL_HSTMT )
 	{
 	}
@@ -78,8 +77,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 	DatabaseParameterPtr CDatabaseQueryOdbc::CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType )
 	{
-		// std::make_shared limited to 5 parameters with VS2012
-		DatabaseParameterPtr pReturn( new CDatabaseQueryParameterOdbc( std::static_pointer_cast< CDatabaseConnectionOdbc >( _connectionOdbc ), name, ( unsigned short )_arrayParams.size() + 1, fieldType, parameterType, new SValueUpdater( this ) ) );
+		DatabaseParameterPtr pReturn = std::make_shared< CDatabaseQueryParameterOdbc >( _connectionOdbc, name, uint16_t( _arrayParams.size() + 1 ), fieldType, parameterType, new SValueUpdater( this ) );
 
 		if ( !DoAddParameter( pReturn ) )
 		{
@@ -91,8 +89,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 	DatabaseParameterPtr CDatabaseQueryOdbc::CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType )
 	{
-		// std::make_shared limited to 5 parameters with VS2012
-		DatabaseParameterPtr pReturn( new CDatabaseQueryParameterOdbc( std::static_pointer_cast< CDatabaseConnectionOdbc >( _connectionOdbc ), name, ( unsigned short )_arrayParams.size() + 1, fieldType, limits, parameterType, new SValueUpdater( this ) ) );
+		DatabaseParameterPtr pReturn = std::make_shared< CDatabaseQueryParameterOdbc >( _connectionOdbc, name, uint16_t( _arrayParams.size() + 1 ), fieldType, limits, parameterType, new SValueUpdater( this ) );
 
 		if ( !DoAddParameter( pReturn ) )
 		{
@@ -138,7 +135,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		long lOffset = 0;
 		long lBatch = 5000;
 		EErrorType errorType = EErrorType_NONE;
-		int attemptCount;
 
 		while ( lSize > lBatch && errorType == EErrorType_NONE )
 		{
@@ -163,7 +159,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		long lBatch = 5000;
 		SQLLEN lRetrieved;
 		EErrorType errorType = EErrorType_NONE;
-		int attemptCount;
 
 		while ( lSize > lBatch && errorType == EErrorType_NONE )
 		{
@@ -192,7 +187,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		if ( eResult == EErrorType_NONE )
 		{
 			SQLRETURN retCode = SQLExecDirectA( _statementHandle, ( SqlChar * )_query.c_str(), SQLINTEGER( _query.size() ) );
-			SqlSuccess( retCode, SQL_HANDLE_STMT, _statementHandle, ODBC_EXECUTE_QUERY_MSG + _query );
+			eResult = SqlSuccess( retCode, SQL_HANDLE_STMT, _statementHandle, ODBC_EXECUTE_QUERY_MSG + _query );
 
 			if ( retCode == SQL_NEED_DATA )
 			{
@@ -234,11 +229,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 		if ( eResult == EErrorType_NONE )
 		{
-			DatabaseResultOdbcPtr pRet = std::make_shared< CDatabaseResultOdbc >( _connection );
-			pRet->sResultSetFullyFetched.connect( std::bind( &CDatabaseQueryOdbc::OnResultSetFullyFetched, this, std::placeholders::_1, std::placeholders::_2 ) );
-			pRet->Initialize( _statementHandle );
-			pReturn = pRet;
-			_statementHandle = SQL_NULL_HSTMT;
+			pReturn = SqlExecute( _connection, _statementHandle, std::bind( &CDatabaseQueryOdbc::OnResultSetFullyFetched, this, std::placeholders::_1, std::placeholders::_2 ) );
 		}
 
 		if ( result )
@@ -284,18 +275,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		}
 
 #endif
-		int attemptCount;
-		EErrorType errorType = EErrorType_NONE;
-		SqlTry( SQLCloseCursor( statementHandle ), SQL_HANDLE_STMT, _statementHandle, ODBC_CLOSECURSOR_MSG );
-		SqlTry( SQLFreeStmt( statementHandle, SQL_CLOSE ), SQL_HANDLE_STMT, statementHandle, ODBC_FREESTMT_MSG + STR( " (Close)" ) );
-		SqlTry( SQLFreeStmt( statementHandle, SQL_UNBIND ), SQL_HANDLE_STMT, statementHandle, ODBC_FREESTMT_MSG + STR( " (Unbind)" ) );
-		SqlTry( SQLFreeStmt( statementHandle, SQL_RESET_PARAMS ), SQL_HANDLE_STMT, statementHandle, ODBC_FREESTMT_MSG + STR( " (ResetParams)" ) );
-
-		if ( statementHandle != SQL_NULL_HSTMT )
-		{
-			SQLFreeHandle( SQL_HANDLE_STMT, statementHandle );
-			statementHandle = SQL_NULL_HSTMT;
-		}
 	}
 }
 END_NAMESPACE_DATABASE_ODBC
