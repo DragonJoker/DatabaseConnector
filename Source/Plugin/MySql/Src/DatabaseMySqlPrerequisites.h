@@ -152,7 +152,7 @@ BEGIN_NAMESPACE_DATABASE
 		};
 
 		template<>
-		struct CInMySqlBind< char *, double >
+		struct CInMySqlBind< char *, CFixedPoint >
 				: public CInMySqlBindBase
 		{
 			char _value[8192];
@@ -165,9 +165,9 @@ BEGIN_NAMESPACE_DATABASE
 				bind.buffer_length = sizeof( _value ) / sizeof( *_value );
 			}
 
-			double GetValue()const
+			CFixedPoint GetValue()const
 			{
-				return CStrUtils::ToDouble( _value );
+				return CFixedPoint( _value );
 			}
 		};
 

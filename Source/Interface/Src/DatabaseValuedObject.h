@@ -71,12 +71,30 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport virtual const uint32_t & GetLimits() const = 0;
 
+		/** Get field precision.
+		@return
+		    Field precision.
+		*/
+		DatabaseExport virtual const std::pair< uint32_t, uint32_t > & GetPrecision() const = 0;
+
 	protected:
 		/** Get value as boolean.
 		@param[out] value
 		    Value as boolean.
 		*/
 		DatabaseExport virtual void DoGetValue( bool & value ) const;
+
+		/** Get value as char.
+		@param[out] value
+		    Value as int.
+		*/
+		DatabaseExport virtual void DoGetValue( int8_t & value ) const;
+
+		/** Get value as unsigned char.
+		@param[out] value
+		    Value as int.
+		*/
+		DatabaseExport virtual void DoGetValue( uint8_t & value ) const;
 
 		/** Get value as short.
 		@param[out] value
@@ -132,6 +150,12 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport virtual void DoGetValue( long double & value ) const;
 
+		/** Get value as fixed point numeric.
+		@param[out] value
+		    Value as long double.
+		*/
+		DatabaseExport virtual void DoGetValue( CFixedPoint & value ) const;
+
 		/** Get value as std::string.
 		@param[out] value
 		    Value as std::string.
@@ -175,6 +199,22 @@ BEGIN_NAMESPACE_DATABASE
 		    Value as boolean.
 		*/
 		DatabaseExport virtual void DoGetValueFast( bool & value ) const;
+
+		/** Get value as char.
+		@remarks
+		    No check is made in this function, so the value type must match the field type
+		@param[out] value
+		    Value as int.
+		*/
+		DatabaseExport virtual void DoGetValueFast( int8_t & value ) const;
+
+		/** Get value as unsigned char.
+		@remarks
+		    No check is made in this function, so the value type must match the field type
+		@param[out] value
+		    Value as int.
+		*/
+		DatabaseExport virtual void DoGetValueFast( uint8_t & value ) const;
 
 		/** Get value as short.
 		@remarks
@@ -248,6 +288,14 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport virtual void DoGetValueFast( long double & value ) const;
 
+		/** Get value as fixed point numeric.
+		@remarks
+		    No check is made in this function, so the value type must match the field type
+		@param[out] value
+		    Value as long double.
+		*/
+		DatabaseExport virtual void DoGetValueFast( CFixedPoint & value ) const;
+
 		/** Get value as std::string.
 		@remarks
 		    No check is made in this function, so the value type must match the field type
@@ -301,6 +349,18 @@ BEGIN_NAMESPACE_DATABASE
 		    New parameter value.
 		*/
 		DatabaseExport virtual void DoSetValue( const bool & value );
+
+		/** Set parameter value as a char.
+		@param value
+		    New parameter value.
+		*/
+		DatabaseExport virtual void DoSetValue( const int8_t & value );
+
+		/** Set parameter value as a unsigned char.
+		@param value
+		    New parameter value.
+		*/
+		DatabaseExport virtual void DoSetValue( const uint8_t & value );
 
 		/** Set parameter value as a short.
 		@param value
@@ -356,6 +416,12 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport virtual void DoSetValue( const long double & value );
 
+		/** Set parameter value as a fixed point numeric.
+		@param value
+		    New parameter value.
+		*/
+		DatabaseExport virtual void DoSetValue( const CFixedPoint & value );
+
 		/** Set parameter value as a std::string.
 		@param value
 		    New parameter value.
@@ -399,6 +465,22 @@ BEGIN_NAMESPACE_DATABASE
 		    New parameter value.
 		*/
 		DatabaseExport virtual void DoSetValueFast( const bool & value );
+
+		/** Set parameter value as a char.
+		@remarks
+			Don't perform type checks
+		@param value
+		    New parameter value.
+		*/
+		DatabaseExport virtual void DoSetValueFast( const int8_t & value );
+
+		/** Set parameter value as a unsigned char.
+		@remarks
+			Don't perform type checks
+		@param value
+		    New parameter value.
+		*/
+		DatabaseExport virtual void DoSetValueFast( const uint8_t & value );
 
 		/** Set parameter value as a short.
 		@remarks
@@ -471,6 +553,14 @@ BEGIN_NAMESPACE_DATABASE
 		    New parameter value.
 		*/
 		DatabaseExport virtual void DoSetValueFast( const long double & value );
+
+		/** Set parameter value as a fixed point numeric.
+		@remarks
+			Don't perform type checks
+		@param value
+		    New parameter value.
+		*/
+		DatabaseExport virtual void DoSetValueFast( const CFixedPoint & value );
 
 		/** Set parameter value as a std::string.
 		@remarks

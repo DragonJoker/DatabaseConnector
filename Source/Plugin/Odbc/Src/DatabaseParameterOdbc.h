@@ -146,6 +146,60 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		CDatabaseValue< Type > & _value;
 	};
 
+	/** COutOdbcBind specialisation for EFieldType_FIXED_POINT
+	*/
+	template<>
+	struct COutOdbcBind< EFieldType_FIXED_POINT >
+			: public COutOdbcBindBase
+	{
+		/** Constructor.
+		@param[in] statement
+			The statement.
+		@param[in] index
+			Internal index.
+		@param[in] parameterType
+			Parameter type.
+		@param[in] value
+			Parameter value.
+		*/
+		COutOdbcBind( HSTMT statement, uint16_t index, EParameterType parameterType, const String & name, CDatabaseValue< EFieldType_FIXED_POINT > & value )
+			: COutOdbcBindBase( statement, index, EFieldType_DATETIME, parameterType, name, value )
+			, _value( value )
+			, _holder()
+		{
+		}
+
+		/** @copydoc Database::Odbc::COutOdbcBindBase::BindValue
+		*/
+		virtual EErrorType BindValue()const
+		{
+			EErrorType errorType = EErrorType_NONE;
+			StringStream message;
+			message << ODBC_BIND_PARAMETER_NAME_MSG << _name << STR( ", " ) << ODBC_BIND_PARAMETER_VALUE_MSG << STR( "[" ) << _value.GetValue().ToString() << STR( "]" );
+
+			CFixedPoint const & fixedPoint = _value.GetValue();
+			_holder.precision = fixedPoint.GetPrecision();
+			_holder.scale = fixedPoint.GetScale();
+			_holder.sign = fixedPoint.IsSigned();
+			strcpy( ( char * )_holder.val, CStrUtils::ToStr( fixedPoint.ToString() ).c_str() );
+
+			if ( _value.IsNull() || _value.GetPtrSize() == 0 )
+			{
+				_columnIndex = SQL_NULL_DATA;
+			}
+			else
+			{
+				_columnIndex = _value.GetPtrSize();
+			}
+
+			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, SQLPOINTER( &_holder ), sizeof( _holder ), &_columnIndex ), SQL_HANDLE_STMT, _statement, ODBC_BindParameter_MSG + message.str() );
+			return errorType;
+		}
+
+		CDatabaseValue< EFieldType_FIXED_POINT > & _value;
+		mutable SQL_NUMERIC_STRUCT _holder;
+	};
+
 	/** COutOdbcBind specialisation for EFieldType_DATE
 	*/
 	template<>

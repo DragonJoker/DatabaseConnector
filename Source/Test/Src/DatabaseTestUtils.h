@@ -157,6 +157,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 		};
 
+		template<> struct Helpers< int8_t >
+		{
+			static const uint32_t Limit = -1;
+			typedef int8_t ParamType;
+			typedef ParamType FieldType;
+
+			static ParamType InitialiseValue()
+			{
+				return int8_t( rand() % 256 );
+			}
+		};
+
 		template<> struct Helpers< int16_t >
 		{
 			static const uint32_t Limit = -1;
@@ -214,6 +226,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			static ParamType InitialiseValue()
 			{
 				return double( rand() ) / ( std::abs( rand() ) + 1.0 );
+			}
+		};
+
+		template<> struct Helpers< CFixedPoint >
+		{
+			static const uint32_t Limit = -1;
+			typedef CFixedPoint ParamType;
+			typedef ParamType FieldType;
+
+			static ParamType InitialiseValue()
+			{
+				return CFixedPoint( CStrUtils::ToString( int64_t( rand() ) * int64_t( rand() ) ), 10, 5 );
 			}
 		};
 
@@ -327,19 +351,19 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		{
 			BOOST_CHECK( stmt->CreateParameter( STR( "IntField" ), EFieldType_INTEGER, EParameterType_IN ) );
 			BOOST_CHECK( stmt->CreateParameter( STR( "IntegerField" ), EFieldType_INTEGER, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "TinyIntField" ), EFieldType_BOOL, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "TinyIntField" ), EFieldType_TINY_INTEGER, EParameterType_IN ) );
 			BOOST_CHECK( stmt->CreateParameter( STR( "SmallIntField" ), EFieldType_SMALL_INTEGER, EParameterType_IN ) );
 			BOOST_CHECK( stmt->CreateParameter( STR( "MediumIntField" ), EFieldType_INTEGER, EParameterType_IN ) );
 			BOOST_CHECK( stmt->CreateParameter( STR( "BigIntField" ), EFieldType_LONG_INTEGER, EParameterType_IN ) );
 			BOOST_CHECK( stmt->CreateParameter( STR( "Int2Field" ), EFieldType_SMALL_INTEGER, EParameterType_IN ) );
 			BOOST_CHECK( stmt->CreateParameter( STR( "Int8Field" ), EFieldType_LONG_INTEGER, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "RealField" ), EFieldType_DOUBLE, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "DoubleField" ), EFieldType_DOUBLE, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "DoublePrecisionField" ), EFieldType_DOUBLE, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "FloatField" ), EFieldType_FLOAT, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "NumericField" ), EFieldType_INTEGER, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "DecimalField" ), EFieldType_DOUBLE, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "BooleanField" ), EFieldType_BOOL, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "RealField" ), EFieldType_FLOATING_POINT_SIMPLE, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "DoubleField" ), EFieldType_FLOATING_POINT_DOUBLE, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "DoublePrecisionField" ), EFieldType_FLOATING_POINT_DOUBLE, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "FloatField" ), EFieldType_FLOATING_POINT_SIMPLE, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "NumericField" ), EFieldType_FIXED_POINT, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "DecimalField" ), EFieldType_FIXED_POINT, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "BooleanField" ), EFieldType_BIT, EParameterType_IN ) );
 			BOOST_CHECK( stmt->CreateParameter( STR( "DateField" ), EFieldType_DATE, EParameterType_IN ) );
 			BOOST_CHECK( stmt->CreateParameter( STR( "DateTimeField" ), EFieldType_DATETIME, EParameterType_IN ) );
 			BOOST_CHECK( stmt->CreateParameter( STR( "CharacterField" ), EFieldType_VARCHAR, 20, EParameterType_IN ) );
@@ -355,7 +379,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		{
 			stmt->SetParameterValue( index++, Helpers< int32_t >::InitialiseValue() );
 			stmt->SetParameterValue( index++, Helpers< int32_t >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< bool >::InitialiseValue() );
+			stmt->SetParameterValue( index++, Helpers< int8_t >::InitialiseValue() );
 			stmt->SetParameterValue( index++, Helpers< int16_t >::InitialiseValue() );
 			stmt->SetParameterValue( index++, Helpers< int32_t >::InitialiseValue() );
 			stmt->SetParameterValue( index++, Helpers< int64_t >::InitialiseValue() );
@@ -365,8 +389,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			stmt->SetParameterValue( index++, Helpers< double >::InitialiseValue() );
 			stmt->SetParameterValue( index++, Helpers< double >::InitialiseValue() );
 			stmt->SetParameterValue( index++, Helpers< float >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< int32_t >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< double >::InitialiseValue() );
+			stmt->SetParameterValue( index++, Helpers< CFixedPoint >::InitialiseValue() );
+			stmt->SetParameterValue( index++, Helpers< CFixedPoint >::InitialiseValue() );
 			stmt->SetParameterValue( index++, Helpers< bool >::InitialiseValue() );
 			stmt->SetParameterValue( index++, Helpers< CDate >::InitialiseValue() );
 			stmt->SetParameterValue( index++, Helpers< CDateTime >::InitialiseValue() );
@@ -382,18 +406,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		{
 			CLogger::LogMessage( StringStream() << STR( "IntField : " ) << row->Get< int32_t >( index++ ) );
 			CLogger::LogMessage( StringStream() << STR( "IntegerField : " ) << row->Get< int32_t >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "TinyIntField : " ) << row->Get< bool >( index++ ) );
+			CLogger::LogMessage( StringStream() << STR( "TinyIntField : " ) << row->Get< int8_t >( index++ ) );
 			CLogger::LogMessage( StringStream() << STR( "SmallIntField : " ) << row->Get< int16_t >( index++ ) );
 			CLogger::LogMessage( StringStream() << STR( "MediumIntField : " ) << row->Get< int32_t >( index++ ) );
 			CLogger::LogMessage( StringStream() << STR( "BigIntField : " ) << row->Get< int64_t >( index++ ) );
 			CLogger::LogMessage( StringStream() << STR( "Int2Field : " ) << row->Get< int16_t >( index++ ) );
 			CLogger::LogMessage( StringStream() << STR( "Int8Field : " ) << row->Get< int64_t >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "RealField : " ) << row->Get< double >( index++ ) );
+			CLogger::LogMessage( StringStream() << STR( "RealField : " ) << row->Get< float >( index++ ) );
 			CLogger::LogMessage( StringStream() << STR( "DoubleField : " ) << row->Get< double >( index++ ) );
 			CLogger::LogMessage( StringStream() << STR( "DoublePrecisionField : " ) << row->Get< double >( index++ ) );
 			CLogger::LogMessage( StringStream() << STR( "FloatField : " ) << row->Get< float >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "NumericField : " ) << row->Get< int32_t >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "DecimalField : " ) << row->Get< double >( index++ ) );
+			CLogger::LogMessage( StringStream() << STR( "NumericField : " ) << row->Get< CFixedPoint >( index++ ).ToString() );
+			CLogger::LogMessage( StringStream() << STR( "DecimalField : " ) << row->Get< CFixedPoint >( index++ ).ToString() );
 			CLogger::LogMessage( StringStream() << STR( "BooleanField : " ) << row->Get< bool >( index++ ) );
 			CLogger::LogMessage( StringStream() << STR( "DateField : " ) << row->Get< CDate >( index++ ) );
 			CLogger::LogMessage( StringStream() << STR( "DateTimeField : " ) << row->Get< CDateTime >( index++ ) );
@@ -491,10 +515,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 						BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, valueOut ) );
 						Compare< Type >()( valueIn, valueOut );
 					}
-					else
-					{
-						BOOST_CHECK( false );
-					}
 				}
 			}
 			catch ( ... )
@@ -539,10 +559,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 						BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, valueOut ) );
 						Compare< Type >()( valueIn, valueOut );
 					}
-					else
-					{
-						BOOST_CHECK( false );
-					}
 				}
 			}
 			catch ( ... )
@@ -582,10 +598,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 						typename Helpers< Type >::FieldType valueOut;
 						BOOST_CHECK_NO_THROW( result->GetFirstRow()->GetFast( 0, valueOut ) );
 						Compare< Type >()( valueIn, valueOut );
-					}
-					else
-					{
-						BOOST_CHECK( false );
 					}
 				}
 			}
@@ -630,10 +642,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 						typename Helpers< Type >::FieldType valueOut;
 						BOOST_CHECK_NO_THROW( result->GetFirstRow()->GetFast( 0, valueOut ) );
 						Compare< Type >()( valueIn, valueOut );
-					}
-					else
-					{
-						BOOST_CHECK( false );
 					}
 				}
 			}

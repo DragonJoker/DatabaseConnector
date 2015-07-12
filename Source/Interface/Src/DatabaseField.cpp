@@ -39,18 +39,6 @@ BEGIN_NAMESPACE_DATABASE
 	{
 	}
 
-	//void CDatabaseField::SetValue( DatabaseFieldPtr field )
-	//{
-	//	if ( !AreTypesCompatible( GetType(), field->GetType() ) )
-	//	{
-	//		String errMsg = DATABASE_FIELD_SETVALUE_TYPE_ERROR + this->GetName();
-	//		CLogger::LogError( errMsg );
-	//		DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_SETVALUE_TYPE_ERROR );
-	//	}
-
-	//	_value->SetValue( field->GetObjectValue() );
-	//}
-
 	EFieldType CDatabaseField::GetType() const
 	{
 		return _infos->GetType();
@@ -64,6 +52,11 @@ BEGIN_NAMESPACE_DATABASE
 	const uint32_t & CDatabaseField::GetLimits() const
 	{
 		return _infos->GetLimits();
+	}
+
+	const std::pair< uint32_t, uint32_t > & CDatabaseField::GetPrecision() const
+	{
+		return _infos->GetPrecision();
 	}
 }
 END_NAMESPACE_DATABASE

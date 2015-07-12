@@ -119,8 +119,9 @@ namespace Database
 	class CDate;
 	class CDateTime;
 	class CDateTimeSpan;
-	class CExceptionDatabase;
 	class CTime;
+	class CFixedPoint;
+	class CExceptionDatabase;
 	class CFactoryDatabase;
 	class CPluginDatabase;
 

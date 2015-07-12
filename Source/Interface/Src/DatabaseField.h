@@ -58,6 +58,12 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport virtual const uint32_t & GetLimits() const;
 
+		/** Get field limits.
+		@return
+		    Field limits.
+		*/
+		DatabaseExport virtual const std::pair< uint32_t, uint32_t > & GetPrecision() const;
+
 		/** Get field value.
 		@return
 		    Field value.

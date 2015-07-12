@@ -20,12 +20,14 @@ BEGIN_NAMESPACE_DATABASE
 	typedef enum EFieldType
 	{
 		EFieldType_NULL,
-		EFieldType_BOOL,
+		EFieldType_BIT,
+		EFieldType_TINY_INTEGER,
 		EFieldType_SMALL_INTEGER,
 		EFieldType_INTEGER,
 		EFieldType_LONG_INTEGER,
-		EFieldType_FLOAT,
-		EFieldType_DOUBLE,
+		EFieldType_FLOATING_POINT_SIMPLE,
+		EFieldType_FLOATING_POINT_DOUBLE,
+		EFieldType_FIXED_POINT,
 		EFieldType_VARCHAR,
 		EFieldType_TEXT,
 		EFieldType_NVARCHAR,

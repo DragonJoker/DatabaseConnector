@@ -49,7 +49,7 @@ BEGIN_NAMESPACE_DATABASE
 		: CDatabaseValuedObject( connection )
 		, _name( name )
 		, _fieldType( fieldType )
-		, _limits( -1 )
+		, _precision( std::make_pair( -1, -1 ) )
 		, _index( index )
 		, _parameterType( parameterType )
 		, _updater( updater )
@@ -61,7 +61,19 @@ BEGIN_NAMESPACE_DATABASE
 		: CDatabaseValuedObject( connection )
 		, _name( name )
 		, _fieldType( fieldType )
-		, _limits( limits )
+		, _precision( std::make_pair( limits, 0 ) )
+		, _index( index )
+		, _parameterType( parameterType )
+		, _updater( updater )
+	{
+		DoCreateValue();
+	}
+
+	CDatabaseParameter::CDatabaseParameter( DatabaseConnectionPtr connection, const String & name, unsigned short index, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType, SValueUpdater * updater )
+		: CDatabaseValuedObject( connection )
+		, _name( name )
+		, _fieldType( fieldType )
+		, _precision( precision )
 		, _index( index )
 		, _parameterType( parameterType )
 		, _updater( updater )
@@ -91,7 +103,12 @@ BEGIN_NAMESPACE_DATABASE
 
 	const uint32_t & CDatabaseParameter::GetLimits() const
 	{
-		return _limits;
+		return _precision.first;
+	}
+
+	const std::pair< uint32_t, uint32_t > & CDatabaseParameter::GetPrecision() const
+	{
+		return _precision;
 	}
 
 	void CDatabaseParameter::SetNull()
@@ -133,8 +150,12 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		switch ( type )
 		{
-		case EFieldType_BOOL:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_BOOL > const & >( value ).GetValue() );
+		case EFieldType_BIT:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_BIT > const & >( value ).GetValue() );
+			break;
+
+		case EFieldType_TINY_INTEGER:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_TINY_INTEGER > const & >( value ).GetValue() );
 			break;
 
 		case EFieldType_SMALL_INTEGER:
@@ -149,12 +170,16 @@ BEGIN_NAMESPACE_DATABASE
 			DoSetValue( static_cast< CDatabaseValue< EFieldType_LONG_INTEGER > const & >( value ).GetValue() );
 			break;
 
-		case EFieldType_FLOAT:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_FLOAT > const & >( value ).GetValue() );
+		case EFieldType_FLOATING_POINT_SIMPLE:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_SIMPLE > const & >( value ).GetValue() );
 			break;
 
-		case EFieldType_DOUBLE:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_DOUBLE > const & >( value ).GetValue() );
+		case EFieldType_FLOATING_POINT_DOUBLE:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_DOUBLE > const & >( value ).GetValue() );
+			break;
+
+		case EFieldType_FIXED_POINT:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_FIXED_POINT > const & >( value ).GetValue() );
 			break;
 
 		case EFieldType_VARCHAR:
