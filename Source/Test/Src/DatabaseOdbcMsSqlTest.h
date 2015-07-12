@@ -39,6 +39,14 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		/** Loads the database plugin
 		*/
 		void DoLoadPlugins();
+		
+		/** Test database creation
+		*/
+		virtual void TestCase_CreateDatabase();
+
+		/** Test database destruction
+		*/
+		virtual void TestCase_DestroyDatabase();
 	};
 }
 END_NAMESPACE_DATABASE_TEST

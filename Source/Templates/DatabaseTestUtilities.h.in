@@ -21,11 +21,11 @@
 
 BEGIN_NAMESPACE_DATABASE_TEST
 {
-    /// Path to the ODBC batch files
-    static const String ODBC_BATCH_FILES_DIR = STR( "${ODBC_BATCH_FILES_DIR}" );
-    
-    /// Path to the database scripts
-    static const String DATABASE_BATCH_FILES_DIR = STR( "${DATABASE_BATCH_FILES_DIR}" );
+	/// Path to the script (batch and shell) files
+	static const String SCRIPT_FILES_DIR = STR( "${SCRIPT_FILES_DIR}" );
+
+	/// Path to the mysql command
+	static const String MYSQL_COMMAND = STR( "${MySQL_COMMAND}" );
 }
 END_NAMESPACE_DATABASE_TEST
 

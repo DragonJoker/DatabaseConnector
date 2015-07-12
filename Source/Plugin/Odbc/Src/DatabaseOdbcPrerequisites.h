@@ -40,13 +40,13 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	namespace Odbc
 	{
+		static const String ERROR_ODBC_DRIVER_ERROR = STR( "ODBC driver error while exceuting action: " );
 
 		// Pre-declare classes
 		// Allows use of pointers in header files without including individual .h
 		// so decreases dependencies between files
 		class CDatabaseConnectionOdbc;
 		class CDatabaseOdbc;
-		class CDatabaseResultOdbc;
 		class CDatabaseStatementOdbc;
 		class CDatabaseQueryOdbc;
 		class CDatabaseStatementParameterOdbc;
@@ -54,7 +54,6 @@ BEGIN_NAMESPACE_DATABASE
 		class CExceptionDatabaseOdbc;
 		class CPluginDatabaseOdbc;
 		class CFactoryDatabaseOdbc;
-		class CDatabaseResultOdbc;
 
 		// Pointers
 		typedef std::shared_ptr< CDatabaseConnectionOdbc >            DatabaseConnectionOdbcPtr;
@@ -62,7 +61,6 @@ BEGIN_NAMESPACE_DATABASE
 		typedef std::shared_ptr< CDatabaseQueryOdbc >                 DatabaseQueryOdbcPtr;
 		typedef std::shared_ptr< CDatabaseStatementParameterOdbc >    DatabaseStatementParameterOdbcPtr;
 		typedef std::shared_ptr< CDatabaseQueryParameterOdbc >        DatabaseQueryParameterOdbcPtr;
-		typedef std::shared_ptr< CDatabaseResultOdbc >                DatabaseResultOdbcPtr;
 
 		// Plugin constants
 		const String DATABASE_ODBC_TYPE = STR( "Database.Odbc" );
@@ -77,17 +75,19 @@ BEGIN_NAMESPACE_DATABASE
 
 		// SQL execution
 #define SqlTry( func, handle_type, handle, text )\
-    attemptCount = 0;\
-    errorType = SqlSuccess( func, handle_type, handle, text );\
-    while( errorType == EErrorType_RETRY && attemptCount < 10 )\
-    {\
-        errorType = SqlSuccess( func, handle_type, handle, text );\
-        attemptCount++;\
-    }\
-    if( attemptCount == 10 )\
-    {\
-        errorType = EErrorType_RECONNECT;\
-    }
+		{\
+			int attemptCount = 0;\
+			errorType = SqlSuccess( func, handle_type, handle, text );\
+			while( errorType == EErrorType_RETRY && attemptCount < 10 )\
+			{\
+				errorType = SqlSuccess( func, handle_type, handle, text );\
+				attemptCount++;\
+			}\
+			if( attemptCount == 10 )\
+			{\
+				errorType = EErrorType_RECONNECT;\
+			}\
+		}
 
 	} // namespace Odbc
 

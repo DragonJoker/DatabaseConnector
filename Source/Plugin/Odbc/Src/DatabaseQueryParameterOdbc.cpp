@@ -24,14 +24,14 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 {
 	CDatabaseQueryParameterOdbc::CDatabaseQueryParameterOdbc( DatabaseConnectionOdbcPtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, SValueUpdater * updater )
 		: CDatabaseParameter( connection, name, index, fieldType, parameterType, updater )
-		, CDatabaseParameterOdbc( index, fieldType, parameterType )
+		, CDatabaseParameterOdbc()
 	{
 		// Empty
 	}
 
 	CDatabaseQueryParameterOdbc::CDatabaseQueryParameterOdbc( DatabaseConnectionOdbcPtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, SValueUpdater * updater )
 		: CDatabaseParameter( connection, name, index, fieldType, limits, parameterType, updater )
-		, CDatabaseParameterOdbc( index, fieldType, parameterType )
+		, CDatabaseParameterOdbc()
 	{
 		// Empty
 	}
@@ -39,6 +39,11 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	CDatabaseQueryParameterOdbc::~CDatabaseQueryParameterOdbc()
 	{
 		// Empty
+	}
+
+	void CDatabaseQueryParameterOdbc::Initialize( SQLHSTMT statementHandle )
+	{
+		CDatabaseParameterOdbc::Initialize( statementHandle, *this );
 	}
 }
 END_NAMESPACE_DATABASE_ODBC

@@ -444,6 +444,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	CDatabaseConnectionMySql::CDatabaseConnectionMySql( const String & server, const String & userName, const String & password, String & connectionString )
 		: CDatabaseConnection( server, userName, password )
 		, _connection( NULL )
+		, _statement( NULL )
 	{
 		DoConnect( connectionString );
 	}
@@ -968,10 +969,18 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	void CDatabaseConnectionMySql::DoDisconnect()
 	{
 		DoSetConnected( false );
-		mysql_stmt_close( _statement );
-		_statement = NULL;
-		mysql_close( _connection );
-		_connection = NULL;
+
+		if ( _statement )
+		{
+			mysql_stmt_close( _statement );
+			_statement = NULL;
+		}
+
+		if ( _connection )
+		{
+			mysql_close( _connection );
+			_connection = NULL;
+		}
 	}
 
 	bool CDatabaseConnectionMySql::DoExecuteUpdate( const String & query, EErrorType * result )

@@ -90,7 +90,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	CDateTime CDateTimeFromMySqlTime( MYSQL_TIME const & ts )
 	{
 		assert( ts.time_type == MYSQL_TIMESTAMP_DATETIME );
-		std::tm tm = { ts.second, ts.minute, ts.hour, ts.day, ts.month - 1, ts.year - 1900, 0 };
+		std::tm tm = { int( ts.second ), int( ts.minute ), int( ts.hour ), int( ts.day ), int( ts.month - 1 ), int( ts.year - 1900 ), 0 };
 		return CDateTime( tm );
 	}
 

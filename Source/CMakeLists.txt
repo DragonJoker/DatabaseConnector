@@ -3,7 +3,7 @@ cmake_minimum_required( VERSION 2.8.10 )
 #	Initial configurations
 #--------------------------------------------------------------------------------------------------
 # Set project name, used in folders and in workspace creation
-set( MAIN_PROJECT_NAME "DatabaseEngine" )
+set( MAIN_PROJECT_NAME "DatabaseConnector" )
 
 # Set project version numbers
 set( VERSION_MAJOR	0		)

@@ -17,8 +17,6 @@
 
 #include "DatabaseConnectionOdbc.h"
 #include "DatabaseOdbcHelper.h"
-#include "DatabaseResultOdbc.h"
-#include "DatabaseStatementOdbcHelper.h"
 #include "DatabaseStatementParameterOdbc.h"
 #include "ExceptionDatabaseOdbc.h"
 
@@ -33,13 +31,9 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	static const String DATABASE_STATEMENT_UNKNOWN_POINTER = STR( "The pointer given by SQLParamData is unknown to the statement" );
 
 	static const String ODBC_HANDLE_ALLOCATION_MSG = STR( "New statement allocation: " );
-	static const String ODBC_BIND_PARAMETER_NAME_MSG = STR( "Parameter:" );
-	static const String ODBC_BIND_PARAMETER_VALUE_MSG = STR( "Value:" );
 	static const String ODBC_EXECUTE_STATEMENT_MSG = STR( "Execute: " );
 
 	static const String ODBC_PREPARE_MSG = STR( "SQLPrepare" );
-	static const String ODBC_PUTDATA_MSG = STR( "SQLPutData" );
-	static const String ODBC_GETDATA_MSG = STR( "SQLGetData" );
 	static const String ODBC_SETSTMTATTR_MSG = STR( "SQLSetStmtAttr" );
 	static const String ODBC_CLOSECURSOR_MSG = STR( "SQLCloseCursor" );
 	static const String ODBC_FREESTMT_MSG = STR( "SQLFreeStmt" );
@@ -49,7 +43,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	CDatabaseStatementOdbc::CDatabaseStatementOdbc( DatabaseConnectionOdbcPtr connection, const String & query )
 		:   CDatabaseStatement( connection, query )
 		,   _statementHandle( SQL_NULL_HSTMT )
-		,   _strLenIndPtr( SQL_NULL_DATA )
 		,   _connectionOdbc( connection )
 	{
 	}
@@ -62,11 +55,10 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	EErrorType CDatabaseStatementOdbc::Initialize()
 	{
 		EErrorType errorType;
-		int attemptCount;
 		HDBC hParentStmt = _connectionOdbc->GetHdbc();
 		CLogger::LogMessage( STR( "Preparing statement for query : " ) + _query );
 
-		errorType = SqlSuccess( SQLAllocHandle( SQL_HANDLE_STMT, hParentStmt, & _statementHandle ), SQL_HANDLE_STMT, hParentStmt, ODBC_HANDLE_ALLOCATION_MSG );
+		errorType = SqlSuccess( SQLAllocHandle( SQL_HANDLE_STMT, hParentStmt, &_statementHandle ), SQL_HANDLE_STMT, hParentStmt, ODBC_HANDLE_ALLOCATION_MSG );
 #if defined( WIN32 )
 
 		if ( errorType == EErrorType_NONE )
@@ -98,12 +90,28 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 	bool CDatabaseStatementOdbc::ExecuteUpdate( EErrorType * result )
 	{
-		return DoExecute( result ) != nullptr;
+		DatabaseResultPtr rs;
+		EErrorType error = DoExecute( rs );
+
+		if ( result )
+		{
+			*result = error;
+		}
+
+		return error == EErrorType_NONE;
 	}
 
 	DatabaseResultPtr CDatabaseStatementOdbc::ExecuteSelect( EErrorType * result )
 	{
-		return DoExecute( result );
+		DatabaseResultPtr rs;
+		EErrorType error = DoExecute( rs );
+
+		if ( result )
+		{
+			*result = error;
+		}
+
+		return rs;
 	}
 
 	void CDatabaseStatementOdbc::Cleanup()
@@ -139,91 +147,13 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		return pReturn;
 	}
 
-	EErrorType CDatabaseStatementOdbc::DoBindParameter( DatabaseStatementParameterOdbcPtr parameter )
-	{
-		EErrorType eReturn = EErrorType_NONE;
-		_strLenIndPtr = SQL_NULL_DATA;
-		StringStream message;
-		message << ODBC_BIND_PARAMETER_NAME_MSG << parameter->GetName()
-				<< STR( ", " )
-				<< ODBC_BIND_PARAMETER_VALUE_MSG << STR( "[" ) << parameter->GetObjectValue().GetPtrValue() << STR( "]" );
-
-		switch ( parameter->GetType() )
-		{
-		case EFieldType_VARCHAR:
-		case EFieldType_TEXT:
-		case EFieldType_NVARCHAR:
-		case EFieldType_NTEXT:
-		case EFieldType_BINARY:
-		case EFieldType_VARBINARY:
-		case EFieldType_LONG_VARBINARY:
-			eReturn = SDatabaseParamBinderExecOdbc()( _statementHandle, parameter, &_strLenIndPtr, message.str(), _query );
-			break;
-
-		default:
-			eReturn = SDatabaseParamBinderDirectOdbc()( _statementHandle, parameter, &_strLenIndPtr, message.str(), _query );
-			break;
-		}
-
-		return eReturn;
-	}
-
-	EErrorType CDatabaseStatementOdbc::DoPutParameterData( DatabaseStatementParameterOdbcPtr parameter )
-	{
-		char * pData = static_cast <char *>( parameter->GetObjectValue().GetPtrValue() );
-		long lSize = parameter->GetObjectValue().GetPtrSize();
-		long lOffset = 0;
-		long lBatch = 5000;
-		EErrorType errorType = EErrorType_NONE;
-		int attemptCount;
-
-		while ( lSize > lBatch && errorType == EErrorType_NONE )
-		{
-			SqlTry( SQLPutData( _statementHandle, pData + lOffset, lBatch ), SQL_HANDLE_STMT, _statementHandle, ODBC_PUTDATA_MSG );
-			lOffset += lBatch;
-			lSize -= lBatch;
-		}
-
-		if ( errorType == EErrorType_NONE && lSize > 0 )
-		{
-			SqlTry( SQLPutData( _statementHandle, pData + lOffset, lSize ), SQL_HANDLE_STMT, _statementHandle, ODBC_PUTDATA_MSG );
-		}
-
-		return errorType;
-	}
-
-	EErrorType CDatabaseStatementOdbc::DoGetParameterData( DatabaseStatementParameterOdbcPtr parameter )
-	{
-		uint8_t * pData = static_cast< uint8_t * >( parameter->GetObjectValue().GetPtrValue() );
-		long lSize = parameter->GetObjectValue().GetPtrSize();
-		long lOffset = 0;
-		long lBatch = 5000;
-		SQLLEN lRetrieved;
-		EErrorType errorType = EErrorType_NONE;
-		int attemptCount;
-
-		while ( lSize > lBatch && errorType == EErrorType_NONE )
-		{
-			SqlTry( SQLGetData( _statementHandle, parameter->GetIndex(), parameter->GetValueType(), pData + lOffset, lBatch, &lRetrieved ), SQL_HANDLE_STMT, _statementHandle, ODBC_GETDATA_MSG );
-			lOffset += lBatch;
-			lSize -= lBatch;
-		}
-
-		if ( errorType == EErrorType_NONE && lSize > 0 )
-		{
-			SqlTry( SQLGetData( _statementHandle, parameter->GetIndex(), parameter->GetValueType(), pData + lOffset, lSize, &lRetrieved ), SQL_HANDLE_STMT, _statementHandle, ODBC_GETDATA_MSG );
-		}
-
-		return errorType;
-	}
-
 	EErrorType CDatabaseStatementOdbc::DoPreExecute()
 	{
 		EErrorType eResult = EErrorType_NONE;
 
-		for ( DatabaseParameterPtrArray::iterator it = _arrayParams.begin() ; it != _arrayParams.end() && eResult == EErrorType_NONE ; ++it )
+		for ( auto && it = _arrayParams.begin() ; it != _arrayParams.end() && eResult == EErrorType_NONE ; ++it )
 		{
-			eResult = DoBindParameter( std::static_pointer_cast< CDatabaseStatementParameterOdbc >( *it ) );
+			eResult = std::static_pointer_cast< CDatabaseStatementParameterOdbc >( *it )->GetBinding().BindValue();
 		}
 
 		if ( eResult == EErrorType_NONE )
@@ -241,7 +171,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 					if ( it != _mapParamsByPointer.end() )
 					{
-						eResult = DoPutParameterData( std::static_pointer_cast< CDatabaseStatementParameterOdbc >( it->second ) );
+						eResult = std::static_pointer_cast< CDatabaseStatementParameterOdbc >( it->second )->GetBinding().PutData();
 					}
 					else
 					{
@@ -256,25 +186,17 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		return eResult;
 	}
 
-	DatabaseResultPtr CDatabaseStatementOdbc::DoExecute( EErrorType * result )
+	EErrorType CDatabaseStatementOdbc::DoExecute( DatabaseResultPtr & result )
 	{
 		DatabaseResultPtr pReturn;
 		EErrorType eResult = DoPreExecute();
 
 		if ( eResult == EErrorType_NONE )
 		{
-			DatabaseResultOdbcPtr pRet = std::make_shared< CDatabaseResultOdbc >( _connection );
-			pRet->sResultSetFullyFetched.connect( std::bind( &CDatabaseStatementOdbc::OnResultSetFullyFetched, this, std::placeholders::_1, std::placeholders::_2 ) );
-			pRet->Initialize( _statementHandle );
-			pReturn = pRet;
+			eResult = SqlExecute( _connection, _statementHandle, std::bind( &CDatabaseStatementOdbc::OnResultSetFullyFetched, this, std::placeholders::_1, std::placeholders::_2 ), result );
 		}
 
-		if ( result )
-		{
-			*result = eResult;
-		}
-
-		return pReturn;
+		return eResult;
 	}
 
 	void CDatabaseStatementOdbc::OnResultSetFullyFetched( HSTMT statementHandle, SQLRETURN info )
@@ -296,7 +218,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 				if ( it != _mapParamsByPointer.end() )
 				{
-					eResult = DoGetParameterData( std::static_pointer_cast< CDatabaseStatementParameterOdbc >( it->second ) );
+					eResult = std::static_pointer_cast< CDatabaseStatementParameterOdbc >( it->second )->GetBinding().GetData();
 				}
 				else
 				{
@@ -308,12 +230,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		}
 
 #endif
-		int attemptCount;
-		EErrorType errorType = EErrorType_NONE;
-		SqlTry( SQLCloseCursor( _statementHandle ), SQL_HANDLE_STMT, _statementHandle, ODBC_CLOSECURSOR_MSG );
-		SqlTry( SQLFreeStmt( _statementHandle, SQL_CLOSE ), SQL_HANDLE_STMT, _statementHandle, ODBC_FREESTMT_MSG + STR( " (Close)" ) );
-		SqlTry( SQLFreeStmt( _statementHandle, SQL_UNBIND ), SQL_HANDLE_STMT, _statementHandle, ODBC_FREESTMT_MSG + STR( " (Unbind)" ) );
-		SqlTry( SQLFreeStmt( _statementHandle, SQL_RESET_PARAMS ), SQL_HANDLE_STMT, _statementHandle, ODBC_FREESTMT_MSG + STR( " (ResetParams)" ) );
 	}
 }
 END_NAMESPACE_DATABASE_ODBC

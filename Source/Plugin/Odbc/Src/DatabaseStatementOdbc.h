@@ -103,30 +103,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		virtual DatabaseParameterPtr CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType );
 
 	private:
-		/** Bind a parameter.
-		@param parameter
-		    The parameter to bind.
-		@return
-		    Error code.
-		*/
-		EErrorType DoBindParameter( DatabaseStatementParameterOdbcPtr parameter );
-
-		/** Put field data (for variable-sized data).
-		@param parameter
-		    The parameter to use.
-		@return
-		    Error code.
-		*/
-		EErrorType DoPutParameterData( DatabaseStatementParameterOdbcPtr parameter );
-
-		/** Get field data (for variable-sized data).
-		@param parameter
-		    The parameter to use.
-		@return
-		    Error code.
-		*/
-		EErrorType DoGetParameterData( DatabaseStatementParameterOdbcPtr parameter );
-
 		/** Pre-execute operations.
 		@return
 		    Error code.
@@ -134,12 +110,12 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		EErrorType DoPreExecute();
 
 		/** Execute this statement.
-		@param[out] result
-		    Error code.
+		@param[out] ret
+		    Receives the result set, if any.
 		@return
-		    The result (data for a SELECT or empty (but not null) for other operations).
+		    The error code.
 		*/
-		virtual DatabaseResultPtr DoExecute( EErrorType * result = NULL );
+		virtual EErrorType DoExecute( DatabaseResultPtr & ret );
 
 		/** Function called when the result set is fully fetched (to retrieve out parameters values)
 		@param statementHandle
@@ -152,8 +128,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	private:
 		/// Statement handle.
 		SQLHSTMT _statementHandle;
-		/// Size or indicator.
-		SQLLEN _strLenIndPtr;
 		/// Database connection.
 		DatabaseConnectionOdbcPtr _connectionOdbc;
 	};

@@ -12,7 +12,7 @@ include_directories(
 )
 
 set( MySqlLibraries "")
-FOREACH(Lib ${MySQL_STATIC_LIBRARIES})
+FOREACH(Lib ${MySQL_LIBRARIES})
 	if (MySqlLibraries)
 		set(MySqlLibraries "${MySqlLibraries}|${Lib}")
 	else()
@@ -24,7 +24,7 @@ set( DefaultTarget DatabasePluginMySql )
 
 add_target(
 	DatabasePluginMySql
-	dll
+	plugin
 	"Database"
 	"Database;${MySqlLibraries};${MinLibraries}"
 	"DatabaseMySqlPch.h"
@@ -34,8 +34,8 @@ add_target(
 	"${MySQL_LINK_FLAGS}"
 )
 
-copy_dll( DatabasePluginMySql ${MySQL_client_LIBRARY_STATIC_DEBUG} Debug )
-copy_dll( DatabasePluginMySql ${MySQL_client_LIBRARY_STATIC_RELEASE} Release )
+copy_dll( DatabasePluginMySql ${MySQL_client_LIBRARY_DEBUG} Debug )
+copy_dll( DatabasePluginMySql ${MySQL_client_LIBRARY_RELEASE} Release )
 
 set_property( TARGET DatabasePluginMySql PROPERTY FOLDER "Plugin/MySQL" )
 add_target_astyle( DatabasePluginMySql ".h;.hpp;.inl;.cpp" )

@@ -13,6 +13,8 @@
 
 #include "DatabasePrerequisites.h" // Help doxygen
 
+#include "DatabaseValue.h"
+
 BEGIN_NAMESPACE_DATABASE
 {
 	static const String DATABASE_FIELD_TYPE_ERROR = STR( "Unknown field type" );
@@ -43,7 +45,7 @@ BEGIN_NAMESPACE_DATABASE
 	template< typename T >
 	inline void CDatabaseField::GetValueOpt( boost::optional< T > & value ) const
 	{
-		if ( IsNull() )
+		if ( GetObjectValue().IsNull() )
 		{
 			value = boost::none;
 		}
@@ -80,7 +82,7 @@ BEGIN_NAMESPACE_DATABASE
 	template< typename T >
 	inline void CDatabaseField::GetValueOptFast( boost::optional< T > & value ) const
 	{
-		if ( IsNull() )
+		if ( GetObjectValue().IsNull() )
 		{
 			value = boost::none;
 		}

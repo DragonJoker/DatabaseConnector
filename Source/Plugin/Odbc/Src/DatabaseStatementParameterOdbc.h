@@ -21,7 +21,6 @@
 
 BEGIN_NAMESPACE_DATABASE_ODBC
 {
-
 	/** Describes a statement parameter for ODBC database.
 	*/
 	class CDatabaseStatementParameterOdbc

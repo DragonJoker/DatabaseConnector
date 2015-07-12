@@ -151,11 +151,11 @@ BEGIN_NAMESPACE_DATABASE
 			_type = EFieldType_TEXT;
 			_limits = -1;
 		}
-		else if ( strTypel.find( STR( "REAL" ) ) != String::npos || strTypel.find( STR( "FLOA" ) ) != String::npos || strTypel == STR( "SUM" ) )
+		else if ( strTypel.find( STR( "FLOA" ) ) != String::npos || strTypel == STR( "SUM" ) )
 		{
 			_type = EFieldType_FLOAT;
 		}
-		else if ( strTypel.find( STR( "DOUB" ) ) != String::npos )
+		else if ( strTypel.find( STR( "REAL" ) ) != String::npos || strTypel.find( STR( "DOUB" ) ) != String::npos )
 		{
 			_type = EFieldType_DOUBLE;
 		}
@@ -184,7 +184,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			_type = EFieldType_TIME;
 		}
-		else if ( strTypel.find( STR( "bool" ) ) != String::npos )
+		else if ( strTypel.find( STR( "BOOL" ) ) != String::npos )
 		{
 			_type = EFieldType_BOOL;
 		}

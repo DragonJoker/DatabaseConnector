@@ -202,7 +202,8 @@ BEGIN_NAMESPACE_DATABASE
 	CTime::CTime( int hours, int minutes, int seconds )
 		:   _time( 0 )
 	{
-		std::tm tmbuf = { 0 };
+		time_t last_time = time( NULL );
+		std::tm tmbuf = *localtime( &last_time );
 		tmbuf.tm_hour = hours;
 		tmbuf.tm_min = minutes;
 		tmbuf.tm_sec = seconds;

@@ -53,9 +53,46 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		*  TCs' implementation
 		*/
 		///@{
+		/** Test insertion and retrieval of a value
+		*/
+		template< typename StmtType >
+		void TestCase_DatabaseFieldsInsertRetrieve();
+
+		/** Test insertion and retrieval of a value
+		*/
+		template< typename StmtType >
+		void TestCase_DatabaseFieldsInsertRetrieveOtherIndex();
+
+		/** Test insertion and retrieval of a value
+		*/
+		template< typename StmtType >
+		void TestCase_DatabaseFieldsInsertRetrieveFast();
+
+		/** Test insertion and retrieval of a value
+		*/
+		template< typename StmtType >
+		void TestCase_DatabaseFieldsInsertRetrieveFastOtherIndex();
+
+		/** Test direct query execution
+		*/
+		template< typename StmtType >
+		void TestCase_DatabaseDirectQuery();
+
+		/** Test stored procedures execution
+		*/
+		template< typename StmtType >
+		void TestCase_DatabaseStoredProcedure();
+
+#if defined( PERF_TEST )
+		/** Performance test
+		*/
+		template< typename StmtType >
+		void TestCase_DatabasePerformances();
+#endif
+		
 		/** Test database creation
 		*/
-		void TestCase_CreateDatabase();
+		virtual void TestCase_CreateDatabase();
 
 		/** Test insertion and retrieval of a value through DatabaseQuery
 		*/
@@ -64,6 +101,14 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		/** Test insertion and retrieval of a value through DatabaseQuery
 		*/
 		void TestCase_DatabaseQueryFieldsInsertRetrieveOtherIndex();
+
+		/** Test insertion and retrieval of a value through DatabaseQuery
+		*/
+		void TestCase_DatabaseQueryFieldsInsertRetrieveFast();
+
+		/** Test insertion and retrieval of a value through DatabaseQuery
+		*/
+		void TestCase_DatabaseQueryFieldsInsertRetrieveFastOtherIndex();
 
 		/** Test direct query execution through DatabaseQuery
 		*/
@@ -81,6 +126,14 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		*/
 		void TestCase_DatabaseStatementFieldsInsertRetrieveOtherIndex();
 
+		/** Test insertion and retrieval of a value through DatabaseStatement
+		*/
+		void TestCase_DatabaseStatementFieldsInsertRetrieveFast();
+
+		/** Test insertion and retrieval of a value through DatabaseStatement
+		*/
+		void TestCase_DatabaseStatementFieldsInsertRetrieveFastOtherIndex();
+
 		/** Test direct query execution through DatabaseStatement
 		*/
 		void TestCase_DatabaseStatementDirectQuery();
@@ -91,7 +144,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		/** Test database destruction
 		*/
-		void TestCase_DestroyDatabase();
+		virtual void TestCase_DestroyDatabase();
 
 #if defined( PERF_TEST )
 		/** Performance test through DatabaseStatement
@@ -115,8 +168,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 	protected:
 		String _createTable;
-
-	private:
 		const String & _type;
 		const String & _server;
 		const String & _database;
@@ -125,5 +176,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	};
 }
 END_NAMESPACE_DATABASE_TEST
+
+#include "DatabaseTestBase.inl"
 
 #endif

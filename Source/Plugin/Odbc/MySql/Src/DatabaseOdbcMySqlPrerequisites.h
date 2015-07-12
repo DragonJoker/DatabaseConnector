@@ -60,7 +60,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		class CFactoryDatabaseOdbcMySql;
 
 		// Pointers
-		typedef std::shared_ptr< CDatabaseConnectionOdbcMySql >            DatabaseConnectionOdbcMySqlPtr;
+		typedef std::shared_ptr< CDatabaseConnectionOdbcMySql > DatabaseConnectionOdbcMySqlPtr;
 
 		// Factory constants
 		const String FACTORY_DATABASE_ODBC_MYSQL = STR( "Factory Database Odbc MySql" );
@@ -68,22 +68,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		// Plugin constants
 		const String DATABASE_ODBC_MYSQL_TYPE = STR( "Database.Odbc.MySql" );
 		const String PLUGIN_NAME_DATABASE_ODBC_MYSQL = STR( "Plugin Database Odbc MySql" );
-
-		// SQL execution
-#define SqlTry( func, handle_type, handle, text )   attemptCount = 0;\
-    errorType = SqlSuccess( func, handle_type, handle, text );\
-    while( errorType == EErrorType_RETRY && attemptCount < 10 )\
-    {\
-        errorType = SqlSuccess( func, handle_type, handle, text );\
-        attemptCount++;\
-    }\
-    if( attemptCount == 10 )\
-    {\
-        errorType = EErrorType_RECONNECT;\
-    }
-
-	} // namespace MySql
-
+	}
 } END_NAMESPACE_DATABASE_ODBC
 
 #endif // ___DATABASE_ODBC_MYSQL_PREREQUISITES_H___

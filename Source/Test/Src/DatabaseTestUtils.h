@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DatabaseTestUtils.h
- * @author Sylvain Doremus
- * @version 1.0
- * @date 06/18/2014 12:04:36
- *
- *
- * @brief Utils for Database tests.
- *
- * @details Utils for Database tests.
- *
- ***************************************************************************/
+* @file DatabaseTestUtils.h
+* @author Sylvain Doremus
+* @version 1.0
+* @date 06/18/2014 12:04:36
+*
+*
+* @brief Utils for Database tests.
+*
+* @details Utils for Database tests.
+*
+***************************************************************************/
 
 #ifndef ___DATABASE_TEST_UTILS_H___
 #define ___DATABASE_TEST_UTILS_H___
@@ -24,52 +24,85 @@
 
 BEGIN_NAMESPACE_DATABASE_TEST
 {
-	extern String const QUERY_SELECT_MIN;
-	extern String const QUERY_GET_COUNT;
-	extern String const QUERY_INSERT_ELEMENT;
-	extern String const QUERY_DIRECT_SELECT_ELEMENT;
-	extern String const QUERY_DIRECT_SELECT_ALL_ELEMENTS;
-	extern String const QUERY_DIRECT_UPDATE_ELEMENT;
-
-	/** Deletes a SQLite database.
+	/** Creates a MySql database.
 	@param database
-	    Database name.
+		Database name.
+	@param user
+		User name.
+	@param pass
+		User password.
 	@return
-	    Exit code of the CProcess executing the batch file.
+		Exit code of the CProcess executing the script file.
 	*/
-	int UninstallSqliteDatabase( const String & database );
+	int InstallDatabaseMySql( const String & database, const String & user, const String & pass );
+
+	/** Deletes a MySql database.
+	@param database
+		Database name.
+	@param user
+		User name.
+	@param pass
+		User password.
+	@return
+		Exit code of the CProcess executing the script file.
+	*/
+	int UninstallDatabaseMySql( const String & database, const String & user, const String & pass );
+
+	/** Creates an ODBC source for a MySql database.
+	@param dsn
+		ODBC source name.
+	@return
+		Exit code of the CProcess executing the script file.
+	*/
+	int InstallSourceOdbcMySql( const String & database );
+
+	/** Deletes an ODBC source for a MySql database.
+	@param dsn
+		ODBC source name.
+	@return
+		Exit code of the CProcess executing the script file.
+	*/
+	int UninstallSourceOdbcMySql( const String & database );
 
 	/** Creates a MsSql database.
 	@param database
-	    Database name.
+		Database name.
+	@param user
+		User name.
+	@param pass
+		User password.
 	@return
-	    Exit code of the CProcess executing the batch file.
+		Exit code of the CProcess executing the script file.
 	*/
-	int InstallMsSqlDatabase( const String & database );
+	int InstallDatabaseMsSql( const String & database, const String & user, const String & pass );
 
 	/** Deletes a MsSql database.
 	@param database
-	    Database name.
+		Database name.
+	@param user
+		User name.
+	@param pass
+		User password.
 	@return
-	    Exit code of the CProcess executing the batch file.
+		Exit code of the CProcess executing the script file.
 	*/
-	int UninstallMsSqlDatabase( const String & database );
+	int UninstallDatabaseMsSql( const String & database, const String & user, const String & pass );
 
-	/** Creates an ODBC source for a test database.
+	/** Creates an ODBC source for a MsSql database.
 	@param dsn
-	    ODBC source name.
+		ODBC source name.
 	@return
-	    Exit code of the CProcess executing the batch file.
+		Exit code of the CProcess executing the script file.
 	*/
-	int InstallSourceOdbc( const String & dsn );
+	int InstallSourceOdbcMsSql( const String & database );
 
-	/** Deletes an ODBC source for a test database.
+	/** Deletes an ODBC source for a MsSql database.
 	@param dsn
-	    ODBC source name.
+		ODBC source name.
 	@return
-	    Exit code of the CProcess executing the batch file.
+		Exit code of the CProcess executing the script file.
 	*/
-	int UninstallSourceOdbc( const String & dsn );
+	int UninstallSourceOdbcMsSql( const String & database );
 
 	namespace DatabaseUtils
 	{
@@ -223,7 +256,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template<> struct Helpers< char * >
 		{
 			static const uint32_t Limit = 20;
-			typedef char * ParamType;
+			typedef std::string ParamType;
 			typedef std::string FieldType;
 
 			static ParamType InitialiseValue()
@@ -236,7 +269,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template<> struct Helpers< wchar_t * >
 		{
 			static const uint32_t Limit = 55;
-			typedef wchar_t * ParamType;
+			typedef std::wstring ParamType;
 			typedef std::wstring FieldType;
 
 			static ParamType InitialiseValue()
@@ -300,7 +333,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			BOOST_CHECK( stmt->CreateParameter( STR( "BigIntField" ), EFieldType_LONG_INTEGER, EParameterType_IN ) );
 			BOOST_CHECK( stmt->CreateParameter( STR( "Int2Field" ), EFieldType_SMALL_INTEGER, EParameterType_IN ) );
 			BOOST_CHECK( stmt->CreateParameter( STR( "Int8Field" ), EFieldType_LONG_INTEGER, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "RealField" ), EFieldType_FLOAT, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "RealField" ), EFieldType_DOUBLE, EParameterType_IN ) );
 			BOOST_CHECK( stmt->CreateParameter( STR( "DoubleField" ), EFieldType_DOUBLE, EParameterType_IN ) );
 			BOOST_CHECK( stmt->CreateParameter( STR( "DoublePrecisionField" ), EFieldType_DOUBLE, EParameterType_IN ) );
 			BOOST_CHECK( stmt->CreateParameter( STR( "FloatField" ), EFieldType_FLOAT, EParameterType_IN ) );
@@ -328,7 +361,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			stmt->SetParameterValue( index++, Helpers< int64_t >::InitialiseValue() );
 			stmt->SetParameterValue( index++, Helpers< int16_t >::InitialiseValue() );
 			stmt->SetParameterValue( index++, Helpers< int64_t >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< float >::InitialiseValue() );
+			stmt->SetParameterValue( index++, Helpers< double >::InitialiseValue() );
 			stmt->SetParameterValue( index++, Helpers< double >::InitialiseValue() );
 			stmt->SetParameterValue( index++, Helpers< double >::InitialiseValue() );
 			stmt->SetParameterValue( index++, Helpers< float >::InitialiseValue() );
@@ -355,7 +388,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			CLogger::LogMessage( StringStream() << STR( "BigIntField : " ) << row->Get< int64_t >( index++ ) );
 			CLogger::LogMessage( StringStream() << STR( "Int2Field : " ) << row->Get< int16_t >( index++ ) );
 			CLogger::LogMessage( StringStream() << STR( "Int8Field : " ) << row->Get< int64_t >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "RealField : " ) << row->Get< float >( index++ ) );
+			CLogger::LogMessage( StringStream() << STR( "RealField : " ) << row->Get< double >( index++ ) );
 			CLogger::LogMessage( StringStream() << STR( "DoubleField : " ) << row->Get< double >( index++ ) );
 			CLogger::LogMessage( StringStream() << STR( "DoublePrecisionField : " ) << row->Get< double >( index++ ) );
 			CLogger::LogMessage( StringStream() << STR( "FloatField : " ) << row->Get< float >( index++ ) );
@@ -444,7 +477,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					BOOST_CHECK( stmtInsert->Initialize() == EErrorType_NONE );
 					BOOST_CHECK( stmtSelect->Initialize() == EErrorType_NONE );
 
-					Helpers< Type >::ParamType valueIn = Helpers< Type >::InitialiseValue();
+					typename Helpers< Type >::ParamType valueIn = Helpers< Type >::InitialiseValue();
 					BOOST_CHECK_NO_THROW( stmtInsert->SetParameterValue( 0, valueIn ) );
 					BOOST_CHECK_NO_THROW( stmtSelect->SetParameterValue( 0, valueIn ) );
 
@@ -455,7 +488,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 					if ( result && result->GetRowCount() )
 					{
-						Helpers< Type >::FieldType valueOut;
+						typename Helpers< Type >::FieldType valueOut;
 						BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, valueOut ) );
 						Compare< Type >()( valueIn, valueOut );
 					}
@@ -491,7 +524,101 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					BOOST_CHECK( stmtInsert->Initialize() == EErrorType_NONE );
 					BOOST_CHECK( stmtSelect->Initialize() == EErrorType_NONE );
 
-					Helpers< Type >::ParamType valueIn = Helpers< Type >::InitialiseValue();
+					typename Helpers< Type >::ParamType valueIn = Helpers< Type >::InitialiseValue();
+					BOOST_CHECK_NO_THROW( stmtInsert->SetParameterValue( 0, 18 ) );
+					BOOST_CHECK_NO_THROW( stmtInsert->SetParameterValue( 1, valueIn ) );
+					BOOST_CHECK_NO_THROW( stmtSelect->SetParameterValue( 0, 18 ) );
+					BOOST_CHECK_NO_THROW( stmtSelect->SetParameterValue( 1, valueIn ) );
+
+					BOOST_CHECK( stmtInsert->ExecuteUpdate() );
+					DatabaseResultPtr result = stmtSelect->ExecuteSelect();
+					BOOST_CHECK( result );
+					BOOST_CHECK( result && result->GetRowCount() );
+
+					if ( result && result->GetRowCount() )
+					{
+						typename Helpers< Type >::FieldType valueOut;
+						BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, valueOut ) );
+						Compare< Type >()( valueIn, valueOut );
+					}
+					else
+					{
+						BOOST_CHECK( false );
+					}
+				}
+			}
+			catch ( ... )
+			{
+				BOOST_CHECK( false );
+			}
+		}
+
+		template< class Stmt, typename Type >
+		inline void InsertAndRetrieveFast( DatabaseConnectionPtr connection, const String & name )
+		{
+			try
+			{
+				auto && stmtInsert = DatabaseUtils::CreateStmt< Stmt >( connection, STR( "INSERT INTO Test (" ) + name + STR( ") VALUES (?)" ) );
+				auto && stmtSelect = DatabaseUtils::CreateStmt< Stmt >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE " ) + name + STR( " = ?" ) );
+				BOOST_CHECK( stmtInsert );
+				BOOST_CHECK( stmtSelect );
+
+				if ( stmtInsert && stmtSelect )
+				{
+					BOOST_CHECK( stmtInsert->CreateParameter( name, SDataTypeFieldTyper< Type >::Value, Helpers< Type >::Limit, EParameterType_IN ) );
+					BOOST_CHECK( stmtSelect->CreateParameter( name, SDataTypeFieldTyper< Type >::Value, Helpers< Type >::Limit, EParameterType_IN ) );
+
+					BOOST_CHECK( stmtInsert->Initialize() == EErrorType_NONE );
+					BOOST_CHECK( stmtSelect->Initialize() == EErrorType_NONE );
+
+					typename Helpers< Type >::ParamType valueIn = Helpers< Type >::InitialiseValue();
+					BOOST_CHECK_NO_THROW( stmtInsert->SetParameterValueFast( 0, valueIn ) );
+					BOOST_CHECK_NO_THROW( stmtSelect->SetParameterValueFast( 0, valueIn ) );
+
+					BOOST_CHECK( stmtInsert->ExecuteUpdate() );
+					DatabaseResultPtr result = stmtSelect->ExecuteSelect();
+					BOOST_CHECK( result );
+					BOOST_CHECK( result && result->GetRowCount() );
+
+					if ( result && result->GetRowCount() )
+					{
+						typename Helpers< Type >::FieldType valueOut;
+						BOOST_CHECK_NO_THROW( result->GetFirstRow()->GetFast( 0, valueOut ) );
+						Compare< Type >()( valueIn, valueOut );
+					}
+					else
+					{
+						BOOST_CHECK( false );
+					}
+				}
+			}
+			catch ( ... )
+			{
+				BOOST_CHECK( false );
+			}
+		}
+
+		template< class Stmt, typename Type >
+		inline void InsertAndRetrieveFastOtherIndex( DatabaseConnectionPtr connection, const String & name )
+		{
+			try
+			{
+				auto && stmtInsert = DatabaseUtils::CreateStmt< Stmt >( connection, STR( "INSERT INTO Test (IntField, " ) + name + STR( ") VALUES (?, ?)" ) );
+				auto && stmtSelect = DatabaseUtils::CreateStmt< Stmt >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE IntField = ? AND " ) + name + STR( " = ?" ) );
+				BOOST_CHECK( stmtInsert );
+				BOOST_CHECK( stmtSelect );
+
+				if ( stmtInsert && stmtSelect )
+				{
+					BOOST_CHECK( stmtInsert->CreateParameter( STR( "IntField" ), EFieldType_INTEGER, EParameterType_IN ) );
+					BOOST_CHECK( stmtInsert->CreateParameter( name, SDataTypeFieldTyper< Type >::Value, Helpers< Type >::Limit, EParameterType_IN ) );
+					BOOST_CHECK( stmtSelect->CreateParameter( STR( "IntField" ), EFieldType_INTEGER, EParameterType_IN ) );
+					BOOST_CHECK( stmtSelect->CreateParameter( name, SDataTypeFieldTyper< Type >::Value, Helpers< Type >::Limit, EParameterType_IN ) );
+
+					BOOST_CHECK( stmtInsert->Initialize() == EErrorType_NONE );
+					BOOST_CHECK( stmtSelect->Initialize() == EErrorType_NONE );
+
+					typename Helpers< Type >::ParamType valueIn = Helpers< Type >::InitialiseValue();
 					BOOST_CHECK_NO_THROW( stmtInsert->SetParameterValueFast( 0, 18 ) );
 					BOOST_CHECK_NO_THROW( stmtInsert->SetParameterValueFast( 1, valueIn ) );
 					BOOST_CHECK_NO_THROW( stmtSelect->SetParameterValueFast( 0, 18 ) );
@@ -504,8 +631,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 					if ( result && result->GetRowCount() )
 					{
-						Helpers< Type >::FieldType valueOut;
-						BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, valueOut ) );
+						typename Helpers< Type >::FieldType valueOut;
+						BOOST_CHECK_NO_THROW( result->GetFirstRow()->GetFast( 0, valueOut ) );
 						Compare< Type >()( valueIn, valueOut );
 					}
 					else

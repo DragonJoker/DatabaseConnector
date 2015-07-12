@@ -52,18 +52,12 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		@return
 		    Exit code of the CProcess executing the batch file.
 		*/
-		int ExecuteScriptSingleArg( const String & path, const String & script, const String & argument )
+		int ExecuteScript( const String & path, const String & script, const StringArray & arguments )
 		{
 			// Command path
 			StringStream commandStream;
-			commandStream << path << Database::PATH_SEP << script;
+			commandStream << path << PATH_SEP << script;
 			std::string commandString = CStrUtils::ToStr( commandStream.str() );
-
-			// Command arguments
-			std::vector< const char * > args;
-			args.push_back( commandString.c_str() );
-			std::string arg = CStrUtils::ToStr( argument );
-			args.push_back( arg.c_str() );
 
 			// Execute
 			spawn_pid_t processId = INVALID_PROCESS_ID;
@@ -81,16 +75,14 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			String commandLine = STR( "\"" ) + command + STR( "\"" );
 			String sep;
 
-			for ( std::vector< const char * >::const_iterator it = args.begin() + 1; it != args.end(); ++it )
+			for ( auto && argument : arguments )
 			{
-				commandLine += STR( " " ) + CStrUtils::ToString( *it );
+				commandLine += STR( " " ) + argument;
 			}
 
 			TChar * szCommandLine = new TChar[commandLine.size() + 1];
 			memset( szCommandLine, 0, commandLine.size() + 1 );
 			strcpy_s( szCommandLine, commandLine.size() + 1, commandLine.c_str() );
-
-			///@remarks Define the security attributes for the process, we need at least PROCESS_QUERY_INFORMATION to be able to query for its ID in IsRunning function
 
 			///@remarks Create and execute a new process.
 			STARTUPINFOA si = { 0 };
@@ -117,7 +109,30 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				DB_EXCEPT( EDatabaseExceptionCodes_InternalError, ss.str() );
 			}
 
+			int nChildResult = 0;
+			::WaitForSingleObject( processId.hProcess, INFINITE );
+			DWORD code;
+			::GetExitCodeProcess( processId.hProcess, &code );
+			::CloseHandle( processId.hThread );
+			::CloseHandle( processId.hProcess );
+			nChildResult = int( code );
 #else
+
+			// Command arguments
+			std::vector< std::string > strargs;
+
+			for ( auto && argument : arguments )
+			{
+				strargs.push_back( CStrUtils::ToStr( argument ) );
+			}
+
+			std::vector< const char * > args;
+			args.push_back( commandString.c_str() );
+
+			for ( auto && argument : strargs )
+			{
+				args.push_back( argument.c_str() );
+			}
 
 			///@remarks Create new process.
 			processId = vfork();
@@ -139,16 +154,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				}
 			}
 
-#endif
-			int nChildResult = 0;
-#if defined( _WIN32 )
-			::WaitForSingleObject( processId.hProcess, INFINITE );
-			DWORD code;
-			::GetExitCodeProcess( processId.hProcess, &code );
-			::CloseHandle( processId.hThread );
-			::CloseHandle( processId.hProcess );
-			nChildResult = int( code );
-#else
 			waitpid( processId, &nChildResult, 0 );
 
 			if ( WIFEXITED( nChildResult ) )
@@ -164,6 +169,61 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			return nChildResult;
 		}
 	}
+
+#if defined( WIN32 )
+	static const String SCRIPT_EXT = STR( ".bat" );
+#else
+	static const String SCRIPT_EXT = STR( ".sh" );
+#endif
+	
+	static const String MYSQL = STR( "MySql" );
+	static const String MSSQL = STR( "MsSql" );
+
+	static const String SCRIPT_DATABASE_INSTALL = STR( "CreateDatabase" );
+	static const String SCRIPT_DATABASE_UNINSTALL = STR( "DeleteDatabase" );
+	static const String SCRIPT_ODBC_INSTALL = STR( "InstallOdbc" );
+	static const String SCRIPT_ODBC_UNINSTALL = STR( "UninstallOdbc" );
+
+	int InstallDatabaseMySql( const String & database, const String & user, const String & pass )
+	{
+		return ExecuteScript( SCRIPT_FILES_DIR, SCRIPT_DATABASE_INSTALL + MYSQL + SCRIPT_EXT, { STR( "\"" ) + MYSQL_COMMAND + STR( "\"" ), database, user, pass } );
+	}
+
+	int UninstallDatabaseMySql( const String & database, const String & user, const String & pass )
+	{
+		return ExecuteScript( SCRIPT_FILES_DIR, SCRIPT_DATABASE_UNINSTALL + MYSQL + SCRIPT_EXT, { STR( "\"" ) + MYSQL_COMMAND + STR( "\"" ), database, user, pass } );
+	}
+
+	int InstallSourceOdbcMySql( const String & database )
+	{
+		return ExecuteScript( SCRIPT_FILES_DIR, SCRIPT_ODBC_INSTALL + MYSQL + SCRIPT_EXT, { database } );
+	}
+
+	int UninstallSourceOdbcMySql( const String & database )
+	{
+		return ExecuteScript( SCRIPT_FILES_DIR, SCRIPT_ODBC_UNINSTALL, { database } );
+	}
+
+#if defined( WIN32 )
+	int InstallDatabaseMsSql( const String & database, const String & user, const String & pass )
+	{
+		return ExecuteScript( SCRIPT_FILES_DIR, SCRIPT_DATABASE_INSTALL + MSSQL + SCRIPT_EXT, { database, user, pass } );
+	}
+
+	int UninstallDatabaseMsSql( const String & database, const String & user, const String & pass )
+	{
+		return ExecuteScript( SCRIPT_FILES_DIR, SCRIPT_DATABASE_UNINSTALL + MSSQL + SCRIPT_EXT, { database, user, pass } );
+	}
+
+	int InstallSourceOdbcMsSql( const String & database )
+	{
+		return ExecuteScript( SCRIPT_FILES_DIR, SCRIPT_ODBC_INSTALL + MSSQL + SCRIPT_EXT, { database } );
+	}
+
+	int UninstallSourceOdbcMsSql( const String & database )
+	{
+		return ExecuteScript( SCRIPT_FILES_DIR, SCRIPT_ODBC_UNINSTALL + MSSQL + SCRIPT_EXT, { database } );
+	}
+#endif
 }
 END_NAMESPACE_DATABASE_TEST
-

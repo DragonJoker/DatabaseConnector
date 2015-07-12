@@ -22,18 +22,16 @@
 
 BEGIN_NAMESPACE_DATABASE_ODBC
 {
-	static const String ODBC_DescribeParam_MSG = STR( "SQLDescribeParam" );
-
 	CDatabaseStatementParameterOdbc::CDatabaseStatementParameterOdbc( DatabaseConnectionOdbcPtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, SValueUpdater * updater )
 		: CDatabaseParameter( connection, name, index, fieldType, parameterType, updater )
-		, CDatabaseParameterOdbc( index, fieldType, parameterType )
+		, CDatabaseParameterOdbc()
 	{
 		// Empty
 	}
 
 	CDatabaseStatementParameterOdbc::CDatabaseStatementParameterOdbc( DatabaseConnectionOdbcPtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, SValueUpdater * updater )
 		: CDatabaseParameter( connection, name, index, fieldType, limits, parameterType, updater )
-		, CDatabaseParameterOdbc( index, fieldType, parameterType )
+		, CDatabaseParameterOdbc()
 	{
 		// Empty
 	}
@@ -45,14 +43,8 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 	void CDatabaseStatementParameterOdbc::Initialize( SQLHSTMT statementHandle )
 	{
-		SQLSMALLINT iDataType = 0;
-		SQLSMALLINT iNullable = 0;
-
-		EErrorType errorType;
-		int attemptCount;
-		SqlTry( SQLDescribeParam( statementHandle, ( SQLUSMALLINT )GetIndex(), &iDataType, &_columnSize, &_decimalDigits, &iNullable ), SQL_HANDLE_STMT, statementHandle, ODBC_DescribeParam_MSG );
-
-		_isNullable = iNullable != 0;
+		CDatabaseParameterOdbc::Initialize( statementHandle, *this );
+		GetBinding().Initialize();
 	}
 }
 END_NAMESPACE_DATABASE_ODBC

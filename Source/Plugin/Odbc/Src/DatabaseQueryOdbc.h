@@ -92,47 +92,21 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		virtual DatabaseParameterPtr CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType );
 
 	private:
-		/** Bind a parameter.
-		@param parameter
-		    The parameter to bind.
-		@return
-		    Error code.
-		*/
-		EErrorType DoBindParameter( DatabaseQueryParameterOdbcPtr parameter );
-
-		/** Put field data (for variable-sized data).
-		@param parameter
-		    The parameter to use.
-		@return
-		    Error code.
-		*/
-		EErrorType DoPutParameterData( DatabaseQueryParameterOdbcPtr parameter );
-
-		/** Get field data (for variable-sized data).
-		@param statementHandle
-		    The statement handle
-		@param parameter
-		    The parameter to use.
-		@return
-		    Error code.
-		*/
-		EErrorType DoGetParameterData( HSTMT statementHandle, DatabaseQueryParameterOdbcPtr parameter );
-
 		/** Pre-execute operations.
 		@param statementHandle
 		    The statement handle
 		@return
 		    Error code.
 		*/
-		EErrorType DoPreExecute();
+		EErrorType DoPreExecute( HSTMT statementHandle );
 
 		/** Execute this statement.
-		@param[out] result
-		    Error code.
+		@param[out] ret
+		    Receives the result set, if any.
 		@return
-		    The result (data for a SELECT or empty (but not null) for other operations).
+		    The error code.
 		*/
-		virtual DatabaseResultPtr DoExecute( EErrorType * result = NULL );
+		virtual EErrorType DoExecute( DatabaseResultPtr & ret );
 
 		/** Function called when the result set is fully fetched (to retrieve out parameters values)
 		@param statementHandle
@@ -143,12 +117,8 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		void OnResultSetFullyFetched( HSTMT statementHandle, SQLRETURN info );
 
 	private:
-		/// Size or indicator.
-		SQLLEN _strLenIndPtr;
 		/// Database connection.
 		DatabaseConnectionOdbcPtr _connectionOdbc;
-		/// The statement for the currently executing query
-		SQLHSTMT _statementHandle;
 	};
 
 }
