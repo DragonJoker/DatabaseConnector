@@ -246,7 +246,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 					}
 					else if ( type.find( "NUMERIC" ) != std::string::npos )
 					{
-						arrayReturn.push_back( std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, EFieldType_FIXED_POINT ) );
+						arrayReturn.push_back( std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, EFieldType_FIXED_POINT, std::make_pair( 0, 0 ) ) );
 					}
 					else
 					{
@@ -335,7 +335,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		DatabaseFieldPtr pField;
 		double value = SQLite::ColumnDouble( pStatement, i );
 		pField = std::make_shared< CDatabaseField >( pInfos );
-		static_cast< CDatabaseValue< EFieldType_FIXED_POINT > & >( pField->GetObjectValue() ).SetValue( CFixedPoint( value ) );
+		static_cast< CDatabaseValue< EFieldType_FIXED_POINT > & >( pField->GetObjectValue() ).SetValue( CFixedPoint( value, pInfos->GetPrecision().first ) );
 		return pField;
 	}
 

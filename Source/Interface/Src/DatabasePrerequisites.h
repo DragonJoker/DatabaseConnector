@@ -38,7 +38,6 @@
 #include <sys/stat.h>
 
 #include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/optional.hpp>
 #include <boost/locale.hpp>
 #include <boost/format.hpp>
 
@@ -124,28 +123,30 @@ namespace Database
 	class CExceptionDatabase;
 	class CFactoryDatabase;
 	class CPluginDatabase;
+	template< typename T > class CDatabaseNullable;
 
 	// Pointers
-	typedef std::shared_ptr< CDatabase >            DatabasePtr;
-	typedef std::shared_ptr< CDatabaseConnection >  DatabaseConnectionPtr;
-	typedef std::shared_ptr< CDatabaseField >       DatabaseFieldPtr;
-	typedef std::shared_ptr< CDatabaseFieldInfos >  DatabaseFieldInfosPtr;
-	typedef std::unique_ptr< CDatabaseValueBase >   DatabaseValueBasePtr;
-	typedef std::shared_ptr< CDatabaseParameter >   DatabaseParameterPtr;
-	typedef std::shared_ptr< CDatabaseQuery >       DatabaseQueryPtr;
-	typedef std::shared_ptr< CDatabaseResult >      DatabaseResultPtr;
-	typedef std::shared_ptr< CDatabaseRow >         DatabaseRowPtr;
-	typedef std::shared_ptr< CDatabaseStatement >   DatabaseStatementPtr;
+	typedef std::shared_ptr< CDatabase > DatabasePtr;
+	typedef std::shared_ptr< CDatabaseConnection > DatabaseConnectionPtr;
+	typedef std::shared_ptr< CDatabaseField > DatabaseFieldPtr;
+	typedef std::shared_ptr< CDatabaseFieldInfos > DatabaseFieldInfosPtr;
+	typedef std::unique_ptr< CDatabaseValueBase > DatabaseValueBasePtr;
+	typedef std::shared_ptr< CDatabaseParameter > DatabaseParameterPtr;
+	typedef std::shared_ptr< CDatabaseQuery > DatabaseQueryPtr;
+	typedef std::shared_ptr< CDatabaseResult > DatabaseResultPtr;
+	typedef std::shared_ptr< CDatabaseRow > DatabaseRowPtr;
+	typedef std::shared_ptr< CDatabaseStatement > DatabaseStatementPtr;
 
 	// Containers
-	typedef std::vector< String >                               StringArray;
-	typedef std::vector< DatabaseFieldPtr >                     DatabaseFieldPtrArray;
-	typedef std::map< String, DatabaseFieldPtr >                DatabaseFieldPtrStrMap;
-	typedef std::list< DatabaseRowPtr >                         DatabaseRowPtrList;
-	typedef std::vector< DatabaseFieldInfosPtr >                DatabaseFieldInfosPtrArray;
-	typedef std::vector< DatabaseParameterPtr >                 DatabaseParameterPtrArray;
-	typedef std::map< String, DatabaseParameterPtr >            DatabaseParameterPtrStrMap;
-	typedef std::map< std::thread::id, DatabaseConnectionPtr >  DatabaseConnectionPtrIdMap;
+	typedef std::vector< String > StringArray;
+	typedef std::vector< uint8_t > ByteArray;
+	typedef std::vector< DatabaseFieldPtr > DatabaseFieldPtrArray;
+	typedef std::map< String, DatabaseFieldPtr > DatabaseFieldPtrStrMap;
+	typedef std::list< DatabaseRowPtr > DatabaseRowPtrList;
+	typedef std::vector< DatabaseFieldInfosPtr > DatabaseFieldInfosPtrArray;
+	typedef std::vector< DatabaseParameterPtr > DatabaseParameterPtrArray;
+	typedef std::map< String, DatabaseParameterPtr > DatabaseParameterPtrStrMap;
+	typedef std::map< std::thread::id, DatabaseConnectionPtr > DatabaseConnectionPtrIdMap;
 
 	// Factory type constants
 	const String FACTORY_DATABASE_TYPE = STR( "Factory database" );

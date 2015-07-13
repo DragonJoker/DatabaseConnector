@@ -49,7 +49,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			BOOST_CHECK( stmt->CreateParameter( STR( "BigIntField" ), EFieldType_LONG_INTEGER, EParameterType_IN ) );
 			BOOST_CHECK( stmt->CreateParameter( STR( "Int2Field" ), EFieldType_SMALL_INTEGER, EParameterType_IN ) );
 			BOOST_CHECK( stmt->CreateParameter( STR( "Int8Field" ), EFieldType_LONG_INTEGER, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "RealField" ), EFieldType_FLOATING_POINT_SIMPLE, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "RealField" ), EFieldType_FLOATING_POINT_DOUBLE, EParameterType_IN ) );
 			BOOST_CHECK( stmt->CreateParameter( STR( "DoubleField" ), EFieldType_FLOATING_POINT_DOUBLE, EParameterType_IN ) );
 			BOOST_CHECK( stmt->CreateParameter( STR( "DoublePrecisionField" ), EFieldType_FLOATING_POINT_DOUBLE, EParameterType_IN ) );
 			BOOST_CHECK( stmt->CreateParameter( STR( "FloatField" ), EFieldType_FLOATING_POINT_SIMPLE, EParameterType_IN ) );
@@ -91,7 +91,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			stmt->SetParameterValue( index++, "NCHAR: Areva Intercontrôle " + std::to_string( mult * i + index ) );
 			stmt->SetParameterValue( index++, "NVARCHAR: Areva Intercontrôle " + std::to_string( mult * i + index ) );
 			stmt->SetParameterValue( index++, "TEXT: Areva Intercontrôle " + std::to_string( mult * i + index ) );
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< std::vector< uint8_t > >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< ByteArray >::InitialiseValue() );
 		}
 
 		inline void DisplayValues( uint32_t & index, DatabaseRowPtr row )
@@ -104,7 +104,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			CLogger::LogMessage( StringStream() << STR( "BigIntField : " ) << row->Get< int64_t >( index++ ) );
 			CLogger::LogMessage( StringStream() << STR( "Int2Field : " ) << row->Get< int16_t >( index++ ) );
 			CLogger::LogMessage( StringStream() << STR( "Int8Field : " ) << row->Get< int64_t >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "RealField : " ) << row->Get< float >( index++ ) );
+			CLogger::LogMessage( StringStream() << STR( "RealField : " ) << row->Get< double >( index++ ) );
 			CLogger::LogMessage( StringStream() << STR( "DoubleField : " ) << row->Get< double >( index++ ) );
 			CLogger::LogMessage( StringStream() << STR( "DoublePrecisionField : " ) << row->Get< double >( index++ ) );
 			CLogger::LogMessage( StringStream() << STR( "FloatField : " ) << row->Get< float >( index++ ) );
@@ -118,7 +118,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			CLogger::LogMessage( std::wstringstream() << L"NcharField : " << row->Get< std::wstring >( index++ ) );
 			CLogger::LogMessage( std::wstringstream() << L"NVarcharField : " << row->Get< std::wstring >( index++ ) );
 			CLogger::LogMessage( StringStream() << STR( "TextField : " ) << row->Get< std::string >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "BlobField : " ) << row->Get< std::vector< uint8_t > >( index++ ) );
+			CLogger::LogMessage( StringStream() << STR( "BlobField : " ) << row->Get< ByteArray >( index++ ) );
 		}
 
 		template< typename T >
@@ -126,7 +126,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		{
 			try
 			{
-				std::vector< uint8_t > blob = { /*0x00, */0x02, 0x04, 0x06, 0x08, 0x10, 0x15, 0x20, 0x25, 0x30, 0x35, 0x40, 0x45, 0x50, 0x50, 0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0xF0, 0xFF };
+				ByteArray blob = { /*0x00, */0x02, 0x04, 0x06, 0x08, 0x10, 0x15, 0x20, 0x25, 0x30, 0x35, 0x40, 0x45, 0x50, 0x50, 0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0xF0, 0xFF };
 				auto && stmtGetCount = DatabaseUtils::CreateStmt< T >( connection, QUERY_GET_COUNT );
 				int64_t count = -1;
 
@@ -176,7 +176,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		{
 			try
 			{
-				std::vector< uint8_t > blob = { /*0x00, */0x02, 0x04, 0x06, 0x08, 0x10, 0x15, 0x20, 0x25, 0x30, 0x35, 0x40, 0x45, 0x50, 0x50, 0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0xF0, 0xFF };
+				ByteArray blob = { /*0x00, */0x02, 0x04, 0x06, 0x08, 0x10, 0x15, 0x20, 0x25, 0x30, 0x35, 0x40, 0x45, 0x50, 0x50, 0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0xF0, 0xFF };
 				auto && stmtGetCount = DatabaseUtils::CreateStmt< T >( connection, QUERY_GET_COUNT );
 				int64_t count = -1;
 

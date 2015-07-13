@@ -134,21 +134,21 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_BINARY >
 	{
-		typedef std::vector< uint8_t > value_type;
+		typedef ByteArray value_type;
 	};
 
 	/** Specialization for EFieldType_VARBINARY
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_VARBINARY >
 	{
-		typedef std::vector< uint8_t > value_type;
+		typedef ByteArray value_type;
 	};
 
 	/** Specialization for EFieldType_LONG_VARBINARY
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_LONG_VARBINARY >
 	{
-		typedef std::vector< uint8_t > value_type;
+		typedef ByteArray value_type;
 	};
 
 	/** Structure used to retrieve the field type from the data type
@@ -281,9 +281,9 @@ BEGIN_NAMESPACE_DATABASE
 		static const EFieldType Value = EFieldType_VARBINARY;
 	};
 
-	/** Specialization for std::vector< uint8_t >
+	/** Specialization for ByteArray
 	*/
-	template<> struct SDataTypeFieldTyper< std::vector< uint8_t > >
+	template<> struct SDataTypeFieldTyper< ByteArray >
 	{
 		static const EFieldType Value = EFieldType_VARBINARY;
 	};
@@ -340,30 +340,6 @@ BEGIN_NAMESPACE_DATABASE
 		const void * Ptr( const value_type & value )const
 		{
 			return &value;
-		}
-
-		/** Retrieves the value from a string
-		@param string
-		    The string containing the value
-		@param value
-		    Receives the value
-		@param size
-		    The old size, receives the new value size
-		@param connection
-		    The connection used to format the value
-		*/
-		bool FromStr( const String & string, value_type & value, unsigned long & size, DatabaseConnectionPtr connection )
-		{
-			bool ret = !string.empty();
-
-			if ( ret )
-			{
-				StringStream stream( string );
-				stream >> value;
-				size = sizeof( value_type );
-			}
-
-			return ret;
 		}
 
 		/** Puts the value into the given string
@@ -441,29 +417,6 @@ BEGIN_NAMESPACE_DATABASE
 			return &value;
 		}
 
-		/** Retrieves the value from a string
-		@param string
-		    The string containing the value
-		@param value
-		    Receives the value
-		@param size
-		    The old size, receives the new value size
-		@param connection
-		    The connection used to format the value
-		*/
-		bool FromStr( const String & string, value_type & value, unsigned long & size, DatabaseConnectionPtr connection )
-		{
-			bool ret = !string.empty();
-
-			if ( ret )
-			{
-				value = string[0];
-				size = sizeof( value_type );
-			}
-
-			return ret;
-		}
-
 		/** Puts the value into the given string
 		@param value
 		    The value
@@ -537,31 +490,6 @@ BEGIN_NAMESPACE_DATABASE
 		const void * Ptr( const value_type & value )const
 		{
 			return &value;
-		}
-
-		/** Retrieves the value from a string
-		@param string
-		    The string containing the value
-		@param value
-		    Receives the value
-		@param size
-		    The old size, receives the new value size
-		@param connection
-		    The connection used to format the value
-		*/
-		bool FromStr( const String & string, value_type & value, unsigned long & size, DatabaseConnectionPtr connection )
-		{
-			bool ret = !string.empty();
-
-			if ( ret )
-			{
-				StringStream stream( string );
-				stream.precision( 10 );
-				stream >> value;
-				size = sizeof( value_type );
-			}
-
-			return ret;
 		}
 
 		/** Puts the value into the given string
@@ -642,31 +570,6 @@ BEGIN_NAMESPACE_DATABASE
 			return &value;
 		}
 
-		/** Retrieves the value from a string
-		@param string
-		    The string containing the value
-		@param value
-		    Receives the value
-		@param size
-		    The old size, receives the new value size
-		@param connection
-		    The connection used to format the value
-		*/
-		bool FromStr( const String & string, value_type & value, unsigned long & size, DatabaseConnectionPtr connection )
-		{
-			bool ret = !string.empty();
-
-			if ( ret )
-			{
-				StringStream stream( string );
-				stream.precision( 20 );
-				stream >> value;
-				size = sizeof( value_type );
-			}
-
-			return ret;
-		}
-
 		/** Puts the value into the given string
 		@param value
 		    The value
@@ -743,30 +646,6 @@ BEGIN_NAMESPACE_DATABASE
 		const void * Ptr( const value_type & value )const
 		{
 			return &value;
-		}
-
-		/** Retrieves the value from a string
-		@param string
-		    The string containing the value
-		@param value
-		    Receives the value
-		@param size
-		    The old size, receives the new value size
-		@param connection
-		    The connection used to format the value
-		*/
-		bool FromStr( const String & string, value_type & value, unsigned long & size, DatabaseConnectionPtr connection )
-		{
-			bool ret = !string.empty();
-
-			if ( ret )
-			{
-				String strTmp( CStrUtils::LowerCase( string ) );
-				value = strTmp == STR( "1" ) || strTmp == STR( "X" ) || strTmp == STR( "true" ) || strTmp == STR( "vrai" );
-				size = sizeof( value_type );
-			}
-
-			return ret;
 		}
 
 		/** Puts the value into the given string
@@ -858,29 +737,6 @@ BEGIN_NAMESPACE_DATABASE
 			return result;
 		}
 
-		/** Retrieves the value from a string
-		@param string
-		    The string containing the value
-		@param value
-		    Receives the value
-		@param size
-		    The old size, receives the new value size
-		@param connection
-		    The connection used to format the value
-		*/
-		bool FromStr( const String & string, value_type & value, unsigned long & size, DatabaseConnectionPtr connection )
-		{
-			bool ret = !string.empty();
-
-			if ( ret )
-			{
-				value = CStrUtils::ToStr( string );
-				size = ( unsigned long )( value.size() );
-			}
-
-			return ret;
-		}
-
 		/** Puts the value into the given string
 		@param value
 		    The value
@@ -970,29 +826,6 @@ BEGIN_NAMESPACE_DATABASE
 			return result;
 		}
 
-		/** Retrieves the value from a string
-		@param string
-		    The string containing the value
-		@param value
-		    Receives the value
-		@param size
-		    The old size, receives the new value size
-		@param connection
-		    The connection used to format the value
-		*/
-		bool FromStr( const String & string, value_type & value, unsigned long & size, DatabaseConnectionPtr connection )
-		{
-			bool ret = !string.empty();
-
-			if ( ret )
-			{
-				value = CStrUtils::ToWStr( string );
-				size = ( unsigned long )( value.size() ) * sizeof( wchar_t );
-			}
-
-			return ret;
-		}
-
 		/** Puts the value into the given string
 		@param value
 		    The value
@@ -1016,12 +849,12 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	};
 
-	/** Specialization for std::vector< uint8_t > data type
+	/** Specialization for ByteArray data type
 	*/
-	template<> class CDatabaseValuePolicy< std::vector< uint8_t > >
+	template<> class CDatabaseValuePolicy< ByteArray >
 	{
 	protected:
-		typedef std::vector< uint8_t > value_type;
+		typedef ByteArray value_type;
 
 	public:
 		/** Reinitializes the given value
@@ -1087,38 +920,6 @@ BEGIN_NAMESPACE_DATABASE
 			}
 
 			return result;
-		}
-
-		/** Retrieves the value from a string
-		@param string
-		    The string containing the value
-		@param value
-		    Receives the value
-		@param size
-		    The old size, receives the new value size
-		@param connection
-		    The connection used to format the value
-		*/
-		bool FromStr( const String & string, value_type & value, unsigned long & size, DatabaseConnectionPtr connection )
-		{
-			bool ret = !string.empty();
-
-			if ( ret )
-			{
-				//StringStream stream( _value ); // Don't use this
-				std::istringstream stream( CStrUtils::ToStr( string ) );
-				size = ( unsigned long )( string.size() );
-				value.reserve( size );
-
-				for ( unsigned long i = 0; i < size; ++i )
-				{
-					uint8_t byte;
-					stream >> byte;
-					value.push_back( byte );
-				}
-			}
-
-			return ret;
 		}
 
 		/** Puts the value into the given string
@@ -1221,31 +1022,6 @@ BEGIN_NAMESPACE_DATABASE
 			return result;
 		}
 
-		/** Retrieves the value from a string
-		@param string
-		    The string containing the value
-		@param value
-		    Receives the value
-		@param size
-		    The old size, receives the new value size
-		@param connection
-		    The connection used to format the value
-		*/
-		bool FromStr( const String & string, value_type & value, unsigned long & size, DatabaseConnectionPtr connection )
-		{
-			_value = string;
-			bool ret = !string.empty();
-
-			if ( ret )
-			{
-				value = connection->ParseDate( string );
-				size = ( unsigned long )( connection->GetStmtDateSize() );
-				_value = connection->WriteStmtDate( value );
-			}
-
-			return ret;
-		}
-
 		/** Puts the value into the given string
 		@param value
 		    The value
@@ -1337,31 +1113,6 @@ BEGIN_NAMESPACE_DATABASE
 			}
 
 			return result;
-		}
-
-		/** Retrieves the value from a string
-		@param string
-		    The string containing the value
-		@param value
-		    Receives the value
-		@param size
-		    The old size, receives the new value size
-		@param connection
-		    The connection used to format the value
-		*/
-		bool FromStr( const String & string, value_type & value, unsigned long & size, DatabaseConnectionPtr connection )
-		{
-			_value = string;
-			bool ret = !string.empty();
-
-			if ( ret )
-			{
-				value = connection->ParseTime( string );
-				size = ( unsigned long )( connection->GetStmtTimeSize() );
-				_value = connection->WriteStmtTime( value );
-			}
-
-			return ret;
 		}
 
 		/** Puts the value into the given string
@@ -1457,31 +1208,6 @@ BEGIN_NAMESPACE_DATABASE
 			return result;
 		}
 
-		/** Retrieves the value from a string
-		@param string
-		    The string containing the value
-		@param value
-		    Receives the value
-		@param size
-		    The old size, receives the new value size
-		@param connection
-		    The connection used to format the value
-		*/
-		bool FromStr( const String & string, value_type & value, unsigned long & size, DatabaseConnectionPtr connection )
-		{
-			_value = string;
-			bool ret = !string.empty();
-
-			if ( ret )
-			{
-				value = connection->ParseDateTime( string );
-				size = ( unsigned long )( connection->GetStmtDateTimeSize() );
-				_value = connection->WriteStmtDateTime( value );
-			}
-
-			return ret;
-		}
-
 		/** Puts the value into the given string
 		@param value
 		    The value
@@ -1548,14 +1274,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		void * Ptr( value_type & value )
 		{
-			void * result = NULL;
-
-			if ( !value.ToString().empty() )
-			{
-				result = ( void * )&value.ToString()[0];
-			}
-
-			return result;
+			return &value;
 		}
 
 		/** Retrieves a pointer from the given value
@@ -1564,38 +1283,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		const void * Ptr( const value_type & value )const
 		{
-			void const * result = NULL;
-
-			if ( !_value.empty() )
-			{
-				result = &value.ToString()[0];
-			}
-
-			return result;
-		}
-
-		/** Retrieves the value from a string
-		@param string
-		    The string containing the value
-		@param value
-		    Receives the value
-		@param size
-		    The old size, receives the new value size
-		@param connection
-		    The connection used to format the value
-		*/
-		bool FromStr( const String & string, value_type & value, unsigned long & size, DatabaseConnectionPtr connection )
-		{
-			_value = string;
-			bool ret = !string.empty();
-
-			if ( ret )
-			{
-				value = CFixedPoint( string, string.size(), 1 );
-				size = value.GetPrecision();
-			}
-
-			return ret;
+			return &value;
 		}
 
 		/** Puts the value into the given string

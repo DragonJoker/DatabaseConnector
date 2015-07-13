@@ -27,7 +27,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	public:
 		/** Default constructor.
 		*/
-		CDatabaseTest( const String & type, const String & server, const String & database, const String & user, const String & password );
+		CDatabaseTest( const String & type, const String & server, const String & database, const String & user, const String & password, bool hasNChar );
 
 		/** Destructor.
 		*/
@@ -173,6 +173,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		const String & _database;
 		const String & _user;
 		const String & _password;
+		bool _hasNChar;
 	};
 }
 END_NAMESPACE_DATABASE_TEST

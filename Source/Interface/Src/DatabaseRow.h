@@ -104,7 +104,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Value.
 		*/
-		template< typename T > inline boost::optional< T > GetOpt( uint32_t index );
+		template< typename T > inline CDatabaseNullable< T > GetOpt( uint32_t index );
 
 		/** Get value
 		@param[in] name
@@ -112,7 +112,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Value.
 		*/
-		template< typename T > inline boost::optional< T > GetOpt( const String & name );
+		template< typename T > inline CDatabaseNullable< T > GetOpt( const String & name );
 
 		/** Get value
 		@param[in] index
@@ -120,7 +120,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[out] value
 		    Value.
 		*/
-		template< typename T > inline void GetOpt( uint32_t index, boost::optional< T > & value );
+		template< typename T > inline void GetOpt( uint32_t index, CDatabaseNullable< T > & value );
 
 		/** Get value
 		@param[in] name
@@ -128,7 +128,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[out] value
 		    Value.
 		*/
-		template< typename T > inline void GetOpt( const String & name, boost::optional< T > & value );
+		template< typename T > inline void GetOpt( const String & name, CDatabaseNullable< T > & value );
 
 		/** Get value
 		@param[in] index
@@ -152,7 +152,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[out] value
 		    Value.
 		*/
-		template< typename T > inline void GetOptFast( uint32_t index, boost::optional< T > & value );
+		template< typename T > inline void GetOptFast( uint32_t index, CDatabaseNullable< T > & value );
 
 		/** Get value
 		@param[in] name
@@ -160,7 +160,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[out] value
 		    Value.
 		*/
-		template< typename T > inline void GetOptFast( const String & name, boost::optional< T > & value );
+		template< typename T > inline void GetOptFast( const String & name, CDatabaseNullable< T > & value );
 
 		/** Get default value.
 		@return

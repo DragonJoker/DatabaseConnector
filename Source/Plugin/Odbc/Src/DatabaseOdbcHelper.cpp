@@ -247,9 +247,9 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			return std::wstring( bind.GetValue(), bind.GetValue() + bind._strLenOrInd );
 		}
 
-		std::vector< uint8_t > VectorFromOdbcBinary( CInOdbcBind< uint8_t * > const & bind )
+		ByteArray VectorFromOdbcBinary( CInOdbcBind< uint8_t * > const & bind )
 		{
-			return std::vector< uint8_t >( bind.GetValue(), bind.GetValue() + bind._strLenOrInd );
+			return ByteArray( bind.GetValue(), bind.GetValue() + bind._strLenOrInd );
 		}
 
 		CDate CDateFromOdbcDate( SQL_DATE_STRUCT const & ts )

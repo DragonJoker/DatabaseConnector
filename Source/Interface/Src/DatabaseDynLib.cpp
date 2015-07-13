@@ -36,12 +36,12 @@ BEGIN_NAMESPACE_DATABASE
 
 	const String TEXT_DYNAMIC_LIB_SYSTEM_ERROR = STR( "System Error: " );
 
-#   define MSG_LOADING_LIBRARY      STR( "Loading library %s" )
-#   define MSG_UNLOADING_LIBRARY    STR( "Unloading library %s" )
+	const String MSG_LOADING_LIBRARY = STR( "Loading library %s" );
+	const String MSG_UNLOADING_LIBRARY = STR( "Unloading library %s" );
 
-#   define ERROR_LIB_FILE_NOT_FOUND STR( "File %s not found!" )
-#   define ERROR_LOAD_DYNAMIC_LIB   STR( "Could not load dynamic library %s." )
-#   define ERROR_UNLOAD_DYNAMIC_LIB STR( "Could not unload dynamic library %s." )
+	const String ERROR_LIB_FILE_NOT_FOUND = STR( "File %s not found!" );
+	const String ERROR_LOAD_DYNAMIC_LIB = STR( "Could not load dynamic library %s." );
+	const String ERROR_UNLOAD_DYNAMIC_LIB = STR( "Could not unload dynamic library %s." );
 
 	namespace
 	{

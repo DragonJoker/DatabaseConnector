@@ -17,6 +17,7 @@
 #include <DatabasePrerequisites.h>
 #include <Database.h>
 #include <DatabaseConnection.h>
+#include <DatabaseStringUtils.h>
 
 #define BEGIN_NAMESPACE_DATABASE_TEST   BEGIN_NAMESPACE_DATABASE { namespace Test
 #define NAMESPACE_DATABASE_TEST         NAMESPACE_DATABASE::Test

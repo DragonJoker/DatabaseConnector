@@ -240,18 +240,18 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 	void CDatabaseStatementSqlite::DoPreExecute( EErrorType * result )
 	{
-		for ( std::vector< std::pair< DatabaseStatementPtr, DatabaseParameterPtr > >::iterator it = _inOutInitializers.begin(); it != _inOutInitializers.end(); ++it )
+		for ( auto && it : _inOutInitializers )
 		{
-			if ( it->second->GetObjectValue().IsNull() )
+			if ( it.second->GetObjectValue().IsNull() )
 			{
-				it->first->SetParameterNull( 0 );
+				it.first->SetParameterNull( 0 );
 			}
 			else
 			{
-				it->first->SetParameterValue( 0, it->second );
+				it.first->SetParameterValue( 0, it.second );
 			}
 
-			it->first->ExecuteUpdate( result );
+			it.first->ExecuteUpdate( result );
 		}
 
 		for ( std::vector< DatabaseStatementPtr >::iterator it = _outInitializers.begin(); it != _outInitializers.end(); ++it )

@@ -19,6 +19,7 @@
 #include "DatabaseDate.h"
 #include "DatabaseDateTime.h"
 #include "DatabaseTime.h"
+#include "DatabaseStringUtils.h"
 
 BEGIN_NAMESPACE_DATABASE
 {

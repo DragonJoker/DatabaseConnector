@@ -80,13 +80,13 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Field value, std::none if the field is null.
 		*/
-		template< typename T > inline boost::optional< T > GetValueOpt() const;
+		template< typename T > inline CDatabaseNullable< T > GetValueOpt() const;
 
 		/** Get field value as a std::optional.
 		@param[out] value
 		    Field value, std::none if the field is null.
 		*/
-		template< typename T > inline void GetValueOpt( boost::optional< T > & value ) const;
+		template< typename T > inline void GetValueOpt( CDatabaseNullable< T > & value ) const;
 
 		/** Get field value.
 		@remarks
@@ -110,7 +110,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 		    Field value, std::none if the field is null.
 		*/
-		template< typename T > inline boost::optional< T > GetValueOptFast() const;
+		template< typename T > inline CDatabaseNullable< T > GetValueOptFast() const;
 
 		/** Get field value as a std::optional.
 		@remarks
@@ -118,7 +118,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[out] value
 		    Field value, std::none if the field is null.
 		*/
-		template< typename T > inline void GetValueOptFast( boost::optional< T > & value ) const;
+		template< typename T > inline void GetValueOptFast( CDatabaseNullable< T > & value ) const;
 
 	protected:
 		/// Field information.

@@ -122,12 +122,13 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	STR( "	IDTest=?" );
 	String const QUERY_DIRECT_DELETE_ELEMENT = STR( "DELETE FROM Test WHERE IDTest=?" );
 
-	CDatabaseTest::CDatabaseTest( const String & type, const String & server, const String & database, const String & user, const String & password )
+	CDatabaseTest::CDatabaseTest( const String & type, const String & server, const String & database, const String & user, const String & password, bool hasNChar )
 		: _type( type )
 		, _server( server )
 		, _database( database )
 		, _user( user )
 		, _password( password )
+		, _hasNChar( hasNChar )
 	{
 	}
 
@@ -177,11 +178,16 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			{
 				DatabaseConnectionPtr connection = CreateConnection( *database, _server, _user, _password );
 
-				if ( connection && connection->IsConnected() )
+				if ( connection )
 				{
-					connection->CreateDatabase( _database );
-					connection->SelectDatabase( _database );
-					connection->ExecuteUpdate( _createTable );
+					if ( connection->IsConnected() )
+					{
+						connection->CreateDatabase( _database );
+						connection->SelectDatabase( _database );
+						connection->ExecuteUpdate( _createTable );
+					}
+
+					database->RemoveConnection();
 				}
 			}
 		}
@@ -289,17 +295,17 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			{
 				DatabaseConnectionPtr connection = CreateConnection( *database, _server, _user, _password );
 
-				try
+				if ( connection )
 				{
-					connection->ExecuteUpdate( QUERY_DROP_TABLE );
-					connection->DestroyDatabase( _database );
-				}
-				catch ( std::exception & )
-				{
-					BOOST_CHECK( false );
-				}
+					if ( connection->IsConnected() )
+					{
+						connection->SelectDatabase( _database );
+						connection->ExecuteUpdate( QUERY_DROP_TABLE );
+						connection->DestroyDatabase( _database );
+					}
 
-				database->RemoveConnection();
+					database->RemoveConnection();
+				}
 			}
 		}
 		CLogger::LogMessage( StringStream() << "**** End TestCase_DestroyDatabase ****" );

@@ -157,8 +157,9 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			char _value[8192];
 
-			CInMySqlBind( MYSQL_BIND & bind )
+			CInMySqlBind( MYSQL_BIND & bind, uint32_t precision )
 				: CInMySqlBindBase( bind )
+				, _precision( uint8_t( precision ) )
 			{
 				memset( _value, 0, sizeof( _value ) );
 				bind.buffer = _value;
@@ -167,8 +168,10 @@ BEGIN_NAMESPACE_DATABASE
 
 			CFixedPoint GetValue()const
 			{
-				return CFixedPoint( _value );
+				return CFixedPoint( _value, _precision );
 			}
+
+			uint8_t _precision;
 		};
 
 		template<>

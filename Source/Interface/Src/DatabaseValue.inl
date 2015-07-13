@@ -49,13 +49,6 @@ BEGIN_NAMESPACE_DATABASE
 			Reset();
 		}
 
-		/** Update value as string from the typed value.
-		*/
-		inline void FromString( String const & value )
-		{
-			SetNull( !ValuePolicy::FromStr( value, _tValue, _valueSize, _connection ) );
-		}
-
 		/** Defines this value from the given one
 		@param value
 		    The value
@@ -159,13 +152,6 @@ BEGIN_NAMESPACE_DATABASE
 		inline ~CDatabaseValue()
 		{
 			Reset();
-		}
-
-		/** Update value as string from the typed value.
-		*/
-		inline void FromString( String const & value )
-		{
-			SetNull( !ValuePolicy::FromStr( value, _tValue, _valueSize, _connection ) );
 		}
 
 		/** Defines this value from the given one
@@ -293,13 +279,6 @@ BEGIN_NAMESPACE_DATABASE
 			Reset();
 		}
 
-		/** Update value as string from the typed value.
-		*/
-		inline void FromString( String const & value )
-		{
-			SetNull( !ValuePolicy::FromStr( value, _tValue, _valueSize, _connection ) );
-		}
-
 		/** Defines this value from the given one
 		@param value
 		    The value
@@ -423,13 +402,6 @@ BEGIN_NAMESPACE_DATABASE
 		inline ~CDatabaseValue()
 		{
 			Reset();
-		}
-
-		/** Update value as string from the typed value.
-		*/
-		inline void FromString( String const & value )
-		{
-			SetNull( !ValuePolicy::FromStr( value, _tValue, _valueSize, _connection ) );
 		}
 
 		/** Defines this value from the given one
@@ -557,13 +529,6 @@ BEGIN_NAMESPACE_DATABASE
 			Reset();
 		}
 
-		/** Update value as string from the typed value.
-		*/
-		inline void FromString( String const & value )
-		{
-			SetNull( !ValuePolicy::FromStr( value, _tValue, _valueSize, _connection ) );
-		}
-
 		/** Defines this value from the given one
 		@param value
 		    The value
@@ -687,13 +652,6 @@ BEGIN_NAMESPACE_DATABASE
 		inline ~CDatabaseValue()
 		{
 			Reset();
-		}
-
-		/** Update value as string from the typed value.
-		*/
-		inline void FromString( String const & value )
-		{
-			SetNull( !ValuePolicy::FromStr( value, _tValue, _valueSize, _connection ) );
 		}
 
 		/** Defines this value from the given one
@@ -821,13 +779,6 @@ BEGIN_NAMESPACE_DATABASE
 			Reset();
 		}
 
-		/** Update value as string from the typed value.
-		*/
-		inline void FromString( String const & value )
-		{
-			SetNull( !ValuePolicy::FromStr( value, _tValue, _valueSize, _connection ) );
-		}
-
 		/** Defines this value from the given one
 		@param value
 		    The value
@@ -951,13 +902,6 @@ BEGIN_NAMESPACE_DATABASE
 		inline ~CDatabaseValue()
 		{
 			Reset();
-		}
-
-		/** Update value as string from the typed value.
-		*/
-		inline void FromString( String const & value )
-		{
-			SetNull( !ValuePolicy::FromStr( value, _tValue, _valueSize, _connection ) );
 		}
 
 		/** Defines this value from the given one

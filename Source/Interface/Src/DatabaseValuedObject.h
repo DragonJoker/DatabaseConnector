@@ -190,7 +190,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[out] value
 		    Value as byte array.
 		*/
-		DatabaseExport virtual void DoGetValue( std::vector< uint8_t > & value ) const;
+		DatabaseExport virtual void DoGetValue( ByteArray & value ) const;
 
 		/** Get value as boolean.
 		@remarks
@@ -342,7 +342,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[out] value
 		    Value as byte array.
 		*/
-		DatabaseExport virtual void DoGetValueFast( std::vector< uint8_t > & value ) const;
+		DatabaseExport virtual void DoGetValueFast( ByteArray & value ) const;
 
 		/** Set parameter value as a boolean.
 		@param value
@@ -456,7 +456,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param value
 			New parameter value.
 		*/
-		DatabaseExport virtual void DoSetValue( const std::vector< uint8_t > & value );
+		DatabaseExport virtual void DoSetValue( const ByteArray & value );
 
 		/** Set parameter value as a boolean.
 		@remarks
@@ -610,7 +610,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param value
 			New parameter value.
 		*/
-		DatabaseExport virtual void DoSetValueFast( const std::vector< uint8_t > & value );
+		DatabaseExport virtual void DoSetValueFast( const ByteArray & value );
 
 		/** Creates the field value
 		*/

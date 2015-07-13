@@ -237,7 +237,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 			static ParamType InitialiseValue()
 			{
-				return CFixedPoint( CStrUtils::ToString( int64_t( rand() ) * int64_t( rand() ) ), 10, 5 );
+				return CFixedPoint( CStrUtils::ToString( int64_t( rand() ) * int64_t( rand() ) ), 3 );
 			}
 		};
 
@@ -329,15 +329,15 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 		};
 
-		template<> struct Helpers< std::vector< uint8_t > >
+		template<> struct Helpers< ByteArray >
 		{
 			static const uint32_t Limit = 32;
-			typedef std::vector< uint8_t > ParamType;
+			typedef ByteArray ParamType;
 			typedef ParamType FieldType;
 
 			static ParamType InitialiseValue()
 			{
-				std::vector< uint8_t > blob =
+				ByteArray blob =
 				{
 					0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
 					0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF
@@ -357,7 +357,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			BOOST_CHECK( stmt->CreateParameter( STR( "BigIntField" ), EFieldType_LONG_INTEGER, EParameterType_IN ) );
 			BOOST_CHECK( stmt->CreateParameter( STR( "Int2Field" ), EFieldType_SMALL_INTEGER, EParameterType_IN ) );
 			BOOST_CHECK( stmt->CreateParameter( STR( "Int8Field" ), EFieldType_LONG_INTEGER, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "RealField" ), EFieldType_FLOATING_POINT_SIMPLE, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "RealField" ), EFieldType_FLOATING_POINT_DOUBLE, EParameterType_IN ) );
 			BOOST_CHECK( stmt->CreateParameter( STR( "DoubleField" ), EFieldType_FLOATING_POINT_DOUBLE, EParameterType_IN ) );
 			BOOST_CHECK( stmt->CreateParameter( STR( "DoublePrecisionField" ), EFieldType_FLOATING_POINT_DOUBLE, EParameterType_IN ) );
 			BOOST_CHECK( stmt->CreateParameter( STR( "FloatField" ), EFieldType_FLOATING_POINT_SIMPLE, EParameterType_IN ) );
@@ -399,7 +399,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			stmt->SetParameterValue( index++, Helpers< wchar_t * >::InitialiseValue() );
 			stmt->SetParameterValue( index++, Helpers< wchar_t * >::InitialiseValue() );
 			stmt->SetParameterValue( index++, Helpers< std::string >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< std::vector< uint8_t > >::InitialiseValue() );
+			stmt->SetParameterValue( index++, Helpers< ByteArray >::InitialiseValue() );
 		}
 
 		inline void DisplayValues( uint32_t & index, DatabaseRowPtr row )
@@ -412,7 +412,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			CLogger::LogMessage( StringStream() << STR( "BigIntField : " ) << row->Get< int64_t >( index++ ) );
 			CLogger::LogMessage( StringStream() << STR( "Int2Field : " ) << row->Get< int16_t >( index++ ) );
 			CLogger::LogMessage( StringStream() << STR( "Int8Field : " ) << row->Get< int64_t >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "RealField : " ) << row->Get< float >( index++ ) );
+			CLogger::LogMessage( StringStream() << STR( "RealField : " ) << row->Get< double >( index++ ) );
 			CLogger::LogMessage( StringStream() << STR( "DoubleField : " ) << row->Get< double >( index++ ) );
 			CLogger::LogMessage( StringStream() << STR( "DoublePrecisionField : " ) << row->Get< double >( index++ ) );
 			CLogger::LogMessage( StringStream() << STR( "FloatField : " ) << row->Get< float >( index++ ) );
@@ -426,58 +426,79 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			CLogger::LogMessage( std::wstringstream() << L"NcharField : " << row->Get< std::wstring >( index++ ) );
 			CLogger::LogMessage( std::wstringstream() << L"NVarcharField : " << row->Get< std::wstring >( index++ ) );
 			CLogger::LogMessage( StringStream() << STR( "TextField : " ) << row->Get< std::string >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "BlobField : " ) << row->Get< std::vector< uint8_t > >( index++ ) );
+			CLogger::LogMessage( StringStream() << STR( "BlobField : " ) << row->Get< ByteArray >( index++ ) );
 		}
 
 		template< typename Type >
 		struct Compare
 		{
-			inline void operator()( Type const & a, Type const & b )
+			inline void operator()( typename Helpers< Type >::ParamType const & a, typename Helpers< Type >::FieldType const & b )
 			{
 				BOOST_CHECK_EQUAL( a, b );
+			}
+		};
+
+		template<>
+		struct Compare< int8_t >
+		{
+			inline void operator()( Helpers< int8_t >::ParamType const & a, Helpers< int8_t >::FieldType const & b )
+			{
+				BOOST_CHECK_EQUAL( int16_t( a ), int16_t( b ) );
 			}
 		};
 
 		template<>
 		struct Compare< float >
 		{
-			inline void operator()( float const & a, float const & b )
+			inline void operator()( Helpers< float >::ParamType const & a, Helpers< float >::FieldType const & b )
 			{
-				BOOST_CHECK( std::abs( a - b ) < std::numeric_limits< float >::epsilon() );
+				if ( a != b )
+				{
+					if ( std::abs( a - b ) > std::numeric_limits< float >::epsilon() )
+					{
+						BOOST_CHECK_EQUAL( a, b );
+					}
+				}
 			}
 		};
 
 		template<>
 		struct Compare< double >
 		{
-			inline void operator()( double const & a, double const & b )
+			inline void operator()( Helpers< double >::ParamType const & a, Helpers< double >::FieldType const & b )
 			{
-				BOOST_CHECK( std::abs( a - b ) < std::numeric_limits< double >::epsilon() );
+				if ( a != b )
+				{
+					if ( std::abs( a - b ) > std::numeric_limits< double >::epsilon() )
+					{
+						BOOST_CHECK_EQUAL( a, b );
+					}
+				}
 			}
 		};
 
 		template<>
 		struct Compare< char * >
 		{
-			inline void operator()( std::string const & a, std::string const & b )
+			inline void operator()( Helpers< char * >::ParamType const & a, Helpers< char * >::FieldType const & b )
 			{
-				BOOST_CHECK_EQUAL( a, b );
+				BOOST_CHECK_EQUAL( std::string( a ), std::string( b ) );
 			}
 		};
 
 		template<>
 		struct Compare< wchar_t * >
 		{
-			inline void operator()( std::wstring const & a, std::wstring const & b )
+			inline void operator()( Helpers< wchar_t * >::ParamType const & a, Helpers< wchar_t * >::FieldType const & b )
 			{
-				BOOST_CHECK( a == b );
+				BOOST_CHECK_EQUAL( CStrUtils::ToStr( a ), CStrUtils::ToStr( b ) );
 			}
 		};
 
 		template<>
-		struct Compare< std::vector< uint8_t > >
+		struct Compare< ByteArray >
 		{
-			inline void operator()( std::vector< uint8_t > const & a, std::vector< uint8_t > const & b )
+			inline void operator()( Helpers< ByteArray >::ParamType const & a, Helpers< ByteArray >::FieldType const & b )
 			{
 				BOOST_CHECK( a == b );
 			}

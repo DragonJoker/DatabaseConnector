@@ -27,120 +27,205 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport CFixedPoint();
 
-		/** Constructor from int8_t
-		@param[in] value
-			The value
-		*/
-		DatabaseExport explicit CFixedPoint( int8_t value );
-
-		/** Constructor from uint8_t
-		@param[in] value
-			The value
-		*/
-		DatabaseExport explicit CFixedPoint( uint8_t value );
-
-		/** Constructor from int16_t
-		@param[in] value
-			The value
-		*/
-		DatabaseExport explicit CFixedPoint( int16_t value );
-
-		/** Constructor from uint16_t
-		@param[in] value
-			The value
-		*/
-		DatabaseExport explicit CFixedPoint( uint16_t value );
-
 		/** Constructor from int32_t
-		@param[in] value
-			The value
-		*/
-		DatabaseExport explicit CFixedPoint( int32_t value );
-
-		/** Constructor from uint32_t
-		@param[in] value
-			The value
-		*/
-		DatabaseExport explicit CFixedPoint( uint32_t value );
-
-		/** Constructor from int64_t
-		@param[in] value
-			The value
-		*/
-		DatabaseExport explicit CFixedPoint( int64_t value );
-
-		/** Constructor from uint64_t
-		@param[in] value
-			The value
-		*/
-		DatabaseExport explicit CFixedPoint( uint64_t value );
-
-		/** Constructor from float
-		@param[in] value
-			The value
-		*/
-		DatabaseExport explicit CFixedPoint( float value );
-
-		/** Constructor from double
-		@param[in] value
-			The value
-		*/
-		DatabaseExport explicit CFixedPoint( double value );
-
-		/** Constructor from double
-		@param[in] value
-			The value
-		*/
-		DatabaseExport explicit CFixedPoint( long double value );
-
-		/** Constructor from string
 		@param[in] value
 			The value
 		@param[in] precision
 			The precision
-		@param[in] scale
-			The scale
 		*/
-		DatabaseExport CFixedPoint( const String & value, uint8_t precision = -1, uint8_t scale = -1 );
+		DatabaseExport CFixedPoint( int32_t value, uint8_t precision );
+
+		/** Constructor from uint32_t
+		@param[in] value
+			The value
+		@param[in] precision
+			The precision
+		*/
+		DatabaseExport CFixedPoint( uint32_t value, uint8_t precision );
+
+		/** Constructor from int64_t
+		@param[in] value
+			The value
+		@param[in] precision
+			The precision
+		*/
+		DatabaseExport CFixedPoint( int64_t value, uint8_t precision );
+
+		/** Constructor from uint64_t
+		@param[in] value
+			The value
+		@param[in] precision
+			The precision
+		*/
+		DatabaseExport CFixedPoint( uint64_t value, uint8_t precision );
+
+		/** Constructor from float
+		@param[in] value
+			The value
+		@param[in] precision
+			The precision
+		*/
+		DatabaseExport CFixedPoint( float value, uint8_t precision );
+
+		/** Constructor from double
+		@param[in] value
+			The value
+		@param[in] precision
+			The precision
+		*/
+		DatabaseExport CFixedPoint( double value, uint8_t precision );
+
+		/** Constructor from double
+		@param[in] value
+			The value
+		@param[in] precision
+			The precision
+		*/
+		DatabaseExport CFixedPoint( long double value, uint8_t precision );
+
+		/** Constructor from String
+		@param[in] value
+			The value
+		@param[in] precision
+			The precision
+		*/
+		DatabaseExport CFixedPoint( String const & value, uint8_t precision );
 
 		/** Destructor
 		*/
 		DatabaseExport ~CFixedPoint();
 
+		/** Retrieves the number as a string
+		@return
+			The value as a string
+		*/
+		DatabaseExport String ToString()const;
+
+		/** Retrieves the value decimals
+		*/
+		DatabaseExport int64_t GetDecimals()const;
+
+		/** Retrieves the value as a signed 32 bits integer
+		*/
+		inline int32_t ToInt32()const;
+
+		/** Retrieves the value as an unsigned 32 bits integer
+		*/
+		inline uint32_t ToUInt32()const;
+
+		/** Retrieves the value as a signed 64 bits integer
+		*/
+		inline int64_t ToInt64()const;
+
+		/** Retrieves the value as an unsigned 64 bits integer
+		*/
+		inline uint64_t ToUInt64()const;
+
 		/** Retrieves the value as a simple precision floating point
 		*/
-		DatabaseExport float ToFloat()const;
+		inline float ToFloat()const;
 
 		/** Retrieves the value as a double precision floating point
 		*/
-		DatabaseExport double ToDouble()const;
+		inline double ToDouble()const;
 
 		/** Retrieves the value as a long double precision floating point
 		*/
-		DatabaseExport long double ToLongDouble()const;
-
-		/** Retrieves the number as a string
-		*/
-		DatabaseExport String const & ToString()const;
+		inline long double ToLongDouble()const;
 
 		/** Retrieves the precision
+		@return
+			The precision
 		*/
-		DatabaseExport uint8_t GetPrecision()const;
+		inline uint8_t GetPrecision()const;
 
-		/** Retrieves the scale
+		/** Tells if the value is signed
+		@return
+			The status
 		*/
-		DatabaseExport uint8_t GetScale()const;
+		inline bool IsSigned()const;
 
-		/** Tells if the number is signed
+		/** Retrieves the raw value
 		*/
-		DatabaseExport bool IsSigned()const;
+		inline int64_t GetRawValue()const;
+		
+		/** Multiplication assignment operator
+		@param[in] rhs
+			The multiplicator
+		*/
+		template< typename T >
+		inline CFixedPoint & operator *=( const T & rhs );
+
+		/** Division assignment operator
+		@param[in] rhs
+			The divisor
+		*/
+		template< typename T >
+		inline CFixedPoint & operator /=( const T & rhs );
+
+		/** Addition assignment operator
+		@param[in] rhs
+			The added
+		*/
+		template< typename T >
+		inline CFixedPoint & operator +=( const T & rhs );
+
+		/** Subtraction assignment operator
+		@param[in] rhs
+			The subtracted
+		*/
+		template< typename T >
+		inline CFixedPoint & operator -=( const T & rhs );
 
 	private:
-		bool _signed = true;
-		uint8_t _precision = 10;
-		uint8_t _scale = 5;
-		String _value;
+		uint8_t _precision;
+		int64_t _value;
+		bool _signed;
 	};
+
+	/** Multiplication operator
+	@param lhs
+		Left-hand side value.
+	@param rhs
+		Right-hand side value.
+	@return
+		The result
+	*/
+	template< typename T >
+	inline CFixedPoint operator *( const CFixedPoint & lhs, const T & rhs );
+
+	/** Division operator
+	@param lhs
+		Left-hand side value.
+	@param rhs
+		Right-hand side value.
+	@return
+		The result
+	*/
+	template< typename T >
+	inline CFixedPoint operator /( const CFixedPoint & lhs, const T & rhs );
+
+	/** Addition operator
+	@param lhs
+		Left-hand side value.
+	@param rhs
+		Right-hand side value.
+	@return
+		The result
+	*/
+	template< typename T >
+	inline CFixedPoint operator +( const CFixedPoint & lhs, const T & rhs );
+
+	/** Subtraction operator
+	@param lhs
+		Left-hand side value.
+	@param rhs
+		Right-hand side value.
+	@return
+		The result
+	*/
+	template< typename T >
+	inline CFixedPoint operator -( const CFixedPoint & lhs, const T & rhs );
 
 	/** Check equality of two fixed point numeric values.
 	@param lhs
@@ -182,5 +267,7 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	DatabaseExport std::wostream & operator <<( std::wostream & stream, const CFixedPoint & value );
 }
+
+#include "DatabaseFixedPoint.inl"
 
 #endif

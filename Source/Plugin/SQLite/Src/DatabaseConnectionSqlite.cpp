@@ -255,6 +255,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			CStrUtils::Replace( filePath, STR( "\\" ), PATH_SEP );
 			CStrUtils::Replace( filePath, STR( "/" ), PATH_SEP );
 
+			if ( !_database.empty() )
+			{
+				SQLite::Close( _connection );
+			}
+
 			try
 			{
 				boost::filesystem::remove( filePath );

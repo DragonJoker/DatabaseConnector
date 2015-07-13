@@ -16,6 +16,7 @@
 #include "DatabaseOdbcPrerequisites.h"
 
 #include "DatabaseOdbcHelper.h"
+#include "DatabaseStringUtils.h"
 
 #include <EFieldType.h>
 #include <EParameterType.h>
@@ -179,20 +180,20 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 			CFixedPoint const & fixedPoint = _value.GetValue();
 			_holder.precision = fixedPoint.GetPrecision();
-			_holder.scale = fixedPoint.GetScale();
+			_holder.scale = 1;
 			_holder.sign = fixedPoint.IsSigned();
 			strcpy( ( char * )_holder.val, CStrUtils::ToStr( fixedPoint.ToString() ).c_str() );
 
 			if ( _value.IsNull() || _value.GetPtrSize() == 0 )
 			{
-				_columnIndex = SQL_NULL_DATA;
+				_columnLenOrInd = SQL_NULL_DATA;
 			}
 			else
 			{
-				_columnIndex = _value.GetPtrSize();
+				_columnLenOrInd = _value.GetPtrSize();
 			}
 
-			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, SQLPOINTER( &_holder ), sizeof( _holder ), &_columnIndex ), SQL_HANDLE_STMT, _statement, ODBC_BindParameter_MSG + message.str() );
+			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, SQLPOINTER( &_holder ), sizeof( _holder ), &_columnLenOrInd ), SQL_HANDLE_STMT, _statement, ODBC_BindParameter_MSG + message.str() );
 			return errorType;
 		}
 

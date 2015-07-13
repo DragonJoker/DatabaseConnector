@@ -148,6 +148,18 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseSqliteExport virtual void DoSetValue( const int8_t & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseSqliteExport virtual void DoSetValue( const uint8_t & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
 		DatabaseSqliteExport virtual void DoSetValue( const int16_t & value )
 		{
 			DoSetAndUpdateValue( value );
@@ -232,13 +244,25 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
-		DatabaseSqliteExport virtual void DoSetValue( const std::vector< uint8_t > & value )
+		DatabaseSqliteExport virtual void DoSetValue( const ByteArray & value )
 		{
 			DoSetAndUpdateValue( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
 		DatabaseSqliteExport virtual void DoSetValueFast( const bool & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseSqliteExport virtual void DoSetValueFast( const int8_t & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseSqliteExport virtual void DoSetValueFast( const uint8_t & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}
@@ -328,7 +352,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
-		DatabaseSqliteExport virtual void DoSetValueFast( const std::vector< uint8_t > & value )
+		DatabaseSqliteExport virtual void DoSetValueFast( const ByteArray & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}

@@ -11,6 +11,8 @@
  *
  ***************************************************************************/
 
+#include "DatabaseNullable.h"
+
 BEGIN_NAMESPACE_DATABASE
 {
 	static const String DATABASE_ROW_INDEX_ERROR = STR( "Unknown error for field at index: " );
@@ -75,23 +77,23 @@ BEGIN_NAMESPACE_DATABASE
 	}
 
 	template< typename T >
-	inline boost::optional< T > CDatabaseRow::GetOpt( uint32_t index )
+	inline CDatabaseNullable< T > CDatabaseRow::GetOpt( uint32_t index )
 	{
-		boost::optional< T > tReturn;
+		CDatabaseNullable< T > tReturn;
 		GetOpt( index, tReturn );
 		return tReturn;
 	}
 
 	template< typename T >
-	inline boost::optional< T > CDatabaseRow::GetOpt( const String & name )
+	inline CDatabaseNullable< T > CDatabaseRow::GetOpt( const String & name )
 	{
-		boost::optional< T > tReturn;
+		CDatabaseNullable< T > tReturn;
 		GetOpt( name, tReturn );
 		return tReturn;
 	}
 
 	template< typename T >
-	inline void CDatabaseRow::GetOpt( uint32_t index, boost::optional< T > & value )
+	inline void CDatabaseRow::GetOpt( uint32_t index, CDatabaseNullable< T > & value )
 	{
 		try
 		{
@@ -112,7 +114,7 @@ BEGIN_NAMESPACE_DATABASE
 	}
 
 	template< typename T >
-	inline void CDatabaseRow::GetOpt( const String & name, boost::optional< T > & value )
+	inline void CDatabaseRow::GetOpt( const String & name, CDatabaseNullable< T > & value )
 	{
 		try
 		{
@@ -175,7 +177,7 @@ BEGIN_NAMESPACE_DATABASE
 	}
 
 	template< typename T >
-	inline void CDatabaseRow::GetOptFast( uint32_t index, boost::optional< T > & value )
+	inline void CDatabaseRow::GetOptFast( uint32_t index, CDatabaseNullable< T > & value )
 	{
 		try
 		{
@@ -196,7 +198,7 @@ BEGIN_NAMESPACE_DATABASE
 	}
 
 	template< typename T >
-	inline void CDatabaseRow::GetOptFast( const String & name, boost::optional< T > & value )
+	inline void CDatabaseRow::GetOptFast( const String & name, CDatabaseNullable< T > & value )
 	{
 		try
 		{

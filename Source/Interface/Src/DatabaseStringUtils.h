@@ -558,23 +558,43 @@ BEGIN_NAMESPACE_DATABASE
 
 	/** Stream operator
 	@param stream
-	    The stream.
+		The stream.
 	@param vector
-	    The vector.
+		The vector.
 	@return
-	    The stream.
+		The stream.
 	*/
-	DatabaseExport std::ostream & operator <<( std::ostream & stream, const std::vector< uint8_t > & vector );
+	DatabaseExport std::ostream & operator <<( std::ostream & stream, const NAMESPACE_DATABASE::ByteArray & vector );
 
 	/** Stream operator
 	@param stream
-	    The stream.
+		The stream.
 	@param vector
-	    The vector.
+		The vector.
 	@return
-	    The stream.
+		The stream.
 	*/
-	DatabaseExport std::wostream & operator <<( std::wostream & stream, const std::vector< uint8_t > & vector );
+	DatabaseExport std::wostream & operator <<( std::wostream & stream, const NAMESPACE_DATABASE::ByteArray & vector );
+
+	/** Stream operator
+	@param stream
+		The stream.
+	@param string
+		The string.
+	@return
+		The stream.
+	*/
+	DatabaseExport std::ostream & operator <<( std::ostream & stream, std::wstring const & string );
+
+	/** Stream operator
+	@param stream
+		The stream.
+	@param string
+		The string.
+	@return
+		The stream.
+	*/
+	DatabaseExport std::ostream & operator <<( std::ostream & stream, wchar_t const * string );
 }
 END_NAMESPACE_DATABASE
 /**

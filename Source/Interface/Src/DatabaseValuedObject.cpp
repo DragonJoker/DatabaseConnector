@@ -424,24 +424,20 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		switch ( GetType() )
 		{
-		case EFieldType_SMALL_INTEGER:
-			value = CFixedPoint( static_cast< CDatabaseValue< EFieldType_SMALL_INTEGER > & >( *_value ).GetValue() );
-			break;
-
 		case EFieldType_INTEGER:
-			value = CFixedPoint( static_cast< CDatabaseValue< EFieldType_INTEGER > & >( *_value ).GetValue() );
+			value = CFixedPoint( static_cast< CDatabaseValue< EFieldType_INTEGER > & >( *_value ).GetValue(), GetPrecision().first );
 			break;
 
 		case EFieldType_LONG_INTEGER:
-			value = CFixedPoint( static_cast< CDatabaseValue< EFieldType_LONG_INTEGER > & >( *_value ).GetValue() );
+			value = CFixedPoint( static_cast< CDatabaseValue< EFieldType_LONG_INTEGER > & >( *_value ).GetValue(), GetPrecision().first );
 			break;
 
 		case EFieldType_FLOATING_POINT_SIMPLE:
-			value = CFixedPoint( static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_SIMPLE > & >( *_value ).GetValue() );
+			value = CFixedPoint( static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_SIMPLE > & >( *_value ).GetValue(), GetPrecision().first );
 			break;
 
 		case EFieldType_FLOATING_POINT_DOUBLE:
-			value = CFixedPoint( static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_DOUBLE > & >( *_value ).GetValue() );
+			value = CFixedPoint( static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_DOUBLE > & >( *_value ).GetValue(), GetPrecision().first );
 			break;
 
 		case EFieldType_FIXED_POINT:
@@ -582,7 +578,7 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	}
 
-	void CDatabaseValuedObject::DoGetValue( std::vector< uint8_t > & value ) const
+	void CDatabaseValuedObject::DoGetValue( ByteArray & value ) const
 	{
 		value.clear();
 
@@ -746,7 +742,7 @@ BEGIN_NAMESPACE_DATABASE
 		value = static_cast< CDatabaseValue< EFieldType_TIME > & >( *_value ).GetValue();
 	}
 
-	void CDatabaseValuedObject::DoGetValueFast( std::vector< uint8_t > & value ) const
+	void CDatabaseValuedObject::DoGetValueFast( ByteArray & value ) const
 	{
 		assert( GetType() == EFieldType_BINARY || GetType() == EFieldType_VARBINARY || GetType() == EFieldType_LONG_VARBINARY );
 		value = static_cast< CDatabaseValue< EFieldType_BINARY > & >( *_value ).GetValue();
@@ -1295,7 +1291,7 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	}
 
-	void CDatabaseValuedObject::DoSetValue( const std::vector< uint8_t > & value )
+	void CDatabaseValuedObject::DoSetValue( const ByteArray & value )
 	{
 		switch ( GetType() )
 		{
@@ -1427,7 +1423,7 @@ BEGIN_NAMESPACE_DATABASE
 		static_cast< CDatabaseValue< EFieldType_TIME > & >( *_value ).SetValue( value );
 	}
 
-	void CDatabaseValuedObject::DoSetValueFast( const std::vector< uint8_t > & value )
+	void CDatabaseValuedObject::DoSetValueFast( const ByteArray & value )
 	{
 		assert( GetType() == EFieldType_BINARY || GetType() == EFieldType_VARBINARY || GetType() == EFieldType_LONG_VARBINARY );
 		static_cast< CDatabaseValue< EFieldType_BINARY > & >( *_value ).SetValue( value.data(), std::min( GetLimits(), uint32_t( value.size() ) ) );

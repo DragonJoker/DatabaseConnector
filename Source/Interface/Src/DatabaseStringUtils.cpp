@@ -690,7 +690,7 @@ BEGIN_NAMESPACE_DATABASE
 		return l_bReturn;
 	}
 
-	std::ostream & operator << ( std::ostream & stream, std::vector< uint8_t > const & vector )
+	std::ostream & operator << ( std::ostream & stream, NAMESPACE_DATABASE::ByteArray const & vector )
 	{
 		auto flags = stream.setf( std::ios::hex, std::ios::basefield );
 
@@ -703,9 +703,9 @@ BEGIN_NAMESPACE_DATABASE
 
 		stream.setf( flags );
 		return stream;
-	};
+	}
 
-	std::wostream & operator << ( std::wostream & stream, std::vector< uint8_t > const & vector )
+	std::wostream & operator << ( std::wostream & stream, NAMESPACE_DATABASE::ByteArray const & vector )
 	{
 		auto flags = stream.setf( std::ios::hex, std::ios::basefield );
 
@@ -718,7 +718,18 @@ BEGIN_NAMESPACE_DATABASE
 
 		stream.setf( flags );
 		return stream;
-	};
+	}
+
+	std::ostream & operator <<( std::ostream & stream, std::wstring const & string )
+	{
+		stream << NAMESPACE_DATABASE::CStrUtils::ToStr( string );
+		return stream;
+	}
+
+	std::ostream & operator <<( std::ostream & stream, wchar_t const * string )
+	{
+		stream << NAMESPACE_DATABASE::CStrUtils::ToStr( string );
+		return stream;
+	}
 }
 END_NAMESPACE_DATABASE
-

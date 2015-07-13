@@ -247,7 +247,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
-		DatabaseMySqlExport virtual void DoSetValue( const std::vector< uint8_t > & value )
+		DatabaseMySqlExport virtual void DoSetValue( const ByteArray & value )
 		{
 			DoSetAndUpdateValue( value );
 		}
@@ -343,7 +343,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
-		DatabaseMySqlExport virtual void DoSetValueFast( const std::vector< uint8_t > & value )
+		DatabaseMySqlExport virtual void DoSetValueFast( const ByteArray & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}

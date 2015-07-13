@@ -41,12 +41,6 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport virtual ~CDatabaseValueBase();
 
-		/** Set value as string.
-		@param[in] value
-		    Field value as string.
-		*/
-		DatabaseExport virtual void FromString( const String & value ) = 0;
-
 		/** Defines this value from the given one
 		@param value
 		    The value

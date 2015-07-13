@@ -114,7 +114,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		//!@copydoc SSqliteBindingBase::DoSetValue
 		virtual void UpdateValue()
 		{
-			SQLiteTry( SQLite::BindInt( _statement, _index, _value.GetValue() ), StringStream() << STR( "Parameter set value: " ) << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			SQLiteTry( SQLite::BindInt( _statement, _index, _value.GetValue() ), StringStream() << STR( "Parameter set value: " ) << int16_t( _value.GetValue() ), EDatabaseExceptionCodes_StatementError, _connection );
 		}
 
 		//! The parameter value

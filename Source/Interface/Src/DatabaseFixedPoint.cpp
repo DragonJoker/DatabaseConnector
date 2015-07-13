@@ -18,69 +18,81 @@
 BEGIN_NAMESPACE_DATABASE
 {
 	CFixedPoint::CFixedPoint()
+		: _value( 0 )
+		, _precision( 8 )
+		, _signed( true )
 	{
 	}
 
-	CFixedPoint::CFixedPoint( int8_t value )
-	{
-	}
-
-	CFixedPoint::CFixedPoint( uint8_t value )
-	{
-	}
-
-	CFixedPoint::CFixedPoint( int16_t value )
-	{
-	}
-
-	CFixedPoint::CFixedPoint( uint16_t value )
-	{
-	}
-
-	CFixedPoint::CFixedPoint( int32_t value )
-	{
-	}
-
-	CFixedPoint::CFixedPoint( uint32_t value )
-	{
-	}
-
-	CFixedPoint::CFixedPoint( int64_t value )
-	{
-	}
-
-	CFixedPoint::CFixedPoint( uint64_t value )
-	{
-	}
-
-	CFixedPoint::CFixedPoint( float value )
-	{
-	}
-
-	CFixedPoint::CFixedPoint( double value )
-	{
-	}
-
-	CFixedPoint::CFixedPoint( long double value )
-	{
-	}
-
-	CFixedPoint::CFixedPoint( const String & value, uint8_t precision, uint8_t scale )
+	CFixedPoint::CFixedPoint( int32_t value, uint8_t precision )
 		: _value( value )
 		, _precision( precision )
-		, _scale( scale )
+		, _signed( true )
 	{
-		if ( _precision == -1 )
+	}
+
+	CFixedPoint::CFixedPoint( uint32_t value, uint8_t precision )
+		: _value( value )
+		, _precision( precision )
+		, _signed( false )
+	{
+	}
+
+	CFixedPoint::CFixedPoint( int64_t value, uint8_t precision )
+		: _value( value )
+		, _precision( precision )
+		, _signed( true )
+	{
+	}
+
+	CFixedPoint::CFixedPoint( uint64_t value, uint8_t precision )
+		: _value( value )
+		, _precision( precision )
+		, _signed( false )
+	{
+	}
+
+	CFixedPoint::CFixedPoint( float value, uint8_t precision )
+		: _precision( precision )
+		, _signed( false )
+	{
+		_value = int64_t( value * GetDecimalMult( _precision ) );
+	}
+
+	CFixedPoint::CFixedPoint( double value, uint8_t precision )
+		: _precision( precision )
+		, _signed( false )
+	{
+		_value = int64_t( value * GetDecimalMult( _precision ) );
+	}
+
+	CFixedPoint::CFixedPoint( long double value, uint8_t precision )
+		: _precision( precision )
+		, _signed( false )
+	{
+		_value = int64_t( value * GetDecimalMult( _precision ) );
+	}
+
+	CFixedPoint::CFixedPoint( String const & value, uint8_t precision )
+		: _precision( precision )
+	{
+		size_t index = value.find( STR( '.' ) );
+
+		if ( index == String::npos )
 		{
-			_precision = value.size();
-			size_t index = value.find( STR( '.' ) );
-
-			if ( index != String::npos )
-			{
-				_precision--;
-			}
-
-			_scale = _precision - ( index + 1 );
+			_value = CStrUtils::ToLongLong( value ) * GetDecimalMult( _precision );
+		}
+		else if ( value.size() - ( index + 1 ) < _precision )
+		{
+			StringStream adjusted;
+			adjusted.width( index + precision );
+			adjusted.fill( '0' );
+			adjusted << std::left << String( value.substr( 0, index ) + value.substr( index + 1 ) );
+			_value = CStrUtils::ToLongLong( value );
+		}
+		else
+		{
+			_value = CStrUtils::ToLongLong( value.substr( 0, index ) + value.substr( index + 1, _precision ) );
 		}
 	}
 
@@ -88,66 +100,53 @@ BEGIN_NAMESPACE_DATABASE
 	{
 	}
 
-	float CFixedPoint::ToFloat()const
+	String CFixedPoint::ToString()const
 	{
-		return 0.0f;
+		String result;
+
+		if ( IsSigned() )
+		{
+			result = CStrUtils::ToString( uint64_t( _value ) );
+		}
+		else
+		{
+			result = CStrUtils::ToString( _value );
+		}
+
+		if ( _value )
+		{
+			result.insert( ( result.rbegin() + _precision ).base(), '.' );
+		}
+
+		return result;
 	}
 
-	double CFixedPoint::ToDouble()const
+	int64_t CFixedPoint::GetDecimals()const
 	{
-		return 0.0;
-	}
-
-	long double CFixedPoint::ToLongDouble()const
-	{
-		return 0.0;
-	}
-
-	String const & CFixedPoint::ToString()const
-	{
-		return _value;
-	}
-
-	uint8_t CFixedPoint::GetPrecision()const
-	{
-		return _precision;
-	}
-
-	uint8_t CFixedPoint::GetScale()const
-	{
-		return _scale;
-	}
-
-	bool CFixedPoint::IsSigned()const
-	{
-		return _signed;
+		return _value - ( ToInt64() * GetDecimalMult( _precision ) );
 	}
 
 	bool operator ==( const CFixedPoint & lhs, const CFixedPoint & rhs )
 	{
-		return lhs.GetPrecision() == rhs.GetPrecision()
-			&& lhs.GetScale() == rhs.GetScale()
-			&& lhs.IsSigned() == rhs.IsSigned()
-			&& lhs.ToString() == rhs.ToString();
+		return lhs.ToInt64() == rhs.ToInt64()
+			&& lhs.GetDecimals() == rhs.GetDecimals();
 	}
 
 	bool operator !=( const CFixedPoint & lhs, const CFixedPoint & rhs )
 	{
-		return lhs.GetPrecision() != rhs.GetPrecision()
-			|| lhs.GetScale() != rhs.GetScale()
-			|| lhs.IsSigned() != rhs.IsSigned()
-			|| lhs.ToString() != rhs.ToString();
+		return lhs.ToInt64() != rhs.ToInt64()
+			|| lhs.GetDecimals() != rhs.GetDecimals();
 	}
 
 	std::ostream & operator <<( std::ostream & stream, const CFixedPoint & value )
 	{
-		stream << "[" << value.GetPrecision() << "," << value.GetScale() << "] " << CStrUtils::ToStr( value.ToString() );
+		stream << "[" << int16_t( value.GetPrecision() ) << "] " << CStrUtils::ToStr( value.ToString() );
 		return stream;
 	}
 
 	std::wostream & operator <<( std::wostream & stream, const CFixedPoint & value )
 	{
-		stream << L"[" << value.GetPrecision() << L"," << value.GetScale() << L"] " << CStrUtils::ToWStr( value.ToString() );
+		stream << L"[" << int16_t( value.GetPrecision() ) << L"] " << CStrUtils::ToWStr( value.ToString() );
 		return stream;
 	}
 }

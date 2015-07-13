@@ -156,7 +156,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			return result;
 		}
 
-		std::unique_ptr< CInMySqlBindBase > GetInBind( enum_field_types sqlType, MYSQL_BIND & bind )
+		std::unique_ptr< CInMySqlBindBase > GetInBind( enum_field_types sqlType, MYSQL_BIND & bind, std::uint32_t precision )
 		{
 			std::unique_ptr< CInMySqlBindBase > result;
 			bind.buffer_type = sqlType;
@@ -198,7 +198,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				break;
 
 			case MYSQL_TYPE_NEWDECIMAL:
-				result = std::make_unique< CInMySqlBind< char *, CFixedPoint > >( bind );
+				result = std::make_unique< CInMySqlBind< char *, CFixedPoint > >( bind, precision );
 				bind.is_unsigned = false;
 				break;
 
@@ -243,7 +243,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				bind = { 0 };
 				MYSQL_FIELD * field = mysql_fetch_field( data );
 				arrayReturn.push_back( std::make_shared< CDatabaseFieldInfos >( pConnexion, CStrUtils::ToString( field->name ), GetFieldType( field->type, field->charsetnr ), field->length ) );
-				inbinds.emplace_back( GetInBind( field->type, bind ) );
+				inbinds.emplace_back( GetInBind( field->type, bind, field->decimals ) );
 			}
 
 			mysql_free_result( data );
@@ -362,21 +362,21 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 								case EFieldType_BINARY:
 								{
 									auto value = static_cast< CInMySqlBind< uint8_t * > const & >( *bind ).GetValue();
-									static_cast< CDatabaseValue< EFieldType_BINARY > & >( field->GetObjectValue() ).SetValue( std::vector< uint8_t >( value, value + bind->_length ) );
+									static_cast< CDatabaseValue< EFieldType_BINARY > & >( field->GetObjectValue() ).SetValue( ByteArray( value, value + bind->_length ) );
 									break;
 								}
 
 								case EFieldType_VARBINARY:
 								{
 									auto value = static_cast< CInMySqlBind< uint8_t * > const & >( *bind ).GetValue();
-									static_cast< CDatabaseValue< EFieldType_VARBINARY > & >( field->GetObjectValue() ).SetValue( std::vector< uint8_t >( value, value + bind->_length ) );
+									static_cast< CDatabaseValue< EFieldType_VARBINARY > & >( field->GetObjectValue() ).SetValue( ByteArray( value, value + bind->_length ) );
 									break;
 								}
 
 								case EFieldType_LONG_VARBINARY:
 								{
 									auto value = static_cast< CInMySqlBind< uint8_t * > const & >( *bind ).GetValue();
-									static_cast< CDatabaseValue< EFieldType_LONG_VARBINARY > & >( field->GetObjectValue() ).SetValue( std::vector< uint8_t >( value, value + bind->_length ) );
+									static_cast< CDatabaseValue< EFieldType_LONG_VARBINARY > & >( field->GetObjectValue() ).SetValue( ByteArray( value, value + bind->_length ) );
 									break;
 								}
 
