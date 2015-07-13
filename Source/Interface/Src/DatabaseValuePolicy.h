@@ -1307,9 +1307,6 @@ BEGIN_NAMESPACE_DATABASE
 				return NULL_VALUE;
 			}
 		}
-
-	private:
-		std::string _value;
 	};
 }
 END_NAMESPACE_DATABASE
