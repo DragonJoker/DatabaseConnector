@@ -40,6 +40,16 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		return SBlockGuard< CleanFunc >( init, clean );
 	}
 
+	template< typename Type, typename Function >
+	void BatchTests( Function function, DatabaseConnectionPtr connection, String const & name, typename DatabaseUtils::Helpers< Type >::ParamType valueIn = DatabaseUtils::Helpers< Type >::InitialiseValue() )
+	{
+		function( connection, name, std::numeric_limits< DatabaseUtils::Helpers< Type >::ParamType >::lowest() );
+		function( connection, name, std::numeric_limits< DatabaseUtils::Helpers< Type >::ParamType >::max() );
+		function( connection, name, std::numeric_limits< DatabaseUtils::Helpers< Type >::ParamType >::min() );
+		function( connection, name, Type() );
+		function( connection, name, valueIn );
+	}
+
 	template< typename StmtType >
 	void CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieve()
 	{
@@ -60,20 +70,20 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			{
 				connection->SelectDatabase( _database );
 				DoFlushTable( connection );
-				DatabaseUtils::InsertAndRetrieve< StmtType, int32_t >( connection, STR( "IntegerField" ) );
-				DatabaseUtils::InsertAndRetrieve< StmtType, bool >( connection, STR( "TinyIntField" ) );
-				DatabaseUtils::InsertAndRetrieve< StmtType, int16_t >( connection, STR( "SmallIntField" ) );
-				DatabaseUtils::InsertAndRetrieve< StmtType, int32_t >( connection, STR( "MediumIntField" ) );
-				DatabaseUtils::InsertAndRetrieve< StmtType, int64_t >( connection, STR( "BigIntField" ) );
-				DatabaseUtils::InsertAndRetrieve< StmtType, int16_t >( connection, STR( "Int2Field" ) );
-				DatabaseUtils::InsertAndRetrieve< StmtType, int64_t >( connection, STR( "Int8Field" ) );
-				DatabaseUtils::InsertAndRetrieve< StmtType, double >( connection, STR( "RealField" ) );
-				DatabaseUtils::InsertAndRetrieve< StmtType, double >( connection, STR( "DoubleField" ) );
-				DatabaseUtils::InsertAndRetrieve< StmtType, double >( connection, STR( "DoublePrecisionField" ) );
-				DatabaseUtils::InsertAndRetrieve< StmtType, float >( connection, STR( "FloatField" ) );
-				//DatabaseUtils::InsertAndRetrieve< StmtType, int32_t >( connection, STR( "NumericField" ) );
-				DatabaseUtils::InsertAndRetrieve< StmtType, double >( connection, STR( "DecimalField" ) );
-				DatabaseUtils::InsertAndRetrieve< StmtType, bool >( connection, STR( "BooleanField" ) );
+				BatchTests< int32_t >( &DatabaseUtils::InsertAndRetrieve< StmtType, int32_t >, connection, STR( "IntegerField" ) );
+				BatchTests< bool >( &DatabaseUtils::InsertAndRetrieve< StmtType, bool >, connection, STR( "TinyIntField" ) );
+				BatchTests< int16_t >( &DatabaseUtils::InsertAndRetrieve< StmtType, int16_t >, connection, STR( "SmallIntField" ) );
+				BatchTests< int32_t >( &DatabaseUtils::InsertAndRetrieve< StmtType, int32_t >, connection, STR( "MediumIntField" ) );
+				BatchTests< int64_t >( &DatabaseUtils::InsertAndRetrieve< StmtType, int64_t >, connection, STR( "BigIntField" ) );
+				BatchTests< int16_t >( &DatabaseUtils::InsertAndRetrieve< StmtType, int16_t >, connection, STR( "Int2Field" ) );
+				BatchTests< int64_t >( &DatabaseUtils::InsertAndRetrieve< StmtType, int64_t >, connection, STR( "Int8Field" ) );
+				BatchTests< double >( &DatabaseUtils::InsertAndRetrieve< StmtType, double >, connection, STR( "RealField" ) );
+				BatchTests< double >( &DatabaseUtils::InsertAndRetrieve< StmtType, double >, connection, STR( "DoubleField" ) );
+				BatchTests< double >( &DatabaseUtils::InsertAndRetrieve< StmtType, double >, connection, STR( "DoublePrecisionField" ) );
+				BatchTests< float >( &DatabaseUtils::InsertAndRetrieve< StmtType, float >, connection, STR( "FloatField" ) );
+				//BatchTests< int32_t >( &DatabaseUtils::InsertAndRetrieve< StmtType, int32_t >, connection, STR( "NumericField" ) );
+				BatchTests< double >( &DatabaseUtils::InsertAndRetrieve< StmtType, double >, connection, STR( "DecimalField" ) );
+				BatchTests< bool >( &DatabaseUtils::InsertAndRetrieve< StmtType, bool >, connection, STR( "BooleanField" ) );
 				DatabaseUtils::InsertAndRetrieve< StmtType, CDate >( connection, STR( "DateField" ) );
 				DatabaseUtils::InsertAndRetrieve< StmtType, CDateTime >( connection, STR( "DateTimeField" ) );
 				DatabaseUtils::InsertAndRetrieve< StmtType, char * >( connection, STR( "CharacterField" ) );
@@ -106,20 +116,20 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			{
 				connection->SelectDatabase( _database );
 				DoFlushTable( connection );
-				DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, int32_t >( connection, STR( "IntegerField" ) );
-				DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, bool >( connection, STR( "TinyIntField" ) );
-				DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, int16_t >( connection, STR( "SmallIntField" ) );
-				DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, int32_t >( connection, STR( "MediumIntField" ) );
-				DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, int64_t >( connection, STR( "BigIntField" ) );
-				DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, int16_t >( connection, STR( "Int2Field" ) );
-				DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, int64_t >( connection, STR( "Int8Field" ) );
-				DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, double >( connection, STR( "RealField" ) );
-				DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, double >( connection, STR( "DoubleField" ) );
-				DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, double >( connection, STR( "DoublePrecisionField" ) );
-				DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, float >( connection, STR( "FloatField" ) );
-				//DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, int32_t >( connection, STR( "NumericField" ) );
-				DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, double >( connection, STR( "DecimalField" ) );
-				DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, bool >( connection, STR( "BooleanField" ) );
+				BatchTests< int32_t >( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, int32_t >, connection, STR( "IntegerField" ) );
+				BatchTests< bool >( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, bool >, connection, STR( "TinyIntField" ) );
+				BatchTests< int16_t >( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, int16_t >, connection, STR( "SmallIntField" ) );
+				BatchTests< int32_t >( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, int32_t >, connection, STR( "MediumIntField" ) );
+				BatchTests< int64_t >( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, int64_t >, connection, STR( "BigIntField" ) );
+				BatchTests< int16_t >( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, int16_t >, connection, STR( "Int2Field" ) );
+				BatchTests< int64_t >( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, int64_t >, connection, STR( "Int8Field" ) );
+				BatchTests< double >( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, double >, connection, STR( "RealField" ) );
+				BatchTests< double >( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, double >, connection, STR( "DoubleField" ) );
+				BatchTests< double >( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, double >, connection, STR( "DoublePrecisionField" ) );
+				BatchTests< float >( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, float >, connection, STR( "FloatField" ) );
+				//BatchTests< int32_t >( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, int32_t >, connection, STR( "NumericField" ) );
+				BatchTests< double >( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, double >, connection, STR( "DecimalField" ) );
+				BatchTests< bool >( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, bool >, connection, STR( "BooleanField" ) );
 				DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, CDate >( connection, STR( "DateField" ) );
 				DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, CDateTime >( connection, STR( "DateTimeField" ) );
 				DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, char * >( connection, STR( "CharacterField" ) );
@@ -152,20 +162,20 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			{
 				connection->SelectDatabase( _database );
 				DoFlushTable( connection );
-				DatabaseUtils::InsertAndRetrieveFast< StmtType, int32_t >( connection, STR( "IntegerField" ) );
-				DatabaseUtils::InsertAndRetrieveFast< StmtType, bool >( connection, STR( "TinyIntField" ) );
-				DatabaseUtils::InsertAndRetrieveFast< StmtType, int16_t >( connection, STR( "SmallIntField" ) );
-				DatabaseUtils::InsertAndRetrieveFast< StmtType, int32_t >( connection, STR( "MediumIntField" ) );
-				DatabaseUtils::InsertAndRetrieveFast< StmtType, int64_t >( connection, STR( "BigIntField" ) );
-				DatabaseUtils::InsertAndRetrieveFast< StmtType, int16_t >( connection, STR( "Int2Field" ) );
-				DatabaseUtils::InsertAndRetrieveFast< StmtType, int64_t >( connection, STR( "Int8Field" ) );
-				DatabaseUtils::InsertAndRetrieveFast< StmtType, double >( connection, STR( "RealField" ) );
-				DatabaseUtils::InsertAndRetrieveFast< StmtType, double >( connection, STR( "DoubleField" ) );
-				DatabaseUtils::InsertAndRetrieveFast< StmtType, double >( connection, STR( "DoublePrecisionField" ) );
-				DatabaseUtils::InsertAndRetrieveFast< StmtType, float >( connection, STR( "FloatField" ) );
-				//DatabaseUtils::InsertAndRetrieveFast< StmtType, int32_t >( connection, STR( "NumericField" ) );
-				DatabaseUtils::InsertAndRetrieveFast< StmtType, double >( connection, STR( "DecimalField" ) );
-				DatabaseUtils::InsertAndRetrieveFast< StmtType, bool >( connection, STR( "BooleanField" ) );
+				BatchTests< int32_t >( &DatabaseUtils::InsertAndRetrieveFast< StmtType, int32_t >, connection, STR( "IntegerField" ) );
+				BatchTests< bool >( &DatabaseUtils::InsertAndRetrieveFast< StmtType, bool >, connection, STR( "TinyIntField" ) );
+				BatchTests< int16_t >( &DatabaseUtils::InsertAndRetrieveFast< StmtType, int16_t >, connection, STR( "SmallIntField" ) );
+				BatchTests< int32_t >( &DatabaseUtils::InsertAndRetrieveFast< StmtType, int32_t >, connection, STR( "MediumIntField" ) );
+				BatchTests< int64_t >( &DatabaseUtils::InsertAndRetrieveFast< StmtType, int64_t >, connection, STR( "BigIntField" ) );
+				BatchTests< int16_t >( &DatabaseUtils::InsertAndRetrieveFast< StmtType, int16_t >, connection, STR( "Int2Field" ) );
+				BatchTests< int64_t >( &DatabaseUtils::InsertAndRetrieveFast< StmtType, int64_t >, connection, STR( "Int8Field" ) );
+				BatchTests< double >( &DatabaseUtils::InsertAndRetrieveFast< StmtType, double >, connection, STR( "RealField" ) );
+				BatchTests< double >( &DatabaseUtils::InsertAndRetrieveFast< StmtType, double >, connection, STR( "DoubleField" ) );
+				BatchTests< double >( &DatabaseUtils::InsertAndRetrieveFast< StmtType, double >, connection, STR( "DoublePrecisionField" ) );
+				BatchTests< float >( &DatabaseUtils::InsertAndRetrieveFast< StmtType, float >, connection, STR( "FloatField" ) );
+				//BatchTests< int32_t >( &DatabaseUtils::InsertAndRetrieveFast< StmtType, int32_t >, connection, STR( "NumericField" ) );
+				BatchTests< double >( &DatabaseUtils::InsertAndRetrieveFast< StmtType, double >, connection, STR( "DecimalField" ) );
+				BatchTests< bool >( &DatabaseUtils::InsertAndRetrieveFast< StmtType, bool >, connection, STR( "BooleanField" ) );
 				DatabaseUtils::InsertAndRetrieveFast< StmtType, CDate >( connection, STR( "DateField" ) );
 				DatabaseUtils::InsertAndRetrieveFast< StmtType, CDateTime >( connection, STR( "DateTimeField" ) );
 				DatabaseUtils::InsertAndRetrieveFast< StmtType, char * >( connection, STR( "CharacterField" ) );
@@ -199,20 +209,20 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			{
 				connection->SelectDatabase( _database );
 				DoFlushTable( connection );
-				DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, int32_t >( connection, STR( "IntegerField" ) );
-				DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, bool >( connection, STR( "TinyIntField" ) );
-				DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, int16_t >( connection, STR( "SmallIntField" ) );
-				DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, int32_t >( connection, STR( "MediumIntField" ) );
-				DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, int64_t >( connection, STR( "BigIntField" ) );
-				DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, int16_t >( connection, STR( "Int2Field" ) );
-				DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, int64_t >( connection, STR( "Int8Field" ) );
-				DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, double >( connection, STR( "RealField" ) );
-				DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, double >( connection, STR( "DoubleField" ) );
-				DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, double >( connection, STR( "DoublePrecisionField" ) );
-				DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, float >( connection, STR( "FloatField" ) );
-				//DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, int32_t >( connection, STR( "NumericField" ) );
-				DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, double >( connection, STR( "DecimalField" ) );
-				DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, bool >( connection, STR( "BooleanField" ) );
+				BatchTests< int32_t >( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, int32_t >, connection, STR( "IntegerField" ) );
+				BatchTests< bool >( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, bool >, connection, STR( "TinyIntField" ) );
+				BatchTests< int16_t >( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, int16_t >, connection, STR( "SmallIntField" ) );
+				BatchTests< int32_t >( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, int32_t >, connection, STR( "MediumIntField" ) );
+				BatchTests< int64_t >( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, int64_t >, connection, STR( "BigIntField" ) );
+				BatchTests< int16_t >( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, int16_t >, connection, STR( "Int2Field" ) );
+				BatchTests< int64_t >( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, int64_t >, connection, STR( "Int8Field" ) );
+				BatchTests< double >( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, double >, connection, STR( "RealField" ) );
+				BatchTests< double >( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, double >, connection, STR( "DoubleField" ) );
+				BatchTests< double >( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, double >, connection, STR( "DoublePrecisionField" ) );
+				BatchTests< float >( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, float >, connection, STR( "FloatField" ) );
+				//BatchTests< int32_t >( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, int32_t >, connection, STR( "NumericField" ) );
+				BatchTests< double >( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, double >, connection, STR( "DecimalField" ) );
+				BatchTests< bool >( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, bool >, connection, STR( "BooleanField" ) );
 				DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, CDate >( connection, STR( "DateField" ) );
 				DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, CDateTime >( connection, STR( "DateTimeField" ) );
 				DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, char * >( connection, STR( "CharacterField" ) );

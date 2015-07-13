@@ -100,7 +100,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	COutOdbcBindBase::COutOdbcBindBase( HSTMT statement, uint16_t index, EFieldType fieldType, EParameterType parameterType, const String & name, CDatabaseValueBase & value )
 		: _inputOutputType( InOutTypes[parameterType] )
 		, _valueType( CTypes[fieldType] )
-		, _columnIndex( 0 )
+		, _columnLenOrInd( 0 )
 		, _parameterType( Types[fieldType] )
 		, _columnSize( 0 )
 		, _decimalDigits( 0 )

@@ -85,8 +85,8 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		SQLULEN _columnSize;
 		/// Decimal number of digits
 		SQLSMALLINT _decimalDigits;
-		/// Column index
-		mutable SQLLEN _columnIndex;
+		/// Column length or indicator
+		mutable SQLLEN _columnLenOrInd;
 		/// Tells the parameter is nullable
 		SQLSMALLINT _nullable;
 		/// The parameter data type
@@ -131,17 +131,18 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 			if ( _value.IsNull() || _value.GetPtrSize() == 0 )
 			{
-				_columnIndex = SQL_NULL_DATA;
+				_columnLenOrInd = SQL_NULL_DATA;
 			}
 			else
 			{
-				_columnIndex = _value.GetPtrSize();
+				_columnLenOrInd = _value.GetPtrSize();
 			}
 
-			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, _value.GetPtrValue(), _value.GetPtrSize(), &_columnIndex ), SQL_HANDLE_STMT, _statement, ODBC_BindParameter_MSG + message.str() );
+			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, _value.GetPtrValue(), _value.GetPtrSize(), &_columnLenOrInd ), SQL_HANDLE_STMT, _statement, ODBC_BindParameter_MSG + message.str() );
 			return errorType;
 		}
 
+		//! The explicitly typed value
 		CDatabaseValue< Type > & _value;
 	};
 
@@ -183,18 +184,20 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 			if ( _value.IsNull() || _value.GetPtrSize() == 0 )
 			{
-				_columnIndex = SQL_NULL_DATA;
+				_columnLenOrInd = SQL_NULL_DATA;
 			}
 			else
 			{
-				_columnIndex = _value.GetPtrSize();
+				_columnLenOrInd = _value.GetPtrSize();
 			}
 
-			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, SQLPOINTER( &_holder ), sizeof( _holder ), &_columnIndex ), SQL_HANDLE_STMT, _statement, ODBC_BindParameter_MSG + message.str() );
+			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, SQLPOINTER( &_holder ), sizeof( _holder ), &_columnLenOrInd ), SQL_HANDLE_STMT, _statement, ODBC_BindParameter_MSG + message.str() );
 			return errorType;
 		}
 
+		//! The explicitly typed value
 		CDatabaseValue< EFieldType_DATE > & _value;
+		//! Holds the value sent to the server
 		mutable SQL_DATE_STRUCT _holder;
 	};
 
@@ -236,18 +239,20 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 			if ( _value.IsNull() || _value.GetPtrSize() == 0 )
 			{
-				_columnIndex = SQL_NULL_DATA;
+				_columnLenOrInd = SQL_NULL_DATA;
 			}
 			else
 			{
-				_columnIndex = _value.GetPtrSize();
+				_columnLenOrInd = _value.GetPtrSize();
 			}
 
-			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, SQLPOINTER( &_holder ), sizeof( _holder ), &_columnIndex ), SQL_HANDLE_STMT, _statement, ODBC_BindParameter_MSG + message.str() );
+			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, SQLPOINTER( &_holder ), sizeof( _holder ), &_columnLenOrInd ), SQL_HANDLE_STMT, _statement, ODBC_BindParameter_MSG + message.str() );
 			return errorType;
 		}
 
+		//! The explicitly typed value
 		CDatabaseValue< EFieldType_TIME > & _value;
+		//! Holds the value sent to the server
 		mutable SQL_TIME_STRUCT _holder;
 	};
 
@@ -292,18 +297,20 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 			if ( _value.IsNull() || _value.GetPtrSize() == 0 )
 			{
-				_columnIndex = SQL_NULL_DATA;
+				_columnLenOrInd = SQL_NULL_DATA;
 			}
 			else
 			{
-				_columnIndex = _value.GetPtrSize();
+				_columnLenOrInd = _value.GetPtrSize();
 			}
 
-			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, SQLPOINTER( &_holder ), sizeof( _holder ), &_columnIndex ), SQL_HANDLE_STMT, _statement, ODBC_BindParameter_MSG + message.str() );
+			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, SQLPOINTER( &_holder ), sizeof( _holder ), &_columnLenOrInd ), SQL_HANDLE_STMT, _statement, ODBC_BindParameter_MSG + message.str() );
 			return errorType;
 		}
 
+		//! The explicitly typed value
 		CDatabaseValue< EFieldType_DATETIME > & _value;
+		//! Holds the value sent to the server
 		mutable SQL_TIMESTAMP_STRUCT _holder;
 	};
 
@@ -339,19 +346,19 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 			if ( _value.IsNull() )
 			{
-				_columnIndex = SQL_NULL_DATA;
+				_columnLenOrInd = SQL_NULL_DATA;
 			}
 			else
 			{
-				_columnIndex = _value.GetPtrSize();
+				_columnLenOrInd = _value.GetPtrSize();
 			}
 
-			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, _value.GetPtrValue(), _value.GetPtrSize(), &_columnIndex ), SQL_HANDLE_STMT, _statement, ODBC_BindParameter_MSG + message.str() );
+			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, _value.GetPtrValue(), _value.GetPtrSize(), &_columnLenOrInd ), SQL_HANDLE_STMT, _statement, ODBC_BindParameter_MSG + message.str() );
 			return errorType;
 		}
 
+		//! The explicitly typed value
 		CDatabaseValue< EFieldType_VARCHAR > & _value;
-		SQL_TIMESTAMP_STRUCT _holder;
 	};
 
 	/** COutOdbcBind specialisation for EFieldType_LONG_VARBINARY
@@ -386,19 +393,19 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 			if ( _value.IsNull() )
 			{
-				_columnIndex = SQL_NULL_DATA;
+				_columnLenOrInd = SQL_NULL_DATA;
 			}
 			else
 			{
-				_columnIndex = _value.GetPtrSize();
+				_columnLenOrInd = _value.GetPtrSize();
 			}
 
-			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, _value.GetPtrValue(), _value.GetPtrSize(), &_columnIndex ), SQL_HANDLE_STMT, _statement, ODBC_BindParameter_MSG + message.str() );
+			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, _value.GetPtrValue(), _value.GetPtrSize(), &_columnLenOrInd ), SQL_HANDLE_STMT, _statement, ODBC_BindParameter_MSG + message.str() );
 			return errorType;
 		}
 
+		//! The explicitly typed value
 		CDatabaseValue< EFieldType_NVARCHAR > & _value;
-		SQL_TIMESTAMP_STRUCT _holder;
 	};
 
 	/** COutOdbcBind specialisation for EFieldType_TEXT
@@ -435,26 +442,26 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 			if ( _value.IsNull() )
 			{
-				_columnAtExec = SQL_NULL_DATA;
+				_columnLenOrInd = SQL_NULL_DATA;
 			}
 			else
 			{
 				if ( _value.GetPtrSize() == 0 )
 				{
-					_columnAtExec = SQL_NTS;
+					_columnLenOrInd = SQL_NTS;
 				}
 				else
 				{
-					_columnAtExec = SQL_LEN_DATA_AT_EXEC( static_cast< const long & >( _value.GetPtrSize() ) );
+					_columnLenOrInd = SQL_LEN_DATA_AT_EXEC( static_cast< const long & >( _value.GetPtrSize() ) );
 				}
 			}
 
-			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, _value.GetPtrValue(), _value.GetPtrSize(), &_columnAtExec ), SQL_HANDLE_STMT, _statement, ODBC_BindParameter_MSG + message.str() );
+			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, _value.GetPtrValue(), _value.GetPtrSize(), &_columnLenOrInd ), SQL_HANDLE_STMT, _statement, ODBC_BindParameter_MSG + message.str() );
 			return errorType;
 		}
 
+		//! The explicitly typed value
 		CDatabaseValue< EFieldType_TEXT > & _value;
-		mutable SQLINTEGER _columnAtExec;
 	};
 
 	/** COutOdbcBind specialisation for EFieldType_NTEXT
@@ -491,26 +498,26 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 			if ( _value.IsNull() )
 			{
-				_columnAtExec = SQL_NULL_DATA;
+				_columnLenOrInd = SQL_NULL_DATA;
 			}
 			else
 			{
 				if ( _value.GetPtrSize() == 0 )
 				{
-					_columnAtExec = SQL_NTS;
+					_columnLenOrInd = SQL_NTS;
 				}
 				else
 				{
-					_columnAtExec = SQL_LEN_DATA_AT_EXEC( static_cast< const long & >( _value.GetPtrSize() ) );
+					_columnLenOrInd = SQL_LEN_DATA_AT_EXEC( static_cast< const long & >( _value.GetPtrSize() ) );
 				}
 			}
 
-			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, _value.GetPtrValue(), _value.GetPtrSize(), &_columnAtExec ), SQL_HANDLE_STMT, _statement, ODBC_BindParameter_MSG + message.str() );
+			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, _value.GetPtrValue(), _value.GetPtrSize(), &_columnLenOrInd ), SQL_HANDLE_STMT, _statement, ODBC_BindParameter_MSG + message.str() );
 			return errorType;
 		}
 
+		//! The explicitly typed value
 		CDatabaseValue< EFieldType_NTEXT > & _value;
-		mutable SQLINTEGER _columnAtExec;
 	};
 
 	/** COutOdbcBind specialisation for EFieldType_LONG_VARBINARY
@@ -547,19 +554,19 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 			if ( _value.IsNull() || _value.GetPtrSize() == 0 )
 			{
-				_columnAtExec = SQL_NULL_DATA;
+				_columnLenOrInd = SQL_NULL_DATA;
 			}
 			else
 			{
-				_columnAtExec = SQL_LEN_DATA_AT_EXEC( static_cast< const long & >( _value.GetPtrSize() ) );
+				_columnLenOrInd = SQL_LEN_DATA_AT_EXEC( static_cast< const long & >( _value.GetPtrSize() ) );
 			}
 
-			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, _value.GetPtrValue(), _value.GetPtrSize(), &_columnAtExec ), SQL_HANDLE_STMT, _statement, ODBC_BindParameter_MSG + message.str() );
+			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, _value.GetPtrValue(), _value.GetPtrSize(), &_columnLenOrInd ), SQL_HANDLE_STMT, _statement, ODBC_BindParameter_MSG + message.str() );
 			return errorType;
 		}
 
+		//! The explicitly typed value
 		CDatabaseValue< EFieldType_LONG_VARBINARY > & _value;
-		mutable SQLINTEGER _columnAtExec;
 	};
 
 	/** Function to facilitate the COutOdbcBindBase creation

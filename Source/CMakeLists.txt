@@ -115,11 +115,12 @@ set( DATABASE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR} )
 if( Boost_FOUND )
 	add_subdirectory( Interface )
 	add_subdirectory( Plugin )
-	add_subdirectory( Test )
 
 	PluginInit()
 
 	PluginBuild()
+
+	add_subdirectory( Test )
 
 	SET( msg "Database following plugins will be built" )
 	PluginSummary( ${msg} )

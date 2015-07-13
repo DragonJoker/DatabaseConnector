@@ -460,12 +460,12 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		};
 
 		template< class Stmt, typename Type >
-		inline void InsertAndRetrieve( DatabaseConnectionPtr connection, const String & name )
+		inline void InsertAndRetrieve( DatabaseConnectionPtr connection, const String & name, typename Helpers< Type >::ParamType valueIn = Helpers< Type >::InitialiseValue() )
 		{
 			try
 			{
-				auto && stmtInsert = DatabaseUtils::CreateStmt< Stmt >( connection, STR( "INSERT INTO Test (" ) + name + STR( ") VALUES (?)" ) );
-				auto && stmtSelect = DatabaseUtils::CreateStmt< Stmt >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE " ) + name + STR( " = ?" ) );
+				auto && stmtInsert = CreateStmt< Stmt >( connection, STR( "INSERT INTO Test (" ) + name + STR( ") VALUES (?)" ) );
+				auto && stmtSelect = CreateStmt< Stmt >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE " ) + name + STR( " = ?" ) );
 				BOOST_CHECK( stmtInsert );
 				BOOST_CHECK( stmtSelect );
 
@@ -477,7 +477,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					BOOST_CHECK( stmtInsert->Initialize() == EErrorType_NONE );
 					BOOST_CHECK( stmtSelect->Initialize() == EErrorType_NONE );
 
-					typename Helpers< Type >::ParamType valueIn = Helpers< Type >::InitialiseValue();
 					BOOST_CHECK_NO_THROW( stmtInsert->SetParameterValue( 0, valueIn ) );
 					BOOST_CHECK_NO_THROW( stmtSelect->SetParameterValue( 0, valueIn ) );
 
@@ -505,12 +504,12 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< class Stmt, typename Type >
-		inline void InsertAndRetrieveOtherIndex( DatabaseConnectionPtr connection, const String & name )
+		inline void InsertAndRetrieveOtherIndex( DatabaseConnectionPtr connection, const String & name, typename Helpers< Type >::ParamType valueIn = Helpers< Type >::InitialiseValue() )
 		{
 			try
 			{
-				auto && stmtInsert = DatabaseUtils::CreateStmt< Stmt >( connection, STR( "INSERT INTO Test (IntField, " ) + name + STR( ") VALUES (?, ?)" ) );
-				auto && stmtSelect = DatabaseUtils::CreateStmt< Stmt >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE IntField = ? AND " ) + name + STR( " = ?" ) );
+				auto && stmtInsert = CreateStmt< Stmt >( connection, STR( "INSERT INTO Test (IntField, " ) + name + STR( ") VALUES (?, ?)" ) );
+				auto && stmtSelect = CreateStmt< Stmt >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE IntField = ? AND " ) + name + STR( " = ?" ) );
 				BOOST_CHECK( stmtInsert );
 				BOOST_CHECK( stmtSelect );
 
@@ -524,7 +523,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					BOOST_CHECK( stmtInsert->Initialize() == EErrorType_NONE );
 					BOOST_CHECK( stmtSelect->Initialize() == EErrorType_NONE );
 
-					typename Helpers< Type >::ParamType valueIn = Helpers< Type >::InitialiseValue();
 					BOOST_CHECK_NO_THROW( stmtInsert->SetParameterValue( 0, 18 ) );
 					BOOST_CHECK_NO_THROW( stmtInsert->SetParameterValue( 1, valueIn ) );
 					BOOST_CHECK_NO_THROW( stmtSelect->SetParameterValue( 0, 18 ) );
@@ -554,12 +552,12 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< class Stmt, typename Type >
-		inline void InsertAndRetrieveFast( DatabaseConnectionPtr connection, const String & name )
+		inline void InsertAndRetrieveFast( DatabaseConnectionPtr connection, const String & name, typename Helpers< Type >::ParamType valueIn = Helpers< Type >::InitialiseValue() )
 		{
 			try
 			{
-				auto && stmtInsert = DatabaseUtils::CreateStmt< Stmt >( connection, STR( "INSERT INTO Test (" ) + name + STR( ") VALUES (?)" ) );
-				auto && stmtSelect = DatabaseUtils::CreateStmt< Stmt >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE " ) + name + STR( " = ?" ) );
+				auto && stmtInsert = CreateStmt< Stmt >( connection, STR( "INSERT INTO Test (" ) + name + STR( ") VALUES (?)" ) );
+				auto && stmtSelect = CreateStmt< Stmt >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE " ) + name + STR( " = ?" ) );
 				BOOST_CHECK( stmtInsert );
 				BOOST_CHECK( stmtSelect );
 
@@ -571,7 +569,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					BOOST_CHECK( stmtInsert->Initialize() == EErrorType_NONE );
 					BOOST_CHECK( stmtSelect->Initialize() == EErrorType_NONE );
 
-					typename Helpers< Type >::ParamType valueIn = Helpers< Type >::InitialiseValue();
 					BOOST_CHECK_NO_THROW( stmtInsert->SetParameterValueFast( 0, valueIn ) );
 					BOOST_CHECK_NO_THROW( stmtSelect->SetParameterValueFast( 0, valueIn ) );
 
@@ -599,12 +596,12 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< class Stmt, typename Type >
-		inline void InsertAndRetrieveFastOtherIndex( DatabaseConnectionPtr connection, const String & name )
+		inline void InsertAndRetrieveFastOtherIndex( DatabaseConnectionPtr connection, const String & name, typename Helpers< Type >::ParamType valueIn = Helpers< Type >::InitialiseValue() )
 		{
 			try
 			{
-				auto && stmtInsert = DatabaseUtils::CreateStmt< Stmt >( connection, STR( "INSERT INTO Test (IntField, " ) + name + STR( ") VALUES (?, ?)" ) );
-				auto && stmtSelect = DatabaseUtils::CreateStmt< Stmt >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE IntField = ? AND " ) + name + STR( " = ?" ) );
+				auto && stmtInsert = CreateStmt< Stmt >( connection, STR( "INSERT INTO Test (IntField, " ) + name + STR( ") VALUES (?, ?)" ) );
+				auto && stmtSelect = CreateStmt< Stmt >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE IntField = ? AND " ) + name + STR( " = ?" ) );
 				BOOST_CHECK( stmtInsert );
 				BOOST_CHECK( stmtSelect );
 
@@ -618,7 +615,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					BOOST_CHECK( stmtInsert->Initialize() == EErrorType_NONE );
 					BOOST_CHECK( stmtSelect->Initialize() == EErrorType_NONE );
 
-					typename Helpers< Type >::ParamType valueIn = Helpers< Type >::InitialiseValue();
 					BOOST_CHECK_NO_THROW( stmtInsert->SetParameterValueFast( 0, 18 ) );
 					BOOST_CHECK_NO_THROW( stmtInsert->SetParameterValueFast( 1, valueIn ) );
 					BOOST_CHECK_NO_THROW( stmtSelect->SetParameterValueFast( 0, 18 ) );
@@ -652,7 +648,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		{
 			try
 			{
-				auto && stmtGetCount = DatabaseUtils::CreateStmt< T >( connection, QUERY_GET_COUNT );
+				auto && stmtGetCount = CreateStmt< T >( connection, QUERY_GET_COUNT );
 				BOOST_CHECK( stmtGetCount );
 				int64_t count = -1;
 
@@ -673,7 +669,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( count )
 				{
-					auto && stmtInsert = DatabaseUtils::CreateStmt< T >( connection, QUERY_INSERT_ELEMENT );
+					auto && stmtInsert = CreateStmt< T >( connection, QUERY_INSERT_ELEMENT );
 					BOOST_CHECK( stmtInsert );
 
 					if ( stmtInsert )
@@ -715,7 +711,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		{
 			try
 			{
-				auto && stmtSelect = DatabaseUtils::CreateStmt< T >( connection, QUERY_DIRECT_SELECT_ALL_ELEMENTS );
+				auto && stmtSelect = CreateStmt< T >( connection, QUERY_DIRECT_SELECT_ALL_ELEMENTS );
 				BOOST_CHECK( stmtSelect );
 
 				if ( stmtSelect )
@@ -749,7 +745,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		{
 			try
 			{
-				auto && stmtGetMin = DatabaseUtils::CreateStmt< T >( connection, QUERY_SELECT_MIN );
+				auto && stmtGetMin = CreateStmt< T >( connection, QUERY_SELECT_MIN );
 				BOOST_CHECK( stmtGetMin );
 				int64_t min = -1;
 
@@ -768,7 +764,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( min )
 				{
-					auto && stmtUpdate = DatabaseUtils::CreateStmt< T >( connection, QUERY_DIRECT_UPDATE_ELEMENT );
+					auto && stmtUpdate = CreateStmt< T >( connection, QUERY_DIRECT_UPDATE_ELEMENT );
 					BOOST_CHECK( stmtUpdate );
 
 					if ( stmtUpdate )
@@ -798,7 +794,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		{
 			try
 			{
-				auto && stmtGetMin = DatabaseUtils::CreateStmt< T >( connection, QUERY_SELECT_MIN );
+				auto && stmtGetMin = CreateStmt< T >( connection, QUERY_SELECT_MIN );
 				BOOST_CHECK( stmtGetMin );
 				int64_t min = -1;
 
@@ -817,7 +813,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( min )
 				{
-					auto && stmtDelete = DatabaseUtils::CreateStmt< T >( connection, QUERY_DIRECT_DELETE_ELEMENT );
+					auto && stmtDelete = CreateStmt< T >( connection, QUERY_DIRECT_DELETE_ELEMENT );
 					BOOST_CHECK( stmtDelete );
 
 					if ( stmtDelete )
@@ -845,7 +841,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		{
 			try
 			{
-				auto && stmtClear = DatabaseUtils::CreateStmt< T >( connection, STR( "CALL ClearElementsTables" ) );
+				auto && stmtClear = CreateStmt< T >( connection, STR( "CALL ClearElementsTables" ) );
 				BOOST_CHECK( stmtClear );
 
 				if ( stmtClear )
@@ -869,7 +865,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		{
 			try
 			{
-				auto && stmtGetElements = DatabaseUtils::CreateStmt< T >( connection, STR( "CALL GetElements(?)" ) );
+				auto && stmtGetElements = CreateStmt< T >( connection, STR( "CALL GetElements(?)" ) );
 				BOOST_CHECK( stmtGetElements );
 
 				if ( stmtGetElements )
@@ -909,7 +905,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		{
 			try
 			{
-				auto && stmtGetMin = DatabaseUtils::CreateStmt< T >( connection, QUERY_SELECT_MIN );
+				auto && stmtGetMin = CreateStmt< T >( connection, QUERY_SELECT_MIN );
 				BOOST_CHECK( stmtGetMin );
 				int64_t min = 0;
 
@@ -928,7 +924,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( min )
 				{
-					auto && stmtDelete = DatabaseUtils::CreateStmt< T >( connection, STR( "CALL DeleteElements(?)" ) );
+					auto && stmtDelete = CreateStmt< T >( connection, STR( "CALL DeleteElements(?)" ) );
 					BOOST_CHECK( stmtDelete );
 
 					if ( stmtDelete )
@@ -956,7 +952,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		{
 			try
 			{
-				auto && stmtGetCount = DatabaseUtils::CreateStmt< T >( connection, QUERY_GET_COUNT );
+				auto && stmtGetCount = CreateStmt< T >( connection, QUERY_GET_COUNT );
 				BOOST_CHECK( stmtGetCount );
 				int64_t count = -1;
 
@@ -977,7 +973,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( count )
 				{
-					auto && stmtAddElement = DatabaseUtils::CreateStmt< T >( connection, STR( "CALL AddElement(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);" ) );
+					auto && stmtAddElement = CreateStmt< T >( connection, STR( "CALL AddElement(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);" ) );
 					BOOST_CHECK( stmtAddElement );
 
 					if ( stmtAddElement )
@@ -1011,7 +1007,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		{
 			try
 			{
-				auto && stmtGetCount = DatabaseUtils::CreateStmt< T >( connection, QUERY_GET_COUNT );
+				auto && stmtGetCount = CreateStmt< T >( connection, QUERY_GET_COUNT );
 				BOOST_CHECK( stmtGetCount );
 				int64_t count = -1;
 
@@ -1032,7 +1028,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( count )
 				{
-					auto && stmtUpdateElement = DatabaseUtils::CreateStmt< T >( connection, STR( "CALL UpdateElement(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);" ) );
+					auto && stmtUpdateElement = CreateStmt< T >( connection, STR( "CALL UpdateElement(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);" ) );
 					BOOST_CHECK( stmtUpdateElement );
 
 					if ( stmtUpdateElement )
@@ -1072,11 +1068,11 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( whereClause.empty() )
 				{
-					stmtGetActors = DatabaseUtils::CreateStmt< T >( connection, QUERY_DIRECT_SELECT_ALL_ELEMENTS );
+					stmtGetActors = CreateStmt< T >( connection, QUERY_DIRECT_SELECT_ALL_ELEMENTS );
 				}
 				else
 				{
-					stmtGetActors = DatabaseUtils::CreateStmt< T >( connection, QUERY_DIRECT_SELECT_ALL_ELEMENTS + STR( " " ) + whereClause );
+					stmtGetActors = CreateStmt< T >( connection, QUERY_DIRECT_SELECT_ALL_ELEMENTS + STR( " " ) + whereClause );
 				}
 
 				if ( stmtGetActors )
@@ -1113,7 +1109,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		{
 			try
 			{
-				auto && stmtGetActors = DatabaseUtils::CreateStmt< T >( connection, STR( "CALL SpGetActors(?)" ) );
+				auto && stmtGetActors = CreateStmt< T >( connection, STR( "CALL SpGetActors(?)" ) );
 
 				if ( stmtGetActors )
 				{
@@ -1151,7 +1147,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		{
 			try
 			{
-				auto && stmtGetMin = DatabaseUtils::CreateStmt< T >( connection, QUERY_SELECT_MIN );
+				auto && stmtGetMin = CreateStmt< T >( connection, QUERY_SELECT_MIN );
 				int64_t min = 0;
 
 				if ( stmtGetMin )
@@ -1167,7 +1163,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( min )
 				{
-					auto && stmtDelete = DatabaseUtils::CreateStmt< T >( connection, QUERY_DIRECT_DELETE_ELEMENT );
+					auto && stmtDelete = CreateStmt< T >( connection, QUERY_DIRECT_DELETE_ELEMENT );
 
 					if ( stmtDelete )
 					{
@@ -1197,7 +1193,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		{
 			try
 			{
-				auto && stmtGetMin = DatabaseUtils::CreateStmt< T >( connection, QUERY_SELECT_MIN );
+				auto && stmtGetMin = CreateStmt< T >( connection, QUERY_SELECT_MIN );
 				int64_t min = 0;
 
 				if ( stmtGetMin )
@@ -1213,7 +1209,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( min )
 				{
-					auto && stmtDelete = DatabaseUtils::CreateStmt< T >( connection, STR( "CALL SpDeleteActor(?)" ) );
+					auto && stmtDelete = CreateStmt< T >( connection, STR( "CALL SpDeleteActor(?)" ) );
 
 					if ( stmtDelete )
 					{

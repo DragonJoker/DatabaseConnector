@@ -14,7 +14,7 @@ set( DefaultTarget DatabasePluginSqlite )
 
 add_target(
     DatabasePluginSqlite
-    dll
+    plugin
     "Database"
     "Database;${MinLibraries}"
     "DatabaseSqlitePch.h"
