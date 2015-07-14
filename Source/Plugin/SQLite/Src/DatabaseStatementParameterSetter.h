@@ -92,10 +92,10 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		CDatabaseValue< EFieldType_BIT > const & _value;
 	};
 
-	/** Specialization for EFieldType_TINY_INTEGER
+	/** Specialization for EFieldType_INT8
 	*/
 	template<>
-	struct SSqliteBinding< EFieldType_TINY_INTEGER >
+	struct SSqliteBinding< EFieldType_INT8 >
 			: public SSqliteBindingBase
 	{
 		/** Constructor
@@ -108,7 +108,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@param value
 			The parameter value
 		*/
-		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_TINY_INTEGER > const & value )
+		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_INT8 > const & value )
 			: SSqliteBindingBase( statement, connection, index )
 			, _value( value )
 		{
@@ -121,13 +121,13 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		}
 
 		//! The parameter value
-		CDatabaseValue< EFieldType_TINY_INTEGER > const & _value;
+		CDatabaseValue< EFieldType_INT8 > const & _value;
 	};
 
-	/** Specialization for EFieldType_SMALL_INTEGER
+	/** Specialization for EFieldType_INT16
 	*/
 	template<>
-	struct SSqliteBinding< EFieldType_SMALL_INTEGER >
+	struct SSqliteBinding< EFieldType_INT16 >
 			: public SSqliteBindingBase
 	{
 		/** Constructor
@@ -140,7 +140,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@param value
 			The parameter value
 		*/
-		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_SMALL_INTEGER > const & value )
+		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_INT16 > const & value )
 			: SSqliteBindingBase( statement, connection, index )
 			, _value( value )
 		{
@@ -153,13 +153,13 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		}
 
 		//! The parameter value
-		CDatabaseValue< EFieldType_SMALL_INTEGER > const & _value;
+		CDatabaseValue< EFieldType_INT16 > const & _value;
 	};
 
-	/** Specialization for EFieldType_INTEGER
+	/** Specialization for EFieldType_INT32
 	*/
 	template<>
-	struct SSqliteBinding< EFieldType_INTEGER >
+	struct SSqliteBinding< EFieldType_INT24 >
 			: public SSqliteBindingBase
 	{
 		/** Constructor
@@ -172,7 +172,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@param value
 			The parameter value
 		*/
-		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_INTEGER > const & value )
+		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_INT24 > const & value )
 			: SSqliteBindingBase( statement, connection, index )
 			, _value( value )
 		{
@@ -185,13 +185,13 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		}
 
 		//! The parameter value
-		CDatabaseValue< EFieldType_INTEGER > const & _value;
+		CDatabaseValue< EFieldType_INT24 > const & _value;
 	};
 
-	/** Specialization for EFieldType_LONG_INTEGER
+	/** Specialization for EFieldType_INT32
 	*/
 	template<>
-	struct SSqliteBinding< EFieldType_LONG_INTEGER >
+	struct SSqliteBinding< EFieldType_INT32 >
 			: public SSqliteBindingBase
 	{
 		/** Constructor
@@ -204,7 +204,39 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@param value
 			The parameter value
 		*/
-		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_LONG_INTEGER > const & value )
+		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_INT32 > const & value )
+			: SSqliteBindingBase( statement, connection, index )
+			, _value( value )
+		{
+		}
+
+		//!@copydoc SSqliteBindingBase::DoSetValue
+		virtual void UpdateValue()
+		{
+			SQLiteTry( SQLite::BindInt( _statement, _index, _value.GetValue() ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+		}
+
+		//! The parameter value
+		CDatabaseValue< EFieldType_INT32 > const & _value;
+	};
+
+	/** Specialization for EFieldType_INT64
+	*/
+	template<>
+	struct SSqliteBinding< EFieldType_INT64 >
+			: public SSqliteBindingBase
+	{
+		/** Constructor
+		@param statement
+			The statement
+		@param connection
+			The database connection
+		@param index
+			The parameter index
+		@param value
+			The parameter value
+		*/
+		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_INT64 > const & value )
 			: SSqliteBindingBase( statement, connection, index )
 			, _value( value )
 		{
@@ -217,13 +249,13 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		}
 
 		//! The parameter value
-		CDatabaseValue< EFieldType_LONG_INTEGER > const & _value;
+		CDatabaseValue< EFieldType_INT64 > const & _value;
 	};
 
-	/** Specialization for EFieldType_FLOATING_POINT_SIMPLE
+	/** Specialization for EFieldType_FLOAT32
 	*/
 	template<>
-	struct SSqliteBinding< EFieldType_FLOATING_POINT_SIMPLE >
+	struct SSqliteBinding< EFieldType_FLOAT32 >
 			: public SSqliteBindingBase
 	{
 		/** Constructor
@@ -236,7 +268,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@param value
 			The parameter value
 		*/
-		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_FLOATING_POINT_SIMPLE > const & value )
+		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_FLOAT32 > const & value )
 			: SSqliteBindingBase( statement, connection, index )
 			, _value( value )
 		{
@@ -249,13 +281,13 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		}
 
 		//! The parameter value
-		CDatabaseValue< EFieldType_FLOATING_POINT_SIMPLE > const & _value;
+		CDatabaseValue< EFieldType_FLOAT32 > const & _value;
 	};
 
-	/** Specialization for EFieldType_FLOATING_POINT_DOUBLE
+	/** Specialization for EFieldType_FLOAT64
 	*/
 	template<>
-	struct SSqliteBinding< EFieldType_FLOATING_POINT_DOUBLE >
+	struct SSqliteBinding< EFieldType_FLOAT64 >
 			: public SSqliteBindingBase
 	{
 		/** Constructor
@@ -268,7 +300,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@param value
 			The parameter value
 		*/
-		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_FLOATING_POINT_DOUBLE > const & value )
+		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_FLOAT64 > const & value )
 			: SSqliteBindingBase( statement, connection, index )
 			, _value( value )
 		{
@@ -281,7 +313,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		}
 
 		//! The parameter value
-		CDatabaseValue< EFieldType_FLOATING_POINT_DOUBLE > const & _value;
+		CDatabaseValue< EFieldType_FLOAT64 > const & _value;
 	};
 
 	/** Specialization for EFieldType_FIXED_POINT

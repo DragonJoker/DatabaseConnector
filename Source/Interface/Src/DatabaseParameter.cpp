@@ -31,8 +31,8 @@ BEGIN_NAMESPACE_DATABASE
 			return true;
 		}
 
-		if ( ( typeA == EFieldType_SMALL_INTEGER || typeA == EFieldType_INTEGER || typeA == EFieldType_LONG_INTEGER )
-				&& ( typeB == EFieldType_SMALL_INTEGER || typeB == EFieldType_INTEGER || typeB == EFieldType_LONG_INTEGER ) )
+		if ( ( typeA == EFieldType_INT16 || typeA == EFieldType_INT24 || typeA == EFieldType_INT32 || typeA == EFieldType_INT64 )
+				&& ( typeB == EFieldType_INT16 || typeB == EFieldType_INT24 || typeB == EFieldType_INT32 || typeB == EFieldType_INT64 ) )
 		{
 			return true;
 		}
@@ -154,28 +154,32 @@ BEGIN_NAMESPACE_DATABASE
 			DoSetValue( static_cast< CDatabaseValue< EFieldType_BIT > const & >( value ).GetValue() );
 			break;
 
-		case EFieldType_TINY_INTEGER:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_TINY_INTEGER > const & >( value ).GetValue() );
+		case EFieldType_INT8:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_INT8 > const & >( value ).GetValue() );
 			break;
 
-		case EFieldType_SMALL_INTEGER:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_SMALL_INTEGER > const & >( value ).GetValue() );
+		case EFieldType_INT16:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_INT16 > const & >( value ).GetValue() );
 			break;
 
-		case EFieldType_INTEGER:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_INTEGER > const & >( value ).GetValue() );
+		case EFieldType_INT24:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_INT24 > const & >( value ).GetValue() );
 			break;
 
-		case EFieldType_LONG_INTEGER:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_LONG_INTEGER > const & >( value ).GetValue() );
+		case EFieldType_INT32:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_INT32 > const & >( value ).GetValue() );
 			break;
 
-		case EFieldType_FLOATING_POINT_SIMPLE:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_SIMPLE > const & >( value ).GetValue() );
+		case EFieldType_INT64:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_INT64 > const & >( value ).GetValue() );
 			break;
 
-		case EFieldType_FLOATING_POINT_DOUBLE:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_DOUBLE > const & >( value ).GetValue() );
+		case EFieldType_FLOAT32:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_FLOAT32 > const & >( value ).GetValue() );
+			break;
+
+		case EFieldType_FLOAT64:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_FLOAT64 > const & >( value ).GetValue() );
 			break;
 
 		case EFieldType_FIXED_POINT:

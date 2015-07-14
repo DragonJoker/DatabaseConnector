@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DatabaseMySqlPch.h
- * @author Sylvain Doremus
- * @version 1.0
- * @date 03/14/2014 11:00:50 AM
- *
- *
- * @brief Database MYSQL precompiled header.
- *
- * @details This file generates the Database MYSQL precompiled headers.
- *
- ***************************************************************************/
+* @file DatabaseMySqlPch.h
+* @author Sylvain Doremus
+* @version 1.0
+* @date 03/14/2014 11:00:50 AM
+*
+*
+* @brief Database MYSQL precompiled header.
+*
+* @details This file generates the Database MYSQL precompiled headers.
+*
+***************************************************************************/
 
 #ifndef ___DATABASE_MYSQL_PCH_H___
 #define ___DATABASE_MYSQL_PCH_H___

@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DatabaseMySqlPrerequisites.h
- * @author Sylvain Doremus
- * @version 1.0
- * @date 03/14/2014 11:48:00 AM
- *
- *
- * @brief Database MYSQL prerequisite header.
- *
- * @details This file contains all Database MYSQL prerequisite instructions.
- *
- ***************************************************************************/
+* @file DatabaseMySqlPrerequisites.h
+* @author Sylvain Doremus
+* @version 1.0
+* @date 03/14/2014 11:48:00 AM
+*
+*
+* @brief Database MYSQL prerequisite header.
+*
+* @details This file contains all Database MYSQL prerequisite instructions.
+*
+***************************************************************************/
 
 #ifndef ___DATABASE_MYSQL_PREREQUISITES_H___
 #define ___DATABASE_MYSQL_PREREQUISITES_H___
@@ -17,31 +17,29 @@
 #include <DatabasePrerequisites.h>
 
 #if defined( _WIN32 ) && !defined ( __MINGW32__ ) && !defined ( STATIC_LIB )
-#    ifdef DatabasePluginMySql_EXPORTS
-#        define DatabaseMySqlExport __declspec ( dllexport )
-#    else
-#       if defined ( __MINGW32__ )
-#           define DatabaseMySqlExport
-#       else
-#           define DatabaseMySqlExport __declspec ( dllimport )
-#       endif
-#   endif
+#	ifdef DatabasePluginMySql_EXPORTS
+#		define DatabaseMySqlExport __declspec ( dllexport )
+#	else
+#		if defined ( __MINGW32__ )
+#			define DatabaseMySqlExport
+#		else
+#			define DatabaseMySqlExport __declspec ( dllimport )
+#		endif
+#	endif
 #else
 #    define DatabaseMySqlExport
 #endif
 
 #if defined( STATIC_LIB )
-#   define CPPCONN_PUBLIC_FUNC
+#	define CPPCONN_PUBLIC_FUNC
 #endif
 
-#define BEGIN_NAMESPACE_DATABASE_MYSQL     BEGIN_NAMESPACE_DATABASE { namespace MySql
-#define NAMESPACE_DATABASE_MYSQL           NAMESPACE_DATABASE::MySql
-#define END_NAMESPACE_DATABASE_MYSQL       END_NAMESPACE_DATABASE }
+#define BEGIN_NAMESPACE_DATABASE_MYSQL BEGIN_NAMESPACE_DATABASE { namespace MySql
+#define NAMESPACE_DATABASE_MYSQL NAMESPACE_DATABASE::MySql
+#define END_NAMESPACE_DATABASE_MYSQL } END_NAMESPACE_DATABASE
 
 BEGIN_NAMESPACE_DATABASE
 {
-	/** MYSQL namespace
-	*/
 	namespace MySql
 	{
 		// Pre-declare classes

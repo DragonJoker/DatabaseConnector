@@ -23,6 +23,7 @@
 #include "DatabaseDateTime.h"
 #include "DatabaseTime.h"
 #include "DatabaseFixedPoint.h"
+#include "DatabaseInt24.h"
 
 BEGIN_NAMESPACE_DATABASE
 {
@@ -34,48 +35,63 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_BIT >
 	{
+		static const size_t Size = 1;
 		typedef bool value_type;
 	};
 
-	/** SFieldTypeDataTyper specialization for EFieldType_TINY_INTEGER
+	/** SFieldTypeDataTyper specialization for EFieldType_INT8
 	*/
-	template<> struct SFieldTypeDataTyper< EFieldType_TINY_INTEGER >
+	template<> struct SFieldTypeDataTyper< EFieldType_INT8 >
 	{
+		static const size_t Size = 8;
 		typedef int8_t value_type;
 	};
 
-	/** SFieldTypeDataTyper specialization for EFieldType_SMALL_INTEGER
+	/** SFieldTypeDataTyper specialization for EFieldType_INT16
 	*/
-	template<> struct SFieldTypeDataTyper< EFieldType_SMALL_INTEGER >
+	template<> struct SFieldTypeDataTyper< EFieldType_INT16 >
 	{
+		static const size_t Size = 16;
 		typedef int16_t value_type;
 	};
 
-	/** SFieldTypeDataTyper specialization for EFieldType_INTEGER
+	/** SFieldTypeDataTyper specialization for EFieldType_INT24
 	*/
-	template<> struct SFieldTypeDataTyper< EFieldType_INTEGER >
+	template<> struct SFieldTypeDataTyper< EFieldType_INT24 >
 	{
+		static const size_t Size = 24;
+		typedef int24_t value_type;
+	};
+
+	/** SFieldTypeDataTyper specialization for EFieldType_INT32
+	*/
+	template<> struct SFieldTypeDataTyper< EFieldType_INT32 >
+	{
+		static const size_t Size = 32;
 		typedef int32_t value_type;
 	};
 
-	/** SFieldTypeDataTyper specialization for EFieldType_LONG_INTEGER
+	/** SFieldTypeDataTyper specialization for EFieldType_INT64
 	*/
-	template<> struct SFieldTypeDataTyper< EFieldType_LONG_INTEGER >
+	template<> struct SFieldTypeDataTyper< EFieldType_INT64 >
 	{
+		static const size_t Size = 64;
 		typedef int64_t value_type;
 	};
 
-	/** SFieldTypeDataTyper specialization for EFieldType_FLOATING_POINT_SIMPLE
+	/** SFieldTypeDataTyper specialization for EFieldType_FLOAT32
 	*/
-	template<> struct SFieldTypeDataTyper< EFieldType_FLOATING_POINT_SIMPLE >
+	template<> struct SFieldTypeDataTyper< EFieldType_FLOAT32 >
 	{
+		static const size_t Size = 32;
 		typedef float value_type;
 	};
 
-	/** SFieldTypeDataTyper specialization for EFieldType_FLOATING_POINT_DOUBLE
+	/** SFieldTypeDataTyper specialization for EFieldType_FLOAT64
 	*/
-	template<> struct SFieldTypeDataTyper< EFieldType_FLOATING_POINT_DOUBLE >
+	template<> struct SFieldTypeDataTyper< EFieldType_FLOAT64 >
 	{
+		static const size_t Size = 64;
 		typedef double value_type;
 	};
 
@@ -83,6 +99,7 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_FIXED_POINT >
 	{
+		static const size_t Size = 64;
 		typedef CFixedPoint value_type;
 	};
 
@@ -90,6 +107,7 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_DATE >
 	{
+		static const size_t Size = 0;
 		typedef CDate value_type;
 	};
 
@@ -97,6 +115,7 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_DATETIME >
 	{
+		static const size_t Size = 0;
 		typedef CDateTime value_type;
 	};
 
@@ -104,6 +123,7 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_TIME >
 	{
+		static const size_t Size = 0;
 		typedef CTime value_type;
 	};
 
@@ -111,6 +131,7 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_VARCHAR >
 	{
+		static const size_t Size = 0;
 		typedef std::string value_type;
 	};
 
@@ -118,6 +139,7 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_TEXT >
 	{
+		static const size_t Size = 0;
 		typedef std::string value_type;
 	};
 
@@ -125,6 +147,7 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_NVARCHAR >
 	{
+		static const size_t Size = 0;
 		typedef std::wstring value_type;
 	};
 
@@ -132,6 +155,7 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_NTEXT >
 	{
+		static const size_t Size = 0;
 		typedef std::wstring value_type;
 	};
 
@@ -139,6 +163,7 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_BINARY >
 	{
+		static const size_t Size = 0;
 		typedef ByteArray value_type;
 	};
 
@@ -146,6 +171,7 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_VARBINARY >
 	{
+		static const size_t Size = 0;
 		typedef ByteArray value_type;
 	};
 
@@ -153,151 +179,15 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_LONG_VARBINARY >
 	{
+		static const size_t Size = 0;
 		typedef ByteArray value_type;
-	};
-
-	/** Structure used to retrieve the field type from the data type
-	*/
-	template < typename T > struct SDataTypeFieldTyper;
-
-	/** SDataTypeFieldTyper specialization for bool
-	*/
-	template<> struct SDataTypeFieldTyper< bool >
-	{
-		static const EFieldType Value = EFieldType_BIT;
-	};
-
-	/** SDataTypeFieldTyper specialization for int8_t
-	*/
-	template<> struct SDataTypeFieldTyper< int8_t >
-	{
-		static const EFieldType Value = EFieldType_TINY_INTEGER;
-	};
-
-	/** SDataTypeFieldTyper specialization for int16_t
-	*/
-	template<> struct SDataTypeFieldTyper< int16_t >
-	{
-		static const EFieldType Value = EFieldType_SMALL_INTEGER;
-	};
-
-	/** SDataTypeFieldTyper specialization for int32_t
-	*/
-	template<> struct SDataTypeFieldTyper< int32_t >
-	{
-		static const EFieldType Value = EFieldType_INTEGER;
-	};
-
-	/** SDataTypeFieldTyper specialization for int64_t
-	*/
-	template<> struct SDataTypeFieldTyper< int64_t >
-	{
-		static const EFieldType Value = EFieldType_LONG_INTEGER;
-	};
-
-	/** SDataTypeFieldTyper specialization for float
-	*/
-	template<> struct SDataTypeFieldTyper< float >
-	{
-		static const EFieldType Value = EFieldType_FLOATING_POINT_SIMPLE;
-	};
-
-	/** SDataTypeFieldTyper specialization for double
-	*/
-	template<> struct SDataTypeFieldTyper< double >
-	{
-		static const EFieldType Value = EFieldType_FLOATING_POINT_DOUBLE;
-	};
-
-	/** SDataTypeFieldTyper specialization for CFixedPoint
-	*/
-	template<> struct SDataTypeFieldTyper< CFixedPoint >
-	{
-		static const EFieldType Value = EFieldType_FIXED_POINT;
-	};
-
-	/** SDataTypeFieldTyper specialization for std::array< char, N >
-	*/
-	template< size_t N > struct SDataTypeFieldTyper< std::array< char, N > >
-	{
-		static const EFieldType Value = EFieldType_VARCHAR;
-	};
-
-	/** SDataTypeFieldTyper specialization for char *
-	*/
-	template<> struct SDataTypeFieldTyper< char * >
-	{
-		static const EFieldType Value = EFieldType_VARCHAR;
-	};
-
-	/** SDataTypeFieldTyper specialization for std::array< wchar_t, N >
-	*/
-	template< size_t N > struct SDataTypeFieldTyper< std::array< wchar_t, N > >
-	{
-		static const EFieldType Value = EFieldType_NVARCHAR;
-	};
-
-	/** SDataTypeFieldTyper specialization for wchar_t *
-	*/
-	template<> struct SDataTypeFieldTyper< wchar_t * >
-	{
-		static const EFieldType Value = EFieldType_NVARCHAR;
-	};
-
-	/** SDataTypeFieldTyper specialization for CDateTime
-	*/
-	template<> struct SDataTypeFieldTyper< CDateTime >
-	{
-		static const EFieldType Value = EFieldType_DATETIME;
-	};
-
-	/** SDataTypeFieldTyper specialization for CDate
-	*/
-	template<> struct SDataTypeFieldTyper< CDate >
-	{
-		static const EFieldType Value = EFieldType_DATE;
-	};
-
-	/** SDataTypeFieldTyper specialization for CTime
-	*/
-	template<> struct SDataTypeFieldTyper< CTime >
-	{
-		static const EFieldType Value = EFieldType_TIME;
-	};
-
-	/** SDataTypeFieldTyper specialization for std::string
-	*/
-	template<> struct SDataTypeFieldTyper< std::string >
-	{
-		static const EFieldType Value = EFieldType_TEXT;
-	};
-
-	/** SDataTypeFieldTyper specialization for std::wstring
-	*/
-	template<> struct SDataTypeFieldTyper< std::wstring >
-	{
-		static const EFieldType Value = EFieldType_NTEXT;
-	};
-
-	/** SDataTypeFieldTyper specialization for uint8_t *
-	*/
-	template<> struct SDataTypeFieldTyper< uint8_t * >
-	{
-		static const EFieldType Value = EFieldType_VARBINARY;
-	};
-
-	/** SDataTypeFieldTyper specialization for ByteArray
-	*/
-	template<> struct SDataTypeFieldTyper< ByteArray >
-	{
-		static const EFieldType Value = EFieldType_VARBINARY;
 	};
 
 	static const String NULL_VALUE = STR( "NULL" );
 
 	/** Structure used to specialize functions for given data type
 	*/
-	template< typename T > class CDatabaseValuePolicy
+	template< typename T, size_t Size > class CDatabaseValuePolicy
 	{
 	protected:
 		typedef T value_type;
@@ -309,7 +199,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		void Reset( value_type & value )
 		{
-			value = value_type( 0 );
+			value = value_type();
 		}
 
 		/** Sets the value to the given one
@@ -437,6 +327,82 @@ BEGIN_NAMESPACE_DATABASE
 			if ( valSet )
 			{
 				return CStrUtils::ToString( int( value ) );
+			}
+			else
+			{
+				return NULL_VALUE;
+			}
+		}
+	};
+
+	/** Structure used to specialize functions for given data type
+	*/
+	template<>
+	class CDatabaseValuePolicy< int24_t >
+	{
+	protected:
+		typedef uint32_t value_type;
+
+	public:
+		/** Reinitializes the given value
+		@param value
+		    The value
+		*/
+		void Reset( value_type & value )
+		{
+			value = value_type();
+		}
+
+		/** Sets the value to the given one
+		@param in
+		    The input value
+		@param out
+		    The output value
+		@param size
+		    Receives the new value size
+		@param connection
+		    The connection used to format the value
+		*/
+		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
+		{
+			out = in;
+			size = sizeof( value_type );
+			return true;
+		}
+
+		/** Retrieves a pointer from the given value
+		@param value
+		    The value
+		*/
+		void * Ptr( value_type & value )
+		{
+			return &value;
+		}
+
+		/** Retrieves a pointer from the given value
+		@param value
+		    The value
+		*/
+		const void * Ptr( const value_type & value )const
+		{
+			return &value;
+		}
+
+		/** Puts the value into the given string
+		@param value
+		    The value
+		@param valSet
+		    Tells that the value is set
+		@param connection
+		    The connection used to format the value
+		@param result
+		    Receives the insertable value
+		*/
+		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
+		{
+			if ( valSet )
+			{
+				return CStrUtils::ToString( value );
 			}
 			else
 			{
@@ -590,7 +556,7 @@ BEGIN_NAMESPACE_DATABASE
 			if ( valSet )
 			{
 				StringStream stream;
-				stream.precision( 20 );
+				stream.precision( 30 );
 				stream << value;
 				return stream.str();
 			}

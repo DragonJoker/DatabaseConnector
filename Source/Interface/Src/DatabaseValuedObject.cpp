@@ -44,16 +44,20 @@ BEGIN_NAMESPACE_DATABASE
 			value = static_cast< CDatabaseValue< EFieldType_BIT > & >( *_value ).GetValue();
 			break;
 
-		case EFieldType_TINY_INTEGER:
-			value = static_cast< CDatabaseValue< EFieldType_TINY_INTEGER > & >( *_value ).GetValue() != 0;
+		case EFieldType_INT8:
+			value = static_cast< CDatabaseValue< EFieldType_INT8 > & >( *_value ).GetValue() != 0;
 			break;
 
-		case EFieldType_SMALL_INTEGER:
-			value = static_cast< CDatabaseValue< EFieldType_SMALL_INTEGER > & >( *_value ).GetValue() != 0;
+		case EFieldType_INT16:
+			value = static_cast< CDatabaseValue< EFieldType_INT16 > & >( *_value ).GetValue() != 0;
 			break;
 
-		case EFieldType_INTEGER:
-			value = static_cast< CDatabaseValue< EFieldType_INTEGER > & >( *_value ).GetValue() != 0;
+		case EFieldType_INT24:
+			value = static_cast< CDatabaseValue< EFieldType_INT24 > & >( *_value ).GetValue() != 0;
+			break;
+
+		case EFieldType_INT32:
+			value = static_cast< CDatabaseValue< EFieldType_INT32 > & >( *_value ).GetValue() != 0;
 			break;
 
 		case EFieldType_VARCHAR:
@@ -104,8 +108,8 @@ BEGIN_NAMESPACE_DATABASE
 			value = static_cast< CDatabaseValue< EFieldType_BIT > & >( *_value ).GetValue() ? 1 : 0;
 			break;
 
-		case EFieldType_TINY_INTEGER:
-			value = static_cast< CDatabaseValue< EFieldType_TINY_INTEGER > & >( *_value ).GetValue();
+		case EFieldType_INT8:
+			value = static_cast< CDatabaseValue< EFieldType_INT8 > & >( *_value ).GetValue();
 			break;
 
 		default:
@@ -124,8 +128,8 @@ BEGIN_NAMESPACE_DATABASE
 			value = static_cast< CDatabaseValue< EFieldType_BIT > & >( *_value ).GetValue() ? 1 : 0;
 			break;
 
-		case EFieldType_TINY_INTEGER:
-			value = static_cast< CDatabaseValue< EFieldType_TINY_INTEGER > & >( *_value ).GetValue();
+		case EFieldType_INT8:
+			value = static_cast< CDatabaseValue< EFieldType_INT8 > & >( *_value ).GetValue();
 			break;
 
 		default:
@@ -144,12 +148,12 @@ BEGIN_NAMESPACE_DATABASE
 			value = static_cast< CDatabaseValue< EFieldType_BIT > & >( *_value ).GetValue() ? 1 : 0;
 			break;
 
-		case EFieldType_TINY_INTEGER:
-			value = static_cast< CDatabaseValue< EFieldType_TINY_INTEGER > & >( *_value ).GetValue();
+		case EFieldType_INT8:
+			value = static_cast< CDatabaseValue< EFieldType_INT8 > & >( *_value ).GetValue();
 			break;
 
-		case EFieldType_SMALL_INTEGER:
-			value = static_cast< CDatabaseValue< EFieldType_SMALL_INTEGER > & >( *_value ).GetValue();
+		case EFieldType_INT16:
+			value = static_cast< CDatabaseValue< EFieldType_INT16 > & >( *_value ).GetValue();
 			break;
 
 		default:
@@ -168,12 +172,68 @@ BEGIN_NAMESPACE_DATABASE
 			value = static_cast< CDatabaseValue< EFieldType_BIT > & >( *_value ).GetValue() ? 1 : 0;
 			break;
 
-		case EFieldType_TINY_INTEGER:
-			value = static_cast< CDatabaseValue< EFieldType_TINY_INTEGER > & >( *_value ).GetValue();
+		case EFieldType_INT8:
+			value = static_cast< CDatabaseValue< EFieldType_INT8 > & >( *_value ).GetValue();
 			break;
 
-		case EFieldType_SMALL_INTEGER:
-			value = static_cast< CDatabaseValue< EFieldType_SMALL_INTEGER > & >( *_value ).GetValue();
+		case EFieldType_INT16:
+			value = static_cast< CDatabaseValue< EFieldType_INT16 > & >( *_value ).GetValue();
+			break;
+
+		default:
+			String errMsg = ERROR_DB_FIELD_GETVALUE_TYPE + this->GetName();
+			CLogger::LogError( errMsg );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_GETVALUE_TYPE );
+			break;
+		}
+	}
+
+	void CDatabaseValuedObject::DoGetValue( int24_t & value ) const
+	{
+		switch ( GetType() )
+		{
+		case EFieldType_BIT:
+			value = static_cast< CDatabaseValue< EFieldType_BIT > & >( *_value ).GetValue() ? 1 : 0;
+			break;
+
+		case EFieldType_INT8:
+			value = static_cast< CDatabaseValue< EFieldType_INT8 > & >( *_value ).GetValue();
+			break;
+
+		case EFieldType_INT16:
+			value = static_cast< CDatabaseValue< EFieldType_INT16 > & >( *_value ).GetValue();
+			break;
+
+		case EFieldType_INT24:
+			value = static_cast< CDatabaseValue< EFieldType_INT24 > & >( *_value ).GetValue();
+			break;
+
+		default:
+			String errMsg = ERROR_DB_FIELD_GETVALUE_TYPE + this->GetName();
+			CLogger::LogError( errMsg );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_GETVALUE_TYPE );
+			break;
+		}
+	}
+
+	void CDatabaseValuedObject::DoGetValue( uint24_t & value ) const
+	{
+		switch ( GetType() )
+		{
+		case EFieldType_BIT:
+			value = static_cast< CDatabaseValue< EFieldType_BIT > & >( *_value ).GetValue() ? 1 : 0;
+			break;
+
+		case EFieldType_INT8:
+			value = static_cast< CDatabaseValue< EFieldType_INT8 > & >( *_value ).GetValue();
+			break;
+
+		case EFieldType_INT16:
+			value = static_cast< CDatabaseValue< EFieldType_INT16 > & >( *_value ).GetValue();
+			break;
+
+		case EFieldType_INT24:
+			value = static_cast< CDatabaseValue< EFieldType_INT24 > & >( *_value ).GetValue();
 			break;
 
 		default:
@@ -192,24 +252,28 @@ BEGIN_NAMESPACE_DATABASE
 			value = static_cast< CDatabaseValue< EFieldType_BIT > & >( *_value ).GetValue() ? 1 : 0;
 			break;
 
-		case EFieldType_TINY_INTEGER:
-			value = static_cast< CDatabaseValue< EFieldType_TINY_INTEGER > & >( *_value ).GetValue();
+		case EFieldType_INT8:
+			value = static_cast< CDatabaseValue< EFieldType_INT8 > & >( *_value ).GetValue();
 			break;
 
-		case EFieldType_SMALL_INTEGER:
-			value = static_cast< CDatabaseValue< EFieldType_SMALL_INTEGER > & >( *_value ).GetValue();
+		case EFieldType_INT16:
+			value = static_cast< CDatabaseValue< EFieldType_INT16 > & >( *_value ).GetValue();
 			break;
 
-		case EFieldType_INTEGER:
-			value = static_cast< CDatabaseValue< EFieldType_INTEGER > & >( *_value ).GetValue();
+		case EFieldType_INT24:
+			value = static_cast< CDatabaseValue< EFieldType_INT24 > & >( *_value ).GetValue();
 			break;
 
-		case EFieldType_FLOATING_POINT_SIMPLE:
-			value = int32_t ( static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_SIMPLE > & >( *_value ).GetValue() );
+		case EFieldType_INT32:
+			value = static_cast< CDatabaseValue< EFieldType_INT32 > & >( *_value ).GetValue();
 			break;
 
-		case EFieldType_FLOATING_POINT_DOUBLE:
-			value = int32_t ( static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_DOUBLE > & >( *_value ).GetValue() );
+		case EFieldType_FLOAT32:
+			value = int32_t ( static_cast< CDatabaseValue< EFieldType_FLOAT32 > & >( *_value ).GetValue() );
+			break;
+
+		case EFieldType_FLOAT64:
+			value = int32_t ( static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( *_value ).GetValue() );
 			break;
 
 		default:
@@ -228,24 +292,28 @@ BEGIN_NAMESPACE_DATABASE
 			value = static_cast< CDatabaseValue< EFieldType_BIT > & >( *_value ).GetValue() ? 1 : 0;
 			break;
 			
-		case EFieldType_TINY_INTEGER:
-			value = static_cast< CDatabaseValue< EFieldType_TINY_INTEGER > & >( *_value ).GetValue();
+		case EFieldType_INT8:
+			value = static_cast< CDatabaseValue< EFieldType_INT8 > & >( *_value ).GetValue();
 			break;
 
-		case EFieldType_SMALL_INTEGER:
-			value = static_cast< CDatabaseValue< EFieldType_SMALL_INTEGER > & >( *_value ).GetValue();
+		case EFieldType_INT16:
+			value = static_cast< CDatabaseValue< EFieldType_INT16 > & >( *_value ).GetValue();
 			break;
 
-		case EFieldType_INTEGER:
-			value = static_cast< CDatabaseValue< EFieldType_INTEGER > & >( *_value ).GetValue();
+		case EFieldType_INT24:
+			value = static_cast< CDatabaseValue< EFieldType_INT24 > & >( *_value ).GetValue();
 			break;
 
-		case EFieldType_FLOATING_POINT_SIMPLE:
-			value = uint32_t ( static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_SIMPLE > & >( *_value ).GetValue() );
+		case EFieldType_INT32:
+			value = static_cast< CDatabaseValue< EFieldType_INT32 > & >( *_value ).GetValue();
 			break;
 
-		case EFieldType_FLOATING_POINT_DOUBLE:
-			value = uint32_t ( static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_DOUBLE > & >( *_value ).GetValue() );
+		case EFieldType_FLOAT32:
+			value = uint32_t ( static_cast< CDatabaseValue< EFieldType_FLOAT32 > & >( *_value ).GetValue() );
+			break;
+
+		case EFieldType_FLOAT64:
+			value = uint32_t ( static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( *_value ).GetValue() );
 			break;
 
 		default:
@@ -260,20 +328,24 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		switch ( GetType() )
 		{
-		case EFieldType_TINY_INTEGER:
-			value = static_cast< CDatabaseValue< EFieldType_TINY_INTEGER > & >( *_value ).GetValue();
+		case EFieldType_INT8:
+			value = static_cast< CDatabaseValue< EFieldType_INT8 > & >( *_value ).GetValue();
 			break;
 
-		case EFieldType_SMALL_INTEGER:
-			value = static_cast< CDatabaseValue< EFieldType_SMALL_INTEGER > & >( *_value ).GetValue();
+		case EFieldType_INT16:
+			value = static_cast< CDatabaseValue< EFieldType_INT16 > & >( *_value ).GetValue();
 			break;
 
-		case EFieldType_INTEGER:
-			value = static_cast< CDatabaseValue< EFieldType_INTEGER > & >( *_value ).GetValue();
+		case EFieldType_INT24:
+			value = static_cast< CDatabaseValue< EFieldType_INT24 > & >( *_value ).GetValue();
 			break;
 
-		case EFieldType_LONG_INTEGER:
-			value = static_cast< CDatabaseValue< EFieldType_LONG_INTEGER > & >( *_value ).GetValue();
+		case EFieldType_INT32:
+			value = static_cast< CDatabaseValue< EFieldType_INT32 > & >( *_value ).GetValue();
+			break;
+
+		case EFieldType_INT64:
+			value = static_cast< CDatabaseValue< EFieldType_INT64 > & >( *_value ).GetValue();
 			break;
 
 		default:
@@ -288,20 +360,24 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		switch ( GetType() )
 		{
-		case EFieldType_TINY_INTEGER:
-			value = static_cast< CDatabaseValue< EFieldType_TINY_INTEGER > & >( *_value ).GetValue();
+		case EFieldType_INT8:
+			value = static_cast< CDatabaseValue< EFieldType_INT8 > & >( *_value ).GetValue();
 			break;
 
-		case EFieldType_SMALL_INTEGER:
-			value = static_cast< CDatabaseValue< EFieldType_SMALL_INTEGER > & >( *_value ).GetValue();
+		case EFieldType_INT16:
+			value = static_cast< CDatabaseValue< EFieldType_INT16 > & >( *_value ).GetValue();
 			break;
 
-		case EFieldType_INTEGER:
-			value = static_cast< CDatabaseValue< EFieldType_INTEGER > & >( *_value ).GetValue();
+		case EFieldType_INT24:
+			value = static_cast< CDatabaseValue< EFieldType_INT24 > & >( *_value ).GetValue();
 			break;
 
-		case EFieldType_LONG_INTEGER:
-			value = static_cast< CDatabaseValue< EFieldType_LONG_INTEGER > & >( *_value ).GetValue();
+		case EFieldType_INT32:
+			value = static_cast< CDatabaseValue< EFieldType_INT32 > & >( *_value ).GetValue();
+			break;
+
+		case EFieldType_INT64:
+			value = static_cast< CDatabaseValue< EFieldType_INT64 > & >( *_value ).GetValue();
 			break;
 
 		default:
@@ -316,24 +392,28 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		switch ( GetType() )
 		{
-		case EFieldType_SMALL_INTEGER:
-			value = float( static_cast< CDatabaseValue< EFieldType_SMALL_INTEGER > & >( *_value ).GetValue() );
+		case EFieldType_INT16:
+			value = float( static_cast< CDatabaseValue< EFieldType_INT16 > & >( *_value ).GetValue() );
 			break;
 
-		case EFieldType_INTEGER:
-			value = float( static_cast< CDatabaseValue< EFieldType_INTEGER > & >( *_value ).GetValue() );
+		case EFieldType_INT24:
+			value = float( static_cast< CDatabaseValue< EFieldType_INT24 > & >( *_value ).GetValue() );
 			break;
 
-		case EFieldType_LONG_INTEGER:
-			value = float( static_cast< CDatabaseValue< EFieldType_LONG_INTEGER > & >( *_value ).GetValue() );
+		case EFieldType_INT32:
+			value = float( static_cast< CDatabaseValue< EFieldType_INT32 > & >( *_value ).GetValue() );
 			break;
 
-		case EFieldType_FLOATING_POINT_SIMPLE:
-			value = static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_SIMPLE > & >( *_value ).GetValue();
+		case EFieldType_INT64:
+			value = float( static_cast< CDatabaseValue< EFieldType_INT64 > & >( *_value ).GetValue() );
 			break;
 
-		case EFieldType_FLOATING_POINT_DOUBLE:
-			value = float( static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_DOUBLE > & >( *_value ).GetValue() );
+		case EFieldType_FLOAT32:
+			value = static_cast< CDatabaseValue< EFieldType_FLOAT32 > & >( *_value ).GetValue();
+			break;
+
+		case EFieldType_FLOAT64:
+			value = float( static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( *_value ).GetValue() );
 			break;
 
 		case EFieldType_FIXED_POINT:
@@ -352,24 +432,28 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		switch ( GetType() )
 		{
-		case EFieldType_SMALL_INTEGER:
-			value = double( static_cast< CDatabaseValue< EFieldType_SMALL_INTEGER > & >( *_value ).GetValue() );
+		case EFieldType_INT16:
+			value = double( static_cast< CDatabaseValue< EFieldType_INT16 > & >( *_value ).GetValue() );
 			break;
 
-		case EFieldType_INTEGER:
-			value = double( static_cast< CDatabaseValue< EFieldType_INTEGER > & >( *_value ).GetValue() );
+		case EFieldType_INT24:
+			value = double( static_cast< CDatabaseValue< EFieldType_INT24 > & >( *_value ).GetValue() );
 			break;
 
-		case EFieldType_LONG_INTEGER:
-			value = double( static_cast< CDatabaseValue< EFieldType_LONG_INTEGER > & >( *_value ).GetValue() );
+		case EFieldType_INT32:
+			value = double( static_cast< CDatabaseValue< EFieldType_INT32 > & >( *_value ).GetValue() );
 			break;
 
-		case EFieldType_FLOATING_POINT_SIMPLE:
-			value = double( static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_SIMPLE > & >( *_value ).GetValue() );
+		case EFieldType_INT64:
+			value = double( static_cast< CDatabaseValue< EFieldType_INT64 > & >( *_value ).GetValue() );
 			break;
 
-		case EFieldType_FLOATING_POINT_DOUBLE:
-			value = static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_DOUBLE > & >( *_value ).GetValue();
+		case EFieldType_FLOAT32:
+			value = double( static_cast< CDatabaseValue< EFieldType_FLOAT32 > & >( *_value ).GetValue() );
+			break;
+
+		case EFieldType_FLOAT64:
+			value = static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( *_value ).GetValue();
 			break;
 
 		case EFieldType_FIXED_POINT:
@@ -388,24 +472,28 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		switch ( GetType() )
 		{
-		case EFieldType_SMALL_INTEGER:
-			value = double( static_cast< CDatabaseValue< EFieldType_SMALL_INTEGER > & >( *_value ).GetValue() );
+		case EFieldType_INT16:
+			value = double( static_cast< CDatabaseValue< EFieldType_INT16 > & >( *_value ).GetValue() );
 			break;
 
-		case EFieldType_INTEGER:
-			value = double( static_cast< CDatabaseValue< EFieldType_INTEGER > & >( *_value ).GetValue() );
+		case EFieldType_INT24:
+			value = double( static_cast< CDatabaseValue< EFieldType_INT24 > & >( *_value ).GetValue() );
 			break;
 
-		case EFieldType_LONG_INTEGER:
-			value = double( static_cast< CDatabaseValue< EFieldType_LONG_INTEGER > & >( *_value ).GetValue() );
+		case EFieldType_INT32:
+			value = double( static_cast< CDatabaseValue< EFieldType_INT32 > & >( *_value ).GetValue() );
 			break;
 
-		case EFieldType_FLOATING_POINT_SIMPLE:
-			value = double( static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_SIMPLE > & >( *_value ).GetValue() );
+		case EFieldType_INT64:
+			value = double( static_cast< CDatabaseValue< EFieldType_INT64 > & >( *_value ).GetValue() );
 			break;
 
-		case EFieldType_FLOATING_POINT_DOUBLE:
-			value = static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_DOUBLE > & >( *_value ).GetValue();
+		case EFieldType_FLOAT32:
+			value = double( static_cast< CDatabaseValue< EFieldType_FLOAT32 > & >( *_value ).GetValue() );
+			break;
+
+		case EFieldType_FLOAT64:
+			value = static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( *_value ).GetValue();
 			break;
 
 		case EFieldType_FIXED_POINT:
@@ -424,20 +512,24 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		switch ( GetType() )
 		{
-		case EFieldType_INTEGER:
-			value = CFixedPoint( static_cast< CDatabaseValue< EFieldType_INTEGER > & >( *_value ).GetValue(), GetPrecision().first );
+		case EFieldType_INT24:
+			value = CFixedPoint( static_cast< CDatabaseValue< EFieldType_INT24 > & >( *_value ).GetValue(), GetPrecision().first );
 			break;
 
-		case EFieldType_LONG_INTEGER:
-			value = CFixedPoint( static_cast< CDatabaseValue< EFieldType_LONG_INTEGER > & >( *_value ).GetValue(), GetPrecision().first );
+		case EFieldType_INT32:
+			value = CFixedPoint( static_cast< CDatabaseValue< EFieldType_INT32 > & >( *_value ).GetValue(), GetPrecision().first );
 			break;
 
-		case EFieldType_FLOATING_POINT_SIMPLE:
-			value = CFixedPoint( static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_SIMPLE > & >( *_value ).GetValue(), GetPrecision().first );
+		case EFieldType_INT64:
+			value = CFixedPoint( static_cast< CDatabaseValue< EFieldType_INT64 > & >( *_value ).GetValue(), GetPrecision().first );
 			break;
 
-		case EFieldType_FLOATING_POINT_DOUBLE:
-			value = CFixedPoint( static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_DOUBLE > & >( *_value ).GetValue(), GetPrecision().first );
+		case EFieldType_FLOAT32:
+			value = CFixedPoint( static_cast< CDatabaseValue< EFieldType_FLOAT32 > & >( *_value ).GetValue(), GetPrecision().first );
+			break;
+
+		case EFieldType_FLOAT64:
+			value = CFixedPoint( static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( *_value ).GetValue(), GetPrecision().first );
 			break;
 
 		case EFieldType_FIXED_POINT:
@@ -612,68 +704,80 @@ BEGIN_NAMESPACE_DATABASE
 
 	void CDatabaseValuedObject::DoGetValueFast( int8_t & value ) const
 	{
-		assert( GetType() == EFieldType_TINY_INTEGER );
-		value = static_cast< CDatabaseValue< EFieldType_TINY_INTEGER > & >( *_value ).GetValue();
+		assert( GetType() == EFieldType_INT8 );
+		value = static_cast< CDatabaseValue< EFieldType_INT8 > & >( *_value ).GetValue();
 	}
 
 	void CDatabaseValuedObject::DoGetValueFast( uint8_t & value ) const
 	{
-		assert( GetType() == EFieldType_TINY_INTEGER );
-		value = static_cast< CDatabaseValue< EFieldType_TINY_INTEGER > & >( *_value ).GetValue();
+		assert( GetType() == EFieldType_INT8 );
+		value = static_cast< CDatabaseValue< EFieldType_INT8 > & >( *_value ).GetValue();
 	}
 
 	void CDatabaseValuedObject::DoGetValueFast( int16_t & value ) const
 	{
-		assert( GetType() == EFieldType_SMALL_INTEGER );
-		value = static_cast< CDatabaseValue< EFieldType_SMALL_INTEGER > & >( *_value ).GetValue();
+		assert( GetType() == EFieldType_INT16 );
+		value = static_cast< CDatabaseValue< EFieldType_INT16 > & >( *_value ).GetValue();
 	}
 
 	void CDatabaseValuedObject::DoGetValueFast( uint16_t & value ) const
 	{
-		assert( GetType() == EFieldType_SMALL_INTEGER );
-		value = static_cast< CDatabaseValue< EFieldType_SMALL_INTEGER > & >( *_value ).GetValue();
+		assert( GetType() == EFieldType_INT16 );
+		value = static_cast< CDatabaseValue< EFieldType_INT16 > & >( *_value ).GetValue();
+	}
+
+	void CDatabaseValuedObject::DoGetValueFast( int24_t & value ) const
+	{
+		assert( GetType() == EFieldType_INT24 );
+		value = static_cast< CDatabaseValue< EFieldType_INT24 > & >( *_value ).GetValue();
+	}
+
+	void CDatabaseValuedObject::DoGetValueFast( uint24_t & value ) const
+	{
+		assert( GetType() == EFieldType_INT24 );
+		value = static_cast< CDatabaseValue< EFieldType_INT24 > & >( *_value ).GetValue();
 	}
 
 	void CDatabaseValuedObject::DoGetValueFast( int32_t & value ) const
 	{
-		assert( GetType() == EFieldType_INTEGER );
-		value = static_cast< CDatabaseValue< EFieldType_INTEGER > & >( *_value ).GetValue();
+		assert( GetType() == EFieldType_INT32 );
+		value = static_cast< CDatabaseValue< EFieldType_INT32 > & >( *_value ).GetValue();
 	}
 
 	void CDatabaseValuedObject::DoGetValueFast( uint32_t & value ) const
 	{
-		assert( GetType() == EFieldType_INTEGER );
-		value = static_cast< CDatabaseValue< EFieldType_INTEGER > & >( *_value ).GetValue();
+		assert( GetType() == EFieldType_INT32 );
+		value = static_cast< CDatabaseValue< EFieldType_INT32 > & >( *_value ).GetValue();
 	}
 
 	void CDatabaseValuedObject::DoGetValueFast( int64_t & value ) const
 	{
-		assert( GetType() == EFieldType_LONG_INTEGER );
-		value = static_cast< CDatabaseValue< EFieldType_LONG_INTEGER > & >( *_value ).GetValue();
+		assert( GetType() == EFieldType_INT64 );
+		value = static_cast< CDatabaseValue< EFieldType_INT64 > & >( *_value ).GetValue();
 	}
 
 	void CDatabaseValuedObject::DoGetValueFast( uint64_t & value ) const
 	{
-		assert( GetType() == EFieldType_LONG_INTEGER );
-		value = static_cast< CDatabaseValue< EFieldType_LONG_INTEGER > & >( *_value ).GetValue();
+		assert( GetType() == EFieldType_INT64 );
+		value = static_cast< CDatabaseValue< EFieldType_INT64 > & >( *_value ).GetValue();
 	}
 
 	void CDatabaseValuedObject::DoGetValueFast( float & value ) const
 	{
-		assert( GetType() == EFieldType_FLOATING_POINT_SIMPLE );
-		value = static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_SIMPLE > & >( *_value ).GetValue();
+		assert( GetType() == EFieldType_FLOAT32 );
+		value = static_cast< CDatabaseValue< EFieldType_FLOAT32 > & >( *_value ).GetValue();
 	}
 
 	void CDatabaseValuedObject::DoGetValueFast( double & value ) const
 	{
-		assert( GetType() == EFieldType_FLOATING_POINT_DOUBLE );
-		value = static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_DOUBLE > & >( *_value ).GetValue();
+		assert( GetType() == EFieldType_FLOAT64 );
+		value = static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( *_value ).GetValue();
 	}
 
 	void CDatabaseValuedObject::DoGetValueFast( long double & value ) const
 	{
-		assert( GetType() == EFieldType_FLOATING_POINT_DOUBLE );
-		value = static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_DOUBLE > & >( *_value ).GetValue();
+		assert( GetType() == EFieldType_FLOAT64 );
+		value = static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( *_value ).GetValue();
 	}
 
 	void CDatabaseValuedObject::DoGetValueFast( CFixedPoint & value ) const
@@ -756,20 +860,24 @@ BEGIN_NAMESPACE_DATABASE
 			static_cast< CDatabaseValue< EFieldType_BIT > & >( *_value ).SetValue( value );
 			break;
 
-		case EFieldType_TINY_INTEGER:
-			static_cast< CDatabaseValue< EFieldType_TINY_INTEGER > & >( *_value ).SetValue( value ? 1 : 0 );
+		case EFieldType_INT8:
+			static_cast< CDatabaseValue< EFieldType_INT8 > & >( *_value ).SetValue( value ? 1 : 0 );
 			break;
 
-		case EFieldType_SMALL_INTEGER:
-			static_cast< CDatabaseValue< EFieldType_SMALL_INTEGER > & >( *_value ).SetValue( value ? 1 : 0 );
+		case EFieldType_INT16:
+			static_cast< CDatabaseValue< EFieldType_INT16 > & >( *_value ).SetValue( value ? 1 : 0 );
 			break;
 
-		case EFieldType_INTEGER:
-			static_cast< CDatabaseValue< EFieldType_INTEGER > & >( *_value ).SetValue( value ? 1 : 0 );
+		case EFieldType_INT24:
+			static_cast< CDatabaseValue< EFieldType_INT24 > & >( *_value ).SetValue( int24_t( value ? 1 : 0 ) );
 			break;
 
-		case EFieldType_LONG_INTEGER:
-			static_cast< CDatabaseValue< EFieldType_LONG_INTEGER > & >( *_value ).SetValue( value ? 1 : 0 );
+		case EFieldType_INT32:
+			static_cast< CDatabaseValue< EFieldType_INT32 > & >( *_value ).SetValue( value ? 1 : 0 );
+			break;
+
+		case EFieldType_INT64:
+			static_cast< CDatabaseValue< EFieldType_INT64 > & >( *_value ).SetValue( value ? 1 : 0 );
 			break;
 
 		case EFieldType_VARCHAR:
@@ -804,28 +912,32 @@ BEGIN_NAMESPACE_DATABASE
 			static_cast< CDatabaseValue< EFieldType_BIT > & >( *_value ).SetValue( value != 0 );
 			break;
 
-		case EFieldType_TINY_INTEGER:
-			static_cast< CDatabaseValue< EFieldType_TINY_INTEGER > & >( *_value ).SetValue( value );
+		case EFieldType_INT8:
+			static_cast< CDatabaseValue< EFieldType_INT8 > & >( *_value ).SetValue( value );
 			break;
 
-		case EFieldType_SMALL_INTEGER:
-			static_cast< CDatabaseValue< EFieldType_SMALL_INTEGER > & >( *_value ).SetValue( value );
+		case EFieldType_INT16:
+			static_cast< CDatabaseValue< EFieldType_INT16 > & >( *_value ).SetValue( value );
 			break;
 
-		case EFieldType_INTEGER:
-			static_cast< CDatabaseValue< EFieldType_INTEGER > & >( *_value ).SetValue( value );
+		case EFieldType_INT24:
+			static_cast< CDatabaseValue< EFieldType_INT24 > & >( *_value ).SetValue( int24_t( value ) );
 			break;
 
-		case EFieldType_LONG_INTEGER:
-			static_cast< CDatabaseValue< EFieldType_LONG_INTEGER > & >( *_value ).SetValue( value );
+		case EFieldType_INT32:
+			static_cast< CDatabaseValue< EFieldType_INT32 > & >( *_value ).SetValue( value );
 			break;
 
-		case EFieldType_FLOATING_POINT_SIMPLE:
-			static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_SIMPLE > & >( *_value ).SetValue( value );
+		case EFieldType_INT64:
+			static_cast< CDatabaseValue< EFieldType_INT64 > & >( *_value ).SetValue( value );
 			break;
 
-		case EFieldType_FLOATING_POINT_DOUBLE:
-			static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_DOUBLE > & >( *_value ).SetValue( value );
+		case EFieldType_FLOAT32:
+			static_cast< CDatabaseValue< EFieldType_FLOAT32 > & >( *_value ).SetValue( value );
+			break;
+
+		case EFieldType_FLOAT64:
+			static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( *_value ).SetValue( value );
 			break;
 
 		default:
@@ -844,28 +956,32 @@ BEGIN_NAMESPACE_DATABASE
 			static_cast< CDatabaseValue< EFieldType_BIT > & >( *_value ).SetValue( value != 0 );
 			break;
 
-		case EFieldType_TINY_INTEGER:
-			static_cast< CDatabaseValue< EFieldType_TINY_INTEGER > & >( *_value ).SetValue( value );
+		case EFieldType_INT8:
+			static_cast< CDatabaseValue< EFieldType_INT8 > & >( *_value ).SetValue( value );
 			break;
 
-		case EFieldType_SMALL_INTEGER:
-			static_cast< CDatabaseValue< EFieldType_SMALL_INTEGER > & >( *_value ).SetValue( value );
+		case EFieldType_INT16:
+			static_cast< CDatabaseValue< EFieldType_INT16 > & >( *_value ).SetValue( value );
 			break;
 
-		case EFieldType_INTEGER:
-			static_cast< CDatabaseValue< EFieldType_INTEGER > & >( *_value ).SetValue( value );
+		case EFieldType_INT24:
+			static_cast< CDatabaseValue< EFieldType_INT24 > & >( *_value ).SetValue( int24_t( value ) );
 			break;
 
-		case EFieldType_LONG_INTEGER:
-			static_cast< CDatabaseValue< EFieldType_LONG_INTEGER > & >( *_value ).SetValue( value );
+		case EFieldType_INT32:
+			static_cast< CDatabaseValue< EFieldType_INT32 > & >( *_value ).SetValue( value );
 			break;
 
-		case EFieldType_FLOATING_POINT_SIMPLE:
-			static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_SIMPLE > & >( *_value ).SetValue( value );
+		case EFieldType_INT64:
+			static_cast< CDatabaseValue< EFieldType_INT64 > & >( *_value ).SetValue( value );
 			break;
 
-		case EFieldType_FLOATING_POINT_DOUBLE:
-			static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_DOUBLE > & >( *_value ).SetValue( value );
+		case EFieldType_FLOAT32:
+			static_cast< CDatabaseValue< EFieldType_FLOAT32 > & >( *_value ).SetValue( value );
+			break;
+
+		case EFieldType_FLOAT64:
+			static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( *_value ).SetValue( value );
 			break;
 
 		default:
@@ -884,24 +1000,28 @@ BEGIN_NAMESPACE_DATABASE
 			static_cast< CDatabaseValue< EFieldType_BIT > & >( *_value ).SetValue( value != 0 );
 			break;
 
-		case EFieldType_SMALL_INTEGER:
-			static_cast< CDatabaseValue< EFieldType_SMALL_INTEGER > & >( *_value ).SetValue( value );
+		case EFieldType_INT16:
+			static_cast< CDatabaseValue< EFieldType_INT16 > & >( *_value ).SetValue( value );
 			break;
 
-		case EFieldType_INTEGER:
-			static_cast< CDatabaseValue< EFieldType_INTEGER > & >( *_value ).SetValue( value );
+		case EFieldType_INT24:
+			static_cast< CDatabaseValue< EFieldType_INT24 > & >( *_value ).SetValue( int24_t( value ) );
 			break;
 
-		case EFieldType_LONG_INTEGER:
-			static_cast< CDatabaseValue< EFieldType_LONG_INTEGER > & >( *_value ).SetValue( value );
+		case EFieldType_INT32:
+			static_cast< CDatabaseValue< EFieldType_INT32 > & >( *_value ).SetValue( value );
 			break;
 
-		case EFieldType_FLOATING_POINT_SIMPLE:
-			static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_SIMPLE > & >( *_value ).SetValue( value );
+		case EFieldType_INT64:
+			static_cast< CDatabaseValue< EFieldType_INT64 > & >( *_value ).SetValue( value );
 			break;
 
-		case EFieldType_FLOATING_POINT_DOUBLE:
-			static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_DOUBLE > & >( *_value ).SetValue( value );
+		case EFieldType_FLOAT32:
+			static_cast< CDatabaseValue< EFieldType_FLOAT32 > & >( *_value ).SetValue( value );
+			break;
+
+		case EFieldType_FLOAT64:
+			static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( *_value ).SetValue( value );
 			break;
 
 		default:
@@ -920,24 +1040,100 @@ BEGIN_NAMESPACE_DATABASE
 			static_cast< CDatabaseValue< EFieldType_BIT > & >( *_value ).SetValue( value != 0 );
 			break;
 
-		case EFieldType_SMALL_INTEGER:
-			static_cast< CDatabaseValue< EFieldType_SMALL_INTEGER > & >( *_value ).SetValue( value );
+		case EFieldType_INT16:
+			static_cast< CDatabaseValue< EFieldType_INT16 > & >( *_value ).SetValue( value );
 			break;
 
-		case EFieldType_INTEGER:
-			static_cast< CDatabaseValue< EFieldType_INTEGER > & >( *_value ).SetValue( value );
+		case EFieldType_INT24:
+			static_cast< CDatabaseValue< EFieldType_INT24 > & >( *_value ).SetValue( int24_t( value ) );
 			break;
 
-		case EFieldType_LONG_INTEGER:
-			static_cast< CDatabaseValue< EFieldType_LONG_INTEGER > & >( *_value ).SetValue( value );
+		case EFieldType_INT32:
+			static_cast< CDatabaseValue< EFieldType_INT32 > & >( *_value ).SetValue( value );
 			break;
 
-		case EFieldType_FLOATING_POINT_SIMPLE:
-			static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_SIMPLE > & >( *_value ).SetValue( value );
+		case EFieldType_INT64:
+			static_cast< CDatabaseValue< EFieldType_INT64 > & >( *_value ).SetValue( value );
 			break;
 
-		case EFieldType_FLOATING_POINT_DOUBLE:
-			static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_DOUBLE > & >( *_value ).SetValue( value );
+		case EFieldType_FLOAT32:
+			static_cast< CDatabaseValue< EFieldType_FLOAT32 > & >( *_value ).SetValue( value );
+			break;
+
+		case EFieldType_FLOAT64:
+			static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( *_value ).SetValue( value );
+			break;
+
+		default:
+			String errMsg = ERROR_DB_FIELD_SETVALUE_TYPE + this->GetName();
+			CLogger::LogError( errMsg );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_SETVALUE_TYPE );
+			break;
+		}
+	}
+
+	void CDatabaseValuedObject::DoSetValue( const int24_t & value )
+	{
+		switch ( GetType() )
+		{
+		case EFieldType_BIT:
+			static_cast< CDatabaseValue< EFieldType_BIT > & >( *_value ).SetValue( value != 0 );
+			break;
+
+		case EFieldType_INT24:
+			static_cast< CDatabaseValue< EFieldType_INT24 > & >( *_value ).SetValue( value );
+			break;
+
+		case EFieldType_INT32:
+			static_cast< CDatabaseValue< EFieldType_INT32 > & >( *_value ).SetValue( int32_t( value ) );
+			break;
+
+		case EFieldType_INT64:
+			static_cast< CDatabaseValue< EFieldType_INT64 > & >( *_value ).SetValue( int64_t( value ) );
+			break;
+
+		case EFieldType_FLOAT32:
+			static_cast< CDatabaseValue< EFieldType_FLOAT32 > & >( *_value ).SetValue( float( value ) );
+			break;
+
+		case EFieldType_FLOAT64:
+			static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( *_value ).SetValue( double( value ) );
+			break;
+
+		default:
+			String errMsg = ERROR_DB_FIELD_SETVALUE_TYPE + this->GetName();
+			CLogger::LogError( errMsg );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_SETVALUE_TYPE );
+			break;
+		}
+	}
+
+	void CDatabaseValuedObject::DoSetValue( const uint24_t & value )
+	{
+		switch ( GetType() )
+		{
+		case EFieldType_BIT:
+			static_cast< CDatabaseValue< EFieldType_BIT > & >( *_value ).SetValue( value != 0 );
+			break;
+
+		case EFieldType_INT24:
+			static_cast< CDatabaseValue< EFieldType_INT24 > & >( *_value ).SetValue( int24_t( value ) );
+			break;
+
+		case EFieldType_INT32:
+			static_cast< CDatabaseValue< EFieldType_INT32 > & >( *_value ).SetValue( uint32_t( value ) );
+			break;
+
+		case EFieldType_INT64:
+			static_cast< CDatabaseValue< EFieldType_INT64 > & >( *_value ).SetValue( uint64_t( value ) );
+			break;
+
+		case EFieldType_FLOAT32:
+			static_cast< CDatabaseValue< EFieldType_FLOAT32 > & >( *_value ).SetValue( float( value ) );
+			break;
+
+		case EFieldType_FLOAT64:
+			static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( *_value ).SetValue( double( value ) );
 			break;
 
 		default:
@@ -956,20 +1152,24 @@ BEGIN_NAMESPACE_DATABASE
 			static_cast< CDatabaseValue< EFieldType_BIT > & >( *_value ).SetValue( value != 0 );
 			break;
 
-		case EFieldType_INTEGER:
-			static_cast< CDatabaseValue< EFieldType_INTEGER > & >( *_value ).SetValue( value );
+		case EFieldType_INT24:
+			static_cast< CDatabaseValue< EFieldType_INT24 > & >( *_value ).SetValue( int24_t( value ) );
 			break;
 
-		case EFieldType_LONG_INTEGER:
-			static_cast< CDatabaseValue< EFieldType_LONG_INTEGER > & >( *_value ).SetValue( value );
+		case EFieldType_INT32:
+			static_cast< CDatabaseValue< EFieldType_INT32 > & >( *_value ).SetValue( value );
 			break;
 
-		case EFieldType_FLOATING_POINT_SIMPLE:
-			static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_SIMPLE > & >( *_value ).SetValue( float( value ) );
+		case EFieldType_INT64:
+			static_cast< CDatabaseValue< EFieldType_INT64 > & >( *_value ).SetValue( value );
 			break;
 
-		case EFieldType_FLOATING_POINT_DOUBLE:
-			static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_DOUBLE > & >( *_value ).SetValue( double( value ) );
+		case EFieldType_FLOAT32:
+			static_cast< CDatabaseValue< EFieldType_FLOAT32 > & >( *_value ).SetValue( float( value ) );
+			break;
+
+		case EFieldType_FLOAT64:
+			static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( *_value ).SetValue( double( value ) );
 			break;
 
 		default:
@@ -988,20 +1188,24 @@ BEGIN_NAMESPACE_DATABASE
 			static_cast< CDatabaseValue< EFieldType_BIT > & >( *_value ).SetValue( value != 0 );
 			break;
 
-		case EFieldType_INTEGER:
-			static_cast< CDatabaseValue< EFieldType_INTEGER > & >( *_value ).SetValue( value );
+		case EFieldType_INT24:
+			static_cast< CDatabaseValue< EFieldType_INT24 > & >( *_value ).SetValue( int24_t( value ) );
 			break;
 
-		case EFieldType_LONG_INTEGER:
-			static_cast< CDatabaseValue< EFieldType_LONG_INTEGER > & >( *_value ).SetValue( value );
+		case EFieldType_INT32:
+			static_cast< CDatabaseValue< EFieldType_INT32 > & >( *_value ).SetValue( value );
 			break;
 
-		case EFieldType_FLOATING_POINT_SIMPLE:
-			static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_SIMPLE > & >( *_value ).SetValue( float( value ) );
+		case EFieldType_INT64:
+			static_cast< CDatabaseValue< EFieldType_INT64 > & >( *_value ).SetValue( value );
 			break;
 
-		case EFieldType_FLOATING_POINT_DOUBLE:
-			static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_DOUBLE > & >( *_value ).SetValue( double( value ) );
+		case EFieldType_FLOAT32:
+			static_cast< CDatabaseValue< EFieldType_FLOAT32 > & >( *_value ).SetValue( float( value ) );
+			break;
+
+		case EFieldType_FLOAT64:
+			static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( *_value ).SetValue( double( value ) );
 			break;
 
 		default:
@@ -1020,8 +1224,8 @@ BEGIN_NAMESPACE_DATABASE
 			static_cast< CDatabaseValue< EFieldType_BIT > & >( *_value ).SetValue( value != 0 );
 			break;
 
-		case EFieldType_LONG_INTEGER:
-			static_cast< CDatabaseValue< EFieldType_LONG_INTEGER > & >( *_value ).SetValue( value );
+		case EFieldType_INT64:
+			static_cast< CDatabaseValue< EFieldType_INT64 > & >( *_value ).SetValue( value );
 			break;
 
 		default:
@@ -1040,8 +1244,8 @@ BEGIN_NAMESPACE_DATABASE
 			static_cast< CDatabaseValue< EFieldType_BIT > & >( *_value ).SetValue( value != 0 );
 			break;
 
-		case EFieldType_LONG_INTEGER:
-			static_cast< CDatabaseValue< EFieldType_LONG_INTEGER > & >( *_value ).SetValue( value );
+		case EFieldType_INT64:
+			static_cast< CDatabaseValue< EFieldType_INT64 > & >( *_value ).SetValue( value );
 			break;
 
 		default:
@@ -1056,24 +1260,28 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		switch ( GetType() )
 		{
-		case EFieldType_SMALL_INTEGER:
-			static_cast< CDatabaseValue< EFieldType_SMALL_INTEGER > & >( *_value ).SetValue( short( value ) );
+		case EFieldType_INT16:
+			static_cast< CDatabaseValue< EFieldType_INT16 > & >( *_value ).SetValue( int16_t( value ) );
 			break;
 
-		case EFieldType_INTEGER:
-			static_cast< CDatabaseValue< EFieldType_INTEGER > & >( *_value ).SetValue( int( value ) );
+		case EFieldType_INT24:
+			static_cast< CDatabaseValue< EFieldType_INT24 > & >( *_value ).SetValue( int24_t( value ) );
 			break;
 
-		case EFieldType_LONG_INTEGER:
-			static_cast< CDatabaseValue< EFieldType_LONG_INTEGER > & >( *_value ).SetValue( ( long long )( value ) );
+		case EFieldType_INT32:
+			static_cast< CDatabaseValue< EFieldType_INT32 > & >( *_value ).SetValue( int32_t( value ) );
 			break;
 
-		case EFieldType_FLOATING_POINT_SIMPLE:
-			static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_SIMPLE > & >( *_value ).SetValue( value );
+		case EFieldType_INT64:
+			static_cast< CDatabaseValue< EFieldType_INT64 > & >( *_value ).SetValue( int64_t( value ) );
 			break;
 
-		case EFieldType_FLOATING_POINT_DOUBLE:
-			static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_DOUBLE > & >( *_value ).SetValue( value );
+		case EFieldType_FLOAT32:
+			static_cast< CDatabaseValue< EFieldType_FLOAT32 > & >( *_value ).SetValue( value );
+			break;
+
+		case EFieldType_FLOAT64:
+			static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( *_value ).SetValue( value );
 			break;
 
 		default:
@@ -1088,24 +1296,28 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		switch ( GetType() )
 		{
-		case EFieldType_SMALL_INTEGER:
-			static_cast< CDatabaseValue< EFieldType_SMALL_INTEGER > & >( *_value ).SetValue( short( value ) );
+		case EFieldType_INT16:
+			static_cast< CDatabaseValue< EFieldType_INT16 > & >( *_value ).SetValue( int16_t( value ) );
 			break;
 
-		case EFieldType_INTEGER:
-			static_cast< CDatabaseValue< EFieldType_INTEGER > & >( *_value ).SetValue( int( value ) );
+		case EFieldType_INT24:
+			static_cast< CDatabaseValue< EFieldType_INT24 > & >( *_value ).SetValue( int24_t( value ) );
 			break;
 
-		case EFieldType_LONG_INTEGER:
-			static_cast< CDatabaseValue< EFieldType_LONG_INTEGER > & >( *_value ).SetValue( ( long long )( value ) );
+		case EFieldType_INT32:
+			static_cast< CDatabaseValue< EFieldType_INT32 > & >( *_value ).SetValue( int32_t( value ) );
 			break;
 
-		case EFieldType_FLOATING_POINT_SIMPLE:
-			static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_SIMPLE > & >( *_value ).SetValue( float( value ) );
+		case EFieldType_INT64:
+			static_cast< CDatabaseValue< EFieldType_INT64 > & >( *_value ).SetValue( int64_t( value ) );
 			break;
 
-		case EFieldType_FLOATING_POINT_DOUBLE:
-			static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_DOUBLE > & >( *_value ).SetValue( value );
+		case EFieldType_FLOAT32:
+			static_cast< CDatabaseValue< EFieldType_FLOAT32 > & >( *_value ).SetValue( float( value ) );
+			break;
+
+		case EFieldType_FLOAT64:
+			static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( *_value ).SetValue( value );
 			break;
 
 		default:
@@ -1120,24 +1332,28 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		switch ( GetType() )
 		{
-		case EFieldType_SMALL_INTEGER:
-			static_cast< CDatabaseValue< EFieldType_SMALL_INTEGER > & >( *_value ).SetValue( short( value ) );
+		case EFieldType_INT16:
+			static_cast< CDatabaseValue< EFieldType_INT16 > & >( *_value ).SetValue( int16_t( value ) );
 			break;
 
-		case EFieldType_INTEGER:
-			static_cast< CDatabaseValue< EFieldType_INTEGER > & >( *_value ).SetValue( int( value ) );
+		case EFieldType_INT24:
+			static_cast< CDatabaseValue< EFieldType_INT24 > & >( *_value ).SetValue( int24_t( value ) );
 			break;
 
-		case EFieldType_LONG_INTEGER:
-			static_cast< CDatabaseValue< EFieldType_LONG_INTEGER > & >( *_value ).SetValue( ( long long )( value ) );
+		case EFieldType_INT32:
+			static_cast< CDatabaseValue< EFieldType_INT32 > & >( *_value ).SetValue( int32_t( value ) );
 			break;
 
-		case EFieldType_FLOATING_POINT_SIMPLE:
-			static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_SIMPLE > & >( *_value ).SetValue( float( value ) );
+		case EFieldType_INT64:
+			static_cast< CDatabaseValue< EFieldType_INT64 > & >( *_value ).SetValue( int64_t( value ) );
 			break;
 
-		case EFieldType_FLOATING_POINT_DOUBLE:
-			static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_DOUBLE > & >( *_value ).SetValue( double( value ) );
+		case EFieldType_FLOAT32:
+			static_cast< CDatabaseValue< EFieldType_FLOAT32 > & >( *_value ).SetValue( float( value ) );
+			break;
+
+		case EFieldType_FLOAT64:
+			static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( *_value ).SetValue( double( value ) );
 			break;
 
 		default:
@@ -1152,12 +1368,12 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		switch ( GetType() )
 		{
-		case EFieldType_FLOATING_POINT_SIMPLE:
-			static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_SIMPLE > & >( *_value ).SetValue( value.ToFloat() );
+		case EFieldType_FLOAT32:
+			static_cast< CDatabaseValue< EFieldType_FLOAT32 > & >( *_value ).SetValue( value.ToFloat() );
 			break;
 
-		case EFieldType_FLOATING_POINT_DOUBLE:
-			static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_DOUBLE > & >( *_value ).SetValue( value.ToDouble() );
+		case EFieldType_FLOAT64:
+			static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( *_value ).SetValue( value.ToDouble() );
 			break;
 
 		case EFieldType_FIXED_POINT:
@@ -1323,68 +1539,80 @@ BEGIN_NAMESPACE_DATABASE
 
 	void CDatabaseValuedObject::DoSetValueFast( const int8_t & value )
 	{
-		assert( GetType() == EFieldType_TINY_INTEGER );
-		static_cast< CDatabaseValue< EFieldType_TINY_INTEGER > & >( *_value ).SetValue( value );
+		assert( GetType() == EFieldType_INT8 );
+		static_cast< CDatabaseValue< EFieldType_INT8 > & >( *_value ).SetValue( value );
 	}
 
 	void CDatabaseValuedObject::DoSetValueFast( const uint8_t & value )
 	{
-		assert( GetType() == EFieldType_TINY_INTEGER );
-		static_cast< CDatabaseValue< EFieldType_TINY_INTEGER > & >( *_value ).SetValue( value );
+		assert( GetType() == EFieldType_INT8 );
+		static_cast< CDatabaseValue< EFieldType_INT8 > & >( *_value ).SetValue( value );
 	}
 
 	void CDatabaseValuedObject::DoSetValueFast( const int16_t & value )
 	{
-		assert( GetType() == EFieldType_SMALL_INTEGER );
-		static_cast< CDatabaseValue< EFieldType_SMALL_INTEGER > & >( *_value ).SetValue( value );
+		assert( GetType() == EFieldType_INT16 );
+		static_cast< CDatabaseValue< EFieldType_INT16 > & >( *_value ).SetValue( value );
 	}
 
 	void CDatabaseValuedObject::DoSetValueFast( const uint16_t & value )
 	{
-		assert( GetType() == EFieldType_SMALL_INTEGER );
-		static_cast< CDatabaseValue< EFieldType_SMALL_INTEGER > & >( *_value ).SetValue( value );
+		assert( GetType() == EFieldType_INT16 );
+		static_cast< CDatabaseValue< EFieldType_INT16 > & >( *_value ).SetValue( value );
+	}
+
+	void CDatabaseValuedObject::DoSetValueFast( const int24_t & value )
+	{
+		assert( GetType() == EFieldType_INT24 );
+		static_cast< CDatabaseValue< EFieldType_INT24 > & >( *_value ).SetValue( int24_t( value ) );
+	}
+
+	void CDatabaseValuedObject::DoSetValueFast( const uint24_t & value )
+	{
+		assert( GetType() == EFieldType_INT24 );
+		static_cast< CDatabaseValue< EFieldType_INT24 > & >( *_value ).SetValue( int24_t( value ) );
 	}
 
 	void CDatabaseValuedObject::DoSetValueFast( const int32_t & value )
 	{
-		assert( GetType() == EFieldType_INTEGER );
-		static_cast< CDatabaseValue< EFieldType_INTEGER > & >( *_value ).SetValue( value );
+		assert( GetType() == EFieldType_INT32 );
+		static_cast< CDatabaseValue< EFieldType_INT32 > & >( *_value ).SetValue( value );
 	}
 
 	void CDatabaseValuedObject::DoSetValueFast( const uint32_t & value )
 	{
-		assert( GetType() == EFieldType_INTEGER );
-		static_cast< CDatabaseValue< EFieldType_INTEGER > & >( *_value ).SetValue( value );
+		assert( GetType() == EFieldType_INT32 );
+		static_cast< CDatabaseValue< EFieldType_INT32 > & >( *_value ).SetValue( value );
 	}
 
 	void CDatabaseValuedObject::DoSetValueFast( const int64_t & value )
 	{
-		assert( GetType() == EFieldType_LONG_INTEGER );
-		static_cast< CDatabaseValue< EFieldType_LONG_INTEGER > & >( *_value ).SetValue( value );
+		assert( GetType() == EFieldType_INT64 );
+		static_cast< CDatabaseValue< EFieldType_INT64 > & >( *_value ).SetValue( value );
 	}
 
 	void CDatabaseValuedObject::DoSetValueFast( const uint64_t & value )
 	{
-		assert( GetType() == EFieldType_LONG_INTEGER );
-		static_cast< CDatabaseValue< EFieldType_LONG_INTEGER > & >( *_value ).SetValue( value );
+		assert( GetType() == EFieldType_INT64 );
+		static_cast< CDatabaseValue< EFieldType_INT64 > & >( *_value ).SetValue( value );
 	}
 
 	void CDatabaseValuedObject::DoSetValueFast( const float & value )
 	{
-		assert( GetType() == EFieldType_FLOATING_POINT_SIMPLE );
-		static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_SIMPLE > & >( *_value ).SetValue( value );
+		assert( GetType() == EFieldType_FLOAT32 );
+		static_cast< CDatabaseValue< EFieldType_FLOAT32 > & >( *_value ).SetValue( value );
 	}
 
 	void CDatabaseValuedObject::DoSetValueFast( const double & value )
 	{
-		assert( GetType() == EFieldType_FLOATING_POINT_DOUBLE );
-		static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_DOUBLE > & >( *_value ).SetValue( value );
+		assert( GetType() == EFieldType_FLOAT64 );
+		static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( *_value ).SetValue( value );
 	}
 
 	void CDatabaseValuedObject::DoSetValueFast( const long double & value )
 	{
-		assert( GetType() == EFieldType_FLOATING_POINT_DOUBLE );
-		static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_DOUBLE > & >( *_value ).SetValue( double( value ) );
+		assert( GetType() == EFieldType_FLOAT64 );
+		static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( *_value ).SetValue( double( value ) );
 	}
 
 	void CDatabaseValuedObject::DoSetValueFast( const CFixedPoint & value )
@@ -1437,28 +1665,32 @@ BEGIN_NAMESPACE_DATABASE
 			_value = std::make_unique< CDatabaseValue< EFieldType_BIT > >( GetConnection() );
 			break;
 
-		case EFieldType_TINY_INTEGER:
-			_value = std::make_unique< CDatabaseValue< EFieldType_TINY_INTEGER > >( GetConnection() );
+		case EFieldType_INT8:
+			_value = std::make_unique< CDatabaseValue< EFieldType_INT8 > >( GetConnection() );
 			break;
 
-		case EFieldType_SMALL_INTEGER:
-			_value = std::make_unique< CDatabaseValue< EFieldType_SMALL_INTEGER > >( GetConnection() );
+		case EFieldType_INT16:
+			_value = std::make_unique< CDatabaseValue< EFieldType_INT16 > >( GetConnection() );
 			break;
 
-		case EFieldType_INTEGER:
-			_value = std::make_unique< CDatabaseValue< EFieldType_INTEGER > >( GetConnection() );
+		case EFieldType_INT24:
+			_value = std::make_unique< CDatabaseValue< EFieldType_INT24 > >( GetConnection() );
 			break;
 
-		case EFieldType_LONG_INTEGER:
-			_value = std::make_unique< CDatabaseValue< EFieldType_LONG_INTEGER > >( GetConnection() );
+		case EFieldType_INT32:
+			_value = std::make_unique< CDatabaseValue< EFieldType_INT32 > >( GetConnection() );
 			break;
 
-		case EFieldType_FLOATING_POINT_SIMPLE:
-			_value = std::make_unique< CDatabaseValue< EFieldType_FLOATING_POINT_SIMPLE > >( GetConnection() );
+		case EFieldType_INT64:
+			_value = std::make_unique< CDatabaseValue< EFieldType_INT64 > >( GetConnection() );
 			break;
 
-		case EFieldType_FLOATING_POINT_DOUBLE:
-			_value = std::make_unique< CDatabaseValue< EFieldType_FLOATING_POINT_DOUBLE > >( GetConnection() );
+		case EFieldType_FLOAT32:
+			_value = std::make_unique< CDatabaseValue< EFieldType_FLOAT32 > >( GetConnection() );
+			break;
+
+		case EFieldType_FLOAT64:
+			_value = std::make_unique< CDatabaseValue< EFieldType_FLOAT64 > >( GetConnection() );
 			break;
 
 		case EFieldType_FIXED_POINT:

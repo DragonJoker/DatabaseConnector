@@ -40,56 +40,64 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	*/
 	template<> struct SFieldTypeMySqlDataTyper< EFieldType_BIT >
 	{
-		static const enum_field_types MySqlFieldType = MYSQL_TYPE_BIT;
-		typedef bool DataType;
+		static const enum_field_types MySqlFieldType = MYSQL_TYPE_TINY;
+		typedef bool FieldDataType;
 	};
 
-	/** Specialization for EFieldType_TINY_INTEGER
+	/** Specialization for EFieldType_INT8
 	*/
-	template<> struct SFieldTypeMySqlDataTyper< EFieldType_TINY_INTEGER >
+	template<> struct SFieldTypeMySqlDataTyper< EFieldType_INT8 >
 	{
 		static const enum_field_types MySqlFieldType = MYSQL_TYPE_TINY;
-		typedef int8_t DataType;
+		typedef int8_t FieldDataType;
 	};
 
-	/** Specialization for EFieldType_SMALL_INTEGER
+	/** Specialization for EFieldType_INT16
 	*/
-	template<> struct SFieldTypeMySqlDataTyper< EFieldType_SMALL_INTEGER >
+	template<> struct SFieldTypeMySqlDataTyper< EFieldType_INT16 >
 	{
 		static const enum_field_types MySqlFieldType = MYSQL_TYPE_SHORT;
-		typedef int16_t DataType;
+		typedef int16_t FieldDataType;
 	};
 
-	/** Specialization for EFieldType_INTEGER
+	/** Specialization for EFieldType_INT24
 	*/
-	template<> struct SFieldTypeMySqlDataTyper< EFieldType_INTEGER >
+	template<> struct SFieldTypeMySqlDataTyper< EFieldType_INT24 >
 	{
 		static const enum_field_types MySqlFieldType = MYSQL_TYPE_LONG;
-		typedef int32_t DataType;
+		typedef int32_t FieldDataType;
 	};
 
-	/** Specialization for EFieldType_LONG_INTEGER
+	/** Specialization for EFieldType_INT32
 	*/
-	template<> struct SFieldTypeMySqlDataTyper< EFieldType_LONG_INTEGER >
+	template<> struct SFieldTypeMySqlDataTyper< EFieldType_INT32 >
+	{
+		static const enum_field_types MySqlFieldType = MYSQL_TYPE_LONG;
+		typedef int32_t FieldDataType;
+	};
+
+	/** Specialization for EFieldType_INT64
+	*/
+	template<> struct SFieldTypeMySqlDataTyper< EFieldType_INT64 >
 	{
 		static const enum_field_types MySqlFieldType = MYSQL_TYPE_LONGLONG;
-		typedef int64_t DataType;
+		typedef int64_t FieldDataType;
 	};
 
-	/** Specialization for EFieldType_FLOATING_POINT_SIMPLE
+	/** Specialization for EFieldType_FLOAT32
 	*/
-	template<> struct SFieldTypeMySqlDataTyper< EFieldType_FLOATING_POINT_SIMPLE >
+	template<> struct SFieldTypeMySqlDataTyper< EFieldType_FLOAT32 >
 	{
 		static const enum_field_types MySqlFieldType = MYSQL_TYPE_FLOAT;
-		typedef float DataType;
+		typedef float FieldDataType;
 	};
 
-	/** Specialization for EFieldType_FLOATING_POINT_DOUBLE
+	/** Specialization for EFieldType_FLOAT64
 	*/
-	template<> struct SFieldTypeMySqlDataTyper< EFieldType_FLOATING_POINT_DOUBLE >
+	template<> struct SFieldTypeMySqlDataTyper< EFieldType_FLOAT64 >
 	{
 		static const enum_field_types MySqlFieldType = MYSQL_TYPE_DOUBLE;
-		typedef double DataType;
+		typedef double FieldDataType;
 	};
 
 	/** Specialization for EFieldType_FIXED_POINT
@@ -97,7 +105,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	template<> struct SFieldTypeMySqlDataTyper< EFieldType_FIXED_POINT >
 	{
 		static const enum_field_types MySqlFieldType = MYSQL_TYPE_NEWDECIMAL;
-		typedef char * DataType;
+		typedef CFixedPoint FieldDataType;
 	};
 
 	/** Specialization for EFieldType_DATE
@@ -105,7 +113,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	template<> struct SFieldTypeMySqlDataTyper< EFieldType_DATE >
 	{
 		static const enum_field_types MySqlFieldType = MYSQL_TYPE_DATE;
-		typedef CDate DataType;
+		typedef CDate FieldDataType;
 	};
 
 	/** Specialization for EFieldType_DATETIME
@@ -113,7 +121,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	template<> struct SFieldTypeMySqlDataTyper< EFieldType_DATETIME >
 	{
 		static const enum_field_types MySqlFieldType = MYSQL_TYPE_DATETIME;
-		typedef CDateTime DataType;
+		typedef CDateTime FieldDataType;
 	};
 
 	/** Specialization for EFieldType_TIME
@@ -121,7 +129,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	template<> struct SFieldTypeMySqlDataTyper< EFieldType_TIME >
 	{
 		static const enum_field_types MySqlFieldType = MYSQL_TYPE_TIME;
-		typedef CTime DataType;
+		typedef CTime FieldDataType;
 	};
 
 	/** Specialization for EFieldType_VARCHAR
@@ -129,7 +137,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	template<> struct SFieldTypeMySqlDataTyper< EFieldType_VARCHAR >
 	{
 		static const enum_field_types MySqlFieldType = MYSQL_TYPE_VARCHAR;
-		typedef char * DataType;
+		typedef char * FieldDataType;
 	};
 
 	/** Specialization for EFieldType_TEXT
@@ -137,7 +145,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	template<> struct SFieldTypeMySqlDataTyper< EFieldType_TEXT >
 	{
 		static const enum_field_types MySqlFieldType = MYSQL_TYPE_STRING;
-		typedef char * DataType;
+		typedef char * FieldDataType;
 	};
 
 	/** Specialization for EFieldType_NVARCHAR
@@ -145,7 +153,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	template<> struct SFieldTypeMySqlDataTyper< EFieldType_NVARCHAR >
 	{
 		static const enum_field_types MySqlFieldType = MYSQL_TYPE_VARCHAR;
-		typedef wchar_t * DataType;
+		typedef wchar_t * FieldDataType;
 	};
 
 	/** Specialization for EFieldType_NTEXT
@@ -153,7 +161,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	template<> struct SFieldTypeMySqlDataTyper< EFieldType_NTEXT >
 	{
 		static const enum_field_types MySqlFieldType = MYSQL_TYPE_STRING;
-		typedef wchar_t * DataType;
+		typedef wchar_t * FieldDataType;
 	};
 
 	/** Specialization for EFieldType_BINARY
@@ -161,7 +169,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	template<> struct SFieldTypeMySqlDataTyper< EFieldType_BINARY >
 	{
 		static const enum_field_types MySqlFieldType = MYSQL_TYPE_BLOB;
-		typedef uint8_t * DataType;
+		typedef uint8_t * FieldDataType;
 	};
 
 	/** Specialization for EFieldType_VARBINARY
@@ -169,7 +177,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	template<> struct SFieldTypeMySqlDataTyper< EFieldType_VARBINARY >
 	{
 		static const enum_field_types MySqlFieldType = MYSQL_TYPE_BLOB;
-		typedef uint8_t * DataType;
+		typedef uint8_t * FieldDataType;
 	};
 
 	/** Specialization for EFieldType_LONG_VARBINARY
@@ -177,7 +185,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	template<> struct SFieldTypeMySqlDataTyper< EFieldType_LONG_VARBINARY >
 	{
 		static const enum_field_types MySqlFieldType = MYSQL_TYPE_BLOB;
-		typedef uint8_t * DataType;
+		typedef uint8_t * FieldDataType;
 	};
 
 	COutMySqlBindBase::COutMySqlBindBase( MYSQL_BIND & bind, enum_field_types type, CDatabaseStatementParameterMySql & parameter )
@@ -196,13 +204,13 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	{
 		/** Constructor
 		@param bind
-		    The binding
+			The binding
 		@param type
-		    The MySQL data type
+			The MySQL data type
 		@param value
 			The parameter value
 		@param parameter
-		    The parameter
+			The parameter
 		*/
 		COutMySqlBind( MYSQL_BIND & bind, enum_field_types type, CDatabaseValueBase & value, CDatabaseStatementParameterMySql & parameter )
 			: COutMySqlBindBase( bind, type, parameter )
@@ -230,18 +238,17 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	{
 		/** Constructor
 		@param bind
-		    The binding
+			The binding
 		@param type
-		    The MySQL data type
+			The MySQL data type
 		@param value
 			The parameter value
 		@param parameter
-		    The parameter
+			The parameter
 		*/
 		COutMySqlBind( MYSQL_BIND & bind, enum_field_types type, CDatabaseValueBase & value, CDatabaseStatementParameterMySql & parameter )
 			: COutMySqlBindBase( bind, type, parameter )
 			, _value( value )
-			, _holder( NULL )
 		{
 			if ( type == MYSQL_TYPE_STRING || type == MYSQL_TYPE_BLOB || parameter.GetLimits() == -1 || parameter.GetLimits() == 0 )
 			{
@@ -250,8 +257,8 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			else
 			{
 				_bind.buffer_length = parameter.GetLimits() * sizeof( T );
-				_holder = ( T * )malloc( _bind.buffer_length );
-				_bind.buffer = _holder;
+				_holder.resize( _bind.buffer_length );
+				_bind.buffer = _holder.data();
 				_updateFunc = &COutMySqlBind< T * >::DoUpdateLimited;
 			}
 		}
@@ -260,7 +267,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		*/
 		~COutMySqlBind()
 		{
-			free( _holder );
 		}
 
 		//!@copydoc COutMySqlBindBase::DoSetValue
@@ -274,7 +280,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		void DoUpdateLimited()
 		{
 			unsigned long length = std::min( _bind.buffer_length, _value.GetPtrSize() );
-			memcpy( _holder, _value.GetPtrValue(), length );
+			memcpy( _holder.data(), _value.GetPtrValue(), length );
 		}
 
 		/** Sends the value using the mysql_send_long_data method
@@ -287,7 +293,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		//! The parameter value
 		CDatabaseValueBase & _value;
 		//! The value holder
-		T * _holder;
+		std::vector< T > _holder;
 		//! The method used to send the value to the server
 		void ( COutMySqlBind< T * >::*_updateFunc )();
 	};
@@ -300,18 +306,17 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	{
 		/** Constructor
 		@param bind
-		    The binding
+			The binding
 		@param type
-		    The MySQL data type
+			The MySQL data type
 		@param value
 			The parameter value
 		@param parameter
-		    The parameter
+			The parameter
 		*/
 		COutMySqlBind( MYSQL_BIND & bind, enum_field_types type, CDatabaseValueBase & value, CDatabaseStatementParameterMySql & parameter )
 			: COutMySqlBindBase( bind, type, parameter )
 			, _value( value )
-			, _holder( NULL )
 			, _length( 0 )
 		{
 			_bind.length = &_length;
@@ -323,8 +328,8 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			else
 			{
 				_bind.buffer_length = parameter.GetLimits();
-				_holder = ( char * )malloc( _bind.buffer_length );
-				_bind.buffer = _holder;
+				_holder.resize( _bind.buffer_length );
+				_bind.buffer = _holder.data();
 				_updateFunc = &COutMySqlBind< wchar_t * >::DoUpdateLimited;
 			}
 		}
@@ -333,7 +338,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		*/
 		~COutMySqlBind()
 		{
-			free( _holder );
 		}
 
 		//!@copydoc COutMySqlBindBase::DoSetValue
@@ -348,7 +352,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		void DoUpdateLimited( const std::string & str )
 		{
 			_length = std::min( _bind.buffer_length, ( unsigned long )str.size() );
-			memcpy( _holder, str.data(), _length );
+			memcpy( _holder.data(), str.data(), _length );
 		}
 
 		/** Sends the value using the mysql_send_long_data method
@@ -360,7 +364,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 		CDatabaseValueBase & _value;
 		//! The value holder
-		char * _holder;
+		std::vector< char > _holder;
 		//! The binding length
 		unsigned long _length;
 		//! The method used to send the value to the server
@@ -375,19 +379,21 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	{
 		/** Constructor
 		@param bind
-		    The binding
+			The binding
 		@param type
-		    The MySQL data type
+			The MySQL data type
 		@param value
 			The parameter value
 		@param parameter
-		    The parameter
+			The parameter
 		*/
 		COutMySqlBind( MYSQL_BIND & bind, enum_field_types type, CDatabaseValue< EFieldType_BIT > & value, CDatabaseStatementParameterMySql & parameter )
 			: COutMySqlBindBase( bind, type, parameter )
 			, _value( value )
+			, _holder( 0 )
 		{
 			_bind.buffer_length = sizeof( _holder );
+			*_bind.length = _bind.buffer_length;
 			bind.buffer = &_holder;
 		}
 
@@ -403,6 +409,49 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		int8_t _holder;
 	};
 
+	/** Generic template class to update the binding from the parameter value
+	*/
+	template<>
+	struct COutMySqlBind< CFixedPoint >
+			: public COutMySqlBindBase
+	{
+		/** Constructor
+		@param bind
+			The binding
+		@param type
+			The MySQL data type
+		@param value
+			The parameter value
+		@param parameter
+			The parameter
+		*/
+		COutMySqlBind( MYSQL_BIND & bind, enum_field_types type, CDatabaseValue< EFieldType_FIXED_POINT > & value, CDatabaseStatementParameterMySql & parameter )
+			: COutMySqlBindBase( bind, type, parameter )
+			, _value( value )
+			, _length( 0 )
+		{
+			_bind.length = &_length;
+			_bind.buffer_length = _holder.size();
+			bind.buffer = _holder.data();
+		}
+
+		//!@copydoc COutMySqlBindBase::DoSetValue
+		virtual void UpdateValue()
+		{
+			String value = _value.GetValue().ToString();
+			_length = value.size();
+			assert( _length < 32 );
+			strcpy( _holder.data(), value.data() );
+		}
+
+		//! The parameter value
+		CDatabaseValue< EFieldType_FIXED_POINT > & _value;
+		//! The value holder
+		std::array< char, 32 > _holder;
+		//! The binding length
+		unsigned long _length;
+	};
+
 	/** Specialization for CDate
 	*/
 	template<>
@@ -411,13 +460,13 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	{
 		/** Constructor
 		@param bind
-		    The binding
+			The binding
 		@param type
-		    The MySQL data type
+			The MySQL data type
 		@param value
 			The parameter value
 		@param parameter
-		    The parameter
+			The parameter
 		*/
 		COutMySqlBind( MYSQL_BIND & bind, enum_field_types type, CDatabaseValue< EFieldType_DATE > & value, CDatabaseStatementParameterMySql & parameter )
 			: COutMySqlBindBase( bind, type, parameter )
@@ -447,13 +496,13 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	{
 		/** Constructor
 		@param bind
-		    The binding
+			The binding
 		@param type
-		    The MySQL data type
+			The MySQL data type
 		@param value
 			The parameter value
 		@param parameter
-		    The parameter
+			The parameter
 		*/
 		COutMySqlBind( MYSQL_BIND & bind, enum_field_types type, CDatabaseValue< EFieldType_DATETIME > & value, CDatabaseStatementParameterMySql & parameter )
 			: COutMySqlBindBase( bind, type, parameter )
@@ -483,13 +532,13 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	{
 		/** Constructor
 		@param bind
-		    The binding
+			The binding
 		@param type
-		    The MySQL data type
+			The MySQL data type
 		@param value
 			The parameter value
 		@param parameter
-		    The parameter
+			The parameter
 		*/
 		COutMySqlBind( MYSQL_BIND & bind, enum_field_types type, CDatabaseValue< EFieldType_TIME > & value, CDatabaseStatementParameterMySql & parameter )
 			: COutMySqlBindBase( bind, type, parameter )
@@ -521,7 +570,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	*/
 	template< EFieldType Type > std::unique_ptr< COutMySqlBindBase > MakeOutBind( MYSQL_BIND & bind, CDatabaseValueBase & value, CDatabaseStatementParameterMySql & parameter )
 	{
-		return std::make_unique< COutMySqlBind< typename SFieldTypeMySqlDataTyper< Type >::DataType > >( bind, SFieldTypeMySqlDataTyper< Type >::MySqlFieldType, static_cast< CDatabaseValue< Type > & >( value ), parameter );
+		return std::make_unique< COutMySqlBind< typename SFieldTypeMySqlDataTyper< Type >::FieldDataType > >( bind, SFieldTypeMySqlDataTyper< Type >::MySqlFieldType, static_cast< CDatabaseValue< Type > & >( value ), parameter );
 	}
 }
 END_NAMESPACE_DATABASE_MYSQL

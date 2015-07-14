@@ -364,27 +364,31 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				result = std::make_unique< CInOdbcBind< bool > >( SQL_C_BIT );
 				break;
 
-			case EFieldType_TINY_INTEGER:
+			case EFieldType_INT8:
 				result = std::make_unique< CInOdbcBind< int16_t > >( SQL_C_SSHORT );
 				break;
 
-			case EFieldType_SMALL_INTEGER:
+			case EFieldType_INT16:
 				result = std::make_unique< CInOdbcBind< int16_t > >( SQL_C_SSHORT );
 				break;
 
-			case EFieldType_INTEGER:
+			case EFieldType_INT24:
 				result = std::make_unique< CInOdbcBind< int32_t > >( SQL_C_SLONG );
 				break;
 
-			case EFieldType_LONG_INTEGER:
+			case EFieldType_INT32:
+				result = std::make_unique< CInOdbcBind< int32_t > >( SQL_C_SLONG );
+				break;
+
+			case EFieldType_INT64:
 				result = std::make_unique< CInOdbcBind< int64_t > >( SQL_C_SBIGINT );
 				break;
 
-			case EFieldType_FLOATING_POINT_SIMPLE:
+			case EFieldType_FLOAT32:
 				result = std::make_unique< CInOdbcBind< float > >( SQL_C_FLOAT );
 				break;
 
-			case EFieldType_FLOATING_POINT_DOUBLE:
+			case EFieldType_FLOAT64:
 				result = std::make_unique< CInOdbcBind< double > >( SQL_C_DOUBLE );
 				break;
 
@@ -491,28 +495,32 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				static_cast< CDatabaseValue< EFieldType_BIT > & >( value ).SetValue( static_cast< CInOdbcBind< bool > const & >( bind ).GetValue() != 0 );
 				break;
 
-			case EFieldType_TINY_INTEGER:
-				static_cast< CDatabaseValue< EFieldType_TINY_INTEGER > & >( value ).SetValue( static_cast< CInOdbcBind< int8_t > const & >( bind ).GetValue() );
+			case EFieldType_INT8:
+				static_cast< CDatabaseValue< EFieldType_INT8 > & >( value ).SetValue( static_cast< CInOdbcBind< int8_t > const & >( bind ).GetValue() );
 				break;
 
-			case EFieldType_SMALL_INTEGER:
-				static_cast< CDatabaseValue< EFieldType_SMALL_INTEGER > & >( value ).SetValue( static_cast< CInOdbcBind< int16_t > const & >( bind ).GetValue() );
+			case EFieldType_INT16:
+				static_cast< CDatabaseValue< EFieldType_INT16 > & >( value ).SetValue( static_cast< CInOdbcBind< int16_t > const & >( bind ).GetValue() );
 				break;
 
-			case EFieldType_INTEGER:
-				static_cast< CDatabaseValue< EFieldType_INTEGER > & >( value ).SetValue( static_cast< CInOdbcBind< int32_t > const & >( bind ).GetValue() );
+			case EFieldType_INT24:
+				static_cast< CDatabaseValue< EFieldType_INT24 > & >( value ).SetValue( static_cast< CInOdbcBind< int24_t > const & >( bind ).GetValue() );
 				break;
 
-			case EFieldType_LONG_INTEGER:
-				static_cast< CDatabaseValue< EFieldType_LONG_INTEGER > & >( value ).SetValue( static_cast< CInOdbcBind< int64_t > const & >( bind ).GetValue() );
+			case EFieldType_INT32:
+				static_cast< CDatabaseValue< EFieldType_INT32 > & >( value ).SetValue( static_cast< CInOdbcBind< int32_t > const & >( bind ).GetValue() );
 				break;
 
-			case EFieldType_FLOATING_POINT_SIMPLE:
-				static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_SIMPLE > & >( value ).SetValue( static_cast< CInOdbcBind< float > const & >( bind ).GetValue() );
+			case EFieldType_INT64:
+				static_cast< CDatabaseValue< EFieldType_INT64 > & >( value ).SetValue( static_cast< CInOdbcBind< int64_t > const & >( bind ).GetValue() );
 				break;
 
-			case EFieldType_FLOATING_POINT_DOUBLE:
-				static_cast< CDatabaseValue< EFieldType_FLOATING_POINT_DOUBLE > & >( value ).SetValue( static_cast< CInOdbcBind< double > const & >( bind ).GetValue() );
+			case EFieldType_FLOAT32:
+				static_cast< CDatabaseValue< EFieldType_FLOAT32 > & >( value ).SetValue( static_cast< CInOdbcBind< float > const & >( bind ).GetValue() );
+				break;
+
+			case EFieldType_FLOAT64:
+				static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( value ).SetValue( static_cast< CInOdbcBind< double > const & >( bind ).GetValue() );
 				break;
 
 			case EFieldType_FIXED_POINT:
@@ -769,11 +777,11 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 		case SQL_FLOAT:
 		case SQL_REAL:
-			fieldType = EFieldType_FLOATING_POINT_SIMPLE;
+			fieldType = EFieldType_FLOAT32;
 			break;
 
 		case SQL_DOUBLE:
-			fieldType = EFieldType_FLOATING_POINT_DOUBLE;
+			fieldType = EFieldType_FLOAT64;
 			break;
 			
 		case SQL_DECIMAL:
@@ -782,19 +790,19 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			break;
 
 		case SQL_INTEGER:
-			fieldType = EFieldType_INTEGER;
+			fieldType = EFieldType_INT32;
 			break;
 
 		case SQL_SMALLINT:
-			fieldType = EFieldType_SMALL_INTEGER;
+			fieldType = EFieldType_INT16;
 			break;
 
 		case SQL_BIGINT:
-			fieldType = EFieldType_LONG_INTEGER;
+			fieldType = EFieldType_INT64;
 			break;
 
 		case SQL_TINYINT:
-			fieldType = EFieldType_TINY_INTEGER;
+			fieldType = EFieldType_INT8;
 			break;
 
 		case SQL_BIT:

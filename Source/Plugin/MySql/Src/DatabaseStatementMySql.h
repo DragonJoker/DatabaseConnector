@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DatabaseStatementMySql.h
- * @author Sylvain Doremus
- * @version 1.0
- * @date 3/20/2014 2:47:39 PM
- *
- *
- * @brief CDatabaseStatementMySql class declaration.
- *
- * @details Describes a statement for MYSQL database.
- *
- ***************************************************************************/
+* @file DatabaseStatementMySql.h
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/20/2014 2:47:39 PM
+*
+*
+* @brief CDatabaseStatementMySql class declaration.
+*
+* @details Describes a statement for MYSQL database.
+*
+***************************************************************************/
 
 #ifndef ___DATABASE_STATEMENT_MYSQL_H___
 #define ___DATABASE_STATEMENT_MYSQL_H___
@@ -25,39 +25,38 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	class CDatabaseStatementMySql
 		: public CDatabaseStatement
 	{
-
 	public:
 		/** Constructor.
 		@param[in] connection
-		    Database connection.
+			Database connection.
 		@param[in] query
-		    Request text.
+			Request text.
 		*/
 		DatabaseMySqlExport CDatabaseStatementMySql( DatabaseConnectionMySqlPtr connection, const String & query );
 
 		/** Destructor.
-		 */
+			*/
 		DatabaseMySqlExport virtual ~CDatabaseStatementMySql();
 
 		/** Initialize this statement.
 		@return
-		    Error code.
+			Error code.
 		*/
 		DatabaseMySqlExport virtual EErrorType Initialize();
 
 		/** Execute this statement.
 		@param[out] result
-		    Error code.
+			Error code.
 		@return
-		    The result.
+			The result.
 		*/
 		DatabaseMySqlExport virtual bool ExecuteUpdate( EErrorType * result = NULL );
 
 		/** Execute this statement.
 		@param[out] result
-		    Error code.
+			Error code.
 		@return
-		    The result.
+			The result.
 		*/
 		DatabaseMySqlExport virtual DatabaseResultPtr ExecuteSelect( EErrorType * result = NULL );
 
@@ -67,57 +66,58 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 		/** Create a parameter.
 		@param[in] name
-		    Parameter name.
+			Parameter name.
 		@param[in] fieldType
-		    Date type.
+			Date type.
 		@param[in] parameterType
-		    Parameter type.
+			Parameter type.
 		@return
-		    Created parameter.
+			Created parameter.
 		*/
 		DatabaseMySqlExport virtual DatabaseParameterPtr CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType );
 
 		/** Create a parameter which has limits (strings, etc.).
 		@param[in] name
-		    Parameter name.
+			Parameter name.
 		@param[in] fieldType
-		    Date type.
+			Date type.
 		@param[in] limits
-		    Size limits.
+			Size limits.
 		@param[in] parameterType
-		    Parameter type.
+			Parameter type.
 		@return
-		    Created parameter.
+			Created parameter.
 		*/
 		DatabaseMySqlExport virtual DatabaseParameterPtr CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType );
 
 	private:
 		/** Effectively prepares the statement
 		@remarks
-		    Replace '?' delimiters by '@paramName' for out an in/out parameters, in order to be able to retrieve their modified value
+			Replace '?' delimiters by '@paramName' for out an in/out parameters, in order to be able to retrieve their modified value
 		@param[out] result
-		    Receives the error code
+			Receives the error code
 		*/
 		void DoPrepareStatement( EErrorType * result );
 
 		/** Pre-execution action
 		@remarks
-		    Computes the final query from parameters values
+			Computes the final query from parameters values
 		@param[out] result
-		    Receives the error code
+			Receives the error code
 		@return
-		    The full query
+			The full query
 		*/
 		void DoPreExecute( EErrorType * result );
 
 		/** Pre-execution action
 		@remarks
-		    Computes the final query from parameters values
+			Computes the final query from parameters values
 		@param[out] result
-		    Receives the error code
+			Receives the error code
 		*/
 		void DoPostExecute( EErrorType * result );
 
+	private:
 		/// Prepared statement.
 		MYSQL_STMT * _statement;
 		/// Database connection.

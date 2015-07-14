@@ -88,7 +88,7 @@ BEGIN_NAMESPACE_DATABASE
 			adjusted.width( index + precision );
 			adjusted.fill( '0' );
 			adjusted << std::left << String( value.substr( 0, index ) + value.substr( index + 1 ) );
-			_value = CStrUtils::ToLongLong( value );
+			_value = CStrUtils::ToLongLong( adjusted.str() );
 		}
 		else
 		{
@@ -113,7 +113,7 @@ BEGIN_NAMESPACE_DATABASE
 			result = CStrUtils::ToString( _value );
 		}
 
-		if ( _value )
+		if ( _value && _precision )
 		{
 			result.insert( ( result.rbegin() + _precision ).base(), '.' );
 		}
@@ -126,16 +126,48 @@ BEGIN_NAMESPACE_DATABASE
 		return _value - ( ToInt64() * GetDecimalMult( _precision ) );
 	}
 
+	int64_t CFixedPoint::GetDecimals( uint8_t precision )const
+	{
+		int64_t decimals = GetDecimals();
+
+		if ( precision > _precision )
+		{
+			decimals *= GetDecimalMult( precision - _precision );
+		}
+		else if ( precision < _precision )
+		{
+			decimals /= GetDecimalMult( _precision - precision );
+		}
+
+		return decimals;
+	}
+
 	bool operator ==( const CFixedPoint & lhs, const CFixedPoint & rhs )
 	{
-		return lhs.ToInt64() == rhs.ToInt64()
-			&& lhs.GetDecimals() == rhs.GetDecimals();
+		bool ret = lhs.ToInt64() == rhs.ToInt64();
+
+		if ( ret )
+		{
+			if ( lhs.GetPrecision() == rhs.GetPrecision() )
+			{
+				ret = lhs.GetDecimals() == rhs.GetDecimals();
+			}
+			else if ( lhs.GetPrecision() < rhs.GetPrecision() )
+			{
+				ret = lhs.GetDecimals( rhs.GetPrecision() ) == rhs.GetDecimals();
+			}
+			else
+			{
+				ret = lhs.GetDecimals() == rhs.GetDecimals( lhs.GetPrecision() );
+			}
+		}
+
+		return ret;
 	}
 
 	bool operator !=( const CFixedPoint & lhs, const CFixedPoint & rhs )
 	{
-		return lhs.ToInt64() != rhs.ToInt64()
-			|| lhs.GetDecimals() != rhs.GetDecimals();
+		return !( lhs == rhs );
 	}
 
 	std::ostream & operator <<( std::ostream & stream, const CFixedPoint & value )

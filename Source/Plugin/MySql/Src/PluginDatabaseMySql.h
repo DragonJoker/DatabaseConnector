@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file PluginDatabaseMySql.h
- * @author Sylvain Doremus
- * @version 1.0
- * @date 4/8/2014 4:03:17 PM
- *
- *
- * @brief Class defining a generic MYSQL database plugin.
- *
- * @details Class defining a generic MYSQL database plugin.
- *
- ***************************************************************************/
+* @file PluginDatabaseMySql.h
+* @author Sylvain Doremus
+* @version 1.0
+* @date 4/8/2014 4:03:17 PM
+*
+*
+* @brief Class defining a generic MYSQL database plugin.
+*
+* @details Class defining a generic MYSQL database plugin.
+*
+***************************************************************************/
 
 #ifndef ___PLUGIN_DATABASE_MYSQL_H___
 #define ___PLUGIN_DATABASE_MYSQL_H___

@@ -198,6 +198,12 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseSqliteExport virtual void DoSetValue( const CFixedPoint & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
 		DatabaseSqliteExport virtual void DoSetValue( const std::string & value )
 		{
 			DoSetAndUpdateValue( value );
@@ -301,6 +307,12 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
 		DatabaseSqliteExport virtual void DoSetValueFast( const long double & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseSqliteExport virtual void DoSetValueFast( const CFixedPoint & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}

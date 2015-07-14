@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DatabaseMySql.cpp
- * @author Sylvain Doremus
- * @version 1.0
- * @date 3/20/2014 2:47:39 PM
- *
- *
- * @brief CDatabaseMySql class declaration.
- *
- * @details Describes an MYSQL database.
- *
- ***************************************************************************/
+* @file DatabaseMySql.cpp
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/20/2014 2:47:39 PM
+*
+*
+* @brief CDatabaseMySql class declaration.
+*
+* @details Describes an MYSQL database.
+*
+***************************************************************************/
 
 #include "DatabaseMySqlPch.h"
 
@@ -25,6 +25,7 @@
 BEGIN_NAMESPACE_DATABASE_MYSQL
 {
 	static const String ERROR_MYSQL_INITIALISATION = STR( "Couldn't initialise MySQL" );
+	static const TChar * INFO_MYSQL_SENDING_LONG_DATA = STR( "Long data sending" );
 
 	CDatabaseMySql::CDatabaseMySql()
 		: CDatabase()
@@ -65,9 +66,9 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	{
 		if ( result )
 		{
-			StringStream error( "Failure: " );
-			error << msg << std::endl;
-			error << mysql_error( connection );
+			StringStream error;
+			error << STR( "Failure: " ) << msg << std::endl;
+			error << STR( "(" ) << result << STR( ")" ) << mysql_error( connection );
 			DB_EXCEPT( code, error.str() );
 		}
 
@@ -148,7 +149,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			remaining -= length;
 		}
 
-		MySQLTry( ret, STR( "Long data sending" ), EDatabaseExceptionCodes_StatementError, connection );
+		MySQLTry( ret, INFO_MYSQL_SENDING_LONG_DATA, EDatabaseExceptionCodes_StatementError, connection );
 	}
 
 	std::string StringFromMySqlString( MYSQL_BIND const & bind, bool truncated )

@@ -105,6 +105,14 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport int64_t GetDecimals()const;
 
+		/** Retrieves the value decimals, in given precision
+		@remarks
+			Will add zeros or remove decimals, to obtain the wanted precision
+		@param precision
+			The precision
+		*/
+		DatabaseExport int64_t GetDecimals( uint8_t precision )const;
+
 		/** Retrieves the value as a signed 32 bits integer
 		*/
 		inline int32_t ToInt32()const;

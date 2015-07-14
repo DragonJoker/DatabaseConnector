@@ -81,6 +81,8 @@ namespace Database
 	// Pre-declare classes
 	// Allows use of pointers in header files without including individual .h
 	// so decreases dependencies between files
+	class int24_t;
+	class uint24_t;
 	class CDynLib;
 	class CDynLibManager;
 	class CPluginManager;
@@ -89,9 +91,9 @@ namespace Database
 	class CDatabaseField;
 	class CDatabaseFieldInfos;
 	class CDatabaseValueBase;
-	template< typename Type > struct CDatabaseValuePolicy;
+	template< typename Type, size_t Size = 0 > struct CDatabaseValuePolicy;
 	template< EFieldType Type > struct SFieldTypeDataTyper;
-	template< EFieldType Type, typename ValuePolicy = CDatabaseValuePolicy< typename SFieldTypeDataTyper< Type >::value_type > > class CDatabaseValue;
+	template< EFieldType Type, typename ValuePolicy = CDatabaseValuePolicy< typename SFieldTypeDataTyper< Type >::value_type, SFieldTypeDataTyper< Type >::Size > > class CDatabaseValue;
 	class CDatabaseParameter;
 	class CDatabaseQuery;
 	class CDatabaseResult;

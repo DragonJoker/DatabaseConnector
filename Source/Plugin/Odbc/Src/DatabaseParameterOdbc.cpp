@@ -24,12 +24,13 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		{
 			0,					//!< EFieldType_NULL
 			SQL_C_BIT,			//!< EFieldType_BIT
-			SQL_C_STINYINT,		//!< EFieldType_TINY_INTEGER
-			SQL_C_SSHORT,		//!< EFieldType_SMALL_INTEGER
-			SQL_C_SLONG,		//!< EFieldType_INTEGER
-			SQL_C_SBIGINT,		//!< EFieldType_LONG_INTEGER
-			SQL_C_FLOAT,		//!< EFieldType_FLOATING_POINT_SIMPLE
-			SQL_C_DOUBLE,		//!< EFieldType_FLOATING_POINT_DOUBLE
+			SQL_C_STINYINT,		//!< EFieldType_INT8
+			SQL_C_SSHORT,		//!< EFieldType_INT16
+			SQL_C_SLONG,		//!< EFieldType_INT24
+			SQL_C_SLONG,		//!< EFieldType_INT32
+			SQL_C_SBIGINT,		//!< EFieldType_INT64
+			SQL_C_FLOAT,		//!< EFieldType_FLOAT32
+			SQL_C_DOUBLE,		//!< EFieldType_FLOAT64
 			SQL_C_NUMERIC,		//!< EFieldType_FIXED_POINT
 			SQL_C_CHAR,			//!< EFieldType_VARCHAR
 			SQL_C_CHAR,			//!< EFieldType_TEXT
@@ -47,12 +48,13 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		{
 			0,					//!< EFieldType_NULL
 			SQL_BIT,			//!< EFieldType_BOOL
-			SQL_TINYINT,		//!< EFieldType_TINY_INTEGER
-			SQL_SMALLINT,		//!< EFieldType_SMALL_INTEGER
-			SQL_INTEGER,		//!< EFieldType_INTEGER
-			SQL_BIGINT,			//!< EFieldType_LONG_INTEGER
-			SQL_FLOAT,			//!< EFieldType_FLOATING_POINT_SIMPLE
-			SQL_DOUBLE,			//!< EFieldType_FLOATING_POINT_DOUBLE
+			SQL_TINYINT,		//!< EFieldType_INT8
+			SQL_SMALLINT,		//!< EFieldType_INT16
+			SQL_INTEGER,		//!< EFieldType_INT24
+			SQL_INTEGER,		//!< EFieldType_INT32
+			SQL_BIGINT,			//!< EFieldType_INT64
+			SQL_FLOAT,			//!< EFieldType_FLOAT32
+			SQL_DOUBLE,			//!< EFieldType_FLOAT64
 			SQL_NUMERIC,		//!< EFieldType_FIXED_POINT
 			SQL_VARCHAR,		//!< EFieldType_VARCHAR
 			SQL_LONGVARCHAR,	//!< EFieldType_TEXT
@@ -70,12 +72,13 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		{
 			0,	//!< EFieldType_NULL
 			1,	//!< EFieldType_BOOL
-			1,	//!< EFieldType_TINY_INTEGER
-			5,	//!< EFieldType_SMALL_INTEGER
-			10,	//!< EFieldType_INTEGER
-			19,	//!< EFieldType_LONG_INTEGER
-			15,	//!< EFieldType_FLOATING_POINT_SIMPLE
-			15,	//!< EFieldType_FLOATING_POINT_DOUBLE
+			1,	//!< EFieldType_INT8
+			5,	//!< EFieldType_INT16
+			8,	//!< EFieldType_INT24
+			10,	//!< EFieldType_INT32
+			19,	//!< EFieldType_INT64
+			15,	//!< EFieldType_FLOAT32
+			15,	//!< EFieldType_FLOAT64
 			15,	//!< EFieldType_FIXED_POINT
 			0,	//!< EFieldType_VARCHAR
 			0,	//!< EFieldType_TEXT
@@ -194,28 +197,32 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			_binding = MakeOutBind< EFieldType_BIT >( statementHandle, parameter, parameter.GetObjectValue() );
 			break;
 
-		case EFieldType_TINY_INTEGER:
-			_binding = MakeOutBind< EFieldType_TINY_INTEGER >( statementHandle, parameter, parameter.GetObjectValue() );
+		case EFieldType_INT8:
+			_binding = MakeOutBind< EFieldType_INT8 >( statementHandle, parameter, parameter.GetObjectValue() );
 			break;
 
-		case EFieldType_SMALL_INTEGER:
-			_binding = MakeOutBind< EFieldType_SMALL_INTEGER >( statementHandle, parameter, parameter.GetObjectValue() );
+		case EFieldType_INT16:
+			_binding = MakeOutBind< EFieldType_INT16 >( statementHandle, parameter, parameter.GetObjectValue() );
 			break;
 
-		case EFieldType_INTEGER:
-			_binding = MakeOutBind< EFieldType_INTEGER >( statementHandle, parameter, parameter.GetObjectValue() );
+		case EFieldType_INT24:
+			_binding = MakeOutBind< EFieldType_INT24 >( statementHandle, parameter, parameter.GetObjectValue() );
 			break;
 
-		case EFieldType_LONG_INTEGER:
-			_binding = MakeOutBind< EFieldType_LONG_INTEGER >( statementHandle, parameter, parameter.GetObjectValue() );
+		case EFieldType_INT32:
+			_binding = MakeOutBind< EFieldType_INT32 >( statementHandle, parameter, parameter.GetObjectValue() );
 			break;
 
-		case EFieldType_FLOATING_POINT_SIMPLE:
-			_binding = MakeOutBind< EFieldType_FLOATING_POINT_SIMPLE >( statementHandle, parameter, parameter.GetObjectValue() );
+		case EFieldType_INT64:
+			_binding = MakeOutBind< EFieldType_INT64 >( statementHandle, parameter, parameter.GetObjectValue() );
 			break;
 
-		case EFieldType_FLOATING_POINT_DOUBLE:
-			_binding = MakeOutBind< EFieldType_FLOATING_POINT_DOUBLE >( statementHandle, parameter, parameter.GetObjectValue() );
+		case EFieldType_FLOAT32:
+			_binding = MakeOutBind< EFieldType_FLOAT32 >( statementHandle, parameter, parameter.GetObjectValue() );
+			break;
+
+		case EFieldType_FLOAT64:
+			_binding = MakeOutBind< EFieldType_FLOAT64 >( statementHandle, parameter, parameter.GetObjectValue() );
 			break;
 
 		case EFieldType_FIXED_POINT:

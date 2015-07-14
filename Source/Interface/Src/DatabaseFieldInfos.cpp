@@ -80,11 +80,11 @@ BEGIN_NAMESPACE_DATABASE
 			|| strTypel == STR( "COUNT" )
 			|| strTypel == STR( "MIN" ) )
 		{
-			_type = EFieldType_LONG_INTEGER;
+			_type = EFieldType_INT64;
 		}
 		else if ( strTypel.find( STR( "SMALLINT" ) ) != String::npos )
 		{
-			_type = EFieldType_SMALL_INTEGER;
+			_type = EFieldType_INT16;
 		}
 		else if ( strTypel.find( STR( "BOOL" ) ) != String::npos 
 				|| strTypel.find( STR( "BIT" ) ) != String::npos )
@@ -93,7 +93,7 @@ BEGIN_NAMESPACE_DATABASE
 		}
 		else if ( strTypel.find( STR( "TINYINT" ) ) != String::npos )
 		{
-			_type = EFieldType_TINY_INTEGER;
+			_type = EFieldType_INT8;
 		}
 		else if ( ( index = strTypel.find( STR( "INT" ) ) ) != String::npos )
 		{
@@ -107,29 +107,33 @@ BEGIN_NAMESPACE_DATABASE
 				{
 					if ( prec == 1 )
 					{
-						_type = EFieldType_TINY_INTEGER;
+						_type = EFieldType_INT8;
 					}
 					else if ( prec == 2 )
 					{
-						_type = EFieldType_SMALL_INTEGER;
+						_type = EFieldType_INT16;
+					}
+					else if ( prec <= 3 )
+					{
+						_type = EFieldType_INT24;
 					}
 					else if ( prec <= 4 )
 					{
-						_type = EFieldType_INTEGER;
+						_type = EFieldType_INT32;
 					}
 					else
 					{
-						_type = EFieldType_LONG_INTEGER;
+						_type = EFieldType_INT64;
 					}
 				}
 				else
 				{
-					_type = EFieldType_INTEGER;
+					_type = EFieldType_INT32;
 				}
 			}
 			else
 			{
-				_type = EFieldType_INTEGER;
+				_type = EFieldType_INT32;
 			}
 		}
 		else if ( strTypel.find( STR( "NCHAR" ) ) != String::npos
@@ -173,12 +177,12 @@ BEGIN_NAMESPACE_DATABASE
 		else if ( strTypel.find( STR( "FLOA" ) ) != String::npos
 			|| strTypel == STR( "SUM" ) )
 		{
-			_type = EFieldType_FLOATING_POINT_SIMPLE;
+			_type = EFieldType_FLOAT32;
 		}
 		else if ( strTypel.find( STR( "REAL" ) ) != String::npos
 			|| strTypel.find( STR( "DOUB" ) ) != String::npos )
 		{
-			_type = EFieldType_FLOATING_POINT_DOUBLE;
+			_type = EFieldType_FLOAT64;
 		}
 		else if ( strTypel.find( STR( "DECIMAL" ) ) != String::npos
 			|| strTypel.find( STR( "NUMERIC" ) ) != String::npos )

@@ -65,28 +65,32 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			_binding = MakeSqliteBind< EFieldType_BIT >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
 			break;
 
-		case EFieldType_TINY_INTEGER:
-			_binding = MakeSqliteBind< EFieldType_TINY_INTEGER >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
+		case EFieldType_INT8:
+			_binding = MakeSqliteBind< EFieldType_INT8 >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
 			break;
 
-		case EFieldType_SMALL_INTEGER:
-			_binding = MakeSqliteBind< EFieldType_SMALL_INTEGER >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
+		case EFieldType_INT16:
+			_binding = MakeSqliteBind< EFieldType_INT16 >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
 			break;
 
-		case EFieldType_INTEGER:
-			_binding = MakeSqliteBind< EFieldType_INTEGER >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
+		case EFieldType_INT24:
+			_binding = MakeSqliteBind< EFieldType_INT24 >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
 			break;
 
-		case EFieldType_LONG_INTEGER:
-			_binding = MakeSqliteBind< EFieldType_LONG_INTEGER >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
+		case EFieldType_INT32:
+			_binding = MakeSqliteBind< EFieldType_INT32 >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
 			break;
 
-		case EFieldType_FLOATING_POINT_SIMPLE:
-			_binding = MakeSqliteBind< EFieldType_FLOATING_POINT_SIMPLE >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
+		case EFieldType_INT64:
+			_binding = MakeSqliteBind< EFieldType_INT64 >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
 			break;
 
-		case EFieldType_FLOATING_POINT_DOUBLE:
-			_binding = MakeSqliteBind< EFieldType_FLOATING_POINT_DOUBLE >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
+		case EFieldType_FLOAT32:
+			_binding = MakeSqliteBind< EFieldType_FLOAT32 >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
+			break;
+
+		case EFieldType_FLOAT64:
+			_binding = MakeSqliteBind< EFieldType_FLOAT64 >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
 			break;
 
 		case EFieldType_FIXED_POINT:

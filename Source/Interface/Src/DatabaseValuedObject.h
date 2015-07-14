@@ -108,6 +108,18 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport virtual void DoGetValue( uint16_t & value ) const;
 
+		/** Get value as int24_t.
+		@param[out] value
+			Value as int24_t.
+		*/
+		DatabaseExport virtual void DoGetValue( int24_t & value ) const;
+
+		/** Get value as uint24_t.
+		@param[out] value
+			Value as uint24_t.
+		*/
+		DatabaseExport virtual void DoGetValue( uint24_t & value ) const;
+
 		/** Get value as int.
 		@param[out] value
 			Value as int.
@@ -231,6 +243,22 @@ BEGIN_NAMESPACE_DATABASE
 			Value as int.
 		*/
 		DatabaseExport virtual void DoGetValueFast( uint16_t & value ) const;
+
+		/** Get value as int24_t.
+		@remarks
+			No check is made in this function, so the value type must match the field type
+		@param[out] value
+			Value as int.
+		*/
+		DatabaseExport virtual void DoGetValueFast( int24_t & value ) const;
+
+		/** Get value as uint24_t.
+		@remarks
+			No check is made in this function, so the value type must match the field type
+		@param[out] value
+			Value as int.
+		*/
+		DatabaseExport virtual void DoGetValueFast( uint24_t & value ) const;
 
 		/** Get value as int.
 		@remarks
@@ -386,6 +414,18 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport virtual void DoSetValue( const uint32_t & value );
 
+		/** Set parameter value as an int24_t.
+		@param value
+			New parameter value.
+		*/
+		DatabaseExport virtual void DoSetValue( const int24_t & value );
+
+		/** Set parameter value as an uint24_t.
+		@param value
+			New parameter value.
+		*/
+		DatabaseExport virtual void DoSetValue( const uint24_t & value );
+
 		/** Set parameter value as a long long.
 		@param value
 			New parameter value.
@@ -497,6 +537,22 @@ BEGIN_NAMESPACE_DATABASE
 			New parameter value.
 		*/
 		DatabaseExport virtual void DoSetValueFast( const uint16_t & value );
+
+		/** Set parameter value as an int24_t.
+		@remarks
+			Don't perform type checks
+		@param value
+			New parameter value.
+		*/
+		DatabaseExport virtual void DoSetValueFast( const int24_t & value );
+
+		/** Set parameter value as an uint24_t.
+		@remarks
+			Don't perform type checks
+		@param value
+			New parameter value.
+		*/
+		DatabaseExport virtual void DoSetValueFast( const uint24_t & value );
 
 		/** Set parameter value as a long.
 		@remarks

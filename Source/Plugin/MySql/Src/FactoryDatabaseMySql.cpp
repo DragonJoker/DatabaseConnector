@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file FactoryDatabaseMySql.cpp
- * @author Sylvain Doremus
- * @version 1.0
- * @date 4/08/2014 1:21:00 PM
- *
- *
- * @brief MYSQL database factory class.
- *
- * @details CObject factory used to manage MYSQL database creation.
- *
- ***************************************************************************/
+* @file FactoryDatabaseMySql.cpp
+* @author Sylvain Doremus
+* @version 1.0
+* @date 4/08/2014 1:21:00 PM
+*
+*
+* @brief MYSQL database factory class.
+*
+* @details CObject factory used to manage MYSQL database creation.
+*
+***************************************************************************/
 
 #include "DatabaseMySqlPch.h"
 

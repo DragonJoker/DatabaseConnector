@@ -40,110 +40,130 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		return SBlockGuard< CleanFunc >( init, clean );
 	}
 
-	template< typename Type >
+	template< EFieldType FieldType, uint8_t Precision=0 >
 	struct BatchTests
 	{
 		template< typename Function >
-		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, typename DatabaseUtils::Helpers< Type >::ParamType valueIn = DatabaseUtils::Helpers< Type >::InitialiseValue() )
+		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, typename DatabaseUtils::Helpers< FieldType >::ParamType valueIn = DatabaseUtils::Helpers< FieldType >::InitialiseValue() )
 		{
-			function( connection, name, std::numeric_limits< DatabaseUtils::Helpers< Type >::ParamType >::lowest() );
-			function( connection, name, std::numeric_limits< DatabaseUtils::Helpers< Type >::ParamType >::max() );
-			function( connection, name, std::numeric_limits< DatabaseUtils::Helpers< Type >::ParamType >::min() );
-			function( connection, name, Type() );
+			CLogger::LogInfo( StringStream() << "  Lowest" );
+			function( connection, name, std::numeric_limits< DatabaseUtils::Helpers< FieldType >::ParamType >::lowest() );
+			CLogger::LogInfo( StringStream() << "  Max" );
+			function( connection, name, std::numeric_limits< DatabaseUtils::Helpers< FieldType >::ParamType >::max() );
+			CLogger::LogInfo( StringStream() << "  Min" );
+			function( connection, name, std::numeric_limits< DatabaseUtils::Helpers< FieldType >::ParamType >::min() );
+			CLogger::LogInfo( StringStream() << "  Default" );
+			function( connection, name, DatabaseUtils::Helpers< FieldType >::ParamType() );
+			CLogger::LogInfo( StringStream() << "  Given" );
 			function( connection, name, valueIn );
 		}
 	};
 
 	template<>
-	struct BatchTests< double >
+	struct BatchTests< EFieldType_FLOAT64 >
 	{
 		template< typename Function >
-		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, typename DatabaseUtils::Helpers< double >::ParamType valueIn = DatabaseUtils::Helpers< double >::InitialiseValue() )
+		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, typename DatabaseUtils::Helpers< EFieldType_FLOAT64 >::ParamType valueIn = DatabaseUtils::Helpers< EFieldType_FLOAT64 >::InitialiseValue() )
 		{
-			function( connection, name, std::numeric_limits< DatabaseUtils::Helpers< double >::ParamType >::lowest() / 2 );
-			function( connection, name, std::numeric_limits< DatabaseUtils::Helpers< double >::ParamType >::max() / 2 );
-			function( connection, name, std::numeric_limits< DatabaseUtils::Helpers< double >::ParamType >::min() );
+			CLogger::LogInfo( StringStream() << "  Lowest / 2" );
+			function( connection, name, std::numeric_limits< double >::lowest() / 2 );
+			CLogger::LogInfo( StringStream() << "  Max / 2" );
+			function( connection, name, std::numeric_limits< double >::max() / 2 );
+			CLogger::LogInfo( StringStream() << "  Min / 2" );
+			function( connection, name, std::numeric_limits< double >::min() );
+			CLogger::LogInfo( StringStream() << "  Default" );
 			function( connection, name, double() );
+			CLogger::LogInfo( StringStream() << "  Given" );
 			function( connection, name, valueIn );
 		}
 	};
 
 	template<>
-	struct BatchTests< CDate >
+	struct BatchTests< EFieldType_DATE >
 	{
 		template< typename Function >
-		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, typename DatabaseUtils::Helpers< CDate >::ParamType valueIn = DatabaseUtils::Helpers< CDate >::InitialiseValue() )
+		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, typename DatabaseUtils::Helpers< EFieldType_DATE >::ParamType valueIn = DatabaseUtils::Helpers< EFieldType_DATE >::InitialiseValue() )
 		{
+			CLogger::LogInfo( StringStream() << "  Given" );
 			function( connection, name, valueIn );
 		}
 	};
 
 	template<>
-	struct BatchTests< CDateTime >
+	struct BatchTests< EFieldType_DATETIME >
 	{
 		template< typename Function >
-		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, typename DatabaseUtils::Helpers< CDateTime >::ParamType valueIn = DatabaseUtils::Helpers< CDateTime >::InitialiseValue() )
+		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, typename DatabaseUtils::Helpers< EFieldType_DATETIME >::ParamType valueIn = DatabaseUtils::Helpers< EFieldType_DATETIME >::InitialiseValue() )
 		{
+			CLogger::LogInfo( StringStream() << "  Given" );
 			function( connection, name, valueIn );
 		}
 	};
 
 	template<>
-	struct BatchTests< CTime >
+	struct BatchTests< EFieldType_TIME >
 	{
 		template< typename Function >
-		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, typename DatabaseUtils::Helpers< CTime >::ParamType valueIn = DatabaseUtils::Helpers< CTime >::InitialiseValue() )
+		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, typename DatabaseUtils::Helpers< EFieldType_TIME >::ParamType valueIn = DatabaseUtils::Helpers< EFieldType_TIME >::InitialiseValue() )
 		{
+			CLogger::LogInfo( StringStream() << "  Given" );
+			function( connection, name, valueIn );
+		}
+	};
+
+	template< uint8_t Precision >
+	struct BatchTests< EFieldType_FIXED_POINT, Precision >
+	{
+		template< typename Function >
+		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, typename DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::ParamType valueIn = DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue( Precision ) )
+		{
+			CLogger::LogInfo( StringStream() << "  Given" );
+			function( connection, name, valueIn );
+			CLogger::LogInfo( StringStream() << "  Specific value, precision test" );
+			function( connection, name, CFixedPoint( 602872352, Precision ) );
+		}
+	};
+
+	template<>
+	struct BatchTests< EFieldType_VARCHAR >
+	{
+		template< typename Function >
+		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, typename DatabaseUtils::Helpers< EFieldType_VARCHAR >::ParamType valueIn = DatabaseUtils::Helpers< EFieldType_VARCHAR >::InitialiseValue() )
+		{
+			CLogger::LogInfo( StringStream() << "  Given" );
 			function( connection, name, valueIn );
 		}
 	};
 
 	template<>
-	struct BatchTests< CFixedPoint >
+	struct BatchTests< EFieldType_NVARCHAR >
 	{
 		template< typename Function >
-		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, typename DatabaseUtils::Helpers< CFixedPoint >::ParamType valueIn = DatabaseUtils::Helpers< CFixedPoint >::InitialiseValue() )
+		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, typename DatabaseUtils::Helpers< EFieldType_NVARCHAR >::ParamType valueIn = DatabaseUtils::Helpers< EFieldType_NVARCHAR >::InitialiseValue() )
 		{
+			CLogger::LogInfo( StringStream() << "  Given" );
 			function( connection, name, valueIn );
 		}
 	};
 
 	template<>
-	struct BatchTests< char * >
+	struct BatchTests< EFieldType_TEXT >
 	{
 		template< typename Function >
-		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, typename DatabaseUtils::Helpers< char * >::ParamType valueIn = DatabaseUtils::Helpers< char * >::InitialiseValue() )
+		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, typename DatabaseUtils::Helpers< EFieldType_TEXT >::ParamType valueIn = DatabaseUtils::Helpers< EFieldType_TEXT >::InitialiseValue() )
 		{
+			CLogger::LogInfo( StringStream() << "  Given" );
 			function( connection, name, valueIn );
 		}
 	};
 
 	template<>
-	struct BatchTests< wchar_t * >
+	struct BatchTests< EFieldType_VARBINARY >
 	{
 		template< typename Function >
-		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, typename DatabaseUtils::Helpers< wchar_t * >::ParamType valueIn = DatabaseUtils::Helpers< wchar_t * >::InitialiseValue() )
+		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, typename DatabaseUtils::Helpers< EFieldType_VARBINARY >::ParamType valueIn = DatabaseUtils::Helpers< EFieldType_VARBINARY >::InitialiseValue() )
 		{
-			function( connection, name, valueIn );
-		}
-	};
-
-	template<>
-	struct BatchTests< std::string >
-	{
-		template< typename Function >
-		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, typename DatabaseUtils::Helpers< std::string >::ParamType valueIn = DatabaseUtils::Helpers< std::string >::InitialiseValue() )
-		{
-			function( connection, name, valueIn );
-		}
-	};
-
-	template<>
-	struct BatchTests< ByteArray >
-	{
-		template< typename Function >
-		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, typename DatabaseUtils::Helpers< ByteArray >::ParamType valueIn = DatabaseUtils::Helpers< ByteArray >::InitialiseValue() )
-		{
+			CLogger::LogInfo( StringStream() << "  Given" );
 			function( connection, name, valueIn );
 		}
 	};
@@ -170,28 +190,28 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				{
 					connection->SelectDatabase( _database );
 					DoFlushTable( connection );
-					//BatchTests< int32_t >()( &DatabaseUtils::InsertAndRetrieve< StmtType, int32_t >, connection, STR( "IntegerField" ) );
-					BatchTests< int8_t >()( &DatabaseUtils::InsertAndRetrieve< StmtType, int8_t >, connection, STR( "TinyIntField" ) );
-					BatchTests< int16_t >()( &DatabaseUtils::InsertAndRetrieve< StmtType, int16_t >, connection, STR( "SmallIntField" ) );
-					BatchTests< int32_t >()( &DatabaseUtils::InsertAndRetrieve< StmtType, int32_t >, connection, STR( "MediumIntField" ) );
-					BatchTests< int64_t >()( &DatabaseUtils::InsertAndRetrieve< StmtType, int64_t >, connection, STR( "BigIntField" ) );
-					BatchTests< int16_t >()( &DatabaseUtils::InsertAndRetrieve< StmtType, int16_t >, connection, STR( "Int2Field" ) );
-					BatchTests< int64_t >()( &DatabaseUtils::InsertAndRetrieve< StmtType, int64_t >, connection, STR( "Int8Field" ) );
-					BatchTests< double >()( &DatabaseUtils::InsertAndRetrieve< StmtType, double >, connection, STR( "RealField" ) );
-					BatchTests< double >()( &DatabaseUtils::InsertAndRetrieve< StmtType, double >, connection, STR( "DoubleField" ) );
-					BatchTests< double >()( &DatabaseUtils::InsertAndRetrieve< StmtType, double >, connection, STR( "DoublePrecisionField" ) );
-					BatchTests< float >()( &DatabaseUtils::InsertAndRetrieve< StmtType, float >, connection, STR( "FloatField" ) );
-					BatchTests< CFixedPoint >()( &DatabaseUtils::InsertAndRetrieve< StmtType, CFixedPoint >, connection, STR( "NumericField" ) );
-					BatchTests< CFixedPoint >()( &DatabaseUtils::InsertAndRetrieve< StmtType, CFixedPoint >, connection, STR( "DecimalField" ) );
-					BatchTests< bool >()( &DatabaseUtils::InsertAndRetrieve< StmtType, bool >, connection, STR( "BooleanField" ) );
-					BatchTests< CDate >()( &DatabaseUtils::InsertAndRetrieve< StmtType, CDate >, connection, STR( "DateField" ) );
-					BatchTests< CDateTime >()( &DatabaseUtils::InsertAndRetrieve< StmtType, CDateTime >, connection, STR( "DateTimeField" ) );
-					BatchTests< char * >()( &DatabaseUtils::InsertAndRetrieve< StmtType, char * >, connection, STR( "CharacterField" ) );
-					BatchTests< char * >()( &DatabaseUtils::InsertAndRetrieve< StmtType, char * >, connection, STR( "VarcharField" ) );
-					BatchTests< wchar_t * >()( &DatabaseUtils::InsertAndRetrieve< StmtType, wchar_t * >, connection, STR( "NcharField" ) );
-					BatchTests< wchar_t * >()( &DatabaseUtils::InsertAndRetrieve< StmtType, wchar_t * >, connection, STR( "NVarcharField" ) );
-					BatchTests< std::string >()( &DatabaseUtils::InsertAndRetrieve< StmtType, std::string >, connection, STR( "TextField" ) );
-					BatchTests< ByteArray >()( &DatabaseUtils::InsertAndRetrieve< StmtType, ByteArray >, connection, STR( "BlobField" ) );
+					//BatchTests< EFieldType_INT32 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_INT32 >, connection, STR( "IntegerField" ) );
+					BatchTests< EFieldType_INT8 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_INT8 >, connection, STR( "TinyIntField" ) );
+					BatchTests< EFieldType_INT16 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_INT16 >, connection, STR( "SmallIntField" ) );
+					BatchTests< EFieldType_INT24 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_INT24 >, connection, STR( "MediumIntField" ) );
+					BatchTests< EFieldType_INT64 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_INT64 >, connection, STR( "BigIntField" ) );
+					BatchTests< EFieldType_INT16 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_INT16 >, connection, STR( "Int2Field" ) );
+					BatchTests< EFieldType_INT64 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_INT64 >, connection, STR( "Int8Field" ) );
+					BatchTests< EFieldType_FLOAT64 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_FLOAT64 >, connection, STR( "RealField" ) );
+					BatchTests< EFieldType_FLOAT64 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_FLOAT64 >, connection, STR( "DoubleField" ) );
+					BatchTests< EFieldType_FLOAT64 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_FLOAT64 >, connection, STR( "DoublePrecisionField" ) );
+					BatchTests< EFieldType_FLOAT32 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_FLOAT32 >, connection, STR( "FloatField" ) );
+					BatchTests< EFieldType_FIXED_POINT, 0 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_FIXED_POINT >, connection, STR( "NumericField" ) );
+					BatchTests< EFieldType_FIXED_POINT, 5 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_FIXED_POINT >, connection, STR( "DecimalField" ) );
+					BatchTests< EFieldType_BIT >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_BIT >, connection, STR( "BooleanField" ) );
+					BatchTests< EFieldType_DATE >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_DATE >, connection, STR( "DateField" ) );
+					BatchTests< EFieldType_DATETIME >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_DATETIME >, connection, STR( "DateTimeField" ) );
+					BatchTests< EFieldType_VARCHAR >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_VARCHAR >, connection, STR( "CharacterField" ) );
+					BatchTests< EFieldType_VARCHAR >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_VARCHAR >, connection, STR( "VarcharField" ) );
+					BatchTests< EFieldType_NVARCHAR >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_NVARCHAR >, connection, STR( "NcharField" ) );
+					BatchTests< EFieldType_NVARCHAR >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_NVARCHAR >, connection, STR( "NVarcharField" ) );
+					BatchTests< EFieldType_TEXT >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_TEXT >, connection, STR( "TextField" ) );
+					BatchTests< EFieldType_VARBINARY >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_VARBINARY >, connection, STR( "BlobField" ) );
 				}
 
 				database->RemoveConnection();
@@ -221,28 +241,28 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				{
 					connection->SelectDatabase( _database );
 					DoFlushTable( connection );
-					BatchTests< int32_t >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, int32_t >, connection, STR( "IntegerField" ) );
-					BatchTests< int8_t >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, int8_t >, connection, STR( "TinyIntField" ) );
-					BatchTests< int16_t >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, int16_t >, connection, STR( "SmallIntField" ) );
-					BatchTests< int32_t >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, int32_t >, connection, STR( "MediumIntField" ) );
-					BatchTests< int64_t >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, int64_t >, connection, STR( "BigIntField" ) );
-					BatchTests< int16_t >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, int16_t >, connection, STR( "Int2Field" ) );
-					BatchTests< int64_t >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, int64_t >, connection, STR( "Int8Field" ) );
-					BatchTests< double >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, double >, connection, STR( "RealField" ) );
-					BatchTests< double >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, double >, connection, STR( "DoubleField" ) );
-					BatchTests< double >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, double >, connection, STR( "DoublePrecisionField" ) );
-					BatchTests< float >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, float >, connection, STR( "FloatField" ) );
-					BatchTests< CFixedPoint >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, CFixedPoint >, connection, STR( "NumericField" ) );
-					BatchTests< CFixedPoint >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, CFixedPoint >, connection, STR( "DecimalField" ) );
-					BatchTests< bool >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, bool >, connection, STR( "BooleanField" ) );
-					BatchTests< CDate >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, CDate >, connection, STR( "DateField" ) );
-					BatchTests< CDateTime >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, CDateTime >, connection, STR( "DateTimeField" ) );
-					BatchTests< char * >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, char * >, connection, STR( "CharacterField" ) );
-					BatchTests< char * >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, char * >, connection, STR( "VarcharField" ) );
-					BatchTests< wchar_t * >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, wchar_t * >, connection, STR( "NcharField" ) );
-					BatchTests< wchar_t * >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, wchar_t * >, connection, STR( "NVarcharField" ) );
-					BatchTests< std::string >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, std::string >, connection, STR( "TextField" ) );
-					BatchTests< ByteArray >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, ByteArray >, connection, STR( "BlobField" ) );
+					//BatchTests< EFieldType_INT32 >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_INT32 >, connection, STR( "IntegerField" ) );
+					BatchTests< EFieldType_INT8 >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_INT8 >, connection, STR( "TinyIntField" ) );
+					BatchTests< EFieldType_INT16 >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_INT16 >, connection, STR( "SmallIntField" ) );
+					BatchTests< EFieldType_INT24 >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_INT24 >, connection, STR( "MediumIntField" ) );
+					BatchTests< EFieldType_INT64 >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_INT64 >, connection, STR( "BigIntField" ) );
+					BatchTests< EFieldType_INT16 >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_INT16 >, connection, STR( "Int2Field" ) );
+					BatchTests< EFieldType_INT64 >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_INT64 >, connection, STR( "Int8Field" ) );
+					BatchTests< EFieldType_FLOAT64 >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_FLOAT64 >, connection, STR( "RealField" ) );
+					BatchTests< EFieldType_FLOAT64 >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_FLOAT64 >, connection, STR( "DoubleField" ) );
+					BatchTests< EFieldType_FLOAT64 >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_FLOAT64 >, connection, STR( "DoublePrecisionField" ) );
+					BatchTests< EFieldType_FLOAT32 >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_FLOAT32 >, connection, STR( "FloatField" ) );
+					BatchTests< EFieldType_FIXED_POINT, 0 >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_FIXED_POINT >, connection, STR( "NumericField" ) );
+					BatchTests< EFieldType_FIXED_POINT, 5 >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_FIXED_POINT >, connection, STR( "DecimalField" ) );
+					BatchTests< EFieldType_BIT >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_BIT >, connection, STR( "BooleanField" ) );
+					BatchTests< EFieldType_DATE >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_DATE >, connection, STR( "DateField" ) );
+					BatchTests< EFieldType_DATETIME >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_DATETIME >, connection, STR( "DateTimeField" ) );
+					BatchTests< EFieldType_VARCHAR >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_VARCHAR >, connection, STR( "CharacterField" ) );
+					BatchTests< EFieldType_VARCHAR >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_VARCHAR >, connection, STR( "VarcharField" ) );
+					BatchTests< EFieldType_NVARCHAR >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_NVARCHAR >, connection, STR( "NcharField" ) );
+					BatchTests< EFieldType_NVARCHAR >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_NVARCHAR >, connection, STR( "NVarcharField" ) );
+					BatchTests< EFieldType_TEXT >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_TEXT >, connection, STR( "TextField" ) );
+					BatchTests< EFieldType_VARBINARY >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_VARBINARY >, connection, STR( "BlobField" ) );
 				}
 
 				database->RemoveConnection();
@@ -272,31 +292,31 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				{
 					connection->SelectDatabase( _database );
 					DoFlushTable( connection );
-					BatchTests< int32_t >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, int32_t >, connection, STR( "IntegerField" ) );
-					BatchTests< int8_t >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, int8_t >, connection, STR( "TinyIntField" ) );
-					BatchTests< int16_t >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, int16_t >, connection, STR( "SmallIntField" ) );
-					BatchTests< int32_t >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, int32_t >, connection, STR( "MediumIntField" ) );
-					BatchTests< int64_t >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, int64_t >, connection, STR( "BigIntField" ) );
-					BatchTests< int16_t >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, int16_t >, connection, STR( "Int2Field" ) );
-					BatchTests< int64_t >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, int64_t >, connection, STR( "Int8Field" ) );
-					BatchTests< double >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, double >, connection, STR( "RealField" ) );
-					BatchTests< double >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, double >, connection, STR( "DoubleField" ) );
-					BatchTests< double >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, double >, connection, STR( "DoublePrecisionField" ) );
-					BatchTests< float >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, float >, connection, STR( "FloatField" ) );
-					BatchTests< CFixedPoint >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, CFixedPoint >, connection, STR( "NumericField" ) );
-					BatchTests< CFixedPoint >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, CFixedPoint >, connection, STR( "DecimalField" ) );
-					BatchTests< bool >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, bool >, connection, STR( "BooleanField" ) );
-					BatchTests< CDate >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, CDate >, connection, STR( "DateField" ) );
-					BatchTests< CDateTime >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, CDateTime >, connection, STR( "DateTimeField" ) );
-					BatchTests< char * >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, char * >, connection, STR( "CharacterField" ) );
-					BatchTests< char * >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, char * >, connection, STR( "VarcharField" ) );
-					BatchTests< std::string >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, std::string >, connection, STR( "TextField" ) );
-					BatchTests< ByteArray >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, ByteArray >, connection, STR( "BlobField" ) );
+					//BatchTests< EFieldType_INT32 >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_INT32 >, connection, STR( "IntegerField" ) );
+					BatchTests< EFieldType_INT8 >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_INT8 >, connection, STR( "TinyIntField" ) );
+					BatchTests< EFieldType_INT16 >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_INT16 >, connection, STR( "SmallIntField" ) );
+					BatchTests< EFieldType_INT24 >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_INT24 >, connection, STR( "MediumIntField" ) );
+					BatchTests< EFieldType_INT64 >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_INT64 >, connection, STR( "BigIntField" ) );
+					BatchTests< EFieldType_INT16 >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_INT16 >, connection, STR( "Int2Field" ) );
+					BatchTests< EFieldType_INT64 >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_INT64 >, connection, STR( "Int8Field" ) );
+					BatchTests< EFieldType_FLOAT64 >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_FLOAT64 >, connection, STR( "RealField" ) );
+					BatchTests< EFieldType_FLOAT64 >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_FLOAT64 >, connection, STR( "DoubleField" ) );
+					BatchTests< EFieldType_FLOAT64 >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_FLOAT64 >, connection, STR( "DoublePrecisionField" ) );
+					BatchTests< EFieldType_FLOAT32 >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_FLOAT32 >, connection, STR( "FloatField" ) );
+					BatchTests< EFieldType_FIXED_POINT, 0 >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_FIXED_POINT >, connection, STR( "NumericField" ) );
+					BatchTests< EFieldType_FIXED_POINT, 5 >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_FIXED_POINT >, connection, STR( "DecimalField" ) );
+					BatchTests< EFieldType_BIT >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_BIT >, connection, STR( "BooleanField" ) );
+					BatchTests< EFieldType_DATE >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_DATE >, connection, STR( "DateField" ) );
+					BatchTests< EFieldType_DATETIME >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_DATETIME >, connection, STR( "DateTimeField" ) );
+					BatchTests< EFieldType_VARCHAR >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_VARCHAR >, connection, STR( "CharacterField" ) );
+					BatchTests< EFieldType_VARCHAR >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_VARCHAR >, connection, STR( "VarcharField" ) );
+					BatchTests< EFieldType_TEXT >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_TEXT >, connection, STR( "TextField" ) );
+					BatchTests< EFieldType_VARBINARY >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_VARBINARY >, connection, STR( "BlobField" ) );
 
 					if ( _hasNChar )
 					{
-						BatchTests< wchar_t * >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, wchar_t * >, connection, STR( "NcharField" ) );
-						BatchTests< wchar_t * >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, wchar_t * >, connection, STR( "NVarcharField" ) );
+						BatchTests< EFieldType_NVARCHAR >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_NVARCHAR >, connection, STR( "NcharField" ) );
+						BatchTests< EFieldType_NVARCHAR >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_NVARCHAR >, connection, STR( "NVarcharField" ) );
 					}
 				}
 
@@ -327,31 +347,31 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				{
 					connection->SelectDatabase( _database );
 					DoFlushTable( connection );
-					BatchTests< int32_t >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, int32_t >, connection, STR( "IntegerField" ) );
-					BatchTests< int8_t >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, int8_t >, connection, STR( "TinyIntField" ) );
-					BatchTests< int16_t >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, int16_t >, connection, STR( "SmallIntField" ) );
-					BatchTests< int32_t >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, int32_t >, connection, STR( "MediumIntField" ) );
-					BatchTests< int64_t >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, int64_t >, connection, STR( "BigIntField" ) );
-					BatchTests< int16_t >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, int16_t >, connection, STR( "Int2Field" ) );
-					BatchTests< int64_t >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, int64_t >, connection, STR( "Int8Field" ) );
-					BatchTests< double >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, double >, connection, STR( "RealField" ) );
-					BatchTests< double >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, double >, connection, STR( "DoubleField" ) );
-					BatchTests< double >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, double >, connection, STR( "DoublePrecisionField" ) );
-					BatchTests< float >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, float >, connection, STR( "FloatField" ) );
-					BatchTests< CFixedPoint >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, CFixedPoint >, connection, STR( "NumericField" ) );
-					BatchTests< CFixedPoint >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, CFixedPoint >, connection, STR( "DecimalField" ) );
-					BatchTests< bool >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, bool >, connection, STR( "BooleanField" ) );
-					BatchTests< CDate >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, CDate >, connection, STR( "DateField" ) );
-					BatchTests< CDateTime >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, CDateTime >, connection, STR( "DateTimeField" ) );
-					BatchTests< char * >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, char * >, connection, STR( "CharacterField" ) );
-					BatchTests< char * >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, char * >, connection, STR( "VarcharField" ) );
-					BatchTests< std::string >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, std::string >, connection, STR( "TextField" ) );
-					BatchTests< ByteArray >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, ByteArray >, connection, STR( "BlobField" ) );
+					//BatchTests< EFieldType_INT32 >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_INT32 >, connection, STR( "IntegerField" ) );
+					BatchTests< EFieldType_INT8 >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_INT8 >, connection, STR( "TinyIntField" ) );
+					BatchTests< EFieldType_INT16 >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_INT16 >, connection, STR( "SmallIntField" ) );
+					BatchTests< EFieldType_INT24 >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_INT24 >, connection, STR( "MediumIntField" ) );
+					BatchTests< EFieldType_INT64 >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_INT64 >, connection, STR( "BigIntField" ) );
+					BatchTests< EFieldType_INT16 >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_INT16 >, connection, STR( "Int2Field" ) );
+					BatchTests< EFieldType_INT64 >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_INT64 >, connection, STR( "Int8Field" ) );
+					BatchTests< EFieldType_FLOAT64 >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_FLOAT64 >, connection, STR( "RealField" ) );
+					BatchTests< EFieldType_FLOAT64 >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_FLOAT64 >, connection, STR( "DoubleField" ) );
+					BatchTests< EFieldType_FLOAT64 >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_FLOAT64 >, connection, STR( "DoublePrecisionField" ) );
+					BatchTests< EFieldType_FLOAT32 >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_FLOAT32 >, connection, STR( "FloatField" ) );
+					BatchTests< EFieldType_FIXED_POINT, 0 >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_FIXED_POINT >, connection, STR( "NumericField" ) );
+					BatchTests< EFieldType_FIXED_POINT, 5 >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_FIXED_POINT >, connection, STR( "DecimalField" ) );
+					BatchTests< EFieldType_BIT >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_BIT >, connection, STR( "BooleanField" ) );
+					BatchTests< EFieldType_DATE >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_DATE >, connection, STR( "DateField" ) );
+					BatchTests< EFieldType_DATETIME >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_DATETIME >, connection, STR( "DateTimeField" ) );
+					BatchTests< EFieldType_VARCHAR >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_VARCHAR >, connection, STR( "CharacterField" ) );
+					BatchTests< EFieldType_VARCHAR >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_VARCHAR >, connection, STR( "VarcharField" ) );
+					BatchTests< EFieldType_TEXT >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_TEXT >, connection, STR( "TextField" ) );
+					BatchTests< EFieldType_VARBINARY >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_VARBINARY >, connection, STR( "BlobField" ) );
 
 					if ( _hasNChar )
 					{
-						BatchTests< wchar_t * >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, wchar_t * >, connection, STR( "NcharField" ) );
-						BatchTests< wchar_t * >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, wchar_t * >, connection, STR( "NVarcharField" ) );
+						BatchTests< EFieldType_NVARCHAR >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_NVARCHAR >, connection, STR( "NcharField" ) );
+						BatchTests< EFieldType_NVARCHAR >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_NVARCHAR >, connection, STR( "NVarcharField" ) );
 					}
 				}
 
