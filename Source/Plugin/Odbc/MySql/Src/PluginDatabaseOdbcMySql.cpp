@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file PluginDatabaseOdbcMySql.cpp
- * @author Sylvain Doremus
- * @version 1.0
- * @date 4/8/2014 4:03:23 PM
- *
- *
- * @brief Class defining a generic ODBC database plugin.
- *
- * @details Class defining a generic ODBC database plugin.
- *
- ***************************************************************************/
+* @file PluginDatabaseOdbcMySql.cpp
+* @author Sylvain Doremus
+* @version 1.0
+* @date 4/8/2014 4:03:23 PM
+*
+*
+* @brief Class defining a generic ODBC database plugin.
+*
+* @details Class defining a generic ODBC database plugin.
+*
+***************************************************************************/
 
 #include "DatabaseOdbcMySqlPch.h"
 
@@ -36,15 +36,17 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MYSQL
 
 	void CPluginDatabaseOdbcMySql::Initialize()
 	{
+		// Empty
 	}
 
 	void CPluginDatabaseOdbcMySql::Shutdown()
 	{
+		// Empty
 	}
 
 	void CPluginDatabaseOdbcMySql::AddBaseParameters()
 	{
 		// Empty
 	}
-
-} END_NAMESPACE_DATABASE_ODBC_MYSQL
+}
+END_NAMESPACE_DATABASE_ODBC_MYSQL

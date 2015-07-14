@@ -1,14 +1,14 @@
 /************************************************************************//**
- * @file DatabaseStatement.inl
- * @author Sylvain Doremus
- * @version 1.0
- * @date 3/20/2014 2:47:39 PM
- *
- *
- * @brief CDatabaseStatement class definition.
- *
- * @details Describes a database statement.
- *
+* @file DatabaseStatement.inl
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/20/2014 2:47:39 PM
+*
+*
+* @brief CDatabaseStatement class definition.
+*
+* @details Describes a database statement.
+*
 ***************************************************************************/
 
 #include "DatabaseLogger.h"
@@ -20,7 +20,6 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		DatabaseParameterPtr parameter = GetParameter( index );
 		parameter->SetValue( value );
-		_mapParamsByPointer[parameter->GetObjectValue().GetPtrValue()] = parameter;
 	}
 
 	template< typename T >
@@ -28,7 +27,6 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		DatabaseParameterPtr parameter = GetParameter( name );
 		parameter->SetValue( value );
-		_mapParamsByPointer[parameter->GetObjectValue().GetPtrValue()] = parameter;
 	}
 
 	template< typename T >
@@ -36,7 +34,6 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		DatabaseParameterPtr parameter = GetParameter( index );
 		parameter->SetValueFast( value );
-		_mapParamsByPointer[parameter->GetObjectValue().GetPtrValue()] = parameter;
 	}
 
 	template< typename T >
@@ -44,7 +41,6 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		DatabaseParameterPtr parameter = GetParameter( name );
 		parameter->SetValueFast( value );
-		_mapParamsByPointer[parameter->GetObjectValue().GetPtrValue()] = parameter;
 	}
 
 	template <typename T>

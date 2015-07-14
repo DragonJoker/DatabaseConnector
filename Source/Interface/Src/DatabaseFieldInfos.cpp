@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DatabaseFieldInfos.cpp
- * @author Sylvain Doremus
- * @version 1.0
- * @date 3/20/2014 2:47:39 PM
- *
- *
- * @brief CDatabaseFieldInfos class definition.
- *
- * @details Describes database field information.
- *
- ***************************************************************************/
+* @file DatabaseFieldInfos.cpp
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/20/2014 2:47:39 PM
+*
+*
+* @brief CDatabaseFieldInfos class definition.
+*
+* @details Describes database field information.
+*
+***************************************************************************/
 
 #include "DatabasePch.h"
 
@@ -49,28 +49,28 @@ BEGIN_NAMESPACE_DATABASE
 	}
 
 	CDatabaseFieldInfos::CDatabaseFieldInfos( DatabaseConnectionPtr connection, const String & name, EFieldType type, uint32_t limprec )
-		:   _name( name )
-		,   _type( type )
-		,   _precision( std::make_pair( limprec, 0 ) )
-		,   _connection( connection )
+		: _name( name )
+		, _type( type )
+		, _precision( std::make_pair( limprec, 0 ) )
+		, _connection( connection )
 	{
 		// Empty
 	}
 
 	CDatabaseFieldInfos::CDatabaseFieldInfos( DatabaseConnectionPtr connection, const String & name, EFieldType type, std::pair< uint32_t, uint32_t > precision )
-		:   _name( name )
-		,   _type( type )
-		,   _precision( precision )
-		,   _connection( connection )
+		: _name( name )
+		, _type( type )
+		, _precision( precision )
+		, _connection( connection )
 	{
 		// Empty
 	}
 
 	CDatabaseFieldInfos::CDatabaseFieldInfos( DatabaseConnectionPtr connection, const String & name, const String & type, uint32_t limprec )
-		:   _name( name )
-		,   _type( EFieldType_NULL )
-		,   _precision( std::make_pair( limprec, 0 ) )
-		,   _connection( connection )
+		: _name( name )
+		, _type( EFieldType_NULL )
+		, _precision( std::make_pair( limprec, 0 ) )
+		, _connection( connection )
 	{
 		String strTypel = CStrUtils::UpperCase( type );
 		size_t index;

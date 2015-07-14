@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file FactoryDatabase.cpp
- * @author Sylvain Doremus
- * @version 1.0
- * @date 4/8/2013 10:11:31 AM
- *
- *
- * @brief Database factory class.
- *
- * @details CFactoryDatabase is used to manage CDatabase creation.
- *
- ***************************************************************************/
+* @file FactoryDatabase.cpp
+* @author Sylvain Doremus
+* @version 1.0
+* @date 4/8/2013 10:11:31 AM
+*
+*
+* @brief Database factory class.
+*
+* @details CFactoryDatabase is used to manage CDatabase creation.
+*
+***************************************************************************/
 
 #include "DatabasePch.h"
 
@@ -35,7 +35,7 @@ BEGIN_NAMESPACE_DATABASE
 
 	void CFactoryDatabase::RegisterCreatorFunction( const String & idKey, CreatorFunction classCreator )
 	{
-		iterator it = GetMapFactory()->find( idKey );
+		auto && it = GetMapFactory()->find( idKey );
 
 		if ( it != GetMapFactory()->end() )
 		{
@@ -47,7 +47,7 @@ BEGIN_NAMESPACE_DATABASE
 
 	CDatabase * CFactoryDatabase::CreateInstance( const String & idKey )
 	{
-		iterator it = GetMapFactory()->find( idKey );
+		auto && it = GetMapFactory()->find( idKey );
 
 		if ( it != GetMapFactory()->end() )
 		{

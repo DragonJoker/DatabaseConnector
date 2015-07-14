@@ -55,7 +55,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] updater
 			The parent updater
 		*/
-		DatabaseExport CDatabaseParameter( DatabaseConnectionPtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, SValueUpdater * updater );
+		DatabaseExport CDatabaseParameter( DatabaseConnectionPtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
 
 		/** Constructor.
 		@param[in] connection
@@ -73,7 +73,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] updater
 			The parent updater
 		*/
-		DatabaseExport CDatabaseParameter( DatabaseConnectionPtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, SValueUpdater * updater );
+		DatabaseExport CDatabaseParameter( DatabaseConnectionPtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
 
 		/** Constructor.
 		@param[in] connection
@@ -91,7 +91,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] updater
 			The parent updater
 		*/
-		DatabaseExport CDatabaseParameter( DatabaseConnectionPtr connection, const String & name, unsigned short index, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType, SValueUpdater * updater );
+		DatabaseExport CDatabaseParameter( DatabaseConnectionPtr connection, const String & name, unsigned short index, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
 
 		/** Desctructor.
 		*/
@@ -178,6 +178,7 @@ BEGIN_NAMESPACE_DATABASE
 		template< typename T > inline void SetValue( const T & value )
 		{
 			DoSetValue( value );
+			_updater->Update( shared_from_this() );
 		}
 
 		/** Set parameter value.
@@ -191,6 +192,7 @@ BEGIN_NAMESPACE_DATABASE
 		template< typename T > inline void SetValueFast( const T & value )
 		{
 			DoSetValueFast( value );
+			_updater->Update( shared_from_this() );
 		}
 
 		/** Get parameter value.
@@ -225,7 +227,7 @@ BEGIN_NAMESPACE_DATABASE
 		//! Parameter index.
 		unsigned short _index;
 		//! Functor used to inform parent that the value was modified
-		SValueUpdater * _updater;
+		std::unique_ptr< SValueUpdater > _updater;
 	};
 }
 END_NAMESPACE_DATABASE

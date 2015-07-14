@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DatabaseFixedPoint.h
- * @author Sylvain Doremus
- * @version 1.0
- * @date 7/12/2015 7:51 PM
- *
- *
- * @brief CFixedPoint class declaration.
- *
- * @details Describes a fixed point numeric value with precision and scale.
- *
- ***************************************************************************/
+* @file DatabaseFixedPoint.h
+* @author Sylvain Doremus
+* @version 1.0
+* @date 7/12/2015 7:51 PM
+*
+*
+* @brief CFixedPoint class declaration.
+*
+* @details Describes a fixed point numeric value with precision and scale.
+*
+***************************************************************************/
 
 #ifndef ___DATABASE_FIXED_POINT_H___
 #define ___DATABASE_FIXED_POINT_H___
@@ -178,8 +178,11 @@ BEGIN_NAMESPACE_DATABASE
 		inline CFixedPoint & operator -=( const T & rhs );
 
 	private:
+		//! The value precision (decimals count)
 		uint8_t _precision;
+		//! The raw value
 		int64_t _value;
+		//! Tells if the value is signed or not
 		bool _signed;
 	};
 

@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DatabaseField.cpp
- * @author Sylvain Doremus
- * @version 1.0
- * @date 3/20/2014 2:47:39 PM
- *
- *
- * @brief CDatabaseField class definition.
- *
- * @details Describes a database field.
- *
- ***************************************************************************/
+* @file DatabaseField.cpp
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/20/2014 2:47:39 PM
+*
+*
+* @brief CDatabaseField class definition.
+*
+* @details Describes a database field.
+*
+***************************************************************************/
 
 #include "DatabasePch.h"
 
@@ -25,9 +25,6 @@
 
 BEGIN_NAMESPACE_DATABASE
 {
-	static const String DATABASE_FIELD_CREATION_TYPE_ERROR = STR( "Type error while creating the field : " );
-	static const String DATABASE_FIELD_GETVALUE_TYPE_ERROR = STR( "Type error while getting value from the field : " );
-
 	CDatabaseField::CDatabaseField( DatabaseFieldInfosPtr infos )
 		: CDatabaseValuedObject( infos->GetConnection() )
 		, _infos( infos )

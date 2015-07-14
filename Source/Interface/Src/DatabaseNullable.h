@@ -19,7 +19,7 @@
 
 BEGIN_NAMESPACE_DATABASE
 {
-	static const String ERROR_VALUE_NOT_SET = STR( "The value for the nullable type is not set" );
+	static const String ERROR_DB_VALUE_NOT_SET = STR( "The value for the nullable type is not set" );
 
 	/** Used to initialise a CDatabaseNullable to null
 	*/
@@ -94,7 +94,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			if ( !_isSet )
 			{
-				DB_EXCEPT( EDatabaseExceptionCodes_InternalError, ERROR_VALUE_NOT_SET );
+				DB_EXCEPT( EDatabaseExceptionCodes_InternalError, ERROR_DB_VALUE_NOT_SET );
 			}
 
 			return _value;
@@ -110,7 +110,9 @@ BEGIN_NAMESPACE_DATABASE
 		}
 
 	private:
+		//! Tells if the value is set or null
 		bool _isSet;
+		//! The value
 		T _value;
 	};
 

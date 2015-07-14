@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DatabaseParameterSqlite.h
- * @author Sylvain Doremus
- * @version 1.0
- * @date 3/20/2014 2:47:39 PM
- *
- *
- * @brief CDatabaseParameterSqlite class declaration.
- *
- * @details Describes the base class for a statement or query parameter for SQLite database.
- *
- ***************************************************************************/
+* @file DatabaseParameterSqlite.h
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/20/2014 2:47:39 PM
+*
+*
+* @brief CDatabaseParameterSqlite class declaration.
+*
+* @details Describes the base class for a statement or query parameter for SQLite database.
+*
+***************************************************************************/
 
 #ifndef ___DATABASE_PARAMETER_SQLITE_H___
 #define ___DATABASE_PARAMETER_SQLITE_H___
@@ -32,19 +32,19 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 	public:
 		/** Constructor.
 		@param[in] fieldType
-		    Field type.
+			Field type.
 		@param[in] parameterType
-		    Parameter type.
-		 */
+			Parameter type.
+		*/
 		DatabaseSqliteExport CDatabaseParameterSqlite( EFieldType fieldType );
 
 		/** Destructor.
-		 */
+		*/
 		DatabaseSqliteExport virtual ~CDatabaseParameterSqlite();
 
 		/** Retrieve the data type
 		@return
-		    The type
+			The type
 		*/
 		DatabaseSqliteExport const int & GetDataType()const;
 

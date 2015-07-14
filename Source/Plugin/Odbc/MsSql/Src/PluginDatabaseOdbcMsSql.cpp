@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file PluginDatabaseOdbcMsSql.cpp
- * @author Sylvain Doremus
- * @version 1.0
- * @date 4/8/2014 4:03:23 PM
- *
- *
- * @brief Class defining a generic ODBC database plugin.
- *
- * @details Class defining a generic ODBC database plugin.
- *
- ***************************************************************************/
+* @file PluginDatabaseOdbcMsSql.cpp
+* @author Sylvain Doremus
+* @version 1.0
+* @date 4/8/2014 4:03:23 PM
+*
+*
+* @brief Class defining a generic ODBC database plugin.
+*
+* @details Class defining a generic ODBC database plugin.
+*
+***************************************************************************/
 
 #include "DatabaseOdbcMsSqlPch.h"
 

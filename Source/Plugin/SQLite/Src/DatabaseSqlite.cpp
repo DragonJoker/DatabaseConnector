@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DatabaseSqlite.cpp
- * @author Sylvain Doremus
- * @version 1.0
- * @date 3/20/2014 2:47:39 PM
- *
- *
- * @brief CDatabaseSqlite class declaration.
- *
- * @details Describes an SQLITE database.
- *
- ***************************************************************************/
+* @file DatabaseSqlite.cpp
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/20/2014 2:47:39 PM
+*
+*
+* @brief CDatabaseSqlite class declaration.
+*
+* @details Describes an SQLITE database.
+*
+***************************************************************************/
 
 #include "DatabaseSqlitePch.h"
 
@@ -20,8 +20,6 @@
 
 BEGIN_NAMESPACE_DATABASE_SQLITE
 {
-	static const String ERROR_NULL_TYPE_FIELD = STR( "Null type field" );
-
 	namespace
 	{
 		int GetLimits( std::string const & type )
@@ -228,21 +226,21 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 				if ( !infos )
 				{
-					if ( strLowerName.find( "max(" ) != std::string::npos )
+					if ( strLowerName.find( STR( "max(" ) ) != std::string::npos )
 					{
-						arrayReturn.push_back( std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, "max" ) );
+						arrayReturn.push_back( std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, STR( "max" ) ) );
 					}
-					else if ( strLowerName.find( "min(" ) != std::string::npos )
+					else if ( strLowerName.find( STR( "min(" ) ) != std::string::npos )
 					{
-						arrayReturn.push_back( std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, "min" ) );
+						arrayReturn.push_back( std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, STR( "min" ) ) );
 					}
-					else if ( strLowerName.find( "count(" ) != std::string::npos )
+					else if ( strLowerName.find( STR( "count(" ) ) != std::string::npos )
 					{
-						arrayReturn.push_back( std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, "count" ) );
+						arrayReturn.push_back( std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, STR( "count" ) ) );
 					}
-					else if ( strLowerName.find( "sum(" ) != std::string::npos )
+					else if ( strLowerName.find( STR( "sum(" ) ) != std::string::npos )
 					{
-						arrayReturn.push_back( std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, "sum" ) );
+						arrayReturn.push_back( std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, STR( "sum" ) ) );
 					}
 					else if ( type.find( "NUMERIC" ) != std::string::npos )
 					{

@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DatabaseField.cpp
- * @author Sylvain Doremus
- * @version 1.0
- * @date 3/20/2014 2:47:39 PM
- *
- *
- * @brief CDatabaseValuedObject class definition.
- *
- * @details Describes a database field.
- *
- ***************************************************************************/
+* @file DatabaseValuedObject.cpp
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/20/2014 2:47:39 PM
+*
+*
+* @brief CDatabaseValuedObject class declaration.
+*
+* @details Describes a an object (field or parameter) with a value.
+*
+***************************************************************************/
 
 #include "DatabasePch.h"
 
@@ -23,9 +23,9 @@
 
 BEGIN_NAMESPACE_DATABASE
 {
-	static const String DATABASE_FIELD_CREATION_TYPE_ERROR = STR( "Type error while creating the object: " );
-	static const String DATABASE_FIELD_GETVALUE_TYPE_ERROR = STR( "Type error while getting value from the object: " );
-	static const String DATABASE_FIELD_SETVALUE_TYPE_ERROR = STR( "Type error while setting value of the object: " );
+	static const String ERROR_DB_FIELD_CREATION_TYPE = STR( "Type error while creating the object: " );
+	static const String ERROR_DB_FIELD_GETVALUE_TYPE = STR( "Type error while getting value from the object: " );
+	static const String ERROR_DB_FIELD_SETVALUE_TYPE = STR( "Type error while setting value of the object: " );
 
 	CDatabaseValuedObject::CDatabaseValuedObject( DatabaseConnectionPtr connection )
 		: _connection( connection )
@@ -89,9 +89,9 @@ BEGIN_NAMESPACE_DATABASE
 		}
 
 		default:
-			String errMsg = DATABASE_FIELD_GETVALUE_TYPE_ERROR + this->GetName();
+			String errMsg = ERROR_DB_FIELD_GETVALUE_TYPE + this->GetName();
 			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_GETVALUE_TYPE_ERROR );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_GETVALUE_TYPE );
 			break;
 		}
 	}
@@ -109,9 +109,9 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		default:
-			String errMsg = DATABASE_FIELD_GETVALUE_TYPE_ERROR + this->GetName();
+			String errMsg = ERROR_DB_FIELD_GETVALUE_TYPE + this->GetName();
 			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_GETVALUE_TYPE_ERROR );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_GETVALUE_TYPE );
 			break;
 		}
 	}
@@ -129,9 +129,9 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		default:
-			String errMsg = DATABASE_FIELD_GETVALUE_TYPE_ERROR + this->GetName();
+			String errMsg = ERROR_DB_FIELD_GETVALUE_TYPE + this->GetName();
 			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_GETVALUE_TYPE_ERROR );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_GETVALUE_TYPE );
 			break;
 		}
 	}
@@ -153,9 +153,9 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		default:
-			String errMsg = DATABASE_FIELD_GETVALUE_TYPE_ERROR + this->GetName();
+			String errMsg = ERROR_DB_FIELD_GETVALUE_TYPE + this->GetName();
 			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_GETVALUE_TYPE_ERROR );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_GETVALUE_TYPE );
 			break;
 		}
 	}
@@ -177,9 +177,9 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		default:
-			String errMsg = DATABASE_FIELD_GETVALUE_TYPE_ERROR + this->GetName();
+			String errMsg = ERROR_DB_FIELD_GETVALUE_TYPE + this->GetName();
 			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_GETVALUE_TYPE_ERROR );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_GETVALUE_TYPE );
 			break;
 		}
 	}
@@ -213,9 +213,9 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		default:
-			String errMsg = DATABASE_FIELD_GETVALUE_TYPE_ERROR + this->GetName();
+			String errMsg = ERROR_DB_FIELD_GETVALUE_TYPE + this->GetName();
 			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_GETVALUE_TYPE_ERROR );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_GETVALUE_TYPE );
 			break;
 		}
 	}
@@ -249,9 +249,9 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		default:
-			String errMsg = DATABASE_FIELD_GETVALUE_TYPE_ERROR + this->GetName();
+			String errMsg = ERROR_DB_FIELD_GETVALUE_TYPE + this->GetName();
 			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_GETVALUE_TYPE_ERROR );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_GETVALUE_TYPE );
 			break;
 		}
 	}
@@ -277,9 +277,9 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		default:
-			String errMsg = DATABASE_FIELD_GETVALUE_TYPE_ERROR + this->GetName();
+			String errMsg = ERROR_DB_FIELD_GETVALUE_TYPE + this->GetName();
 			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_GETVALUE_TYPE_ERROR );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_GETVALUE_TYPE );
 			break;
 		}
 	}
@@ -305,9 +305,9 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		default:
-			String errMsg = DATABASE_FIELD_GETVALUE_TYPE_ERROR + this->GetName();
+			String errMsg = ERROR_DB_FIELD_GETVALUE_TYPE + this->GetName();
 			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_GETVALUE_TYPE_ERROR );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_GETVALUE_TYPE );
 			break;
 		}
 	}
@@ -341,9 +341,9 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		default:
-			String errMsg = DATABASE_FIELD_GETVALUE_TYPE_ERROR + this->GetName();
+			String errMsg = ERROR_DB_FIELD_GETVALUE_TYPE + this->GetName();
 			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_GETVALUE_TYPE_ERROR );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_GETVALUE_TYPE );
 			break;
 		}
 	}
@@ -377,9 +377,9 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		default:
-			String errMsg = DATABASE_FIELD_GETVALUE_TYPE_ERROR + this->GetName();
+			String errMsg = ERROR_DB_FIELD_GETVALUE_TYPE + this->GetName();
 			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_GETVALUE_TYPE_ERROR );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_GETVALUE_TYPE );
 			break;
 		}
 	}
@@ -413,9 +413,9 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		default:
-			String errMsg = DATABASE_FIELD_GETVALUE_TYPE_ERROR + this->GetName();
+			String errMsg = ERROR_DB_FIELD_GETVALUE_TYPE + this->GetName();
 			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_GETVALUE_TYPE_ERROR );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_GETVALUE_TYPE );
 			break;
 		}
 	}
@@ -445,9 +445,9 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		default:
-			String errMsg = DATABASE_FIELD_GETVALUE_TYPE_ERROR + this->GetName();
+			String errMsg = ERROR_DB_FIELD_GETVALUE_TYPE + this->GetName();
 			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_GETVALUE_TYPE_ERROR );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_GETVALUE_TYPE );
 			break;
 		}
 	}
@@ -475,9 +475,9 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		default:
-			String errMsg = DATABASE_FIELD_GETVALUE_TYPE_ERROR + this->GetName();
+			String errMsg = ERROR_DB_FIELD_GETVALUE_TYPE + this->GetName();
 			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_GETVALUE_TYPE_ERROR );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_GETVALUE_TYPE );
 			break;
 		}
 	}
@@ -503,9 +503,9 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		default:
-			String errMsg = DATABASE_FIELD_GETVALUE_TYPE_ERROR + this->GetName();
+			String errMsg = ERROR_DB_FIELD_GETVALUE_TYPE + this->GetName();
 			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_GETVALUE_TYPE_ERROR );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_GETVALUE_TYPE );
 			break;
 		}
 	}
@@ -527,9 +527,9 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		default:
-			String errMsg = DATABASE_FIELD_GETVALUE_TYPE_ERROR + this->GetName();
+			String errMsg = ERROR_DB_FIELD_GETVALUE_TYPE + this->GetName();
 			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_GETVALUE_TYPE_ERROR );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_GETVALUE_TYPE );
 			break;
 		}
 	}
@@ -551,9 +551,9 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		default:
-			String errMsg = DATABASE_FIELD_GETVALUE_TYPE_ERROR + this->GetName();
+			String errMsg = ERROR_DB_FIELD_GETVALUE_TYPE + this->GetName();
 			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_GETVALUE_TYPE_ERROR );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_GETVALUE_TYPE );
 			break;
 		}
 	}
@@ -571,9 +571,9 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		default:
-			String errMsg = DATABASE_FIELD_GETVALUE_TYPE_ERROR + this->GetName();
+			String errMsg = ERROR_DB_FIELD_GETVALUE_TYPE + this->GetName();
 			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_GETVALUE_TYPE_ERROR );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_GETVALUE_TYPE );
 			break;
 		}
 	}
@@ -597,9 +597,9 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		default:
-			String errMsg = DATABASE_FIELD_GETVALUE_TYPE_ERROR + this->GetName();
+			String errMsg = ERROR_DB_FIELD_GETVALUE_TYPE + this->GetName();
 			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_GETVALUE_TYPE_ERROR );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_GETVALUE_TYPE );
 			break;
 		}
 	}
@@ -789,9 +789,9 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		default:
-			String errMsg = DATABASE_FIELD_SETVALUE_TYPE_ERROR + this->GetName();
+			String errMsg = ERROR_DB_FIELD_SETVALUE_TYPE + this->GetName();
 			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_SETVALUE_TYPE_ERROR );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_SETVALUE_TYPE );
 			break;
 		}
 	}
@@ -829,9 +829,9 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		default:
-			String errMsg = DATABASE_FIELD_SETVALUE_TYPE_ERROR + this->GetName();
+			String errMsg = ERROR_DB_FIELD_SETVALUE_TYPE + this->GetName();
 			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_SETVALUE_TYPE_ERROR );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_SETVALUE_TYPE );
 			break;
 		}
 	}
@@ -869,9 +869,9 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		default:
-			String errMsg = DATABASE_FIELD_SETVALUE_TYPE_ERROR + this->GetName();
+			String errMsg = ERROR_DB_FIELD_SETVALUE_TYPE + this->GetName();
 			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_SETVALUE_TYPE_ERROR );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_SETVALUE_TYPE );
 			break;
 		}
 	}
@@ -905,9 +905,9 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		default:
-			String errMsg = DATABASE_FIELD_SETVALUE_TYPE_ERROR + this->GetName();
+			String errMsg = ERROR_DB_FIELD_SETVALUE_TYPE + this->GetName();
 			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_SETVALUE_TYPE_ERROR );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_SETVALUE_TYPE );
 			break;
 		}
 	}
@@ -941,9 +941,9 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		default:
-			String errMsg = DATABASE_FIELD_SETVALUE_TYPE_ERROR + this->GetName();
+			String errMsg = ERROR_DB_FIELD_SETVALUE_TYPE + this->GetName();
 			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_SETVALUE_TYPE_ERROR );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_SETVALUE_TYPE );
 			break;
 		}
 	}
@@ -973,9 +973,9 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		default:
-			String errMsg = DATABASE_FIELD_SETVALUE_TYPE_ERROR + this->GetName();
+			String errMsg = ERROR_DB_FIELD_SETVALUE_TYPE + this->GetName();
 			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_SETVALUE_TYPE_ERROR );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_SETVALUE_TYPE );
 			break;
 		}
 	}
@@ -1005,9 +1005,9 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		default:
-			String errMsg = DATABASE_FIELD_SETVALUE_TYPE_ERROR + this->GetName();
+			String errMsg = ERROR_DB_FIELD_SETVALUE_TYPE + this->GetName();
 			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_SETVALUE_TYPE_ERROR );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_SETVALUE_TYPE );
 			break;
 		}
 	}
@@ -1025,9 +1025,9 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		default:
-			String errMsg = DATABASE_FIELD_SETVALUE_TYPE_ERROR + this->GetName();
+			String errMsg = ERROR_DB_FIELD_SETVALUE_TYPE + this->GetName();
 			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_SETVALUE_TYPE_ERROR );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_SETVALUE_TYPE );
 			break;
 		}
 	}
@@ -1045,9 +1045,9 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		default:
-			String errMsg = DATABASE_FIELD_SETVALUE_TYPE_ERROR + this->GetName();
+			String errMsg = ERROR_DB_FIELD_SETVALUE_TYPE + this->GetName();
 			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_SETVALUE_TYPE_ERROR );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_SETVALUE_TYPE );
 			break;
 		}
 	}
@@ -1077,9 +1077,9 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		default:
-			String errMsg = DATABASE_FIELD_SETVALUE_TYPE_ERROR + this->GetName();
+			String errMsg = ERROR_DB_FIELD_SETVALUE_TYPE + this->GetName();
 			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_SETVALUE_TYPE_ERROR );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_SETVALUE_TYPE );
 			break;
 		}
 	}
@@ -1109,9 +1109,9 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		default:
-			String errMsg = DATABASE_FIELD_SETVALUE_TYPE_ERROR + this->GetName();
+			String errMsg = ERROR_DB_FIELD_SETVALUE_TYPE + this->GetName();
 			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_SETVALUE_TYPE_ERROR );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_SETVALUE_TYPE );
 			break;
 		}
 	}
@@ -1141,9 +1141,9 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		default:
-			String errMsg = DATABASE_FIELD_SETVALUE_TYPE_ERROR + this->GetName();
+			String errMsg = ERROR_DB_FIELD_SETVALUE_TYPE + this->GetName();
 			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_SETVALUE_TYPE_ERROR );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_SETVALUE_TYPE );
 			break;
 		}
 	}
@@ -1165,9 +1165,9 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		default:
-			String errMsg = DATABASE_FIELD_SETVALUE_TYPE_ERROR + this->GetName();
+			String errMsg = ERROR_DB_FIELD_SETVALUE_TYPE + this->GetName();
 			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_SETVALUE_TYPE_ERROR );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_SETVALUE_TYPE );
 			break;
 		}
 	}
@@ -1193,9 +1193,9 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		default:
-			String errMsg = DATABASE_FIELD_SETVALUE_TYPE_ERROR + this->GetName();
+			String errMsg = ERROR_DB_FIELD_SETVALUE_TYPE + this->GetName();
 			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_SETVALUE_TYPE_ERROR );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_SETVALUE_TYPE );
 			break;
 		}
 	}
@@ -1221,9 +1221,9 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		default:
-			String errMsg = DATABASE_FIELD_SETVALUE_TYPE_ERROR + this->GetName();
+			String errMsg = ERROR_DB_FIELD_SETVALUE_TYPE + this->GetName();
 			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_SETVALUE_TYPE_ERROR );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_SETVALUE_TYPE );
 			break;
 		}
 	}
@@ -1241,9 +1241,9 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		default:
-			String errMsg = DATABASE_FIELD_SETVALUE_TYPE_ERROR + this->GetName();
+			String errMsg = ERROR_DB_FIELD_SETVALUE_TYPE + this->GetName();
 			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_SETVALUE_TYPE_ERROR );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_SETVALUE_TYPE );
 			break;
 		}
 	}
@@ -1264,9 +1264,9 @@ BEGIN_NAMESPACE_DATABASE
 			static_cast< CDatabaseValue< EFieldType_TIME > & >( *_value ).SetValue( CTime( value ) );
 
 		default:
-			String errMsg = DATABASE_FIELD_SETVALUE_TYPE_ERROR + this->GetName();
+			String errMsg = ERROR_DB_FIELD_SETVALUE_TYPE + this->GetName();
 			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_SETVALUE_TYPE_ERROR );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_SETVALUE_TYPE );
 			break;
 		}
 	}
@@ -1284,9 +1284,9 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		default:
-			String errMsg = DATABASE_FIELD_SETVALUE_TYPE_ERROR + this->GetName();
+			String errMsg = ERROR_DB_FIELD_SETVALUE_TYPE + this->GetName();
 			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_SETVALUE_TYPE_ERROR );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_SETVALUE_TYPE );
 			break;
 		}
 	}
@@ -1308,9 +1308,9 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		default:
-			String errMsg = DATABASE_FIELD_SETVALUE_TYPE_ERROR + this->GetName();
+			String errMsg = ERROR_DB_FIELD_SETVALUE_TYPE + this->GetName();
 			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_SETVALUE_TYPE_ERROR );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_SETVALUE_TYPE );
 			break;
 		}
 	}
@@ -1506,9 +1506,9 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		default:
-			String errMsg = DATABASE_FIELD_CREATION_TYPE_ERROR + this->GetName();
+			String errMsg = ERROR_DB_FIELD_CREATION_TYPE + this->GetName();
 			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, DATABASE_FIELD_CREATION_TYPE_ERROR );
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_CREATION_TYPE );
 			break;
 		}
 	}

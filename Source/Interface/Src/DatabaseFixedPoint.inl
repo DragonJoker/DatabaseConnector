@@ -1,14 +1,14 @@
 /************************************************************************//**
- * @file DatabaseFixedPoint.inl
- * @author Sylvain Doremus
- * @version 1.0
- * @date 7/12/2015 7:51 PM
- *
- *
- * @brief CFixedPoint class declaration.
- *
- * @details Describes a fixed point numeric value with precision and scale.
- *
+* @file DatabaseFixedPoint.inl
+* @author Sylvain Doremus
+* @version 1.0
+* @date 7/12/2015 7:51 PM
+*
+*
+* @brief CFixedPoint class declaration.
+*
+* @details Describes a fixed point numeric value with precision and scale.
+*
  ***************************************************************************/
 
 #include "DatabaseException.h"
@@ -19,9 +19,9 @@ BEGIN_NAMESPACE_DATABASE
 {
 	namespace
 	{
-		static const String ERROR_DIVIDE_BY_ZERO = STR( "Division by zero" );
-		static const String ERROR_INTEGER_OVERFLOW = STR( "Integer underflow" );
-		static const String ERROR_INTEGER_UNDERFLOW = STR( "Integer underflow" );
+		static const String ERROR_DB_DIVIDE_BY_ZERO = STR( "Division by zero" );
+		static const String ERROR_DB_INTEGER_OVERFLOW = STR( "Integer underflow" );
+		static const String ERROR_DB_INTEGER_UNDERFLOW = STR( "Integer underflow" );
 
 		template< typename T > struct SFixedPointOperations;
 		
@@ -44,14 +44,14 @@ BEGIN_NAMESPACE_DATABASE
 				{
 					if ( std::numeric_limits< int64_t >::max() - rhr >= lhs.GetRawValue() )
 					{
-						DB_EXCEPT( EDatabaseExceptionCodes_InternalError, ERROR_INTEGER_OVERFLOW );
+						DB_EXCEPT( EDatabaseExceptionCodes_InternalError, ERROR_DB_INTEGER_OVERFLOW );
 					}
 				}
 				else
 				{
 					if ( std::numeric_limits< uint64_t >::max() - uint64_t( rhr ) >= uint64_t( lhs.GetRawValue() ) )
 					{
-						DB_EXCEPT( EDatabaseExceptionCodes_InternalError, ERROR_INTEGER_OVERFLOW );
+						DB_EXCEPT( EDatabaseExceptionCodes_InternalError, ERROR_DB_INTEGER_OVERFLOW );
 					}
 				}
 
@@ -66,14 +66,14 @@ BEGIN_NAMESPACE_DATABASE
 				{
 					if ( std::numeric_limits< int64_t >::lowest() + rhr <= lhs.GetRawValue() )
 					{
-						DB_EXCEPT( EDatabaseExceptionCodes_InternalError, ERROR_INTEGER_UNDERFLOW );
+						DB_EXCEPT( EDatabaseExceptionCodes_InternalError, ERROR_DB_INTEGER_UNDERFLOW );
 					}
 				}
 				else
 				{
 					if ( std::numeric_limits< uint64_t >::lowest() + uint64_t( rhr ) <= uint64_t( lhs.GetRawValue() ) )
 					{
-						DB_EXCEPT( EDatabaseExceptionCodes_InternalError, ERROR_INTEGER_UNDERFLOW );
+						DB_EXCEPT( EDatabaseExceptionCodes_InternalError, ERROR_DB_INTEGER_UNDERFLOW );
 					}
 				}
 
@@ -91,7 +91,7 @@ BEGIN_NAMESPACE_DATABASE
 
 					if ( uint64_t( mult ) != mult )
 					{
-						DB_EXCEPT( EDatabaseExceptionCodes_InternalError, ERROR_INTEGER_OVERFLOW );
+						DB_EXCEPT( EDatabaseExceptionCodes_InternalError, ERROR_DB_INTEGER_OVERFLOW );
 					}
 
 					result = int64_t( mult );
@@ -103,7 +103,7 @@ BEGIN_NAMESPACE_DATABASE
 
 					if ( result != mult )
 					{
-						DB_EXCEPT( EDatabaseExceptionCodes_InternalError, ERROR_INTEGER_OVERFLOW );
+						DB_EXCEPT( EDatabaseExceptionCodes_InternalError, ERROR_DB_INTEGER_OVERFLOW );
 					}
 				}
 
@@ -117,7 +117,7 @@ BEGIN_NAMESPACE_DATABASE
 
 				if ( rhs.ToInt64() == 0 )
 				{
-					DB_EXCEPT( EDatabaseExceptionCodes_InternalError, ERROR_DIVIDE_BY_ZERO );
+					DB_EXCEPT( EDatabaseExceptionCodes_InternalError, ERROR_DB_DIVIDE_BY_ZERO );
 				}
 
 				if ( lhs.IsSigned() )

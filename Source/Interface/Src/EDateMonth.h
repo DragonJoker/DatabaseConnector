@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DateMonth.h
- * @author Sylvain Doremus
- * @version 1.0
- * @date 3/17/2014 1:19:49 PM
- *
- *
- * @brief EDateMonth enumeration declaration.
- *
- * @details EDateMonth
- *
- ***************************************************************************/
+* @file DateMonth.h
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/17/2014 1:19:49 PM
+*
+*
+* @brief EDateMonth enumeration declaration.
+*
+* @details Enumeration of monthes.
+*
+***************************************************************************/
 
 #ifndef ___DATABASE_DATE_MONTH_H___
 #define ___DATABASE_DATE_MONTH_H___
@@ -18,8 +18,8 @@
 
 BEGIN_NAMESPACE_DATABASE
 {
-
-	/// Enumeration of monthes.
+	/** Enumeration of monthes.
+	*/
 	typedef enum EDateMonth
 	{
 		EDateMonth_UNDEF = -1,
@@ -35,8 +35,7 @@ BEGIN_NAMESPACE_DATABASE
 		EDateMonth_OCTOBER,
 		EDateMonth_NOVEMBER,
 		EDateMonth_DECEMBER
-	} EDateMonth;
-
+	}	EDateMonth;
 }
 END_NAMESPACE_DATABASE
 

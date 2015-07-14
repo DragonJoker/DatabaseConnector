@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DatabaseField.inl
- * @author Sylvain Doremus
- * @version 1.0
- * @date 3/20/2014 2:47:39 PM
- *
- *
- * @brief CDatabaseValuedObject class template functionalities.
- *
- * @details Describes a database field.
- *
- ***************************************************************************/
+* @file DatabaseValuedObject.inl
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/20/2014 2:47:39 PM
+*
+*
+* @brief CDatabaseValuedObject class declaration.
+*
+* @details Describes a an object (field or parameter) with a value.
+*
+***************************************************************************/
 
 #include "DatabasePrerequisites.h" // Help doxygen
 

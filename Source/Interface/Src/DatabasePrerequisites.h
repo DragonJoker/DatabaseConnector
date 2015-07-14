@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DatabasePrerequisites.h
- * @author Sylvain Doremus
- * @version 1.0
- * @date 03/14/2013 09:20:25 AM
- *
- *
- * @brief Database prerequisite header.
- *
- * @details This file contains all Database prerequisite instructions.
- *
- ***************************************************************************/
+* @file DatabasePrerequisites.h
+* @author Sylvain Doremus
+* @version 1.0
+* @date 03/14/2013 09:20:25 AM
+*
+*
+* @brief Database prerequisite header.
+*
+* @details This file contains all Database prerequisite instructions.
+*
+***************************************************************************/
 
 #ifndef ___DATABASE_PREREQUISITES_H___
 #define ___DATABASE_PREREQUISITES_H___
@@ -28,6 +28,8 @@
 #include <iostream>
 #include <sstream>
 #include <locale>
+#include <functional>
+#include <deque>
 
 #include <cstdint>
 #include <cstdlib>
@@ -76,26 +78,6 @@ namespace Database
 	typedef std::basic_stringstream< TChar > StringStream;
 	typedef boost::basic_format< TChar > Format;
 
-	const String DATETIME_FORMAT_EXP = STR( "%Y/%m/%d %H:%M:%S" );
-	const std::string SDATETIME_FORMAT_EXP = "%Y/%m/%d %H:%M:%S";
-	const std::wstring WDATETIME_FORMAT_EXP = L"%Y/%m/%d %H:%M:%S";
-
-	const String DATETIME_TIME_FORMAT_EXP = STR( "0000/00/00 %H:%M:%S" );
-	const std::string SDATETIME_TIME_FORMAT_EXP = "0000/00/00 %H:%M:%S";
-	const std::wstring WDATETIME_TIME_FORMAT_EXP = L"0000/00/00 %H:%M:%S";
-
-	const String DATETIME_DATE_FORMAT_EXP = STR( "%Y/%m/%d 00:00:00" );
-	const std::string SDATETIME_DATE_FORMAT_EXP = "%Y/%m/%d 00:00:00";
-	const std::wstring WDATETIME_DATE_FORMAT_EXP = L"%Y/%m/%d 00:00:00";
-
-	const String TIME_FORMAT_EXP = STR( "%H:%M:%S" );
-	const std::string STIME_FORMAT_EXP = "%H:%M:%S";
-	const std::wstring WTIME_FORMAT_EXP = L"%H:%M:%S";
-
-	const String DATE_FORMAT_EXP = STR( "%Y/%m/%d" );
-	const std::string SDATE_FORMAT_EXP = "%Y/%m/%d";
-	const std::wstring WDATE_FORMAT_EXP = L"%Y/%m/%d";
-
 	// Pre-declare classes
 	// Allows use of pointers in header files without including individual .h
 	// so decreases dependencies between files
@@ -125,6 +107,11 @@ namespace Database
 	class CPluginDatabase;
 	template< typename T > class CDatabaseNullable;
 
+	struct SMessageBase;
+	class CLogger;
+	class CLoggerImpl;
+	class CProgramConsole;
+
 	// Pointers
 	typedef std::shared_ptr< CDatabase > DatabasePtr;
 	typedef std::shared_ptr< CDatabaseConnection > DatabaseConnectionPtr;
@@ -147,71 +134,69 @@ namespace Database
 	typedef std::vector< DatabaseParameterPtr > DatabaseParameterPtrArray;
 	typedef std::map< String, DatabaseParameterPtr > DatabaseParameterPtrStrMap;
 	typedef std::map< std::thread::id, DatabaseConnectionPtr > DatabaseConnectionPtrIdMap;
+	typedef std::deque< std::unique_ptr< SMessageBase > > MessageQueue;
 
 	// Factory type constants
 	const String FACTORY_DATABASE_TYPE = STR( "Factory database" );
 
 	/** Converts a string in a given charset into an UTF-8 string
 	@param src
-	    The original string
+		The original string
 	@param charset
-	    The original string charset
+		The original string charset
 	*/
 	DatabaseExport std::string ToUtf8( const std::string & src, const std::string & charset );
 
 	/** Converts a string in a given charset into an UTF-8 string
 	@param src
-	    The original string
+		The original string
 	@param charset
-	    The original string charset
+		The original string charset
 	*/
 	DatabaseExport std::string ToUtf8( const std::wstring & src, const std::wstring & charset );
 
 	/** Checks if the two given field types are compatible
 	@param typeA, typeB
-	    The field types
+		The field types
 	@return
-	    True if typeA and typeB are compatible
+		True if typeA and typeB are compatible
 	*/
 	DatabaseExport bool AreTypesCompatible( EFieldType typeA, EFieldType typeB );
-	/**
-	 *\~english
-	 *\brief		Opens a file
-	 *\param[out]	p_pFile		Receives the file descriptor
-	 *\param[in]	p_pszPath	The file path
-	 *\param[in]	p_pszMode	The opening mode
-	 *\return		\p true on success
-	 *\~french
-	 *\brief		Ouvre un fichier
-	 *\param[out]	p_pFile		Reçoit le descripteur du fichier
-	 *\param[in]	p_pszPath	Le chemin d'acès au fichier
-	 *\param[in]	p_pszMode	Le mode d'ouverture
-	 *\return		\p true en cas de réussite
-	 */
+
+	/** Opens a file
+	*\param[out] p_pFile
+		Receives the file descriptor
+	*\param[in] p_pszPath
+		The file path
+	*\param[in] p_pszMode
+		The opening mode
+	*\return
+		true on success
+	*/
 	DatabaseExport bool FOpen( FILE *& p_pFile, char const * p_pszPath, char const * p_pszMode );
 
 	/** Checks the file existence
 	@param name
-	    The file name
+		The file name
 	@return true if the file exists
 	*/
 	DatabaseExport bool FileExists( const String & name );
 
 	/** Checks the folder existence
 	@param name
-	    The folder name
+		The folder name
 	@return true if the folder exists
 	*/
 	DatabaseExport bool FolderExists( String const & p_filename );
 
 	/** Creates a folder
 	@param name
-	    The folder name
+		The folder name
 	@return true if the folder was correctly created
 	*/
 	DatabaseExport bool CreateFolder( String const & pathFolder );
 }
-#if !_HAS_MAKE_UNIQUE
+#if !DB_HAS_MAKE_UNIQUE
 namespace std
 {
 	template< class T >

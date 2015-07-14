@@ -1,20 +1,14 @@
-/*
-This source file is part of Castor3D (http://castor3d.developpez.com/castor3d.htm)
+/************************************************************************//**
+* @file DatabaseMacros.h
+* @author Sylvain Doremus
+* @version 1.0
+* @date 7/12/2015 7:51 PM
+*
+*
+* @brief Useful macros and preprocessor checks
+*
+***************************************************************************/
 
-This program is free software; you can redistribute it and/or modify it under
-the terms of the GNU Lesser General Public License as published by the Free Software
-Foundation; either version 2 of the License, or (at your option) any later
-version.
-
-This program is distributed in the hope that it will be useful, but WITHOUT
-ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along with
-the program; if not, write to the Free Software Foundation, Inc., 59 Temple
-Place - Suite 330, Boston, MA 02111-1307, USA, or go to
-http://www.gnu.org/copyleft/lesser.txt.
-*/
 #ifndef ___DATABASE_MACROS_H___
 #define ___DATABASE_MACROS_H___
 
@@ -23,7 +17,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #		define __FUNCTION__ ""
 #	endif
 
-#undef CASTOR_HAS_MAKE_UNIQUE
+#undef DB_HAS_MAKE_UNIQUE
 
 #if defined( _MSC_VER)
 #	include <tchar.h>
@@ -60,42 +54,42 @@ http://www.gnu.org/copyleft/lesser.txt.
 #	pragma warning( disable: 4917 )    // a GUID can only be associated with a class, interface or namespace
 #	pragma warning( disable: 4996 )    // MSVC 9: a C std library function has been "deprecated" (says MS)
 #	if _MSC_VER >= 1800
-#		define CASTOR_HAS_MAKE_UNIQUE 							1
+#		define DB_HAS_MAKE_UNIQUE 					1
 #	else
-#		define CASTOR_HAS_MAKE_UNIQUE 							0
+#		define DB_HAS_MAKE_UNIQUE 					0
 #	endif
-#	define cvsnprintf											_vsnprintf_s
+#	define cvsnprintf								_vsnprintf_s
 #elif defined( __clang__)
-#	define CASTOR_HAS_MAKE_UNIQUE 								has_feature(cxx_variadic_templates)
+#	define DB_HAS_MAKE_UNIQUE 						has_feature(cxx_variadic_templates)
 #	if !defined( _WIN32 )
-#		define _FILE_OFFSET_BITS								64
-#		define cvsnprintf( buf, sz, cnt, fmt, arg )				vsnprintf( buf, cnt, fmt, arg )
+#		define _FILE_OFFSET_BITS					64
+#		define cvsnprintf( buf, sz, cnt, fmt, arg )	vsnprintf( buf, cnt, fmt, arg )
 #	else
-#		define _FILE_OFFSET_BITS								64
-#		define cvsnprintf( buf, sz, cnt, fmt, arg )				vsnprintf( buf, cnt, fmt, arg )
+#		define _FILE_OFFSET_BITS					64
+#		define cvsnprintf( buf, sz, cnt, fmt, arg )	vsnprintf( buf, cnt, fmt, arg )
 #	endif
 #elif defined( __GNUG__)
 #	define GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
 #	if GCC_VERSION >= 40900
-#		define CASTOR_HAS_MAKE_UNIQUE							1
+#		define DB_HAS_MAKE_UNIQUE					1
 #	else
-#		define CASTOR_HAS_MAKE_UNIQUE							0
+#		define DB_HAS_MAKE_UNIQUE					0
 #	endif
 #	if !defined( _WIN32 )
-#		define _FILE_OFFSET_BITS								64
-#		define cvsnprintf( buf, sz, cnt, fmt, arg )				vsnprintf( buf, cnt, fmt, arg )
+#		define _FILE_OFFSET_BITS					64
+#		define cvsnprintf( buf, sz, cnt, fmt, arg )	vsnprintf( buf, cnt, fmt, arg )
 #	else
-#		define _FILE_OFFSET_BITS								64
-#		define cvsnprintf( buf, sz, cnt, fmt, arg )				vsnprintf( buf, cnt, fmt, arg )
+#		define _FILE_OFFSET_BITS					64
+#		define cvsnprintf( buf, sz, cnt, fmt, arg )	vsnprintf( buf, cnt, fmt, arg )
 #	endif
 #elif defined( __BORLANDC__ )
-#	define CASTOR_HAS_MAKE_UNIQUE								0
+#	define DB_HAS_MAKE_UNIQUE						0
 #	if !defined( _WIN32 )
-#		define _FILE_OFFSET_BITS								64
-#		define cvsnprintf( buf, sz, cnt, fmt, arg )				vsnprintf( buf, cnt, fmt, arg )
+#		define _FILE_OFFSET_BITS					64
+#		define cvsnprintf( buf, sz, cnt, fmt, arg )	vsnprintf( buf, cnt, fmt, arg )
 #	else
-#		define _FILE_OFFSET_BITS								64
-#		define cvsnprintf( buf, sz, cnt, fmt, arg )				vsnprintf( buf, cnt, fmt, arg )
+#		define _FILE_OFFSET_BITS					64
+#		define cvsnprintf( buf, sz, cnt, fmt, arg )	vsnprintf( buf, cnt, fmt, arg )
 #	endif
 #else
 #	error "Yet unsupported compiler"
@@ -176,40 +170,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 												typedef typename name##List::const_iterator				name##ListConstIt;	\
 												typedef typename name##List::const_reverse_iterator		name##ListConstRIt
 
-#define DECLARE_COLLECTION( elem, key, name )	typedef Castor::Collection< elem, key >			name##Collection;			\
-												typedef name##Collection::TObjPtrMapIt			name##CollectionIt;			\
-												typedef name##Collection::TObjPtrMapConstIt		name##CollectionConstIt;
-
-#define DECLARE_POINT( type, count, name )	typedef Point< type, count > Point##count##name;							\
-											DECLARE_SMART_PTR(	Point##count##name );									\
-											DECLARE_VECTOR(		Point##count##name,			Point##count##name		);	\
-											DECLARE_LIST(		Point##count##name,			Point##count##name		);	\
-											DECLARE_VECTOR(		Point##count##name##SPtr,	Point##count##name##Ptr	);	\
-											DECLARE_LIST(		Point##count##name##SPtr,	Point##count##name##Ptr	)
-
-#define DECLARE_COORD( type, count, name )	typedef Coords< type, count > Coords##count##name;								\
-											DECLARE_SMART_PTR(	Coords##count##name );										\
-											DECLARE_VECTOR(		Coords##count##name,		Coords##count##name			);	\
-											DECLARE_LIST(		Coords##count##name,		Coords##count##name			);	\
-											DECLARE_VECTOR(		Coords##count##name##SPtr,	Coords##count##name##Ptr	);	\
-											DECLARE_LIST(		Coords##count##name##SPtr,	Coords##count##name##Ptr	)
-
-#define DECLARE_MTX( type, rows, cols, name )	typedef Matrix< type, rows, cols > Matrix##rows##x##cols##name;									\
-												DECLARE_SMART_PTR(	Matrix##rows##x##cols##name );												\
-												DECLARE_VECTOR(		Matrix##rows##x##cols##name,		Matrix##rows##x##cols##name			);	\
-												DECLARE_LIST(		Matrix##rows##x##cols##name,		Matrix##rows##x##cols##name			);	\
-												DECLARE_VECTOR(		Matrix##rows##x##cols##name##SPtr,	Matrix##rows##x##cols##name##Ptr	);	\
-												DECLARE_LIST(		Matrix##rows##x##cols##name##SPtr,	Matrix##rows##x##cols##name##Ptr	)
-
-#define DECLARE_SQMTX( type, count, name )		typedef SquareMatrix< type, count > Matrix##count##x##count##name;								\
-												DECLARE_SMART_PTR(	Matrix##count##x##count##name );											\
-												DECLARE_VECTOR(		Matrix##count##x##count##name,			Matrix##count##x##count##name		);	\
-												DECLARE_LIST(		Matrix##count##x##count##name,			Matrix##count##x##count##name		);	\
-												DECLARE_VECTOR(		Matrix##count##x##count##name##SPtr,	Matrix##count##x##count##name##Ptr	);	\
-												DECLARE_LIST(		Matrix##count##x##count##name##SPtr,	Matrix##count##x##count##name##Ptr	)
-
-#if !defined( CU_PARAM_UNUSED )
-#	define CU_PARAM_UNUSED( x )
+#if !defined( DB_PARAM_UNUSED )
+#	define DB_PARAM_UNUSED( x )
 #endif
 
 #endif

@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file ExceptionDatabase.cpp
- * @author [pnom]
- * @version 1.0
- * @date 11/08/2014 15:46:49
- *
- *
- * @brief [your brief comment here]
- *
- * @details [your detailled comment here]
- *
- ***************************************************************************/
+* @file ExceptionDatabase.cpp
+* @author [pnom]
+* @version 1.0
+* @date 11/08/2014 15:46:49
+*
+*
+* @brief [your brief comment here]
+*
+* @details [your detailled comment here]
+*
+***************************************************************************/
 
 #include "DatabasePch.h"
 

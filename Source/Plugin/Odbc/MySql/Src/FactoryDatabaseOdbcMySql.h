@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file FactoryDatabaseOdbcMySql.h
- * @author Sylvain Doremus
- * @version 1.0
- * @date 4/08/2014 1:20:50 PM
- *
- *
- * @brief ODBC database factory class.
- *
- * @details CObject factory used to manage ODBC database creation.
- *
- ***************************************************************************/
+* @file FactoryDatabaseOdbcMySql.h
+* @author Sylvain Doremus
+* @version 1.0
+* @date 4/08/2014 1:20:50 PM
+*
+*
+* @brief ODBC database factory class.
+*
+* @details CObject factory used to manage ODBC database creation.
+*
+***************************************************************************/
 
 #ifndef ___FACTORY_DATABASE_ODBC_MYSQL_H___
 #define ___FACTORY_DATABASE_ODBC_MYSQL_H___
@@ -21,7 +21,7 @@
 BEGIN_NAMESPACE_DATABASE_ODBC_MYSQL
 {
 	/** ODBC database factory class.
-	    CObject factory used to manage ODBC database creation.
+		CObject factory used to manage ODBC database creation.
 	*/
 	class CFactoryDatabaseOdbcMySql
 		: public CFactoryDatabase
@@ -37,9 +37,12 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MYSQL
 
 		/** Get the type of the factory.
 		@returns
-		    String describing the factory type.
+			String describing the factory type.
 		*/
-		const String GetType() const;
+		const String GetType() const
+		{
+			return MySql::FACTORY_DATABASE_ODBC_MYSQL;
+		}
 
 	protected:
 		/** Register creation functions to create new ODBC database objects.
@@ -50,15 +53,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MYSQL
 		*/
 		DatabaseOdbcMySqlExport void RegisterObjectTypes();
 	};
-
-	//
-	// Inlines
-	//
-	inline const String CFactoryDatabaseOdbcMySql::GetType() const
-	{
-		return MySql::FACTORY_DATABASE_ODBC_MYSQL;
-	}
-
 }
 END_NAMESPACE_DATABASE_ODBC_MYSQL
 

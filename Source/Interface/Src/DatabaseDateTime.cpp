@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DateTime.cpp
- * @author Sylvain Doremus
- * @version 1.0
- * @date 3/20/2014 2:47:39 PM
- *
- *
- * @brief CDateTime class definition.
- *
- * @details Describes a date/time.
- *
- ***************************************************************************/
+* @file DateTime.cpp
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/20/2014 2:47:39 PM
+*
+*
+* @brief CDateTime class definition.
+*
+* @details Describes a date/time.
+*
+***************************************************************************/
 
 #include "DatabasePch.h"
 
@@ -231,25 +231,19 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	}
 
-	String CDateTime::ShortDay[7] = { STR( "Mon" ), STR( "Tue." ), STR( "Wed." ), STR( "Thu" ), STR( "Fri" ), STR( "Sat" ), STR( "Sun" ) };
-	String CDateTime::LongDay[7] = { STR( "Monday" ), STR( "Tuesday" ), STR( "Wednesday" ), STR( "Thursday" ), STR( "Friday" ), STR( "Saturday" ), STR( "Sunday" ) };
-	String CDateTime::ShortMonth[12] = { STR( "Jan" ), STR( "Feb" ), STR( "Mar" ), STR( "Apr" ), STR( "May" ), STR( "Jun" ), STR( "Jul" ), STR( "Aug" ), STR( "Sep" ), STR( "Oct" ), STR( "Nov" ), STR( "Dec" ) };
-	String CDateTime::LongMonth[12] = { STR( "January" ), STR( "February" ), STR( "March" ), STR( "April" ), STR( "May" ), STR( "June" ), STR( "July" ), STR( "August" ), STR( "September" ), STR( "October" ), STR( "November" ), STR( "December" ) };
-	int CDateTime::MonthMaxDays[12] = { 31, 28, 31, 30, 31 , 30 , 31 , 31 , 30 , 31 , 30 , 31 };
-	CDateTime CDateTime::Today = CDateTime::Now();
-
 	CDateTime::CDateTime()
+		: _date()
 	{
 		_date.tm_isdst = -1;
 	}
 
 	CDateTime::CDateTime( const CDateTime & dateTime )
-		:   _date( dateTime.ToTm() )
+		: _date( dateTime.ToTm() )
 	{
 	}
 
 	CDateTime::CDateTime( const CDate & date, const CTime & time )
-		:   _date( date.ToTm() )
+		: _date( date.ToTm() )
 	{
 		_date.tm_hour = time.GetHour();
 		_date.tm_min = time.GetMinute();
@@ -257,17 +251,17 @@ BEGIN_NAMESPACE_DATABASE
 	}
 
 	CDateTime::CDateTime( const std::tm & dateTime )
-		:   _date( dateTime )
+		: _date( dateTime )
 	{
 	}
 
 	CDateTime::CDateTime( const CDate & date )
-		:   _date( date.ToTm() )
+		: _date( date.ToTm() )
 	{
 	}
 
 	CDateTime::CDateTime( const CTime & time )
-		:   _date( time.ToTm() )
+		: _date( time.ToTm() )
 	{
 	}
 
@@ -389,7 +383,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			if ( iMonth != EDateMonth_FEBRUARY )
 			{
-				if ( iMonthDay <= MonthMaxDays[iMonth - 1] )
+				if ( iMonthDay <= CDate::MonthMaxDays[iMonth - 1] )
 				{
 					bReturn = true;
 				}
@@ -398,7 +392,7 @@ BEGIN_NAMESPACE_DATABASE
 			{
 				int leap = IsLeap( iYear );
 
-				if ( iMonthDay <= ( MonthMaxDays[iMonth - 1] + leap ) )
+				if ( iMonthDay <= ( CDate::MonthMaxDays[iMonth - 1] + leap ) )
 				{
 					bReturn = true;
 				}
@@ -574,7 +568,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		if ( GetMonth() != EDateMonth_FEBRUARY )
 		{
-			if ( GetMonthDay() > MonthMaxDays[GetMonth() - 1] )
+			if ( GetMonthDay() > CDate::MonthMaxDays[GetMonth() - 1] )
 			{
 				_date.tm_mon = EDateMonth_JANUARY;
 				_date.tm_mday = 0;
@@ -585,7 +579,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			int leap = IsLeap( GetYear() );
 
-			if ( GetMonthDay() > ( MonthMaxDays[GetMonth() - 1] + leap ) )
+			if ( GetMonthDay() > ( CDate::MonthMaxDays[GetMonth() - 1] + leap ) )
 			{
 				_date.tm_mon = EDateMonth_JANUARY;
 				_date.tm_mday = 0;

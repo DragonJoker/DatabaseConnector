@@ -1,22 +1,28 @@
+/************************************************************************//**
+* @file DatabaseLogger.cpp
+* @author Sylvain Doremus
+* @version 1.0
+* @date 7/12/2015 7:51 PM
+*
+*
+* @brief CLogger class
+*
+* @details Allows Debug, Info, Warning and Error logs
+*
+***************************************************************************/
+
 #include "DatabasePch.h"
 
-#if defined _WIN32
-#	if defined( _MSC_VER )
-#		pragma warning( push )
-#		pragma warning( disable:4311 )
-#		pragma warning( disable:4312 )
-#	endif
-#	include <windows.h>
-#	if defined( _MSC_VER )
-#		pragma warning( pop )
-#	endif
-#endif
-
 #include "DatabaseLogger.h"
+
+#include "DatabaseLoggerImpl.h"
 #include "DatabaseStringUtils.h"
+#include "DAtabaseException.h"
 
 BEGIN_NAMESPACE_DATABASE
 {
+	static const String ERROR_DB_LOGGER_ALREADY_INITIALISED = STR( "Logger instance already initialised" );
+
 	template< typename CharType, typename LogStreambufTraits >
 	class CLogStreambuf
 		: public std::basic_streambuf< CharType >
@@ -25,15 +31,15 @@ BEGIN_NAMESPACE_DATABASE
 		typedef typename std::basic_streambuf< CharType >::int_type int_type;
 		typedef typename std::basic_streambuf< CharType >::traits_type traits_type;
 
-		CLogStreambuf( std::basic_ostream< CharType > & p_stream )
-			: m_stream( p_stream )
+		CLogStreambuf( std::basic_ostream< CharType > & stream )
+			: _stream( stream )
 		{
-			m_old = m_stream.rdbuf( this );
+			_old = _stream.rdbuf( this );
 		}
 
 		virtual ~CLogStreambuf()
 		{
-			m_stream.rdbuf( m_old );
+			_stream.rdbuf( _old );
 		}
 
 		virtual int_type overflow( int_type c = traits_type::eof() )
@@ -44,7 +50,7 @@ BEGIN_NAMESPACE_DATABASE
 			}
 			else
 			{
-				m_buffer += traits_type::to_char_type( c );
+				_buffer += traits_type::to_char_type( c );
 			}
 
 			return c;
@@ -52,216 +58,141 @@ BEGIN_NAMESPACE_DATABASE
 
 		virtual int sync()
 		{
-			if ( !m_buffer.empty() )
+			if ( !_buffer.empty() )
 			{
-				LogStreambufTraits::Log( m_buffer );
-				m_buffer.clear();
+				LogStreambufTraits::Log( _buffer );
+				_buffer.clear();
 			}
 
 			return 0;
 		}
 
 	private:
-		std::basic_string< CharType > m_buffer;
-		std::basic_ostream< CharType > & m_stream;
-		std::basic_streambuf< CharType > * m_old;
+		std::basic_string< CharType > _buffer;
+		std::basic_ostream< CharType > & _stream;
+		std::basic_streambuf< CharType > * _old;
 	};
 
 	template< typename CharType >
 	struct STDebugLogStreambufTraits
 	{
-		static void Log( std::basic_string< CharType > const & p_text )
+		static void Log( std::basic_string< CharType > const & text )
 		{
-			CLogger::LogDebug( CStrUtils::ToString( p_text ) );
+			CLogger::LogDebug( CStrUtils::ToString( text ) );
 		}
 	};
 
 	template< typename CharType >
 	struct STMessageLogStreambufTraits
 	{
-		static void Log( std::basic_string< CharType > const & p_text )
+		static void Log( std::basic_string< CharType > const & text )
 		{
-			CLogger::LogMessage( CStrUtils::ToString( p_text ) );
+			CLogger::LogInfo( CStrUtils::ToString( text ) );
 		}
 	};
 
 	template< typename CharType >
 	struct STWarningLogStreambufTraits
 	{
-		static void Log( std::basic_string< CharType > const & p_text )
+		static void Log( std::basic_string< CharType > const & text )
 		{
-			CLogger::LogWarning( CStrUtils::ToString( p_text ) );
+			CLogger::LogWarning( CStrUtils::ToString( text ) );
 		}
 	};
 
 	template< typename CharType >
 	struct STErrorLogStreambufTraits
 	{
-		static void Log( std::basic_string< CharType > const & p_text )
+		static void Log( std::basic_string< CharType > const & text )
 		{
-			CLogger::LogError( CStrUtils::ToString( p_text ) );
+			CLogger::LogError( CStrUtils::ToString( text ) );
 		}
 	};
 
-	template< eLOG_TYPE Level >	class LeveledLogger;
-
-	template <> class LeveledLogger< eLOG_TYPE_DEBUG > : public ILoggerImpl
-	{
-	public:
-		LeveledLogger()
-			:	ILoggerImpl( eLOG_TYPE_DEBUG )
-		{
-		}
-	};
-
-	template <> class LeveledLogger< eLOG_TYPE_MESSAGE > : public ILoggerImpl
-	{
-	public:
-		LeveledLogger()
-			:	ILoggerImpl( eLOG_TYPE_MESSAGE )
-		{
-		}
-
-		DatabaseExport virtual void LogDebug( String const & CU_PARAM_UNUSED( p_strToLog ) ) {}
-	};
-
-	template <> class LeveledLogger< eLOG_TYPE_WARNING > : public ILoggerImpl
-	{
-	public:
-		LeveledLogger()
-			:	ILoggerImpl( eLOG_TYPE_WARNING )
-		{
-		}
-
-		DatabaseExport virtual void LogDebug( String const & CU_PARAM_UNUSED( p_strToLog ) ) {}
-		DatabaseExport virtual void LogMessage( String const & CU_PARAM_UNUSED( p_strToLog ) ) {}
-	};
-
-	template <> class LeveledLogger< eLOG_TYPE_ERROR > : public ILoggerImpl
-	{
-	public:
-		LeveledLogger()
-			:	ILoggerImpl( eLOG_TYPE_ERROR )
-		{
-		}
-
-		DatabaseExport virtual void LogDebug( String const & CU_PARAM_UNUSED( p_strToLog ) ) {}
-		DatabaseExport virtual void LogMessage( String const & CU_PARAM_UNUSED( p_strToLog ) ) {}
-		DatabaseExport virtual void LogWarning( String const & CU_PARAM_UNUSED( p_strToLog ) ) {}
-	};
-
-	CLogger *	CLogger::m_pSingleton		= NULL;
-	bool		CLogger::m_bOwnInstance	= true;
-	uint32_t	CLogger::m_uiCounter		= 0;
+	CLogger * CLogger::_singleton = NULL;
+	bool CLogger::_ownInstance = true;
+	uint32_t CLogger::_counter = 0;
 
 	CLogger::CLogger()
-		:	m_pImpl( NULL	)
+		: _impl( NULL )
 	{
-		std::unique_lock< std::mutex > lock( m_mutex );
-		m_strHeaders[eLOG_TYPE_DEBUG	] = STR( "***DEBUG*** " );
-		m_strHeaders[eLOG_TYPE_MESSAGE	] = STR( "" );
-		m_strHeaders[eLOG_TYPE_WARNING	] = STR( "***WARNING*** " );
-		m_strHeaders[eLOG_TYPE_ERROR	] = STR( "***ERROR*** " );
+		std::unique_lock< std::mutex > lock( _mutex );
+		_headers[ELogType_DEBUG] = STR( "***DEBUG*** " );
+		_headers[ELogType_INFO] = STR( "" );
+		_headers[ELogType_WARNING] = STR( "***WARNING*** " );
+		_headers[ELogType_ERROR] = STR( "***ERROR*** " );
 
-		m_cout = new CLogStreambuf< char, STMessageLogStreambufTraits< char > >( std::cout );
-		m_cerr = new CLogStreambuf< char, STErrorLogStreambufTraits< char > >( std::cerr );
-		m_clog = new CLogStreambuf< char, STDebugLogStreambufTraits< char > >( std::clog );
-		m_wcout = new CLogStreambuf< wchar_t, STMessageLogStreambufTraits< wchar_t > >( std::wcout );
-		m_wcerr = new CLogStreambuf< wchar_t, STErrorLogStreambufTraits< wchar_t > >( std::wcerr );
-		m_wclog = new CLogStreambuf< wchar_t, STDebugLogStreambufTraits< wchar_t > >( std::wclog );
+		_cout = new CLogStreambuf< char, STMessageLogStreambufTraits< char > >( std::cout );
+		_cerr = new CLogStreambuf< char, STErrorLogStreambufTraits< char > >( std::cerr );
+		_clog = new CLogStreambuf< char, STDebugLogStreambufTraits< char > >( std::clog );
+		_wcout = new CLogStreambuf< wchar_t, STMessageLogStreambufTraits< wchar_t > >( std::wcout );
+		_wcerr = new CLogStreambuf< wchar_t, STErrorLogStreambufTraits< wchar_t > >( std::wcerr );
+		_wclog = new CLogStreambuf< wchar_t, STDebugLogStreambufTraits< wchar_t > >( std::wclog );
 	}
 
 	CLogger::~CLogger()
 	{
-		delete m_cout;
-		delete m_cerr;
-		delete m_clog;
-		delete m_wcout;
-		delete m_wcerr;
-		delete m_wclog;
+		delete _cout;
+		delete _cerr;
+		delete _clog;
+		delete _wcout;
+		delete _wcerr;
+		delete _wclog;
 
-		if ( m_bOwnInstance )
+		if ( _ownInstance )
 		{
-			m_pImpl->Cleanup();
-			delete m_pImpl;
-			m_pImpl = NULL;
+			_impl->Cleanup();
+			delete _impl;
+			_impl = NULL;
 		}
 	}
 
-	void CLogger::Initialise( CLogger * p_pLogger )
+	void CLogger::Initialise( CLogger * logger )
 	{
-		m_uiCounter++;
+		_counter++;
 #if defined( _WIN32 )
 
-		if ( m_pSingleton )
+		if ( _singleton )
 		{
-			m_uiCounter--;
-			throw "Logger instance already initialised";
+			_counter--;
+			DB_EXCEPT( EDatabaseExceptionCodes_InternalError, ERROR_DB_LOGGER_ALREADY_INITIALISED );
 		}
 		else
 		{
-			m_bOwnInstance = false;
-			CLogger & l_logger = GetSingleton();
-			delete l_logger.m_pImpl;
-			l_logger.m_pImpl = p_pLogger->m_pImpl;
+			_ownInstance = false;
+			CLogger & mylogger = GetSingleton();
+			delete mylogger._impl;
+			mylogger._impl = logger->_impl;
 
-			for ( int i = 0; i < eLOG_TYPE_COUNT; i++ )
+			for ( int i = 0; i < ELogType_COUNT; i++ )
 			{
-				l_logger.m_strHeaders[i] = p_pLogger->m_strHeaders[i];
+				mylogger._headers[i] = logger->_headers[i];
 			}
 
-			l_logger.m_logLevel = p_pLogger->m_logLevel;
-			l_logger.DoInitialiseThread();
+			mylogger._logLevel = logger->_logLevel;
+			mylogger.DoInitialiseThread();
 		}
 
 #endif
 	}
 
-	void CLogger::Initialise( eLOG_TYPE p_eLogLevel )
+	void CLogger::Initialise( ELogType logLevel )
 	{
-		m_uiCounter++;
+		_counter++;
 
-		if ( m_pSingleton )
+		if ( _singleton )
 		{
-			throw "Logger instance already initialised";
+			DB_EXCEPT( EDatabaseExceptionCodes_InternalError, ERROR_DB_LOGGER_ALREADY_INITIALISED );
 		}
 		else
 		{
-			m_bOwnInstance = true;
-			CLogger & l_logger = GetSingleton();
-			delete l_logger.m_pImpl;
-			l_logger.m_pImpl = NULL;
-
-			switch ( p_eLogLevel )
-			{
-			case eLOG_TYPE_DEBUG:
-				l_logger.m_pImpl = new LeveledLogger< eLOG_TYPE_DEBUG >();
-				break;
-
-			case eLOG_TYPE_MESSAGE:
-				l_logger.m_pImpl = new LeveledLogger< eLOG_TYPE_MESSAGE >();
-				break;
-
-			case eLOG_TYPE_WARNING:
-				l_logger.m_pImpl = new LeveledLogger< eLOG_TYPE_WARNING >();
-				break;
-
-			case eLOG_TYPE_ERROR:
-				l_logger.m_pImpl = new LeveledLogger< eLOG_TYPE_ERROR >();
-				break;
-			}
-
-			if ( l_logger.m_pImpl )
-			{
-				l_logger.m_pImpl->Initialise( &l_logger );
-			}
-			else
-			{
-				throw std::range_error( "SetLogLevel subscript error" );
-			}
-
-			l_logger.m_logLevel = p_eLogLevel;
-			l_logger.DoInitialiseThread();
+			_ownInstance = true;
+			CLogger & logger = GetSingleton();
+			delete logger._impl;
+			logger._impl = new CLoggerImpl;
+			logger._impl->Initialise( logger );
+			logger._logLevel = logLevel;
+			logger.DoInitialiseThread();
 		}
 	}
 
@@ -269,259 +200,254 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		GetSingleton().DoCleanupThread();
 
-		if ( m_uiCounter > 0 )
+		if ( _counter > 0 )
 		{
-			m_uiCounter--;
-			delete m_pSingleton;
-			m_pSingleton = NULL;
+			_counter--;
+			delete _singleton;
+			_singleton = NULL;
 		}
 	}
 
-	void CLogger::SetCallback( PLogCallback p_pfnCallback, void * p_pCaller )
+	void CLogger::SetFileName( String const & logFilePath, ELogType logLevel )
 	{
-		GetSingleton().DoSetCallback( p_pfnCallback, p_pCaller );
-	}
-
-	void CLogger::SetFileName( String const & p_logFilePath, eLOG_TYPE p_eLogType )
-	{
-		if ( GetSingleton().m_pImpl )
+		if ( GetSingleton()._impl )
 		{
-			GetSingleton().DoSetFileName( p_logFilePath, p_eLogType );
+			GetSingleton().DoSetFileName( logFilePath, logLevel );
 		}
 	}
 
-	void CLogger::LogDebug( char const * p_pFormat, ... )
+	void CLogger::LogDebug( char const * format, ... )
 	{
-		if ( p_pFormat )
+		if ( format )
 		{
-			char l_pText[256];
-			va_list l_vaList;
-			va_start( l_vaList, p_pFormat );
-			std::string l_strFormat( p_pFormat );
-			vsnprintf( l_pText, 256, l_strFormat.c_str(), l_vaList );
-			va_end( l_vaList );
-			LogDebug( std::string( l_pText ) );
+			char buffer[256];
+			va_list vaList;
+			va_start( vaList, format );
+			std::string format( format );
+			vsnprintf( buffer, 256, format.c_str(), vaList );
+			va_end( vaList );
+			LogDebug( std::string( buffer ) );
 		}
 	}
 
-	void CLogger::LogDebug( std::string const & p_msg )
+	void CLogger::LogDebug( std::string const & msg )
 	{
-		GetSingleton().DoPushMessage( eLOG_TYPE_DEBUG, p_msg );
+		GetSingleton().DoPushMessage( ELogType_DEBUG, msg );
 	}
 
-	void CLogger::LogDebug( std::ostream const & p_msg )
+	void CLogger::LogDebug( std::ostream const & msg )
 	{
 		std::stringstream ss;
-		ss << p_msg.rdbuf();
+		ss << msg.rdbuf();
 		LogDebug( ss.str() );
 	}
 
-	void CLogger::LogDebug( wchar_t const * p_pFormat , ... )
+	void CLogger::LogDebug( wchar_t const * format , ... )
 	{
-		if ( p_pFormat )
+		if ( format )
 		{
-			wchar_t l_pText[256];
-			va_list l_vaList;
-			va_start( l_vaList, p_pFormat );
-			std::wstring l_strFormat( p_pFormat );
+			wchar_t buffer[256];
+			va_list vaList;
+			va_start( vaList, format );
+			std::wstring format( format );
 #if defined( _MSC_VER ) || !defined( _WIN32 )
-			vswprintf( l_pText, 256, l_strFormat.c_str(), l_vaList );
+			vswprintf( buffer, 256, format.c_str(), vaList );
 #else
-			vswprintf( l_pText, l_strFormat.c_str(), l_vaList );
+			vswprintf( buffer, format.c_str(), vaList );
 #endif
-			va_end( l_vaList );
-			LogDebug( std::wstring( l_pText ) );
+			va_end( vaList );
+			LogDebug( std::wstring( buffer ) );
 		}
 	}
 
-	void CLogger::LogDebug( std::wstring const & p_msg )
+	void CLogger::LogDebug( std::wstring const & msg )
 	{
-		GetSingleton().DoPushMessage( eLOG_TYPE_DEBUG, p_msg );
+		GetSingleton().DoPushMessage( ELogType_DEBUG, msg );
 	}
 
-	void CLogger::LogDebug( std::wostream const & p_msg )
+	void CLogger::LogDebug( std::wostream const & msg )
 	{
 		std::wstringstream ss;
-		ss << p_msg.rdbuf();
+		ss << msg.rdbuf();
 		LogDebug( ss.str() );
 	}
 
-	void CLogger::LogMessage( char const * p_pFormat, ... )
+	void CLogger::LogInfo( char const * format, ... )
 	{
-		if ( p_pFormat )
+		if ( format )
 		{
-			char l_pText[256];
-			va_list l_vaList;
-			va_start( l_vaList, p_pFormat );
-			std::string l_strFormat( p_pFormat );
-			vsnprintf( l_pText, 256, l_strFormat.c_str(), l_vaList );
-			va_end( l_vaList );
-			LogMessage( std::string( l_pText ) );
+			char buffer[256];
+			va_list vaList;
+			va_start( vaList, format );
+			std::string format( format );
+			vsnprintf( buffer, 256, format.c_str(), vaList );
+			va_end( vaList );
+			LogInfo( std::string( buffer ) );
 		}
 	}
 
-	void CLogger::LogMessage( std::string const & p_msg )
+	void CLogger::LogInfo( std::string const & msg )
 	{
-		GetSingleton().DoPushMessage( eLOG_TYPE_MESSAGE, p_msg );
+		GetSingleton().DoPushMessage( ELogType_INFO, msg );
 	}
 
-	void CLogger::LogMessage( std::ostream const & p_msg )
+	void CLogger::LogInfo( std::ostream const & msg )
 	{
 		std::stringstream ss;
-		ss << p_msg.rdbuf();
-		LogMessage( ss.str() );
+		ss << msg.rdbuf();
+		LogInfo( ss.str() );
 	}
 
-	void CLogger::LogMessage( wchar_t const * p_pFormat , ... )
+	void CLogger::LogInfo( wchar_t const * format , ... )
 	{
-		if ( p_pFormat )
+		if ( format )
 		{
-			wchar_t l_pText[256];
-			va_list l_vaList;
-			va_start( l_vaList, p_pFormat );
-			std::wstring l_strFormat( p_pFormat );
+			wchar_t buffer[256];
+			va_list vaList;
+			va_start( vaList, format );
+			std::wstring format( format );
 #if defined( _MSC_VER ) || !defined( _WIN32 )
-			vswprintf( l_pText, 256, l_strFormat.c_str(), l_vaList );
+			vswprintf( buffer, 256, format.c_str(), vaList );
 #else
-			vswprintf( l_pText, l_strFormat.c_str(), l_vaList );
+			vswprintf( buffer, format.c_str(), vaList );
 #endif
-			va_end( l_vaList );
-			LogMessage( std::wstring( l_pText ) );
+			va_end( vaList );
+			LogInfo( std::wstring( buffer ) );
 		}
 	}
 
-	void CLogger::LogMessage( std::wstring const & p_msg )
+	void CLogger::LogInfo( std::wstring const & msg )
 	{
-		GetSingleton().DoPushMessage( eLOG_TYPE_MESSAGE, p_msg );
+		GetSingleton().DoPushMessage( ELogType_INFO, msg );
 	}
 
-	void CLogger::LogMessage( std::wostream const & p_msg )
+	void CLogger::LogInfo( std::wostream const & msg )
 	{
 		std::wstringstream ss;
-		ss << p_msg.rdbuf();
-		LogMessage( ss.str() );
+		ss << msg.rdbuf();
+		LogInfo( ss.str() );
 	}
 
-	void CLogger::LogWarning( char const * p_pFormat, ... )
+	void CLogger::LogWarning( char const * format, ... )
 	{
-		if ( p_pFormat )
+		if ( format )
 		{
-			char l_pText[256];
-			va_list l_vaList;
-			va_start( l_vaList, p_pFormat );
-			std::string l_strFormat( p_pFormat );
-			vsnprintf( l_pText, 256, l_strFormat.c_str(), l_vaList );
-			va_end( l_vaList );
-			LogWarning( std::string( l_pText ) );
+			char buffer[256];
+			va_list vaList;
+			va_start( vaList, format );
+			std::string format( format );
+			vsnprintf( buffer, 256, format.c_str(), vaList );
+			va_end( vaList );
+			LogWarning( std::string( buffer ) );
 		}
 	}
 
-	void CLogger::LogWarning( std::string const & p_msg )
+	void CLogger::LogWarning( std::string const & msg )
 	{
-		GetSingleton().DoPushMessage( eLOG_TYPE_WARNING, p_msg );
+		GetSingleton().DoPushMessage( ELogType_WARNING, msg );
 	}
 
-	void CLogger::LogWarning( std::ostream const & p_msg )
+	void CLogger::LogWarning( std::ostream const & msg )
 	{
 		std::stringstream ss;
-		ss << p_msg.rdbuf();
+		ss << msg.rdbuf();
 		LogWarning( ss.str() );
 	}
 
-	void CLogger::LogWarning( wchar_t const * p_pFormat , ... )
+	void CLogger::LogWarning( wchar_t const * format , ... )
 	{
-		if ( p_pFormat )
+		if ( format )
 		{
-			wchar_t l_pText[256];
-			va_list l_vaList;
-			va_start( l_vaList, p_pFormat );
-			std::wstring l_strFormat( p_pFormat );
+			wchar_t buffer[256];
+			va_list vaList;
+			va_start( vaList, format );
+			std::wstring format( format );
 #if defined( _MSC_VER ) || !defined( _WIN32 )
-			vswprintf( l_pText, 256, l_strFormat.c_str(), l_vaList );
+			vswprintf( buffer, 256, format.c_str(), vaList );
 #else
-			vswprintf( l_pText, l_strFormat.c_str(), l_vaList );
+			vswprintf( buffer, format.c_str(), vaList );
 #endif
-			va_end( l_vaList );
-			LogWarning( std::wstring( l_pText ) );
+			va_end( vaList );
+			LogWarning( std::wstring( buffer ) );
 		}
 	}
 
-	void CLogger::LogWarning( std::wstring const & p_msg )
+	void CLogger::LogWarning( std::wstring const & msg )
 	{
-		GetSingleton().DoPushMessage( eLOG_TYPE_WARNING, p_msg );
+		GetSingleton().DoPushMessage( ELogType_WARNING, msg );
 	}
 
-	void CLogger::LogWarning( std::wostream const & p_msg )
+	void CLogger::LogWarning( std::wostream const & msg )
 	{
 		std::wstringstream ss;
-		ss << p_msg.rdbuf();
+		ss << msg.rdbuf();
 		LogWarning( ss.str() );
 	}
 
-	void CLogger::LogError( char const * p_pFormat, ... )
+	void CLogger::LogError( char const * format, ... )
 	{
-		if ( p_pFormat )
+		if ( format )
 		{
-			char l_pText[256];
-			va_list l_vaList;
-			va_start( l_vaList, p_pFormat );
-			std::string l_strFormat( p_pFormat );
-			vsnprintf( l_pText, 256, l_strFormat.c_str(), l_vaList );
-			va_end( l_vaList );
-			LogError( std::string( l_pText ) );
+			char buffer[256];
+			va_list vaList;
+			va_start( vaList, format );
+			std::string format( format );
+			vsnprintf( buffer, 256, format.c_str(), vaList );
+			va_end( vaList );
+			LogError( std::string( buffer ) );
 		}
 	}
 
-	void CLogger::LogError( std::string const & p_msg )
+	void CLogger::LogError( std::string const & msg )
 	{
-		GetSingleton().DoPushMessage( eLOG_TYPE_ERROR, p_msg );
+		GetSingleton().DoPushMessage( ELogType_ERROR, msg );
 	}
 
-	void CLogger::LogError( std::ostream const & p_msg )
+	void CLogger::LogError( std::ostream const & msg )
 	{
 		std::stringstream ss;
-		ss << p_msg.rdbuf();
+		ss << msg.rdbuf();
 		LogError( ss.str() );
 	}
 
-	void CLogger::LogError( wchar_t const * p_pFormat , ... )
+	void CLogger::LogError( wchar_t const * format , ... )
 	{
-		if ( p_pFormat )
+		if ( format )
 		{
-			wchar_t l_pText[256];
-			va_list l_vaList;
-			va_start( l_vaList, p_pFormat );
-			std::wstring l_strFormat( p_pFormat );
+			wchar_t buffer[256];
+			va_list vaList;
+			va_start( vaList, format );
+			std::wstring format( format );
 #if defined( _MSC_VER ) || !defined( _WIN32 )
-			vswprintf( l_pText, 256, l_strFormat.c_str(), l_vaList );
+			vswprintf( buffer, 256, format.c_str(), vaList );
 #else
-			vswprintf( l_pText, l_strFormat.c_str(), l_vaList );
+			vswprintf( buffer, format.c_str(), vaList );
 #endif
-			va_end( l_vaList );
-			LogError( std::wstring( l_pText ) );
+			va_end( vaList );
+			LogError( std::wstring( buffer ) );
 		}
 	}
 
-	void CLogger::LogError( std::wstring const & p_msg )
+	void CLogger::LogError( std::wstring const & msg )
 	{
-		GetSingleton().DoPushMessage( eLOG_TYPE_ERROR, p_msg );
+		GetSingleton().DoPushMessage( ELogType_ERROR, msg );
 	}
 
-	void CLogger::LogError( std::wostream const & p_msg )
+	void CLogger::LogError( std::wostream const & msg )
 	{
 		std::wstringstream ss;
-		ss << p_msg.rdbuf();
+		ss << msg.rdbuf();
 		LogError( ss.str() );
 	}
 
 	CLogger & CLogger::GetSingleton()
 	{
-		if ( !m_pSingleton )
+		if ( !_singleton )
 		{
-			m_pSingleton = new CLogger();
+			_singleton = new CLogger();
 		}
 
-		return *m_pSingleton;
+		return *_singleton;
 	}
 
 	CLogger * CLogger::GetSingletonPtr()
@@ -529,81 +455,72 @@ BEGIN_NAMESPACE_DATABASE
 		return &GetSingleton();
 	}
 
-	void CLogger::DoSetCallback( PLogCallback p_pfnCallback, void * p_pCaller )
+	void CLogger::DoSetFileName( String const & logFilePath, ELogType logLevel )
 	{
-		m_pImpl->SetCallback( p_pfnCallback, p_pCaller );
+		std::unique_lock< std::mutex > lock( _mutex );
+		_impl->SetFileName( logFilePath, logLevel );
 	}
 
-	void CLogger::DoSetFileName( String const & p_logFilePath, eLOG_TYPE p_eLogType )
+	void CLogger::DoPushMessage( ELogType logLevel, std::string const & message )
 	{
-		std::unique_lock< std::mutex > lock( m_mutex );
-		m_pImpl->SetFileName( p_logFilePath, p_eLogType );
-	}
-
-	void CLogger::DoPushMessage( eLOG_TYPE p_type, std::string const & p_message )
-	{
-		if ( p_type >= m_logLevel )
+		if ( logLevel >= _logLevel )
 		{
-			std::unique_lock< std::mutex > l_lock( m_mutexQueue );
-			m_queue.push_back( std::make_unique< SMessage >( p_type, p_message ) );
+			std::unique_lock< std::mutex > l_lock( _mutexQueue );
+			_queue.push_back( std::make_unique< SMessage >( logLevel, message ) );
 		}
 	}
 
-	void CLogger::DoPushMessage( eLOG_TYPE p_type, std::wstring const & p_message )
+	void CLogger::DoPushMessage( ELogType logLevel, std::wstring const & message )
 	{
-		if ( p_type >= m_logLevel )
+		if ( logLevel >= _logLevel )
 		{
-			std::unique_lock< std::mutex > l_lock( m_mutexQueue );
-			m_queue.push_back( std::make_unique< SWMessage >( p_type, p_message ) );
+			std::unique_lock< std::mutex > l_lock( _mutexQueue );
+			_queue.push_back( std::make_unique< SWMessage >( logLevel, message ) );
 		}
 	}
 
-	void CLogger::DoFlushQueue( bool p_display )
+	void CLogger::DoFlushQueue()
 	{
-		if ( !m_queue.empty() )
+		if ( !_queue.empty() )
 		{
-			MessageQueue l_queue;
+			MessageQueue queue;
 
 			{
-				std::unique_lock< std::mutex > l_lock( m_mutexQueue );
-				std::swap( l_queue, m_queue );
+				std::unique_lock< std::mutex > l_lock( _mutexQueue );
+				std::swap( queue, _queue );
 			}
 
-			m_pImpl->LogMessageQueue( l_queue, p_display );
+			_impl->LogMessageQueue( queue );
 		}
 	}
 
 	void CLogger::DoInitialiseThread()
 	{
-		m_stopped = false;
-
-		m_logThread = std::thread( [this]()
+		_stopped = false;
+		_logThread = std::thread( [this]()
 		{
-			while ( !m_stopped )
+			while ( !_stopped )
 			{
-				DoFlushQueue( true );
+				DoFlushQueue();
 				std::this_thread::sleep_for( std::chrono::milliseconds( 10 ) );
 			}
 
-			DoFlushQueue( true );
-
+			DoFlushQueue();
 			{
-				std::unique_lock< std::mutex > l_lock( m_mutexThreadEnded );
-				m_threadEnded.notify_one();
+				std::unique_lock< std::mutex > l_lock( _mutexThreadEnded );
+				_threadEnded.notify_one();
 			}
 		} );
 	}
 
 	void CLogger::DoCleanupThread()
 	{
-		m_stopped = true;
-
+		_stopped = true;
 		{
-			std::unique_lock< std::mutex > l_lock( m_mutexThreadEnded );
-			m_threadEnded.wait( l_lock );
+			std::unique_lock< std::mutex > l_lock( _mutexThreadEnded );
+			_threadEnded.wait( l_lock );
 		}
-
-		m_logThread.join();
+		_logThread.join();
 	}
 }
 END_NAMESPACE_DATABASE

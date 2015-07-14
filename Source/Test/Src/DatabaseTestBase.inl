@@ -382,13 +382,13 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				{
 					connection->SelectDatabase( _database );
 					DoFlushTable( connection );
-					CLogger::LogMessage( StringStream() << " Insertions" );
+					CLogger::LogInfo( StringStream() << " Insertions" );
 					DatabaseUtils::TestDirectInsert< StmtType >( connection );
-					CLogger::LogMessage( StringStream() << " Selection" );
+					CLogger::LogInfo( StringStream() << " Selection" );
 					DatabaseUtils::TestDirectSelect< StmtType >( connection );
-					CLogger::LogMessage( StringStream() << " Update" );
+					CLogger::LogInfo( StringStream() << " Update" );
 					DatabaseUtils::TestDirectUpdate< StmtType >( connection );
-					CLogger::LogMessage( StringStream() << " Deletion" );
+					CLogger::LogInfo( StringStream() << " Deletion" );
 					DatabaseUtils::TestDirectDelete< StmtType >( connection );
 				}
 
@@ -420,17 +420,17 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				if ( connection->IsConnected() )
 				{
 					connection->SelectDatabase( _database );
-					CLogger::LogMessage( StringStream() << " No parameter, No Return" );
+					CLogger::LogInfo( StringStream() << " No parameter, No Return" );
 					DatabaseUtils::TestStoredNoParamNoReturn< StmtType >( connection );
-					CLogger::LogMessage( StringStream() << " No parameter, Return" );
+					CLogger::LogInfo( StringStream() << " No parameter, Return" );
 					DatabaseUtils::TestStoredNoParamReturn< StmtType >( connection, STR( "" ) );
-					CLogger::LogMessage( StringStream() << " In parameters, No Return" );
+					CLogger::LogInfo( StringStream() << " In parameters, No Return" );
 					DatabaseUtils::TestStoredInParamNoReturn< StmtType >( connection );
-					CLogger::LogMessage( StringStream() << " In parameters, Return" );
+					CLogger::LogInfo( StringStream() << " In parameters, Return" );
 					DatabaseUtils::TestStoredNoParamReturn< StmtType >( connection, STR( "WHERE ACTOR_ID > 5" ) );
-					CLogger::LogMessage( StringStream() << " In/Out INTEGER parameter, No Return" );
+					CLogger::LogInfo( StringStream() << " In/Out INTEGER parameter, No Return" );
 					DatabaseUtils::TestStoredInOutParamNoReturn< StmtType >( connection );
-					CLogger::LogMessage( StringStream() << " In/Out INTEGER and DATETIME parameters, No Return" );
+					CLogger::LogInfo( StringStream() << " In/Out INTEGER and DATETIME parameters, No Return" );
 					DatabaseUtils::TestStoredInOutDtParamNoReturn< StmtType >( connection );
 				}
 
@@ -467,11 +467,11 @@ BEGIN_NAMESPACE_DATABASE_TEST
 #endif
 					connection->SelectDatabase( _database );
 					DoFlushTable( connection );
-					CLogger::LogMessage( StringStream() << " Insert elements" );
+					CLogger::LogInfo( StringStream() << " Insert elements" );
 					PerfDirectInsertActors< StmtType >( connection, tests, String() );
-					CLogger::LogMessage( StringStream() << " Select all elements" );
+					CLogger::LogInfo( StringStream() << " Select all elements" );
 					PerfDirectSelectActors< StmtType >( connection, tests, String() );
-					CLogger::LogMessage( StringStream() << " Delete all elements" );
+					CLogger::LogInfo( StringStream() << " Delete all elements" );
 					PerfDirectDeleteActors< StmtType >( connection, tests );
 				}
 

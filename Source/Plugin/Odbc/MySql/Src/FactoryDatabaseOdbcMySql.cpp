@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file FactoryDatabaseOdbcMySql.cpp
- * @author Sylvain Doremus
- * @version 1.0
- * @date 4/08/2014 1:21:00 PM
- *
- *
- * @brief ODBC database factory class.
- *
- * @details CObject factory used to manage ODBC database creation.
- *
- ***************************************************************************/
+* @file FactoryDatabaseOdbcMySql.cpp
+* @author Sylvain Doremus
+* @version 1.0
+* @date 4/08/2014 1:21:00 PM
+*
+*
+* @brief ODBC database factory class.
+*
+* @details CObject factory used to manage ODBC database creation.
+*
+***************************************************************************/
 
 #include "DatabaseOdbcMySqlPch.h"
 
@@ -31,7 +31,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MYSQL
 
 	void CFactoryDatabaseOdbcMySql::RegisterServices()
 	{
-		///@remarks Register function for creation of a DatabaseOdbcMySql object.
+		//!@remarks Register function for creation of a DatabaseOdbcMySql object.
 		RegisterCreatorFunction( DATABASE_ODBC_MYSQL_TYPE, CDatabaseOdbcMySql::Create );
 	}
 
@@ -39,6 +39,5 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MYSQL
 	{
 		_objTypes.push_back( DATABASE_ODBC_MYSQL_TYPE );
 	}
-
 }
 END_NAMESPACE_DATABASE_ODBC_MYSQL

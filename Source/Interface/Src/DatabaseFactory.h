@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file FactoryDatabase.h
- * @author Sylvain Doremus
- * @version 1.0
- * @date 4/8/2014 10:11:22 AM
- *
- *
- * @brief Database factory class.
- *
- * @details CFactoryDatabase is used to manage CDatabase creation.
- *
- ***************************************************************************/
+* @file FactoryDatabase.h
+* @author Sylvain Doremus
+* @version 1.0
+* @date 4/8/2014 10:11:22 AM
+*
+*
+* @brief Database factory class.
+*
+* @details CFactoryDatabase is used to manage CDatabase creation.
+*
+***************************************************************************/
 
 #ifndef ___DATABASE_FACTORY_DATABASE_H___
 #define ___DATABASE_FACTORY_DATABASE_H___
@@ -20,10 +20,10 @@
 
 BEGIN_NAMESPACE_DATABASE
 {
-	const String ERROR_DUPLICATE_FUNCTION = STR( "Duplicate creator function" ); //!< Duplicate function error.
+	const String ERROR_DUPLICATE_FUNCTION = STR( "Duplicate creator function" );
 
 	/** Database factory class.
-	    CObject factory used to manage CDatabase creation.
+		CObject factory used to manage CDatabase creation.
 	*/
 	class CFactoryDatabase
 	{
@@ -38,7 +38,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Perform the factory initialization.
 		@remarks
-		    This function calls the RegisterServices() and RegisterObjectTypes() function.
+			This function calls the RegisterServices() and RegisterObjectTypes() function.
 		*/
 		DatabaseExport void Initialize();
 
@@ -51,7 +51,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Get the list of object type hat the factory can create.
 		@return
-		    The list of object type.
+			The list of object type.
 		*/
 		inline const std::list<String> & GetObjectTypes()
 		{
@@ -64,34 +64,34 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Register creation functions to create new objects.
 		@param idKey
-		    key identifier.
+			key identifier.
 		@param classCreator
-		    Class creator function.
+			Class creator function.
 
 		\b Example
 		@code
-		    class CCmdAbort
-		        : public CCmdPusherControl
-		    {
-		    public:
-		        CCmdAbort();
-		        virtual ~CCmdAbort();
+			class CCmdAbort
+				: public CCmdPusherControl
+			{
+			public:
+				CCmdAbort();
+				virtual ~CCmdAbort();
 
-		        // Creator function
-		        static CCmdPusherControl* CreateInstance() { return new CCmdAbort(); }
+				// Creator function
+				static CCmdPusherControl* CreateInstance() { return new CCmdAbort(); }
 
-		        // Execute command
-		        void Execute();
-		        ...
-		    };
+				// Execute command
+				void Execute();
+				...
+			};
 		@endcode
 		@code
-		    void CCmdPusherControlFactory::RegisterServices()
-		    {
-		        RegisterCreatorFunction( ABORT, CCmdAbort::CreateInstance );
-		        RegisterCreatorFunction( ACCELERATION_CONTROL, CCmdAccelerationCtrl::CreateInstance );
-		        ...
-		    }
+			void CCmdPusherControlFactory::RegisterServices()
+			{
+				RegisterCreatorFunction( ABORT, CCmdAbort::CreateInstance );
+				RegisterCreatorFunction( ACCELERATION_CONTROL, CCmdAccelerationCtrl::CreateInstance );
+				...
+			}
 		@throw ExceptionCodes_NullPointer, ExceptionCodes_DuplicateItem
 		@endcode
 		*/
@@ -99,17 +99,17 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Create a Base object instance linked by a key.
 		@param idKey
-		    key identifier.
+			key identifier.
 		@return
-		    Return a new _Base object created.
+			Return a new _Base object created.
 
 		\b Example
 		@code
-		    CCmdPusherControl* cmd = _cmdFactory.CreateInstance( sIdCmd );
-		    if( cmd )
-		    {
-		    ...
-		    }
+			CCmdPusherControl* cmd = _cmdFactory.CreateInstance( sIdCmd );
+			if( cmd )
+			{
+			...
+			}
 		@endcode
 		*/
 		DatabaseExport CDatabase * CreateInstance( const String & idKey );
@@ -117,32 +117,33 @@ BEGIN_NAMESPACE_DATABASE
 	protected:
 		/** Register creation functions to create new objects.
 		@remarks
-		    This function is called by Initialize().
+			This function is called by Initialize().
 		*/
 		DatabaseExport virtual void RegisterServices() = 0;
 
 		/** Register the object types.
 		@remarks
-		    This function is called by Initialize().
+			This function is called by Initialize().
 		*/
 		DatabaseExport virtual void RegisterObjectTypes() = 0;
 
 	protected:
 		/** Get the Map where the construction info is stored.
 		@return
-		    Return the Map where the construction info is stored.
+			Return the Map where the construction info is stored.
 		*/
 		inline MapFactory * GetMapFactory()
 		{
 			return &_mapFactory;
 		}
 
-		std::list<String> _objTypes; //!< List of object type that the factory can create.
+		//! List of object type that the factory can create.
+		std::list< String > _objTypes;
 
 	private:
-		MapFactory _mapFactory;  //!< Map where the construction info is stored.
+		//! Map where the construction info is stored.
+		MapFactory _mapFactory;
 	};
-
 }
 END_NAMESPACE_DATABASE
 

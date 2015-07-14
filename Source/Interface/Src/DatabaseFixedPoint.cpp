@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DatabaseFixedPoint.cpp
- * @author Sylvain Doremus
- * @version 1.0
- * @date 7/12/2015 7:51 PM
- *
- *
- * @brief CFixedPoint class declaration.
- *
- * @details Describes a fixed point numeric value with precision and scale.
- *
- ***************************************************************************/
+* @file DatabaseFixedPoint.cpp
+* @author Sylvain Doremus
+* @version 1.0
+* @date 7/12/2015 7:51 PM
+*
+*
+* @brief CFixedPoint class declaration.
+*
+* @details Describes a fixed point numeric value with precision and scale.
+*
+***************************************************************************/
 #include "DatabasePch.h"
 
 #include "DatabaseFixedPoint.h"

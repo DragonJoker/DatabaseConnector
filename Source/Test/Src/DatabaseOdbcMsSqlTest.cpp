@@ -40,7 +40,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 	void CDatabaseOdbcMsSqlTest::TestCase_CreateDatabase()
 	{
-		CLogger::LogMessage( StringStream() << "**** Start TestCase_CreateDatabase ****" );
+		CLogger::LogInfo( StringStream() << "**** Start TestCase_CreateDatabase ****" );
 #if defined( _WIN32 )
 		InstallDatabaseMsSql( DB_DATABASE, DB_USER, DB_PASS );
 		InstallSourceOdbcMsSql( DB_DATABASE );
@@ -66,12 +66,12 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				}
 			}
 		}
-		CLogger::LogMessage( StringStream() << "**** End TestCase_CreateDatabase ****" );
+		CLogger::LogInfo( StringStream() << "**** End TestCase_CreateDatabase ****" );
 	}
 
 	void CDatabaseOdbcMsSqlTest::TestCase_DestroyDatabase()
 	{
-		CLogger::LogMessage( StringStream() << "**** Start TestCase_DestroyDatabase ****" );
+		CLogger::LogInfo( StringStream() << "**** Start TestCase_DestroyDatabase ****" );
 #if defined( _WIN32 )
 		UninstallSourceOdbcMsSql( DB_DATABASE );
 		UninstallDatabaseMsSql( DB_DATABASE, DB_USER, DB_PASS );
@@ -102,7 +102,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				database->RemoveConnection();
 			}
 		}
-		CLogger::LogMessage( StringStream() << "**** End TestCase_DestroyDatabase ****" );
+		CLogger::LogInfo( StringStream() << "**** End TestCase_DestroyDatabase ****" );
 	}
 }
 END_NAMESPACE_DATABASE_TEST

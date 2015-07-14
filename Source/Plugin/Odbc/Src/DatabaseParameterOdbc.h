@@ -23,10 +23,9 @@
 
 BEGIN_NAMESPACE_DATABASE_ODBC
 {
-	static const String ODBC_BindParameter_MSG = STR( "SQLBindParameter: " );
-
-	static const String ODBC_BIND_PARAMETER_NAME_MSG = STR( "Parameter: " );
-	static const String ODBC_BIND_PARAMETER_VALUE_MSG = STR( "Value: " );
+	static const String INFO_ODBC_BindParameter = STR( "SQLBindParameter: " );
+	static const String INFO_ODBC_BIND_PARAMETER_NAME = STR( "Parameter: " );
+	static const String INFO_ODBC_BIND_PARAMETER_VALUE = STR( "Value: " );
 
 	/** Describes a parameter binding for ODBC.
 	*/
@@ -74,29 +73,29 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		*/
 		EErrorType GetData();
 
-		/// The parameter index
+		//! The parameter index
 		SQLUSMALLINT _index;
-		/// C data type.
+		//! C data type.
 		SQLSMALLINT _valueType;
-		/// SQL data type.
+		//! SQL data type.
 		SQLSMALLINT _parameterType;
-		/// I/O type (in, inout, out)
+		//! I/O type (in, inout, out)
 		SQLSMALLINT _inputOutputType;
-		/// Column size.
+		//! Column size.
 		SQLULEN _columnSize;
-		/// Decimal number of digits
+		//! Decimal number of digits
 		SQLSMALLINT _decimalDigits;
-		/// Column length or indicator
+		//! Column length or indicator
 		mutable SQLLEN _columnLenOrInd;
-		/// Tells the parameter is nullable
+		//! Tells the parameter is nullable
 		SQLSMALLINT _nullable;
-		/// The parameter data type
+		//! The parameter data type
 		SQLSMALLINT _dataType;
-		/// The statement handle
+		//! The statement handle
 		HSTMT _statement;
 		// The parameter name
 		const String & _name;
-		/// The parameter value
+		//! The parameter value
 		CDatabaseValueBase & _value;
 	};
 
@@ -128,7 +127,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		{
 			EErrorType errorType = EErrorType_NONE;
 			StringStream message;
-			message << ODBC_BIND_PARAMETER_NAME_MSG << _name << STR( ", " ) << ODBC_BIND_PARAMETER_VALUE_MSG << STR( "[" ) << _value.GetValue() << STR( "]" );
+			message << INFO_ODBC_BIND_PARAMETER_NAME << _name << STR( ", " ) << INFO_ODBC_BIND_PARAMETER_VALUE << STR( "[" ) << _value.GetValue() << STR( "]" );
 
 			if ( _value.IsNull() || _value.GetPtrSize() == 0 )
 			{
@@ -139,7 +138,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				_columnLenOrInd = _value.GetPtrSize();
 			}
 
-			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, _value.GetPtrValue(), _value.GetPtrSize(), &_columnLenOrInd ), SQL_HANDLE_STMT, _statement, ODBC_BindParameter_MSG + message.str() );
+			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, _value.GetPtrValue(), _value.GetPtrSize(), &_columnLenOrInd ), SQL_HANDLE_STMT, _statement, INFO_ODBC_BindParameter + message.str() );
 			return errorType;
 		}
 
@@ -176,7 +175,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		{
 			EErrorType errorType = EErrorType_NONE;
 			StringStream message;
-			message << ODBC_BIND_PARAMETER_NAME_MSG << _name << STR( ", " ) << ODBC_BIND_PARAMETER_VALUE_MSG << STR( "[" ) << _value.GetValue().ToString() << STR( "]" );
+			message << INFO_ODBC_BIND_PARAMETER_NAME << _name << STR( ", " ) << INFO_ODBC_BIND_PARAMETER_VALUE << STR( "[" ) << _value.GetValue().ToString() << STR( "]" );
 
 			CFixedPoint const & fixedPoint = _value.GetValue();
 			_holder.precision = fixedPoint.GetPrecision();
@@ -193,7 +192,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				_columnLenOrInd = _value.GetPtrSize();
 			}
 
-			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, SQLPOINTER( &_holder ), sizeof( _holder ), &_columnLenOrInd ), SQL_HANDLE_STMT, _statement, ODBC_BindParameter_MSG + message.str() );
+			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, SQLPOINTER( &_holder ), sizeof( _holder ), &_columnLenOrInd ), SQL_HANDLE_STMT, _statement, INFO_ODBC_BindParameter + message.str() );
 			return errorType;
 		}
 
@@ -230,7 +229,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		{
 			EErrorType errorType = EErrorType_NONE;
 			StringStream message;
-			message << ODBC_BIND_PARAMETER_NAME_MSG << _name << STR( ", " ) << ODBC_BIND_PARAMETER_VALUE_MSG << STR( "[" ) << _value.GetValue() << STR( "]" );
+			message << INFO_ODBC_BIND_PARAMETER_NAME << _name << STR( ", " ) << INFO_ODBC_BIND_PARAMETER_VALUE << STR( "[" ) << _value.GetValue() << STR( "]" );
 
 			CDate const & date = _value.GetValue();
 			_holder.year = date.GetYear();
@@ -246,7 +245,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				_columnLenOrInd = _value.GetPtrSize();
 			}
 
-			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, SQLPOINTER( &_holder ), sizeof( _holder ), &_columnLenOrInd ), SQL_HANDLE_STMT, _statement, ODBC_BindParameter_MSG + message.str() );
+			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, SQLPOINTER( &_holder ), sizeof( _holder ), &_columnLenOrInd ), SQL_HANDLE_STMT, _statement, INFO_ODBC_BindParameter + message.str() );
 			return errorType;
 		}
 
@@ -285,7 +284,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		{
 			EErrorType errorType = EErrorType_NONE;
 			StringStream message;
-			message << ODBC_BIND_PARAMETER_NAME_MSG << _name << STR( ", " ) << ODBC_BIND_PARAMETER_VALUE_MSG << STR( "[" ) << _value.GetValue() << STR( "]" );
+			message << INFO_ODBC_BIND_PARAMETER_NAME << _name << STR( ", " ) << INFO_ODBC_BIND_PARAMETER_VALUE << STR( "[" ) << _value.GetValue() << STR( "]" );
 
 			CTime const & date = _value.GetValue();
 			_holder.hour = date.GetHour();
@@ -301,7 +300,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				_columnLenOrInd = _value.GetPtrSize();
 			}
 
-			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, SQLPOINTER( &_holder ), sizeof( _holder ), &_columnLenOrInd ), SQL_HANDLE_STMT, _statement, ODBC_BindParameter_MSG + message.str() );
+			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, SQLPOINTER( &_holder ), sizeof( _holder ), &_columnLenOrInd ), SQL_HANDLE_STMT, _statement, INFO_ODBC_BindParameter + message.str() );
 			return errorType;
 		}
 
@@ -340,7 +339,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		{
 			EErrorType errorType = EErrorType_NONE;
 			StringStream message;
-			message << ODBC_BIND_PARAMETER_NAME_MSG << _name << STR( ", " ) << ODBC_BIND_PARAMETER_VALUE_MSG << STR( "[" ) << _value.GetValue() << STR( "]" );
+			message << INFO_ODBC_BIND_PARAMETER_NAME << _name << STR( ", " ) << INFO_ODBC_BIND_PARAMETER_VALUE << STR( "[" ) << _value.GetValue() << STR( "]" );
 
 			CDateTime const & date = _value.GetValue();
 			_holder.year = date.GetYear();
@@ -359,7 +358,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				_columnLenOrInd = _value.GetPtrSize();
 			}
 
-			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, SQLPOINTER( &_holder ), sizeof( _holder ), &_columnLenOrInd ), SQL_HANDLE_STMT, _statement, ODBC_BindParameter_MSG + message.str() );
+			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, SQLPOINTER( &_holder ), sizeof( _holder ), &_columnLenOrInd ), SQL_HANDLE_STMT, _statement, INFO_ODBC_BindParameter + message.str() );
 			return errorType;
 		}
 
@@ -397,7 +396,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		{
 			EErrorType errorType = EErrorType_NONE;
 			StringStream message;
-			message << ODBC_BIND_PARAMETER_NAME_MSG << _name << STR( ", " ) << ODBC_BIND_PARAMETER_VALUE_MSG << STR( "[" ) << _value.GetValue() << STR( "]" );
+			message << INFO_ODBC_BIND_PARAMETER_NAME << _name << STR( ", " ) << INFO_ODBC_BIND_PARAMETER_VALUE << STR( "[" ) << _value.GetValue() << STR( "]" );
 
 			if ( _value.IsNull() )
 			{
@@ -408,7 +407,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				_columnLenOrInd = _value.GetPtrSize();
 			}
 
-			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, _value.GetPtrValue(), _value.GetPtrSize(), &_columnLenOrInd ), SQL_HANDLE_STMT, _statement, ODBC_BindParameter_MSG + message.str() );
+			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, _value.GetPtrValue(), _value.GetPtrSize(), &_columnLenOrInd ), SQL_HANDLE_STMT, _statement, INFO_ODBC_BindParameter + message.str() );
 			return errorType;
 		}
 
@@ -444,7 +443,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		{
 			EErrorType errorType = EErrorType_NONE;
 			StringStream message;
-			message << ODBC_BIND_PARAMETER_NAME_MSG << _name << STR( ", " ) << ODBC_BIND_PARAMETER_VALUE_MSG << STR( "[" ) << _value.GetPtrValue() << STR( "]" );
+			message << INFO_ODBC_BIND_PARAMETER_NAME << _name << STR( ", " ) << INFO_ODBC_BIND_PARAMETER_VALUE << STR( "[" ) << _value.GetPtrValue() << STR( "]" );
 
 			if ( _value.IsNull() )
 			{
@@ -455,7 +454,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				_columnLenOrInd = _value.GetPtrSize();
 			}
 
-			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, _value.GetPtrValue(), _value.GetPtrSize(), &_columnLenOrInd ), SQL_HANDLE_STMT, _statement, ODBC_BindParameter_MSG + message.str() );
+			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, _value.GetPtrValue(), _value.GetPtrSize(), &_columnLenOrInd ), SQL_HANDLE_STMT, _statement, INFO_ODBC_BindParameter + message.str() );
 			return errorType;
 		}
 
@@ -493,7 +492,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		{
 			EErrorType errorType = EErrorType_NONE;
 			StringStream message;
-			message << ODBC_BIND_PARAMETER_NAME_MSG << _name << STR( ", " ) << ODBC_BIND_PARAMETER_VALUE_MSG << STR( "[" ) << _value.GetValue() << STR( "]" );
+			message << INFO_ODBC_BIND_PARAMETER_NAME << _name << STR( ", " ) << INFO_ODBC_BIND_PARAMETER_VALUE << STR( "[" ) << _value.GetValue() << STR( "]" );
 
 			if ( _value.IsNull() )
 			{
@@ -511,7 +510,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				}
 			}
 
-			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, _value.GetPtrValue(), _value.GetPtrSize(), &_columnLenOrInd ), SQL_HANDLE_STMT, _statement, ODBC_BindParameter_MSG + message.str() );
+			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, _value.GetPtrValue(), _value.GetPtrSize(), &_columnLenOrInd ), SQL_HANDLE_STMT, _statement, INFO_ODBC_BindParameter + message.str() );
 			return errorType;
 		}
 
@@ -549,7 +548,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		{
 			EErrorType errorType = EErrorType_NONE;
 			StringStream message;
-			message << ODBC_BIND_PARAMETER_NAME_MSG << _name << STR( ", " ) << ODBC_BIND_PARAMETER_VALUE_MSG << STR( "[" ) << _value.GetPtrValue() << STR( "]" );
+			message << INFO_ODBC_BIND_PARAMETER_NAME << _name << STR( ", " ) << INFO_ODBC_BIND_PARAMETER_VALUE << STR( "[" ) << _value.GetPtrValue() << STR( "]" );
 
 			if ( _value.IsNull() )
 			{
@@ -567,7 +566,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				}
 			}
 
-			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, _value.GetPtrValue(), _value.GetPtrSize(), &_columnLenOrInd ), SQL_HANDLE_STMT, _statement, ODBC_BindParameter_MSG + message.str() );
+			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, _value.GetPtrValue(), _value.GetPtrSize(), &_columnLenOrInd ), SQL_HANDLE_STMT, _statement, INFO_ODBC_BindParameter + message.str() );
 			return errorType;
 		}
 
@@ -605,7 +604,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		{
 			EErrorType errorType = EErrorType_NONE;
 			StringStream message;
-			message << ODBC_BIND_PARAMETER_NAME_MSG << _name << STR( ", " ) << ODBC_BIND_PARAMETER_VALUE_MSG << STR( "[" ) << _value.GetValue() << STR( "]" );
+			message << INFO_ODBC_BIND_PARAMETER_NAME << _name << STR( ", " ) << INFO_ODBC_BIND_PARAMETER_VALUE << STR( "[" ) << _value.GetValue() << STR( "]" );
 
 			if ( _value.IsNull() || _value.GetPtrSize() == 0 )
 			{
@@ -616,7 +615,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				_columnLenOrInd = SQL_LEN_DATA_AT_EXEC( static_cast< const long & >( _value.GetPtrSize() ) );
 			}
 
-			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, _value.GetPtrValue(), _value.GetPtrSize(), &_columnLenOrInd ), SQL_HANDLE_STMT, _statement, ODBC_BindParameter_MSG + message.str() );
+			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, _value.GetPtrValue(), _value.GetPtrSize(), &_columnLenOrInd ), SQL_HANDLE_STMT, _statement, INFO_ODBC_BindParameter + message.str() );
 			return errorType;
 		}
 

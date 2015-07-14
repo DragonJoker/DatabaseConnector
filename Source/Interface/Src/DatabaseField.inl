@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DatabaseField.inl
- * @author Sylvain Doremus
- * @version 1.0
- * @date 3/20/2014 2:47:39 PM
- *
- *
- * @brief CDatabaseField class template functionalities.
- *
- * @details Describes a database field.
- *
- ***************************************************************************/
+* @file DatabaseField.inl
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/20/2014 2:47:39 PM
+*
+*
+* @brief CDatabaseField class template functionalities.
+*
+* @details Describes a database field.
+*
+***************************************************************************/
 
 #include "DatabasePrerequisites.h" // Help doxygen
 
@@ -18,9 +18,6 @@
 
 BEGIN_NAMESPACE_DATABASE
 {
-	static const String DATABASE_FIELD_TYPE_ERROR = STR( "Unknown field type" );
-	static const String DATABASE_FIELD_NULL_VALUE_ERROR = STR( "Field value is null: " );
-
 	template< typename T >
 	inline T CDatabaseField::GetValue() const
 	{

@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DatabaseValuePolicy.h
- * @author Sylvain Doremus
- * @version 1.0
- * @date 11/08/2014 14:12:58
- *
- *
- * @brief [your brief comment here]
- *
- * @details [your detailled comment here]
- *
- ***************************************************************************/
+* @file DatabaseValuePolicy.h
+* @author Sylvain Doremus
+* @version 1.0
+* @date 11/08/2014 14:12:58
+*
+*
+* @brief SFieldTypeDataTyper, SDataTypeFieldTyper and CDatabaseValuePolicy classes
+*
+* @details Helps specifying value behaviour
+*
+***************************************************************************/
 
 #ifndef ___DATABASE_VALUE_POLICY_H___
 #define ___DATABASE_VALUE_POLICY_H___
@@ -18,6 +18,11 @@
 
 #include "DatabaseStringUtils.h"
 #include "DatabaseFixedPoint.h"
+#include "DatabaseConnection.h"
+#include "DatabaseDate.h"
+#include "DatabaseDateTime.h"
+#include "DatabaseTime.h"
+#include "DatabaseFixedPoint.h"
 
 BEGIN_NAMESPACE_DATABASE
 {
@@ -25,126 +30,126 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template< EFieldType Type > class SFieldTypeDataTyper;
 
-	/** Specialization for EFieldType_BIT
+	/** SFieldTypeDataTyper specialization for EFieldType_BIT
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_BIT >
 	{
 		typedef bool value_type;
 	};
 
-	/** Specialization for EFieldType_TINY_INTEGER
+	/** SFieldTypeDataTyper specialization for EFieldType_TINY_INTEGER
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_TINY_INTEGER >
 	{
 		typedef int8_t value_type;
 	};
 
-	/** Specialization for EFieldType_SMALL_INTEGER
+	/** SFieldTypeDataTyper specialization for EFieldType_SMALL_INTEGER
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_SMALL_INTEGER >
 	{
 		typedef int16_t value_type;
 	};
 
-	/** Specialization for EFieldType_INTEGER
+	/** SFieldTypeDataTyper specialization for EFieldType_INTEGER
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_INTEGER >
 	{
 		typedef int32_t value_type;
 	};
 
-	/** Specialization for EFieldType_LONG_INTEGER
+	/** SFieldTypeDataTyper specialization for EFieldType_LONG_INTEGER
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_LONG_INTEGER >
 	{
 		typedef int64_t value_type;
 	};
 
-	/** Specialization for EFieldType_FLOATING_POINT_SIMPLE
+	/** SFieldTypeDataTyper specialization for EFieldType_FLOATING_POINT_SIMPLE
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_FLOATING_POINT_SIMPLE >
 	{
 		typedef float value_type;
 	};
 
-	/** Specialization for EFieldType_FLOATING_POINT_DOUBLE
+	/** SFieldTypeDataTyper specialization for EFieldType_FLOATING_POINT_DOUBLE
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_FLOATING_POINT_DOUBLE >
 	{
 		typedef double value_type;
 	};
 
-	/** Specialization for EFieldType_FIXED_POINT
+	/** SFieldTypeDataTyper specialization for EFieldType_FIXED_POINT
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_FIXED_POINT >
 	{
 		typedef CFixedPoint value_type;
 	};
 
-	/** Specialization for EFieldType_DATE
+	/** SFieldTypeDataTyper specialization for EFieldType_DATE
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_DATE >
 	{
 		typedef CDate value_type;
 	};
 
-	/** Specialization for EFieldType_DATETIME
+	/** SFieldTypeDataTyper specialization for EFieldType_DATETIME
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_DATETIME >
 	{
 		typedef CDateTime value_type;
 	};
 
-	/** Specialization for EFieldType_TIME
+	/** SFieldTypeDataTyper specialization for EFieldType_TIME
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_TIME >
 	{
 		typedef CTime value_type;
 	};
 
-	/** Specialization for EFieldType_VARCHAR
+	/** SFieldTypeDataTyper specialization for EFieldType_VARCHAR
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_VARCHAR >
 	{
 		typedef std::string value_type;
 	};
 
-	/** Specialization for EFieldType_TEXT
+	/** SFieldTypeDataTyper specialization for EFieldType_TEXT
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_TEXT >
 	{
 		typedef std::string value_type;
 	};
 
-	/** Specialization for EFieldType_NVARCHAR
+	/** SFieldTypeDataTyper specialization for EFieldType_NVARCHAR
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_NVARCHAR >
 	{
 		typedef std::wstring value_type;
 	};
 
-	/** Specialization for EFieldType_NTEXT
+	/** SFieldTypeDataTyper specialization for EFieldType_NTEXT
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_NTEXT >
 	{
 		typedef std::wstring value_type;
 	};
 
-	/** Specialization for EFieldType_BINARY
+	/** SFieldTypeDataTyper specialization for EFieldType_BINARY
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_BINARY >
 	{
 		typedef ByteArray value_type;
 	};
 
-	/** Specialization for EFieldType_VARBINARY
+	/** SFieldTypeDataTyper specialization for EFieldType_VARBINARY
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_VARBINARY >
 	{
 		typedef ByteArray value_type;
 	};
 
-	/** Specialization for EFieldType_LONG_VARBINARY
+	/** SFieldTypeDataTyper specialization for EFieldType_LONG_VARBINARY
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_LONG_VARBINARY >
 	{
@@ -155,133 +160,133 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template < typename T > struct SDataTypeFieldTyper;
 
-	/** Specialization for bool
+	/** SDataTypeFieldTyper specialization for bool
 	*/
 	template<> struct SDataTypeFieldTyper< bool >
 	{
 		static const EFieldType Value = EFieldType_BIT;
 	};
 
-	/** Specialization for int8_t
+	/** SDataTypeFieldTyper specialization for int8_t
 	*/
 	template<> struct SDataTypeFieldTyper< int8_t >
 	{
 		static const EFieldType Value = EFieldType_TINY_INTEGER;
 	};
 
-	/** Specialization for int16_t
+	/** SDataTypeFieldTyper specialization for int16_t
 	*/
 	template<> struct SDataTypeFieldTyper< int16_t >
 	{
 		static const EFieldType Value = EFieldType_SMALL_INTEGER;
 	};
 
-	/** Specialization for int32_t
+	/** SDataTypeFieldTyper specialization for int32_t
 	*/
 	template<> struct SDataTypeFieldTyper< int32_t >
 	{
 		static const EFieldType Value = EFieldType_INTEGER;
 	};
 
-	/** Specialization for int64_t
+	/** SDataTypeFieldTyper specialization for int64_t
 	*/
 	template<> struct SDataTypeFieldTyper< int64_t >
 	{
 		static const EFieldType Value = EFieldType_LONG_INTEGER;
 	};
 
-	/** Specialization for float
+	/** SDataTypeFieldTyper specialization for float
 	*/
 	template<> struct SDataTypeFieldTyper< float >
 	{
 		static const EFieldType Value = EFieldType_FLOATING_POINT_SIMPLE;
 	};
 
-	/** Specialization for double
+	/** SDataTypeFieldTyper specialization for double
 	*/
 	template<> struct SDataTypeFieldTyper< double >
 	{
 		static const EFieldType Value = EFieldType_FLOATING_POINT_DOUBLE;
 	};
 
-	/** Specialization for double
+	/** SDataTypeFieldTyper specialization for CFixedPoint
 	*/
 	template<> struct SDataTypeFieldTyper< CFixedPoint >
 	{
 		static const EFieldType Value = EFieldType_FIXED_POINT;
 	};
 
-	/** Specialization for std::array< char, N >
+	/** SDataTypeFieldTyper specialization for std::array< char, N >
 	*/
 	template< size_t N > struct SDataTypeFieldTyper< std::array< char, N > >
 	{
 		static const EFieldType Value = EFieldType_VARCHAR;
 	};
 
-	/** Specialization for char *
+	/** SDataTypeFieldTyper specialization for char *
 	*/
 	template<> struct SDataTypeFieldTyper< char * >
 	{
 		static const EFieldType Value = EFieldType_VARCHAR;
 	};
 
-	/** Specialization for std::array< wchar_t, N >
+	/** SDataTypeFieldTyper specialization for std::array< wchar_t, N >
 	*/
 	template< size_t N > struct SDataTypeFieldTyper< std::array< wchar_t, N > >
 	{
 		static const EFieldType Value = EFieldType_NVARCHAR;
 	};
 
-	/** Specialization for wchar_t *
+	/** SDataTypeFieldTyper specialization for wchar_t *
 	*/
 	template<> struct SDataTypeFieldTyper< wchar_t * >
 	{
 		static const EFieldType Value = EFieldType_NVARCHAR;
 	};
 
-	/** Specialization for CDateTime
+	/** SDataTypeFieldTyper specialization for CDateTime
 	*/
 	template<> struct SDataTypeFieldTyper< CDateTime >
 	{
 		static const EFieldType Value = EFieldType_DATETIME;
 	};
 
-	/** Specialization for CDate
+	/** SDataTypeFieldTyper specialization for CDate
 	*/
 	template<> struct SDataTypeFieldTyper< CDate >
 	{
 		static const EFieldType Value = EFieldType_DATE;
 	};
 
-	/** Specialization for CTime
+	/** SDataTypeFieldTyper specialization for CTime
 	*/
 	template<> struct SDataTypeFieldTyper< CTime >
 	{
 		static const EFieldType Value = EFieldType_TIME;
 	};
 
-	/** Specialization for std::string
+	/** SDataTypeFieldTyper specialization for std::string
 	*/
 	template<> struct SDataTypeFieldTyper< std::string >
 	{
 		static const EFieldType Value = EFieldType_TEXT;
 	};
 
-	/** Specialization for std::wstring
+	/** SDataTypeFieldTyper specialization for std::wstring
 	*/
 	template<> struct SDataTypeFieldTyper< std::wstring >
 	{
 		static const EFieldType Value = EFieldType_NTEXT;
 	};
 
-	/** Specialization for uint8_t *
+	/** SDataTypeFieldTyper specialization for uint8_t *
 	*/
 	template<> struct SDataTypeFieldTyper< uint8_t * >
 	{
 		static const EFieldType Value = EFieldType_VARBINARY;
 	};
 
-	/** Specialization for ByteArray
+	/** SDataTypeFieldTyper specialization for ByteArray
 	*/
 	template<> struct SDataTypeFieldTyper< ByteArray >
 	{
@@ -365,7 +370,7 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	};
 
-	/** Structure used to specialize functions for given data type
+	/** CDatabaseValuePolicy specialization for int8_t data type
 	*/
 	template<> class CDatabaseValuePolicy< int8_t >
 	{
@@ -440,7 +445,7 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	};
 
-	/** Specialization for float data type
+	/** CDatabaseValuePolicy specialization for float data type
 	*/
 	template<> class CDatabaseValuePolicy< float >
 	{
@@ -518,7 +523,7 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	};
 
-	/** Specialization for double data type
+	/** CDatabaseValuePolicy specialization for double data type
 	*/
 	template<> class CDatabaseValuePolicy< double >
 	{
@@ -596,7 +601,7 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	};
 
-	/** Specialization for bool data type
+	/** CDatabaseValuePolicy specialization for bool data type
 	*/
 	template<> class CDatabaseValuePolicy< bool >
 	{
@@ -671,7 +676,7 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	};
 
-	/** Specialization for std::string data type
+	/** CDatabaseValuePolicy specialization for std::string data type
 	*/
 	template<> class CDatabaseValuePolicy< std::string >
 	{
@@ -760,7 +765,7 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	};
 
-	/** Specialization for std::wstring data type
+	/** CDatabaseValuePolicy specialization for std::wstring data type
 	*/
 	template<> class CDatabaseValuePolicy< std::wstring >
 	{
@@ -849,7 +854,7 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	};
 
-	/** Specialization for ByteArray data type
+	/** CDatabaseValuePolicy specialization for ByteArray data type
 	*/
 	template<> class CDatabaseValuePolicy< ByteArray >
 	{
@@ -955,7 +960,7 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	};
 
-	/** Specialization for CDate data type
+	/** CDatabaseValuePolicy specialization for CDate data type
 	*/
 	template<> class CDatabaseValuePolicy< CDate >
 	{
@@ -986,7 +991,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			out = in;
 			size = ( unsigned long )( connection->GetStmtDateSize() );
-			_value = connection->WriteStmtDate( out );
+			_value = connection->WriteStmtDateS( out );
 			return true;
 		}
 
@@ -1048,7 +1053,7 @@ BEGIN_NAMESPACE_DATABASE
 		std::string _value;
 	};
 
-	/** Specialization for CTime data type
+	/** CDatabaseValuePolicy specialization for CTime data type
 	*/
 	template<> class CDatabaseValuePolicy< CTime >
 	{
@@ -1141,7 +1146,7 @@ BEGIN_NAMESPACE_DATABASE
 		std::string _value;
 	};
 
-	/** Specialization for CDateTime data type
+	/** CDatabaseValuePolicy specialization for CDateTime data type
 	*/
 	template<> class CDatabaseValuePolicy< CDateTime >
 	{
@@ -1234,7 +1239,7 @@ BEGIN_NAMESPACE_DATABASE
 		std::string _value;
 	};
 
-	/** Specialization for CDateTime data type
+	/** CDatabaseValuePolicy specialization for CFixedPoint data type
 	*/
 	template<> class CDatabaseValuePolicy< CFixedPoint >
 	{

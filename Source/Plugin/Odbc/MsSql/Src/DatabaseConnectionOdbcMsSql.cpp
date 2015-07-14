@@ -23,6 +23,19 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 {
 	static const String ERROR_ODBC_NOT_CONNECTED = STR( "Not connected" );
 
+	static const String ODBC_SQL_CREATE_DATABASE = STR( "CREATE DATABASE " );
+	static const String ODBC_SQL_COLLATE = STR( " COLLATE utf8_BIN" );
+	static const String ODBC_SQL_USE_DATABASE = STR( "USE " );
+	static const String ODBC_SQL_DROP_DATABASE = STR( "DROP DATABASE " );
+	
+	static const String ODBC_DSN_DRIVER = STR( "DRIVER={SQL Server};SERVER=" );
+	static const String ODBC_DSN_UID = STR( ";UID=" );
+	static const String ODBC_DSN_PWD = STR( ";PWD=" );
+	static const String ODBC_DSN_INTEGRATED = STR( ";INTEGRATED SECURITY=true;Trusted_Connection=yes" );
+
+	static const String INFO_ODBC_AllocHandle = STR( "SQLAllocHandle" );
+	static const String INFO_ODBC_DriverConnect = STR( "SQLDriverConnect" );
+
 	CDatabaseConnectionOdbcMsSql::CDatabaseConnectionOdbcMsSql( SQLHENV sqlEnvironmentHandle, const String & server, const String & userName, const String & password, String & connectionString )
 		:   CDatabaseConnectionOdbc( sqlEnvironmentHandle, server, userName, password, connectionString )
 	{
@@ -42,7 +55,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_ODBC_NOT_CONNECTED, __FUNCTION__, __FILE__, __LINE__ );
 		}
 
-		DoExecuteUpdate( STR( "CREATE DATABASE " ) + database + STR( " COLLATE utf8_BIN" ), NULL );
+		DoExecuteUpdate( ODBC_SQL_CREATE_DATABASE + database + ODBC_SQL_COLLATE, NULL );
 	}
 
 	void CDatabaseConnectionOdbcMsSql::SelectDatabase( const String & database )
@@ -54,7 +67,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		}
 
 		_database = database;
-		DoExecuteUpdate( STR( "USE " ) + database, NULL );
+		DoExecuteUpdate( ODBC_SQL_USE_DATABASE + database, NULL );
 	}
 
 	void CDatabaseConnectionOdbcMsSql::DestroyDatabase( const String & database )
@@ -65,33 +78,32 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_ODBC_NOT_CONNECTED, __FUNCTION__, __FILE__, __LINE__ );
 		}
 
-		DoExecuteUpdate( STR( "DROP DATABASE " ) + database, NULL );
+		DoExecuteUpdate( ODBC_SQL_DROP_DATABASE + database, NULL );
 	}
 
 	EErrorType CDatabaseConnectionOdbcMsSql::DoConnect( String & connectionString )
 	{
-		EErrorType  eReturn     = EErrorType_ERROR;
-		SQLHWND     sqlHwnd     = NULL;
-		SQLRETURN   sqlReturn;
-
-		connectionString = STR( "DRIVER={SQL Server};SERVER=(" ) + connectionString + STR( ")" );
+		EErrorType eReturn = EErrorType_ERROR;
+		connectionString = ODBC_DSN_DRIVER + STR( "(" ) + connectionString + STR( ")" );
 
 		if ( _userName.size() > 0 )
 		{
-			connectionString += STR( ";UID=" ) + _userName + STR( ";PWD=" ) + _password;
+			connectionString += ODBC_DSN_UID + _userName + ODBC_DSN_PWD + _password;
 		}
 		else
 		{
-			connectionString += STR( ";INTEGRATED SECURITY=true;Trusted_Connection=yes" );
+			connectionString += ODBC_DSN_INTEGRATED;
 		}
 
-		if ( SqlSuccess( SQLAllocHandle( SQL_HANDLE_DBC, _environmentHandle, &_connectionHandle ), SQL_HANDLE_ENV, _environmentHandle, STR( "SQLAllocHandle" ) ) == EErrorType_NONE )
+		if ( SqlSuccess( SQLAllocHandle( SQL_HANDLE_DBC, _environmentHandle, &_connectionHandle ), SQL_HANDLE_ENV, _environmentHandle, INFO_ODBC_AllocHandle ) == EErrorType_NONE )
 		{
-			sqlReturn = SQLDriverConnectA( _connectionHandle, sqlHwnd, ( SqlChar * )connectionString.c_str(), SQL_NTS, NULL, 0, NULL, SQL_DRIVER_COMPLETE_REQUIRED );
+			SQLHWND sqlHwnd = NULL;
+			SQLRETURN sqlReturn = SQLDriverConnectA( _connectionHandle, sqlHwnd, ( SqlChar * )connectionString.c_str(), SQL_NTS, NULL, 0, NULL, SQL_DRIVER_COMPLETE_REQUIRED );
 
-			if ( SqlSuccess( sqlReturn, SQL_HANDLE_DBC, _connectionHandle, STR( "SQLDriverConnect" ) ) == EErrorType_NONE )
+			if ( SqlSuccess( sqlReturn, SQL_HANDLE_DBC, _connectionHandle, INFO_ODBC_DriverConnect ) == EErrorType_NONE )
 			{
 				DoSetConnected( true );
+				eReturn = EErrorType_NONE;
 			}
 		}
 

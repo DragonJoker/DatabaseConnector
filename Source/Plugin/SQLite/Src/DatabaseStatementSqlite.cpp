@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DatabaseStatementSqlite.cpp
- * @author Sylvain Doremus
- * @version 1.0
- * @date 3/20/2014 2:47:39 PM
- *
- *
- * @brief CDatabaseStatementSqlite class definition.
- *
- * @details Describes a statement for SQLITE database.
- *
- ***************************************************************************/
+* @file DatabaseStatementSqlite.cpp
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/20/2014 2:47:39 PM
+*
+*
+* @brief CDatabaseStatementSqlite class definition.
+*
+* @details Describes a statement for SQLITE database.
+*
+***************************************************************************/
 
 #include "DatabaseSqlitePch.h"
 
@@ -26,20 +26,24 @@
 
 BEGIN_NAMESPACE_DATABASE_SQLITE
 {
-	static const String SQLITE_MISSING_INITIALIZATION_ERROR = STR( "Method Initialize must be called before calling method CreateParameter" );
+	static const String ERROR_SQLITE_MISSING_INITIALIZATION = STR( "Method Initialize must be called before calling method CreateParameter" );
 	static const String ERROR_SQLITE_CANT_PREPARE_STATEMENT = STR( "Couldn't prepare the statement" );
 	static const String ERROR_SQLITE_EXECUTION_ERROR = STR( "Couldn't execute the statement : " );
 	static const String ERROR_SQLITE_QUERY_INCONSISTENCY_ERROR = STR( "Number of parameters doesn't match the sizes of parameter containers." );
 
-	static const String SQLITE_STMT_PARAMS_COUNT = STR( "Bind Parameters count: " );
+	static const TChar * INFO_SQLITE_STATEMENT_PREPARATION = STR( "Statement preparation" );
+	static const TChar * INFO_SQLITE_STATEMENT_FINALISATION = STR( "Statement finalisation" );
+	static const TChar * INFO_SQLITE_STATEMENT_CLEAR_BINDINGS = STR( "Statement bindings cleanup" );
+	static const TChar * INFO_SQLITE_STATEMENT_RESET = STR( "Statement resetting" );
+	static const TChar * INFO_SQLITE_STMT_PARAMS_COUNT = STR( "Bind Parameters count: " );
 
-	static const String SQL_DELIM = STR( "?" );
-	static const String SQL_PARAM = STR( "@" );
-	static const String SQL_SET = STR( "SET @" );
-	static const String SQL_NULL = STR( " = NULL;" );
-	static const String SQL_SELECT = STR( "SELECT " );
-	static const String SQL_AS = STR( " AS " );
-	static const String SQL_COMMA = STR( "," );
+	static const String SQLITE_SQL_DELIM = STR( "?" );
+	static const String SQLITE_SQL_PARAM = STR( "@" );
+	static const String SQLITE_SQL_SET = STR( "SET @" );
+	static const String SQLITE_SQL_NULL = STR( " = NULL;" );
+	static const String SQLITE_SQL_SELECT = STR( "SELECT " );
+	static const String SQLITE_SQL_AS = STR( " AS " );
+	static const String SQLITE_SQL_COMMA = STR( "," );
 
 	CDatabaseStatementSqlite::CDatabaseStatementSqlite( DatabaseConnectionSqlitePtr connection, const String & query )
 		: CDatabaseStatement( connection, query )
@@ -64,7 +68,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			_arrayQueries = CStrUtils::Split( _query, STR( "?" ), _paramsCount + 1 );
 		}
 
-		CLogger::LogMessage( STR( "Preparing statement for query : " ) + _query );
+		CLogger::LogInfo( STR( "Preparing statement for query : " ) + _query );
 		assert( _paramsCount == _arrayParams.size() );
 
 		StringStream query;
@@ -85,12 +89,12 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 			if ( parameter->GetParamType() == EParameterType_IN )
 			{
-				query << SQL_DELIM;
+				query << SQLITE_SQL_DELIM;
 			}
 			else if ( parameter->GetParamType() == EParameterType_INOUT )
 			{
-				query << SQL_PARAM + parameter->GetName();
-				DatabaseStatementPtr stmt = _connection->CreateStatement( SQL_SET + parameter->GetName() + STR( " = " ) + SQL_DELIM );
+				query << SQLITE_SQL_PARAM + parameter->GetName();
+				DatabaseStatementPtr stmt = _connection->CreateStatement( SQLITE_SQL_SET + parameter->GetName() + STR( " = " ) + SQLITE_SQL_DELIM );
 				stmt->CreateParameter( parameter->GetName(), parameter->GetType(), parameter->GetLimits(), EParameterType_IN );
 				stmt->Initialize();
 				_inOutInitializers.push_back( std::make_pair( stmt, parameter ) );
@@ -98,8 +102,8 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			}
 			else if ( parameter->GetParamType() == EParameterType_OUT )
 			{
-				query << SQL_PARAM + parameter->GetName();
-				DatabaseStatementPtr stmt = _connection->CreateStatement( SQL_SET + parameter->GetName() + SQL_NULL );
+				query << SQLITE_SQL_PARAM + parameter->GetName();
+				DatabaseStatementPtr stmt = _connection->CreateStatement( SQLITE_SQL_SET + parameter->GetName() + SQLITE_SQL_NULL );
 				stmt->Initialize();
 				_outInitializers.push_back( stmt );
 				_arrayOutParams.push_back( parameter );
@@ -122,12 +126,12 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 			String sep;
 			StringStream queryInOutParam;
-			queryInOutParam << SQL_SELECT;
+			queryInOutParam << SQLITE_SQL_SELECT;
 
 			for ( auto && parameter : _arrayOutParams )
 			{
-				queryInOutParam << sep << SQL_PARAM << parameter->GetName() << SQL_AS << parameter->GetName();
-				sep = SQL_COMMA;
+				queryInOutParam << sep << SQLITE_SQL_PARAM << parameter->GetName() << SQLITE_SQL_AS << parameter->GetName();
+				sep = SQLITE_SQL_COMMA;
 			}
 
 			_stmtOutParams = _connection->CreateStatement( queryInOutParam.str() );
@@ -136,7 +140,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 		SQLite::Database * connection = _connectionSqlite->GetConnection();
 		std::string query2 = CStrUtils::ToStr( _query );
-		SQLiteTry( SQLite::PrepareV2( connection, query2.c_str(), int( query2.size() ), &_statement, NULL ), STR( "Statement preparation" ), EDatabaseExceptionCodes_StatementError, connection );
+		SQLiteTry( SQLite::PrepareV2( connection, query2.c_str(), int( query2.size() ), &_statement, NULL ), INFO_SQLITE_STATEMENT_PREPARATION, EDatabaseExceptionCodes_StatementError, connection );
 
 		if ( !_statement )
 		{
@@ -144,7 +148,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		}
 		else
 		{
-			CLogger::LogDebug( StringStream() << SQLITE_STMT_PARAMS_COUNT << SQLite::BindParameterCount( _statement ) );
+			CLogger::LogDebug( StringStream() << INFO_SQLITE_STMT_PARAMS_COUNT << SQLite::BindParameterCount( _statement ) );
 			eReturn = EErrorType_NONE;
 		}
 
@@ -194,7 +198,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 	{
 		if ( _statement )
 		{
-			SQLiteTry( SQLite::Finalize( _statement ), STR( "Statement finalisation" ), EDatabaseExceptionCodes_StatementError, _connectionSqlite->GetConnection() );
+			SQLiteTry( SQLite::Finalize( _statement ), INFO_SQLITE_STATEMENT_FINALISATION, EDatabaseExceptionCodes_StatementError, _connectionSqlite->GetConnection() );
 			_statement = NULL;
 		}
 
@@ -208,7 +212,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 	DatabaseParameterPtr CDatabaseStatementSqlite::CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType )
 	{
-		DatabaseParameterPtr pReturn = std::make_shared< CDatabaseStatementParameterSqlite >( _connectionSqlite, name, ( unsigned short )_arrayInParams.size() + 1, fieldType, parameterType, new SValueUpdater( this ) );
+		DatabaseParameterPtr pReturn = std::make_shared< CDatabaseStatementParameterSqlite >( _connectionSqlite, name, ( unsigned short )_arrayInParams.size() + 1, fieldType, parameterType, std::make_unique< SValueUpdater >( this ) );
 
 		if ( !DoAddParameter( pReturn ) )
 		{
@@ -224,7 +228,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 	DatabaseParameterPtr CDatabaseStatementSqlite::CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType )
 	{
-		DatabaseParameterPtr pReturn = std::make_shared< CDatabaseStatementParameterSqlite >( _connectionSqlite, name, ( unsigned short )_arrayInParams.size() + 1, fieldType, limits, parameterType, new SValueUpdater( this ) );
+		DatabaseParameterPtr pReturn = std::make_shared< CDatabaseStatementParameterSqlite >( _connectionSqlite, name, ( unsigned short )_arrayInParams.size() + 1, fieldType, limits, parameterType, std::make_unique< SValueUpdater >( this ) );
 
 		if ( !DoAddParameter( pReturn ) )
 		{
@@ -268,28 +272,34 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 			if ( pReturn && pReturn->GetRowCount() )
 			{
-				DatabaseParameterPtr parameter;
 				DatabaseRowPtr row = pReturn->GetFirstRow();
-				DatabaseParameterPtrArray::const_iterator itParams = _arrayOutParams.begin();
 
-				while ( itParams != _arrayOutParams.end() )
+				for ( auto && parameter : _arrayOutParams )
 				{
-					parameter = ( *itParams );
-
-					if ( ( ( parameter->GetParamType() == EParameterType_INOUT ) ||
-							( ( parameter->GetParamType() == EParameterType_OUT ) ) ) &&
-							( row->HasField( parameter->GetName() ) ) )
+					if ( parameter->GetParamType() == EParameterType_INOUT || parameter->GetParamType() == EParameterType_OUT )
 					{
-						parameter->SetValue( row->GetField( parameter->GetName() ) );
-					}
+						DatabaseFieldPtr field;
 
-					++itParams;
+						try
+						{
+							field = row->GetField( parameter->GetName() );
+						}
+						catch( CExceptionDatabase & exc )
+						{
+							CLogger::LogError( exc.GetFullDescription() );
+						}
+
+						if ( field )
+						{
+							parameter->SetValue( field );
+						}
+					}
 				}
 			}
 		}
-
-		SQLiteTry( SQLite::ClearBindings( _statement ), STR( "Statement bindings cleanup" ), EDatabaseExceptionCodes_StatementError, _connectionSqlite->GetConnection() );
-		SQLiteTry( SQLite::Reset( _statement ), STR( "Statement resetting" ), EDatabaseExceptionCodes_StatementError, _connectionSqlite->GetConnection() );
+		
+		SQLiteTry( SQLite::ClearBindings( _statement ), INFO_SQLITE_STATEMENT_CLEAR_BINDINGS, EDatabaseExceptionCodes_StatementError, _connectionSqlite->GetConnection() );
+		SQLiteTry( SQLite::Reset( _statement ), INFO_SQLITE_STATEMENT_RESET, EDatabaseExceptionCodes_StatementError, _connectionSqlite->GetConnection() );
 	}
 }
 END_NAMESPACE_DATABASE_SQLITE

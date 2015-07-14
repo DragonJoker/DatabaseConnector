@@ -22,15 +22,15 @@
 
 BEGIN_NAMESPACE_DATABASE_ODBC
 {
-	CDatabaseQueryParameterOdbc::CDatabaseQueryParameterOdbc( DatabaseConnectionOdbcPtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, SValueUpdater * updater )
-		: CDatabaseParameter( connection, name, index, fieldType, parameterType, updater )
+	CDatabaseQueryParameterOdbc::CDatabaseQueryParameterOdbc( DatabaseConnectionOdbcPtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
+		: CDatabaseParameter( connection, name, index, fieldType, parameterType, std::move( updater ) )
 		, CDatabaseParameterOdbc()
 	{
 		// Empty
 	}
 
-	CDatabaseQueryParameterOdbc::CDatabaseQueryParameterOdbc( DatabaseConnectionOdbcPtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, SValueUpdater * updater )
-		: CDatabaseParameter( connection, name, index, fieldType, limits, parameterType, updater )
+	CDatabaseQueryParameterOdbc::CDatabaseQueryParameterOdbc( DatabaseConnectionOdbcPtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
+		: CDatabaseParameter( connection, name, index, fieldType, limits, parameterType, std::move( updater ) )
 		, CDatabaseParameterOdbc()
 	{
 		// Empty

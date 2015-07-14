@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DatabaseParameter.cpp
- * @author Sylvain Doremus
- * @version 1.0
- * @date 3/20/2014 2:47:39 PM
- *
- *
- * @brief CDatabaseParameter class definition.
- *
- * @details Describes a parameter for a query.
- *
- ***************************************************************************/
+* @file DatabaseParameter.cpp
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/20/2014 2:47:39 PM
+*
+*
+* @brief CDatabaseParameter class definition.
+*
+* @details Describes a parameter for a query.
+*
+***************************************************************************/
 
 #include "DatabasePch.h"
 
@@ -21,8 +21,8 @@
 
 BEGIN_NAMESPACE_DATABASE
 {
-	static const String DATABASE_INCOMPATIBLE_TYPES = STR( "Incompatible types between values, parameter: " );
-	static const String DATABASE_PARAMETER_SETVALUE_TYPE_ERROR = STR( "Type error while setting value for the parameter: " );
+	static const String ERROR_DB_INCOMPATIBLE_TYPES = STR( "Incompatible types between values, parameter: " );
+	static const String ERROR_DB_PARAMETER_SETVALUE_TYPE = STR( "Type error while setting value for the parameter: " );
 
 	bool AreTypesCompatible( EFieldType typeA, EFieldType typeB )
 	{
@@ -45,45 +45,45 @@ BEGIN_NAMESPACE_DATABASE
 		return false;
 	}
 
-	CDatabaseParameter::CDatabaseParameter( DatabaseConnectionPtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, SValueUpdater * updater )
+	CDatabaseParameter::CDatabaseParameter( DatabaseConnectionPtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
 		: CDatabaseValuedObject( connection )
 		, _name( name )
 		, _fieldType( fieldType )
 		, _precision( std::make_pair( -1, -1 ) )
 		, _index( index )
 		, _parameterType( parameterType )
-		, _updater( updater )
+		, _updater( std::move( updater ) )
 	{
 		DoCreateValue();
 	}
 
-	CDatabaseParameter::CDatabaseParameter( DatabaseConnectionPtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, SValueUpdater * updater )
+	CDatabaseParameter::CDatabaseParameter( DatabaseConnectionPtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
 		: CDatabaseValuedObject( connection )
 		, _name( name )
 		, _fieldType( fieldType )
 		, _precision( std::make_pair( limits, 0 ) )
 		, _index( index )
 		, _parameterType( parameterType )
-		, _updater( updater )
+		, _updater( std::move( updater ) )
 	{
 		DoCreateValue();
 	}
 
-	CDatabaseParameter::CDatabaseParameter( DatabaseConnectionPtr connection, const String & name, unsigned short index, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType, SValueUpdater * updater )
+	CDatabaseParameter::CDatabaseParameter( DatabaseConnectionPtr connection, const String & name, unsigned short index, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
 		: CDatabaseValuedObject( connection )
 		, _name( name )
 		, _fieldType( fieldType )
 		, _precision( precision )
 		, _index( index )
 		, _parameterType( parameterType )
-		, _updater( updater )
+		, _updater( std::move( updater ) )
 	{
 		DoCreateValue();
 	}
 
 	CDatabaseParameter::~CDatabaseParameter()
 	{
-		delete _updater;
+		_updater.reset();;
 	}
 
 	const unsigned short & CDatabaseParameter::GetIndex() const
@@ -126,7 +126,7 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		if ( !AreTypesCompatible( GetType(), field->GetType() ) )
 		{
-			String errMsg = DATABASE_INCOMPATIBLE_TYPES + this->GetName();
+			String errMsg = ERROR_DB_INCOMPATIBLE_TYPES + this->GetName();
 			CLogger::LogError( errMsg );
 			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, errMsg );
 		}
@@ -138,7 +138,7 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		if ( !AreTypesCompatible( GetType(), parameter->GetType() ) )
 		{
-			String errMsg = DATABASE_INCOMPATIBLE_TYPES + this->GetName();
+			String errMsg = ERROR_DB_INCOMPATIBLE_TYPES + this->GetName();
 			CLogger::LogError( errMsg );
 			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, errMsg );
 		}
@@ -223,8 +223,8 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		default:
-			CLogger::LogError( DATABASE_PARAMETER_SETVALUE_TYPE_ERROR + this->GetName() );
-			DB_EXCEPT( EDatabaseExceptionCodes_ParameterError, DATABASE_PARAMETER_SETVALUE_TYPE_ERROR + this->GetName() );
+			CLogger::LogError( ERROR_DB_PARAMETER_SETVALUE_TYPE + this->GetName() );
+			DB_EXCEPT( EDatabaseExceptionCodes_ParameterError, ERROR_DB_PARAMETER_SETVALUE_TYPE + this->GetName() );
 			break;
 		}
 

@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file ParameterType.h
- * @author Sylvain Doremus
- * @version 1.0
- * @date 3/17/2014 12:06:39 PM
- *
- *
- * @brief EParameterType enumeration declaration.
- *
- * @details EParameterType
- *
- ***************************************************************************/
+* @file ParameterType.h
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/17/2014 12:06:39 PM
+*
+*
+* @brief EParameterType enumeration declaration.
+*
+* @details Enumeration of supported parameter types for statements and queries.
+*
+***************************************************************************/
 
 #ifndef ___DATABASE_PARAMETER_TYPE_H___
 #define ___DATABASE_PARAMETER_TYPE_H___
@@ -18,8 +18,8 @@
 
 BEGIN_NAMESPACE_DATABASE
 {
-
-	/// Enumeration of supported parameter types for statements.
+	/** Enumeration of supported parameter types for statements and queries.
+	*/
 	typedef enum EParameterType
 	{
 		EParameterType_IN,
@@ -27,7 +27,6 @@ BEGIN_NAMESPACE_DATABASE
 		EParameterType_INOUT,
 		EParameterType_COUNT
 	} EParameterType;
-
 }
 END_NAMESPACE_DATABASE
 

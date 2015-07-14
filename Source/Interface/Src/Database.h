@@ -1,15 +1,15 @@
 ﻿/************************************************************************//**
- * @file Database.h
- * @author Sylvain Doremus
- * @version 1.0
- * @date 3/20/2014 2:47:39 PM
- *
- *
- * @brief CDatabase class declaration.
- *
- * @details Describes a database.
- *
- ***************************************************************************/
+* @file Database.h
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/20/2014 2:47:39 PM
+*
+*
+* @brief CDatabase class declaration.
+*
+* @details Describes a database.
+*
+***************************************************************************/
 
 #ifndef ___DATABASE_H___
 #define ___DATABASE_H___
@@ -24,11 +24,10 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	class CDatabase
 	{
-
 	public:
 		/** Constructor.
 		@param[in] type
-		    Database type.
+			Database type.
 		*/
 		DatabaseExport CDatabase();
 
@@ -38,23 +37,23 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Initialize data.
 		@param[in] server
-		    Server identifier (name or address).
+			Server identifier (name or address).
 		@param[in] userName
-		    User name.
+			User name.
 		@param[in] password
-		    User password.
+			User password.
 		*/
 		DatabaseExport void Initialize( const String & server, const String & userName, const String & password );
 
 		/** Create a connection.
 		@param[out] connectionString
-		    Created connection string.
+			Created connection string.
 		*/
 		DatabaseExport void CreateConnection( String & connectionString );
 
 		/** Retrieve connection.
 		@return
-		    Found connection.
+			Found connection.
 		*/
 		DatabaseExport DatabaseConnectionPtr RetrieveConnection();
 
@@ -63,36 +62,34 @@ BEGIN_NAMESPACE_DATABASE
 		DatabaseExport void RemoveConnection();
 
 	protected:
-
 		/** Create a connection.
 		@param[out] connectionString
-		    Created connection string.
+			Created connection string.
 		@return
-		    Database connection.
+			Database connection.
 		*/
 		DatabaseExport virtual DatabaseConnectionPtr DoCreateConnection( String & connectionString ) const = 0;
 
 	private:
 		/** Get connection.
 		@return
-		    Database connection.
+			Database connection.
 		*/
 		DatabaseConnectionPtr DoGetConnection() const;
 
 	protected:
 		typedef std::map< unsigned long, DatabaseConnectionPtr > DatabaseConnectionPtrDwordMap;
-		///< Mutex.
+		//! Mutex.
 		mutable std::recursive_mutex _mutex;
-		///< Map of connections (multiple threads).
+		//! Map of connections (multiple threads).
 		DatabaseConnectionPtrIdMap _mapConnections;
-		///< Server identifier (name or address).
+		//! Server identifier (name or address).
 		String _server;
-		///< User name.
+		//! User name.
 		String _userName;
-		///< User password.
+		//! User password.
 		String _password;
-	}; // class CDatabase
-
+	};
 }
 END_NAMESPACE_DATABASE
 

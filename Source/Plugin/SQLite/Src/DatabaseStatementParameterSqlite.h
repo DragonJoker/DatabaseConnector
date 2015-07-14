@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DatabaseStatementParameterSqlite.h
- * @author Sylvain Doremus
- * @version 1.0
- * @date 3/20/2014 2:47:39 PM
- *
- *
- * @brief CDatabaseStatementParameterSqlite class declaration.
- *
- * @details Describes a statement parameter for SQLite database.
- *
- ***************************************************************************/
+* @file DatabaseStatementParameterSqlite.h
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/20/2014 2:47:39 PM
+*
+*
+* @brief CDatabaseStatementParameterSqlite class declaration.
+*
+* @details Describes a statement parameter for SQLite database.
+*
+***************************************************************************/
 
 #ifndef ___DATABASE_STATEMENT_PARAMETER_SQLITE_H___
 #define ___DATABASE_STATEMENT_PARAMETER_SQLITE_H___
@@ -21,18 +21,6 @@
 
 BEGIN_NAMESPACE_DATABASE_SQLITE
 {
-	/** Used to stream a byte array into an std::istream
-	*/
-	struct membuf
-			: std::streambuf
-	{
-		/** Consctructor
-		*/
-		membuf( char * begin, char * end )
-		{
-			this->setg( begin, begin, end );
-		}
-	};
 	/** Describes a statement parameter for SQLite database.
 	*/
 	class CDatabaseStatementParameterSqlite
@@ -55,7 +43,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@param[in] updater
 		    The parent updater
 		 */
-		DatabaseSqliteExport CDatabaseStatementParameterSqlite( DatabaseConnectionSqlitePtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, SValueUpdater * updater );
+		DatabaseSqliteExport CDatabaseStatementParameterSqlite( DatabaseConnectionSqlitePtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
 
 		/** Constructor.
 		@param[in] connection
@@ -73,7 +61,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@param[in] updater
 		    The parent updater
 		 */
-		DatabaseSqliteExport CDatabaseStatementParameterSqlite( DatabaseConnectionSqlitePtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, SValueUpdater * updater );
+		DatabaseSqliteExport CDatabaseStatementParameterSqlite( DatabaseConnectionSqlitePtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
 
 		/** Destructor.
 		 */
@@ -98,7 +86,6 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 			CDatabaseValuedObject::DoSetValue( value );
 			_binding->UpdateValue();
-			_updater->Update( shared_from_this() );
 		}
 
 		/** Set parameter value
@@ -110,7 +97,6 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 			CDatabaseValuedObject::DoSetValue( value );
 			_binding->UpdateValue();
-			_updater->Update( shared_from_this() );
 		}
 
 		/** Set parameter value
@@ -124,7 +110,6 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 			CDatabaseValuedObject::DoSetValueFast( value );
 			_binding->UpdateValue();
-			_updater->Update( shared_from_this() );
 		}
 
 		/** Set parameter value
@@ -138,7 +123,6 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 			CDatabaseValuedObject::DoSetValueFast( value );
 			_binding->UpdateValue();
-			_updater->Update( shared_from_this() );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue

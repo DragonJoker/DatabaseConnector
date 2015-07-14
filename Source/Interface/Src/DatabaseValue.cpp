@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DatabaseValue.cpp
- * @author Sylvain Doremus
- * @version 1.0
- * @date 3/21/2014 10:51:06 AM
- *
- *
- * @brief CDatabaseValueBase class definition.
- *
- * @details Describes the base class of inherited templated classes dealing with database fields.
- *
- ***************************************************************************/
+* @file DatabaseValue.cpp
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/21/2014 10:51:06 AM
+*
+*
+* @brief CDatabaseValueBase class definition.
+*
+* @details Describes the base class of inherited templated classes dealing with database fields.
+*
+***************************************************************************/
 
 #include "DatabasePch.h"
 

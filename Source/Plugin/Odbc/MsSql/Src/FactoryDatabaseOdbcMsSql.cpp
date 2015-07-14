@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file FactoryDatabaseOdbcMsSql.cpp
- * @author Sylvain Doremus
- * @version 1.0
- * @date 4/08/2014 1:21:00 PM
- *
- *
- * @brief ODBC database factory class.
- *
- * @details CObject factory used to manage ODBC database creation.
- *
- ***************************************************************************/
+* @file FactoryDatabaseOdbcMsSql.cpp
+* @author Sylvain Doremus
+* @version 1.0
+* @date 4/08/2014 1:21:00 PM
+*
+*
+* @brief ODBC database factory class.
+*
+* @details CObject factory used to manage ODBC database creation.
+*
+***************************************************************************/
 
 #include "DatabaseOdbcMsSqlPch.h"
 
@@ -31,7 +31,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 
 	void CFactoryDatabaseOdbcMsSql::RegisterServices()
 	{
-		///@remarks Register function for creation of a DatabaseOdbcMsSql object.
+		//!@remarks Register function for creation of a DatabaseOdbcMsSql object.
 		RegisterCreatorFunction( DATABASE_ODBC_MSSQL_TYPE, CDatabaseOdbcMsSql::Create );
 	}
 

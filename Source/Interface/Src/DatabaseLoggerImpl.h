@@ -1,27 +1,22 @@
-/*
-This source file is part of Castor3D (http://castor3d.developpez.com/castor3d.htm)
+/************************************************************************//**
+* @file DatabaseLoggerImpl.h
+* @author Sylvain Doremus
+* @version 1.0
+* @date 7/12/2015 7:51 PM
+*
+*
+* @brief CLoggerImpl class
+*
+* @details Helper class for Logger, used to share one instance across multiple DLLs
+*
+***************************************************************************/
 
-This program is free software; you can redistribute it and/or modify it under
-the terms of the GNU Lesser General Public License as published by the Free Software
-Foundation; either version 2 of the License, or (at your option) any later
-version.
-
-This program is distributed in the hope that it will be useful, but WITHOUT
-ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along with
-the program; if not, write to the Free Software Foundation, Inc., 59 Temple
-Place - Suite 330, Boston, MA 02111-1307, USA, or go to
-http://www.gnu.org/copyleft/lesser.txt.
-*/
 #ifndef ___DATABASE_LOGGER_IMPL_H___
 #define ___DATABASE_LOGGER_IMPL_H___
 
-#include "DatabaseLoggerConsole.h"
+#include "DatabasePrerequisites.h"
 
-#include <condition_variable>
-#include <deque>
+#include "ELogType.h"
 
 #pragma warning( push )
 #pragma warning( disable:4290 )
@@ -36,7 +31,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] type
 			The message type
 		*/
-		SMessageBase( eLOG_TYPE type )
+		SMessageBase( ELogType type )
 			: m_type( type )
 		{
 		}
@@ -48,7 +43,7 @@ BEGIN_NAMESPACE_DATABASE
 		virtual String GetMessage() = 0;
 
 		//! The message type
-		eLOG_TYPE m_type;
+		ELogType m_type;
 	};
 
 	/** Template class, holding character type dependant message text
@@ -65,7 +60,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] message
 			The message text
 		*/
-		SBasicMessage( eLOG_TYPE type, string_type const & message )
+		SBasicMessage( ELogType type, string_type const & message )
 			: SMessageBase( type )
 			, m_message( message )
 		{
@@ -85,81 +80,65 @@ BEGIN_NAMESPACE_DATABASE
 	typedef SBasicMessage< char > SMessage;
 	//! A wchar_t message
 	typedef SBasicMessage< wchar_t > SWMessage;
-	//! A message queue
-	typedef std::deque< std::unique_ptr< SMessageBase > > MessageQueue;
 
-	/**
-	 *\~english
-	 *\brief		Logging callback function
-	 *\param[in]	p_pCaller	Pointer to the caller
-	 *\param[in]	p_strLog	The logged text
-	 *\param[in]	p_eLogType	The log type
-	 *\~french
-	 *\brief		Fonction de callback de log
-	 *\param[in]	p_pCaller	Pointeur sur l'appelant
-	 *\param[in]	p_strLog	Le texte écrit
-	 *\param[in]	p_eLogType	Le type de log
-	 */
-	typedef void ( LogCallback )( void * p_pCaller, String const & p_strLog, eLOG_TYPE p_eLogType );
-	/**
-	 *\~english
-	 *\brief		Typedef over a pointer to the logging callback function
-	 *\~french
-	 *\brief		Typedef d'un pointeur sur la fonction de callback de log
-	 */
-	typedef LogCallback * PLogCallback;
-	class CLogger;
-	/*!
-	\author 	Sylvain DOREMUS
-	\date 		27/08/2012
-	\version	0.7.0.0
-	\~english
-	\brief		Helper class for Logger, level dependant
-	\~french
-	\brief		Class ed'aide pour Logger, dépendante du niveau de log
+	/** Helper class for Logger
 	*/
-	class ILoggerImpl
+	class CLoggerImpl
 	{
-	private:
-		struct stLOGGER_CALLBACK
-		{
-			PLogCallback	m_pfnCallback;
-			void 	*		m_pCaller;
-		};
-		DECLARE_MAP( std::thread::id, stLOGGER_CALLBACK, LoggerCallback );
-
 	public:
-		ILoggerImpl( eLOG_TYPE p_eLogLevel );
-		virtual ~ILoggerImpl();
+		/** Constructor
+		*/
+		CLoggerImpl();
 
-		void Initialise( CLogger * p_pLogger );
+		/** Destructor
+		*/
+		virtual ~CLoggerImpl();
+
+		/** Initialises the headers, from the given logger
+		@param[in] logger
+			The logger
+		*/
+		void Initialise( CLogger const & logger );
+
+		/** Cleans up the class
+		*/
 		void Cleanup();
-		void SetCallback( PLogCallback p_pfnCallback, void * p_pCaller );
 
-		void SetFileName( String const & p_logFilePath, eLOG_TYPE p_eLogType );
+		/** Sets the file for given log level
+		@param[in] logFilePath
+			The file path
+		@param[in] logType
+			The log level.
+			If ELogType_COUNT, sets the file for every log level
+		*/
+		void SetFileName( String const & logFilePath, ELogType logType );
 
-		void LogMessageQueue( MessageQueue const & p_queue, bool p_display );
-		void LogMessage( eLOG_TYPE p_eLogType, String const & p_strToLog, bool p_display );
-
-		inline eLOG_TYPE GetLogLevel()const
-		{
-			return m_eLogLevel;
-		}
+		/** Logs a message queue
+		@param[in] queue
+			The messages
+		*/
+		void LogMessageQueue( MessageQueue const & queue );
 
 	private:
-		void DoLogLine( String const & timestamp, String const & p_line, FILE * p_logFile, eLOG_TYPE p_eLogType, bool p_display );
+		/** Logs a line in the given file
+		@param[in] timestamp
+			The line timestamp
+		@param[in] line
+			The line
+		@param logFile
+			The file
+		@param[in] logType
+			The log level
+		*/
+		void DoLogLine( String const & timestamp, String const & line, FILE * logFile, ELogType logType );
 
 	private:
-		String m_logFilePath[eLOG_TYPE_COUNT];
-		String m_strHeaders[eLOG_TYPE_COUNT];
-		ProgramConsole * m_pConsole;
-		eLOG_TYPE m_eLogLevel;
-		LoggerCallbackMap m_mapCallbacks;
-		std::mutex m_mutex;
-
-		std::thread m_outThread;
-		std::mutex m_outMutex;
-		std::condition_variable m_end;
+		//! The files paths, per log level
+		String _logFilePath[ELogType_COUNT];
+		//! The headers, per log level
+		String _headers[ELogType_COUNT];
+		//! The console
+		std::unique_ptr< CProgramConsole > _console;
 	};
 }
 END_NAMESPACE_DATABASE

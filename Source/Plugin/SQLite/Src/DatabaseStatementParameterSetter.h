@@ -24,6 +24,9 @@
 BEGIN_NAMESPACE_DATABASE_SQLITE
 {
 	static const String ERROR_SQLITE_PARAMETER_VALUE = STR( "Can't set parameter value" );
+	static const String ERROR_SQLITE_UPDATE_UNIMPLEMENTED = STR( "UpdateValue not implemented for this data type" );
+
+	static const String INFO_SQLITE_SET_PARAMETER_VALUE = STR( "Set parameter value: " );
 
 	/** Generic template class to set the parameter value
 	*/
@@ -50,7 +53,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		//!@copydoc SSqliteBindingBase::DoSetValue
 		virtual void UpdateValue()
 		{
-			throw std::runtime_error( "SSqliteBinding::DoSetValue not implemented for this data type" );
+			throw DB_EXCEPT( EDatabaseExceptionCodes_Unimplemented, ERROR_SQLITE_UPDATE_UNIMPLEMENTED );
 		}
 
 		//! The parameter value
@@ -82,7 +85,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		//!@copydoc SSqliteBindingBase::DoSetValue
 		virtual void UpdateValue()
 		{
-			SQLiteTry( SQLite::BindInt( _statement, _index, _value.GetValue() ? 1 : 0 ), StringStream() << STR( "Parameter set value: " ) << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			SQLiteTry( SQLite::BindInt( _statement, _index, _value.GetValue() ? 1 : 0 ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
 		}
 
 		//! The parameter value
@@ -114,7 +117,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		//!@copydoc SSqliteBindingBase::DoSetValue
 		virtual void UpdateValue()
 		{
-			SQLiteTry( SQLite::BindInt( _statement, _index, _value.GetValue() ), StringStream() << STR( "Parameter set value: " ) << int16_t( _value.GetValue() ), EDatabaseExceptionCodes_StatementError, _connection );
+			SQLiteTry( SQLite::BindInt( _statement, _index, _value.GetValue() ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << int16_t( _value.GetValue() ), EDatabaseExceptionCodes_StatementError, _connection );
 		}
 
 		//! The parameter value
@@ -146,7 +149,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		//!@copydoc SSqliteBindingBase::DoSetValue
 		virtual void UpdateValue()
 		{
-			SQLiteTry( SQLite::BindInt( _statement, _index, _value.GetValue() ), StringStream() << STR( "Parameter set value: " ) << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			SQLiteTry( SQLite::BindInt( _statement, _index, _value.GetValue() ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
 		}
 
 		//! The parameter value
@@ -178,7 +181,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		//!@copydoc SSqliteBindingBase::DoSetValue
 		virtual void UpdateValue()
 		{
-			SQLiteTry( SQLite::BindInt( _statement, _index, _value.GetValue() ), StringStream() << STR( "Parameter set value: " ) << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			SQLiteTry( SQLite::BindInt( _statement, _index, _value.GetValue() ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
 		}
 
 		//! The parameter value
@@ -210,7 +213,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		//!@copydoc SSqliteBindingBase::DoSetValue
 		virtual void UpdateValue()
 		{
-			SQLiteTry( SQLite::BindInt64( _statement, _index, _value.GetValue() ), StringStream() << STR( "Parameter set value: " ) << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			SQLiteTry( SQLite::BindInt64( _statement, _index, _value.GetValue() ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
 		}
 
 		//! The parameter value
@@ -242,7 +245,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		//!@copydoc SSqliteBindingBase::DoSetValue
 		virtual void UpdateValue()
 		{
-			SQLiteTry( SQLite::BindDouble( _statement, _index, _value.GetValue() ), StringStream() << STR( "Parameter set value: " ) << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			SQLiteTry( SQLite::BindDouble( _statement, _index, _value.GetValue() ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
 		}
 
 		//! The parameter value
@@ -274,7 +277,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		//!@copydoc SSqliteBindingBase::DoSetValue
 		virtual void UpdateValue()
 		{
-			SQLiteTry( SQLite::BindDouble( _statement, _index, _value.GetValue() ), StringStream() << STR( "Parameter set value: " ) << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			SQLiteTry( SQLite::BindDouble( _statement, _index, _value.GetValue() ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
 		}
 
 		//! The parameter value
@@ -306,7 +309,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		//!@copydoc SSqliteBindingBase::DoSetValue
 		virtual void UpdateValue()
 		{
-			SQLiteTry( SQLite::BindDouble( _statement, _index, _value.GetValue().ToDouble() ), StringStream() << STR( "Parameter set value: " ) << _value.GetValue().ToString(), EDatabaseExceptionCodes_StatementError, _connection );
+			SQLiteTry( SQLite::BindDouble( _statement, _index, _value.GetValue().ToDouble() ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue().ToString(), EDatabaseExceptionCodes_StatementError, _connection );
 		}
 
 		//! The parameter value
@@ -338,7 +341,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		//!@copydoc SSqliteBindingBase::DoSetValue
 		virtual void UpdateValue()
 		{
-			SQLiteTry( SQLite::BindText( _statement, _index, ( const char * )_value.GetPtrValue(), _value.GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << STR( "Parameter set value: " ) << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			SQLiteTry( SQLite::BindText( _statement, _index, ( const char * )_value.GetPtrValue(), _value.GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
 		}
 
 		//! The parameter value
@@ -370,7 +373,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		//!@copydoc SSqliteBindingBase::DoSetValue
 		virtual void UpdateValue()
 		{
-			SQLiteTry( SQLite::BindText( _statement, _index, ( const char * )_value.GetPtrValue(), _value.GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << STR( "Parameter set value: " ) << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			SQLiteTry( SQLite::BindText( _statement, _index, ( const char * )_value.GetPtrValue(), _value.GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
 		}
 
 		//! The parameter value
@@ -402,7 +405,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		//!@copydoc SSqliteBindingBase::DoSetValue
 		virtual void UpdateValue()
 		{
-			SQLiteTry( SQLite::BindText16( _statement, _index, _value.GetPtrValue(), _value.GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << STR( "Parameter set value: " ) << _value.GetPtrValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			SQLiteTry( SQLite::BindText16( _statement, _index, _value.GetPtrValue(), _value.GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetPtrValue(), EDatabaseExceptionCodes_StatementError, _connection );
 		}
 
 		//! The parameter value
@@ -434,7 +437,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		//!@copydoc SSqliteBindingBase::DoSetValue
 		virtual void UpdateValue()
 		{
-			SQLiteTry( SQLite::BindText16( _statement, _index, _value.GetPtrValue(), _value.GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << STR( "Parameter set value: " ) << _value.GetPtrValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			SQLiteTry( SQLite::BindText16( _statement, _index, _value.GetPtrValue(), _value.GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetPtrValue(), EDatabaseExceptionCodes_StatementError, _connection );
 		}
 
 		//! The parameter value
@@ -466,7 +469,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		//!@copydoc SSqliteBindingBase::DoSetValue
 		virtual void UpdateValue()
 		{
-			SQLiteTry( SQLite::BindText( _statement, _index, ( const char * )_value.GetPtrValue(), _value.GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << STR( "Parameter set value: " ) << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			SQLiteTry( SQLite::BindText( _statement, _index, ( const char * )_value.GetPtrValue(), _value.GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
 		}
 
 		//! The parameter value
@@ -498,7 +501,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		//!@copydoc SSqliteBindingBase::DoSetValue
 		virtual void UpdateValue()
 		{
-			SQLiteTry( SQLite::BindText( _statement, _index, ( const char * )_value.GetPtrValue(), _value.GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << STR( "Parameter set value: " ) << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			SQLiteTry( SQLite::BindText( _statement, _index, ( const char * )_value.GetPtrValue(), _value.GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
 		}
 
 		//! The parameter value
@@ -530,7 +533,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		//!@copydoc SSqliteBindingBase::DoSetValue
 		virtual void UpdateValue()
 		{
-			SQLiteTry( SQLite::BindText( _statement, _index, ( const char * )_value.GetPtrValue(), _value.GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << STR( "Parameter set value: " ) << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			SQLiteTry( SQLite::BindText( _statement, _index, ( const char * )_value.GetPtrValue(), _value.GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
 		}
 
 		//! The parameter value
@@ -562,7 +565,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		//!@copydoc SSqliteBindingBase::DoSetValue
 		virtual void UpdateValue()
 		{
-			SQLiteTry( SQLite::BindBlob( _statement, _index, _value.GetPtrValue(), _value.GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << STR( "Parameter set value: " ) << _value.GetPtrValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			SQLiteTry( SQLite::BindBlob( _statement, _index, _value.GetPtrValue(), _value.GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetPtrValue(), EDatabaseExceptionCodes_StatementError, _connection );
 		}
 
 		//! The parameter value
@@ -594,7 +597,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		//!@copydoc SSqliteBindingBase::DoSetValue
 		virtual void UpdateValue()
 		{
-			SQLiteTry( SQLite::BindBlob( _statement, _index, _value.GetPtrValue(), _value.GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << STR( "Parameter set value: " ) << _value.GetPtrValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			SQLiteTry( SQLite::BindBlob( _statement, _index, _value.GetPtrValue(), _value.GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetPtrValue(), EDatabaseExceptionCodes_StatementError, _connection );
 		}
 
 		//! The parameter value
@@ -626,7 +629,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		//!@copydoc SSqliteBindingBase::DoSetValue
 		virtual void UpdateValue()
 		{
-			SQLiteTry( SQLite::BindBlob( _statement, _index, _value.GetPtrValue(), _value.GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << STR( "Parameter set value: " ) << _value.GetPtrValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			SQLiteTry( SQLite::BindBlob( _statement, _index, _value.GetPtrValue(), _value.GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetPtrValue(), EDatabaseExceptionCodes_StatementError, _connection );
 		}
 
 		//! The parameter value

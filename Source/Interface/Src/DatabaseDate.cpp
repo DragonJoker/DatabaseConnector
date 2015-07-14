@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file Date.cpp
- * @author Sylvain Doremus
- * @version 1.0
- * @date 3/20/2014 2:47:39 PM
- *
- *
- * @brief CDate class definition.
- *
- * @details Describes a date.
- *
- ***************************************************************************/
+* @file Date.cpp
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/20/2014 2:47:39 PM
+*
+*
+* @brief CDate class definition.
+*
+* @details Describes a date.
+*
+***************************************************************************/
 
 #include "DatabasePch.h"
 
@@ -330,20 +330,20 @@ BEGIN_NAMESPACE_DATABASE
 	CDateTime CDate::Today = CDateTime::Now();
 
 	CDate::CDate()
-		:   _year( -1 )
-		,   _month( EDateMonth_UNDEF )
-		,   _monthDay( 0 )
-		,   _yearDay( 0 )
-		,   _weekDay( EDateDay_UNDEF )
+		: _year( -1 )
+		, _month( EDateMonth_UNDEF )
+		, _monthDay( 0 )
+		, _yearDay( 0 )
+		, _weekDay( EDateDay_UNDEF )
 	{
 	}
 
 	CDate::CDate( const CDateTime & dateTime )
-		:   _year( dateTime.GetYear() )
-		,   _month( EDateMonth( dateTime.GetMonth() ) )
-		,   _monthDay( dateTime.GetMonthDay() )
-		,   _yearDay( 0 )
-		,   _weekDay( EDateDay_UNDEF )
+		: _year( dateTime.GetYear() )
+		, _month( EDateMonth( dateTime.GetMonth() ) )
+		, _monthDay( dateTime.GetMonthDay() )
+		, _yearDay( 0 )
+		, _weekDay( EDateDay_UNDEF )
 	{
 		DoCheckValidity();
 		DoComputeWeekDay();
@@ -351,11 +351,11 @@ BEGIN_NAMESPACE_DATABASE
 	}
 
 	CDate::CDate( int year, EDateMonth month, int day )
-		:   _year( year )
-		,   _month( month )
-		,   _monthDay( day )
-		,   _yearDay( 0 )
-		,   _weekDay( EDateDay_UNDEF )
+		: _year( year )
+		, _month( month )
+		, _monthDay( day )
+		, _yearDay( 0 )
+		, _weekDay( EDateDay_UNDEF )
 	{
 		DoCheckValidity();
 		DoComputeWeekDay();
@@ -378,9 +378,9 @@ BEGIN_NAMESPACE_DATABASE
 
 	void CDate::SetDate( int year, EDateMonth month, int day )
 	{
-		_year      = year;
-		_month     = month;
-		_monthDay  = day;
+		_year = year;
+		_month = month;
+		_monthDay = day;
 		DoCheckValidity();
 		DoComputeWeekDay();
 		DoComputeYearDay();

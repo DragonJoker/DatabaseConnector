@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file FactoryDatabaseSqlite.cpp
- * @author Sylvain Doremus
- * @version 1.0
- * @date 4/08/2014 1:21:00 PM
- *
- *
- * @brief SQLITE database factory class.
- *
- * @details CObject factory used to manage SQLITE database creation.
- *
- ***************************************************************************/
+* @file FactoryDatabaseSqlite.cpp
+* @author Sylvain Doremus
+* @version 1.0
+* @date 4/08/2014 1:21:00 PM
+*
+*
+* @brief SQLITE database factory class.
+*
+* @details CObject factory used to manage SQLITE database creation.
+*
+***************************************************************************/
 
 #include "DatabaseSqlitePch.h"
 
@@ -31,7 +31,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 	void CFactoryDatabaseSqlite::RegisterServices()
 	{
-		///@remarks Register function for creation of a DatabaseSqlite object.
+		//!@remarks Register function for creation of a DatabaseSqlite object.
 		RegisterCreatorFunction( DATABASE_SQLITE_TYPE, CDatabaseSqlite::Create );
 	}
 
@@ -39,6 +39,5 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 	{
 		_objTypes.push_back( DATABASE_SQLITE_TYPE );
 	}
-
 }
 END_NAMESPACE_DATABASE_SQLITE

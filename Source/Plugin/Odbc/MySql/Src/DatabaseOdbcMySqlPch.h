@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DatabaseOdbcMySqlPch.h
- * @author Sylvain Doremus
- * @version 1.0
- * @date 03/14/2014 11:00:50 AM
- *
- *
- * @brief Database ODBC precompiled header.
- *
- * @details This file generates the Database ODBC precompiled headers.
- *
- ***************************************************************************/
+* @file DatabaseOdbcMySqlPch.h
+* @author Sylvain Doremus
+* @version 1.0
+* @date 03/14/2014 11:00:50 AM
+*
+*
+* @brief Database ODBC precompiled header.
+*
+* @details This file generates the Database ODBC precompiled headers.
+*
+***************************************************************************/
 
 #ifndef ___DATABASE_ODBC_MYSQL_PCH_H___
 #define ___DATABASE_ODBC_MYSQL_PCH_H___
@@ -27,7 +27,7 @@
 #include <DatabaseOdbcHelper.h>
 
 #if defined( _WIN32 )
-#    include <windows.h>
+#	include <windows.h>
 #endif
 
 #include <sql.h>

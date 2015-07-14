@@ -120,7 +120,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 			catch ( std::exception & e )
 			{
-				CLogger::LogMessage( e.what() );
+				CLogger::LogInfo( e.what() );
 			}
 
 			return result;
@@ -137,7 +137,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 			catch ( std::exception & e )
 			{
-				CLogger::LogMessage( e.what() );
+				CLogger::LogInfo( e.what() );
 			}
 
 			return result;
@@ -237,7 +237,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 			static ParamType InitialiseValue()
 			{
-				return CFixedPoint( CStrUtils::ToString( int64_t( rand() ) * int64_t( rand() ) ), 3 );
+				return CFixedPoint( int64_t( rand() ) * int64_t( rand() ), 3 );
 			}
 		};
 
@@ -404,29 +404,29 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		inline void DisplayValues( uint32_t & index, DatabaseRowPtr row )
 		{
-			CLogger::LogMessage( StringStream() << STR( "IntField : " ) << row->Get< int32_t >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "IntegerField : " ) << row->Get< int32_t >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "TinyIntField : " ) << row->Get< int8_t >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "SmallIntField : " ) << row->Get< int16_t >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "MediumIntField : " ) << row->Get< int32_t >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "BigIntField : " ) << row->Get< int64_t >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "Int2Field : " ) << row->Get< int16_t >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "Int8Field : " ) << row->Get< int64_t >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "RealField : " ) << row->Get< double >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "DoubleField : " ) << row->Get< double >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "DoublePrecisionField : " ) << row->Get< double >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "FloatField : " ) << row->Get< float >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "NumericField : " ) << row->Get< CFixedPoint >( index++ ).ToString() );
-			CLogger::LogMessage( StringStream() << STR( "DecimalField : " ) << row->Get< CFixedPoint >( index++ ).ToString() );
-			CLogger::LogMessage( StringStream() << STR( "BooleanField : " ) << row->Get< bool >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "DateField : " ) << row->Get< CDate >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "DateTimeField : " ) << row->Get< CDateTime >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "CharacterField : " ) << row->Get< std::string >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "VarcharField : " ) << row->Get< std::string >( index++ ) );
-			CLogger::LogMessage( std::wstringstream() << L"NcharField : " << row->Get< std::wstring >( index++ ) );
-			CLogger::LogMessage( std::wstringstream() << L"NVarcharField : " << row->Get< std::wstring >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "TextField : " ) << row->Get< std::string >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "BlobField : " ) << row->Get< ByteArray >( index++ ) );
+			CLogger::LogInfo( StringStream() << STR( "IntField : " ) << row->Get< int32_t >( index++ ) );
+			CLogger::LogInfo( StringStream() << STR( "IntegerField : " ) << row->Get< int32_t >( index++ ) );
+			CLogger::LogInfo( StringStream() << STR( "TinyIntField : " ) << row->Get< int8_t >( index++ ) );
+			CLogger::LogInfo( StringStream() << STR( "SmallIntField : " ) << row->Get< int16_t >( index++ ) );
+			CLogger::LogInfo( StringStream() << STR( "MediumIntField : " ) << row->Get< int32_t >( index++ ) );
+			CLogger::LogInfo( StringStream() << STR( "BigIntField : " ) << row->Get< int64_t >( index++ ) );
+			CLogger::LogInfo( StringStream() << STR( "Int2Field : " ) << row->Get< int16_t >( index++ ) );
+			CLogger::LogInfo( StringStream() << STR( "Int8Field : " ) << row->Get< int64_t >( index++ ) );
+			CLogger::LogInfo( StringStream() << STR( "RealField : " ) << row->Get< double >( index++ ) );
+			CLogger::LogInfo( StringStream() << STR( "DoubleField : " ) << row->Get< double >( index++ ) );
+			CLogger::LogInfo( StringStream() << STR( "DoublePrecisionField : " ) << row->Get< double >( index++ ) );
+			CLogger::LogInfo( StringStream() << STR( "FloatField : " ) << row->Get< float >( index++ ) );
+			CLogger::LogInfo( StringStream() << STR( "NumericField : " ) << row->Get< CFixedPoint >( index++ ).ToString() );
+			CLogger::LogInfo( StringStream() << STR( "DecimalField : " ) << row->Get< CFixedPoint >( index++ ).ToString() );
+			CLogger::LogInfo( StringStream() << STR( "BooleanField : " ) << row->Get< bool >( index++ ) );
+			CLogger::LogInfo( StringStream() << STR( "DateField : " ) << row->Get< CDate >( index++ ) );
+			CLogger::LogInfo( StringStream() << STR( "DateTimeField : " ) << row->Get< CDateTime >( index++ ) );
+			CLogger::LogInfo( StringStream() << STR( "CharacterField : " ) << row->Get< std::string >( index++ ) );
+			CLogger::LogInfo( StringStream() << STR( "VarcharField : " ) << row->Get< std::string >( index++ ) );
+			CLogger::LogInfo( std::wstringstream() << L"NcharField : " << row->Get< std::wstring >( index++ ) );
+			CLogger::LogInfo( std::wstringstream() << L"NVarcharField : " << row->Get< std::wstring >( index++ ) );
+			CLogger::LogInfo( StringStream() << STR( "TextField : " ) << row->Get< std::string >( index++ ) );
+			CLogger::LogInfo( StringStream() << STR( "BlobField : " ) << row->Get< ByteArray >( index++ ) );
 		}
 
 		template< typename Type >
@@ -1109,7 +1109,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					stmtGetActors->Initialize();
 					std::clock_t start = std::clock();
 					DatabaseResultPtr result = stmtGetActors->ExecuteSelect();
-					CLogger::LogMessage( StringStream() << "    Selected the elements in " << float( std::clock() - start ) / CLOCKS_PER_SEC << "seconds (no fetch)" );
+					CLogger::LogInfo( StringStream() << "    Selected the elements in " << float( std::clock() - start ) / CLOCKS_PER_SEC << "seconds (no fetch)" );
 
 					start = std::clock();
 					uint32_t count = result->GetRowCount();
@@ -1124,7 +1124,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 						}
 					}
 
-					CLogger::LogMessage( StringStream() << "    Fetched " << count << " elements in " << float( std::clock() - start ) / CLOCKS_PER_SEC << "seconds" );
+					CLogger::LogInfo( StringStream() << "    Fetched " << count << " elements in " << float( std::clock() - start ) / CLOCKS_PER_SEC << "seconds" );
 				}
 			}
 			catch ( ... )
@@ -1147,7 +1147,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					std::clock_t start = std::clock();
 					stmtGetActors->SetParameterValue( 0, whereClause );
 					DatabaseResultPtr result = stmtGetActors->ExecuteSelect();
-					CLogger::LogMessage( StringStream() << "    Selected the elements in " << float( std::clock() - start ) / CLOCKS_PER_SEC << "seconds (no fetch)" );
+					CLogger::LogInfo( StringStream() << "    Selected the elements in " << float( std::clock() - start ) / CLOCKS_PER_SEC << "seconds (no fetch)" );
 
 					start = std::clock();
 					uint32_t count = result->GetRowCount();
@@ -1162,7 +1162,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 						}
 					}
 
-					CLogger::LogMessage( StringStream() << "    Fetched " << count << " elements in " << float( std::clock() - start ) / CLOCKS_PER_SEC << "seconds" );
+					CLogger::LogInfo( StringStream() << "    Fetched " << count << " elements in " << float( std::clock() - start ) / CLOCKS_PER_SEC << "seconds" );
 				}
 			}
 			catch ( ... )
@@ -1207,7 +1207,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 							stmtDelete->ExecuteUpdate();
 						}
 
-						CLogger::LogMessage( StringStream() << "    Deleted " << testCount << " elements in " << float( std::clock() - start ) / CLOCKS_PER_SEC << "seconds" );
+						CLogger::LogInfo( StringStream() << "    Deleted " << testCount << " elements in " << float( std::clock() - start ) / CLOCKS_PER_SEC << "seconds" );
 					}
 				}
 			}
@@ -1253,7 +1253,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 							stmtDelete->ExecuteUpdate();
 						}
 
-						CLogger::LogMessage( StringStream() << "    Deleted " << testCount << " elements in " << float( std::clock() - start ) / CLOCKS_PER_SEC << "seconds" );
+						CLogger::LogInfo( StringStream() << "    Deleted " << testCount << " elements in " << float( std::clock() - start ) / CLOCKS_PER_SEC << "seconds" );
 					}
 				}
 			}

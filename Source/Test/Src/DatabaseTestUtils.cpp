@@ -84,7 +84,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			memset( szCommandLine, 0, commandLine.size() + 1 );
 			strcpy_s( szCommandLine, commandLine.size() + 1, commandLine.c_str() );
 
-			///@remarks Create and execute a new process.
+			//!@remarks Create and execute a new process.
 			STARTUPINFOA si = { 0 };
 			BOOL result = ::CreateProcessA( NULL,
 											szCommandLine,
@@ -134,18 +134,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				args.push_back( argument.c_str() );
 			}
 
-			///@remarks Create new process.
+			//!@remarks Create new process.
 			processId = vfork();
 
 			if ( !processId )
 			{
-				///@remarks Execute child process.
+				//!@remarks Execute child process.
 				execv( processPath.c_str(), const_cast< char * const * >( args.data() ) );
 				exit( 0 );
 			}
 			else
 			{
-				///@remarks Parent process
+				//!@remarks Parent process
 				if ( processId == -1 )
 				{
 					StringStream ss;

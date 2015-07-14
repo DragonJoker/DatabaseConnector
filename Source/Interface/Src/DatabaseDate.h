@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file Date.h
- * @author Sylvain Doremus
- * @version 1.0
- * @date 3/20/2014 2:47:39 PM
- *
- *
- * @brief CDate class declaration.
- *
- * @details Describes a date.
- *
- ***************************************************************************/
+* @file Date.h
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/20/2014 2:47:39 PM
+*
+*
+* @brief CDate class declaration.
+*
+* @details Describes a date.
+*
+***************************************************************************/
 
 #ifndef ___DATABASE_DATE_H___
 #define ___DATABASE_DATE_H___
@@ -26,12 +26,18 @@ BEGIN_NAMESPACE_DATABASE
 	class DatabaseExport CDate
 	{
 	public:
-		static String ShortDay[7];        ///< Array of short day names.
-		static String LongDay[7];         ///< Array of long day names.
-		static String ShortMonth[12];     ///< Array of short month names.
-		static String LongMonth[12];      ///< Array of long month names.
-		static int MonthMaxDays[12];      ///< Array of max number of days per month.
-		static CDateTime Today;           ///< Today date/time
+		//! Array of short day names.
+		static String ShortDay[7];
+		//! Array of long day names.
+		static String LongDay[7];
+		//! Array of short month names.
+		static String ShortMonth[12];
+		//! Array of long month names.
+		static String LongMonth[12];
+		//! Array of max number of days per month.
+		static int MonthMaxDays[12];
+		//! Today date/time
+		static CDateTime Today;
 
 	public:
 		/** Default constructor.
@@ -322,13 +328,16 @@ BEGIN_NAMESPACE_DATABASE
 		friend DatabaseExport bool operator ==( const CDate & lhs, const CDate & rhs );
 
 	protected:
-
-		int         _year;      ///< Year.
-		EDateMonth  _month;     ///< Month.
-		int         _monthDay;  ///< Month day.
-		int         _yearDay;   ///< Year day.
-		EDateDay    _weekDay;   ///< Week day.
-
+		//! Year.
+		int _year;
+		//! Month.
+		EDateMonth _month;
+		//! Month day.
+		int _monthDay;
+		//! Year day.
+		int _yearDay;
+		//! Week day.
+		EDateDay _weekDay;
 	};
 
 	/** Check equality of two dates.
@@ -370,7 +379,6 @@ BEGIN_NAMESPACE_DATABASE
 	    The stream.
 	*/
 	DatabaseExport std::wostream & operator <<( std::wostream & stream, const CDate & date );
-
 }
 END_NAMESPACE_DATABASE
 

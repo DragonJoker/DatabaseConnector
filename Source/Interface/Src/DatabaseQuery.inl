@@ -1,14 +1,14 @@
 /************************************************************************//**
- * @file DatabaseQuery.inl
- * @author Sylvain Doremus
- * @version 1.0
- * @date 3/20/2014 2:47:39 PM
- *
- *
- * @brief CDatabaseQuery class definition.
- *
- * @details Describes CDatabaseQuery template methods.
- *
+* @file DatabaseQuery.inl
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/20/2014 2:47:39 PM
+*
+*
+* @brief CDatabaseQuery class definition.
+*
+* @details Describes CDatabaseQuery template methods.
+*
 ***************************************************************************/
 
 #include "DatabaseLogger.h"
@@ -20,7 +20,6 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		DatabaseParameterPtr parameter = GetParameter( index );
 		parameter->SetValue( value );
-		_mapParamsByPointer[parameter->GetObjectValue().GetPtrValue()] = parameter;
 	}
 
 	template< typename T >
@@ -28,7 +27,6 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		DatabaseParameterPtr parameter = GetParameter( name );
 		parameter->SetValue( value );
-		_mapParamsByPointer[parameter->GetObjectValue().GetPtrValue()] = parameter;
 	}
 
 	template< typename T >
@@ -36,7 +34,6 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		DatabaseParameterPtr parameter = GetParameter( index );
 		parameter->SetValueFast( value );
-		_mapParamsByPointer[parameter->GetObjectValue().GetPtrValue()] = parameter;
 	}
 
 	template< typename T >
@@ -44,7 +41,6 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		DatabaseParameterPtr parameter = GetParameter( name );
 		parameter->SetValueFast( value );
-		_mapParamsByPointer[parameter->GetObjectValue().GetPtrValue()] = parameter;
 	}
 
 	template <typename T>
