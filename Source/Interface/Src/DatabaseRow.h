@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DatabaseRow.h
- * @author Sylvain Doremus
- * @version 1.0
- * @date 3/24/2014 8:37:01 AM
- *
- *
- * @brief CDatabaseRow class declaration.
- *
- * @details Describes a row of the result set.
- *
- ***************************************************************************/
+* @file DatabaseRow.h
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/24/2014 8:37:01 AM
+*
+*
+* @brief CDatabaseRow class declaration.
+*
+* @details Describes a row of the result set.
+*
+***************************************************************************/
 
 #ifndef ___DATABASE_ROW_H___
 #define ___DATABASE_ROW_H___
@@ -28,152 +28,144 @@ BEGIN_NAMESPACE_DATABASE
 	public:
 		/** Constructor.
 		@param[in] connection
-		    Database connection.
+			Database connection.
 		*/
 		DatabaseExport CDatabaseRow( DatabaseConnectionPtr connection );
 
 		/** Destructor.
-		 */
+			*/
 		DatabaseExport virtual ~CDatabaseRow();
 
 		/** Add a field to the row.
 		@param[in] field
-		    New field.
-		 */
+			New field.
+			*/
 		DatabaseExport void AddField( DatabaseFieldPtr field );
-
-		/** Check field existence.
-		@param[in] name
-		    Name of the field to check.
-		@return
-		    true if found.
-		 */
-		DatabaseExport bool HasField( const String & name );
 
 		/** Get field by name.
 		@param[in] name
-		    Field name.
+			Field name.
 		@return
-		    Field.
+			Field.
 		*/
 		DatabaseExport DatabaseFieldPtr GetField( const String & name );
 
 		/** Get field by index.
 		@param[in] index
-		    Field index.
+			Field index.
 		@return
-		    Field.
+			Field.
 		*/
 		DatabaseExport DatabaseFieldPtr GetField( uint32_t index );
 
 		/** Get value
 		@param[in] index
-		    Field index.
+			Field index.
 		@return
-		    Value.
+			Value.
 		*/
 		template< typename T > inline T Get( uint32_t index );
 
 		/** Get value
 		@param[in] name
-		    Field name.
+			Field name.
 		@return
-		    Value.
+			Value.
 		*/
 		template< typename T > inline T Get( const String & name );
 
 		/** Get value
 		@param[in] index
-		    Field index.
+			Field index.
 		@param[out] value
-		    Value.
+			Value.
 		*/
 		template< typename T > inline void Get( uint32_t index, T & value );
 
 		/** Get value
 		@param[in] name
-		    Field name.
+			Field name.
 		@param[out] value
-		    Value.
+			Value.
 		*/
 		template< typename T > inline void Get( const String & name, T & value );
 
 		/** Get value
 		@param[in] index
-		    Field index.
+			Field index.
 		@return
-		    Value.
+			Value.
 		*/
-		template< typename T > inline boost::optional< T > GetOpt( uint32_t index );
+		template< typename T > inline CDatabaseNullable< T > GetOpt( uint32_t index );
 
 		/** Get value
 		@param[in] name
-		    Field name.
+			Field name.
 		@return
-		    Value.
+			Value.
 		*/
-		template< typename T > inline boost::optional< T > GetOpt( const String & name );
+		template< typename T > inline CDatabaseNullable< T > GetOpt( const String & name );
 
 		/** Get value
 		@param[in] index
-		    Field index.
+			Field index.
 		@param[out] value
-		    Value.
+			Value.
 		*/
-		template< typename T > inline void GetOpt( uint32_t index, boost::optional< T > & value );
+		template< typename T > inline void GetOpt( uint32_t index, CDatabaseNullable< T > & value );
 
 		/** Get value
 		@param[in] name
-		    Field name.
+			Field name.
 		@param[out] value
-		    Value.
+			Value.
 		*/
-		template< typename T > inline void GetOpt( const String & name, boost::optional< T > & value );
+		template< typename T > inline void GetOpt( const String & name, CDatabaseNullable< T > & value );
 
 		/** Get value
 		@param[in] index
-		    Field index.
+			Field index.
 		@param[out] value
-		    Value.
+			Value.
 		*/
 		template< typename T > inline void GetFast( uint32_t index, T & value );
 
 		/** Get value
 		@param[in] name
-		    Field name.
+			Field name.
 		@param[out] value
-		    Value.
+			Value.
 		*/
 		template< typename T > inline void GetFast( const String & name, T & value );
 
 		/** Get value
 		@param[in] index
-		    Field index.
+			Field index.
 		@param[out] value
-		    Value.
+			Value.
 		*/
-		template< typename T > inline void GetOptFast( uint32_t index, boost::optional< T > & value );
+		template< typename T > inline void GetOptFast( uint32_t index, CDatabaseNullable< T > & value );
 
 		/** Get value
 		@param[in] name
-		    Field name.
+			Field name.
 		@param[out] value
-		    Value.
+			Value.
 		*/
-		template< typename T > inline void GetOptFast( const String & name, boost::optional< T > & value );
+		template< typename T > inline void GetOptFast( const String & name, CDatabaseNullable< T > & value );
 
 		/** Get default value.
 		@return
-		    Default value.
+			Default value.
 		*/
 		template< typename T > inline T GetDefault();
 
 	protected:
-		DatabaseFieldPtrArray   _arrayFields;       ///< Array of fields.
-		DatabaseConnectionPtr   _connection;        ///< Database connection.
-
-	}; // class CDatabaseRow
-
+		//! Array of fields.
+		DatabaseFieldPtrArray _arrayFields;
+		//! Database connection.
+		DatabaseConnectionPtr _connection;
+	};
 }
 END_NAMESPACE_DATABASE
 

@@ -44,40 +44,191 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	static const String ERROR_MYSQL_UNKNOWN = STR( "Unknown error encountered while executing query" );
 	static const String ERROR_MYSQL_STMT_METADATA = STR( "Could not retrieve metadata from the statement" );
 
-	static const String MYSQL_TRANSACTION_BEGIN = STR( "BEGIN TRANSACTION " );
-	static const String MYSQL_TRANSACTION_COMMIT = STR( "COMMIT TRANSACTION " );
-	static const String MYSQL_TRANSACTION_ROLLBACK = STR( "ROLLBACK TRANSACTION " );
-
 	static const String WARNING_MYSQL_UNKNOWN_OPTION = STR( "Unsupported option: " );
+	static const String WARNING_MYSQL_INIT_COMMAND = STR( "MYSQL_INIT_COMMAND" );
+	static const String WARNING_MYSQL_SET_CHARSET_NAME = STR( "MYSQL_SET_CHARSET_NAME" );
+	static const String WARNING_MYSQL_OPT_CONNECT_TIMEOUT = STR( "MYSQL_OPT_CONNECT_TIMEOUT" );
 
-	static const std::string MYSQL_NULL_STDSTRING = "NULL";
-	static const std::wstring MYSQL_NULL_STDWSTRING = L"NULL";
-	static const String MYSQL_NULL_STRING = STR( "NULL" );
+	static const TChar * INFO_MYSQL_STATEMENT_EXECUTION = STR( "Statement execution" );
+	static const TChar * INFO_MYSQL_STATEMENT_PREPARATION = STR( "Statement preparation" );
+	static const TChar * INFO_MYSQL_DATABASE_SELECTION = STR( "Database selection" );
+	static const String INFO_MYSQL_EXECUTING_UPDATE = STR( "Executing update: " );
+	static const String INFO_MYSQL_EXECUTING_SELECT = STR( "Executing select: " );
 
-	static const std::string MYSQL_FORMAT_STMT_DATE = "{-d %Y-%m-%d}";
-	static const std::string MYSQL_FORMAT_STMT_DATETIME = "{-ts %Y-%m-%d %H:%M:%S}";
-	static const std::string MYSQL_FORMAT_STMT_TIME = "{-t %H:%M:%S}";
-	static const std::string MYSQL_FORMAT_DATE = "CAST('%Y-%m-%d' AS DATE)";
-	static const std::string MYSQL_FORMAT_TIME = "CAST('%H:%M:%S' AS TIME)";
-	static const std::string MYSQL_FORMAT_DATETIME = "CAST('%Y-%m-%d %H:%M:%S' AS DATETIME)";
-	static const std::string MYSQL_FORMAT_DATETIME_DATE = "CAST('%Y-%m-%d 00:00:00' AS DATETIME)";
-	static const std::string MYSQL_FORMAT_DATETIME_TIME = "CAST('0000-00-00 %H:%M:%S' AS DATETIME)";
+	static const String DEBUG_MYSQL_CONNECTED = STR( "Connected to database" );
+	static const String DEBUG_MYSQL_CLIENT_VERSION = STR( "Client Version: " );
+	static const String DEBUG_MYSQL_SERVER_HOST = STR( "Server Host: " );
+	static const String DEBUG_MYSQL_SERVER_VERSION = STR( "Server Version: " );
 
-	static const std::wstring WMYSQL_FORMAT_STMT_DATE = L"{-d %Y-%m-%d}";
-	static const std::wstring WMYSQL_FORMAT_STMT_DATETIME = L"{-ts %Y-%m-%d %H:%M:%S}";
-	static const std::wstring WMYSQL_FORMAT_STMT_TIME = L"{-t %H:%M:%S}";
-	static const std::wstring WMYSQL_FORMAT_DATE = L"CAST('%Y-%m-%d' AS DATE)";
-	static const std::wstring WMYSQL_FORMAT_TIME = L"CAST('%H:%M:%S' AS TIME)";
-	static const std::wstring WMYSQL_FORMAT_DATETIME = L"CAST('%Y-%m-%d %H:%M:%S' AS DATETIME)";
-	static const std::wstring WMYSQL_FORMAT_DATETIME_DATE = L"CAST('%Y-%m-%d 00:00:00' AS DATETIME)";
-	static const std::wstring WMYSQL_FORMAT_DATETIME_TIME = L"CAST('0000-00-00 %H:%M:%S' AS DATETIME)";
+	static const String MYSQL_SQL_CREATE_DATABASE = STR( "CREATE DATABASE " );
+	static const String MYSQL_SQL_CHARSET = STR( " CHARACTER SET utf8 COLLATE utf8_general_ci" );
+	static const String MYSQL_SQL_USE = STR( "USE " );
+	static const String MYSQL_SQL_DROP_DATABASE = STR( "DROP DATABASE " );
+	static const String MYSQL_SQL_TRANSACTION_BEGIN = STR( "BEGIN TRANSACTION " );
+	static const String MYSQL_SQL_TRANSACTION_COMMIT = STR( "COMMIT TRANSACTION " );
+	static const String MYSQL_SQL_TRANSACTION_ROLLBACK = STR( "ROLLBACK TRANSACTION " );
+	static const String MYSQL_SQL_NULL = STR( "NULL" );
+
+	static const std::string MYSQL_SQL_SNULL = "NULL";
+	static const std::wstring MYSQL_SQL_WNULL = L"NULL";
+
+	static const char * MYSQL_OPTION_NAMES = "SET NAMES 'utf8'";
+	static const char * MYSQL_OPTION_UTF8 = "utf8";
+
+	static const std::string MYSQL_FORMAT_SDATE = "CAST('%Y-%m-%d' AS DATE)";
+	static const std::string MYSQL_FORMAT_STIME = "CAST('%H:%M:%S' AS TIME)";
+	static const std::string MYSQL_FORMAT_SDATETIME = "CAST('%Y-%m-%d %H:%M:%S' AS DATETIME)";
+	static const std::string MYSQL_FORMAT_SDATETIME_DATE = "CAST('%Y-%m-%d 00:00:00' AS DATETIME)";
+	static const std::string MYSQL_FORMAT_SDATETIME_TIME = "CAST('0000-00-00 %H:%M:%S' AS DATETIME)";
+	static const std::string MYSQL_FORMAT_STMT_SDATE = "{-d %Y-%m-%d}";
+	static const std::string MYSQL_FORMAT_STMT_STIME = "{-t %H:%M:%S}";
+	static const std::string MYSQL_FORMAT_STMT_SDATETIME = "{-ts %Y-%m-%d %H:%M:%S}";
+
+	static const std::wstring MYSQL_FORMAT_WDATE = L"CAST('%Y-%m-%d' AS DATE)";
+	static const std::wstring MYSQL_FORMAT_WTIME = L"CAST('%H:%M:%S' AS TIME)";
+	static const std::wstring MYSQL_FORMAT_WDATETIME = L"CAST('%Y-%m-%d %H:%M:%S' AS DATETIME)";
+	static const std::wstring MYSQL_FORMAT_WDATETIME_DATE = L"CAST('%Y-%m-%d 00:00:00' AS DATETIME)";
+	static const std::wstring MYSQL_FORMAT_WDATETIME_TIME = L"CAST('0000-00-00 %H:%M:%S' AS DATETIME)";
+	static const std::wstring MYSQL_FORMAT_STMT_WDATE = L"{-d %Y-%m-%d}";
+	static const std::wstring MYSQL_FORMAT_STMT_WTIME = L"{-t %H:%M:%S}";
+	static const std::wstring MYSQL_FORMAT_STMT_WDATETIME = L"{-ts %Y-%m-%d %H:%M:%S}";
 
 	// cf. https://dev.mysql.com/doc/refman/5.1/en/c-api-data-structures.html
 	static const int MYSQL_BINARY_CHARSET = 63;
 
 	namespace
 	{
-		EFieldType GetFieldType( enum_field_types sqlType, int charset )
+		struct CInMySqlBindBase
+			: public SMySqlBindBase
+		{
+			unsigned long _length = 0;
+
+			CInMySqlBindBase( MYSQL_BIND & bind )
+				: SMySqlBindBase( bind )
+			{
+				bind.length = &_length;
+			}
+		};
+
+		template< typename T, typename U = T >
+		struct SInMySqlBind
+			: public CInMySqlBindBase
+		{
+			T _value;
+
+			SInMySqlBind( MYSQL_BIND & bind )
+				: CInMySqlBindBase( bind )
+			{
+				bind.buffer = &_value;
+			}
+
+			T const & GetValue()const
+			{
+				return _value;
+			}
+		};
+
+		template<>
+		struct SInMySqlBind< bool, bool >
+			: public CInMySqlBindBase
+		{
+			int8_t _value;
+
+			SInMySqlBind( MYSQL_BIND & bind )
+				: CInMySqlBindBase( bind )
+			{
+				bind.buffer = &_value;
+			}
+
+			bool GetValue()const
+			{
+				return _value != 0;
+			}
+		};
+
+		template<>
+		struct SInMySqlBind< int32_t, int24_t >
+			: public CInMySqlBindBase
+		{
+			int32_t _value;
+
+			SInMySqlBind( MYSQL_BIND & bind )
+				: CInMySqlBindBase( bind )
+			{
+				bind.buffer = &_value;
+				bind.buffer_length = sizeof( int32_t );
+			}
+
+			int24_t GetValue()const
+			{
+				return int24_t( _value );
+			}
+		};
+
+		template< typename T >
+		struct SInMySqlBind< T *, T * >
+			: public CInMySqlBindBase
+		{
+			T _value[8192];
+
+			SInMySqlBind( MYSQL_BIND & bind )
+				: CInMySqlBindBase( bind )
+			{
+				memset( _value, 0, sizeof( _value ) );
+				bind.buffer = _value;
+				bind.buffer_length = sizeof( _value ) / sizeof( *_value );
+			}
+
+			T const * GetValue()const
+			{
+				return _value;
+			}
+		};
+
+		template<>
+		struct SInMySqlBind< char *, CFixedPoint >
+			: public CInMySqlBindBase
+		{
+			char _value[8192];
+
+			SInMySqlBind( MYSQL_BIND & bind, uint32_t precision )
+				: CInMySqlBindBase( bind )
+				, _precision( uint8_t( precision ) )
+			{
+				memset( _value, 0, sizeof( _value ) );
+				bind.buffer = _value;
+				bind.buffer_length = sizeof( _value ) / sizeof( *_value );
+			}
+
+			CFixedPoint GetValue()const
+			{
+				return CFixedPoint( _value, _precision );
+			}
+
+			uint8_t _precision;
+		};
+
+		template<>
+		struct SInMySqlBind< char *, int32_t >
+			: public CInMySqlBindBase
+		{
+			char _value[8192];
+
+			SInMySqlBind( MYSQL_BIND & bind )
+				: CInMySqlBindBase( bind )
+			{
+				memset( _value, 0, sizeof( _value ) );
+				bind.buffer = _value;
+				bind.buffer_length = sizeof( _value ) / sizeof( _value );
+			}
+
+			int32_t GetValue()const
+			{
+				return CStrUtils::ToInt( _value );
+			}
+		};
+
+		EFieldType GetFieldType( enum_field_types sqlType, int charset, int length )
 		{
 			EFieldType result = EFieldType_NULL;
 
@@ -87,30 +238,48 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				result = EFieldType_NULL;
 				break;
 
+			case MYSQL_TYPE_BIT:
+				result = EFieldType_BIT;
+				break;
+
 			case MYSQL_TYPE_TINY:
-				result = EFieldType_BOOL;
+				if ( length > 1 )
+				{
+					result = EFieldType_INT8;
+				}
+				else
+				{
+					result = EFieldType_BIT;
+				}
+
 				break;
 
 			case MYSQL_TYPE_SHORT:
-				result = EFieldType_SMALL_INTEGER;
+				result = EFieldType_INT16;
 				break;
 
 			case MYSQL_TYPE_INT24:
+				result = EFieldType_INT24;
+				break;
+
 			case MYSQL_TYPE_LONG:
-				result = EFieldType_INTEGER;
+				result = EFieldType_INT32;
 				break;
 
 			case MYSQL_TYPE_LONGLONG:
-				result = EFieldType_LONG_INTEGER;
+				result = EFieldType_INT64;
 				break;
 
 			case MYSQL_TYPE_FLOAT:
-				result = EFieldType_FLOAT;
+				result = EFieldType_FLOAT32;
+				break;
+
+			case MYSQL_TYPE_DOUBLE:
+				result = EFieldType_FLOAT64;
 				break;
 
 			case MYSQL_TYPE_NEWDECIMAL:
-			case MYSQL_TYPE_DOUBLE:
-				result = EFieldType_DOUBLE;
+				result = EFieldType_FIXED_POINT;
 				break;
 
 			case MYSQL_TYPE_VAR_STRING:
@@ -149,7 +318,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			return result;
 		}
 
-		std::unique_ptr< CInMySqlBindBase > GetInBind( enum_field_types sqlType, MYSQL_BIND & bind )
+		std::unique_ptr< CInMySqlBindBase > GetInBind( enum_field_types sqlType, MYSQL_BIND & bind, std::uint32_t precision )
 		{
 			std::unique_ptr< CInMySqlBindBase > result;
 			bind.buffer_type = sqlType;
@@ -160,33 +329,42 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				break;
 
 			case MYSQL_TYPE_TINY:
-				result = std::make_unique< CInMySqlBind< int8_t > >( bind );
+				result = std::make_unique< SInMySqlBind< int8_t > >( bind );
 				bind.is_unsigned = false;
 				break;
 
 			case MYSQL_TYPE_SHORT:
-				result = std::make_unique< CInMySqlBind< int16_t > >( bind );
+				result = std::make_unique< SInMySqlBind< int16_t > >( bind );
 				bind.is_unsigned = false;
 				break;
 
 			case MYSQL_TYPE_INT24:
+				result = std::make_unique< SInMySqlBind< int32_t, int24_t > >( bind );
+				bind.is_unsigned = false;
+				break;
+
 			case MYSQL_TYPE_LONG:
-				result = std::make_unique< CInMySqlBind< int32_t > >( bind );
+				result = std::make_unique< SInMySqlBind< int32_t > >( bind );
 				bind.is_unsigned = false;
 				break;
 
 			case MYSQL_TYPE_LONGLONG:
-				result = std::make_unique< CInMySqlBind< int64_t > >( bind );
+				result = std::make_unique< SInMySqlBind< int64_t > >( bind );
 				bind.is_unsigned = false;
 				break;
 
 			case MYSQL_TYPE_FLOAT:
-				result = std::make_unique< CInMySqlBind< float > >( bind );
+				result = std::make_unique< SInMySqlBind< float > >( bind );
 				bind.is_unsigned = false;
 				break;
 
 			case MYSQL_TYPE_DOUBLE:
-				result = std::make_unique< CInMySqlBind< double > >( bind );
+				result = std::make_unique< SInMySqlBind< double > >( bind );
+				bind.is_unsigned = false;
+				break;
+
+			case MYSQL_TYPE_NEWDECIMAL:
+				result = std::make_unique< SInMySqlBind< char *, CFixedPoint > >( bind, precision );
 				bind.is_unsigned = false;
 				break;
 
@@ -194,12 +372,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			case MYSQL_TYPE_DATE:
 			case MYSQL_TYPE_DATETIME:
 			case MYSQL_TYPE_TIME:
-				result = std::make_unique< CInMySqlBind< MYSQL_TIME > >( bind );
-				bind.is_unsigned = false;
-				break;
-
-			case MYSQL_TYPE_NEWDECIMAL:
-				result = std::make_unique< CInMySqlBind< char *, double > >( bind );
+				result = std::make_unique< SInMySqlBind< MYSQL_TIME > >( bind );
 				bind.is_unsigned = false;
 				break;
 
@@ -209,7 +382,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			case MYSQL_TYPE_TINY_BLOB:
 			case MYSQL_TYPE_MEDIUM_BLOB:
 			case MYSQL_TYPE_LONG_BLOB:
-				result = std::make_unique< CInMySqlBind< char * > >( bind );
+				result = std::make_unique< SInMySqlBind< char * > >( bind );
 				bind.is_unsigned = false;
 				break;
 			}
@@ -235,8 +408,8 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			{
 				bind = { 0 };
 				MYSQL_FIELD * field = mysql_fetch_field( data );
-				arrayReturn.push_back( std::make_shared< CDatabaseFieldInfos >( pConnexion, CStrUtils::ToString( field->name ), GetFieldType( field->type, field->charsetnr ), field->length ) );
-				inbinds.emplace_back( GetInBind( field->type, bind ) );
+				arrayReturn.push_back( std::make_shared< CDatabaseFieldInfos >( pConnexion, CStrUtils::ToString( field->name ), GetFieldType( field->type, field->charsetnr, field->length ), field->length ) );
+				inbinds.emplace_back( GetInBind( field->type, bind, field->decimals ) );
 			}
 
 			mysql_free_result( data );
@@ -280,36 +453,40 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 							{
 								switch ( pInfos->GetType() )
 								{
-								case EFieldType_BOOL:
-									static_cast< CDatabaseValue< EFieldType_BOOL > & >( field->GetObjectValue() ).SetValue( static_cast< CInMySqlBind< bool > const & >( *bind ).GetValue() != 0 );
+								case EFieldType_BIT:
+									static_cast< CDatabaseValue< EFieldType_BIT > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< bool > const & >( *bind ).GetValue() != 0 );
 									break;
 
-								case EFieldType_SMALL_INTEGER:
-									static_cast< CDatabaseValue< EFieldType_SMALL_INTEGER > & >( field->GetObjectValue() ).SetValue( static_cast< CInMySqlBind< int16_t > const & >( *bind ).GetValue() );
+								case EFieldType_INT8:
+									static_cast< CDatabaseValue< EFieldType_INT8 > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< int8_t > const & >( *bind ).GetValue() );
 									break;
 
-								case EFieldType_INTEGER:
-									static_cast< CDatabaseValue< EFieldType_INTEGER > & >( field->GetObjectValue() ).SetValue( static_cast< CInMySqlBind< int32_t > const & >( *bind ).GetValue() );
+								case EFieldType_INT16:
+									static_cast< CDatabaseValue< EFieldType_INT16 > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< int16_t > const & >( *bind ).GetValue() );
 									break;
 
-								case EFieldType_LONG_INTEGER:
-									static_cast< CDatabaseValue< EFieldType_LONG_INTEGER > & >( field->GetObjectValue() ).SetValue( static_cast< CInMySqlBind< int64_t > const & >( *bind ).GetValue() );
+								case EFieldType_INT24:
+									static_cast< CDatabaseValue< EFieldType_INT24 > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< int32_t, int24_t > const & >( *bind ).GetValue() );
 									break;
 
-								case EFieldType_FLOAT:
-									static_cast< CDatabaseValue< EFieldType_FLOAT > & >( field->GetObjectValue() ).SetValue( static_cast< CInMySqlBind< float > const & >( *bind ).GetValue() );
+								case EFieldType_INT32:
+									static_cast< CDatabaseValue< EFieldType_INT32 > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< int32_t > const & >( *bind ).GetValue() );
 									break;
 
-								case EFieldType_DOUBLE:
-									if ( bind->_bind.buffer_type == MYSQL_TYPE_NEWDECIMAL )
-									{
-										static_cast< CDatabaseValue< EFieldType_DOUBLE > & >( field->GetObjectValue() ).SetValue( static_cast< CInMySqlBind< char *, double > const & >( *bind ).GetValue() );
-									}
-									else
-									{
-										static_cast< CDatabaseValue< EFieldType_DOUBLE > & >( field->GetObjectValue() ).SetValue( static_cast< CInMySqlBind< double > const & >( *bind ).GetValue() );
-									}
+								case EFieldType_INT64:
+									static_cast< CDatabaseValue< EFieldType_INT64 > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< int64_t > const & >( *bind ).GetValue() );
+									break;
 
+								case EFieldType_FLOAT32:
+									static_cast< CDatabaseValue< EFieldType_FLOAT32 > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< float > const & >( *bind ).GetValue() );
+									break;
+
+								case EFieldType_FLOAT64:
+									static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< double > const & >( *bind ).GetValue() );
+									break;
+
+								case EFieldType_FIXED_POINT:
+									static_cast< CDatabaseValue< EFieldType_FIXED_POINT > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< char *, CFixedPoint > const & >( *bind ).GetValue() );
 									break;
 
 								case EFieldType_VARCHAR:
@@ -341,35 +518,35 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 								}
 
 								case EFieldType_DATE:
-									static_cast< CDatabaseValue< EFieldType_DATE > & >( field->GetObjectValue() ).SetValue( CDateFromMySqlTime( static_cast< CInMySqlBind< MYSQL_TIME > const & >( *bind ).GetValue() ) );
+									static_cast< CDatabaseValue< EFieldType_DATE > & >( field->GetObjectValue() ).SetValue( CDateFromMySqlTime( static_cast< SInMySqlBind< MYSQL_TIME > const & >( *bind ).GetValue() ) );
 									break;
 
 								case EFieldType_DATETIME:
-									static_cast< CDatabaseValue< EFieldType_DATETIME > & >( field->GetObjectValue() ).SetValue( CDateTimeFromMySqlTime( static_cast< CInMySqlBind< MYSQL_TIME > const & >( *bind ).GetValue() ) );
+									static_cast< CDatabaseValue< EFieldType_DATETIME > & >( field->GetObjectValue() ).SetValue( CDateTimeFromMySqlTime( static_cast< SInMySqlBind< MYSQL_TIME > const & >( *bind ).GetValue() ) );
 									break;
 
 								case EFieldType_TIME:
-									static_cast< CDatabaseValue< EFieldType_TIME > & >( field->GetObjectValue() ).SetValue( CTimeFromMySqlTime( static_cast< CInMySqlBind< MYSQL_TIME > const & >( *bind ).GetValue() ) );
+									static_cast< CDatabaseValue< EFieldType_TIME > & >( field->GetObjectValue() ).SetValue( CTimeFromMySqlTime( static_cast< SInMySqlBind< MYSQL_TIME > const & >( *bind ).GetValue() ) );
 									break;
 
 								case EFieldType_BINARY:
 								{
-									auto value = static_cast< CInMySqlBind< uint8_t * > const & >( *bind ).GetValue();
-									static_cast< CDatabaseValue< EFieldType_BINARY > & >( field->GetObjectValue() ).SetValue( std::vector< uint8_t >( value, value + bind->_length ) );
+									auto value = static_cast< SInMySqlBind< uint8_t * > const & >( *bind ).GetValue();
+									static_cast< CDatabaseValue< EFieldType_BINARY > & >( field->GetObjectValue() ).SetValue( ByteArray( value, value + bind->_length ) );
 									break;
 								}
 
 								case EFieldType_VARBINARY:
 								{
-									auto value = static_cast< CInMySqlBind< uint8_t * > const & >( *bind ).GetValue();
-									static_cast< CDatabaseValue< EFieldType_VARBINARY > & >( field->GetObjectValue() ).SetValue( std::vector< uint8_t >( value, value + bind->_length ) );
+									auto value = static_cast< SInMySqlBind< uint8_t * > const & >( *bind ).GetValue();
+									static_cast< CDatabaseValue< EFieldType_VARBINARY > & >( field->GetObjectValue() ).SetValue( ByteArray( value, value + bind->_length ) );
 									break;
 								}
 
 								case EFieldType_LONG_VARBINARY:
 								{
-									auto value = static_cast< CInMySqlBind< uint8_t * > const & >( *bind ).GetValue();
-									static_cast< CDatabaseValue< EFieldType_LONG_VARBINARY > & >( field->GetObjectValue() ).SetValue( std::vector< uint8_t >( value, value + bind->_length ) );
+									auto value = static_cast< SInMySqlBind< uint8_t * > const & >( *bind ).GetValue();
+									static_cast< CDatabaseValue< EFieldType_LONG_VARBINARY > & >( field->GetObjectValue() ).SetValue( ByteArray( value, value + bind->_length ) );
 									break;
 								}
 
@@ -526,7 +703,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	{
 		std::string strReturn( text );
 
-		if ( strReturn != MYSQL_NULL_STDSTRING )
+		if ( strReturn != MYSQL_SQL_SNULL )
 		{
 			Replace( strReturn, "'", "''" );
 			Replace( strReturn, "\\", "\\\\" );
@@ -540,7 +717,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	{
 		String strReturn( CStrUtils::ToString( text ) );
 
-		if ( strReturn != MYSQL_NULL_STRING )
+		if ( strReturn != MYSQL_SQL_SNULL )
 		{
 			Replace( strReturn, STR( "'" ), STR( "''" ) );
 			Replace( strReturn, STR( "\\" ), STR( "\\\\" ) );
@@ -555,129 +732,257 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		return STR( "[" ) + text + STR( "]" );
 	}
 
-	std::string CDatabaseConnectionMySql::WriteDate( const CDate & date ) const
+	std::string CDatabaseConnectionMySql::WriteDateS( const CDate & date ) const
 	{
 		std::string strReturn;
 
 		if ( date.IsValid() )
 		{
-			strReturn = date.Format( MYSQL_FORMAT_DATE );
+			strReturn = date.Format( MYSQL_FORMAT_SDATE );
 		}
 		else
 		{
-			strReturn += MYSQL_NULL_STDSTRING;
+			strReturn += MYSQL_SQL_SNULL;
 		}
 
 		return strReturn;
 	}
 
-	std::string CDatabaseConnectionMySql::WriteTime( const CTime & time ) const
+	std::string CDatabaseConnectionMySql::WriteTimeS( const CTime & time ) const
 	{
 		std::string strReturn;
 
 		if ( time.IsValid() )
 		{
-			strReturn = time.Format( MYSQL_FORMAT_TIME );
+			strReturn = time.Format( MYSQL_FORMAT_STIME );
 		}
 		else
 		{
-			strReturn += MYSQL_NULL_STDSTRING;
+			strReturn += MYSQL_SQL_SNULL;
 		}
 
 		return strReturn;
 	}
 
-	std::string CDatabaseConnectionMySql::WriteDateTime( const CDateTime & dateTime ) const
+	std::string CDatabaseConnectionMySql::WriteDateTimeS( const CDateTime & dateTime ) const
 	{
 		std::string strReturn;
 
 		if ( dateTime.GetYear() <= 0 )
 		{
-			strReturn += MYSQL_NULL_STDSTRING;
+			strReturn += MYSQL_SQL_SNULL;
 		}
 		else
 		{
-			strReturn = dateTime.Format( MYSQL_FORMAT_DATETIME );
+			strReturn = dateTime.Format( MYSQL_FORMAT_SDATETIME );
 		}
 
 		return strReturn;
 	}
 
-	std::string CDatabaseConnectionMySql::WriteDateTime( const CDate & date ) const
+	std::string CDatabaseConnectionMySql::WriteDateTimeS( const CDate & date ) const
 	{
 		std::string strReturn;
 
 		if ( !date.IsValid() || date.GetYear() <= 0 )
 		{
-			strReturn += MYSQL_NULL_STDSTRING;
+			strReturn += MYSQL_SQL_SNULL;
 		}
 		else
 		{
-			strReturn = date.Format( MYSQL_FORMAT_DATETIME_DATE );
+			strReturn = date.Format( MYSQL_FORMAT_SDATETIME_DATE );
 		}
 
 		return strReturn;
 	}
 
-	std::string CDatabaseConnectionMySql::WriteDateTime( const CTime & time ) const
+	std::string CDatabaseConnectionMySql::WriteDateTimeS( const CTime & time ) const
 	{
 		std::string strReturn;
 
 		if ( !time.IsValid() )
 		{
-			strReturn += MYSQL_NULL_STDSTRING;
+			strReturn += MYSQL_SQL_SNULL;
 		}
 		else
 		{
-			strReturn = time.Format( MYSQL_FORMAT_DATETIME_TIME );
+			strReturn = time.Format( MYSQL_FORMAT_SDATETIME_TIME );
 		}
 
 		return strReturn;
 	}
 
-	std::string CDatabaseConnectionMySql::WriteStmtDate( const CDate & date ) const
+	std::string CDatabaseConnectionMySql::WriteStmtDateS( const CDate & date ) const
 	{
 		std::string strReturn;
 
 		if ( date.IsValid() )
 		{
-			strReturn = date.Format( MYSQL_FORMAT_STMT_DATE );
+			strReturn = date.Format( MYSQL_FORMAT_STMT_SDATE );
 		}
 		else
 		{
-			strReturn += MYSQL_NULL_STDSTRING;
+			strReturn += MYSQL_SQL_SNULL;
 		}
 
 		return strReturn;
 	}
 
-	std::string CDatabaseConnectionMySql::WriteStmtTime( const CTime & time ) const
+	std::string CDatabaseConnectionMySql::WriteStmtTimeS( const CTime & time ) const
 	{
 		std::string strReturn;
 
 		if ( time.IsValid() )
 		{
-			strReturn = time.Format( MYSQL_FORMAT_STMT_TIME );
+			strReturn = time.Format( MYSQL_FORMAT_STMT_STIME );
 		}
 		else
 		{
-			strReturn += MYSQL_NULL_STDSTRING;
+			strReturn += MYSQL_SQL_SNULL;
 		}
 
 		return strReturn;
 	}
 
-	std::string CDatabaseConnectionMySql::WriteStmtDateTime( const CDateTime & dateTime ) const
+	std::string CDatabaseConnectionMySql::WriteStmtDateTimeS( const CDateTime & dateTime ) const
 	{
 		std::string strReturn;
 
 		if ( dateTime.GetYear() > 0 )
 		{
-			strReturn = dateTime.Format( MYSQL_FORMAT_STMT_DATETIME );
+			strReturn = dateTime.Format( MYSQL_FORMAT_STMT_SDATETIME );
 		}
 		else
 		{
-			strReturn += MYSQL_NULL_STDSTRING;
+			strReturn += MYSQL_SQL_SNULL;
+		}
+
+		return strReturn;
+	}
+
+	std::wstring CDatabaseConnectionMySql::WriteDateW( const CDate & date ) const
+	{
+		std::wstring strReturn;
+
+		if ( date.IsValid() )
+		{
+			strReturn = date.Format( MYSQL_FORMAT_WDATE );
+		}
+		else
+		{
+			strReturn += MYSQL_SQL_WNULL;
+		}
+
+		return strReturn;
+	}
+
+	std::wstring CDatabaseConnectionMySql::WriteTimeW( const CTime & time ) const
+	{
+		std::wstring strReturn;
+
+		if ( time.IsValid() )
+		{
+			strReturn = time.Format( MYSQL_FORMAT_WTIME );
+		}
+		else
+		{
+			strReturn += MYSQL_SQL_WNULL;
+		}
+
+		return strReturn;
+	}
+
+	std::wstring CDatabaseConnectionMySql::WriteDateTimeW( const CDateTime & dateTime ) const
+	{
+		std::wstring strReturn;
+
+		if ( dateTime.GetYear() <= 0 )
+		{
+			strReturn += MYSQL_SQL_WNULL;
+		}
+		else
+		{
+			strReturn = dateTime.Format( MYSQL_FORMAT_WDATETIME );
+		}
+
+		return strReturn;
+	}
+
+	std::wstring CDatabaseConnectionMySql::WriteDateTimeW( const CDate & date ) const
+	{
+		std::wstring strReturn;
+
+		if ( !date.IsValid() || date.GetYear() <= 0 )
+		{
+			strReturn += MYSQL_SQL_WNULL;
+		}
+		else
+		{
+			strReturn = date.Format( MYSQL_FORMAT_WDATETIME_DATE );
+		}
+
+		return strReturn;
+	}
+
+	std::wstring CDatabaseConnectionMySql::WriteDateTimeW( const CTime & time ) const
+	{
+		std::wstring strReturn;
+
+		if ( !time.IsValid() )
+		{
+			strReturn += MYSQL_SQL_WNULL;
+		}
+		else
+		{
+			strReturn = time.Format( MYSQL_FORMAT_WDATETIME_TIME );
+		}
+
+		return strReturn;
+	}
+
+	std::wstring CDatabaseConnectionMySql::WriteStmtDateW( const CDate & date ) const
+	{
+		std::wstring strReturn;
+
+		if ( date.IsValid() )
+		{
+			strReturn = date.Format( MYSQL_FORMAT_STMT_WDATE );
+		}
+		else
+		{
+			strReturn += MYSQL_SQL_WNULL;
+		}
+
+		return strReturn;
+	}
+
+	std::wstring CDatabaseConnectionMySql::WriteStmtTimeW( const CTime & time ) const
+	{
+		std::wstring strReturn;
+
+		if ( time.IsValid() )
+		{
+			strReturn = time.Format( MYSQL_FORMAT_STMT_WTIME );
+		}
+		else
+		{
+			strReturn += MYSQL_SQL_WNULL;
+		}
+
+		return strReturn;
+	}
+
+	std::wstring CDatabaseConnectionMySql::WriteStmtDateTimeW( const CDateTime & dateTime ) const
+	{
+		std::wstring strReturn;
+
+		if ( dateTime.GetYear() > 0 )
+		{
+			strReturn = dateTime.Format( MYSQL_FORMAT_STMT_WDATETIME );
+		}
+		else
+		{
+			strReturn += MYSQL_SQL_WNULL;
 		}
 
 		return strReturn;
@@ -698,8 +1003,8 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	{
 		CDate dateObj;
 
-		if ( !CDate::IsDate( date, MYSQL_FORMAT_DATE, dateObj )
-		&& !CDate::IsDate( date, MYSQL_FORMAT_STMT_DATE, dateObj )
+		if ( !CDate::IsDate( date, MYSQL_FORMAT_SDATE, dateObj )
+		&& !CDate::IsDate( date, MYSQL_FORMAT_STMT_SDATE, dateObj )
 		&& !CDate::IsDate( date, "%Y%m%d", dateObj )
 		&& !CDate::IsDate( date, "%Y-%m-%d", dateObj )
 		&& !CDate::IsDate( date, "%d/%m/%Y", dateObj ) )
@@ -721,13 +1026,13 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	{
 		CDateTime dateTimeObj;
 
-		if ( !CDateTime::IsDateTime( dateTime, MYSQL_FORMAT_DATETIME, dateTimeObj )
-		&& !CDateTime::IsDateTime( dateTime, MYSQL_FORMAT_STMT_DATETIME, dateTimeObj )
+		if ( !CDateTime::IsDateTime( dateTime, MYSQL_FORMAT_SDATETIME, dateTimeObj )
+		&& !CDateTime::IsDateTime( dateTime, MYSQL_FORMAT_STMT_SDATETIME, dateTimeObj )
 		&& !CDateTime::IsDateTime( dateTime, "%Y%m%d %H:%M:%S", dateTimeObj )
 		&& !CDateTime::IsDateTime( dateTime, "%Y-%m-%d %H:%M:%S", dateTimeObj )
 		&& !CDateTime::IsDateTime( dateTime, "%d/%m/%Y %H:%M:%S", dateTimeObj )
-		&& !CDateTime::IsDateTime( dateTime, MYSQL_FORMAT_DATE, dateTimeObj )
-		&& !CDateTime::IsDateTime( dateTime, MYSQL_FORMAT_STMT_DATE, dateTimeObj )
+		&& !CDateTime::IsDateTime( dateTime, MYSQL_FORMAT_SDATE, dateTimeObj )
+		&& !CDateTime::IsDateTime( dateTime, MYSQL_FORMAT_STMT_SDATE, dateTimeObj )
 		&& !CDateTime::IsDateTime( dateTime, "%Y%m%d", dateTimeObj )
 		&& !CDateTime::IsDateTime( dateTime, "%Y-%m-%d", dateTimeObj )
 		&& !CDateTime::IsDateTime( dateTime, "%d/%m/%Y", dateTimeObj ) )
@@ -742,8 +1047,8 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	{
 		CDate dateObj;
 
-		if ( !CDate::IsDate( date, WMYSQL_FORMAT_DATE, dateObj )
-		&& !CDate::IsDate( date, WMYSQL_FORMAT_STMT_DATE, dateObj )
+		if ( !CDate::IsDate( date, MYSQL_FORMAT_WDATE, dateObj )
+		&& !CDate::IsDate( date, MYSQL_FORMAT_STMT_WDATE, dateObj )
 		&& !CDate::IsDate( date, L"%Y%m%d", dateObj )
 		&& !CDate::IsDate( date, L"%Y-%m-%d", dateObj )
 		&& !CDate::IsDate( date, L"%d/%m/%Y", dateObj ) )
@@ -765,13 +1070,13 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	{
 		CDateTime dateTimeObj;
 
-		if ( !CDateTime::IsDateTime( dateTime, WMYSQL_FORMAT_DATETIME, dateTimeObj )
-		&& !CDateTime::IsDateTime( dateTime, WMYSQL_FORMAT_STMT_DATETIME, dateTimeObj )
+		if ( !CDateTime::IsDateTime( dateTime, MYSQL_FORMAT_WDATETIME, dateTimeObj )
+		&& !CDateTime::IsDateTime( dateTime, MYSQL_FORMAT_STMT_WDATETIME, dateTimeObj )
 		&& !CDateTime::IsDateTime( dateTime, L"%Y%m%d %H:%M:%S", dateTimeObj )
 		&& !CDateTime::IsDateTime( dateTime, L"%Y-%m-%d %H:%M:%S", dateTimeObj )
 		&& !CDateTime::IsDateTime( dateTime, L"%d/%m/%Y %H:%M:%S", dateTimeObj )
-		&& !CDateTime::IsDateTime( dateTime, WMYSQL_FORMAT_DATE, dateTimeObj )
-		&& !CDateTime::IsDateTime( dateTime, WMYSQL_FORMAT_STMT_DATE, dateTimeObj )
+		&& !CDateTime::IsDateTime( dateTime, MYSQL_FORMAT_WDATE, dateTimeObj )
+		&& !CDateTime::IsDateTime( dateTime, MYSQL_FORMAT_STMT_WDATE, dateTimeObj )
 		&& !CDateTime::IsDateTime( dateTime, L"%Y%m%d", dateTimeObj )
 		&& !CDateTime::IsDateTime( dateTime, L"%Y-%m-%d", dateTimeObj )
 		&& !CDateTime::IsDateTime( dateTime, L"%d/%m/%Y", dateTimeObj ) )
@@ -808,7 +1113,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 		try
 		{
-			MySQLTry( mysql_stmt_execute( statement ), STR( "Statement execution" ), EDatabaseExceptionCodes_StatementError, _connection );
+			MySQLTry( mysql_stmt_execute( statement ), INFO_MYSQL_STATEMENT_EXECUTION, EDatabaseExceptionCodes_StatementError, _connection );
 			uint64_t affected = mysql_stmt_affected_rows( statement );
 			result = true;
 		}
@@ -835,7 +1140,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		try
 		{
 			bool hasResults = false;
-			MySQLTry( mysql_stmt_execute( statement ), STR( "Statement execution" ), EDatabaseExceptionCodes_StatementError, _connection );
+			MySQLTry( mysql_stmt_execute( statement ), INFO_MYSQL_STATEMENT_EXECUTION, EDatabaseExceptionCodes_StatementError, _connection );
 			result = DoRetrieveResults( statement );
 		}
 		catch ( CExceptionDatabase & exc )
@@ -862,7 +1167,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_MYSQL_NOT_CONNECTED, __FUNCTION__, __FILE__, __LINE__ );
 		}
 
-		DoExecuteUpdate( STR( "CREATE DATABASE " ) + database + STR( " CHARACTER SET utf8 COLLATE utf8_general_ci" ), NULL );
+		DoExecuteUpdate( MYSQL_SQL_CREATE_DATABASE + database + MYSQL_SQL_CHARSET, NULL );
 	}
 
 	void CDatabaseConnectionMySql::SelectDatabase( const String & database )
@@ -875,8 +1180,8 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 		if ( _connection )
 		{
-			std::string query = CStrUtils::ToStr( STR( "USE " ) + database );
-			MySQLTry( mysql_real_query( _connection, query.c_str(), uint32_t( query.size() ) ), STR( "Database selection" ), EDatabaseExceptionCodes_ConnectionError, _connection );
+			std::string query = CStrUtils::ToStr( MYSQL_SQL_USE + database );
+			MySQLTry( mysql_real_query( _connection, query.c_str(), uint32_t( query.size() ) ), INFO_MYSQL_DATABASE_SELECTION, EDatabaseExceptionCodes_ConnectionError, _connection );
 			_database = database;
 		}
 	}
@@ -889,7 +1194,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_MYSQL_NOT_CONNECTED, __FUNCTION__, __FILE__, __LINE__ );
 		}
 
-		DoExecuteUpdate( STR( "DROP DATABASE " ) + database, NULL );
+		DoExecuteUpdate( MYSQL_SQL_DROP_DATABASE + database, NULL );
 	}
 
 	EErrorType CDatabaseConnectionMySql::DoConnect( String & connectionString )
@@ -906,21 +1211,21 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_MYSQL_CONNECTION, __FUNCTION__, __FILE__, __LINE__ );
 			}
 
-			if ( mysql_options( _connection, MYSQL_INIT_COMMAND, "SET NAMES 'utf8'" ) )
+			if ( mysql_options( _connection, MYSQL_INIT_COMMAND, MYSQL_OPTION_NAMES ) )
 			{
-				CLogger::LogWarning( WARNING_MYSQL_UNKNOWN_OPTION + STR( "MYSQL_INIT_COMMAND" ) );
+				CLogger::LogWarning( WARNING_MYSQL_UNKNOWN_OPTION + WARNING_MYSQL_INIT_COMMAND );
 			}
 
-			if ( mysql_options( _connection, MYSQL_SET_CHARSET_NAME, "utf8" ) )
+			if ( mysql_options( _connection, MYSQL_SET_CHARSET_NAME, MYSQL_OPTION_UTF8 ) )
 			{
-				CLogger::LogWarning( WARNING_MYSQL_UNKNOWN_OPTION + STR( "MYSQL_SET_CHARSET_NAME" ) );
+				CLogger::LogWarning( WARNING_MYSQL_UNKNOWN_OPTION + WARNING_MYSQL_SET_CHARSET_NAME );
 			}
 
 			uint32_t timeout = 180;
 
 			if ( mysql_options( _connection, MYSQL_OPT_CONNECT_TIMEOUT, &timeout ) )
 			{
-				CLogger::LogWarning( WARNING_MYSQL_UNKNOWN_OPTION + STR( "MYSQL_OPT_CONNECT_TIMEOUT" ) );
+				CLogger::LogWarning( WARNING_MYSQL_UNKNOWN_OPTION + WARNING_MYSQL_OPT_CONNECT_TIMEOUT );
 			}
 
 			if ( !mysql_real_connect( _connection,
@@ -938,10 +1243,10 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, error.str(), __FUNCTION__, __FILE__, __LINE__ );
 			}
 
-			CLogger::LogDebug( StringStream() << STR( "Connected to database" ) );
-			CLogger::LogDebug( StringStream() << STR( "Client Version: " ) << mysql_get_client_info() );
-			CLogger::LogDebug( StringStream() << STR( "Server Host: " ) << mysql_get_host_info( _connection ) );
-			CLogger::LogDebug( StringStream() << STR( "Server version: " ) << mysql_get_server_info( _connection ) );
+			CLogger::LogDebug( StringStream() << DEBUG_MYSQL_CONNECTED );
+			CLogger::LogDebug( StringStream() << DEBUG_MYSQL_CLIENT_VERSION << mysql_get_client_info() );
+			CLogger::LogDebug( StringStream() << DEBUG_MYSQL_SERVER_HOST << mysql_get_host_info( _connection ) );
+			CLogger::LogDebug( StringStream() << DEBUG_MYSQL_SERVER_VERSION << mysql_get_server_info( _connection ) );
 
 			_statement = mysql_stmt_init( _connection );
 
@@ -991,9 +1296,9 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_MYSQL_NOT_CONNECTED, __FUNCTION__, __FILE__, __LINE__ );
 		}
 
-		CLogger::LogMessage( STR( "Executing update : " ) + query );
+		CLogger::LogInfo( INFO_MYSQL_EXECUTING_UPDATE + query );
 		std::string strQuery = CStrUtils::ToStr( query );
-		MySQLTry( mysql_stmt_prepare( _statement, strQuery.c_str(), uint32_t( strQuery.size() ) ), STR( "Statement preparation" ), EDatabaseExceptionCodes_StatementError, _connection );
+		MySQLTry( mysql_stmt_prepare( _statement, strQuery.c_str(), uint32_t( strQuery.size() ) ), INFO_MYSQL_STATEMENT_PREPARATION, EDatabaseExceptionCodes_StatementError, _connection );
 		return ExecuteUpdate( _statement );
 	}
 
@@ -1005,9 +1310,9 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_MYSQL_NOT_CONNECTED, __FUNCTION__, __FILE__, __LINE__ );
 		}
 
-		CLogger::LogMessage( STR( "Executing select : " ) + query );
+		CLogger::LogInfo( INFO_MYSQL_EXECUTING_SELECT + query );
 		std::string strQuery = CStrUtils::ToStr( query );
-		MySQLTry( mysql_stmt_prepare( _statement, strQuery.c_str(), uint32_t( strQuery.size() ) ), STR( "Statement preparation" ), EDatabaseExceptionCodes_StatementError, _connection );
+		MySQLTry( mysql_stmt_prepare( _statement, strQuery.c_str(), uint32_t( strQuery.size() ) ), INFO_MYSQL_STATEMENT_PREPARATION, EDatabaseExceptionCodes_StatementError, _connection );
 		return ExecuteSelect( _statement );
 	}
 

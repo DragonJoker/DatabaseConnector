@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DatabaseStatementMySql.cpp
- * @author Sylvain Doremus
- * @version 1.0
- * @date 3/20/2014 2:47:39 PM
- *
- *
- * @brief CDatabaseStatementMySql class definition.
- *
- * @details Describes a statement for MYSQL database.
- *
- ***************************************************************************/
+* @file DatabaseStatementMySql.cpp
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/20/2014 2:47:39 PM
+*
+*
+* @brief CDatabaseStatementMySql class definition.
+*
+* @details Describes a statement for MYSQL database.
+*
+***************************************************************************/
 
 #include "DatabaseMySqlPch.h"
 
@@ -28,21 +28,25 @@
 
 BEGIN_NAMESPACE_DATABASE_MYSQL
 {
-	static const String MYSQL_MISSING_INITIALIZATION_ERROR = STR( "Method Initialize must be called before calling method CreateParameter" );
+	static const String ERROR_MYSQL_MISSING_INITIALIZATION = STR( "Method Initialize must be called before calling method CreateParameter" );
 	static const String ERROR_MYSQL_CANT_CREATE_STATEMENT = STR( "Couldn't create the statement" );
 	static const String ERROR_MYSQL_EXECUTION_ERROR = STR( "Couldn't execute the statement : " );
 	static const String ERROR_MYSQL_QUERY_INCONSISTENCY_ERROR = STR( "Number of parameters doesn't match the sizes of parameter containers." );
+	static const String INFO_MYSQL_PREPARING_STATEMENT = STR( "Preparing statement for query: " );
+	static const String INFO_MYSQL_BIND_PARAMETER_NAME = STR( "BindParameter : " );
+	static const String INFO_MYSQL_BIND_PARAMETER_VALUE = STR( ", Value : " );
 
-	static const String MYSQL_BIND_PARAMETER_NAME_MSG = STR( "BindParameter : " );
-	static const String MYSQL_BIND_PARAMETER_VALUE_MSG = STR( ", Value : " );
+	static const TChar * INFO_MYSQL_STATEMENT_PREPARATION = STR( "Statement preparation" );
+	static const TChar * INFO_MYSQL_STATEMENT_PARAMS_BINDING = STR( "Statement parameters binding" );
+	static const TChar * INFO_MYSQL_STATEMENT_RESET = STR( "Statement reset" );
 
-	static const String SQL_DELIM = STR( "?" );
-	static const String SQL_PARAM = STR( "@" );
-	static const String SQL_SET = STR( "SET @" );
-	static const String SQL_NULL = STR( " = NULL;" );
-	static const String SQL_SELECT = STR( "SELECT " );
-	static const String SQL_AS = STR( " AS " );
-	static const String SQL_COMMA = STR( "," );
+	static const String MYSQL_SQL_DELIM = STR( "?" );
+	static const String MYSQL_SQL_PARAM = STR( "@" );
+	static const String MYSQL_SQL_SET = STR( "SET @" );
+	static const String MYSQL_SQL_NULL = STR( " = NULL;" );
+	static const String MYSQL_SQL_SELECT = STR( "SELECT " );
+	static const String MYSQL_SQL_AS = STR( " AS " );
+	static const String MYSQL_SQL_COMMA = STR( "," );
 
 	CDatabaseStatementMySql::CDatabaseStatementMySql( DatabaseConnectionMySqlPtr connection, const String & query )
 		: CDatabaseStatement( connection, query )
@@ -67,7 +71,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			_arrayQueries = CStrUtils::Split( _query, STR( "?" ), _paramsCount + 1 );
 		}
 
-		CLogger::LogMessage( STR( "Preparing statement for query : " ) + _query );
+		CLogger::LogInfo( INFO_MYSQL_PREPARING_STATEMENT + _query );
 		assert( _paramsCount == _arrayParams.size() );
 
 		StringStream query;
@@ -89,8 +93,8 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 			if ( parameter->GetParamType() == EParameterType_OUT )
 			{
-				query << SQL_PARAM + parameter->GetName();
-				DatabaseStatementPtr stmt = _connection->CreateStatement( SQL_SET + parameter->GetName() + SQL_NULL );
+				query << MYSQL_SQL_PARAM + parameter->GetName();
+				DatabaseStatementPtr stmt = _connection->CreateStatement( MYSQL_SQL_SET + parameter->GetName() + MYSQL_SQL_NULL );
 				stmt->Initialize();
 				_outInitializers.push_back( stmt );
 				_arrayOutParams.push_back( parameter );
@@ -99,12 +103,12 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			{
 				MYSQL_BIND bind = { 0 };
 				_bindings.push_back( bind );
-				query << SQL_DELIM;
+				query << MYSQL_SQL_DELIM;
 			}
 			else
 			{
-				query << SQL_PARAM + parameter->GetName();
-				DatabaseStatementPtr stmt = _connection->CreateStatement( SQL_SET + parameter->GetName() + STR( " = " ) + SQL_DELIM );
+				query << MYSQL_SQL_PARAM + parameter->GetName();
+				DatabaseStatementPtr stmt = _connection->CreateStatement( MYSQL_SQL_SET + parameter->GetName() + STR( " = " ) + MYSQL_SQL_DELIM );
 				stmt->CreateParameter( parameter->GetName(), parameter->GetType(), parameter->GetLimits(), EParameterType_IN );
 				stmt->Initialize();
 				_inOutInitializers.push_back( std::make_pair( stmt, parameter ) );
@@ -128,12 +132,12 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		{
 			String sep;
 			StringStream queryInOutParam;
-			queryInOutParam << SQL_SELECT;
+			queryInOutParam << MYSQL_SQL_SELECT;
 
 			for ( auto && parameter : _arrayOutParams )
 			{
-				queryInOutParam << sep << SQL_PARAM << parameter->GetName() << SQL_AS << parameter->GetName();
-				sep = SQL_COMMA;
+				queryInOutParam << sep << MYSQL_SQL_PARAM << parameter->GetName() << MYSQL_SQL_AS << parameter->GetName();
+				sep = MYSQL_SQL_COMMA;
 			}
 
 			_stmtOutParams = _connection->CreateStatement( queryInOutParam.str() );
@@ -153,7 +157,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		}
 
 		std::string strQuery = CStrUtils::ToStr( _query );
-		MySQLTry( mysql_stmt_prepare( _statement, strQuery.c_str(), uint32_t( strQuery.size() ) ), STR( "Statement preparation" ), EDatabaseExceptionCodes_StatementError, _connectionMySql->GetConnection() );
+		MySQLTry( mysql_stmt_prepare( _statement, strQuery.c_str(), uint32_t( strQuery.size() ) ), INFO_MYSQL_STATEMENT_PREPARATION, EDatabaseExceptionCodes_StatementError, _connectionMySql->GetConnection() );
 		size_t index = 0;
 
 		for ( auto && it : _arrayInParams )
@@ -162,7 +166,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			it->SetBinding( &_bindings[index++] );
 		}
 
-		MySQLTry( mysql_stmt_bind_param( _statement, _bindings.data() ), STR( "Statement parameters binding" ), EDatabaseExceptionCodes_StatementError, _connectionMySql->GetConnection() );
+		MySQLTry( mysql_stmt_bind_param( _statement, _bindings.data() ), INFO_MYSQL_STATEMENT_PARAMS_BINDING, EDatabaseExceptionCodes_StatementError, _connectionMySql->GetConnection() );
 		return eReturn;
 	}
 
@@ -216,7 +220,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 	DatabaseParameterPtr CDatabaseStatementMySql::CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType )
 	{
-		DatabaseStatementParameterMySqlPtr pReturn = std::make_shared< CDatabaseStatementParameterMySql >( _connectionMySql, name, uint16_t( _arrayInParams.size() + 1 ), fieldType, parameterType, new SValueUpdater( this ) );
+		DatabaseStatementParameterMySqlPtr pReturn = std::make_shared< CDatabaseStatementParameterMySql >( _connectionMySql, name, uint16_t( _arrayInParams.size() + 1 ), fieldType, parameterType, std::make_unique< SValueUpdater >( this ) );
 
 		if ( !DoAddParameter( pReturn ) )
 		{
@@ -232,7 +236,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 	DatabaseParameterPtr CDatabaseStatementMySql::CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType )
 	{
-		DatabaseStatementParameterMySqlPtr pReturn = std::make_shared< CDatabaseStatementParameterMySql >( _connectionMySql, name, uint16_t( _arrayInParams.size() + 1 ), fieldType, limits, parameterType, new SValueUpdater( this ) );
+		DatabaseStatementParameterMySqlPtr pReturn = std::make_shared< CDatabaseStatementParameterMySql >( _connectionMySql, name, uint16_t( _arrayInParams.size() + 1 ), fieldType, limits, parameterType, std::make_unique< SValueUpdater >( this ) );
 
 		if ( !DoAddParameter( pReturn ) )
 		{
@@ -280,17 +284,29 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 				for ( auto && parameter : _arrayOutParams )
 				{
-					if ( ( ( parameter->GetParamType() == EParameterType_INOUT ) ||
-							( ( parameter->GetParamType() == EParameterType_OUT ) ) ) &&
-							( row->HasField( parameter->GetName() ) ) )
+					if ( parameter->GetParamType() == EParameterType_INOUT || parameter->GetParamType() == EParameterType_OUT )
 					{
-						parameter->SetValue( row->GetField( parameter->GetName() ) );
+						DatabaseFieldPtr field;
+
+						try
+						{
+							field = row->GetField( parameter->GetName() );
+						}
+						catch ( CExceptionDatabase & exc )
+						{
+							CLogger::LogError( exc.GetFullDescription() );
+						}
+
+						if ( field )
+						{
+							parameter->SetValue( field );
+						}
 					}
 				}
 			}
 		}
 
-		MySQLTry( mysql_stmt_reset( _statement ), STR( "Statement reset" ), EDatabaseExceptionCodes_StatementError, _connectionMySql->GetConnection() );
+		MySQLTry( mysql_stmt_reset( _statement ), INFO_MYSQL_STATEMENT_RESET, EDatabaseExceptionCodes_StatementError, _connectionMySql->GetConnection() );
 	}
 }
 END_NAMESPACE_DATABASE_MYSQL

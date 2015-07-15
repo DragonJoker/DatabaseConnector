@@ -1,3 +1,16 @@
+/************************************************************************//**
+* @file DatabaseLoggerConsole.cpp
+* @author Sylvain Doremus
+* @version 1.0
+* @date 7/12/2015 7:51 PM
+*
+*
+* @brief IConsoleInfo interface
+*
+* @details Console info class, platform dependant
+*
+***************************************************************************/
+
 #include "DatabasePch.h"
 
 #if defined _WIN32
@@ -6,7 +19,7 @@
 #		pragma warning( disable:4311 )
 #		pragma warning( disable:4312 )
 #	endif
-#	include <windows.h>
+#	include <Windows.h>
 #	include <tchar.h>
 #	if defined( _MSC_VER )
 #		pragma warning( pop )
@@ -19,218 +32,220 @@
 BEGIN_NAMESPACE_DATABASE
 {
 #if defined( _MSC_VER )
-	class MsvcConsoleInfo : public IConsoleInfo
+	class CMsvcConsoleInfo
+		: public IConsole
 	{
 	public:
-		MsvcConsoleInfo()
-			:	m_uiOldCP( 0	)
-			,	m_hScreenBuffer( INVALID_HANDLE_VALUE	)
-			,	m_pOldInfos( NULL	)
-			,	m_bAllocated( false	)
-			,	m_bConsole( false	)
+		CMsvcConsoleInfo()
+			: _oldCodePage( 0 )
+			, _screenBuffer( INVALID_HANDLE_VALUE )
+			, _oldInfos( NULL )
+			, _allocated( false )
+			, _console( false )
 		{
 			if ( ::AllocConsole() )
 			{
-				m_bAllocated = true;
+				_allocated = true;
 				DoInitialiseConsole();
 			}
 			else
 			{
-				DWORD l_dwLastError = ::GetLastError();
+				DWORD lastError = ::GetLastError();
 
-				if ( l_dwLastError == ERROR_ACCESS_DENIED )
+				if ( lastError == ERROR_ACCESS_DENIED )
 				{
 					DoInitialiseConsole();
 				}
 				else
 				{
-					std::cout << "Failed to create to a new console with error " << l_dwLastError << std::endl;
+					std::cout << "Failed to create to a new console with error " << lastError << std::endl;
 				}
 			}
 		}
 
-		DatabaseExport virtual ~MsvcConsoleInfo()
+		virtual ~CMsvcConsoleInfo()
 		{
-			if ( m_pOldInfos )
+			if ( _oldInfos )
 			{
-				::SetCurrentConsoleFontEx( m_hScreenBuffer, FALSE, m_pOldInfos );
-				delete m_pOldInfos;
+				::SetCurrentConsoleFontEx( _screenBuffer, FALSE, _oldInfos );
+				delete _oldInfos;
 			}
 
-			if ( m_hScreenBuffer != INVALID_HANDLE_VALUE )
+			if ( _screenBuffer != INVALID_HANDLE_VALUE )
 			{
-				::CloseHandle( m_hScreenBuffer );
+				::CloseHandle( _screenBuffer );
 			}
 
-			if ( m_bConsole )
+			if ( _console )
 			{
-				::SetConsoleOutputCP( m_uiOldCP );
+				::SetConsoleOutputCP( _oldCodePage );
 			}
 
-			if ( m_bAllocated )
+			if ( _allocated )
 			{
 				::FreeConsole();
 			}
 		}
 
-		void BeginLog( eLOG_TYPE p_eLogType )
+		void BeginLog( ELogType logLevel )
 		{
-			WORD l_wAttributes;
+			WORD attributes;
 
-			switch ( p_eLogType )
+			switch ( logLevel )
 			{
-			case eLOG_TYPE_DEBUG	:
-				l_wAttributes = FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY;
+			case ELogType_DEBUG:
+				attributes = FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY;
 				break;
 
-			case eLOG_TYPE_WARNING	:
-				l_wAttributes = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY;
+			case ELogType_WARNING:
+				attributes = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY;
 				break;
 
-			case eLOG_TYPE_ERROR	:
-				l_wAttributes = FOREGROUND_RED | FOREGROUND_INTENSITY;
+			case ELogType_ERROR:
+				attributes = FOREGROUND_RED | FOREGROUND_INTENSITY;
 				break;
 
 			default:
-				l_wAttributes = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY;
+				attributes = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY;
 				break;
 			}
 
-			::SetConsoleTextAttribute( m_hScreenBuffer, l_wAttributes );
+			::SetConsoleTextAttribute( _screenBuffer, attributes );
 		}
 
-		void Print( String const & p_strToLog, bool p_bNewLine )
+		void Print( String const & toLog, bool newLine )
 		{
-			::OutputDebugStringA( p_strToLog.c_str() );
-			DWORD l_dwWritten = 0;
+			::OutputDebugStringA( toLog.c_str() );
+			DWORD written = 0;
 
-			if ( p_bNewLine )
+			if ( newLine )
 			{
-				::OutputDebugStringA( STR( "\n" ) );
-				CONSOLE_SCREEN_BUFFER_INFO l_csbiInfo;
+				::OutputDebugStringA( "\n" );
+				CONSOLE_SCREEN_BUFFER_INFO csbiInfo;
 
-				if ( ::GetConsoleScreenBufferInfo( m_hScreenBuffer, &l_csbiInfo ) )
+				if ( ::GetConsoleScreenBufferInfo( _screenBuffer, &csbiInfo ) )
 				{
-					l_csbiInfo.dwCursorPosition.X = 0;
-					::WriteConsoleA( m_hScreenBuffer, p_strToLog.c_str(), DWORD( p_strToLog.size() ), &l_dwWritten, NULL );
-					SHORT l_sOffsetY = SHORT( 1 + l_dwWritten / l_csbiInfo.dwSize.X );
+					csbiInfo.dwCursorPosition.X = 0;
+					::WriteConsoleA( _screenBuffer, toLog.c_str(), DWORD( toLog.size() ), &written, NULL );
+					SHORT offsetY = SHORT( 1 + written / csbiInfo.dwSize.X );
 
-					if ( ( l_csbiInfo.dwSize.Y - l_sOffsetY ) <= l_csbiInfo.dwCursorPosition.Y )
+					if ( ( csbiInfo.dwSize.Y - offsetY ) <= csbiInfo.dwCursorPosition.Y )
 					{
 						// The cursor is on the last row
-						SMALL_RECT l_srctScrollRect;
-						CHAR_INFO l_chiFill;
-						COORD l_coordDest;
 						// The scroll rectangle is from second row to last displayed row
-						l_srctScrollRect.Top = 1;
-						l_srctScrollRect.Bottom = l_csbiInfo.dwSize.Y - 1;
-						l_srctScrollRect.Left = 0;
-						l_srctScrollRect.Right = l_csbiInfo.dwSize.X - 1;
+						SMALL_RECT scrollRect;
+						scrollRect.Top = 1;
+						scrollRect.Bottom = csbiInfo.dwSize.Y - 1;
+						scrollRect.Left = 0;
+						scrollRect.Right = csbiInfo.dwSize.X - 1;
 						// The destination for the scroll rectangle is one row up.
-						l_coordDest.X = 0;
-						l_coordDest.Y = 0;
+						COORD coordDest;
+						coordDest.X = 0;
+						coordDest.Y = 0;
 						// Set the fill character and attributes.
-						l_chiFill.Attributes = 0;
-						l_chiFill.Char.AsciiChar = char( ' ' );
+						CHAR_INFO fill;
+						fill.Attributes = 0;
+						fill.Char.AsciiChar = char( ' ' );
 						// Scroll
-						::ScrollConsoleScreenBuffer( m_hScreenBuffer, &l_srctScrollRect, NULL, l_coordDest, &l_chiFill );
+						::ScrollConsoleScreenBuffer( _screenBuffer, &scrollRect, NULL, coordDest, &fill );
 					}
 					else
 					{
 						// The cursor isn't on the last row
-						l_csbiInfo.dwCursorPosition.Y += l_sOffsetY;
+						csbiInfo.dwCursorPosition.Y += offsetY;
 					}
 
-					::SetConsoleCursorPosition( m_hScreenBuffer, l_csbiInfo.dwCursorPosition );
+					::SetConsoleCursorPosition( _screenBuffer, csbiInfo.dwCursorPosition );
 				}
 			}
 			else
 			{
-				::WriteConsole( m_hScreenBuffer, p_strToLog.c_str(), DWORD( p_strToLog.size() ), &l_dwWritten, NULL );
+				::WriteConsole( _screenBuffer, toLog.c_str(), DWORD( toLog.size() ), &written, NULL );
 			}
 		}
 
 	private:
 		void DoInitialiseConsole()
 		{
-			m_hScreenBuffer = ::CreateConsoleScreenBuffer( GENERIC_WRITE | GENERIC_READ, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL );
+			_screenBuffer = ::CreateConsoleScreenBuffer( GENERIC_WRITE | GENERIC_READ, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL );
 
-			if ( m_hScreenBuffer != INVALID_HANDLE_VALUE && ::SetConsoleActiveScreenBuffer( m_hScreenBuffer ) )
+			if ( _screenBuffer != INVALID_HANDLE_VALUE && ::SetConsoleActiveScreenBuffer( _screenBuffer ) )
 			{
-				m_pOldInfos = new CONSOLE_FONT_INFOEX;
-				CONSOLE_FONT_INFOEX * l_pOldInfos = m_pOldInfos;
-				l_pOldInfos->cbSize = sizeof( CONSOLE_FONT_INFOEX );
+				_oldInfos = new CONSOLE_FONT_INFOEX;
+				CONSOLE_FONT_INFOEX * oldInfos = _oldInfos;
+				oldInfos->cbSize = sizeof( CONSOLE_FONT_INFOEX );
 
-				if ( ::GetCurrentConsoleFontEx( m_hScreenBuffer, FALSE, l_pOldInfos ) )
+				if ( ::GetCurrentConsoleFontEx( _screenBuffer, FALSE, oldInfos ) )
 				{
-					CONSOLE_FONT_INFOEX l_infos = { 0 };
-					l_infos.cbSize = sizeof( CONSOLE_FONT_INFOEX );
-					l_infos.dwFontSize = l_pOldInfos->dwFontSize;
-					l_infos.FontWeight = l_pOldInfos->FontWeight;
-					l_infos.nFont = 6;
-					l_infos.FontFamily = 54;
-					wcscpy( l_infos.FaceName, L"Lucida Console" );
+					CONSOLE_FONT_INFOEX newInfos = { 0 };
+					newInfos.cbSize = sizeof( CONSOLE_FONT_INFOEX );
+					newInfos.dwFontSize = oldInfos->dwFontSize;
+					newInfos.FontWeight = oldInfos->FontWeight;
+					newInfos.nFont = 6;
+					newInfos.FontFamily = 54;
+					wcscpy( newInfos.FaceName, L"Lucida Console" );
 
-					if ( !::SetCurrentConsoleFontEx( m_hScreenBuffer, FALSE, &l_infos ) )
+					if ( !::SetCurrentConsoleFontEx( _screenBuffer, FALSE, &newInfos ) )
 					{
-						delete m_pOldInfos;
-						m_pOldInfos = NULL;
+						delete _oldInfos;
+						_oldInfos = NULL;
 					}
 				}
 				else
 				{
-					delete m_pOldInfos;
-					m_pOldInfos = NULL;
+					delete _oldInfos;
+					_oldInfos = NULL;
 				}
 
-				COORD l_coord = { 160, 9999 };
-				::SetConsoleScreenBufferSize( m_hScreenBuffer, l_coord );
+				COORD coord = { 160, 9999 };
+				::SetConsoleScreenBufferSize( _screenBuffer, coord );
 			}
 
-			m_uiOldCP = ::GetConsoleOutputCP();
+			_oldCodePage = ::GetConsoleOutputCP();
 			::EnumSystemCodePagesA( &DoCodePageProc, CP_INSTALLED );
 
-			FILE * l_dump;
-			freopen_s( & l_dump, "conout$", "w", stdout );
-			freopen_s( & l_dump, "conout$", "w", stderr );
-			m_bConsole = true;
+			FILE * dump;
+			freopen_s( &dump, "conout$", "w", stdout );
+			freopen_s( &dump, "conout$", "w", stderr );
+			_console = true;
 		}
-		static BOOL __stdcall DoCodePageProc( TChar * pszCodePageString )
+		static BOOL __stdcall DoCodePageProc( TChar * szCodePage )
 		{
-			BOOL l_bReturn = TRUE;
-			String l_strCP( pszCodePageString );
-			int l_iCP = stoi( l_strCP );
+			BOOL ret = TRUE;
+			String codePage( szCodePage );
+			int cp = stoi( codePage );
 
-			if ( l_iCP == CP_UTF8 )
+			if ( cp == CP_UTF8 )
 			{
-				::SetConsoleCP( l_iCP );
-				::SetConsoleOutputCP( l_iCP );
-				l_bReturn = FALSE;
+				::SetConsoleCP( cp );
+				::SetConsoleOutputCP( cp );
+				ret = FALSE;
 			}
 
-			return l_bReturn;
+			return ret;
 		}
 
 	private:
-		uint32_t m_uiOldCP;
-		HANDLE m_hScreenBuffer;
-		CONSOLE_FONT_INFOEX * m_pOldInfos;
-		bool m_bAllocated;
-		bool m_bConsole;
+		uint32_t _oldCodePage;
+		HANDLE _screenBuffer;
+		CONSOLE_FONT_INFOEX * _oldInfos;
+		bool _allocated;
+		bool _console;
 	};
 #elif defined( _WIN32 )
-	class MswConsoleInfo : public IConsoleInfo
+	class CMswConsoleInfo
+		: public IConsoleInfo
 	{
 	public:
-		MswConsoleInfo()
-			:	m_uiOldCP( 0	)
-			,	m_hScreenBuffer( INVALID_HANDLE_VALUE	)
-			,	m_bAllocated( false	)
-			,	m_bConsole( false	)
+		CMswConsoleInfo()
+			:	_oldCodePage( 0	)
+			,	_screenBuffer( INVALID_HANDLE_VALUE	)
+			,	_allocated( false	)
+			,	_console( false	)
 		{
 			if ( ::AllocConsole() )
 			{
-				m_bAllocated = true;
+				_allocated = true;
 				DoInitialiseConsole();
 			}
 			else
@@ -248,39 +263,39 @@ BEGIN_NAMESPACE_DATABASE
 			}
 		}
 
-		DatabaseExport virtual ~MswConsoleInfo()
+		virtual ~CMswConsoleInfo()
 		{
-			if ( m_hScreenBuffer != INVALID_HANDLE_VALUE )
+			if ( _screenBuffer != INVALID_HANDLE_VALUE )
 			{
-				::CloseHandle( m_hScreenBuffer );
+				::CloseHandle( _screenBuffer );
 			}
 
-			if ( m_bConsole )
+			if ( _console )
 			{
-				::SetConsoleOutputCP( m_uiOldCP );
+				::SetConsoleOutputCP( _oldCodePage );
 			}
 
-			if ( m_bAllocated )
+			if ( _allocated )
 			{
 				::FreeConsole();
 			}
 		}
 
-		void BeginLog( eLOG_TYPE p_eLogType )
+		void BeginLog( ELogType p_eLogType )
 		{
 			WORD l_wAttributes;
 
 			switch ( p_eLogType )
 			{
-			case eLOG_TYPE_DEBUG	:
+			case ELogType_DEBUG	:
 				l_wAttributes = FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY;
 				break;
 
-			case eLOG_TYPE_WARNING	:
+			case ELogType_WARNING	:
 				l_wAttributes = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY;
 				break;
 
-			case eLOG_TYPE_ERROR	:
+			case ELogType_ERROR	:
 				l_wAttributes = FOREGROUND_RED | FOREGROUND_INTENSITY;
 				break;
 
@@ -289,172 +304,172 @@ BEGIN_NAMESPACE_DATABASE
 				break;
 			}
 
-			::SetConsoleTextAttribute( m_hScreenBuffer, l_wAttributes );
+			::SetConsoleTextAttribute( _screenBuffer, l_wAttributes );
 		}
 
-		void Print( String const & p_strToLog, bool p_bNewLine )
+		void Print( String const & toLog, bool newLine )
 		{
-			::OutputDebugStringA( p_strToLog.c_str() );
-			DWORD l_dwWritten = 0;
+			::OutputDebugStringA( toLog.c_str() );
+			DWORD written = 0;
 
-			if ( p_bNewLine )
+			if ( newLine )
 			{
 				::OutputDebugStringA( STR( "\n" ) );
-				CONSOLE_SCREEN_BUFFER_INFO l_csbiInfo;
+				CONSOLE_SCREEN_BUFFER_INFO csbiInfo;
 
-				if ( ::GetConsoleScreenBufferInfo( m_hScreenBuffer, &l_csbiInfo ) )
+				if ( ::GetConsoleScreenBufferInfo( _screenBuffer, &csbiInfo ) )
 				{
-					l_csbiInfo.dwCursorPosition.X = 0;
-					::WriteConsoleA( m_hScreenBuffer, p_strToLog.c_str(), DWORD( p_strToLog.size() ), &l_dwWritten, NULL );
-					SHORT l_sOffsetY = SHORT( 1 + l_dwWritten / l_csbiInfo.dwSize.Y );
+					csbiInfo.dwCursorPosition.X = 0;
+					::WriteConsoleA( _screenBuffer, toLog.c_str(), DWORD( toLog.size() ), &written, NULL );
+					SHORT offsetY = SHORT( 1 + written / csbiInfo.dwSize.Y );
 
-					if ( ( l_csbiInfo.dwSize.Y - l_sOffsetY ) <= l_csbiInfo.dwCursorPosition.Y )
+					if ( ( csbiInfo.dwSize.Y - offsetY ) <= csbiInfo.dwCursorPosition.Y )
 					{
 						// The cursor is on the last row
-						SMALL_RECT l_srctScrollRect;
-						CHAR_INFO l_chiFill;
-						COORD l_coordDest;
 						// The scroll rectangle is from second row to last displayed row
-						l_srctScrollRect.Top = 1;
-						l_srctScrollRect.Bottom = l_csbiInfo.dwSize.Y - 1;
-						l_srctScrollRect.Left = 0;
-						l_srctScrollRect.Right = l_csbiInfo.dwSize.X - 1;
+						SMALL_RECT scrollRect;
+						scrollRect.Top = 1;
+						scrollRect.Bottom = csbiInfo.dwSize.Y - 1;
+						scrollRect.Left = 0;
+						scrollRect.Right = csbiInfo.dwSize.X - 1;
 						// The destination for the scroll rectangle is one row up.
-						l_coordDest.X = 0;
-						l_coordDest.Y = 0;
+						COORD coordDest;
+						coordDest.X = 0;
+						coordDest.Y = 0;
 						// Set the fill character and attributes.
-						l_chiFill.Attributes = 0;
-						l_chiFill.Char.AsciiChar = char( ' ' );
+						CHAR_INFO fill;
+						fill.Attributes = 0;
+						fill.Char.AsciiChar = char( ' ' );
 						// Scroll
-						::ScrollConsoleScreenBuffer( m_hScreenBuffer, &l_srctScrollRect, NULL, l_coordDest, &l_chiFill );
+						::ScrollConsoleScreenBuffer( _screenBuffer, &scrollRect, NULL, coordDest, &fill );
 					}
 					else
 					{
 						// The cursor isn't on the last row
-						l_csbiInfo.dwCursorPosition.Y += l_sOffsetY;
+						csbiInfo.dwCursorPosition.Y += offsetY;
 					}
 
-					::SetConsoleCursorPosition( m_hScreenBuffer, l_csbiInfo.dwCursorPosition );
+					::SetConsoleCursorPosition( _screenBuffer, csbiInfo.dwCursorPosition );
 				}
 			}
 			else
 			{
-				::WriteConsoleA( m_hScreenBuffer, p_strToLog.c_str(), DWORD( p_strToLog.size() ), &l_dwWritten, NULL );
+				::WriteConsoleA( _screenBuffer, toLog.c_str(), DWORD( toLog.size() ), &written, NULL );
 			}
 		}
 
 	private:
 		void DoInitialiseConsole()
 		{
-			m_hScreenBuffer = ::CreateConsoleScreenBuffer( GENERIC_WRITE | GENERIC_READ, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL );
+			_screenBuffer = ::CreateConsoleScreenBuffer( GENERIC_WRITE | GENERIC_READ, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL );
 
-			if ( m_hScreenBuffer != INVALID_HANDLE_VALUE && ::SetConsoleActiveScreenBuffer( m_hScreenBuffer ) )
+			if ( _screenBuffer != INVALID_HANDLE_VALUE && ::SetConsoleActiveScreenBuffer( _screenBuffer ) )
 			{
-				COORD l_coord = { 160, 9999 };
-				::SetConsoleScreenBufferSize( m_hScreenBuffer, l_coord );
+				COORD coord = { 160, 9999 };
+				::SetConsoleScreenBufferSize( _screenBuffer, coord );
 			}
 
-			m_uiOldCP = ::GetConsoleOutputCP();
+			_oldCodePage = ::GetConsoleOutputCP();
 			::EnumSystemCodePages( & DoCodePageProc, CP_INSTALLED );
-			FILE * l_dump;
-			l_dump = freopen( "conout$", "w", stdout );
-			l_dump = freopen( "conout$", "w", stderr );
-			m_bConsole = true;
+			FILE * dump;
+			dump = freopen( "conout$", "w", stdout );
+			dump = freopen( "conout$", "w", stderr );
+			_console = true;
 		}
-		static BOOL __stdcall DoCodePageProc( TChar * pszCodePageString )
+		static BOOL __stdcall DoCodePageProc( TChar * szCodePage )
 		{
-			BOOL l_bReturn = TRUE;
-			String l_strCP( pszCodePageString );
-			int l_iCP = stoi( l_strCP );
+			BOOL ret = TRUE;
+			String codePage( szCodePage );
+			int cp = stoi( codePage );
 
-			if ( l_iCP == CP_UTF8 )
+			if ( cp == CP_UTF8 )
 			{
-				::SetConsoleCP( l_iCP );
-				::SetConsoleOutputCP( l_iCP );
-				l_bReturn = FALSE;
+				::SetConsoleCP( cp );
+				::SetConsoleOutputCP( cp );
+				ret = FALSE;
 			}
 
-			return l_bReturn;
+			return ret;
 		}
 
 	private:
-		uint32_t m_uiOldCP;
-		HANDLE m_hScreenBuffer;
-		bool m_bAllocated;
-		bool m_bConsole;
+		uint32_t _oldCodePage;
+		HANDLE _screenBuffer;
+		bool _allocated;
+		bool _console;
 	};
 #endif
-	class GenConsoleInfo : public IConsoleInfo
+	class CGenericConsoleInfo
+		: public IConsole
 	{
-	private:
 	public:
-		GenConsoleInfo()
+		CGenericConsoleInfo()
 		{
 		}
 
-		DatabaseExport virtual ~GenConsoleInfo()
+		virtual ~CGenericConsoleInfo()
 		{
 		}
 
-		void BeginLog( eLOG_TYPE p_eLogType )
+		void BeginLog( ELogType logLevel )
 		{
 		}
 
-		void Print( String const & p_strToLog, bool p_bNewLine )
+		void Print( String const & toLog, bool newLine )
 		{
-			printf( "%s", p_strToLog.c_str() );
+			printf( "%s", toLog.c_str() );
 
-			if ( p_bNewLine )
+			if ( newLine )
 			{
 				printf( "\n" );
 			}
 		}
 	};
 
-	DummyConsole::DummyConsole()
-		: m_pConsoleInfo( new GenConsoleInfo )
+	CDefaultConsole::CDefaultConsole()
 	{
+		_console = std::make_unique< CGenericConsoleInfo >();
 	}
 
-	DummyConsole::~DummyConsole()
+	CDefaultConsole::~CDefaultConsole()
 	{
-		delete m_pConsoleInfo;
+		_console.reset();
 	}
 
-	void DummyConsole::BeginLog( eLOG_TYPE p_eLogType )
+	void CDefaultConsole::BeginLog( ELogType p_eLogType )
 	{
-		m_pConsoleInfo->BeginLog( p_eLogType );
+		_console->BeginLog( p_eLogType );
 	}
 
-	void DummyConsole::Print( String const & p_strToLog, bool p_bNewLine )
+	void CDefaultConsole::Print( String const & toLog, bool newLine )
 	{
-		m_pConsoleInfo->Print( p_strToLog, p_bNewLine );
+		_console->Print( toLog, newLine );
 	}
 
-	DebugConsole::DebugConsole()
+	CDebugConsole::CDebugConsole()
+	{
 #if defined( _MSC_VER )
-		:	m_pConsoleInfo( new MsvcConsoleInfo )
+		_console = std::make_unique< CMsvcConsoleInfo >();
 #elif defined( _WIN32 )
-		:	m_pConsoleInfo( new MswConsoleInfo )
+		_console = std::make_unique< CMswConsoleInfo >();
 #else
-		:	m_pConsoleInfo( new GenConsoleInfo )
+		_console = std::make_unique< CGenericConsoleInfo >();
 #endif
-	{
 	}
 
-	DebugConsole::~DebugConsole()
+	CDebugConsole::~CDebugConsole()
 	{
-		delete m_pConsoleInfo;
+		_console.reset();
 	}
 
-	void DebugConsole::BeginLog( eLOG_TYPE p_eLogType )
+	void CDebugConsole::BeginLog( ELogType logLevel )
 	{
-		m_pConsoleInfo->BeginLog( p_eLogType );
+		_console->BeginLog( logLevel );
 	}
 
-	void DebugConsole::Print( String const & p_strToLog, bool p_bNewLine )
+	void CDebugConsole::Print( String const & toLog, bool newLine )
 	{
-		m_pConsoleInfo->Print( p_strToLog, p_bNewLine );
+		_console->Print( toLog, newLine );
 	}
 }
 END_NAMESPACE_DATABASE

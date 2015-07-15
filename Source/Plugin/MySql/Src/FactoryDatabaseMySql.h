@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file FactoryDatabaseMySql.h
- * @author Sylvain Doremus
- * @version 1.0
- * @date 4/08/2014 1:20:50 PM
- *
- *
- * @brief MYSQL database factory class.
- *
- * @details CObject factory used to manage MYSQL database creation.
- *
- ***************************************************************************/
+* @file FactoryDatabaseMySql.h
+* @author Sylvain Doremus
+* @version 1.0
+* @date 4/08/2014 1:20:50 PM
+*
+*
+* @brief MYSQL database factory class.
+*
+* @details CObject factory used to manage MYSQL database creation.
+*
+***************************************************************************/
 
 #ifndef ___FACTORY_DATABASE_MYSQL_H___
 #define ___FACTORY_DATABASE_MYSQL_H___
@@ -21,7 +21,7 @@
 BEGIN_NAMESPACE_DATABASE_MYSQL
 {
 	/** MYSQL database factory class.
-	    CObject factory used to manage MYSQL database creation.
+		CObject factory used to manage MYSQL database creation.
 	*/
 	class CFactoryDatabaseMySql
 		: public CFactoryDatabase
@@ -37,9 +37,12 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 		/** Get the type of the factory.
 		@returns
-		    String describing the factory type.
+			String describing the factory type.
 		*/
-		inline const String GetType() const;
+		inline const String GetType() const
+		{
+			return MySql::FACTORY_DATABASE_MYSQL;
+		}
 
 	protected:
 		/** Register creation functions to create new MYSQL database objects.
@@ -50,15 +53,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		*/
 		DatabaseMySqlExport void RegisterObjectTypes();
 	};
-
-	//
-	// Inlines
-	//
-	inline const String CFactoryDatabaseMySql::GetType() const
-	{
-		return MySql::FACTORY_DATABASE_MYSQL;
-	}
-
 }
 END_NAMESPACE_DATABASE_MYSQL
 

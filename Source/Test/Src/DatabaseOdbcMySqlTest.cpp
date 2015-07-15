@@ -25,7 +25,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	static const String DATABASE_ODBC_MYSQL_TYPE = STR( "Database.Odbc.MySql" );
 
 	CDatabaseOdbcMySqlTest::CDatabaseOdbcMySqlTest()
-		: CDatabaseTest( DATABASE_ODBC_MYSQL_TYPE, DB_SERVER, DB_DATABASE, DB_USER, DB_PASS )
+		: CDatabaseTest( DATABASE_ODBC_MYSQL_TYPE, DB_SERVER, DB_DATABASE, DB_USER, DB_PASS, false, false )
 	{
 		_createTable += STR( "CREATE TABLE Test" );
 		_createTable += STR( "(	IDTest INTEGER PRIMARY KEY AUTO_INCREMENT\n" );
@@ -66,7 +66,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 	void CDatabaseOdbcMySqlTest::TestCase_CreateDatabase()
 	{
-		CLogger::LogMessage( StringStream() << "**** Start TestCase_CreateDatabase ****" );
+		CLogger::LogInfo( StringStream() << "**** Start TestCase_CreateDatabase ****" );
 		InstallDatabaseMySql( DB_DATABASE, DB_USER, DB_PASS );
 		InstallSourceOdbcMySql( DB_DATABASE );
 		{
@@ -90,12 +90,12 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				}
 			}
 		}
-		CLogger::LogMessage( StringStream() << "**** End TestCase_CreateDatabase ****" );
+		CLogger::LogInfo( StringStream() << "**** End TestCase_CreateDatabase ****" );
 	}
 
 	void CDatabaseOdbcMySqlTest::TestCase_DestroyDatabase()
 	{
-		CLogger::LogMessage( StringStream() << "**** Start TestCase_DestroyDatabase ****" );
+		CLogger::LogInfo( StringStream() << "**** Start TestCase_DestroyDatabase ****" );
 		{
 			auto const guard = make_block_guard( [this]()
 			{
@@ -125,7 +125,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 		UninstallSourceOdbcMySql( DB_DATABASE );
 		UninstallDatabaseMySql( DB_DATABASE, DB_USER, DB_PASS );
-		CLogger::LogMessage( StringStream() << "**** End TestCase_DestroyDatabase ****" );
+		CLogger::LogInfo( StringStream() << "**** End TestCase_DestroyDatabase ****" );
 	}
 }
 END_NAMESPACE_DATABASE_TEST

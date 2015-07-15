@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file Time.cpp
- * @author Sylvain Doremus
- * @version 1.0
- * @date 3/20/2014 2:47:39 PM
- *
- *
- * @brief CTime class definition.
- *
- * @details Describes a time.
- *
- ***************************************************************************/
+* @file Time.cpp
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/20/2014 2:47:39 PM
+*
+*
+* @brief CTime class definition.
+*
+* @details Describes a time.
+*
+***************************************************************************/
 
 #include "DatabasePch.h"
 

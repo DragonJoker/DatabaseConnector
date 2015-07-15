@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DatabaseStatementParameterMySql.cpp
- * @author Sylvain Doremus
- * @version 1.0
- * @date 3/20/2014 2:47:39 PM
- *
- *
- * @brief CDatabaseStatementParameterMySql class declaration.
- *
- * @details Describes a statement parameter for MYSQL database.
- *
- ***************************************************************************/
+* @file DatabaseStatementParameterMySql.cpp
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/20/2014 2:47:39 PM
+*
+*
+* @brief CDatabaseStatementParameterMySql class declaration.
+*
+* @details Describes a statement parameter for MYSQL database.
+*
+***************************************************************************/
 
 #include "DatabaseMySqlPch.h"
 
@@ -24,16 +24,16 @@
 
 BEGIN_NAMESPACE_DATABASE_MYSQL
 {
-	static const String DATABASE_PARAMETER_TYPE_ERROR = STR( "Wrong parameter type when trying to set its binding." );
+	static const String ERROR_MYSQL_PARAMETER_TYPE = STR( "Undefined parameter type when trying to set its binding." );
 
-	CDatabaseStatementParameterMySql::CDatabaseStatementParameterMySql( DatabaseConnectionMySqlPtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, SValueUpdater * updater )
-		: CDatabaseParameter( connection, name, index, fieldType, parameterType, updater )
+	CDatabaseStatementParameterMySql::CDatabaseStatementParameterMySql( DatabaseConnectionMySqlPtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
+		: CDatabaseParameter( connection, name, index, fieldType, parameterType, std::move( updater ) )
 		, _statement( NULL )
 	{
 	}
 
-	CDatabaseStatementParameterMySql::CDatabaseStatementParameterMySql( DatabaseConnectionMySqlPtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, SValueUpdater * updater )
-		: CDatabaseParameter( connection, name, index, fieldType, limits, parameterType, updater )
+	CDatabaseStatementParameterMySql::CDatabaseStatementParameterMySql( DatabaseConnectionMySqlPtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
+		: CDatabaseParameter( connection, name, index, fieldType, limits, parameterType, std::move( updater ) )
 		, _statement( NULL )
 	{
 	}
@@ -60,28 +60,40 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 		switch ( GetType() )
 		{
-		case EFieldType_BOOL:
-			_binding = MakeOutBind< EFieldType_BOOL >( *bind, GetObjectValue(), *this );
+		case EFieldType_BIT:
+			_binding = MakeOutBind< EFieldType_BIT >( *bind, GetObjectValue(), *this );
 			break;
 
-		case EFieldType_SMALL_INTEGER:
-			_binding = MakeOutBind< EFieldType_SMALL_INTEGER >( *bind, GetObjectValue(), *this );
+		case EFieldType_INT8:
+			_binding = MakeOutBind< EFieldType_INT8 >( *bind, GetObjectValue(), *this );
 			break;
 
-		case EFieldType_INTEGER:
-			_binding = MakeOutBind< EFieldType_INTEGER >( *bind, GetObjectValue(), *this );
+		case EFieldType_INT16:
+			_binding = MakeOutBind< EFieldType_INT16 >( *bind, GetObjectValue(), *this );
 			break;
 
-		case EFieldType_LONG_INTEGER:
-			_binding = MakeOutBind< EFieldType_LONG_INTEGER >( *bind, GetObjectValue(), *this );
+		case EFieldType_INT24:
+			_binding = MakeOutBind< EFieldType_INT24 >( *bind, GetObjectValue(), *this );
 			break;
 
-		case EFieldType_FLOAT:
-			_binding = MakeOutBind< EFieldType_FLOAT >( *bind, GetObjectValue(), *this );
+		case EFieldType_INT32:
+			_binding = MakeOutBind< EFieldType_INT32 >( *bind, GetObjectValue(), *this );
 			break;
 
-		case EFieldType_DOUBLE:
-			_binding = MakeOutBind< EFieldType_DOUBLE >( *bind, GetObjectValue(), *this );
+		case EFieldType_INT64:
+			_binding = MakeOutBind< EFieldType_INT64 >( *bind, GetObjectValue(), *this );
+			break;
+
+		case EFieldType_FLOAT32:
+			_binding = MakeOutBind< EFieldType_FLOAT32 >( *bind, GetObjectValue(), *this );
+			break;
+
+		case EFieldType_FLOAT64:
+			_binding = MakeOutBind< EFieldType_FLOAT64 >( *bind, GetObjectValue(), *this );
+			break;
+
+		case EFieldType_FIXED_POINT:
+			_binding = MakeOutBind< EFieldType_FIXED_POINT >( *bind, GetObjectValue(), *this );
 			break;
 
 		case EFieldType_VARCHAR:
@@ -125,8 +137,8 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			break;
 
 		default:
-			CLogger::LogError( DATABASE_PARAMETER_TYPE_ERROR );
-			DB_EXCEPT( EDatabaseExceptionCodes_ParameterError, DATABASE_PARAMETER_TYPE_ERROR );
+			CLogger::LogError( ERROR_MYSQL_PARAMETER_TYPE );
+			DB_EXCEPT( EDatabaseExceptionCodes_ParameterError, ERROR_MYSQL_PARAMETER_TYPE );
 			break;
 		}
 	}

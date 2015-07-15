@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DatabaseValue.inl
- * @author Sylvain Doremus
- * @version 1.0
- * @date 3/20/2014 2:47:39 PM
- *
- *
- * @brief CDatabaseValueBase derived classes.
- *
- * @details Template classes inherited CDatabaseValueBase.
- *
- ***************************************************************************/
+* @file DatabaseValue.inl
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/20/2014 2:47:39 PM
+*
+*
+* @brief CDatabaseValueBase derived classes.
+*
+* @details Template classes inherited CDatabaseValueBase.
+*
+***************************************************************************/
 
 #include "DatabasePrerequisites.h" // Help doxygen
 
@@ -21,11 +21,9 @@ BEGIN_NAMESPACE_DATABASE
 	//! The minimal date, time and date/time size. Needed because ODBC writes at least 16 bytes of data if the parameter is out or in/out
 	static const size_t MIN_DATE_TIME_SIZE = 16;
 
-	static const String DATABASE_VALUE_ERROR = STR( "Unsupported type." );
-
 	/** Describes a value, used in fields and parameters.
 	*/
-	template< EFieldType Type, typename ValuePolicy >
+	template< EFieldType FieldType, typename ValuePolicy >
 	class CDatabaseValue
 		: public CDatabaseValueBase
 		, private ValuePolicy
@@ -49,27 +47,20 @@ BEGIN_NAMESPACE_DATABASE
 			Reset();
 		}
 
-		/** Update value as string from the typed value.
-		*/
-		inline void FromString( String const & value )
-		{
-			SetNull( !ValuePolicy::FromStr( value, _tValue, _valueSize, _connection ) );
-		}
-
 		/** Defines this value from the given one
 		@param value
-		    The value
+			The value
 		@param limits
-		    The field size limit
+			The field size limit
 		*/
 		inline void SetValue( CDatabaseValueBase const & value )
 		{
-			SetValue( static_cast< CDatabaseValue< Type > const & >( value )._tValue );
+			SetValue( static_cast< CDatabaseValue< FieldType > const & >( value )._tValue );
 		}
 
 		/** Set value.
 		@param[in] tValue
-		    New value.
+			New value.
 		*/
 		inline void SetValue( const value_type & tValue )
 		{
@@ -77,19 +68,17 @@ BEGIN_NAMESPACE_DATABASE
 		}
 
 		/** Get the value.
-		@param valueSet
-			Tells if the value is set (true) or NULL (false)
 		@return
-		    The value.
+			The value.
 		*/
-		inline String GetQueryValue( bool valueSet )
+		inline String GetQueryValue()
 		{
-			return ValuePolicy::ToQueryValue( _tValue, valueSet, _connection );
+			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), _connection );
 		}
 
 		/** Get a pointer to the value.
 		@return
-		    Pointer to the value or NULL.
+			Pointer to the value or NULL.
 		*/
 		inline void * GetPtrValue()
 		{
@@ -98,7 +87,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Get a pointer to the value.
 		@return
-		    Pointer to the value or NULL.
+			Pointer to the value or NULL.
 		*/
 		inline const void * GetPtrValue()const
 		{
@@ -107,7 +96,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Get the value.
 		@return
-		    The value.
+			The value.
 		*/
 		inline const value_type & GetValue()const
 		{
@@ -131,6 +120,7 @@ BEGIN_NAMESPACE_DATABASE
 		}
 
 	private:
+		//! The value
 		value_type _tValue;
 	};
 
@@ -161,18 +151,11 @@ BEGIN_NAMESPACE_DATABASE
 			Reset();
 		}
 
-		/** Update value as string from the typed value.
-		*/
-		inline void FromString( String const & value )
-		{
-			SetNull( !ValuePolicy::FromStr( value, _tValue, _valueSize, _connection ) );
-		}
-
 		/** Defines this value from the given one
 		@param value
-		    The value
+			The value
 		@param limits
-		    The field size limit
+			The field size limit
 		*/
 		inline void SetValue( CDatabaseValueBase const & value )
 		{
@@ -181,9 +164,9 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Set value.
 		@param[in] tValue
-		    New value.
+			New value.
 		@param[in] limits
-		    Parameter limits.
+			Parameter limits.
 		*/
 		inline void SetValue( const value_type & tValue )
 		{
@@ -192,9 +175,9 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Set value.
 		@param[in] tValue
-		    New value.
+			New value.
 		@param[in] limits
-		    Parameter limits.
+			Parameter limits.
 		*/
 		inline void SetValue( const char * tValue, uint32_t limits )
 		{
@@ -209,19 +192,17 @@ BEGIN_NAMESPACE_DATABASE
 		}
 
 		/** Get the value.
-		@param valueSet
-			Tells if the value is set (true) or NULL (false)
 		@return
-		    The value.
+			The value.
 		*/
-		inline String GetQueryValue( bool valueSet )
+		inline String GetQueryValue()
 		{
-			return ValuePolicy::ToQueryValue( _tValue, valueSet, _connection );
+			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), _connection );
 		}
 
 		/** Get a pointer to the value.
 		@return
-		    Pointer to the value or NULL.
+			Pointer to the value or NULL.
 		*/
 		inline void * GetPtrValue()
 		{
@@ -230,7 +211,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Get a pointer to the value.
 		@return
-		    Pointer to the value or NULL.
+			Pointer to the value or NULL.
 		*/
 		inline const void * GetPtrValue()const
 		{
@@ -239,7 +220,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Get the value.
 		@return
-		    The value.
+			The value.
 		*/
 		inline const value_type & GetValue()const
 		{
@@ -263,6 +244,7 @@ BEGIN_NAMESPACE_DATABASE
 		}
 
 	private:
+		//! The value
 		value_type _tValue;
 	};
 
@@ -293,18 +275,11 @@ BEGIN_NAMESPACE_DATABASE
 			Reset();
 		}
 
-		/** Update value as string from the typed value.
-		*/
-		inline void FromString( String const & value )
-		{
-			SetNull( !ValuePolicy::FromStr( value, _tValue, _valueSize, _connection ) );
-		}
-
 		/** Defines this value from the given one
 		@param value
-		    The value
+			The value
 		@param limits
-		    The field size limit
+			The field size limit
 		*/
 		inline void SetValue( CDatabaseValueBase const & value )
 		{
@@ -313,9 +288,9 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Set value.
 		@param[in] tValue
-		    New value.
+			New value.
 		@param[in] limits
-		    Parameter limits.
+			Parameter limits.
 		*/
 		inline void SetValue( const value_type & tValue )
 		{
@@ -324,9 +299,9 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Set value.
 		@param[in] tValue
-		    New value.
+			New value.
 		@param[in] limits
-		    Parameter limits.
+			Parameter limits.
 		*/
 		inline void SetValue( const char * tValue, uint32_t limits )
 		{
@@ -341,19 +316,17 @@ BEGIN_NAMESPACE_DATABASE
 		}
 
 		/** Get the value.
-		@param valueSet
-			Tells if the value is set (true) or NULL (false)
 		@return
-		    The value.
+			The value.
 		*/
-		inline String GetQueryValue( bool valueSet )
+		inline String GetQueryValue()
 		{
-			return ValuePolicy::ToQueryValue( _tValue, valueSet, _connection );
+			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), _connection );
 		}
 
 		/** Get a pointer to the value.
 		@return
-		    Pointer to the value or NULL.
+			Pointer to the value or NULL.
 		*/
 		inline void * GetPtrValue()
 		{
@@ -362,7 +335,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Get a pointer to the value.
 		@return
-		    Pointer to the value or NULL.
+			Pointer to the value or NULL.
 		*/
 		inline const void * GetPtrValue()const
 		{
@@ -371,7 +344,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Get the value.
 		@return
-		    The value.
+			The value.
 		*/
 		inline const value_type & GetValue()const
 		{
@@ -395,6 +368,7 @@ BEGIN_NAMESPACE_DATABASE
 		}
 
 	private:
+		//! The value
 		value_type _tValue;
 	};
 
@@ -425,18 +399,11 @@ BEGIN_NAMESPACE_DATABASE
 			Reset();
 		}
 
-		/** Update value as string from the typed value.
-		*/
-		inline void FromString( String const & value )
-		{
-			SetNull( !ValuePolicy::FromStr( value, _tValue, _valueSize, _connection ) );
-		}
-
 		/** Defines this value from the given one
 		@param value
-		    The value
+			The value
 		@param limits
-		    The field size limit
+			The field size limit
 		*/
 		inline void SetValue( CDatabaseValueBase const & value )
 		{
@@ -445,9 +412,9 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Set value.
 		@param[in] tValue
-		    New value.
+			New value.
 		@param[in] limits
-		    Parameter limits.
+			Parameter limits.
 		*/
 		inline void SetValue( const value_type & tValue )
 		{
@@ -456,9 +423,9 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Set value.
 		@param[in] tValue
-		    New value.
+			New value.
 		@param[in] limits
-		    Parameter limits.
+			Parameter limits.
 		*/
 		inline void SetValue( const wchar_t * tValue, uint32_t limits )
 		{
@@ -473,19 +440,17 @@ BEGIN_NAMESPACE_DATABASE
 		}
 
 		/** Get the value.
-		@param valueSet
-			Tells if the value is set (true) or NULL (false)
 		@return
-		    The value.
+			The value.
 		*/
-		inline String GetQueryValue( bool valueSet )
+		inline String GetQueryValue()
 		{
-			return ValuePolicy::ToQueryValue( _tValue, valueSet, _connection );
+			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), _connection );
 		}
 
 		/** Get a pointer to the value.
 		@return
-		    Pointer to the value or NULL.
+			Pointer to the value or NULL.
 		*/
 		inline void * GetPtrValue()
 		{
@@ -494,7 +459,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Get a pointer to the value.
 		@return
-		    Pointer to the value or NULL.
+			Pointer to the value or NULL.
 		*/
 		inline const void * GetPtrValue()const
 		{
@@ -503,7 +468,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Get the value.
 		@return
-		    The value.
+			The value.
 		*/
 		inline const value_type & GetValue()const
 		{
@@ -527,6 +492,7 @@ BEGIN_NAMESPACE_DATABASE
 		}
 
 	private:
+		//! The value
 		value_type _tValue;
 	};
 
@@ -557,18 +523,11 @@ BEGIN_NAMESPACE_DATABASE
 			Reset();
 		}
 
-		/** Update value as string from the typed value.
-		*/
-		inline void FromString( String const & value )
-		{
-			SetNull( !ValuePolicy::FromStr( value, _tValue, _valueSize, _connection ) );
-		}
-
 		/** Defines this value from the given one
 		@param value
-		    The value
+			The value
 		@param limits
-		    The field size limit
+			The field size limit
 		*/
 		inline void SetValue( CDatabaseValueBase const & value )
 		{
@@ -577,9 +536,9 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Set value.
 		@param[in] tValue
-		    New value.
+			New value.
 		@param[in] limits
-		    Parameter limits.
+			Parameter limits.
 		*/
 		inline void SetValue( const value_type & tValue )
 		{
@@ -588,9 +547,9 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Set value.
 		@param[in] tValue
-		    New value.
+			New value.
 		@param[in] limits
-		    Parameter limits.
+			Parameter limits.
 		*/
 		inline void SetValue( const wchar_t * tValue, uint32_t limits )
 		{
@@ -605,19 +564,17 @@ BEGIN_NAMESPACE_DATABASE
 		}
 
 		/** Get the value.
-		@param valueSet
-			Tells if the value is set (true) or NULL (false)
 		@return
-		    The value.
+			The value.
 		*/
-		inline String GetQueryValue( bool valueSet )
+		inline String GetQueryValue()
 		{
-			return ValuePolicy::ToQueryValue( _tValue, valueSet, _connection );
+			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), _connection );
 		}
 
 		/** Get a pointer to the value.
 		@return
-		    Pointer to the value or NULL.
+			Pointer to the value or NULL.
 		*/
 		inline void * GetPtrValue()
 		{
@@ -626,7 +583,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Get a pointer to the value.
 		@return
-		    Pointer to the value or NULL.
+			Pointer to the value or NULL.
 		*/
 		inline const void * GetPtrValue()const
 		{
@@ -635,7 +592,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Get the value.
 		@return
-		    The value.
+			The value.
 		*/
 		inline const value_type & GetValue()const
 		{
@@ -659,6 +616,7 @@ BEGIN_NAMESPACE_DATABASE
 		}
 
 	private:
+		//! The value
 		value_type _tValue;
 	};
 
@@ -689,18 +647,11 @@ BEGIN_NAMESPACE_DATABASE
 			Reset();
 		}
 
-		/** Update value as string from the typed value.
-		*/
-		inline void FromString( String const & value )
-		{
-			SetNull( !ValuePolicy::FromStr( value, _tValue, _valueSize, _connection ) );
-		}
-
 		/** Defines this value from the given one
 		@param value
-		    The value
+			The value
 		@param limits
-		    The field size limit
+			The field size limit
 		*/
 		inline void SetValue( CDatabaseValueBase const & value )
 		{
@@ -709,9 +660,9 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Set value.
 		@param[in] tValue
-		    New value.
+			New value.
 		@param[in] size
-		    Array size.
+			Array size.
 		*/
 		inline void SetValue( const value_type & tValue )
 		{
@@ -720,9 +671,9 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Set value.
 		@param[in] tValue
-		    New value.
+			New value.
 		@param[in] size
-		    Array size.
+			Array size.
 		*/
 		inline void SetValue( const uint8_t * tValue, uint32_t size )
 		{
@@ -737,19 +688,17 @@ BEGIN_NAMESPACE_DATABASE
 		}
 
 		/** Get the value.
-		@param valueSet
-			Tells if the value is set (true) or NULL (false)
 		@return
-		    The value.
+			The value.
 		*/
-		inline String GetQueryValue( bool valueSet )
+		inline String GetQueryValue()
 		{
-			return ValuePolicy::ToQueryValue( _tValue, valueSet, _connection );
+			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), _connection );
 		}
 
 		/** Get a pointer to the value.
 		@return
-		    Pointer to the value or NULL.
+			Pointer to the value or NULL.
 		*/
 		inline void * GetPtrValue()
 		{
@@ -758,7 +707,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Get a pointer to the value.
 		@return
-		    Pointer to the value or NULL.
+			Pointer to the value or NULL.
 		*/
 		inline const void * GetPtrValue()const
 		{
@@ -767,7 +716,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Get the value.
 		@return
-		    The value.
+			The value.
 		*/
 		inline const value_type & GetValue()const
 		{
@@ -791,6 +740,7 @@ BEGIN_NAMESPACE_DATABASE
 		}
 
 	private:
+		//! The value
 		value_type _tValue;
 	};
 
@@ -821,18 +771,11 @@ BEGIN_NAMESPACE_DATABASE
 			Reset();
 		}
 
-		/** Update value as string from the typed value.
-		*/
-		inline void FromString( String const & value )
-		{
-			SetNull( !ValuePolicy::FromStr( value, _tValue, _valueSize, _connection ) );
-		}
-
 		/** Defines this value from the given one
 		@param value
-		    The value
+			The value
 		@param limits
-		    The field size limit
+			The field size limit
 		*/
 		inline void SetValue( CDatabaseValueBase const & value )
 		{
@@ -841,9 +784,9 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Set value.
 		@param[in] tValue
-		    New value.
+			New value.
 		@param[in] size
-		    Array size.
+			Array size.
 		*/
 		inline void SetValue( const value_type & tValue )
 		{
@@ -852,9 +795,9 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Set value.
 		@param[in] tValue
-		    New value.
+			New value.
 		@param[in] size
-		    Array size.
+			Array size.
 		*/
 		inline void SetValue( const uint8_t * tValue, uint32_t size )
 		{
@@ -869,19 +812,17 @@ BEGIN_NAMESPACE_DATABASE
 		}
 
 		/** Get the value.
-		@param valueSet
-			Tells if the value is set (true) or NULL (false)
 		@return
-		    The value.
+			The value.
 		*/
-		inline String GetQueryValue( bool valueSet )
+		inline String GetQueryValue()
 		{
-			return ValuePolicy::ToQueryValue( _tValue, valueSet, _connection );
+			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), _connection );
 		}
 
 		/** Get a pointer to the value.
 		@return
-		    Pointer to the value or NULL.
+			Pointer to the value or NULL.
 		*/
 		inline void * GetPtrValue()
 		{
@@ -890,7 +831,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Get a pointer to the value.
 		@return
-		    Pointer to the value or NULL.
+			Pointer to the value or NULL.
 		*/
 		inline const void * GetPtrValue()const
 		{
@@ -899,7 +840,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Get the value.
 		@return
-		    The value.
+			The value.
 		*/
 		inline const value_type & GetValue()const
 		{
@@ -923,6 +864,7 @@ BEGIN_NAMESPACE_DATABASE
 		}
 
 	private:
+		//! The value
 		value_type _tValue;
 	};
 
@@ -953,18 +895,11 @@ BEGIN_NAMESPACE_DATABASE
 			Reset();
 		}
 
-		/** Update value as string from the typed value.
-		*/
-		inline void FromString( String const & value )
-		{
-			SetNull( !ValuePolicy::FromStr( value, _tValue, _valueSize, _connection ) );
-		}
-
 		/** Defines this value from the given one
 		@param value
-		    The value
+			The value
 		@param limits
-		    The field size limit
+			The field size limit
 		*/
 		inline void SetValue( CDatabaseValueBase const & value )
 		{
@@ -973,9 +908,9 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Set value.
 		@param[in] tValue
-		    New value.
+			New value.
 		@param[in] size
-		    Array size.
+			Array size.
 		*/
 		inline void SetValue( const value_type & tValue )
 		{
@@ -984,9 +919,9 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Set value.
 		@param[in] tValue
-		    New value.
+			New value.
 		@param[in] size
-		    Array size.
+			Array size.
 		*/
 		inline void SetValue( const uint8_t * tValue, uint32_t size )
 		{
@@ -1001,19 +936,17 @@ BEGIN_NAMESPACE_DATABASE
 		}
 
 		/** Get the value.
-		@param valueSet
-			Tells if the value is set (true) or NULL (false)
 		@return
-		    The value.
+			The value.
 		*/
-		inline String GetQueryValue( bool valueSet )
+		inline String GetQueryValue()
 		{
-			return ValuePolicy::ToQueryValue( _tValue, valueSet, _connection );
+			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), _connection );
 		}
 
 		/** Get a pointer to the value.
 		@return
-		    Pointer to the value or NULL.
+			Pointer to the value or NULL.
 		*/
 		inline void * GetPtrValue()
 		{
@@ -1022,7 +955,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Get a pointer to the value.
 		@return
-		    Pointer to the value or NULL.
+			Pointer to the value or NULL.
 		*/
 		inline const void * GetPtrValue()const
 		{
@@ -1031,7 +964,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Get the value.
 		@return
-		    The value.
+			The value.
 		*/
 		inline const value_type & GetValue()const
 		{
@@ -1055,6 +988,7 @@ BEGIN_NAMESPACE_DATABASE
 		}
 
 	private:
+		//! The value
 		value_type _tValue;
 	};
 }

@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DatabaseMySqlPrerequisites.h
- * @author Sylvain Doremus
- * @version 1.0
- * @date 03/14/2014 11:48:00 AM
- *
- *
- * @brief Database MYSQL prerequisite header.
- *
- * @details This file contains all Database MYSQL prerequisite instructions.
- *
- ***************************************************************************/
+* @file DatabaseMySqlPrerequisites.h
+* @author Sylvain Doremus
+* @version 1.0
+* @date 03/14/2014 11:48:00 AM
+*
+*
+* @brief Database MYSQL prerequisite header.
+*
+* @details This file contains all Database MYSQL prerequisite instructions.
+*
+***************************************************************************/
 
 #ifndef ___DATABASE_MYSQL_PREREQUISITES_H___
 #define ___DATABASE_MYSQL_PREREQUISITES_H___
@@ -17,31 +17,29 @@
 #include <DatabasePrerequisites.h>
 
 #if defined( _WIN32 ) && !defined ( __MINGW32__ ) && !defined ( STATIC_LIB )
-#    ifdef DatabasePluginMySql_EXPORTS
-#        define DatabaseMySqlExport __declspec ( dllexport )
-#    else
-#       if defined ( __MINGW32__ )
-#           define DatabaseMySqlExport
-#       else
-#           define DatabaseMySqlExport __declspec ( dllimport )
-#       endif
-#   endif
+#	ifdef DatabasePluginMySql_EXPORTS
+#		define DatabaseMySqlExport __declspec ( dllexport )
+#	else
+#		if defined ( __MINGW32__ )
+#			define DatabaseMySqlExport
+#		else
+#			define DatabaseMySqlExport __declspec ( dllimport )
+#		endif
+#	endif
 #else
 #    define DatabaseMySqlExport
 #endif
 
 #if defined( STATIC_LIB )
-#   define CPPCONN_PUBLIC_FUNC
+#	define CPPCONN_PUBLIC_FUNC
 #endif
 
-#define BEGIN_NAMESPACE_DATABASE_MYSQL     BEGIN_NAMESPACE_DATABASE { namespace MySql
-#define NAMESPACE_DATABASE_MYSQL           NAMESPACE_DATABASE::MySql
-#define END_NAMESPACE_DATABASE_MYSQL       END_NAMESPACE_DATABASE }
+#define BEGIN_NAMESPACE_DATABASE_MYSQL BEGIN_NAMESPACE_DATABASE { namespace MySql
+#define NAMESPACE_DATABASE_MYSQL NAMESPACE_DATABASE::MySql
+#define END_NAMESPACE_DATABASE_MYSQL } END_NAMESPACE_DATABASE
 
 BEGIN_NAMESPACE_DATABASE
 {
-	/** MYSQL namespace
-	*/
 	namespace MySql
 	{
 		// Pre-declare classes
@@ -54,6 +52,7 @@ BEGIN_NAMESPACE_DATABASE
 		class CExceptionDatabaseMySql;
 		class CPluginDatabaseMySql;
 		class CFactoryDatabaseMySql;
+		struct SOutMySqlBindBase;
 
 		// Pointers
 		typedef std::shared_ptr< CDatabaseConnectionMySql > DatabaseConnectionMySqlPtr;
@@ -69,13 +68,13 @@ BEGIN_NAMESPACE_DATABASE
 		const String DATABASE_MYSQL_TYPE = STR( "Database.MySql" );
 		const String PLUGIN_NAME_DATABASE_MYSQL = STR( "Plugin Database MySql" );
 
-		struct CMySqlBindBase
+		struct SMySqlBindBase
 		{
 			my_bool _null = 0;
 			my_bool _error = 0;
 			MYSQL_BIND & _bind;
 
-			CMySqlBindBase( MYSQL_BIND & bind )
+			SMySqlBindBase( MYSQL_BIND & bind )
 				: _bind( bind )
 			{
 				bind.error = &_error;
@@ -83,118 +82,10 @@ BEGIN_NAMESPACE_DATABASE
 			}
 		};
 
-		struct CInMySqlBindBase
-				: public CMySqlBindBase
+		struct SOutMySqlBindBase
+			: public SMySqlBindBase
 		{
-			unsigned long _length = 0;
-
-			CInMySqlBindBase( MYSQL_BIND & bind )
-				: CMySqlBindBase( bind )
-			{
-				bind.length = &_length;
-			}
-		};
-
-		template< typename T, typename U = T >
-		struct CInMySqlBind
-				: public CInMySqlBindBase
-		{
-			T _value;
-
-			CInMySqlBind( MYSQL_BIND & bind )
-				: CInMySqlBindBase( bind )
-			{
-				bind.buffer = &_value;
-			}
-
-			T const & GetValue()const
-			{
-				return _value;
-			}
-		};
-
-		template<>
-		struct CInMySqlBind< bool, bool >
-				: public CInMySqlBindBase
-		{
-			int8_t _value;
-
-			CInMySqlBind( MYSQL_BIND & bind )
-				: CInMySqlBindBase( bind )
-			{
-				bind.buffer = &_value;
-			}
-
-			bool GetValue()const
-			{
-				return _value != 0;
-			}
-		};
-
-		template< typename T >
-		struct CInMySqlBind< T *, T * >
-				: public CInMySqlBindBase
-		{
-			T _value[8192];
-
-			CInMySqlBind( MYSQL_BIND & bind )
-				: CInMySqlBindBase( bind )
-			{
-				memset( _value, 0, sizeof( _value ) );
-				bind.buffer = _value;
-				bind.buffer_length = sizeof( _value ) / sizeof( *_value );
-			}
-
-			T const * GetValue()const
-			{
-				return _value;
-			}
-		};
-
-		template<>
-		struct CInMySqlBind< char *, double >
-				: public CInMySqlBindBase
-		{
-			char _value[8192];
-
-			CInMySqlBind( MYSQL_BIND & bind )
-				: CInMySqlBindBase( bind )
-			{
-				memset( _value, 0, sizeof( _value ) );
-				bind.buffer = _value;
-				bind.buffer_length = sizeof( _value ) / sizeof( *_value );
-			}
-
-			double GetValue()const
-			{
-				return CStrUtils::ToDouble( _value );
-			}
-		};
-
-		template<>
-		struct CInMySqlBind< char *, int32_t >
-				: public CInMySqlBindBase
-		{
-			char _value[8192];
-
-			CInMySqlBind( MYSQL_BIND & bind )
-				: CInMySqlBindBase( bind )
-			{
-				memset( _value, 0, sizeof( _value ) );
-				bind.buffer = _value;
-				bind.buffer_length = sizeof( _value ) / sizeof( _value );
-			}
-
-			int32_t GetValue()const
-			{
-				return CStrUtils::ToInt( _value );
-			}
-		};
-
-		struct COutMySqlBindBase
-				: public CMySqlBindBase
-		{
-			COutMySqlBindBase( MYSQL_BIND & bind, enum_field_types type, CDatabaseStatementParameterMySql & parameter );
+			SOutMySqlBindBase( MYSQL_BIND & bind, enum_field_types type, CDatabaseStatementParameterMySql & parameter );
 
 			virtual void UpdateValue() = 0;
 

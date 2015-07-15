@@ -1,3 +1,14 @@
+/************************************************************************//**
+* @file DatabaseStringUtils.cpp
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/20/2014 2:47:39 PM
+*
+*
+* @brief String functions class
+*
+***************************************************************************/
+
 #include "DatabasePch.h"
 
 #include "DatabaseStringUtils.h"
@@ -24,8 +35,8 @@ BEGIN_NAMESPACE_DATABASE
 					OutChar * l_pEndOut = NULL;
 
 					l_result = std::use_facet< facet_type >( p_locale ).in( l_state,
-					p_strIn.data(),		p_strIn.data() + p_strIn.size(),	l_pEndIn,
-					&l_buffer.front(),	&l_buffer.front() + p_strIn.size(),	l_pEndOut
+					p_strIn.data(), p_strIn.data() + p_strIn.size(), l_pEndIn,
+					&l_buffer.front(), &l_buffer.front() + p_strIn.size(), l_pEndOut
 																		  );
 
 					p_strOut = std::basic_string< OutChar >( &l_buffer.front(), l_pEndOut );
@@ -84,7 +95,7 @@ BEGIN_NAMESPACE_DATABASE
 
 	//*************************************************************************************************
 
-	bool CStrUtils::IsInteger( String const & p_strToTest, std::locale const & CU_PARAM_UNUSED( p_locale ) )
+	bool CStrUtils::IsInteger( String const & p_strToTest, std::locale const & DB_PARAM_UNUSED( p_locale ) )
 	{
 		bool l_bReturn = true;
 
@@ -101,11 +112,11 @@ BEGIN_NAMESPACE_DATABASE
 		return l_bReturn;
 	}
 
-	bool CStrUtils::IsFloating( String const & p_strToTest, std::locale const & CU_PARAM_UNUSED( p_locale ) )
+	bool CStrUtils::IsFloating( String const & p_strToTest, std::locale const & DB_PARAM_UNUSED( p_locale ) )
 	{
-		bool		l_bReturn = false;
+		bool l_bReturn = false;
 		StringArray	l_arrayParts;
-		String		l_strText( p_strToTest );
+		String l_strText( p_strToTest );
 		std::size_t	l_nSize;
 
 		Replace( l_strText, STR( "," ), STR( "." ) );
@@ -119,89 +130,6 @@ BEGIN_NAMESPACE_DATABASE
 			if ( l_bReturn && l_nSize > 1 )
 			{
 				l_bReturn = IsInteger( l_arrayParts[1] );
-			}
-		}
-
-		return l_bReturn;
-	}
-
-	bool CStrUtils::IsDate( String const & p_strToTest, std::locale const & p_locale )
-	{
-		bool							l_bReturn = false;
-		String							l_strText( p_strToTest );
-		String							l_strYear;
-		String							l_strMonth;
-		String							l_strDay;
-		std::tm							l_tmbuf = { 0 };
-		std::time_get<TChar> const &	l_timeFacet =  std::use_facet< std::time_get< TChar > >( p_locale );
-		std::time_get<TChar>::dateorder	l_order = l_timeFacet.date_order();
-		StringArray						l_arraySplitted;
-
-		Replace( l_strText, STR( "/" ), STR( " " ) );
-		Replace( l_strText, STR( "-" ), STR( " " ) );
-
-		while ( l_strText.find( STR( "  " ) ) != String::npos )
-		{
-			Replace( l_strText, STR( "  " ), STR( " " ) );
-		}
-
-		l_arraySplitted = Split( l_strText, STR( " " ), 4, false );
-
-		if ( l_arraySplitted.size() == 3 && IsInteger( l_arraySplitted[0] ) && IsInteger( l_arraySplitted[2] ) )
-		{
-			l_bReturn = true;
-
-			switch ( l_order )
-			{
-			case std::time_base::dmy:
-				l_strYear = l_arraySplitted[2];
-				l_tmbuf.tm_mday = ToInt( l_arraySplitted[0] );
-				l_tmbuf.tm_mon = DoGetMonthIndex( l_arraySplitted[1] );
-				l_tmbuf.tm_year = ToInt( l_arraySplitted[2] );
-				break;
-
-			case std::time_base::mdy:
-				l_strYear = l_arraySplitted[2];
-				l_tmbuf.tm_mon = DoGetMonthIndex( l_arraySplitted[0] );
-				l_tmbuf.tm_mday = ToInt( l_arraySplitted[1] );
-				l_tmbuf.tm_year = ToInt( l_arraySplitted[2] );
-				break;
-
-			case std::time_base::ydm:
-				l_strYear = l_arraySplitted[0];
-				l_tmbuf.tm_year = ToInt( l_arraySplitted[0] );
-				l_tmbuf.tm_mday = ToInt( l_arraySplitted[1] );
-				l_tmbuf.tm_mon = DoGetMonthIndex( l_arraySplitted[2] );
-				break;
-
-			case std::time_base::ymd:
-				l_strYear = l_arraySplitted[0];
-				l_tmbuf.tm_year = ToInt( l_arraySplitted[0] );
-				l_tmbuf.tm_mon = DoGetMonthIndex( l_arraySplitted[1] );
-				l_tmbuf.tm_mday = ToInt( l_arraySplitted[2] );
-				break;
-
-			default:
-				l_bReturn = false;
-			}
-
-			l_bReturn &= l_tmbuf.tm_mon > 0 && l_tmbuf.tm_mon <= 12;
-
-			if ( l_bReturn )
-			{
-				if ( l_strYear.size() > 2 )
-				{
-					l_bReturn = l_tmbuf.tm_year > 1900 && l_tmbuf.tm_year < 2500;
-				}
-				else if ( l_strYear.size() == 2 )
-				{
-					l_bReturn = true;
-				}
-			}
-
-			if ( l_bReturn )
-			{
-				l_bReturn = DoIsValidDay( l_tmbuf.tm_mday, l_tmbuf.tm_mon, l_tmbuf.tm_year );
 			}
 		}
 
@@ -396,8 +324,8 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			l_arrayReturn.reserve( p_maxSplits + 1 );
 			std::size_t l_numSplits = 0;
-			std::size_t	l_pos		= 0;
-			std::size_t	l_start		= 0;
+			std::size_t	l_pos = 0;
+			std::size_t	l_start = 0;
 
 			do
 			{
@@ -525,10 +453,10 @@ BEGIN_NAMESPACE_DATABASE
 
 	String & CStrUtils::Replace( String & p_str, String const & p_find, String const & p_replaced )
 	{
-		String		l_temp;
-		String		l_return;
-		std::size_t	l_currentPos	= 0;
-		std::size_t	l_pos			= 0;
+		String l_temp;
+		String l_return;
+		std::size_t	l_currentPos = 0;
+		std::size_t	l_pos = 0;
 
 		while ( ( l_pos = p_str.find( p_find, l_currentPos ) ) != String::npos )
 		{
@@ -590,107 +518,7 @@ BEGIN_NAMESPACE_DATABASE
 		return ToString( l_wszTmp );
 	}
 
-	int CStrUtils::DoGetMonthIndex( String const & p_strMonth )
-	{
-		int l_iReturn = 0;
-		static std::map< String, int > l_mapMonths;
-
-		if ( l_mapMonths.empty() )
-		{
-			l_mapMonths.insert( std::make_pair( STR( "janvier"	),	 1 ) );
-			l_mapMonths.insert( std::make_pair( STR( "février"	),	 2 ) );
-			l_mapMonths.insert( std::make_pair( STR( "fevrier"	),	 2 ) );
-			l_mapMonths.insert( std::make_pair( STR( "mars"	),	 3 ) );
-			l_mapMonths.insert( std::make_pair( STR( "avril"	),	 4 ) );
-			l_mapMonths.insert( std::make_pair( STR( "mai"	),	 5 ) );
-			l_mapMonths.insert( std::make_pair( STR( "juin"	),	 6 ) );
-			l_mapMonths.insert( std::make_pair( STR( "juillet"	),	 7 ) );
-			l_mapMonths.insert( std::make_pair( STR( "août"	),	 8 ) );
-			l_mapMonths.insert( std::make_pair( STR( "aout"	),	 8 ) );
-			l_mapMonths.insert( std::make_pair( STR( "septembre"	),	 9 ) );
-			l_mapMonths.insert( std::make_pair( STR( "octobre"	),	10 ) );
-			l_mapMonths.insert( std::make_pair( STR( "novembre"	),	11 ) );
-			l_mapMonths.insert( std::make_pair( STR( "décembre"	),	12 ) );
-			l_mapMonths.insert( std::make_pair( STR( "decembre"	),	12 ) );
-			l_mapMonths.insert( std::make_pair( STR( "jan"	),	 1 ) );
-			l_mapMonths.insert( std::make_pair( STR( "fév"	),	 2 ) );
-			l_mapMonths.insert( std::make_pair( STR( "fev"	),	 2 ) );
-			l_mapMonths.insert( std::make_pair( STR( "mar"	),	 3 ) );
-			l_mapMonths.insert( std::make_pair( STR( "avr"	),	 4 ) );
-			l_mapMonths.insert( std::make_pair( STR( "mai"	),	 5 ) );
-			l_mapMonths.insert( std::make_pair( STR( "jun"	),	 6 ) );
-			l_mapMonths.insert( std::make_pair( STR( "jul"	),	 7 ) );
-			l_mapMonths.insert( std::make_pair( STR( "aoû"	),	 8 ) );
-			l_mapMonths.insert( std::make_pair( STR( "aou"	),	 8 ) );
-			l_mapMonths.insert( std::make_pair( STR( "sep"	),	 9 ) );
-			l_mapMonths.insert( std::make_pair( STR( "oct"	),	10 ) );
-			l_mapMonths.insert( std::make_pair( STR( "nov"	),	11 ) );
-			l_mapMonths.insert( std::make_pair( STR( "déc"	),	12 ) );
-			l_mapMonths.insert( std::make_pair( STR( "dec"	),	12 ) );
-			l_mapMonths.insert( std::make_pair( STR( "january"	),	 1 ) );
-			l_mapMonths.insert( std::make_pair( STR( "february"	),	 2 ) );
-			l_mapMonths.insert( std::make_pair( STR( "march"	),	 3 ) );
-			l_mapMonths.insert( std::make_pair( STR( "april"	),	 4 ) );
-			l_mapMonths.insert( std::make_pair( STR( "may"	),	 5 ) );
-			l_mapMonths.insert( std::make_pair( STR( "june"	),	 6 ) );
-			l_mapMonths.insert( std::make_pair( STR( "july"	),	 7 ) );
-			l_mapMonths.insert( std::make_pair( STR( "august"	),	 8 ) );
-			l_mapMonths.insert( std::make_pair( STR( "september"	),	 9 ) );
-			l_mapMonths.insert( std::make_pair( STR( "october"	),	10 ) );
-			l_mapMonths.insert( std::make_pair( STR( "november"	),	11 ) );
-			l_mapMonths.insert( std::make_pair( STR( "december"	),	12 ) );
-			l_mapMonths.insert( std::make_pair( STR( "feb"	),	 2 ) );
-			l_mapMonths.insert( std::make_pair( STR( "apr"	),	 4 ) );
-			l_mapMonths.insert( std::make_pair( STR( "may"	),	 5 ) );
-			l_mapMonths.insert( std::make_pair( STR( "aug"	),	 8 ) );
-		}
-
-		if ( IsInteger( p_strMonth ) )
-		{
-			l_iReturn = ToInt( p_strMonth );
-		}
-		else
-		{
-			String l_strMonthLC = p_strMonth;
-			std::map< String, int >::const_iterator l_it = l_mapMonths.find( ToLowerCase( l_strMonthLC ) );
-
-			if ( l_it != l_mapMonths.end() )
-			{
-				l_iReturn = l_it->second;
-			}
-		}
-
-		return l_iReturn;
-	}
-
-	bool CStrUtils::DoIsValidDay( int p_iDay, int p_iMonth, int p_iYear )
-	{
-		bool l_bReturn = false;
-
-		if ( p_iDay > 0 )
-		{
-			if ( p_iMonth == 1 || p_iMonth == 3 || p_iMonth == 5 || p_iMonth == 7 || p_iMonth == 8 || p_iMonth == 10 || p_iMonth == 12 )
-			{
-				l_bReturn = p_iDay <= 31;
-			}
-			else if ( p_iMonth != 2 )
-			{
-				l_bReturn = p_iDay <= 30;
-			}
-			else if ( p_iYear % 400 == 0 || ( p_iYear % 4 == 0 && p_iYear % 100 != 0 ) )
-			{
-				l_bReturn = p_iDay <= 29;
-			}
-			else
-			{
-				l_bReturn = p_iDay <= 28;
-			}
-		}
-
-		return l_bReturn;
-	}
-
-	std::ostream & operator << ( std::ostream & stream, std::vector< uint8_t > const & vector )
+	std::ostream & operator << ( std::ostream & stream, NAMESPACE_DATABASE::ByteArray const & vector )
 	{
 		auto flags = stream.setf( std::ios::hex, std::ios::basefield );
 
@@ -703,9 +531,9 @@ BEGIN_NAMESPACE_DATABASE
 
 		stream.setf( flags );
 		return stream;
-	};
+	}
 
-	std::wostream & operator << ( std::wostream & stream, std::vector< uint8_t > const & vector )
+	std::wostream & operator << ( std::wostream & stream, NAMESPACE_DATABASE::ByteArray const & vector )
 	{
 		auto flags = stream.setf( std::ios::hex, std::ios::basefield );
 
@@ -718,7 +546,18 @@ BEGIN_NAMESPACE_DATABASE
 
 		stream.setf( flags );
 		return stream;
-	};
+	}
+
+	std::ostream & operator <<( std::ostream & stream, std::wstring const & string )
+	{
+		stream << NAMESPACE_DATABASE::CStrUtils::ToStr( string );
+		return stream;
+	}
+
+	std::ostream & operator <<( std::ostream & stream, wchar_t const * string )
+	{
+		stream << NAMESPACE_DATABASE::CStrUtils::ToStr( string );
+		return stream;
+	}
 }
 END_NAMESPACE_DATABASE
-

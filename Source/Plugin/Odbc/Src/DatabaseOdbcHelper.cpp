@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DatabaseOdbcHelper.cpp
- * @author Sylvain Doremus
- * @version 1.0
- * @date 3/18/2014 2:47:39 PM
- *
- *
- * @brief Helper functions for ODBC.
- *
- * @details Helper functions for ODBC.
- *
- ***************************************************************************/
+* @file DatabaseOdbcHelper.cpp
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/18/2014 2:47:39 PM
+*
+*
+* @brief Helper functions for ODBC.
+*
+* @details Helper functions for ODBC.
+*
+***************************************************************************/
 
 #include "DatabaseOdbcPch.h"
 
@@ -27,33 +27,40 @@
 
 BEGIN_NAMESPACE_DATABASE_ODBC
 {
-	static const String ODBC_DRIVER_ERROR = STR( "ODBC Driver error" );
-	static const String ODBC_QUERY_ERROR = STR( "Error encountered while executing query: " );
-	static const String ODBC_UNKNOWN_ERROR = STR( "Unknown error encountered while executing query: " );
-	static const String ODBC_INCONSISTENCY_ERROR = STR( "Number of columns is less than retrieved data." );
-	static const String ODBC_UNDEFINED_VALUE_TYPE = STR( "Undefined field value type." );
-	static const String ODBC_QUERY_SUCCESS = STR( "Success executing action: " );
+	static const String ERROR_ODBC_QUERY = STR( "Error encountered while executing query: " );
+	static const String ERROR_ODBC_UNKNOWN = STR( "Unknown error encountered while executing query: " );
+	static const String ERROR_ODBC_INCONSISTENCY = STR( "Number of columns is less than retrieved data." );
+	static const String ERROR_ODBC_UNDEFINED_VALUE_TYPE = STR( "Undefined field value type." );
 
-	static const SQLINTEGER   ODBC_RERUN_TRANSACTION_CODE = 1205;
+	static const String INFO_ODBC_QUERY_SUCCESS = STR( "Success executing action: " );
+	static const String INFO_ODBC_STATUS = STR( "Status: " );
+	static const String INFO_ODBC_NATIVE = STR( "Native error: " );
+	static const String INFO_ODBC_REQUEST = STR( "Request: " );
+	static const String INFO_ODBC_EXECUTE_REQUEST = STR( "Execute request: " );
 
-	static const String ODBC_STATUS_MSG = STR( "Status: " );
-	static const String ODBC_NATIVE_ERROR_MSG = STR( "Native error: " );
-	static const String ODBC_REQUEST_MSG = STR( "Request: " );
+	static const String INFO_ODBC_NumResultCols = STR( "SQLNumResultCols: " );
+	static const String INFO_ODBC_ColAttribute = STR( "SQLColAttribute: " );
+	static const String INFO_ODBC_BindCol = STR( "SQLBindCol: " );
+	static const String INFO_ODBC_Fetch = STR( "SQLFetch: " );
+	static const String INFO_ODBC_MoreResults = STR( "SQLMoreResults" );
+	static const String INFO_ODBC_RowCount = STR( "SQLRowCount" );
+	static const String INFO_ODBC_FreeStmt = STR( "SQLFreeStmt" );
+	static const String INFO_ODBC_CloseCursor = STR( "SQLCloseCursor" );
+	static const String INFO_ODBC_GetStmtAttr = STR( "SQLGetStmtAttr: " );
+	static const String INFO_ODBC_SetDescRec = STR( "SQLSetDescRec: " );
+	static const String INFO_ODBC_SetDescField = STR( "SQLSetDescField: " );
 
-	static const String ODBC_NumResultCols_MSG = STR( "SQLNumResultCols: " );
-	static const String ODBC_ColAttributeLabel_MSG = STR( "SQLColAttribute - SQL_DESC_LABEL: " );
-	static const String ODBC_ColAttributeDescLength_MSG = STR( "SQLColAttribute - SQL_DESC_TYPE: " );
-	static const String ODBC_ColAttributeDescType_MSG = STR( "SQLColAttribute - SQL_DESC_LENGTH: " );
-	static const String ODBC_ColAttributeTypeName_MSG = STR( "SQLColAttribute - SQL_TYPE_NAME: " );
-	static const String ODBC_BindCol_MSG = STR( "SQLBindCol: " );
-	static const String ODBC_Fetch_MSG = STR( "SQLFetch: " );
-	static const String ODBC_MoreResults_MSG = STR( "SQLMoreResults" );
-	static const String ODBC_RowCount_MSG = STR( "SQLRowCount" );
-	static const String ODBC_FreeStmt_MSG = STR( "SQLFreeStmt" );
-	static const String ODBC_CloseCursor_MSG = STR( "SQLCloseCursor" );
+	static const String ODBC_OPTION_DESC_TYPE = STR( "DESC_TYPE" );
+	static const String ODBC_OPTION_DESC_PRECISION = STR( "DESC_PRECISION" );
+	static const String ODBC_OPTION_DESC_SCALE = STR( "DESC_SCALE" );
+	static const String ODBC_OPTION_DESC_LABEL = STR( "DESC_LABEL" );
+	static const String ODBC_OPTION_DESC_CONCISE_TYPE = STR( "DESC_CONCISE_TYPE" );
+	static const String ODBC_OPTION_DESC_LENGTH = STR( "DESC_LENGTH" );
+	static const String ODBC_OPTION_DESC_TYPE_NAME = STR( "DESC_TYPE_NAME" );
 
-	static const String ODBC_EXECUTE_REQUEST_MSG = STR( "Execute request: " );
+	static const String DEBUG_ODBC_EMPTY_RESULT = STR( "Empty result" );
 
+	static const SQLINTEGER ODBC_RERUN_TRANSACTION_CODE = 1205;
 	static const int COLUMN_BUFFER_SIZE = 1024 * 1024;
 
 	namespace
@@ -65,12 +72,8 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			/** Constructor
 			@param targetType
 				Data type.
-			@param targetValuePtr
-				Pointer to the value.
 			@param bufferLength
 				Size of the buffer containing the value.
-			@param strLenOrInd
-				String length or indicator.
 			*/
 			CInOdbcBindBase( SQLSMALLINT targetType, SQLINTEGER bufferLength )
 				: _targetType( targetType )
@@ -80,13 +83,32 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			{
 			}
 
-			/// Data type.
+			/** Initialised the column binding
+			@param stmt
+				The statement.
+			@param index
+				The column index.
+			@param desc
+				The row descriptor
+			*/
+			virtual EErrorType Initialise( HSTMT stmt, SQLUSMALLINT index, SQLHDESC desc )
+			{
+				EErrorType errorType = EErrorType_NONE;
+				SqlTry( SQLBindCol( stmt, index, _targetType, _targetValuePtr, _bufferLength, &( _strLenOrInd ) ), SQL_HANDLE_STMT, stmt, INFO_ODBC_BindCol );
+				return errorType;
+			}
+
+			virtual void ResetValue()
+			{
+			}
+
+			//! Data type.
 			SQLSMALLINT _targetType;
-			/// Pointer to the value.
+			//! Pointer to the value.
 			SQLPOINTER  _targetValuePtr;
-			/// Size of the buffer containing the value.
+			//! Size of the buffer containing the value.
 			SQLINTEGER  _bufferLength;
-			/// String length or indicator.
+			//! String length or indicator.
 			SQLLEN _strLenOrInd;
 		};
 
@@ -94,10 +116,14 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		*/
 		template< typename T, typename U = T >
 		struct CInOdbcBind
-				: public CInOdbcBindBase
+			: public CInOdbcBindBase
 		{
 			T _value;
 
+			/** Constructor
+			@param targetType
+				Data type.
+			*/
 			CInOdbcBind( SQLSMALLINT targetType )
 				: CInOdbcBindBase( targetType, sizeof( T ) )
 				, _value()
@@ -115,10 +141,14 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		*/
 		template<>
 		struct CInOdbcBind< bool, bool >
-				: public CInOdbcBindBase
+			: public CInOdbcBindBase
 		{
 			int8_t _value;
 
+			/** Constructor
+			@param targetType
+				Data type.
+			*/
 			CInOdbcBind( SQLSMALLINT targetType )
 				: CInOdbcBindBase( targetType, 1 )
 				, _value()
@@ -136,10 +166,16 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		*/
 		template< typename T >
 		struct CInOdbcBind< T *, T * >
-				: public CInOdbcBindBase
+			: public CInOdbcBindBase
 		{
 			std::vector< T > _value;
 
+			/** Constructor
+			@param targetType
+				Data type.
+			@param limits
+				Data limits.
+			*/
 			CInOdbcBind( SQLSMALLINT targetType, uint32_t limits )
 				: CInOdbcBindBase( targetType, limits * sizeof( T ) )
 				, _value( limits )
@@ -157,10 +193,16 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		*/
 		template<>
 		struct CInOdbcBind< char *, char * >
-				: public CInOdbcBindBase
+			: public CInOdbcBindBase
 		{
 			std::vector< char > _value;
 
+			/** Constructor
+			@param targetType
+				Data type.
+			@param limits
+				Data limits.
+			*/
 			CInOdbcBind( SQLSMALLINT targetType, uint32_t limits )
 				: CInOdbcBindBase( targetType, limits + 1 )
 				, _value( limits + 1 )
@@ -178,10 +220,16 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		*/
 		template<>
 		struct CInOdbcBind< wchar_t *, wchar_t * >
-				: public CInOdbcBindBase
+			: public CInOdbcBindBase
 		{
 			std::vector< wchar_t > _value;
 
+			/** Constructor
+			@param targetType
+				Data type.
+			@param limits
+				Data limits.
+			*/
 			CInOdbcBind( SQLSMALLINT targetType, uint32_t limits )
 				: CInOdbcBindBase( targetType, ( limits + 1 ) )
 				, _value( limits + 1 )
@@ -199,10 +247,14 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		*/
 		template<>
 		struct CInOdbcBind< char *, double >
-				: public CInOdbcBindBase
+			: public CInOdbcBindBase
 		{
 			char _value[8192];
 
+			/** Constructor
+			@param targetType
+				Data type.
+			*/
 			CInOdbcBind( SQLSMALLINT targetType )
 				: CInOdbcBindBase( targetType, 8192 )
 			{
@@ -220,10 +272,18 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		*/
 		template<>
 		struct CInOdbcBind< char *, int32_t >
-				: public CInOdbcBindBase
+			: public CInOdbcBindBase
 		{
 			char _value[8192];
 
+			/** Constructor
+			@param targetType
+				Data type.
+			@param stmt
+				The statement.
+			@param index
+				The column index.
+			*/
 			CInOdbcBind( SQLSMALLINT targetType )
 				: CInOdbcBindBase( targetType, 8192 )
 			{
@@ -237,6 +297,69 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			}
 		};
 
+		/** Specialisation for int32_t stored as char pointers
+		*/
+		template<>
+		struct CInOdbcBind< SQL_NUMERIC_STRUCT, CFixedPoint >
+			: public CInOdbcBindBase
+		{
+			mutable SQL_NUMERIC_STRUCT _value;
+			HSTMT _statement;
+			SQLUSMALLINT _index;
+			uint32_t _precision;
+			uint32_t _scale;
+
+			/** Constructor
+			@param targetType
+				Data type.
+			@param precision
+				The precision (total digits count).
+			@param scale
+				The scale (decimale count).
+			*/
+			CInOdbcBind( SQLSMALLINT targetType, uint32_t precision, uint32_t scale )
+				: CInOdbcBindBase( targetType, 8192 )
+				, _precision( precision )
+				, _scale( scale )
+			{
+				_targetValuePtr = &_value;
+			}
+
+			/** Initialised the column binding
+			@param stmt
+				The statement.
+			@param index
+				The column index.
+			@param desc
+				The row descriptor
+			*/
+			EErrorType Initialise( HSTMT stmt, SQLUSMALLINT index, SQLHDESC desc )
+			{
+				EErrorType errorType = EErrorType_NONE;
+				_statement = stmt;
+				_index = index;
+				//SqlTry( SQLBindCol( stmt, index, _targetType, _targetValuePtr, _bufferLength, &( _strLenOrInd ) ), SQL_HANDLE_STMT, stmt, INFO_ODBC_BindCol );
+
+				SqlTry( SQLSetDescField( desc, index, SQL_DESC_TYPE, SQLPOINTER( SQL_C_NUMERIC ), 0 ), SQL_HANDLE_DESC, desc, INFO_ODBC_SetDescField + ODBC_OPTION_DESC_TYPE );
+				SqlTry( SQLSetDescField( desc, index, SQL_DESC_PRECISION, SQLPOINTER( _precision ), 0 ), SQL_HANDLE_DESC, desc, INFO_ODBC_SetDescField + ODBC_OPTION_DESC_PRECISION );
+				SqlTry( SQLSetDescField( desc, index, SQL_DESC_SCALE, SQLPOINTER( _scale ), 0 ), SQL_HANDLE_DESC, desc, INFO_ODBC_SetDescField + ODBC_OPTION_DESC_SCALE );
+				return errorType;
+			}
+
+			void ResetValue()
+			{
+				memset( ( void * )&_value, 0, sizeof( _value ) );
+			}
+
+			CFixedPoint GetValue()const
+			{
+				SQLINTEGER a = sizeof( _value );
+				EErrorType errorType = EErrorType_NONE;
+				SqlTry( SQLGetData( _statement, _index, SQL_ARD_TYPE, &_value, 19, &a ), SQL_HANDLE_STMT, _statement, INFO_ODBC_BindCol );
+				return CFixedPoint( *( uint64_t * )( _value.val ), _value.scale );
+			}
+		};
+
 		std::string StringFromOdbcString( CInOdbcBind< char * > const & bind )
 		{
 			return std::string( bind.GetValue(), bind.GetValue() + bind._strLenOrInd );
@@ -247,9 +370,9 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			return std::wstring( bind.GetValue(), bind.GetValue() + bind._strLenOrInd );
 		}
 
-		std::vector< uint8_t > VectorFromOdbcBinary( CInOdbcBind< uint8_t * > const & bind )
+		ByteArray VectorFromOdbcBinary( CInOdbcBind< uint8_t * > const & bind )
 		{
-			return std::vector< uint8_t >( bind.GetValue(), bind.GetValue() + bind._strLenOrInd );
+			return ByteArray( bind.GetValue(), bind.GetValue() + bind._strLenOrInd );
 		}
 
 		CDate CDateFromOdbcDate( SQL_DATE_STRUCT const & ts )
@@ -269,7 +392,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			return CTime( ts.hour, ts.minute, ts.second );
 		}
 
-		std::unique_ptr< CInOdbcBindBase > GetBindFromConciseType( SQLLEN sqlType, uint32_t limits )
+		std::unique_ptr< CInOdbcBindBase > GetBindFromConciseType( SQLLEN sqlType, uint32_t limits, uint32_t precision, uint32_t scale )
 		{
 			std::unique_ptr< CInOdbcBindBase > result;
 
@@ -292,13 +415,34 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				break;
 
 			case SQL_REAL:
-			case SQL_DECIMAL:
+				if ( limits <= 7 )
+				{
+					result = std::make_unique< CInOdbcBind< float > >( SQL_C_FLOAT );
+				}
+				else
+				{
+					result = std::make_unique< CInOdbcBind< double > >( SQL_C_DOUBLE );
+				}
+				break;
+
 			case SQL_DOUBLE:
 				result = std::make_unique< CInOdbcBind< double > >( SQL_C_DOUBLE );
 				break;
 
+			case SQL_DECIMAL:
+			case SQL_NUMERIC:
+				result = std::make_unique< CInOdbcBind< SQL_NUMERIC_STRUCT, CFixedPoint > >( SQL_C_NUMERIC, precision, scale );
+				break;
+
 			case SQL_INTEGER:
-				result = std::make_unique< CInOdbcBind< int32_t > >( SQL_C_SLONG );
+				if ( limits == 8 )
+				{
+					result = std::make_unique< CInOdbcBind< int24_t > >( SQL_C_SLONG );
+				}
+				else
+				{
+					result = std::make_unique< CInOdbcBind< int32_t > >( SQL_C_SLONG );
+				}
 				break;
 
 			case SQL_SMALLINT:
@@ -310,8 +454,11 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				break;
 
 			case SQL_BIT:
-			case SQL_TINYINT:
 				result = std::make_unique< CInOdbcBind< bool > >( SQL_C_BIT );
+				break;
+
+			case SQL_TINYINT:
+				result = std::make_unique< CInOdbcBind< int8_t > >( SQL_C_TINYINT );
 				break;
 
 			case SQL_BINARY:
@@ -348,34 +495,46 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			return result;
 		}
 
-		std::unique_ptr< CInOdbcBindBase > GetBindFromFieldType( EFieldType type, uint32_t limits )
+		std::unique_ptr< CInOdbcBindBase > GetBindFromFieldType( EFieldType type, uint32_t limits, uint32_t precision, uint32_t scale )
 		{
 			std::unique_ptr< CInOdbcBindBase > result;
 
 			switch ( type )
 			{
-			case EFieldType_BOOL:
+			case EFieldType_BIT:
 				result = std::make_unique< CInOdbcBind< bool > >( SQL_C_BIT );
 				break;
 
-			case EFieldType_SMALL_INTEGER:
+			case EFieldType_INT8:
 				result = std::make_unique< CInOdbcBind< int16_t > >( SQL_C_SSHORT );
 				break;
 
-			case EFieldType_INTEGER:
+			case EFieldType_INT16:
+				result = std::make_unique< CInOdbcBind< int16_t > >( SQL_C_SSHORT );
+				break;
+
+			case EFieldType_INT24:
 				result = std::make_unique< CInOdbcBind< int32_t > >( SQL_C_SLONG );
 				break;
 
-			case EFieldType_LONG_INTEGER:
+			case EFieldType_INT32:
+				result = std::make_unique< CInOdbcBind< int32_t > >( SQL_C_SLONG );
+				break;
+
+			case EFieldType_INT64:
 				result = std::make_unique< CInOdbcBind< int64_t > >( SQL_C_SBIGINT );
 				break;
 
-			case EFieldType_FLOAT:
+			case EFieldType_FLOAT32:
 				result = std::make_unique< CInOdbcBind< float > >( SQL_C_FLOAT );
 				break;
 
-			case EFieldType_DOUBLE:
+			case EFieldType_FLOAT64:
 				result = std::make_unique< CInOdbcBind< double > >( SQL_C_DOUBLE );
+				break;
+
+			case EFieldType_FIXED_POINT:
+				result = std::make_unique< CInOdbcBind< SQL_NUMERIC_STRUCT, CFixedPoint > >( SQL_C_NUMERIC, precision, scale );
 				break;
 
 			case EFieldType_VARCHAR:
@@ -424,44 +583,66 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				DatabaseFieldInfosPtr infos;
 				std::unique_ptr< CInOdbcBindBase > bind;
 
-				// Retrieeve the column name
-				SqlTry( SQLColAttribute( stmt, i, SQL_DESC_LABEL, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, ODBC_ColAttributeLabel_MSG );
+				// Retrieve the column name
+				SqlTry( SQLColAttribute( stmt, i, SQL_DESC_LABEL, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_LABEL );
 				String name = CStrUtils::ToString( buffer );
 
 				// Its length
 				std::memset( buffer, 0, BUFFER_SIZE );
 				stringLength = 0;
 				numericAttribute = 0;
-				SqlTry( SQLColAttribute( stmt, i, SQL_DESC_LENGTH, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, ODBC_ColAttributeDescLength_MSG );
-				uint32_t limits = numericAttribute;
+				SqlTry( SQLColAttribute( stmt, i, SQL_DESC_LENGTH, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_LENGTH );
+				uint32_t limits = uint32_t( numericAttribute );
 
-				// The column type
+				// Its precision (numeric types)
 				std::memset( buffer, 0, BUFFER_SIZE );
 				stringLength = 0;
 				numericAttribute = 0;
-				SqlTry( SQLColAttribute( stmt, i, SQL_DESC_CONCISE_TYPE, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, ODBC_ColAttributeDescType_MSG );
+				SqlTry( SQLColAttribute( stmt, i, SQL_DESC_PRECISION, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_PRECISION );
+				uint32_t precision = uint32_t( numericAttribute );
 
-				if ( numericAttribute == SQL_NTS )
+				// Its scale (numeric types)
+				std::memset( buffer, 0, BUFFER_SIZE );
+				stringLength = 0;
+				numericAttribute = 0;
+				SqlTry( SQLColAttribute( stmt, i, SQL_DESC_SCALE, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_SCALE );
+				uint32_t scale = uint32_t( numericAttribute );
+
+				// Its SQL type
+				std::memset( buffer, 0, BUFFER_SIZE );
+				stringLength = 0;
+				numericAttribute = 0;
+				SqlTry( SQLColAttribute( stmt, i, SQL_DESC_TYPE, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_TYPE );
+				SQLINTEGER type = uint32_t( numericAttribute );
+
+				// Its concise type
+				std::memset( buffer, 0, BUFFER_SIZE );
+				stringLength = 0;
+				numericAttribute = 0;
+				SqlTry( SQLColAttribute( stmt, i, SQL_DESC_CONCISE_TYPE, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_CONCISE_TYPE );
+				SQLINTEGER conciseType = numericAttribute;
+				
+				// Its type name
+				std::memset( buffer, 0, BUFFER_SIZE );
+				stringLength = 0;
+				numericAttribute = 0;
+				SqlTry( SQLColAttribute( stmt, i, SQL_DESC_TYPE_NAME, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_TYPE_NAME );
+				String typeName = CStrUtils::ToString( buffer );
+
+				if ( conciseType == SQL_NTS || conciseType == SQL_TINYINT || conciseType == SQL_CHAR || conciseType == SQL_VARCHAR )
 				{
-					// The type name
-					std::memset( buffer, 0, BUFFER_SIZE );
-					stringLength = 0;
-					numericAttribute = 0;
-					SqlTry( SQLColAttribute( stmt, i, SQL_DESC_TYPE_NAME, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, ODBC_ColAttributeTypeName_MSG );
-
 					if ( errorType == EErrorType_NONE )
 					{
-						infos = std::make_shared< CDatabaseFieldInfos >( connection, name, buffer );
-						bind = GetBindFromFieldType( infos->GetType(), limits );
+						infos = std::make_shared< CDatabaseFieldInfos >( connection, name, typeName );
+						bind = GetBindFromFieldType( infos->GetType(), limits, precision, scale );
 					}
 				}
 				else
 				{
-					bind = GetBindFromConciseType( numericAttribute, limits );
-					infos = std::make_shared< CDatabaseFieldInfos >( connection, name, GetFieldTypeFromConciseType( numericAttribute ), limits );
+					bind = GetBindFromConciseType( conciseType, limits, precision, scale );
+					infos = std::make_shared< CDatabaseFieldInfos >( connection, name, GetFieldTypeFromConciseType( conciseType, limits ), limits );
 				}
 
-				SqlTry( SQLBindCol( stmt, i, bind->_targetType, bind->_targetValuePtr, bind->_bufferLength, &( bind->_strLenOrInd ) ), SQL_HANDLE_STMT, stmt, ODBC_BindCol_MSG );
 				columns.push_back( std::move( bind ) );
 				result.push_back( infos );
 			}
@@ -473,28 +654,40 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		{
 			switch ( type )
 			{
-			case EFieldType_BOOL:
-				static_cast< CDatabaseValue< EFieldType_BOOL > & >( value ).SetValue( static_cast< CInOdbcBind< bool > const & >( bind ).GetValue() != 0 );
+			case EFieldType_BIT:
+				static_cast< CDatabaseValue< EFieldType_BIT > & >( value ).SetValue( static_cast< CInOdbcBind< bool > const & >( bind ).GetValue() != 0 );
 				break;
 
-			case EFieldType_SMALL_INTEGER:
-				static_cast< CDatabaseValue< EFieldType_SMALL_INTEGER > & >( value ).SetValue( static_cast< CInOdbcBind< int16_t > const & >( bind ).GetValue() );
+			case EFieldType_INT8:
+				static_cast< CDatabaseValue< EFieldType_INT8 > & >( value ).SetValue( static_cast< CInOdbcBind< int8_t > const & >( bind ).GetValue() );
 				break;
 
-			case EFieldType_INTEGER:
-				static_cast< CDatabaseValue< EFieldType_INTEGER > & >( value ).SetValue( static_cast< CInOdbcBind< int32_t > const & >( bind ).GetValue() );
+			case EFieldType_INT16:
+				static_cast< CDatabaseValue< EFieldType_INT16 > & >( value ).SetValue( static_cast< CInOdbcBind< int16_t > const & >( bind ).GetValue() );
 				break;
 
-			case EFieldType_LONG_INTEGER:
-				static_cast< CDatabaseValue< EFieldType_LONG_INTEGER > & >( value ).SetValue( static_cast< CInOdbcBind< int64_t > const & >( bind ).GetValue() );
+			case EFieldType_INT24:
+				static_cast< CDatabaseValue< EFieldType_INT24 > & >( value ).SetValue( static_cast< CInOdbcBind< int24_t > const & >( bind ).GetValue() );
 				break;
 
-			case EFieldType_FLOAT:
-				static_cast< CDatabaseValue< EFieldType_FLOAT > & >( value ).SetValue( static_cast< CInOdbcBind< float > const & >( bind ).GetValue() );
+			case EFieldType_INT32:
+				static_cast< CDatabaseValue< EFieldType_INT32 > & >( value ).SetValue( static_cast< CInOdbcBind< int32_t > const & >( bind ).GetValue() );
 				break;
 
-			case EFieldType_DOUBLE:
-				static_cast< CDatabaseValue< EFieldType_DOUBLE > & >( value ).SetValue( static_cast< CInOdbcBind< double > const & >( bind ).GetValue() );
+			case EFieldType_INT64:
+				static_cast< CDatabaseValue< EFieldType_INT64 > & >( value ).SetValue( static_cast< CInOdbcBind< int64_t > const & >( bind ).GetValue() );
+				break;
+
+			case EFieldType_FLOAT32:
+				static_cast< CDatabaseValue< EFieldType_FLOAT32 > & >( value ).SetValue( static_cast< CInOdbcBind< float > const & >( bind ).GetValue() );
+				break;
+
+			case EFieldType_FLOAT64:
+				static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( value ).SetValue( static_cast< CInOdbcBind< double > const & >( bind ).GetValue() );
+				break;
+
+			case EFieldType_FIXED_POINT:
+				static_cast< CDatabaseValue< EFieldType_FIXED_POINT > & >( value ).SetValue( static_cast< CInOdbcBind< SQL_NUMERIC_STRUCT, CFixedPoint > const & >( bind ).GetValue() );
 				break;
 
 			case EFieldType_VARCHAR:
@@ -547,21 +740,30 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			EErrorType errorType = EErrorType_NONE;
 			SQLRETURN res;
 			SQLLEN rowCount = 0;
-			SqlTry( SQLRowCount( statementHandle, &rowCount ), SQL_HANDLE_STMT, statementHandle, ODBC_RowCount_MSG );
+			SqlTry( SQLRowCount( statementHandle, &rowCount ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_RowCount );
 
 			if ( errorType == EErrorType_NONE && rowCount )
 			{
 				try
 				{
+					SQLHDESC descriptor = NULL;
+					SqlTry( SQLGetStmtAttr( statementHandle, SQL_ATTR_APP_ROW_DESC, &descriptor, 0, NULL ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_GetStmtAttr );
+					SQLUSMALLINT index = 1;
+
+					for ( auto && binding : bindings )
+					{
+						binding->Initialise( statementHandle, index++, descriptor );
+					}
+				
 					res = SQLFetch( statementHandle );
 
 					if ( res != SQL_NO_DATA && res != SQL_SUCCESS )
 					{
-						SqlTry( res, SQL_HANDLE_STMT, statementHandle, ODBC_Fetch_MSG );
+						SqlTry( res, SQL_HANDLE_STMT, statementHandle, INFO_ODBC_Fetch );
 					}
 					else if ( res == SQL_NO_DATA )
 					{
-						CLogger::LogDebug( STR( "Void result" ) );
+						CLogger::LogDebug( DEBUG_ODBC_EMPTY_RESULT );
 					}
 
 					while ( errorType == EErrorType_NONE && res != SQL_NO_DATA )
@@ -586,7 +788,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 							catch ( const CExceptionDatabase & e )
 							{
 								StringStream message;
-								message << ODBC_DRIVER_ERROR << std::endl;
+								message << ERROR_ODBC_DRIVER << std::endl;
 								message << e.what();
 								CLogger::LogError( message );
 								throw CExceptionDatabaseOdbc( EDatabaseOdbcExceptionCodes_GenericError, message.str(), __FUNCTION__, __FILE__, __LINE__ );
@@ -601,17 +803,17 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 						if ( res != SQL_NO_DATA && res != SQL_SUCCESS )
 						{
-							SqlTry( res, SQL_HANDLE_STMT, statementHandle, ODBC_Fetch_MSG );
+							SqlTry( res, SQL_HANDLE_STMT, statementHandle, INFO_ODBC_Fetch );
 						}
 					}
 
 					// free memory from the binding
-					SqlTry( SQLFreeStmt( statementHandle, SQL_UNBIND ), SQL_HANDLE_STMT, statementHandle, ODBC_FreeStmt_MSG );
+					SqlTry( SQLFreeStmt( statementHandle, SQL_UNBIND ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_FreeStmt );
 				}
 				catch ( const std::exception & e )
 				{
 					StringStream message;
-					message << ODBC_DRIVER_ERROR << std::endl;
+					message << ERROR_ODBC_DRIVER << std::endl;
 					message << e.what();
 					CLogger::LogError( message );
 					throw CExceptionDatabaseOdbc( EDatabaseOdbcExceptionCodes_GenericError, message.str(), __FUNCTION__, __FILE__, __LINE__ );
@@ -619,8 +821,8 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				catch ( ... )
 				{
 					StringStream message;
-					message << ODBC_DRIVER_ERROR << std::endl;
-					message << ODBC_UNKNOWN_ERROR;
+					message << ERROR_ODBC_DRIVER << std::endl;
+					message << ERROR_ODBC_UNKNOWN;
 					CLogger::LogError( message );
 					throw CExceptionDatabaseOdbc( EDatabaseOdbcExceptionCodes_UnknownError, message.str(), __FUNCTION__, __FILE__, __LINE__ );
 				}
@@ -647,28 +849,28 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			errorCount++;
 			String message = ( char * )sqlMessage;
 			String state = ( char * )sqlState;
-			StringStream logMessage;
-			logMessage << ODBC_STATUS_MSG << state
-					   << STR( ", " )
-					   << ODBC_NATIVE_ERROR_MSG << nativeError
-					   << STR( ", " ) << sqlMessage
-					   << STR( ", " )
-					   << ODBC_REQUEST_MSG << query;
+			StringStream LogInfo;
+			LogInfo << INFO_ODBC_STATUS << state
+					<< STR( ", " )
+					<< INFO_ODBC_NATIVE << nativeError
+					<< STR( ", " ) << sqlMessage
+					<< STR( ", " )
+					<< INFO_ODBC_REQUEST << query;
 
 			if ( nativeError == ODBC_RERUN_TRANSACTION_CODE )
 			{
 				errorType = EErrorType_RETRY;
-				CLogger::LogWarning( logMessage.str() );
+				CLogger::LogWarning( LogInfo.str() );
 			}
 			else
 			{
 				if ( error )
 				{
-					CLogger::LogError( logMessage.str() );
+					CLogger::LogError( LogInfo.str() );
 				}
 				else
 				{
-					CLogger::LogWarning( logMessage.str() );
+					CLogger::LogWarning( LogInfo.str() );
 				}
 			}
 		}
@@ -676,17 +878,16 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		if ( ( errorCount == 2 && errorType != EErrorType_RETRY )
 				|| ( errorCount > 2 && errorCount == EErrorType_RETRY ) )
 		{
-			StringStream logMessage;
-			logMessage << ODBC_QUERY_ERROR
-					   << query;
+			StringStream LogInfo;
+			LogInfo << ERROR_ODBC_QUERY << query;
 
 			if ( error )
 			{
-				CLogger::LogError( logMessage.str() );
+				CLogger::LogError( LogInfo.str() );
 			}
 			else
 			{
-				CLogger::LogWarning( logMessage.str() );
+				CLogger::LogWarning( LogInfo.str() );
 			}
 		}
 		else if ( sqlReturn == SQL_NO_DATA )
@@ -705,10 +906,9 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		{
 			errorType = EErrorType_NONE;
 
-			StringStream logMessage;
-			logMessage << ODBC_QUERY_SUCCESS
-					   << query;
-			CLogger::LogDebug( logMessage.str() );
+			StringStream LogInfo;
+			LogInfo << INFO_ODBC_QUERY_SUCCESS << query;
+			CLogger::LogDebug( LogInfo.str() );
 		}
 		else if ( rc == SQL_SUCCESS_WITH_INFO )
 		{
@@ -723,7 +923,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		return errorType;
 	}
 
-	EFieldType GetFieldTypeFromConciseType( SQLLEN sqlType )
+	EFieldType GetFieldTypeFromConciseType( SQLLEN sqlType, uint32_t limits )
 	{
 		EFieldType fieldType = EFieldType_NULL;
 
@@ -748,30 +948,54 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			break;
 
 		case SQL_FLOAT:
+			fieldType = EFieldType_FLOAT32;
+			break;
+
 		case SQL_REAL:
-			fieldType = EFieldType_FLOAT;
+			if ( limits <= 7 )
+			{
+				fieldType = EFieldType_FLOAT32;
+			}
+			else
+			{
+				fieldType = EFieldType_FLOAT64;
+			}
+			break;
+
+		case SQL_DOUBLE:
+			fieldType = EFieldType_FLOAT64;
 			break;
 
 		case SQL_DECIMAL:
-		case SQL_DOUBLE:
-			fieldType = EFieldType_DOUBLE;
+		case SQL_NUMERIC:
+			fieldType = EFieldType_FIXED_POINT;
 			break;
 
 		case SQL_INTEGER:
-			fieldType = EFieldType_INTEGER;
+			if ( limits == 8 )
+			{
+				fieldType = EFieldType_INT24;
+			}
+			else
+			{
+				fieldType = EFieldType_INT32;
+			}
 			break;
 
 		case SQL_SMALLINT:
-			fieldType = EFieldType_SMALL_INTEGER;
+			fieldType = EFieldType_INT16;
 			break;
 
 		case SQL_BIGINT:
-			fieldType = EFieldType_LONG_INTEGER;
+			fieldType = EFieldType_INT64;
 			break;
 
 		case SQL_TINYINT:
+			fieldType = EFieldType_INT8;
+			break;
+
 		case SQL_BIT:
-			fieldType = EFieldType_BOOL;
+			fieldType = EFieldType_BIT;
 			break;
 
 		case SQL_BINARY:
@@ -826,7 +1050,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		do
 		{
 			SQLSMALLINT numColumns;
-			SqlTry( SQLNumResultCols( statementHandle, &numColumns ), SQL_HANDLE_STMT, statementHandle, ODBC_NumResultCols_MSG );
+			SqlTry( SQLNumResultCols( statementHandle, &numColumns ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_NumResultCols );
 
 			if ( numColumns )
 			{
@@ -837,20 +1061,20 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			}
 
 			res = SQLMoreResults( statementHandle );
-			SqlTry( res, SQL_HANDLE_STMT, statementHandle, ODBC_MoreResults_MSG );
+			SqlTry( res, SQL_HANDLE_STMT, statementHandle, INFO_ODBC_MoreResults );
 
 			if ( res != SQL_NO_DATA && errorType == EErrorType_NONE )
 			{
-				CLogger::LogMessage( STR( "Additional result detected" ) );
+				CLogger::LogInfo( STR( "Additional result detected" ) );
 			}
 			else
 			{
 				onFullyfetched( statementHandle, res );
 				EErrorType errorType = EErrorType_NONE;
-				SqlTry( SQLCloseCursor( statementHandle ), SQL_HANDLE_STMT, statementHandle, ODBC_CloseCursor_MSG );
-				SqlTry( SQLFreeStmt( statementHandle, SQL_CLOSE ), SQL_HANDLE_STMT, statementHandle, ODBC_FreeStmt_MSG + STR( " (Close)" ) );
-				SqlTry( SQLFreeStmt( statementHandle, SQL_UNBIND ), SQL_HANDLE_STMT, statementHandle, ODBC_FreeStmt_MSG + STR( " (Unbind)" ) );
-				SqlTry( SQLFreeStmt( statementHandle, SQL_RESET_PARAMS ), SQL_HANDLE_STMT, statementHandle, ODBC_FreeStmt_MSG + STR( " (ResetParams)" ) );
+				SqlTry( SQLCloseCursor( statementHandle ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_CloseCursor );
+				SqlTry( SQLFreeStmt( statementHandle, SQL_CLOSE ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_FreeStmt + STR( " (Close)" ) );
+				SqlTry( SQLFreeStmt( statementHandle, SQL_UNBIND ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_FreeStmt + STR( " (Unbind)" ) );
+				SqlTry( SQLFreeStmt( statementHandle, SQL_RESET_PARAMS ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_FreeStmt + STR( " (ResetParams)" ) );
 			}
 		}
 

@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DatabaseStatementParameterMySql.h
- * @author Sylvain Doremus
- * @version 1.0
- * @date 3/20/2014 2:47:39 PM
- *
- *
- * @brief CDatabaseStatementParameterMySql class declaration.
- *
- * @details Describes a statement parameter for MYSQL database.
- *
- ***************************************************************************/
+* @file DatabaseStatementParameterMySql.h
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/20/2014 2:47:39 PM
+*
+*
+* @brief CDatabaseStatementParameterMySql class declaration.
+*
+* @details Describes a statement parameter for MYSQL database.
+*
+***************************************************************************/
 
 #ifndef ___DATABASE_STATEMENT_PARAMETER_MYSQL_H___
 #define ___DATABASE_STATEMENT_PARAMETER_MYSQL_H___
@@ -27,44 +27,43 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	class CDatabaseStatementParameterMySql
 		: public CDatabaseParameter
 	{
-
 	public:
 		/** Constructor.
 		@param[in] connection
-		    Connection to database.
+			Connection to database.
 		@param[in] name
-		    Parameter name.
+			Parameter name.
 		@param[in] index
-		    Internal index.
+			Internal index.
 		@param[in] fieldType
-		    Field type.
+			Field type.
 		@param[in] parameterType
-		    Parameter type.
+			Parameter type.
 		@param[in] updater
-		    The parent updater
-		 */
-		DatabaseMySqlExport CDatabaseStatementParameterMySql( DatabaseConnectionMySqlPtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, SValueUpdater * updater );
+			The parent updater
+		*/
+		DatabaseMySqlExport CDatabaseStatementParameterMySql( DatabaseConnectionMySqlPtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
 
 		/** Constructor.
 		@param[in] connection
-		    Connection to database.
+			Connection to database.
 		@param[in] name
-		    Parameter name.
+			Parameter name.
 		@param[in] index
-		    Internal index.
+			Internal index.
 		@param[in] fieldType
-		    Field type.
+			Field type.
 		@param[in] limits
-		    Field limits.
+			Field limits.
 		@param[in] parameterType
-		    Parameter type.
+			Parameter type.
 		@param[in] updater
-		    The parent updater
-		 */
-		DatabaseMySqlExport CDatabaseStatementParameterMySql( DatabaseConnectionMySqlPtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, SValueUpdater * updater );
+			The parent updater
+		*/
+		DatabaseMySqlExport CDatabaseStatementParameterMySql( DatabaseConnectionMySqlPtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
 
 		/** Destructor.
-		 */
+		*/
 		DatabaseMySqlExport virtual ~CDatabaseStatementParameterMySql();
 
 		//!@copydoc Database::CDatabaseParameter::SetNull
@@ -72,31 +71,31 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 		/** Defines the data binding
 		@param bind
-		    The binding
+			The binding
 		*/
 		DatabaseMySqlExport void SetBinding( MYSQL_BIND * bind );
 
+		/** Retrieves the data binding
+		@return
+			The binding
+		*/
+		MYSQL_BIND * GetBinding()const
+		{
+			return &_binding->_bind;
+		}
+
 		/** Defines the prepared statement
 		@param statement
-		    The statement
+			The statement
 		*/
 		inline void SetStatement( MYSQL_STMT * statement )
 		{
 			_statement = statement;
 		}
 
-		/** Retrieves the data binding
-		@return
-		    The binding
-		*/
-		inline MYSQL_BIND * GetBinding()const
-		{
-			return &_binding->_bind;
-		}
-
 		/** Retrieves the statement
 		@return
-		    The statement
+			The statement
 		*/
 		inline MYSQL_STMT * GetStatement()const
 		{
@@ -106,58 +105,66 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	private:
 		/** Set parameter value
 		@param value
-		    New parameter value.
+			New parameter value.
 		*/
 		template< typename T >
 		inline void DoSetAndUpdateValue( const T & value )
 		{
 			CDatabaseValuedObject::DoSetValue( value );
 			_binding->UpdateValue();
-			_updater->Update( shared_from_this() );
 		}
 
 		/** Set parameter value
 		@param value
-		    New parameter value.
+			New parameter value.
 		*/
 		template< typename T >
 		inline void DoSetAndUpdateValue( const T * value )
 		{
 			CDatabaseValuedObject::DoSetValue( value );
 			_binding->UpdateValue();
-			_updater->Update( shared_from_this() );
 		}
 
 		/** Set parameter value
 		@remarks
 			Don't perform type checks
 		@param value
-		    New parameter value.
+			New parameter value.
 		*/
 		template< typename T >
 		inline void DoSetAndUpdateValueFast( const T & value )
 		{
 			CDatabaseValuedObject::DoSetValueFast( value );
 			_binding->UpdateValue();
-			_updater->Update( shared_from_this() );
 		}
 
 		/** Set parameter value
 		@remarks
 			Don't perform type checks
 		@param value
-		    New parameter value.
+			New parameter value.
 		*/
 		template< typename T >
 		inline void DoSetAndUpdateValueFast( const T * value )
 		{
 			CDatabaseValuedObject::DoSetValueFast( value );
 			_binding->UpdateValue();
-			_updater->Update( shared_from_this() );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
 		DatabaseMySqlExport virtual void DoSetValue( const bool & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseMySqlExport virtual void DoSetValue( const int8_t & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseMySqlExport virtual void DoSetValue( const uint8_t & value )
 		{
 			DoSetAndUpdateValue( value );
 		}
@@ -170,6 +177,18 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
 		DatabaseMySqlExport virtual void DoSetValue( const uint16_t & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseMySqlExport virtual void DoSetValue( const int24_t & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseMySqlExport virtual void DoSetValue( const uint24_t & value )
 		{
 			DoSetAndUpdateValue( value );
 		}
@@ -217,6 +236,12 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseMySqlExport virtual void DoSetValue( const CFixedPoint & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
 		DatabaseMySqlExport virtual void DoSetValue( const std::string & value )
 		{
 			DoSetAndUpdateValue( value );
@@ -247,13 +272,25 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
-		DatabaseMySqlExport virtual void DoSetValue( const std::vector< uint8_t > & value )
+		DatabaseMySqlExport virtual void DoSetValue( const ByteArray & value )
 		{
 			DoSetAndUpdateValue( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
 		DatabaseMySqlExport virtual void DoSetValueFast( const bool & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseMySqlExport virtual void DoSetValueFast( const int8_t & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseMySqlExport virtual void DoSetValueFast( const uint8_t & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}
@@ -266,6 +303,18 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
 		DatabaseMySqlExport virtual void DoSetValueFast( const uint16_t & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseMySqlExport virtual void DoSetValueFast( const int24_t & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseMySqlExport virtual void DoSetValueFast( const uint24_t & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}
@@ -313,6 +362,12 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseMySqlExport virtual void DoSetValueFast( const CFixedPoint & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
 		DatabaseMySqlExport virtual void DoSetValueFast( const std::string & value )
 		{
 			DoSetAndUpdateValueFast( value );
@@ -343,13 +398,14 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
-		DatabaseMySqlExport virtual void DoSetValueFast( const std::vector< uint8_t > & value )
+		DatabaseMySqlExport virtual void DoSetValueFast( const ByteArray & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}
 
+	private:
 		//! The data binding
-		std::unique_ptr< COutMySqlBindBase > _binding;
+		std::unique_ptr< SOutMySqlBindBase > _binding;
 		//! The prepared statement
 		MYSQL_STMT * _statement;
 	};

@@ -29,7 +29,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		EDatabaseOdbcExceptionCodes_StatementError,
 		EDatabaseOdbcExceptionCodes_QueryError,
 
-		EDatabaseOdbcExceptionCodes_LastCode ///< Represent the maximum number of exception code. Must be always the last.
+		EDatabaseOdbcExceptionCodes_LastCode //!< Represent the maximum number of exception code. Must be always the last.
 	};
 
 	/** Should be thrown when a problem occured in the ODBC database plugin.
@@ -57,6 +57,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		}
 	};
 
+#	define ODBC_EXCEPT( number, description ) throw CExceptionDatabaseOdbc( number, description, __FUNCTION__, __FILE__, __LINE__ )
 }
 END_NAMESPACE_DATABASE_ODBC
 

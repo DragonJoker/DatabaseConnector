@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DatabaseParameter.cpp
- * @author Sylvain Doremus
- * @version 1.0
- * @date 3/20/2014 2:47:39 PM
- *
- *
- * @brief CDatabaseParameter class definition.
- *
- * @details Describes a parameter for a query.
- *
- ***************************************************************************/
+* @file DatabaseParameter.cpp
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/20/2014 2:47:39 PM
+*
+*
+* @brief CDatabaseParameter class definition.
+*
+* @details Describes a parameter for a query.
+*
+***************************************************************************/
 
 #include "DatabasePch.h"
 
@@ -21,8 +21,8 @@
 
 BEGIN_NAMESPACE_DATABASE
 {
-	static const String DATABASE_INCOMPATIBLE_TYPES = STR( "Incompatible types between values, parameter: " );
-	static const String DATABASE_PARAMETER_SETVALUE_TYPE_ERROR = STR( "Type error while setting value for the parameter: " );
+	static const String ERROR_DB_INCOMPATIBLE_TYPES = STR( "Incompatible types between values, parameter: " );
+	static const String ERROR_DB_PARAMETER_SETVALUE_TYPE = STR( "Type error while setting value for the parameter: " );
 
 	bool AreTypesCompatible( EFieldType typeA, EFieldType typeB )
 	{
@@ -31,8 +31,8 @@ BEGIN_NAMESPACE_DATABASE
 			return true;
 		}
 
-		if ( ( typeA == EFieldType_SMALL_INTEGER || typeA == EFieldType_INTEGER || typeA == EFieldType_LONG_INTEGER )
-				&& ( typeB == EFieldType_SMALL_INTEGER || typeB == EFieldType_INTEGER || typeB == EFieldType_LONG_INTEGER ) )
+		if ( ( typeA == EFieldType_INT16 || typeA == EFieldType_INT24 || typeA == EFieldType_INT32 || typeA == EFieldType_INT64 )
+				&& ( typeB == EFieldType_INT16 || typeB == EFieldType_INT24 || typeB == EFieldType_INT32 || typeB == EFieldType_INT64 ) )
 		{
 			return true;
 		}
@@ -45,33 +45,45 @@ BEGIN_NAMESPACE_DATABASE
 		return false;
 	}
 
-	CDatabaseParameter::CDatabaseParameter( DatabaseConnectionPtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, SValueUpdater * updater )
+	CDatabaseParameter::CDatabaseParameter( DatabaseConnectionPtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
 		: CDatabaseValuedObject( connection )
 		, _name( name )
 		, _fieldType( fieldType )
-		, _limits( -1 )
+		, _precision( std::make_pair( -1, -1 ) )
 		, _index( index )
 		, _parameterType( parameterType )
-		, _updater( updater )
+		, _updater( std::move( updater ) )
 	{
 		DoCreateValue();
 	}
 
-	CDatabaseParameter::CDatabaseParameter( DatabaseConnectionPtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, SValueUpdater * updater )
+	CDatabaseParameter::CDatabaseParameter( DatabaseConnectionPtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
 		: CDatabaseValuedObject( connection )
 		, _name( name )
 		, _fieldType( fieldType )
-		, _limits( limits )
+		, _precision( std::make_pair( limits, 0 ) )
 		, _index( index )
 		, _parameterType( parameterType )
-		, _updater( updater )
+		, _updater( std::move( updater ) )
+	{
+		DoCreateValue();
+	}
+
+	CDatabaseParameter::CDatabaseParameter( DatabaseConnectionPtr connection, const String & name, unsigned short index, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
+		: CDatabaseValuedObject( connection )
+		, _name( name )
+		, _fieldType( fieldType )
+		, _precision( precision )
+		, _index( index )
+		, _parameterType( parameterType )
+		, _updater( std::move( updater ) )
 	{
 		DoCreateValue();
 	}
 
 	CDatabaseParameter::~CDatabaseParameter()
 	{
-		delete _updater;
+		_updater.reset();;
 	}
 
 	const unsigned short & CDatabaseParameter::GetIndex() const
@@ -91,7 +103,12 @@ BEGIN_NAMESPACE_DATABASE
 
 	const uint32_t & CDatabaseParameter::GetLimits() const
 	{
-		return _limits;
+		return _precision.first;
+	}
+
+	const std::pair< uint32_t, uint32_t > & CDatabaseParameter::GetPrecision() const
+	{
+		return _precision;
 	}
 
 	void CDatabaseParameter::SetNull()
@@ -109,7 +126,7 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		if ( !AreTypesCompatible( GetType(), field->GetType() ) )
 		{
-			String errMsg = DATABASE_INCOMPATIBLE_TYPES + this->GetName();
+			String errMsg = ERROR_DB_INCOMPATIBLE_TYPES + this->GetName();
 			CLogger::LogError( errMsg );
 			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, errMsg );
 		}
@@ -121,7 +138,7 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		if ( !AreTypesCompatible( GetType(), parameter->GetType() ) )
 		{
-			String errMsg = DATABASE_INCOMPATIBLE_TYPES + this->GetName();
+			String errMsg = ERROR_DB_INCOMPATIBLE_TYPES + this->GetName();
 			CLogger::LogError( errMsg );
 			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, errMsg );
 		}
@@ -133,28 +150,40 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		switch ( type )
 		{
-		case EFieldType_BOOL:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_BOOL > const & >( value ).GetValue() );
+		case EFieldType_BIT:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_BIT > const & >( value ).GetValue() );
 			break;
 
-		case EFieldType_SMALL_INTEGER:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_SMALL_INTEGER > const & >( value ).GetValue() );
+		case EFieldType_INT8:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_INT8 > const & >( value ).GetValue() );
 			break;
 
-		case EFieldType_INTEGER:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_INTEGER > const & >( value ).GetValue() );
+		case EFieldType_INT16:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_INT16 > const & >( value ).GetValue() );
 			break;
 
-		case EFieldType_LONG_INTEGER:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_LONG_INTEGER > const & >( value ).GetValue() );
+		case EFieldType_INT24:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_INT24 > const & >( value ).GetValue() );
 			break;
 
-		case EFieldType_FLOAT:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_FLOAT > const & >( value ).GetValue() );
+		case EFieldType_INT32:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_INT32 > const & >( value ).GetValue() );
 			break;
 
-		case EFieldType_DOUBLE:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_DOUBLE > const & >( value ).GetValue() );
+		case EFieldType_INT64:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_INT64 > const & >( value ).GetValue() );
+			break;
+
+		case EFieldType_FLOAT32:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_FLOAT32 > const & >( value ).GetValue() );
+			break;
+
+		case EFieldType_FLOAT64:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_FLOAT64 > const & >( value ).GetValue() );
+			break;
+
+		case EFieldType_FIXED_POINT:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_FIXED_POINT > const & >( value ).GetValue() );
 			break;
 
 		case EFieldType_VARCHAR:
@@ -198,8 +227,8 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		default:
-			CLogger::LogError( DATABASE_PARAMETER_SETVALUE_TYPE_ERROR + this->GetName() );
-			DB_EXCEPT( EDatabaseExceptionCodes_ParameterError, DATABASE_PARAMETER_SETVALUE_TYPE_ERROR + this->GetName() );
+			CLogger::LogError( ERROR_DB_PARAMETER_SETVALUE_TYPE + this->GetName() );
+			DB_EXCEPT( EDatabaseExceptionCodes_ParameterError, ERROR_DB_PARAMETER_SETVALUE_TYPE + this->GetName() );
 			break;
 		}
 

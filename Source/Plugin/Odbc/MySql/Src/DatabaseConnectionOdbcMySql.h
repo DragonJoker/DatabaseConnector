@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DatabaseConnectionOdbcMySql.h
- * @author Sylvain Doremus
- * @version 1.0
- * @date 3/14/2014 5:03:05 PM
- *
- *
- * @brief CDatabaseConnectionOdbcMySql class declaration.
- *
- * @details Describes a connection to a database via an ODBC driver.
- *
- ***************************************************************************/
+* @file DatabaseConnectionOdbcMySql.h
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/14/2014 5:03:05 PM
+*
+*
+* @brief CDatabaseConnectionOdbcMySql class declaration.
+*
+* @details Describes a connection to a database via an ODBC driver.
+*
+***************************************************************************/
 
 #ifndef ___DATABASE_CONNECTION_ODBC_MYSQL_H___
 #define ___DATABASE_CONNECTION_ODBC_MYSQL_H___
@@ -26,72 +26,69 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MYSQL
 		: public CDatabaseConnectionOdbc
 		, public std::enable_shared_from_this<CDatabaseConnectionOdbcMySql>
 	{
-
 	public:
-
 		/** Constructor.
 		@param[in] sqlEnvironmentHandle
-		    The handle to the SQL environment.
+			The handle to the SQL environment.
 		@param[in] server
-		    Address or name of the server.
+			Address or name of the server.
 		@param[in] userName
-		    User name.
+			User name.
 		@param[in] password
-		    User password.
+			User password.
 		@param[out] connectionString
-		    Created connection string.
-		 */
+			Created connection string.
+			*/
 		CDatabaseConnectionOdbcMySql( SQLHENV sqlEnvironmentHandle, const String & server, const String & userName, const String & password, String & connectionString );
 
 		/** Destructor.
-		 */
+			*/
 		virtual ~CDatabaseConnectionOdbcMySql();
 
 		/** Creates a database.
 		@param[in] database
-		    Database identifier (name or DSN (ODBC)).
+			Database identifier (name or DSN (ODBC)).
 		*/
 		virtual void CreateDatabase( const String & database );
 
 		/** Selects a database.
 		@param[in] database
-		    Database identifier (name or DSN (ODBC)).
+			Database identifier (name or DSN (ODBC)).
 		*/
 		virtual void SelectDatabase( const String & database );
 
 		/** Destroys a database.
 		@param[in] database
-		    Database identifier (name or DSN (ODBC)).
+			Database identifier (name or DSN (ODBC)).
 		*/
 		virtual void DestroyDatabase( const String & database );
 
 	protected:
-
 		/** Connect to the database.
 		@param[out] connectionString
-		    Connection string in case of error.
+			Connection string in case of error.
 		@return
-		    Error code, EErrorType_NONE if no problem.
+			Error code, EErrorType_NONE if no problem.
 		*/
 		virtual EErrorType DoConnect( String & connectionString );
 
 		/** Create a statement from a request.
 		@param[in]  query
-		    Request text.
+			Request text.
 		@param[out] result
-		    Error code if the returned value is NULL.
+			Error code if the returned value is NULL.
 		@return
-		    The created statement.
+			The created statement.
 		*/
 		virtual DatabaseStatementPtr DoCreateStatement( const String & query, EErrorType * result );
 
 		/** Create a query from a request.
 		@param[in]  query
-		    Request text.
+			Request text.
 		@param[out] result
-		    Error code if the returned value is NULL.
+			Error code if the returned value is NULL.
 		@return
-		    The created query.
+			The created query.
 		*/
 		virtual DatabaseQueryPtr DoCreateQuery( const String & query, EErrorType * result );
 	};

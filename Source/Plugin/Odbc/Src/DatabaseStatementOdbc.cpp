@@ -27,18 +27,21 @@
 
 BEGIN_NAMESPACE_DATABASE_ODBC
 {
-	static const String ODBC_MISSING_INITIALIZATION_ERROR = STR( "Method Initialize must be called before calling method CreateParameter" );
-	static const String DATABASE_STATEMENT_UNKNOWN_POINTER = STR( "The pointer given by SQLParamData is unknown to the statement" );
+	static const String ERROR_ODBC_MISSING_INITIALIZATION = STR( "Method Initialize must be called before calling method CreateParameter" );
+	static const String ERROR_ODBC_STATEMENT_UNKNOWN_POINTER = STR( "The pointer given by SQLParamData is unknown to the statement" );
 
-	static const String ODBC_HANDLE_ALLOCATION_MSG = STR( "New statement allocation: " );
-	static const String ODBC_EXECUTE_STATEMENT_MSG = STR( "Execute: " );
+	static const String INFO_ODBC_PREPARING_STATEMENT = STR( "Preparing statement for query: " );
+	static const String INFO_ODBC_EXECUTE_STATEMENT = STR( "Execute statement for query: " );
 
-	static const String ODBC_PREPARE_MSG = STR( "SQLPrepare" );
-	static const String ODBC_SETSTMTATTR_MSG = STR( "SQLSetStmtAttr" );
-	static const String ODBC_CLOSECURSOR_MSG = STR( "SQLCloseCursor" );
-	static const String ODBC_FREESTMT_MSG = STR( "SQLFreeStmt" );
-	static const String ODBC_NUMPARAMS_MSG = STR( "SQLNumParams" );
-	static const String ODBC_PARAMDATA_MSG = STR( "SQLParamData " );
+	static const String INFO_ODBC_Prepare = STR( "SQLPrepare" );
+	static const String INFO_ODBC_AllocHandle = STR( "SQLAllocHandle: " );
+	static const String INFO_ODBC_SetStmtAttr = STR( "SQLSetStmtAttr" );
+	static const String INFO_ODBC_CloseCursor = STR( "SQLCloseCursor" );
+	static const String INFO_ODBC_FreeStmt = STR( "SQLFreeStmt" );
+	static const String INFO_ODBC_NumParams = STR( "SQLNumParams" );
+	static const String INFO_ODBC_ParamData = STR( "SQLParamData " );
+
+	static const String DEBUG_ODBC_EXPECTED_PARAMETERS = STR( "Expected parameters : " );
 
 	CDatabaseStatementOdbc::CDatabaseStatementOdbc( DatabaseConnectionOdbcPtr connection, const String & query )
 		:   CDatabaseStatement( connection, query )
@@ -56,28 +59,28 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	{
 		EErrorType errorType;
 		HDBC hParentStmt = _connectionOdbc->GetHdbc();
-		CLogger::LogMessage( STR( "Preparing statement for query : " ) + _query );
+		CLogger::LogInfo( INFO_ODBC_PREPARING_STATEMENT + _query );
 
-		errorType = SqlSuccess( SQLAllocHandle( SQL_HANDLE_STMT, hParentStmt, &_statementHandle ), SQL_HANDLE_STMT, hParentStmt, ODBC_HANDLE_ALLOCATION_MSG );
+		errorType = SqlSuccess( SQLAllocHandle( SQL_HANDLE_STMT, hParentStmt, &_statementHandle ), SQL_HANDLE_STMT, hParentStmt, INFO_ODBC_AllocHandle );
 #if defined( WIN32 )
 
 		if ( errorType == EErrorType_NONE )
 		{
-			SqlTry( SQLSetStmtAttr( _statementHandle, SQL_SOPT_SS_DEFER_PREPARE, SQL_DP_OFF, SQL_IS_UINTEGER ), SQL_HANDLE_STMT, _statementHandle, ODBC_SETSTMTATTR_MSG );
+			SqlTry( SQLSetStmtAttr( _statementHandle, SQL_SOPT_SS_DEFER_PREPARE, SQL_DP_OFF, SQL_IS_UINTEGER ), SQL_HANDLE_STMT, _statementHandle, INFO_ODBC_SetStmtAttr );
 		}
 
 #endif
 
 		if ( errorType == EErrorType_NONE )
 		{
-			SqlTry( SQLPrepareA( _statementHandle, ( SqlChar * )_query.c_str(), SQLINTEGER( _query.size() ) ), SQL_HANDLE_STMT, _statementHandle, ODBC_PREPARE_MSG );
+			SqlTry( SQLPrepareA( _statementHandle, ( SqlChar * )_query.c_str(), SQLINTEGER( _query.size() ) ), SQL_HANDLE_STMT, _statementHandle, INFO_ODBC_Prepare );
 		}
 
 		if ( errorType == EErrorType_NONE )
 		{
 			SQLSMALLINT count = 0;
-			SqlTry( SQLNumParams( _statementHandle, &count ), SQL_HANDLE_STMT, _statementHandle, ODBC_NUMPARAMS_MSG );
-			CLogger::LogDebug( STR( "Expected parameters : " ) + CStrUtils::ToString( count ) );
+			SqlTry( SQLNumParams( _statementHandle, &count ), SQL_HANDLE_STMT, _statementHandle, INFO_ODBC_NumParams );
+			CLogger::LogDebug( DEBUG_ODBC_EXPECTED_PARAMETERS + CStrUtils::ToString( count ) );
 		}
 
 		for ( DatabaseParameterPtrArray::iterator it = _arrayParams.begin(); it != _arrayParams.end(); ++it )
@@ -125,7 +128,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 	DatabaseParameterPtr CDatabaseStatementOdbc::CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType )
 	{
-		DatabaseParameterPtr pReturn = std::make_shared< CDatabaseStatementParameterOdbc >( std::static_pointer_cast< CDatabaseConnectionOdbc >( _connectionOdbc ), name, ( unsigned short )_arrayParams.size() + 1, fieldType, parameterType, new SValueUpdater( this ) );
+		DatabaseParameterPtr pReturn = std::make_shared< CDatabaseStatementParameterOdbc >( std::static_pointer_cast< CDatabaseConnectionOdbc >( _connectionOdbc ), name, ( unsigned short )_arrayParams.size() + 1, fieldType, parameterType, std::make_unique< SValueUpdater >( this ) );
 
 		if ( !DoAddParameter( pReturn ) )
 		{
@@ -137,7 +140,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 	DatabaseParameterPtr CDatabaseStatementOdbc::CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType )
 	{
-		DatabaseParameterPtr pReturn = std::make_shared< CDatabaseStatementParameterOdbc >( std::static_pointer_cast< CDatabaseConnectionOdbc >( _connectionOdbc ), name, ( unsigned short )_arrayParams.size() + 1, fieldType, limits, parameterType, new SValueUpdater( this ) );
+		DatabaseParameterPtr pReturn = std::make_shared< CDatabaseStatementParameterOdbc >( std::static_pointer_cast< CDatabaseConnectionOdbc >( _connectionOdbc ), name, ( unsigned short )_arrayParams.size() + 1, fieldType, limits, parameterType, std::make_unique< SValueUpdater >( this ) );
 
 		if ( !DoAddParameter( pReturn ) )
 		{
@@ -150,11 +153,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	EErrorType CDatabaseStatementOdbc::DoPreExecute()
 	{
 		EErrorType eResult = EErrorType_NONE;
-
-		for ( auto && it = _arrayParams.begin() ; it != _arrayParams.end() && eResult == EErrorType_NONE ; ++it )
-		{
-			eResult = std::static_pointer_cast< CDatabaseStatementParameterOdbc >( *it )->GetBinding().BindValue();
-		}
 
 		if ( eResult == EErrorType_NONE )
 		{
@@ -175,12 +173,12 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 					}
 					else
 					{
-						CLogger::LogError( DATABASE_STATEMENT_UNKNOWN_POINTER );
+						CLogger::LogError( ERROR_ODBC_STATEMENT_UNKNOWN_POINTER );
 					}
 				}
 			}
 
-			SqlSuccess( retCode, SQL_HANDLE_STMT, _statementHandle, ODBC_EXECUTE_STATEMENT_MSG + _query );
+			SqlSuccess( retCode, SQL_HANDLE_STMT, _statementHandle, INFO_ODBC_EXECUTE_STATEMENT + _query );
 		}
 
 		return eResult;
@@ -222,11 +220,11 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				}
 				else
 				{
-					CLogger::LogError( DATABASE_STATEMENT_UNKNOWN_POINTER );
+					CLogger::LogError( ERROR_ODBC_STATEMENT_UNKNOWN_POINTER );
 				}
 			}
 
-			SqlSuccess( retCode, SQL_HANDLE_STMT, _statementHandle, ODBC_PARAMDATA_MSG );
+			SqlSuccess( retCode, SQL_HANDLE_STMT, _statementHandle, INFO_ODBC_ParamData );
 		}
 
 #endif

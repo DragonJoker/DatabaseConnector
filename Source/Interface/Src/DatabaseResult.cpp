@@ -1,15 +1,15 @@
 ﻿/************************************************************************//**
- * @file DatabaseResult.cpp
- * @author Sylvain Doremus
- * @version 1.0
- * @date 3/24/2014 8:37:01 AM
- *
- *
- * @brief CDatabaseResult class definition.
- *
- * @details Describes the result of a SELECT request.
- *
- ***************************************************************************/
+* @file DatabaseResult.cpp
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/24/2014 8:37:01 AM
+*
+*
+* @brief CDatabaseResult class definition.
+*
+* @details Describes the result of a SELECT request.
+*
+***************************************************************************/
 
 #include "DatabasePch.h"
 
@@ -24,7 +24,7 @@
 
 BEGIN_NAMESPACE_DATABASE
 {
-	static const String DATABASE_NO_FIELD_ERROR = STR( "No field at index: " );
+	static const String ERROR_DB_NO_FIELD = STR( "No field at index: " );
 
 	CDatabaseResult::CDatabaseResult( DatabaseConnectionPtr connection )
 		: _connection( connection )
@@ -36,11 +36,8 @@ BEGIN_NAMESPACE_DATABASE
 	CDatabaseResult::CDatabaseResult( DatabaseConnectionPtr connection, const DatabaseFieldInfosPtrArray & arrayFieldInfos )
 		: _connection( connection )
 		, _rowCount( 0 )
+		, _arrayFieldInfos( arrayFieldInfos )
 	{
-		for ( DatabaseFieldInfosPtrArray::const_iterator it = arrayFieldInfos.begin() ; it != arrayFieldInfos.end() ; ++it )
-		{
-			_arrayFieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( *( *it ) ) );
-		}
 	}
 
 	CDatabaseResult::~CDatabaseResult()
@@ -97,22 +94,15 @@ BEGIN_NAMESPACE_DATABASE
 
 	DatabaseFieldInfosPtr CDatabaseResult::GetFieldInfos( uint32_t index ) const
 	{
-		DatabaseFieldInfosPtr pReturn;
-
-		if ( index < _arrayFieldInfos.size() )
-		{
-			pReturn = _arrayFieldInfos[index];
-		}
-		else
+		if ( index >= _arrayFieldInfos.size() )
 		{
 			StringStream message;
-			message << DATABASE_NO_FIELD_ERROR << CStrUtils::ToString( index );
+			message << ERROR_DB_NO_FIELD << CStrUtils::ToString( index );
 			CLogger::LogError( message );
 			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, message.str() );
 		}
 
-		return pReturn;
+		return _arrayFieldInfos[index];
 	}
-
 }
 END_NAMESPACE_DATABASE

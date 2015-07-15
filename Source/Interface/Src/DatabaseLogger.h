@@ -1,392 +1,287 @@
-﻿/*
-This source file is part of Castor3D (http://castor3d.developpez.com/castor3d.htm)
+﻿/************************************************************************//**
+* @file DatabaseLogger.h
+* @author Sylvain Doremus
+* @version 1.0
+* @date 7/12/2015 7:51 PM
+*
+*
+* @brief CLogger class
+*
+* @details Allows Debug, Info, Warning and Error logs
+*
+***************************************************************************/
 
-This program is free software; you can redistribute it and/or modify it under
-the terms of the GNU Lesser General Public License as published by the Free Software
-Foundation; either version 2 of the License, or (at your option) any later
-version.
-
-This program is distributed in the hope that it will be useful, but WITHOUT
-ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along with
-the program; if not, write to the Free Software Foundation, Inc., 59 Temple
-Place - Suite 330, Boston, MA 02111-1307, USA, or go to
-http://www.gnu.org/copyleft/lesser.txt.
-*/
 #ifndef ___DATABASE_LOGGER_H___
 #define ___DATABASE_LOGGER_H___
 
-#include "DatabaseLoggerImpl.h"
+#include "DatabasePrerequisites.h"
 
-#include <deque>
+#include "ELogType.h"
+
+#include <condition_variable>
 #include <mutex>
 #include <atomic>
 
 BEGIN_NAMESPACE_DATABASE
 {
-	/*!
-	\author		Sylvain DOREMUS
-	\version	0.6.1.0
-	\date		19/10/2011
-	\~english
-	\brief		Log management class
-	\remark		Implements log facilities. Create a Log with a filename, then write logs into that file
-	\~french
-	\brief		Classe de gestion de logs
-	\remark		Implémente les fonctions de logging. Initialise un log avec un nom de fichier puis écrit dedans
+	/** Implements log facilities. Create a Log with a filename, then write logs into that file
 	*/
 	class CLogger
 	{
 	private:
-		/**
-		 *\~english
-		 *\brief		Constructor
-		 *\~french
-		 *\brief		Constructeur
-		 */
+		/** Constructor
+		*/
 		CLogger();
-		/**
-		 *\~english
-		 *\brief		Destructor
-		 *\~french
-		 *\brief		Destructeur
-		 */
+		/** Destructor
+		*/
 		~CLogger();
 
 	public:
-		/**
-		 *\~english
-		 *\brief		Initialises this Logger instance to another one
-		 *\param[in]	p_pLogger	The logger
-		 *\~french
-		 *\brief		Initialise l'instance de ce Logger à une autre
-		 *\param[in]	p_pLogger	Le logger
-		 */
-		DatabaseExport static void Initialise( CLogger * p_pLogger );
-		/**
-		 *\~english
-		 *\brief		Initialises this logger instance level
-		 *\param[in]	p_eLogLevel		The log level
-		 *\~french
-		 *\brief		Initialise l'instance du logger avec le niveau donné
-		 *\param[in]	p_eLogLevel		Le niveau de log
-		 */
-		DatabaseExport static void Initialise( eLOG_TYPE p_eLogLevel );
-		/**
-		 *\~english
-		 *\brief		Destroys the Logger instance
-		 *\~french
-		 *\brief		Détruit l'instance du Logger
-		 */
+		/** Initialises this Logger instance to another one
+		@param[in] logger
+			The logger
+		*/
+		DatabaseExport static void Initialise( CLogger * logger );
+
+		/** Initialises this logger instance level
+		@param[in] logLevel
+			The log level
+		*/
+		DatabaseExport static void Initialise( ELogType logLevel );
+
+		/* Destroys the Logger instance
+		*/
 		DatabaseExport static void Cleanup();
-		/**
-		 *\~english
-		 *\brief		Defines the logging callback
-		 *\param[in]	p_pfnCallback	The callback
-		 *\param[in]	p_pCaller		Pointer to user data
-		 *\~french
-		 *\brief		Définit la callback de log
-		 *\param[in]	p_pfnCallback	La callback
-		 *\param[in]	p_pCaller		Pointeur sur des données utilisateur
-		 */
-		DatabaseExport static void SetCallback( PLogCallback p_pfnCallback, void * p_pCaller );
-		/**
-		 *\~english
-		 *\brief		Sets the log file address
-		 *\param[in]	p_logFilePath	The log file path
-		 *\param[in]	p_eLogType		The log type
-		 *\~french
-		 *\brief		Définit le chemin du fichier de log
-		 *\param[in]	p_logFilePath	Le chemin du fichier
-		 *\param[in]	p_eLogType		Le type de log concerné
-		 */
-		DatabaseExport static void SetFileName( String const & p_logFilePath, eLOG_TYPE p_eLogType = eLOG_TYPE_COUNT );
-		/**
-		 *\~english
-		 *\brief		Logs a debug message in the log file, using va_args
-		 *\param[in]	p_format	The line format
-		 *\param[in]	...			POD arguments, following printf format
-		 *\~french
-		 *\brief		Log un message debug dans le fichier de log, en utilisant va_args
-		 *\param[in]	p_format	Le format de la ligne
-		 *\param[in]	...			Paramètres POD, utilise le format de printf
-		 */
-		DatabaseExport static void LogDebug( char const * p_format, ... );
-		/**
-		 *\~english
-		 *\brief		Logs a debug message, from a std::string
-		 *\param[in]	p_msg	The line to log
-		 *\~french
-		 *\brief		Log un message debug, à partir d'un std::string
-		 *\param[in]	p_msg	The line to log
-		 */
-		DatabaseExport static void LogDebug( std::string const & p_msg );
-		/**
-		 *\~english
-		 *\brief		Logs a debug message, from a std::stringstream
-		 *\param[in]	p_msg	The line to log
-		 *\~french
-		 *\brief		Log un message debug, à partir d'un std::stringstream
-		 *\param[in]	p_msg	The line to log
-		 */
-		DatabaseExport static void LogDebug( std::ostream const & p_msg );
-		/**
-		 *\~english
-		 *\brief		Logs a unicode debug message in the log file, using va_args
-		 *\param[in]	p_format	The line format
-		 *\param[in]	...			POD arguments, following printf format
-		 *\~french
-		 *\brief		Log un message unicode debug dans le fichier de log, en utilisant va_args
-		 *\param[in]	p_format	Le format de la ligne
-		 *\param[in]	...			Paramètres POD, utilise le format de printf
-		 */
-		DatabaseExport static void LogDebug( wchar_t const * p_format , ... );
-		/**
-		 *\~english
-		 *\brief		Logs a unicode debug message, from a std::wstring
-		 *\param[in]	p_msg	The line to log
-		 *\~french
-		 *\brief		Log un message debug, à partir d'un std::wstring
-		 *\param[in]	p_msg	The line to log
-		 */
-		DatabaseExport static void LogDebug( std::wstring const & p_msg );
-		/**
-		 *\~english
-		 *\brief		Logs a debug message, from a std::wstringstream
-		 *\param[in]	p_msg	The line to log
-		 *\~french
-		 *\brief		Log un message debug, à partir d'un std::wstringstream
-		 *\param[in]	p_msg	The line to log
-		 */
-		DatabaseExport static void LogDebug( std::wostream const & p_msg );
-		/**
-		 *\~english
-		 *\brief		Logs a message in the log file, using va_args
-		 *\param[in]	p_format	The line format
-		 *\param[in]	...			POD arguments, following printf format
-		 *\~french
-		 *\brief		Log un message dans le fichier de log, en utilisant va_args
-		 *\param[in]	p_format	Le format de la ligne
-		 *\param[in]	...			Paramètres POD, utilise le format de printf
-		 */
-		DatabaseExport static void LogMessage( char const * p_format, ... );
-		/**
-		 *\~english
-		 *\brief		Logs a message, from a std::string
-		 *\param[in]	p_msg	The line to log
-		 *\~french
-		 *\brief		Log un message, à partir d'un std::string
-		 *\param[in]	p_msg	The line to log
-		 */
-		DatabaseExport static void LogMessage( std::string const & p_msg );
-		/**
-		 *\~english
-		 *\brief		Logs a debug message, from a std::stringstream
-		 *\param[in]	p_msg	The line to log
-		 *\~french
-		 *\brief		Log un message debug, à partir d'un std::stringstream
-		 *\param[in]	p_msg	The line to log
-		 */
-		DatabaseExport static void LogMessage( std::ostream const & p_msg );
-		/**
-		 *\~english
-		 *\brief		Logs a unicode line in the log file, using va_args
-		 *\param[in]	p_format	The line format
-		 *\param[in]	...			POD arguments, following printf format
-		 *\~french
-		 *\brief		Log une ligne unicode dans le fichier de log, en utilisant va_args
-		 *\param[in]	p_format	Le format de la ligne
-		 *\param[in]	...			Paramètres POD, utilise le format de printf
-		 */
-		DatabaseExport static void LogMessage( wchar_t const * p_format , ... );
-		/**
-		 *\~english
-		 *\brief		Logs a message, from a std::wstring
-		 *\param[in]	p_msg	The line to log
-		 *\~french
-		 *\brief		Log un message, à partir d'un std::wstring
-		 *\param[in]	p_msg	The line to log
-		 */
-		DatabaseExport static void LogMessage( std::wstring const & p_msg );
-		/**
-		 *\~english
-		 *\brief		Logs a debug message, from a std::wstringstream
-		 *\param[in]	p_msg	The line to log
-		 *\~french
-		 *\brief		Log un message debug, à partir d'un std::wstringstream
-		 *\param[in]	p_msg	The line to log
-		 */
-		DatabaseExport static void LogMessage( std::wostream const & p_msg );
-		/**
-		 *\~english
-		 *\brief		Logs a warning in the log file, using va_args
-		 *\param[in]	p_format	The line format
-		 *\param[in]	...			POD arguments, following printf format
-		 *\~french
-		 *\brief		Log un avertissement dans le fichier de log, en utilisant va_args
-		 *\param[in]	p_format	Le format de la ligne
-		 *\param[in]	...			Paramètres POD, utilise le format de printf
-		 */
-		DatabaseExport static void LogWarning( char const * p_format, ... );
-		/**
-		 *\~english
-		 *\brief		Logs a warning, from a std::string
-		 *\param[in]	p_msg	The line to log
-		 *\~french
-		 *\brief		Log un avertissement, à partir d'un std::string
-		 *\param[in]	p_msg	The line to log
-		 */
-		DatabaseExport static void LogWarning( std::string const & p_msg );
-		/**
-		 *\~english
-		 *\brief		Logs a debug message, from a std::stringstream
-		 *\param[in]	p_msg	The line to log
-		 *\~french
-		 *\brief		Log un message debug, à partir d'un std::stringstream
-		 *\param[in]	p_msg	The line to log
-		 */
-		DatabaseExport static void LogWarning( std::ostream const & p_msg );
-		/**
-		 *\~english
-		 *\brief		Logs a unicode warning in the log file, using va_args
-		 *\param[in]	p_format	The line format
-		 *\param[in]	...			POD arguments, following printf format
-		 *\~french
-		 *\brief		Log un avertissement en unicode dans le fichier de log, en utilisant va_args
-		 *\param[in]	p_format	Le format de la ligne
-		 *\param[in]	...			Paramètres POD, utilise le format de printf
-		 */
-		DatabaseExport static void LogWarning( wchar_t const * p_format , ... );
-		/**
-		 *\~english
-		 *\brief		Logs a warning, from a std::wstring
-		 *\param[in]	p_msg	The line to log
-		 *\~french
-		 *\brief		Log un avertissement, à partir d'un std::wstring
-		 *\param[in]	p_msg	The line to log
-		 */
-		DatabaseExport static void LogWarning( std::wstring const & p_msg );
-		/**
-		 *\~english
-		 *\brief		Logs a debug message, from a std::wstringstream
-		 *\param[in]	p_msg	The line to log
-		 *\~french
-		 *\brief		Log un message debug, à partir d'un std::wstringstream
-		 *\param[in]	p_msg	The line to log
-		 */
-		DatabaseExport static void LogWarning( std::wostream const & p_msg );
-		/**
-		 *\~english
-		 *\brief		Logs an error in the log file, using va_args
-		 *\param[in]	p_format	The line format
-		 *\param[in]	...			POD arguments, following printf format
-		 *\~french
-		 *\brief		Log une erreur dans le fichier de log, en utilisant va_args
-		 *\param[in]	p_format	Le format de la ligne
-		 *\param[in]	...			Paramètres POD, utilise le format de printf
-		 */
-		DatabaseExport static void LogError( char const * p_format, ... );
-		/**
-		 *\~english
-		 *\brief		Logs an error, from a std::string
-		 *\param[in]	p_msg		The line to log
-		 *\~french
-		 *\brief		Log une erreur, à partir d'un std::string
-		 *\param[in]	p_msg		The line to log
-		 */
-		DatabaseExport static void LogError( std::string const & p_msg );
-		/**
-		 *\~english
-		 *\brief		Logs a debug message, from a std::stringstream
-		 *\param[in]	p_msg	The line to log
-		 *\~french
-		 *\brief		Log un message debug, à partir d'un std::stringstream
-		 *\param[in]	p_msg	The line to log
-		 */
-		DatabaseExport static void LogError( std::ostream const & p_msg );
-		/**
-		 *\~english
-		 *\brief		Logs a unicode error in the log file, using va_args
-		 *\param[in]	p_format	The line format
-		 *\param[in]	...			POD arguments, following printf format
-		 *\~french
-		 *\brief		Log une erreur en unicode dans le fichier de log, en utilisant va_args
-		 *\param[in]	p_format	Le format de la ligne
-		 *\param[in]	...			Paramètres POD, utilise le format de printf
-		 */
-		DatabaseExport static void LogError( wchar_t const * p_format , ... );
-		/**
-		 *\~english
-		 *\brief		Logs an error, from a std::wstring
-		 *\param[in]	p_msg		The line to log
-		 *\~french
-		 *\brief		Log une erreur, à partir d'un std::wstring
-		 *\param[in]	p_msg		The line to log
-		 */
-		DatabaseExport static void LogError( std::wstring const & p_msg );
-		/**
-		 *\~english
-		 *\brief		Logs a debug message, from a std::wstringstream
-		 *\param[in]	p_msg	The line to log
-		 *\~french
-		 *\brief		Log un message debug, à partir d'un std::wstringstream
-		 *\param[in]	p_msg	The line to log
-		 */
-		DatabaseExport static void LogError( std::wostream const & p_msg );
-		/**
-		 *\~english
-		 *\brief		Returns a reference over the instance
-		 *\return		The instance
-		 *\~french
-		 *\brief		Retourne une référence sur l'instance
-		 *\return		L'instance
-		 */
+
+		/** Sets the log file address
+		@param[in] logFilePath
+			The log file path
+		@param[in] logType
+			The log type
+		*/
+		DatabaseExport static void SetFileName( String const & logFilePath, ELogType logType = ELogType_COUNT );
+
+		/** Logs a debug message in the log file, using va_args
+		@param[in] format
+			The line format
+		@param[in] ...
+			POD arguments, following printf format
+		*/
+		DatabaseExport static void LogDebug( char const * format, ... );
+
+		/** Logs a debug message, from a std::string
+		@param[in] msg
+			The line to log
+		*/
+		DatabaseExport static void LogDebug( std::string const & msg );
+
+		/** Logs a debug message, from a std::stringstream
+		@param[in] msg
+			The line to log
+		*/
+		DatabaseExport static void LogDebug( std::ostream const & msg );
+
+		/** Logs a unicode debug message in the log file, using va_args
+		@param[in] format
+			The line format
+		@param[in] ...
+			POD arguments, following printf format
+		*/
+		DatabaseExport static void LogDebug( wchar_t const * format , ... );
+
+		/** Logs a unicode debug message, from a std::wstring
+		@param[in] msg
+			The line to log
+		*/
+		DatabaseExport static void LogDebug( std::wstring const & msg );
+
+		/** Logs a debug message, from a std::wstringstream
+		@param[in] msg
+			The line to log
+		*/
+		DatabaseExport static void LogDebug( std::wostream const & msg );
+
+		/** Logs a message in the log file, using va_args
+		@param[in] format
+			The line format
+		@param[in] ...
+			POD arguments, following printf format
+		*/
+		DatabaseExport static void LogInfo( char const * format, ... );
+
+		/** Logs a message, from a std::string
+		@param[in] msg
+			The line to log
+		*/
+		DatabaseExport static void LogInfo( std::string const & msg );
+
+		/** Logs a debug message, from a std::stringstream
+		@param[in] msg
+			The line to log
+		*/
+		DatabaseExport static void LogInfo( std::ostream const & msg );
+
+		/** Logs a unicode line in the log file, using va_args
+		@param[in] format
+			The line format
+		@param[in] ...
+			POD arguments, following printf format
+		*/
+		DatabaseExport static void LogInfo( wchar_t const * format , ... );
+
+		/** Logs a message, from a std::wstring
+		@param[in] msg
+			The line to log
+		*/
+		DatabaseExport static void LogInfo( std::wstring const & msg );
+
+		/** Logs a debug message, from a std::wstringstream
+		@param[in] msg
+			The line to log
+		*/
+		DatabaseExport static void LogInfo( std::wostream const & msg );
+
+		/** Logs a warning in the log file, using va_args
+		@param[in] format
+			The line format
+		@param[in] ...
+			POD arguments, following printf format
+		*/
+		DatabaseExport static void LogWarning( char const * format, ... );
+
+		/** Logs a warning, from a std::string
+		@param[in] msg
+			The line to log
+		*/
+		DatabaseExport static void LogWarning( std::string const & msg );
+
+		/** Logs a debug message, from a std::stringstream
+		@param[in] msg
+			The line to log
+		*/
+		DatabaseExport static void LogWarning( std::ostream const & msg );
+
+		/** Logs a unicode warning in the log file, using va_args
+		@param[in] format
+			The line format
+		@param[in] ...
+			POD arguments, following printf format
+		*/
+		DatabaseExport static void LogWarning( wchar_t const * format, ... );
+
+		/** Logs a warning, from a std::wstring
+		@param[in] msg
+			The line to log
+		*/
+		DatabaseExport static void LogWarning( std::wstring const & msg );
+
+		/** Logs a debug message, from a std::wstringstream
+		@param[in] msg
+			The line to log
+		*/
+		DatabaseExport static void LogWarning( std::wostream const & msg );
+
+		/** Logs an error in the log file, using va_args
+		@param[in] format
+			The line format
+		@param[in]	...
+			POD arguments, following printf format
+		*/
+		DatabaseExport static void LogError( char const * format, ... );
+
+		/** Logs an error, from a std::string
+		@param[in] msg
+			The line to log
+		*/
+		DatabaseExport static void LogError( std::string const & msg );
+
+		/** Logs a debug message, from a std::stringstream
+		@param[in] msg
+			The line to log
+		*/
+		DatabaseExport static void LogError( std::ostream const & msg );
+
+		/** Logs a unicode error in the log file, using va_args
+		@param[in] format
+			The line format
+		@param[in] ...
+			POD arguments, following printf format
+		*/
+		DatabaseExport static void LogError( wchar_t const * format, ... );
+
+		/** Logs an error, from a std::wstring
+		@param[in] msg
+			The line to log
+		*/
+		DatabaseExport static void LogError( std::wstring const & msg );
+
+		/** Logs a debug message, from a std::wstringstream
+		@param[in] msg
+			The line to log
+		*/
+		DatabaseExport static void LogError( std::wostream const & msg );
+
+		/** Returns a reference over the instance
+		@return
+			The instance
+		*/
 		DatabaseExport static CLogger & GetSingleton();
-		/**
-		 *\~english
-		 *\brief		Returns a pointer over the instance
-		 *\return		The instance
-		 *\~french
-		 *\brief		Retourne un pointeur sur l'instance
-		 *\return		L'instance
-		 */
+
+		/** Returns a pointer over the instance
+		@return
+			The instance
+		*/
 		DatabaseExport static CLogger * GetSingletonPtr();
 
 	private:
-		void DoSetCallback( PLogCallback p_pfnCallback, void * p_pCaller );
-		void DoSetFileName( String const & p_logFilePath, eLOG_TYPE p_eLogType = eLOG_TYPE_COUNT );
-		void DoPushMessage( eLOG_TYPE p_type, std::string const & p_message );
-		void DoPushMessage( eLOG_TYPE p_type, std::wstring const & p_message );
+		void DoSetFileName( String const & logFilePath, ELogType logType = ELogType_COUNT );
+		void DoPushMessage( ELogType type, std::string const & message );
+		void DoPushMessage( ELogType type, std::wstring const & message );
 		void DoInitialiseThread();
 		void DoCleanupThread();
-		void DoFlushQueue( bool p_display );
+		void DoFlushQueue();
 
 	private:
-		friend class ILoggerImpl;
+		friend class CLoggerImpl;
 
-		static bool m_bOwnInstance;
-		static CLogger * m_pSingleton;
-		static uint32_t m_uiCounter;
-
-		std::streambuf * m_cout;
-		std::streambuf * m_cerr;
-		std::streambuf * m_clog;
-		std::wstreambuf * m_wcout;
-		std::wstreambuf * m_wcerr;
-		std::wstreambuf * m_wclog;
-
-		ILoggerImpl * m_pImpl;
-		eLOG_TYPE m_logLevel;
-		std::mutex m_mutex;
-		String m_strHeaders[eLOG_TYPE_COUNT];
-		std::mutex m_mutexQueue;
-		MessageQueue m_queue;
-		std::thread m_logThread;
-		std::atomic_bool m_stopped;
-		std::mutex m_mutexThreadEnded;
-		std::condition_variable m_threadEnded;
+		//! Tells if the logger owns its instance or not
+		static bool _ownInstance;
+		//! The logger
+		static CLogger * _singleton;
+		//! The instances count
+		static uint32_t _counter;
+		//! The streambuf used to log info messages
+		std::streambuf * _cout;
+		//! The streambuf used to log error messages
+		std::streambuf * _cerr;
+		//! The streambuf used to log debug messages
+		std::streambuf * _clog;
+		//! The wstreambuf used to log info messages
+		std::wstreambuf * _wcout;
+		//! The wstreambuf used to log error messages
+		std::wstreambuf * _wcerr;
+		//! The wstreambuf used to log info messages
+		std::wstreambuf * _wclog;
+		//! The logger implementation
+		CLoggerImpl * _impl;
+		//! the mutex used to protect the implementation
+		std::mutex _mutex;
+		//! the current logging level, all logs lower than this level are ignored
+		ELogType _logLevel;
+		//! The header for each lg line of given log level
+		String _headers[ELogType_COUNT];
+		//! The message queue
+		MessageQueue _queue;
+		//! The mutex protecting the message queue
+		std::mutex _mutexQueue;
+		//! The logging thread
+		std::thread _logThread;
+		//! Tells if the thread must be stopped
+		std::atomic_bool _stopped;
+		//! Event raised when the thread is ended
+		std::condition_variable _threadEnded;
+		//! Mutex used to wait for the thread end
+		std::mutex _mutexThreadEnded;
 	};
 }
 END_NAMESPACE_DATABASE

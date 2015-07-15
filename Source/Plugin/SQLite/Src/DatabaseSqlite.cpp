@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DatabaseSqlite.cpp
- * @author Sylvain Doremus
- * @version 1.0
- * @date 3/20/2014 2:47:39 PM
- *
- *
- * @brief CDatabaseSqlite class declaration.
- *
- * @details Describes an SQLITE database.
- *
- ***************************************************************************/
+* @file DatabaseSqlite.cpp
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/20/2014 2:47:39 PM
+*
+*
+* @brief CDatabaseSqlite class declaration.
+*
+* @details Describes an SQLITE database.
+*
+***************************************************************************/
 
 #include "DatabaseSqlitePch.h"
 
@@ -20,8 +20,6 @@
 
 BEGIN_NAMESPACE_DATABASE_SQLITE
 {
-	static const String ERROR_NULL_TYPE_FIELD = STR( "Null type field" );
-
 	namespace
 	{
 		int GetLimits( std::string const & type )
@@ -42,6 +40,8 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			return result;
 		}
 	}
+
+	static const String ERROR_SQLITE_NO_VALUE_FIELD = STR( "Field as no value" );
 
 	CDatabaseSqlite::CDatabaseSqlite()
 		: CDatabase()
@@ -94,16 +94,19 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 					|| strLowerName.find( "count(" ) != String::npos
 					|| strLowerName.find( "sum(" ) != String::npos )
 					{
-						infos = std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, EFieldType_LONG_INTEGER );
+						infos = std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, EFieldType_INT64 );
 					}
 					else if ( type.find( "SMALLINT" ) != std::string::npos )
 					{
-						infos = std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, EFieldType_SMALL_INTEGER );
+						infos = std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, EFieldType_INT16 );
 					}
-					else if ( type.find( "TINYINT" ) != std::string::npos
-							  || type.find( "bool" ) != std::string::npos )
+					else if ( type.find( "TINYINT" ) != std::string::npos )
 					{
-						infos = std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, EFieldType_BOOL );
+						infos = std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, EFieldType_INT8 );
+					}
+					else if ( type.find( "bool" ) != std::string::npos )
+					{
+						infos = std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, EFieldType_BIT );
 					}
 					else
 					{
@@ -119,29 +122,33 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 							{
 								if ( prec == 1 )
 								{
-									infos = std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, EFieldType_BOOL );
+									infos = std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, EFieldType_INT8 );
 								}
 								else if ( prec == 2 )
 								{
-									infos = std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, EFieldType_SMALL_INTEGER );
+									infos = std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, EFieldType_INT16 );
+								}
+								else if ( prec <= 3 )
+								{
+									infos = std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, EFieldType_INT24 );
 								}
 								else if ( prec <= 4 )
 								{
-									infos = std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, EFieldType_INTEGER );
+									infos = std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, EFieldType_INT32 );
 								}
 								else
 								{
-									infos = std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, EFieldType_LONG_INTEGER );
+									infos = std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, EFieldType_INT64 );
 								}
 							}
 							else
 							{
-								infos = std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, EFieldType_INTEGER );
+								infos = std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, EFieldType_INT32 );
 							}
 						}
 						else
 						{
-							infos = std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, EFieldType_INTEGER );
+							infos = std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, EFieldType_INT32 );
 						}
 					}
 
@@ -151,13 +158,16 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 					if ( type.find( "FLOA" ) != std::string::npos
 							|| type == "SUM" )
 					{
-						infos = std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, EFieldType_FLOAT );
+						infos = std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, EFieldType_FLOAT32 );
 					}
 					else if ( type.find( "DOUB" ) != std::string::npos
-							  || type.find( "REAL" ) != std::string::npos
-							  || type.find( "DECIMAL" ) != std::string::npos )
+							  || type.find( "REAL" ) != std::string::npos )
 					{
-						infos = std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, EFieldType_DOUBLE );
+						infos = std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, EFieldType_FLOAT64 );
+					}
+					else if ( type.find( "DECIMAL" ) != std::string::npos )
+					{
+						infos = std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, EFieldType_FIXED_POINT );
 					}
 
 					break;
@@ -222,25 +232,25 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 				if ( !infos )
 				{
-					if ( strLowerName.find( "max(" ) != std::string::npos )
+					if ( strLowerName.find( STR( "max(" ) ) != std::string::npos )
 					{
-						arrayReturn.push_back( std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, "max" ) );
+						arrayReturn.push_back( std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, STR( "max" ) ) );
 					}
-					else if ( strLowerName.find( "min(" ) != std::string::npos )
+					else if ( strLowerName.find( STR( "min(" ) ) != std::string::npos )
 					{
-						arrayReturn.push_back( std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, "min" ) );
+						arrayReturn.push_back( std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, STR( "min" ) ) );
 					}
-					else if ( strLowerName.find( "count(" ) != std::string::npos )
+					else if ( strLowerName.find( STR( "count(" ) ) != std::string::npos )
 					{
-						arrayReturn.push_back( std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, "count" ) );
+						arrayReturn.push_back( std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, STR( "count" ) ) );
 					}
-					else if ( strLowerName.find( "sum(" ) != std::string::npos )
+					else if ( strLowerName.find( STR( "sum(" ) ) != std::string::npos )
 					{
-						arrayReturn.push_back( std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, "sum" ) );
+						arrayReturn.push_back( std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, STR( "sum" ) ) );
 					}
 					else if ( type.find( "NUMERIC" ) != std::string::npos )
 					{
-						arrayReturn.push_back( std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, EFieldType_DOUBLE ) );
+						arrayReturn.push_back( std::make_shared< CDatabaseFieldInfos >( pConnexion, strColumnName, EFieldType_FIXED_POINT, std::make_pair( 0, 0 ) ) );
 					}
 					else
 					{
@@ -275,45 +285,75 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 	template< EFieldType Type > DatabaseFieldPtr GetValue( SQLite::Statement * pStatement, int i, DatabaseFieldInfosPtr pInfos );
 
 	template<>
-	DatabaseFieldPtr GetValue< EFieldType_BOOL >( SQLite::Statement * pStatement, int i, DatabaseFieldInfosPtr pInfos )
+	DatabaseFieldPtr GetValue< EFieldType_BIT >( SQLite::Statement * pStatement, int i, DatabaseFieldInfosPtr pInfos )
 	{
 		bool value = SQLite::ColumnInt( pStatement, i ) != 0;
-		return ConstructField< EFieldType_BOOL >( pStatement, i, pInfos, value );
+		return ConstructField< EFieldType_BIT >( pStatement, i, pInfos, value );
 	}
 
 	template<>
-	DatabaseFieldPtr GetValue< EFieldType_SMALL_INTEGER >( SQLite::Statement * pStatement, int i, DatabaseFieldInfosPtr pInfos )
+	DatabaseFieldPtr GetValue< EFieldType_INT8 >( SQLite::Statement * pStatement, int i, DatabaseFieldInfosPtr pInfos )
 	{
 		int value = SQLite::ColumnInt( pStatement, i );
-		return ConstructField< EFieldType_SMALL_INTEGER >( pStatement, i, pInfos, value );
+		return ConstructField< EFieldType_INT8 >( pStatement, i, pInfos, value );
 	}
 
 	template<>
-	DatabaseFieldPtr GetValue< EFieldType_INTEGER >( SQLite::Statement * pStatement, int i, DatabaseFieldInfosPtr pInfos )
+	DatabaseFieldPtr GetValue< EFieldType_INT16 >( SQLite::Statement * pStatement, int i, DatabaseFieldInfosPtr pInfos )
 	{
 		int value = SQLite::ColumnInt( pStatement, i );
-		return ConstructField< EFieldType_INTEGER >( pStatement, i, pInfos, value );
+		return ConstructField< EFieldType_INT16 >( pStatement, i, pInfos, value );
 	}
 
 	template<>
-	DatabaseFieldPtr GetValue< EFieldType_LONG_INTEGER >( SQLite::Statement * pStatement, int i, DatabaseFieldInfosPtr pInfos )
+	DatabaseFieldPtr GetValue< EFieldType_INT24 >( SQLite::Statement * pStatement, int i, DatabaseFieldInfosPtr pInfos )
+	{
+		int value = SQLite::ColumnInt( pStatement, i );
+		return ConstructField< EFieldType_INT24 >( pStatement, i, pInfos, int24_t( value ) );
+	}
+
+	template<>
+	DatabaseFieldPtr GetValue< EFieldType_INT32 >( SQLite::Statement * pStatement, int i, DatabaseFieldInfosPtr pInfos )
+	{
+		int value = SQLite::ColumnInt( pStatement, i );
+		return ConstructField< EFieldType_INT32 >( pStatement, i, pInfos, value );
+	}
+
+	template<>
+	DatabaseFieldPtr GetValue< EFieldType_INT64 >( SQLite::Statement * pStatement, int i, DatabaseFieldInfosPtr pInfos )
 	{
 		int64_t value = SQLite::ColumnInt64( pStatement, i );
-		return ConstructField< EFieldType_LONG_INTEGER >( pStatement, i, pInfos, value );
+		return ConstructField< EFieldType_INT64 >( pStatement, i, pInfos, value );
 	}
 
 	template<>
-	DatabaseFieldPtr GetValue< EFieldType_FLOAT >( SQLite::Statement * pStatement, int i, DatabaseFieldInfosPtr pInfos )
+	DatabaseFieldPtr GetValue< EFieldType_FLOAT32 >( SQLite::Statement * pStatement, int i, DatabaseFieldInfosPtr pInfos )
 	{
 		float value = float( SQLite::ColumnDouble( pStatement, i ) );
-		return ConstructField< EFieldType_FLOAT >( pStatement, i, pInfos, value );
+		return ConstructField< EFieldType_FLOAT32 >( pStatement, i, pInfos, value );
 	}
 
 	template<>
-	DatabaseFieldPtr GetValue< EFieldType_DOUBLE >( SQLite::Statement * pStatement, int i, DatabaseFieldInfosPtr pInfos )
+	DatabaseFieldPtr GetValue< EFieldType_FLOAT64 >( SQLite::Statement * pStatement, int i, DatabaseFieldInfosPtr pInfos )
 	{
 		double value = SQLite::ColumnDouble( pStatement, i );
-		return ConstructField< EFieldType_DOUBLE >( pStatement, i, pInfos, value );
+		return ConstructField< EFieldType_FLOAT64 >( pStatement, i, pInfos, value );
+	}
+
+	template<>
+	DatabaseFieldPtr GetValue< EFieldType_FIXED_POINT >( SQLite::Statement * pStatement, int i, DatabaseFieldInfosPtr pInfos )
+	{
+		DatabaseFieldPtr pField;
+		char * value = ( char * )SQLite::ColumnText( pStatement, i );
+		int iSize = SQLite::ColumnBytes( pStatement, i );
+		pField = std::make_shared< CDatabaseField >( pInfos );
+
+		if ( iSize )
+		{
+			static_cast< CDatabaseValue< EFieldType_FIXED_POINT > & >( pField->GetObjectValue() ).SetValue( CFixedPoint( value, pInfos->GetPrecision().first ) );
+		}
+
+		return pField;
 	}
 
 	template<>
@@ -486,13 +526,13 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		switch ( value.GetType() )
 		{
 		case SQLITE_INTEGER:
-			pInfos->SetType( EFieldType_INTEGER );
-			pField = GetValue< EFieldType_INTEGER >( pStatement, i, pInfos );
+			pInfos->SetType( EFieldType_INT32 );
+			pField = GetValue< EFieldType_INT32 >( pStatement, i, pInfos );
 			break;
 
 		case SQLITE_FLOAT:
-			pInfos->SetType( EFieldType_FLOAT );
-			pField = GetValue< EFieldType_FLOAT >( pStatement, i, pInfos );
+			pInfos->SetType( EFieldType_FLOAT32 );
+			pField = GetValue< EFieldType_FLOAT32 >( pStatement, i, pInfos );
 			break;
 
 		case SQLITE_TEXT:
@@ -517,8 +557,8 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			}
 			else
 			{
-				pInfos->SetType( EFieldType_INTEGER );
-				pField = GetValue< EFieldType_INTEGER >( pStatement, i, pInfos );
+				pInfos->SetType( EFieldType_INT32 );
+				pField = GetValue< EFieldType_INT32 >( pStatement, i, pInfos );
 			}
 		}
 		break;
@@ -561,28 +601,40 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 						switch ( pInfos->GetType() )
 						{
-						case EFieldType_BOOL:
-							pField = GetValue< EFieldType_BOOL >( pStatement, i, pInfos );
+						case EFieldType_BIT:
+							pField = GetValue< EFieldType_BIT >( pStatement, i, pInfos );
 							break;
 
-						case EFieldType_SMALL_INTEGER:
-							pField = GetValue< EFieldType_SMALL_INTEGER >( pStatement, i, pInfos );
+						case EFieldType_INT8:
+							pField = GetValue< EFieldType_INT8 >( pStatement, i, pInfos );
 							break;
 
-						case EFieldType_INTEGER:
-							pField = GetValue< EFieldType_INTEGER >( pStatement, i, pInfos );
+						case EFieldType_INT16:
+							pField = GetValue< EFieldType_INT16 >( pStatement, i, pInfos );
 							break;
 
-						case EFieldType_LONG_INTEGER:
-							pField = GetValue< EFieldType_LONG_INTEGER >( pStatement, i, pInfos );
+						case EFieldType_INT24:
+							pField = GetValue< EFieldType_INT24 >( pStatement, i, pInfos );
 							break;
 
-						case EFieldType_FLOAT:
-							pField = GetValue< EFieldType_FLOAT >( pStatement, i, pInfos );
+						case EFieldType_INT32:
+							pField = GetValue< EFieldType_INT32 >( pStatement, i, pInfos );
 							break;
 
-						case EFieldType_DOUBLE:
-							pField = GetValue< EFieldType_DOUBLE >( pStatement, i, pInfos );
+						case EFieldType_INT64:
+							pField = GetValue< EFieldType_INT64 >( pStatement, i, pInfos );
+							break;
+
+						case EFieldType_FLOAT32:
+							pField = GetValue< EFieldType_FLOAT32 >( pStatement, i, pInfos );
+							break;
+
+						case EFieldType_FLOAT64:
+							pField = GetValue< EFieldType_FLOAT64 >( pStatement, i, pInfos );
+							break;
+
+						case EFieldType_FIXED_POINT:
+							pField = GetValue< EFieldType_FIXED_POINT >( pStatement, i, pInfos );
 							break;
 
 						case EFieldType_VARCHAR:

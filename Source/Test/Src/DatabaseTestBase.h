@@ -23,22 +23,22 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	class CDatabaseTest
 	{
 		/** @name Default constructor / Destructor */
-		///@{
+		//!@{
 	public:
 		/** Default constructor.
 		*/
-		CDatabaseTest( const String & type, const String & server, const String & database, const String & user, const String & password );
+		CDatabaseTest( const String & type, const String & server, const String & database, const String & user, const String & password, bool hasNChar, bool hasSeparateBooleanAndTinyInt );
 
 		/** Destructor.
 		*/
 		~CDatabaseTest();
-		///@}
+		//!@}
 
 	public:
 		/** @name Master TS implementation
 		*  Required Master TS implementation in TC
 		*/
-		///@{
+		//!@{
 		/** @brief  Initialization of the Internal TS
 		 @return testSuite Pointer on the TS to be included in the Master TS.
 		*/
@@ -46,13 +46,13 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 	private:
 		boost::unit_test::test_suite * testSuite; //!< Instance of the internal TS.
-		///@}
+		//!@}
 
 	private:
 		/** @name TCs' implementation
 		*  TCs' implementation
 		*/
-		///@{
+		//!@{
 		/** Test insertion and retrieval of a value
 		*/
 		template< typename StmtType >
@@ -155,7 +155,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		*/
 		void TestCase_DatabaseQueryPerformances();
 #endif
-		///@}
+		//!@}
 
 	private:
 		/** Loads the database plugin
@@ -173,6 +173,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		const String & _database;
 		const String & _user;
 		const String & _password;
+		bool _hasNChar;
+		bool _hasSeparateBooleanAndTinyInt;
 	};
 }
 END_NAMESPACE_DATABASE_TEST

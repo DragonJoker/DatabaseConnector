@@ -1,16 +1,16 @@
 /************************************************************************//**
- * @file FactoryObjectManager.h
- * @author spastor
- * @version 1.0
- * @date 2/13/2013 4:12:20 PM
- *
- *
- * @brief This manager manages factory objects.
- *
- * @details This class not only manages the object themselves, it also manages
- *          the factory classes which allow the creation of specific objects.
- *
- ***************************************************************************/
+* @file FactoryObjectManager.h
+* @author spastor
+* @version 1.0
+* @date 2/13/2013 4:12:20 PM
+*
+*
+* @brief This manager manages factory objects.
+*
+* @details This class not only manages the object themselves, it also manages
+*          the factory classes which allow the creation of specific objects.
+*
+***************************************************************************/
 
 #ifndef ___DATABASE_FACTORY_MANAGER_H___
 #define ___DATABASE_FACTORY_MANAGER_H___
@@ -20,43 +20,43 @@
 BEGIN_NAMESPACE_DATABASE
 {
 	/** This manager manages factory objects.
-	    This class is not only managing the objects themselves,
-	    it also manages the factory classes which allow the creation of specific objects.
+		This class is not only managing the objects themselves,
+		it also manages the factory classes which allow the creation of specific objects.
 	*/
 	class CFactoryManager
 	{
 	public:
 		/** Add a new factory object.
 		@param factory
-		    Object factory to add.
+			Object factory to add.
 		*/
 		DatabaseExport virtual void AddFactory( CFactoryDatabase * factory );
 
 		/** Remove a factory object.
 		@param factory
-		    Object factory to remove.
+			Object factory to remove.
 		*/
 		DatabaseExport virtual void RemoveFactory( CFactoryDatabase * factory );
 
 		/** Create a object instance with its given type.
 		@param factoryType
-		    Type that identify wich factory is used to create the object.
+			Type that identify wich factory is used to create the object.
 		@param objectType
-		    Type that identify wich object has to create.
+			Type that identify wich object has to create.
 		@return
-		    Pointer on a new object of type \c type.
+			Pointer on a new object of type \c type.
 		@remarks
-		    If the factory type \c type doesn't exist, a NULL be returned.
+			If the factory type \c type doesn't exist, a NULL be returned.
 		*/
 		DatabaseExport CDatabase * CreateInstance( const String & factoryType, const String & objectType );
 
 		/** Create a object instance with its given type.
 		@param objectType
-		    Type that identify wich object has to create.
+			Type that identify wich object has to create.
 		@return
-		    Pointer on a new object of type \c type.
+			Pointer on a new object of type \c type.
 		@remarks
-		    If the factory type \c type doesn't exist, a NULL be returned.
+			If the factory type \c type doesn't exist, a NULL be returned.
 		*/
 		DatabaseExport CDatabase * CreateInstance( const String & objectType );
 
@@ -86,8 +86,10 @@ BEGIN_NAMESPACE_DATABASE
 		}
 
 	protected:
-		std::map< String, CFactoryDatabase * > _factories; //!< Factories managing the created instances.
-		std::map< String, String > _objectFactories; //!< Manage the association between an object type and its factory.
+		//! Factories managing the created instances.
+		std::map< String, CFactoryDatabase * > _factories;
+		//! Manage the association between an object type and its factory.
+		std::map< String, String > _objectFactories;
 	};
 }
 END_NAMESPACE_DATABASE

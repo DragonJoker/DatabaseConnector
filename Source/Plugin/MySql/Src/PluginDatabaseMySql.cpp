@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file PluginDatabaseMySql.cpp
- * @author Sylvain Doremus
- * @version 1.0
- * @date 4/8/2014 4:03:23 PM
- *
- *
- * @brief Class defining a generic MYSQL database plugin.
- *
- * @details Class defining a generic MYSQL database plugin.
- *
- ***************************************************************************/
+* @file PluginDatabaseMySql.cpp
+* @author Sylvain Doremus
+* @version 1.0
+* @date 4/8/2014 4:03:23 PM
+*
+*
+* @brief Class defining a generic MYSQL database plugin.
+*
+* @details Class defining a generic MYSQL database plugin.
+*
+***************************************************************************/
 
 #include "DatabaseMySqlPch.h"
 
@@ -46,5 +46,5 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	{
 		// Empty
 	}
-
-} END_NAMESPACE_DATABASE_MYSQL
+}
+END_NAMESPACE_DATABASE_MYSQL

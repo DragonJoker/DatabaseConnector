@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file PluginDatabaseOdbcMySql.h
- * @author Sylvain Doremus
- * @version 1.0
- * @date 4/8/2014 4:03:17 PM
- *
- *
- * @brief Class defining a generic ODBC database plugin.
- *
- * @details Class defining a generic ODBC database plugin.
- *
- ***************************************************************************/
+* @file PluginDatabaseOdbcMySql.h
+* @author Sylvain Doremus
+* @version 1.0
+* @date 4/8/2014 4:03:17 PM
+*
+*
+* @brief Class defining a generic ODBC database plugin.
+*
+* @details Class defining a generic ODBC database plugin.
+*
+***************************************************************************/
 
 #ifndef ___PLUGIN_DATABASE_ODBC_MYSQL_H___
 #define ___PLUGIN_DATABASE_ODBC_MYSQL_H___
@@ -34,20 +34,20 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MYSQL
 		*/
 		DatabaseOdbcMySqlExport virtual ~CPluginDatabaseOdbcMySql();
 
-		///@copydoc Database::CPlugin::GetName
+		//!@copydoc Database::CPlugin::GetName
 		DatabaseOdbcMySqlExport virtual const String GetName() const;
 
-		///@copydoc Database::CPlugin::Initialize
+		//!@copydoc Database::CPlugin::Initialize
 		DatabaseOdbcMySqlExport virtual void Initialize();
 
-		///@copydoc Database::CPlugin::Shutdown
+		//!@copydoc Database::CPlugin::Shutdown
 		DatabaseOdbcMySqlExport virtual void Shutdown();
 
 	protected:
-		///@copydoc Database::CParameterListInterface::AddBaseParameters
+		//!@copydoc Database::CParameterListInterface::AddBaseParameters
 		DatabaseOdbcMySqlExport virtual void AddBaseParameters();
 	};
-
-} END_NAMESPACE_DATABASE_ODBC_MYSQL
+}
+END_NAMESPACE_DATABASE_ODBC_MYSQL
 
 #endif // ___PLUGIN_DATABASE_ODBC_MYSQL_H___

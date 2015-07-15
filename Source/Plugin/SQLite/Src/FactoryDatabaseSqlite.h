@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file FactoryDatabaseSqlite.h
- * @author Sylvain Doremus
- * @version 1.0
- * @date 4/08/2014 1:20:50 PM
- *
- *
- * @brief SQLite database factory class.
- *
- * @details CObject factory used to manage SQLite database creation.
- *
- ***************************************************************************/
+* @file FactoryDatabaseSqlite.h
+* @author Sylvain Doremus
+* @version 1.0
+* @date 4/08/2014 1:20:50 PM
+*
+*
+* @brief SQLite database factory class.
+*
+* @details CObject factory used to manage SQLite database creation.
+*
+***************************************************************************/
 
 #ifndef ___FACTORY_DATABASE_SQLITE_H___
 #define ___FACTORY_DATABASE_SQLITE_H___
@@ -21,7 +21,7 @@
 BEGIN_NAMESPACE_DATABASE_SQLITE
 {
 	/** SQLITE database factory class.
-	    CObject factory used to manage SQLite database creation.
+		CObject factory used to manage SQLite database creation.
 	*/
 	class CFactoryDatabaseSqlite
 		: public CFactoryDatabase
@@ -37,9 +37,12 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 		/** Get the type of the factory.
 		@returns
-		    String describing the factory type.
+			String describing the factory type.
 		*/
-		inline const String GetType() const;
+		inline const String GetType() const
+		{
+			return Sqlite::FACTORY_DATABASE_SQLITE;
+		}
 
 	protected:
 		/** Register creation functions to create new SQLite database objects.
@@ -50,14 +53,6 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		*/
 		DatabaseSqliteExport void RegisterObjectTypes();
 	};
-
-	//
-	// Inlines
-	//
-	inline const String CFactoryDatabaseSqlite::GetType() const
-	{
-		return Sqlite::FACTORY_DATABASE_SQLITE;
-	}
 }
 END_NAMESPACE_DATABASE_SQLITE
 

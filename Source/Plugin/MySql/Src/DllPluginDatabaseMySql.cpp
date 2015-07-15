@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DllPluginDatabaseMySql.cpp
- * @author Sylvain Doremus
- * @version 1.0
- * @date 4/8/2014 4:01:00 PM
- *
- *
- * @brief DLL Interface.
- *
- * @details DLL Interface.
- *
- ***************************************************************************/
+* @file DllPluginDatabaseMySql.cpp
+* @author Sylvain Doremus
+* @version 1.0
+* @date 4/8/2014 4:01:00 PM
+*
+*
+* @brief DLL Interface.
+*
+* @details DLL Interface.
+*
+***************************************************************************/
 
 #include "DatabaseMySqlPch.h"
 
@@ -40,6 +40,5 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		delete plugin;
 	}
 #endif
-
 }
 END_NAMESPACE_DATABASE_MYSQL

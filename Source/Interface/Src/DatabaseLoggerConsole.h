@@ -1,245 +1,140 @@
-/*
-This source file is part of Castor3D (http://castor3d.developpez.com/castor3d.htm)
+/************************************************************************//**
+* @file DatabaseLoggerConsole.h
+* @author Sylvain Doremus
+* @version 1.0
+* @date 7/12/2015 7:51 PM
+*
+*
+* @brief IConsoleInfo interface
+*
+* @details Console info class, platform dependant
+*
+***************************************************************************/
 
-This program is free software; you can redistribute it and/or modify it under
-the terms of the GNU Lesser General Public License as published by the Free Software
-Foundation; either version 2 of the License, or (at your option) any later
-version.
-
-This program is distributed in the hope that it will be useful, but WITHOUT
-ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along with
-the program; if not, write to the Free Software Foundation, Inc., 59 Temple
-Place - Suite 330, Boston, MA 02111-1307, USA, or go to
-http://www.gnu.org/copyleft/lesser.txt.
-*/
 #ifndef ___DATABASE_CONSOLE_H___
 #define ___DATABASE_CONSOLE_H___
 
 #include "DatabasePrerequisites.h"
+
+#include "ELogType.h"
 
 #pragma warning( push )
 #pragma warning( disable:4290 )
 
 BEGIN_NAMESPACE_DATABASE
 {
-	/*!
-	\author		Sylvain DOREMUS
-	\version	0.6.1.0
-	\date		19/10/2011
-	\~english
-	\brief		Defines the various log types
-	\~french
-	\brief		Définit les différents types de log
+	/** Console info class, Platform dependent
 	*/
-	typedef enum eLOG_TYPE :
-	uint8_t
-	{
-		eLOG_TYPE_DEBUG,	//!<\~english Debug type log		\~french Log de type debug
-		eLOG_TYPE_MESSAGE,	//!<\~english Message type log		\~french Log de type message
-		eLOG_TYPE_WARNING,	//!<\~english Warning type log		\~french Log de type avertissement
-		eLOG_TYPE_ERROR,	//!<\~english Error type log		\~french Log de type erreur
-		eLOG_TYPE_COUNT,	//!<\~english Number of log types	\~french Compte des logs
-	}	eLOG_TYPE;
-	/*!
-	\author		Sylvain DOREMUS
-	\version	0.6.1.0
-	\date		19/10/2011
-	\~english
-	\brief		Console info class
-	\remark		Platform dependent
-	\~french
-	\brief		Classe contenant les informations de la console
-	\remark		Dépend de l'OS
-	*/
-	class IConsoleInfo
+	class IConsole
 	{
 	public:
-		/**
-		 *\~english
-		 *\brief		Constructor
-		 *\~french
-		 *\brief		Constructeur
-		 */
-		IConsoleInfo() {}
-		/**
-		 *\~english
-		 *\brief		Destructor
-		 *\~french
-		 *\brief		Destructeur
-		 */
-		virtual ~IConsoleInfo() {}
-		/**
-		 *\~english
-		 *\brief		Configures console info for the given log type
-		 *\param[in]	p_eLogType	The log type
-		 *\~french
-		 *\brief		Configure les informationss de la console en fonction du type donné
-		 *\param[in]	p_eLogType	Le type de log donné
-		 */
-		virtual void BeginLog( eLOG_TYPE p_eLogType ) = 0;
-		/**
-		 *\~english
-		 *\brief		Prints a text in the console, adds the line end character if asked
-		 *\param[in]	p_strToLog	The text to log
-		 *\param[in]	p_bNewLine	Tells if the line end character must be added
-		 *\~french
-		 *\brief		Ecrit un texte dans la console, ajoute le caractère de fin de ligne si demandé
-		 *\param[in]	p_strToLog	Le texte à écrire
-		 *\param[in]	p_bNewLine	Dit si on doit ajouter le caractère de fin de ligne
-		 */
-		virtual void Print( String const & p_strToLog, bool p_bNewLine ) = 0;
-	};
-	/*!
-	\author 	Sylvain DOREMUS
-	\date 		27/08/2012
-	\version	0.7.0.0
-	\~english
-	\brief		Console base class
-	\~french
-	\brief		Classe de base d'une console
-	*/
-	class ProgramConsole
-	{
-	public:
-		/**
-		 *\~english
-		 *\brief		Constructor
-		 *\~french
-		 *\brief		Constructeur
-		 */
-		ProgramConsole() {}
-		/**
-		 *\~english
-		 *\brief		Destructor
-		 *\~french
-		 *\brief		Destructeur
-		 */
-		virtual ~ProgramConsole() {}
-		/**
-		 *\~english
-		 *\brief		Configures console info for the given log type
-		 *\param[in]	p_eLogType	The log type
-		 *\~french
-		 * Configure les informationss de la console en fonction du type donné
-		 *\param[in]	p_eLogType	Le type de log donné
-		 */
-		virtual void BeginLog( eLOG_TYPE p_eLogType ) = 0;
-		/**
-		 *\~english
-		 *\brief		Prints a text in the console, adds the line end character if asked
-		 *\param[in]	p_strToLog	The text to log
-		 *\param[in]	p_bNewLine	Tells if the line end character must be added
-		 *\~french
-		 *\brief		Ecrit un texte dans la console, ajoute le caractère de fin de ligne si demandé
-		 *\param[in]	p_strToLog	Le texte à écrire
-		 *\param[in]	p_bNewLine	Dit si on doit ajouter le caractère de fin de ligne
-		 */
-		virtual void Print( String const & p_strToLog, bool p_bNewLine ) = 0;
-	};
-	/*!
-	\author 	Sylvain DOREMUS
-	\date 		27/08/2012
-	\version	0.7.0.0
-	\~english
-	\brief		Console dummy class
-	\~french
-	\brief		Classe sans action de console
-	*/
-	class DummyConsole
-		: public ProgramConsole
-	{
-	public:
-		/**
-		 *\~english
-		 *\brief		Constructor
-		 *\~french
-		 *\brief		Constructeur
-		 */
-		DummyConsole();
-		/**
-		 *\~english
-		 *\brief		Destructor
-		 *\~french
-		 *\brief		Destructeur
-		 */
-		virtual ~DummyConsole();
-		/**
-		 *\~english
-		 *\brief		Configures console info for the given log type
-		 *\param[in]	p_eLogType	The log type
-		 *\~french
-		 * Configure les informationss de la console en fonction du type donné
-		 *\param[in]	p_eLogType	Le type de log donné
-		 */
-		virtual void BeginLog( eLOG_TYPE );
-		/**
-		 *\~english
-		 *\brief		Prints a text in the console, adds the line end character if asked
-		 *\param[in]	p_strToLog	The text to log
-		 *\param[in]	p_bNewLine	Tells if the line end character must be added
-		 *\~french
-		 *\brief		Ecrit un texte dans la console, ajoute le caractère de fin de ligne si demandé
-		 *\param[in]	p_strToLog	Le texte à écrire
-		 *\param[in]	p_bNewLine	Dit si on doit ajouter le caractère de fin de ligne
-		 */
-		virtual void Print( String const &, bool );
+		/** Constructor
+		*/
+		IConsole()
+		{
+		}
 
-	private:
-		IConsoleInfo * m_pConsoleInfo;
+		/** Destructor
+		*/
+		virtual ~IConsole()
+		{
+		}
+
+		/** Configures console info for the given log type
+		@param[in] logLevel
+		 	The log level
+		*/
+		virtual void BeginLog( ELogType logLevel ) = 0;
+
+		/** Prints a text in the console, adds the line end character if asked
+		@param[in] toLog
+			The text to log
+		@param[in] newLine
+		 	Tells if the line end character must be added
+		*/
+		virtual void Print( String const & toLog, bool newLine ) = 0;
 	};
-	/*!
-	\author		Sylvain DOREMUS
-	\version	0.6.1.0
-	\date		19/10/2011
-	\~english
-	\brief		Console management class
-	\~french
-	\brief		Classe de gestion de la console de debug
+
+	/* Console base class
 	*/
-	class DebugConsole
-		: public ProgramConsole
+	class CProgramConsole
 	{
 	public:
-		/**
-		 *\~english
-		 *\brief		Constructor
-		 *\~french
-		 *\brief		Constructeur
-		 */
-		DebugConsole();
-		/**
-		 *\~english
-		 *\brief		Destructor
-		 *\~french
-		 *\brief		Destructeur
-		 */
-		virtual ~DebugConsole();
-		/**
-		 *\~english
-		 *\brief		Configures console info for the given log type
-		 *\param[in]	p_eLogType	The log type
-		 *\~french
-		 * Configure les informationss de la console en fonction du type donné
-		 *\param[in]	p_eLogType	Le type de log donné
-		 */
-		virtual void BeginLog( eLOG_TYPE p_eLogType );
-		/**
-		 *\~english
-		 *\brief		Prints a text in the console, adds the line end character if asked
-		 *\param[in]	p_strToLog	The text to log
-		 *\param[in]	p_bNewLine	Tells if the line end character must be added
-		 *\~french
-		 *\brief		Ecrit un texte dans la console, ajoute le caractère de fin de ligne si demandé
-		 *\param[in]	p_strToLog	Le texte à écrire
-		 *\param[in]	p_bNewLine	Dit si on doit ajouter le caractère de fin de ligne
-		 */
-		virtual void Print( String const & p_strToLog, bool p_bNewLine );
+		/** Constructor
+		*/
+		CProgramConsole()
+		{
+		}
 
-	private:
-		IConsoleInfo * m_pConsoleInfo;
+		/** Destructor
+		*/
+		virtual ~CProgramConsole()
+		{
+		}
+
+		/** Configures console info for the given log type
+		@param[in] logLevel
+			The log type
+		*/
+		virtual void BeginLog( ELogType logLevel ) = 0;
+
+		/** Prints a text in the console, adds the line end character if asked
+		@param[in] toLog
+			The text to log
+		@param[in] newLine
+			Tells if the line end character must be added
+		*/
+		virtual void Print( String const & toLog, bool newLine ) = 0;
+
+	protected:
+		//! The console
+		std::unique_ptr< IConsole > _console;
+	};
+
+	/* Traditional consol class
+	*/
+	class CDefaultConsole
+		: public CProgramConsole
+	{
+	public:
+		/** Constructor
+		*/
+		CDefaultConsole();
+
+		/** Destructor
+		*/
+		virtual ~CDefaultConsole();
+
+		/** @copydoc Database::CProgramConsole::BeginLog
+		*/
+		virtual void BeginLog( ELogType logLevel );
+
+		/** @copydoc Database::CProgramConsole::Print
+		*/
+		virtual void Print( String const & toLog, bool newLine );
+	};
+
+	/** Debug console class, adds colour on MSW
+	*/
+	class CDebugConsole
+		: public CProgramConsole
+	{
+	public:
+		/** Constructor
+		*/
+		CDebugConsole();
+
+		/** Destructor
+		*/
+		virtual ~CDebugConsole();
+
+		/** @copydoc Database::CProgramConsole::BeginLog
+		*/
+		virtual void BeginLog( ELogType logLevel );
+
+		/** @copydoc Database::CProgramConsole::Print
+		*/
+		virtual void Print( String const & toLog, bool newLine );
 	};
 }
 END_NAMESPACE_DATABASE

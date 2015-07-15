@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file FactoryDatabaseOdbcMsSql.h
- * @author Sylvain Doremus
- * @version 1.0
- * @date 4/08/2014 1:20:50 PM
- *
- *
- * @brief ODBC database factory class.
- *
- * @details CObject factory used to manage ODBC database creation.
- *
- ***************************************************************************/
+* @file FactoryDatabaseOdbcMsSql.h
+* @author Sylvain Doremus
+* @version 1.0
+* @date 4/08/2014 1:20:50 PM
+*
+*
+* @brief ODBC database factory class.
+*
+* @details CObject factory used to manage ODBC database creation.
+*
+***************************************************************************/
 
 #ifndef ___FACTORY_DATABASE_ODBC_MSSQL_H___
 #define ___FACTORY_DATABASE_ODBC_MSSQL_H___
@@ -21,7 +21,7 @@
 BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 {
 	/** ODBC database factory class.
-	    CObject factory used to manage ODBC database creation.
+		CObject factory used to manage ODBC database creation.
 	*/
 	class CFactoryDatabaseOdbcMsSql
 		: public CFactoryDatabase
@@ -37,9 +37,12 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 
 		/** Get the type of the factory.
 		@returns
-		    String describing the factory type.
+			String describing the factory type.
 		*/
-		const String GetType() const;
+		const String GetType() const
+		{
+			return MsSql::FACTORY_DATABASE_ODBC_MSSQL;
+		}
 
 	protected:
 		/** Register creation functions to create new ODBC database objects.
@@ -50,15 +53,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		*/
 		DatabaseOdbcMsSqlExport void RegisterObjectTypes();
 	};
-
-	//
-	// Inlines
-	//
-	inline const String CFactoryDatabaseOdbcMsSql::GetType() const
-	{
-		return MsSql::FACTORY_DATABASE_ODBC_MSSQL;
-	}
-
 }
 END_NAMESPACE_DATABASE_ODBC_MSSQL
 

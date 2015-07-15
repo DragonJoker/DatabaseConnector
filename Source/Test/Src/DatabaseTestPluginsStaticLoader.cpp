@@ -55,28 +55,28 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		if ( !_pluginOdbcMySql && _odbcMySql )
 		{
-			///@remarks Create the plugin.
+			//!@remarks Create the plugin.
 			_pluginOdbcMySql = new Odbc::MySql::CPluginDatabaseOdbcMySql;
 
-			///@remarks Register the plugin.
+			//!@remarks Register the plugin.
 			CPluginManager::Instance().InstallPlugin( _pluginOdbcMySql );
 		}
 
 		if ( !_pluginOdbcMsSql && _odbcMsSql )
 		{
-			///@remarks Create the plugin.
+			//!@remarks Create the plugin.
 			_pluginOdbcMsSql = new Odbc::MsSql::CPluginDatabaseOdbcMsSql;
 
-			///@remarks Register the plugin.
+			//!@remarks Register the plugin.
 			CPluginManager::Instance().InstallPlugin( _pluginOdbcMsSql );
 		}
 
 		if ( !_pluginMySql && _mySql )
 		{
-			///@remarks Create the plugin.
+			//!@remarks Create the plugin.
 			_pluginMySql = new MySql::CPluginDatabaseMySql;
 
-			///@remarks Register the plugin.
+			//!@remarks Register the plugin.
 			CPluginManager::Instance().InstallPlugin( _pluginMySql );
 		}
 
@@ -89,30 +89,30 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		if ( _pluginOdbcMySql )
 		{
-			///@remarks Unregister the plugin.
+			//!@remarks Unregister the plugin.
 			CPluginManager::Instance().UninstallPlugin( _pluginOdbcMySql );
 
-			///@remarks Delete the plugin.
+			//!@remarks Delete the plugin.
 			delete _pluginOdbcMySql;
 			_pluginOdbcMySql = NULL;
 		}
 
 		if ( _pluginOdbcMsSql )
 		{
-			///@remarks Unregister the plugin.
+			//!@remarks Unregister the plugin.
 			CPluginManager::Instance().UninstallPlugin( _pluginOdbcMsSql );
 
-			///@remarks Delete the plugin.
+			//!@remarks Delete the plugin.
 			delete _pluginOdbcMsSql;
 			_pluginOdbcMsSql = NULL;
 		}
 
 		if ( _pluginMySql )
 		{
-			///@remarks Unregister the plugin.
+			//!@remarks Unregister the plugin.
 			CPluginManager::Instance().UninstallPlugin( _pluginMySql );
 
-			///@remarks Delete the plugin.
+			//!@remarks Delete the plugin.
 			delete _pluginMySql;
 			_pluginMySql = NULL;
 		}

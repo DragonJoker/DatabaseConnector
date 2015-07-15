@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DatabaseValuePolicy.h
- * @author Sylvain Doremus
- * @version 1.0
- * @date 11/08/2014 14:12:58
- *
- *
- * @brief [your brief comment here]
- *
- * @details [your detailled comment here]
- *
- ***************************************************************************/
+* @file DatabaseValuePolicy.h
+* @author Sylvain Doremus
+* @version 1.0
+* @date 11/08/2014 14:12:58
+*
+*
+* @brief SFieldTypeDataTyper, SDataTypeFieldTyper and SDatabaseValuePolicy classes
+*
+* @details Helps specifying value behaviour
+*
+***************************************************************************/
 
 #ifndef ___DATABASE_VALUE_POLICY_H___
 #define ___DATABASE_VALUE_POLICY_H___
@@ -17,563 +17,180 @@
 #include "DatabasePrerequisites.h" // Help doxygen
 
 #include "DatabaseStringUtils.h"
+#include "DatabaseFixedPoint.h"
+#include "DatabaseConnection.h"
+#include "DatabaseDate.h"
+#include "DatabaseDateTime.h"
+#include "DatabaseTime.h"
+#include "DatabaseFixedPoint.h"
+#include "DatabaseInt24.h"
 
 BEGIN_NAMESPACE_DATABASE
 {
 	/** Structure used to retrieve the data type from the field type
 	*/
-	template< EFieldType Type > class SFieldTypeDataTyper;
+	template< EFieldType Type > struct SFieldTypeDataTyper;
 
-	/** Specialization for EFieldType_BOOL
+	/** SFieldTypeDataTyper specialization for EFieldType_BIT
 	*/
-	template<> struct SFieldTypeDataTyper< EFieldType_BOOL >
+	template<> struct SFieldTypeDataTyper< EFieldType_BIT >
 	{
+		static const size_t size = 1;
 		typedef bool value_type;
 	};
 
-	/** Specialization for EFieldType_SMALL_INTEGER
+	/** SFieldTypeDataTyper specialization for EFieldType_INT8
 	*/
-	template<> struct SFieldTypeDataTyper< EFieldType_SMALL_INTEGER >
+	template<> struct SFieldTypeDataTyper< EFieldType_INT8 >
 	{
+		static const size_t size = 8;
+		typedef int8_t value_type;
+	};
+
+	/** SFieldTypeDataTyper specialization for EFieldType_INT16
+	*/
+	template<> struct SFieldTypeDataTyper< EFieldType_INT16 >
+	{
+		static const size_t size = 16;
 		typedef int16_t value_type;
 	};
 
-	/** Specialization for EFieldType_INTEGER
+	/** SFieldTypeDataTyper specialization for EFieldType_INT24
 	*/
-	template<> struct SFieldTypeDataTyper< EFieldType_INTEGER >
+	template<> struct SFieldTypeDataTyper< EFieldType_INT24 >
 	{
+		static const size_t size = 24;
+		typedef int24_t value_type;
+	};
+
+	/** SFieldTypeDataTyper specialization for EFieldType_INT32
+	*/
+	template<> struct SFieldTypeDataTyper< EFieldType_INT32 >
+	{
+		static const size_t size = 32;
 		typedef int32_t value_type;
 	};
 
-	/** Specialization for EFieldType_LONG_INTEGER
+	/** SFieldTypeDataTyper specialization for EFieldType_INT64
 	*/
-	template<> struct SFieldTypeDataTyper< EFieldType_LONG_INTEGER >
+	template<> struct SFieldTypeDataTyper< EFieldType_INT64 >
 	{
+		static const size_t size = 64;
 		typedef int64_t value_type;
 	};
 
-	/** Specialization for EFieldType_FLOAT
+	/** SFieldTypeDataTyper specialization for EFieldType_FLOAT32
 	*/
-	template<> struct SFieldTypeDataTyper< EFieldType_FLOAT >
+	template<> struct SFieldTypeDataTyper< EFieldType_FLOAT32 >
 	{
+		static const size_t size = 32;
 		typedef float value_type;
 	};
 
-	/** Specialization for EFieldType_DOUBLE
+	/** SFieldTypeDataTyper specialization for EFieldType_FLOAT64
 	*/
-	template<> struct SFieldTypeDataTyper< EFieldType_DOUBLE >
+	template<> struct SFieldTypeDataTyper< EFieldType_FLOAT64 >
 	{
+		static const size_t size = 64;
 		typedef double value_type;
 	};
 
-	/** Specialization for EFieldType_DATE
+	/** SFieldTypeDataTyper specialization for EFieldType_FIXED_POINT
+	*/
+	template<> struct SFieldTypeDataTyper< EFieldType_FIXED_POINT >
+	{
+		static const size_t size = 64;
+		typedef CFixedPoint value_type;
+	};
+
+	/** SFieldTypeDataTyper specialization for EFieldType_DATE
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_DATE >
 	{
+		static const size_t size = 0;
 		typedef CDate value_type;
 	};
 
-	/** Specialization for EFieldType_DATETIME
+	/** SFieldTypeDataTyper specialization for EFieldType_DATETIME
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_DATETIME >
 	{
+		static const size_t size = 0;
 		typedef CDateTime value_type;
 	};
 
-	/** Specialization for EFieldType_TIME
+	/** SFieldTypeDataTyper specialization for EFieldType_TIME
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_TIME >
 	{
+		static const size_t size = 0;
 		typedef CTime value_type;
 	};
 
-	/** Specialization for EFieldType_VARCHAR
+	/** SFieldTypeDataTyper specialization for EFieldType_VARCHAR
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_VARCHAR >
 	{
+		static const size_t size = 0;
 		typedef std::string value_type;
 	};
 
-	/** Specialization for EFieldType_TEXT
+	/** SFieldTypeDataTyper specialization for EFieldType_TEXT
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_TEXT >
 	{
+		static const size_t size = 0;
 		typedef std::string value_type;
 	};
 
-	/** Specialization for EFieldType_NVARCHAR
+	/** SFieldTypeDataTyper specialization for EFieldType_NVARCHAR
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_NVARCHAR >
 	{
+		static const size_t size = 0;
 		typedef std::wstring value_type;
 	};
 
-	/** Specialization for EFieldType_NTEXT
+	/** SFieldTypeDataTyper specialization for EFieldType_NTEXT
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_NTEXT >
 	{
+		static const size_t size = 0;
 		typedef std::wstring value_type;
 	};
 
-	/** Specialization for EFieldType_BINARY
+	/** SFieldTypeDataTyper specialization for EFieldType_BINARY
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_BINARY >
 	{
-		typedef std::vector< uint8_t > value_type;
+		static const size_t size = 0;
+		typedef ByteArray value_type;
 	};
 
-	/** Specialization for EFieldType_VARBINARY
+	/** SFieldTypeDataTyper specialization for EFieldType_VARBINARY
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_VARBINARY >
 	{
-		typedef std::vector< uint8_t > value_type;
+		static const size_t size = 0;
+		typedef ByteArray value_type;
 	};
 
-	/** Specialization for EFieldType_LONG_VARBINARY
+	/** SFieldTypeDataTyper specialization for EFieldType_LONG_VARBINARY
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_LONG_VARBINARY >
 	{
-		typedef std::vector< uint8_t > value_type;
-	};
-
-	/** Structure used to retrieve the field type from the data type
-	*/
-	template < typename T > struct SDataTypeFieldTyper;
-
-	/** Specialization for bool
-	*/
-	template<> struct SDataTypeFieldTyper< bool >
-	{
-		static const EFieldType Value = EFieldType_BOOL;
-	};
-
-	/** Specialization for int16_t
-	*/
-	template<> struct SDataTypeFieldTyper< int16_t >
-	{
-		static const EFieldType Value = EFieldType_SMALL_INTEGER;
-	};
-
-	/** Specialization for int32_t
-	*/
-	template<> struct SDataTypeFieldTyper< int32_t >
-	{
-		static const EFieldType Value = EFieldType_INTEGER;
-	};
-
-	/** Specialization for int64_t
-	*/
-	template<> struct SDataTypeFieldTyper< int64_t >
-	{
-		static const EFieldType Value = EFieldType_LONG_INTEGER;
-	};
-
-	/** Specialization for float
-	*/
-	template<> struct SDataTypeFieldTyper< float >
-	{
-		static const EFieldType Value = EFieldType_FLOAT;
-	};
-
-	/** Specialization for double
-	*/
-	template<> struct SDataTypeFieldTyper< double >
-	{
-		static const EFieldType Value = EFieldType_DOUBLE;
-	};
-
-	/** Specialization for std::array< char, N >
-	*/
-	template< size_t N > struct SDataTypeFieldTyper< std::array< char, N > >
-	{
-		static const EFieldType Value = EFieldType_VARCHAR;
-	};
-
-	/** Specialization for char *
-	*/
-	template<> struct SDataTypeFieldTyper< char * >
-	{
-		static const EFieldType Value = EFieldType_VARCHAR;
-	};
-
-	/** Specialization for std::array< wchar_t, N >
-	*/
-	template< size_t N > struct SDataTypeFieldTyper< std::array< wchar_t, N > >
-	{
-		static const EFieldType Value = EFieldType_NVARCHAR;
-	};
-
-	/** Specialization for wchar_t *
-	*/
-	template<> struct SDataTypeFieldTyper< wchar_t * >
-	{
-		static const EFieldType Value = EFieldType_NVARCHAR;
-	};
-
-	/** Specialization for CDateTime
-	*/
-	template<> struct SDataTypeFieldTyper< CDateTime >
-	{
-		static const EFieldType Value = EFieldType_DATETIME;
-	};
-
-	/** Specialization for CDate
-	*/
-	template<> struct SDataTypeFieldTyper< CDate >
-	{
-		static const EFieldType Value = EFieldType_DATE;
-	};
-
-	/** Specialization for CTime
-	*/
-	template<> struct SDataTypeFieldTyper< CTime >
-	{
-		static const EFieldType Value = EFieldType_TIME;
-	};
-
-	/** Specialization for std::string
-	*/
-	template<> struct SDataTypeFieldTyper< std::string >
-	{
-		static const EFieldType Value = EFieldType_TEXT;
-	};
-
-	/** Specialization for std::wstring
-	*/
-	template<> struct SDataTypeFieldTyper< std::wstring >
-	{
-		static const EFieldType Value = EFieldType_NTEXT;
-	};
-
-	/** Specialization for uint8_t *
-	*/
-	template<> struct SDataTypeFieldTyper< uint8_t * >
-	{
-		static const EFieldType Value = EFieldType_VARBINARY;
-	};
-
-	/** Specialization for std::vector< uint8_t >
-	*/
-	template<> struct SDataTypeFieldTyper< std::vector< uint8_t > >
-	{
-		static const EFieldType Value = EFieldType_VARBINARY;
+		static const size_t size = 0;
+		typedef ByteArray value_type;
 	};
 
 	static const String NULL_VALUE = STR( "NULL" );
 
 	/** Structure used to specialize functions for given data type
 	*/
-	template< typename T > class CDatabaseValuePolicy
+	template< EFieldType FieldType > struct SDatabaseValuePolicy
 	{
-	protected:
-		typedef T value_type;
+		typedef typename SFieldTypeDataTyper< FieldType >::value_type value_type;
 
-	public:
-		/** Reinitializes the given value
-		@param value
-		    The value
-		*/
-		void Reset( value_type & value )
-		{
-			value = value_type( 0 );
-		}
-
-		/** Sets the value to the given one
-		@param in
-		    The input value
-		@param out
-		    The output value
-		@param size
-		    Receives the new value size
-		@param connection
-		    The connection used to format the value
-		*/
-		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
-		{
-			out = in;
-			size = sizeof( value_type );
-			return true;
-		}
-
-		/** Retrieves a pointer from the given value
-		@param value
-		    The value
-		*/
-		void * Ptr( value_type & value )
-		{
-			return &value;
-		}
-
-		/** Retrieves a pointer from the given value
-		@param value
-		    The value
-		*/
-		const void * Ptr( const value_type & value )const
-		{
-			return &value;
-		}
-
-		/** Retrieves the value from a string
-		@param string
-		    The string containing the value
-		@param value
-		    Receives the value
-		@param size
-		    The old size, receives the new value size
-		@param connection
-		    The connection used to format the value
-		*/
-		bool FromStr( const String & string, value_type & value, unsigned long & size, DatabaseConnectionPtr connection )
-		{
-			bool ret = !string.empty();
-
-			if ( ret )
-			{
-				StringStream stream( string );
-				stream >> value;
-				size = sizeof( value_type );
-			}
-
-			return ret;
-		}
-
-		/** Puts the value into the given string
-		@param value
-		    The value
-		@param valSet
-		    Tells that the value is set
-		@param connection
-		    The connection used to format the value
-		@param result
-		    Receives the insertable value
-		*/
-		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
-		{
-			if ( valSet )
-			{
-				return CStrUtils::ToString( value );
-			}
-			else
-			{
-				return NULL_VALUE;
-			}
-		}
-	};
-
-	/** Specialization for float data type
-	*/
-	template<> class CDatabaseValuePolicy< float >
-	{
-	protected:
-		typedef float value_type;
-
-	public:
-		/** Reinitializes the given value
-		@param value
-		    The value
-		*/
-		void Reset( value_type & value )
-		{
-			value = value_type( 0 );
-		}
-
-		/** Sets the value to the given one
-		@param in
-		    The input value
-		@param out
-		    The output value
-		@param size
-		    Receives the new value size
-		@param connection
-		    The connection used to format the value
-		*/
-		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
-		{
-			out = in;
-			size = sizeof( value_type );
-			return true;
-		}
-
-		/** Retrieves a pointer from the given value
-		@param value
-		    The value
-		*/
-		void * Ptr( value_type & value )
-		{
-			return &value;
-		}
-
-		/** Retrieves a pointer from the given value
-		@param value
-		    The value
-		*/
-		const void * Ptr( const value_type & value )const
-		{
-			return &value;
-		}
-
-		/** Retrieves the value from a string
-		@param string
-		    The string containing the value
-		@param value
-		    Receives the value
-		@param size
-		    The old size, receives the new value size
-		@param connection
-		    The connection used to format the value
-		*/
-		bool FromStr( const String & string, value_type & value, unsigned long & size, DatabaseConnectionPtr connection )
-		{
-			bool ret = !string.empty();
-
-			if ( ret )
-			{
-				StringStream stream( string );
-				stream.precision( 10 );
-				stream >> value;
-				size = sizeof( value_type );
-			}
-
-			return ret;
-		}
-
-		/** Puts the value into the given string
-		@param value
-		    The value
-		@param valSet
-		    Tells that the value is set
-		@param connection
-		    The connection used to format the value
-		@param result
-		    Receives the insertable value
-		*/
-		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
-		{
-			if ( valSet )
-			{
-				StringStream stream;
-				stream.precision( 10 );
-				stream << value;
-				return stream.str();
-			}
-			else
-			{
-				return NULL_VALUE;
-			}
-		}
-	};
-
-	/** Specialization for double data type
-	*/
-	template<> class CDatabaseValuePolicy< double >
-	{
-	protected:
-		typedef double value_type;
-
-	public:
-		/** Reinitializes the given value
-		@param value
-		    The value
-		*/
-		void Reset( value_type & value )
-		{
-			value = value_type( 0 );
-		}
-
-		/** Sets the value to the given one
-		@param in
-		    The input value
-		@param out
-		    The output value
-		@param size
-		    Receives the new value size
-		@param connection
-		    The connection used to format the value
-		*/
-		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
-		{
-			out = in;
-			size = sizeof( value_type );
-			return true;
-		}
-
-		/** Retrieves a pointer from the given value
-		@param value
-		    The value
-		*/
-		void * Ptr( value_type & value )
-		{
-			return &value;
-		}
-
-		/** Retrieves a pointer from the given value
-		@param value
-		    The value
-		*/
-		const void * Ptr( const value_type & value )const
-		{
-			return &value;
-		}
-
-		/** Retrieves the value from a string
-		@param string
-		    The string containing the value
-		@param value
-		    Receives the value
-		@param size
-		    The old size, receives the new value size
-		@param connection
-		    The connection used to format the value
-		*/
-		bool FromStr( const String & string, value_type & value, unsigned long & size, DatabaseConnectionPtr connection )
-		{
-			bool ret = !string.empty();
-
-			if ( ret )
-			{
-				StringStream stream( string );
-				stream.precision( 20 );
-				stream >> value;
-				size = sizeof( value_type );
-			}
-
-			return ret;
-		}
-
-		/** Puts the value into the given string
-		@param value
-		    The value
-		@param valSet
-		    Tells that the value is set
-		@param connection
-		    The connection used to format the value
-		@param result
-		    Receives the insertable value
-		*/
-		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
-		{
-			if ( valSet )
-			{
-				StringStream stream;
-				stream.precision( 20 );
-				stream << value;
-				return stream.str();
-			}
-			else
-			{
-				return NULL_VALUE;
-			}
-		}
-	};
-
-	/** Specialization for bool data type
-	*/
-	template<> class CDatabaseValuePolicy< bool >
-	{
-	protected:
-		typedef bool value_type;
-
-	public:
 		/** Reinitializes the given value
 		@param value
 		    The value
@@ -618,28 +235,376 @@ BEGIN_NAMESPACE_DATABASE
 			return &value;
 		}
 
-		/** Retrieves the value from a string
-		@param string
-		    The string containing the value
+		/** Puts the value into the given string
 		@param value
-		    Receives the value
+		    The value
+		@param valSet
+		    Tells that the value is set
+		@param connection
+		    The connection used to format the value
+		@param result
+		    Receives the insertable value
+		*/
+		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
+		{
+			if ( valSet )
+			{
+				return CStrUtils::ToString( value );
+			}
+			else
+			{
+				return NULL_VALUE;
+			}
+		}
+	};
+
+	/** SDatabaseValuePolicy specialization for EFieldType_INT8 type
+	*/
+	template<> struct SDatabaseValuePolicy< EFieldType_INT8 >
+	{
+		typedef SFieldTypeDataTyper< EFieldType_INT8 >::value_type value_type;
+
+		/** Reinitializes the given value
+		@param value
+		    The value
+		*/
+		void Reset( value_type & value )
+		{
+			value = value_type( 0 );
+		}
+
+		/** Sets the value to the given one
+		@param in
+		    The input value
+		@param out
+		    The output value
 		@param size
-		    The old size, receives the new value size
+		    Receives the new value size
 		@param connection
 		    The connection used to format the value
 		*/
-		bool FromStr( const String & string, value_type & value, unsigned long & size, DatabaseConnectionPtr connection )
+		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
 		{
-			bool ret = !string.empty();
+			out = in;
+			size = sizeof( value_type );
+			return true;
+		}
 
-			if ( ret )
+		/** Retrieves a pointer from the given value
+		@param value
+		    The value
+		*/
+		void * Ptr( value_type & value )
+		{
+			return &value;
+		}
+
+		/** Retrieves a pointer from the given value
+		@param value
+		    The value
+		*/
+		const void * Ptr( const value_type & value )const
+		{
+			return &value;
+		}
+
+		/** Puts the value into the given string
+		@param value
+		    The value
+		@param valSet
+		    Tells that the value is set
+		@param connection
+		    The connection used to format the value
+		@param result
+		    Receives the insertable value
+		*/
+		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
+		{
+			if ( valSet )
 			{
-				String strTmp( CStrUtils::LowerCase( string ) );
-				value = strTmp == STR( "1" ) || strTmp == STR( "X" ) || strTmp == STR( "true" ) || strTmp == STR( "vrai" );
-				size = sizeof( value_type );
+				return CStrUtils::ToString( int( value ) );
 			}
+			else
+			{
+				return NULL_VALUE;
+			}
+		}
+	};
 
-			return ret;
+	/** SDatabaseValuePolicy specialization for EFieldType_INT24 type
+	*/
+	template<>
+	struct SDatabaseValuePolicy< EFieldType_INT24 >
+	{
+		typedef SFieldTypeDataTyper< EFieldType_INT24 >::value_type value_type;
+
+		/** Reinitializes the given value
+		@param value
+		    The value
+		*/
+		void Reset( value_type & value )
+		{
+			value = value_type();
+		}
+
+		/** Sets the value to the given one
+		@param in
+		    The input value
+		@param out
+		    The output value
+		@param size
+		    Receives the new value size
+		@param connection
+		    The connection used to format the value
+		*/
+		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
+		{
+			out = in;
+			size = sizeof( value_type );
+			return true;
+		}
+
+		/** Retrieves a pointer from the given value
+		@param value
+		    The value
+		*/
+		void * Ptr( value_type & value )
+		{
+			return &value;
+		}
+
+		/** Retrieves a pointer from the given value
+		@param value
+		    The value
+		*/
+		const void * Ptr( const value_type & value )const
+		{
+			return &value;
+		}
+
+		/** Puts the value into the given string
+		@param value
+		    The value
+		@param valSet
+		    Tells that the value is set
+		@param connection
+		    The connection used to format the value
+		@param result
+		    Receives the insertable value
+		*/
+		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
+		{
+			if ( valSet )
+			{
+				return CStrUtils::ToString( int32_t( value ) );
+			}
+			else
+			{
+				return NULL_VALUE;
+			}
+		}
+	};
+
+	/** SDatabaseValuePolicy specialization for EFieldType_FLOAT32 type
+	*/
+	template<> struct SDatabaseValuePolicy< EFieldType_FLOAT32 >
+	{
+		typedef SFieldTypeDataTyper< EFieldType_FLOAT32 >::value_type value_type;
+
+		/** Reinitializes the given value
+		@param value
+		    The value
+		*/
+		void Reset( value_type & value )
+		{
+			value = value_type( 0 );
+		}
+
+		/** Sets the value to the given one
+		@param in
+		    The input value
+		@param out
+		    The output value
+		@param size
+		    Receives the new value size
+		@param connection
+		    The connection used to format the value
+		*/
+		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
+		{
+			out = in;
+			size = sizeof( value_type );
+			return true;
+		}
+
+		/** Retrieves a pointer from the given value
+		@param value
+		    The value
+		*/
+		void * Ptr( value_type & value )
+		{
+			return &value;
+		}
+
+		/** Retrieves a pointer from the given value
+		@param value
+		    The value
+		*/
+		const void * Ptr( const value_type & value )const
+		{
+			return &value;
+		}
+
+		/** Puts the value into the given string
+		@param value
+		    The value
+		@param valSet
+		    Tells that the value is set
+		@param connection
+		    The connection used to format the value
+		@param result
+		    Receives the insertable value
+		*/
+		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
+		{
+			if ( valSet )
+			{
+				StringStream stream;
+				stream.precision( 10 );
+				stream << value;
+				return stream.str();
+			}
+			else
+			{
+				return NULL_VALUE;
+			}
+		}
+	};
+
+	/** SDatabaseValuePolicy specialization for EFieldType_FLOAT64 type
+	*/
+	template<> struct SDatabaseValuePolicy< EFieldType_FLOAT64 >
+	{
+		typedef SFieldTypeDataTyper< EFieldType_FLOAT64 >::value_type value_type;
+
+		/** Reinitializes the given value
+		@param value
+		    The value
+		*/
+		void Reset( value_type & value )
+		{
+			value = value_type( 0 );
+		}
+
+		/** Sets the value to the given one
+		@param in
+		    The input value
+		@param out
+		    The output value
+		@param size
+		    Receives the new value size
+		@param connection
+		    The connection used to format the value
+		*/
+		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
+		{
+			out = in;
+			size = sizeof( value_type );
+			return true;
+		}
+
+		/** Retrieves a pointer from the given value
+		@param value
+		    The value
+		*/
+		void * Ptr( value_type & value )
+		{
+			return &value;
+		}
+
+		/** Retrieves a pointer from the given value
+		@param value
+		    The value
+		*/
+		const void * Ptr( const value_type & value )const
+		{
+			return &value;
+		}
+
+		/** Puts the value into the given string
+		@param value
+		    The value
+		@param valSet
+		    Tells that the value is set
+		@param connection
+		    The connection used to format the value
+		@param result
+		    Receives the insertable value
+		*/
+		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
+		{
+			if ( valSet )
+			{
+				StringStream stream;
+				stream.precision( 30 );
+				stream << value;
+				return stream.str();
+			}
+			else
+			{
+				return NULL_VALUE;
+			}
+		}
+	};
+
+	/** SDatabaseValuePolicy specialization for EFieldType_BIT type
+	*/
+	template<> struct SDatabaseValuePolicy< EFieldType_BIT >
+	{
+		typedef SFieldTypeDataTyper< EFieldType_BIT >::value_type value_type;
+
+		/** Reinitializes the given value
+		@param value
+		    The value
+		*/
+		void Reset( value_type & value )
+		{
+			value = value_type();
+		}
+
+		/** Sets the value to the given one
+		@param in
+		    The input value
+		@param out
+		    The output value
+		@param size
+		    Receives the new value size
+		@param connection
+		    The connection used to format the value
+		*/
+		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
+		{
+			out = in;
+			size = sizeof( value_type );
+			return true;
+		}
+
+		/** Retrieves a pointer from the given value
+		@param value
+		    The value
+		*/
+		void * Ptr( value_type & value )
+		{
+			return &value;
+		}
+
+		/** Retrieves a pointer from the given value
+		@param value
+		    The value
+		*/
+		const void * Ptr( const value_type & value )const
+		{
+			return &value;
 		}
 
 		/** Puts the value into the given string
@@ -665,14 +630,12 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	};
 
-	/** Specialization for std::string data type
+	/** Policy used for text, char and nvarchar fields
 	*/
-	template<> class CDatabaseValuePolicy< std::string >
+	struct CTextDatabaseValuePolicy
 	{
-	protected:
 		typedef std::string value_type;
 
-	public:
 		/** Reinitializes the given value
 		@param value
 		    The value
@@ -731,29 +694,6 @@ BEGIN_NAMESPACE_DATABASE
 			return result;
 		}
 
-		/** Retrieves the value from a string
-		@param string
-		    The string containing the value
-		@param value
-		    Receives the value
-		@param size
-		    The old size, receives the new value size
-		@param connection
-		    The connection used to format the value
-		*/
-		bool FromStr( const String & string, value_type & value, unsigned long & size, DatabaseConnectionPtr connection )
-		{
-			bool ret = !string.empty();
-
-			if ( ret )
-			{
-				value = CStrUtils::ToStr( string );
-				size = ( unsigned long )( value.size() );
-			}
-
-			return ret;
-		}
-
 		/** Puts the value into the given string
 		@param value
 		    The value
@@ -777,14 +717,28 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	};
 
-	/** Specialization for std::wstring data type
+	/** SDatabaseValuePolicy specialization for EFieldType_VARCHAR type
 	*/
-	template<> class CDatabaseValuePolicy< std::wstring >
+	template<> struct SDatabaseValuePolicy< EFieldType_VARCHAR >
+		: public CTextDatabaseValuePolicy
 	{
-	protected:
+		typedef CTextDatabaseValuePolicy::value_type value_type;
+	};
+
+	/** SDatabaseValuePolicy specialization for EFieldType_TEXT type
+	*/
+	template<> struct SDatabaseValuePolicy< EFieldType_TEXT >
+		: public CTextDatabaseValuePolicy
+	{
+		typedef CTextDatabaseValuePolicy::value_type value_type;
+	};
+
+	/** Value policy used by nchar, nvarchar and ntext fields
+	*/
+	struct SNTextDatabaseValuePolicy
+	{
 		typedef std::wstring value_type;
 
-	public:
 		/** Reinitializes the given value
 		@param value
 		    The value
@@ -843,29 +797,6 @@ BEGIN_NAMESPACE_DATABASE
 			return result;
 		}
 
-		/** Retrieves the value from a string
-		@param string
-		    The string containing the value
-		@param value
-		    Receives the value
-		@param size
-		    The old size, receives the new value size
-		@param connection
-		    The connection used to format the value
-		*/
-		bool FromStr( const String & string, value_type & value, unsigned long & size, DatabaseConnectionPtr connection )
-		{
-			bool ret = !string.empty();
-
-			if ( ret )
-			{
-				value = CStrUtils::ToWStr( string );
-				size = ( unsigned long )( value.size() ) * sizeof( wchar_t );
-			}
-
-			return ret;
-		}
-
 		/** Puts the value into the given string
 		@param value
 		    The value
@@ -889,14 +820,28 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	};
 
-	/** Specialization for std::vector< uint8_t > data type
+	/** SDatabaseValuePolicy specialization for EFieldType_NVARCHAR type
 	*/
-	template<> class CDatabaseValuePolicy< std::vector< uint8_t > >
+	template<> struct SDatabaseValuePolicy< EFieldType_NVARCHAR >
+		: public SNTextDatabaseValuePolicy
 	{
-	protected:
-		typedef std::vector< uint8_t > value_type;
+		typedef SNTextDatabaseValuePolicy::value_type value_type;
+	};
 
-	public:
+	/** SDatabaseValuePolicy specialization for EFieldType_NTEXT type
+	*/
+	template<> struct SDatabaseValuePolicy< EFieldType_NTEXT >
+		: public SNTextDatabaseValuePolicy
+	{
+		typedef SNTextDatabaseValuePolicy::value_type value_type;
+	};
+
+	/** ByteArray value policy (shared amongst EFieldType_BINARY, EFieldType_VARBINARY, and EFieldType_LONG_VARBINARY)
+	*/
+	struct SByteArrayDatabaseValuePolicy
+	{
+		typedef ByteArray value_type;
+
 		/** Reinitializes the given value
 		@param value
 		    The value
@@ -962,38 +907,6 @@ BEGIN_NAMESPACE_DATABASE
 			return result;
 		}
 
-		/** Retrieves the value from a string
-		@param string
-		    The string containing the value
-		@param value
-		    Receives the value
-		@param size
-		    The old size, receives the new value size
-		@param connection
-		    The connection used to format the value
-		*/
-		bool FromStr( const String & string, value_type & value, unsigned long & size, DatabaseConnectionPtr connection )
-		{
-			bool ret = !string.empty();
-
-			if ( ret )
-			{
-				//StringStream stream( _value ); // Don't use this
-				std::istringstream stream( CStrUtils::ToStr( string ) );
-				size = ( unsigned long )( string.size() );
-				value.reserve( size );
-
-				for ( unsigned long i = 0; i < size; ++i )
-				{
-					uint8_t byte;
-					stream >> byte;
-					value.push_back( byte );
-				}
-			}
-
-			return ret;
-		}
-
 		/** Puts the value into the given string
 		@param value
 		    The value
@@ -1027,14 +940,36 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	};
 
-	/** Specialization for CDate data type
+	/** SDatabaseValuePolicy specialization for EFieldType_BINARY type
 	*/
-	template<> class CDatabaseValuePolicy< CDate >
+	template<> struct SDatabaseValuePolicy< EFieldType_BINARY >
+		: public SByteArrayDatabaseValuePolicy
 	{
-	protected:
-		typedef CDate value_type;
+		typedef SByteArrayDatabaseValuePolicy::value_type value_type;
+	};
 
-	public:
+	/** SDatabaseValuePolicy specialization for EFieldType_VARBINARY type
+	*/
+	template<> struct SDatabaseValuePolicy< EFieldType_VARBINARY >
+		: public SByteArrayDatabaseValuePolicy
+	{
+		typedef SByteArrayDatabaseValuePolicy::value_type value_type;
+	};
+
+	/** SDatabaseValuePolicy specialization for EFieldType_LONG_VARBINARY type
+	*/
+	template<> struct SDatabaseValuePolicy< EFieldType_LONG_VARBINARY >
+		: public SByteArrayDatabaseValuePolicy
+	{
+		typedef SByteArrayDatabaseValuePolicy::value_type value_type;
+	};
+
+	/** SDatabaseValuePolicy specialization for EFieldType_DATE type
+	*/
+	template<> struct SDatabaseValuePolicy< EFieldType_DATE >
+	{
+		typedef SFieldTypeDataTyper< EFieldType_DATE >::value_type value_type;
+
 		/** Reinitializes the given value
 		@param value
 		    The value
@@ -1058,7 +993,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			out = in;
 			size = ( unsigned long )( connection->GetStmtDateSize() );
-			_value = connection->WriteStmtDate( out );
+			_value = connection->WriteStmtDateS( out );
 			return true;
 		}
 
@@ -1094,31 +1029,6 @@ BEGIN_NAMESPACE_DATABASE
 			return result;
 		}
 
-		/** Retrieves the value from a string
-		@param string
-		    The string containing the value
-		@param value
-		    Receives the value
-		@param size
-		    The old size, receives the new value size
-		@param connection
-		    The connection used to format the value
-		*/
-		bool FromStr( const String & string, value_type & value, unsigned long & size, DatabaseConnectionPtr connection )
-		{
-			_value = string;
-			bool ret = !string.empty();
-
-			if ( ret )
-			{
-				value = connection->ParseDate( string );
-				size = ( unsigned long )( connection->GetStmtDateSize() );
-				_value = connection->WriteStmtDate( value );
-			}
-
-			return ret;
-		}
-
 		/** Puts the value into the given string
 		@param value
 		    The value
@@ -1141,18 +1051,15 @@ BEGIN_NAMESPACE_DATABASE
 			}
 		}
 
-	private:
 		std::string _value;
 	};
 
-	/** Specialization for CTime data type
+	/** SDatabaseValuePolicy specialization for EFieldType_TIME type
 	*/
-	template<> class CDatabaseValuePolicy< CTime >
+	template<> struct SDatabaseValuePolicy< EFieldType_TIME >
 	{
-	protected:
-		typedef CTime value_type;
+		typedef SFieldTypeDataTyper< EFieldType_TIME >::value_type value_type;
 
-	public:
 		/** Reinitializes the given value
 		@param value
 		    The value
@@ -1212,31 +1119,6 @@ BEGIN_NAMESPACE_DATABASE
 			return result;
 		}
 
-		/** Retrieves the value from a string
-		@param string
-		    The string containing the value
-		@param value
-		    Receives the value
-		@param size
-		    The old size, receives the new value size
-		@param connection
-		    The connection used to format the value
-		*/
-		bool FromStr( const String & string, value_type & value, unsigned long & size, DatabaseConnectionPtr connection )
-		{
-			_value = string;
-			bool ret = !string.empty();
-
-			if ( ret )
-			{
-				value = connection->ParseTime( string );
-				size = ( unsigned long )( connection->GetStmtTimeSize() );
-				_value = connection->WriteStmtTime( value );
-			}
-
-			return ret;
-		}
-
 		/** Puts the value into the given string
 		@param value
 		    The value
@@ -1259,18 +1141,15 @@ BEGIN_NAMESPACE_DATABASE
 			}
 		}
 
-	private:
 		std::string _value;
 	};
 
-	/** Specialization for CDateTime data type
+	/** SDatabaseValuePolicy specialization for EFieldType_DATETIME type
 	*/
-	template<> class CDatabaseValuePolicy< CDateTime >
+	template<> struct SDatabaseValuePolicy< EFieldType_DATETIME >
 	{
-	protected:
-		typedef CDateTime value_type;
+		typedef SFieldTypeDataTyper< EFieldType_DATETIME >::value_type value_type;
 
-	public:
 		/** Reinitializes the given value
 		@param value
 		    The value
@@ -1330,31 +1209,6 @@ BEGIN_NAMESPACE_DATABASE
 			return result;
 		}
 
-		/** Retrieves the value from a string
-		@param string
-		    The string containing the value
-		@param value
-		    Receives the value
-		@param size
-		    The old size, receives the new value size
-		@param connection
-		    The connection used to format the value
-		*/
-		bool FromStr( const String & string, value_type & value, unsigned long & size, DatabaseConnectionPtr connection )
-		{
-			_value = string;
-			bool ret = !string.empty();
-
-			if ( ret )
-			{
-				value = connection->ParseDateTime( string );
-				size = ( unsigned long )( connection->GetStmtDateTimeSize() );
-				_value = connection->WriteStmtDateTime( value );
-			}
-
-			return ret;
-		}
-
 		/** Puts the value into the given string
 		@param value
 		    The value
@@ -1377,8 +1231,80 @@ BEGIN_NAMESPACE_DATABASE
 			}
 		}
 
-	private:
 		std::string _value;
+	};
+
+	/** SDatabaseValuePolicy specialization for EFieldType_FIXED_POINT type
+	*/
+	template<> struct SDatabaseValuePolicy< EFieldType_FIXED_POINT >
+	{
+		typedef SFieldTypeDataTyper< EFieldType_FIXED_POINT >::value_type value_type;
+
+		/** Reinitializes the given value
+		@param value
+		    The value
+		*/
+		void Reset( value_type & value )
+		{
+			value = value_type();
+		}
+
+		/** Sets the value to the given one
+		@param in
+		    The input value
+		@param out
+		    The output value
+		@param size
+		    Receives the new value size
+		@param connection
+		    The connection used to format the value
+		*/
+		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
+		{
+			out = in;
+			size = out.GetPrecision();
+			return true;
+		}
+
+		/** Retrieves a pointer from the given value
+		@param value
+		    The value
+		*/
+		void * Ptr( value_type & value )
+		{
+			return &value;
+		}
+
+		/** Retrieves a pointer from the given value
+		@param value
+		    The value
+		*/
+		const void * Ptr( const value_type & value )const
+		{
+			return &value;
+		}
+
+		/** Puts the value into the given string
+		@param value
+		    The value
+		@param valSet
+		    Tells that the value is set
+		@param connection
+		    The connection used to format the value
+		@param result
+		    Receives the insertable value
+		*/
+		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
+		{
+			if ( valSet )
+			{
+				return value.ToString();
+			}
+			else
+			{
+				return NULL_VALUE;
+			}
+		}
 	};
 }
 END_NAMESPACE_DATABASE

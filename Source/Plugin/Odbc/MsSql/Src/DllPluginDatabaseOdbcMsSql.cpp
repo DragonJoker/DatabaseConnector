@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DllPluginDatabaseOdbcMsSql.cpp
- * @author Sylvain Doremus
- * @version 1.0
- * @date 4/8/2014 4:01:00 PM
- *
- *
- * @brief DLL Interface.
- *
- * @details DLL Interface.
- *
- ***************************************************************************/
+* @file DllPluginDatabaseOdbcMsSql.cpp
+* @author Sylvain Doremus
+* @version 1.0
+* @date 4/8/2014 4:01:00 PM
+*
+*
+* @brief DLL Interface.
+*
+* @details DLL Interface.
+*
+***************************************************************************/
 
 #include "DatabaseOdbcMsSqlPch.h"
 
@@ -24,19 +24,19 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 #ifndef STATIC_LIB
 	extern "C" void DatabaseOdbcMsSqlExport DllStartPlugin()
 	{
-		///@remarks Create plugin.
+		//!@remarks Create plugin.
 		plugin = new CPluginDatabaseOdbcMsSql();
 
-		///@remarks Register plugin.
+		//!@remarks Register plugin.
 		CPluginManager::Instance().InstallPlugin( plugin );
 	}
 
 	extern "C" void DatabaseOdbcMsSqlExport DllStopPlugin()
 	{
-		///@remarks Unregister plugin.
+		//!@remarks Unregister plugin.
 		CPluginManager::Instance().UninstallPlugin( plugin );
 
-		///@remarks Delete plugin.
+		//!@remarks Delete plugin.
 		delete plugin;
 	}
 #endif

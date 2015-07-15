@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DatabaseValue.h
- * @author Sylvain Doremus
- * @version 1.0
- * @date 3/20/2014 2:47:39 PM
- *
- *
- * @brief CDatabaseValueBase class declaration.
- *
- * @details Describes the base class of inherited templated classes dealing with database fields.
- *
- ***************************************************************************/
+* @file DatabaseValue.h
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/20/2014 2:47:39 PM
+*
+*
+* @brief CDatabaseValueBase class declaration.
+*
+* @details Describes the base class of inherited templated classes dealing with database fields.
+*
+***************************************************************************/
 
 #ifndef ___DATABASE_FIELD_VALUE_H___
 #define ___DATABASE_FIELD_VALUE_H___
@@ -29,11 +29,10 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	class CDatabaseValueBase
 	{
-
 	public:
 		/** Constructor.
 		@param connection
-		    The database connection
+			The database connection
 		*/
 		DatabaseExport CDatabaseValueBase( DatabaseConnectionPtr connection );
 
@@ -41,37 +40,29 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport virtual ~CDatabaseValueBase();
 
-		/** Set value as string.
-		@param[in] value
-		    Field value as string.
-		*/
-		DatabaseExport virtual void FromString( const String & value ) = 0;
-
 		/** Defines this value from the given one
 		@param value
-		    The value
+			The value
 		@param limits
-		    The field size limit
+			The field size limit
 		*/
 		DatabaseExport virtual void SetValue( CDatabaseValueBase const & value ) = 0;
 
 		/** Get the value.
-		@param valueSet
-			Tells if the value is set (true) or NULL (false)
 		@return
-		    The value.
+			The value.
 		*/
-		DatabaseExport virtual String GetQueryValue( bool valueSet ) = 0;
+		DatabaseExport virtual String GetQueryValue() = 0;
 
 		/** Get a pointer to the value.
 		@return
-		    Pointer to the value or NULL.
+			Pointer to the value or NULL.
 		*/
 		DatabaseExport virtual void * GetPtrValue() = 0;
 
 		/** Get a pointer to the value.
 		@return
-		    Pointer to the value or NULL.
+			Pointer to the value or NULL.
 		*/
 		DatabaseExport virtual const void * GetPtrValue() const = 0;
 
@@ -81,19 +72,19 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Get the value pointer size
 		@return
-		    The size.
+			The size.
 		*/
 		DatabaseExport unsigned long & GetPtrSize();
 
 		/** Get the value pointer size
 		@return
-		    The size.
+			The size.
 		*/
 		DatabaseExport const unsigned long & GetPtrSize()const;
 
 		/** Check if value is NULL.
 		@return
-		    true if value is NULL.
+			true if value is NULL.
 		*/
 		DatabaseExport bool IsNull() const;
 
@@ -102,7 +93,6 @@ BEGIN_NAMESPACE_DATABASE
 		DatabaseExport void SetNull( bool null = true );
 
 	protected:
-
 		/** Set parameter value to NULL.
 		*/
 		DatabaseExport virtual void DoSetNull() = 0;
@@ -110,7 +100,7 @@ BEGIN_NAMESPACE_DATABASE
 	protected:
 		//! Value size
 		unsigned long _valueSize;
-		/// Value is NULL or not.
+		//! Value is NULL or not.
 		bool _isNull;
 		//! The database connection
 		DatabaseConnectionPtr _connection;

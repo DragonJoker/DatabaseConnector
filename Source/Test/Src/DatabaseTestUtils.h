@@ -21,6 +21,7 @@
 #include <DatabaseQuery.h>
 #include <DatabaseResult.h>
 #include <DatabaseRow.h>
+#include <DatabaseInt24.h>
 
 BEGIN_NAMESPACE_DATABASE_TEST
 {
@@ -120,7 +121,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 			catch ( std::exception & e )
 			{
-				CLogger::LogMessage( e.what() );
+				CLogger::LogInfo( e.what() );
 			}
 
 			return result;
@@ -137,15 +138,15 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 			catch ( std::exception & e )
 			{
-				CLogger::LogMessage( e.what() );
+				CLogger::LogInfo( e.what() );
 			}
 
 			return result;
 		}
 
-		template< typename Type > struct Helpers;;
+		template< EFieldType FieldType > struct Helpers;;
 
-		template<> struct Helpers< bool >
+		template<> struct Helpers< EFieldType_BIT >
 		{
 			static const uint32_t Limit = -1;
 			typedef bool ParamType;
@@ -157,7 +158,19 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 		};
 
-		template<> struct Helpers< int16_t >
+		template<> struct Helpers< EFieldType_INT8 >
+		{
+			static const uint32_t Limit = -1;
+			typedef int8_t ParamType;
+			typedef ParamType FieldType;
+
+			static ParamType InitialiseValue()
+			{
+				return int8_t( rand() % 256 );
+			}
+		};
+
+		template<> struct Helpers< EFieldType_INT16 >
 		{
 			static const uint32_t Limit = -1;
 			typedef int16_t ParamType;
@@ -169,7 +182,19 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 		};
 
-		template<> struct Helpers< int32_t >
+		template<> struct Helpers< EFieldType_INT24 >
+		{
+			static const uint32_t Limit = -1;
+			typedef int24_t ParamType;
+			typedef ParamType FieldType;
+
+			static ParamType InitialiseValue()
+			{
+				return int24_t( rand() );
+			}
+		};
+
+		template<> struct Helpers< EFieldType_INT32 >
 		{
 			static const uint32_t Limit = -1;
 			typedef int32_t ParamType;
@@ -181,7 +206,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 		};
 
-		template<> struct Helpers< int64_t >
+		template<> struct Helpers< EFieldType_INT64 >
 		{
 			static const uint32_t Limit = -1;
 			typedef int64_t ParamType;
@@ -193,7 +218,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 		};
 
-		template<> struct Helpers< float >
+		template<> struct Helpers< EFieldType_FLOAT32 >
 		{
 			static const uint32_t Limit = -1;
 			typedef float ParamType;
@@ -205,7 +230,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 		};
 
-		template<> struct Helpers< double >
+		template<> struct Helpers< EFieldType_FLOAT64 >
 		{
 			static const uint32_t Limit = -1;
 			typedef double ParamType;
@@ -217,7 +242,19 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 		};
 
-		template<> struct Helpers< CDate >
+		template<> struct Helpers< EFieldType_FIXED_POINT >
+		{
+			static const uint32_t Limit = -1;
+			typedef CFixedPoint ParamType;
+			typedef ParamType FieldType;
+
+			static ParamType InitialiseValue( uint8_t precision = 3 )
+			{
+				return CFixedPoint( int64_t( rand() ) * int64_t( rand() ), precision );
+			}
+		};
+
+		template<> struct Helpers< EFieldType_DATE >
 		{
 			static const uint32_t Limit = -1;
 			typedef CDate ParamType;
@@ -229,7 +266,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 		};
 
-		template<> struct Helpers< CDateTime >
+		template<> struct Helpers< EFieldType_DATETIME >
 		{
 			static const uint32_t Limit = -1;
 			typedef CDateTime ParamType;
@@ -241,7 +278,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 		};
 
-		template<> struct Helpers< CTime >
+		template<> struct Helpers< EFieldType_TIME >
 		{
 			static const uint32_t Limit = -1;
 			typedef CTime ParamType;
@@ -253,7 +290,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 		};
 
-		template<> struct Helpers< char * >
+		template<> struct Helpers< EFieldType_VARCHAR >
 		{
 			static const uint32_t Limit = 20;
 			typedef std::string ParamType;
@@ -266,7 +303,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 		};
 
-		template<> struct Helpers< wchar_t * >
+		template<> struct Helpers< EFieldType_NVARCHAR >
 		{
 			static const uint32_t Limit = 55;
 			typedef std::wstring ParamType;
@@ -279,7 +316,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 		};
 
-		template<> struct Helpers< std::string >
+		template<> struct Helpers< EFieldType_TEXT >
 		{
 			static const uint32_t Limit = -1;
 			typedef std::string ParamType;
@@ -305,15 +342,15 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 		};
 
-		template<> struct Helpers< std::vector< uint8_t > >
+		template<> struct Helpers< EFieldType_VARBINARY >
 		{
 			static const uint32_t Limit = 32;
-			typedef std::vector< uint8_t > ParamType;
+			typedef ByteArray ParamType;
 			typedef ParamType FieldType;
 
 			static ParamType InitialiseValue()
 			{
-				std::vector< uint8_t > blob =
+				ByteArray blob =
 				{
 					0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
 					0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF
@@ -325,21 +362,21 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template< class Stmt >
 		inline void CreateParameters( std::shared_ptr< Stmt > stmt )
 		{
-			BOOST_CHECK( stmt->CreateParameter( STR( "IntField" ), EFieldType_INTEGER, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "IntegerField" ), EFieldType_INTEGER, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "TinyIntField" ), EFieldType_BOOL, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "SmallIntField" ), EFieldType_SMALL_INTEGER, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "MediumIntField" ), EFieldType_INTEGER, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "BigIntField" ), EFieldType_LONG_INTEGER, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "Int2Field" ), EFieldType_SMALL_INTEGER, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "Int8Field" ), EFieldType_LONG_INTEGER, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "RealField" ), EFieldType_DOUBLE, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "DoubleField" ), EFieldType_DOUBLE, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "DoublePrecisionField" ), EFieldType_DOUBLE, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "FloatField" ), EFieldType_FLOAT, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "NumericField" ), EFieldType_INTEGER, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "DecimalField" ), EFieldType_DOUBLE, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "BooleanField" ), EFieldType_BOOL, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "IntField" ), EFieldType_INT32, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "IntegerField" ), EFieldType_INT32, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "TinyIntField" ), EFieldType_INT8, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "SmallIntField" ), EFieldType_INT16, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "MediumIntField" ), EFieldType_INT24, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "BigIntField" ), EFieldType_INT64, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "Int2Field" ), EFieldType_INT16, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "Int8Field" ), EFieldType_INT64, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "RealField" ), EFieldType_FLOAT64, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "DoubleField" ), EFieldType_FLOAT64, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "DoublePrecisionField" ), EFieldType_FLOAT64, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "FloatField" ), EFieldType_FLOAT32, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "NumericField" ), EFieldType_FIXED_POINT, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "DecimalField" ), EFieldType_FIXED_POINT, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "BooleanField" ), EFieldType_BIT, EParameterType_IN ) );
 			BOOST_CHECK( stmt->CreateParameter( STR( "DateField" ), EFieldType_DATE, EParameterType_IN ) );
 			BOOST_CHECK( stmt->CreateParameter( STR( "DateTimeField" ), EFieldType_DATETIME, EParameterType_IN ) );
 			BOOST_CHECK( stmt->CreateParameter( STR( "CharacterField" ), EFieldType_VARCHAR, 20, EParameterType_IN ) );
@@ -353,114 +390,135 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template< class Stmt >
 		inline void SetParametersValue( uint32_t & index, int mult, int i, std::shared_ptr< Stmt > stmt )
 		{
-			stmt->SetParameterValue( index++, Helpers< int32_t >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< int32_t >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< bool >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< int16_t >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< int32_t >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< int64_t >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< int16_t >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< int64_t >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< double >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< double >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< double >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< float >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< int32_t >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< double >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< bool >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< CDate >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< CDateTime >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< char * >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< char * >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< wchar_t * >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< wchar_t * >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< std::string >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< std::vector< uint8_t > >::InitialiseValue() );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_INT32 >::InitialiseValue() );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_INT32 >::InitialiseValue() );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_INT8 >::InitialiseValue() );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_INT16 >::InitialiseValue() );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_INT24 >::InitialiseValue() );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_INT64 >::InitialiseValue() );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_INT16 >::InitialiseValue() );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_INT64 >::InitialiseValue() );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_FLOAT64 >::InitialiseValue() );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_FLOAT64 >::InitialiseValue() );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_FLOAT64 >::InitialiseValue() );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_FLOAT32 >::InitialiseValue() );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_FIXED_POINT >::InitialiseValue() );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_FIXED_POINT >::InitialiseValue() );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_BIT >::InitialiseValue() );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_DATE >::InitialiseValue() );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_DATETIME >::InitialiseValue() );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_VARCHAR >::InitialiseValue() );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_VARCHAR >::InitialiseValue() );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_NVARCHAR >::InitialiseValue() );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_NVARCHAR >::InitialiseValue() );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_TEXT >::InitialiseValue() );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_VARBINARY >::InitialiseValue() );
 		}
 
 		inline void DisplayValues( uint32_t & index, DatabaseRowPtr row )
 		{
-			CLogger::LogMessage( StringStream() << STR( "IntField : " ) << row->Get< int32_t >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "IntegerField : " ) << row->Get< int32_t >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "TinyIntField : " ) << row->Get< bool >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "SmallIntField : " ) << row->Get< int16_t >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "MediumIntField : " ) << row->Get< int32_t >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "BigIntField : " ) << row->Get< int64_t >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "Int2Field : " ) << row->Get< int16_t >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "Int8Field : " ) << row->Get< int64_t >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "RealField : " ) << row->Get< double >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "DoubleField : " ) << row->Get< double >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "DoublePrecisionField : " ) << row->Get< double >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "FloatField : " ) << row->Get< float >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "NumericField : " ) << row->Get< int32_t >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "DecimalField : " ) << row->Get< double >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "BooleanField : " ) << row->Get< bool >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "DateField : " ) << row->Get< CDate >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "DateTimeField : " ) << row->Get< CDateTime >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "CharacterField : " ) << row->Get< std::string >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "VarcharField : " ) << row->Get< std::string >( index++ ) );
-			CLogger::LogMessage( std::wstringstream() << L"NcharField : " << row->Get< std::wstring >( index++ ) );
-			CLogger::LogMessage( std::wstringstream() << L"NVarcharField : " << row->Get< std::wstring >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "TextField : " ) << row->Get< std::string >( index++ ) );
-			CLogger::LogMessage( StringStream() << STR( "BlobField : " ) << row->Get< std::vector< uint8_t > >( index++ ) );
+			CLogger::LogInfo( StringStream() << STR( "IntField : " ) << row->Get< int32_t >( index++ ) );
+			CLogger::LogInfo( StringStream() << STR( "IntegerField : " ) << row->Get< int32_t >( index++ ) );
+			CLogger::LogInfo( StringStream() << STR( "TinyIntField : " ) << int( row->Get< int8_t >( index++ ) ) );
+			CLogger::LogInfo( StringStream() << STR( "SmallIntField : " ) << row->Get< int16_t >( index++ ) );
+			CLogger::LogInfo( StringStream() << STR( "MediumIntField : " ) << int32_t( row->Get< int24_t >( index++ ) ) );
+			CLogger::LogInfo( StringStream() << STR( "BigIntField : " ) << row->Get< int64_t >( index++ ) );
+			CLogger::LogInfo( StringStream() << STR( "Int2Field : " ) << row->Get< int16_t >( index++ ) );
+			CLogger::LogInfo( StringStream() << STR( "Int8Field : " ) << row->Get< int64_t >( index++ ) );
+			CLogger::LogInfo( StringStream() << STR( "RealField : " ) << row->Get< double >( index++ ) );
+			CLogger::LogInfo( StringStream() << STR( "DoubleField : " ) << row->Get< double >( index++ ) );
+			CLogger::LogInfo( StringStream() << STR( "DoublePrecisionField : " ) << row->Get< double >( index++ ) );
+			CLogger::LogInfo( StringStream() << STR( "FloatField : " ) << row->Get< float >( index++ ) );
+			CLogger::LogInfo( StringStream() << STR( "NumericField : " ) << row->Get< CFixedPoint >( index++ ).ToString() );
+			CLogger::LogInfo( StringStream() << STR( "DecimalField : " ) << row->Get< CFixedPoint >( index++ ).ToString() );
+			CLogger::LogInfo( StringStream() << STR( "BooleanField : " ) << row->Get< bool >( index++ ) );
+			CLogger::LogInfo( StringStream() << STR( "DateField : " ) << row->Get< CDate >( index++ ) );
+			CLogger::LogInfo( StringStream() << STR( "DateTimeField : " ) << row->Get< CDateTime >( index++ ) );
+			CLogger::LogInfo( StringStream() << STR( "CharacterField : " ) << row->Get< std::string >( index++ ) );
+			CLogger::LogInfo( StringStream() << STR( "VarcharField : " ) << row->Get< std::string >( index++ ) );
+			CLogger::LogInfo( std::wstringstream() << L"NcharField : " << row->Get< std::wstring >( index++ ) );
+			CLogger::LogInfo( std::wstringstream() << L"NVarcharField : " << row->Get< std::wstring >( index++ ) );
+			CLogger::LogInfo( StringStream() << STR( "TextField : " ) << row->Get< std::string >( index++ ) );
+			CLogger::LogInfo( StringStream() << STR( "BlobField : " ) << row->Get< ByteArray >( index++ ) );
 		}
 
-		template< typename Type >
+		template< EFieldType FieldType >
 		struct Compare
 		{
-			inline void operator()( Type const & a, Type const & b )
+			inline void operator()( typename Helpers< FieldType >::ParamType const & a, typename Helpers< FieldType >::FieldType const & b )
 			{
 				BOOST_CHECK_EQUAL( a, b );
 			}
 		};
 
 		template<>
-		struct Compare< float >
+		struct Compare< EFieldType_INT8 >
 		{
-			inline void operator()( float const & a, float const & b )
+			inline void operator()( Helpers< EFieldType_INT8 >::ParamType const & a, Helpers< EFieldType_INT8 >::FieldType const & b )
 			{
-				BOOST_CHECK( std::abs( a - b ) < std::numeric_limits< float >::epsilon() );
+				BOOST_CHECK_EQUAL( int16_t( a ), int16_t( b ) );
 			}
 		};
 
 		template<>
-		struct Compare< double >
+		struct Compare< EFieldType_FLOAT32 >
 		{
-			inline void operator()( double const & a, double const & b )
+			inline void operator()( Helpers< EFieldType_FLOAT32 >::ParamType const & a, Helpers< EFieldType_FLOAT32 >::FieldType const & b )
 			{
-				BOOST_CHECK( std::abs( a - b ) < std::numeric_limits< double >::epsilon() );
+				if ( a != b )
+				{
+					if ( std::abs( a - b ) > std::numeric_limits< float >::epsilon() )
+					{
+						BOOST_CHECK_EQUAL( a, b );
+					}
+				}
 			}
 		};
 
 		template<>
-		struct Compare< char * >
+		struct Compare< EFieldType_FLOAT64 >
 		{
-			inline void operator()( std::string const & a, std::string const & b )
+			inline void operator()( Helpers< EFieldType_FLOAT64 >::ParamType const & a, Helpers< EFieldType_FLOAT64 >::FieldType const & b )
 			{
-				BOOST_CHECK_EQUAL( a, b );
+				if ( a != b )
+				{
+					if ( std::abs( a - b ) > std::numeric_limits< double >::epsilon() )
+					{
+						BOOST_CHECK_EQUAL( a, b );
+					}
+				}
 			}
 		};
 
 		template<>
-		struct Compare< wchar_t * >
+		struct Compare< EFieldType_VARCHAR >
 		{
-			inline void operator()( std::wstring const & a, std::wstring const & b )
+			inline void operator()( Helpers< EFieldType_VARCHAR >::ParamType const & a, Helpers< EFieldType_VARCHAR >::FieldType const & b )
+			{
+				BOOST_CHECK_EQUAL( std::string( a ), std::string( b ) );
+			}
+		};
+
+		template<>
+		struct Compare< EFieldType_NVARCHAR >
+		{
+			inline void operator()( Helpers< EFieldType_NVARCHAR >::ParamType const & a, Helpers< EFieldType_NVARCHAR >::FieldType const & b )
+			{
+				BOOST_CHECK_EQUAL( CStrUtils::ToStr( a ), CStrUtils::ToStr( b ) );
+			}
+		};
+
+		template<>
+		struct Compare< EFieldType_VARBINARY >
+		{
+			inline void operator()( Helpers< EFieldType_VARBINARY >::ParamType const & a, Helpers< EFieldType_VARBINARY >::FieldType const & b )
 			{
 				BOOST_CHECK( a == b );
 			}
 		};
 
-		template<>
-		struct Compare< std::vector< uint8_t > >
-		{
-			inline void operator()( std::vector< uint8_t > const & a, std::vector< uint8_t > const & b )
-			{
-				BOOST_CHECK( a == b );
-			}
-		};
-
-		template< class Stmt, typename Type >
-		inline void InsertAndRetrieve( DatabaseConnectionPtr connection, const String & name, typename Helpers< Type >::ParamType valueIn = Helpers< Type >::InitialiseValue() )
+		template< class Stmt, EFieldType FieldType >
+		inline void InsertAndRetrieve( DatabaseConnectionPtr connection, const String & name, typename Helpers< FieldType >::ParamType valueIn = Helpers< FieldType >::InitialiseValue() )
 		{
 			try
 			{
@@ -471,8 +529,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( stmtInsert && stmtSelect )
 				{
-					BOOST_CHECK( stmtInsert->CreateParameter( name, SDataTypeFieldTyper< Type >::Value, Helpers< Type >::Limit, EParameterType_IN ) );
-					BOOST_CHECK( stmtSelect->CreateParameter( name, SDataTypeFieldTyper< Type >::Value, Helpers< Type >::Limit, EParameterType_IN ) );
+					BOOST_CHECK( stmtInsert->CreateParameter( name, FieldType, Helpers< FieldType >::Limit, EParameterType_IN ) );
+					BOOST_CHECK( stmtSelect->CreateParameter( name, FieldType, Helpers< FieldType >::Limit, EParameterType_IN ) );
 
 					BOOST_CHECK( stmtInsert->Initialize() == EErrorType_NONE );
 					BOOST_CHECK( stmtSelect->Initialize() == EErrorType_NONE );
@@ -482,20 +540,28 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 					BOOST_CHECK( stmtInsert->ExecuteUpdate() );
 					DatabaseResultPtr result = stmtSelect->ExecuteSelect();
-					BOOST_CHECK( result );
-					BOOST_CHECK( result && result->GetRowCount() );
 
 					if ( result && result->GetRowCount() )
 					{
-						typename Helpers< Type >::FieldType valueOut;
+						typename Helpers< FieldType >::FieldType valueOut;
 						BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, valueOut ) );
-						Compare< Type >()( valueIn, valueOut );
+						Compare< FieldType >()( valueIn, valueOut );
 					}
 					else
 					{
-						BOOST_CHECK( false );
+						BOOST_CHECK( result && result->GetRowCount() );
 					}
 				}
+			}
+			catch ( CExceptionDatabase & exc )
+			{
+				CLogger::LogError( exc.GetFullDescription() );
+				BOOST_CHECK( false );
+			}
+			catch ( std::exception & exc )
+			{
+				CLogger::LogError( exc.what() );
+				BOOST_CHECK( false );
 			}
 			catch ( ... )
 			{
@@ -503,8 +569,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 		}
 
-		template< class Stmt, typename Type >
-		inline void InsertAndRetrieveOtherIndex( DatabaseConnectionPtr connection, const String & name, typename Helpers< Type >::ParamType valueIn = Helpers< Type >::InitialiseValue() )
+		template< class Stmt, EFieldType FieldType >
+		inline void InsertAndRetrieveOtherIndex( DatabaseConnectionPtr connection, const String & name, typename Helpers< FieldType >::ParamType valueIn = Helpers< FieldType >::InitialiseValue() )
 		{
 			try
 			{
@@ -515,10 +581,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( stmtInsert && stmtSelect )
 				{
-					BOOST_CHECK( stmtInsert->CreateParameter( STR( "IntField" ), EFieldType_INTEGER, EParameterType_IN ) );
-					BOOST_CHECK( stmtInsert->CreateParameter( name, SDataTypeFieldTyper< Type >::Value, Helpers< Type >::Limit, EParameterType_IN ) );
-					BOOST_CHECK( stmtSelect->CreateParameter( STR( "IntField" ), EFieldType_INTEGER, EParameterType_IN ) );
-					BOOST_CHECK( stmtSelect->CreateParameter( name, SDataTypeFieldTyper< Type >::Value, Helpers< Type >::Limit, EParameterType_IN ) );
+					BOOST_CHECK( stmtInsert->CreateParameter( STR( "IntField" ), EFieldType_INT32, EParameterType_IN ) );
+					BOOST_CHECK( stmtInsert->CreateParameter( name, FieldType, Helpers< FieldType >::Limit, EParameterType_IN ) );
+					BOOST_CHECK( stmtSelect->CreateParameter( STR( "IntField" ), EFieldType_INT32, EParameterType_IN ) );
+					BOOST_CHECK( stmtSelect->CreateParameter( name, FieldType, Helpers< FieldType >::Limit, EParameterType_IN ) );
 
 					BOOST_CHECK( stmtInsert->Initialize() == EErrorType_NONE );
 					BOOST_CHECK( stmtSelect->Initialize() == EErrorType_NONE );
@@ -535,15 +601,21 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 					if ( result && result->GetRowCount() )
 					{
-						typename Helpers< Type >::FieldType valueOut;
+						typename Helpers< FieldType >::FieldType valueOut;
 						BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, valueOut ) );
-						Compare< Type >()( valueIn, valueOut );
-					}
-					else
-					{
-						BOOST_CHECK( false );
+						Compare< FieldType >()( valueIn, valueOut );
 					}
 				}
+			}
+			catch ( CExceptionDatabase & exc )
+			{
+				CLogger::LogError( exc.GetFullDescription() );
+				BOOST_CHECK( false );
+			}
+			catch ( std::exception & exc )
+			{
+				CLogger::LogError( exc.what() );
+				BOOST_CHECK( false );
 			}
 			catch ( ... )
 			{
@@ -551,8 +623,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 		}
 
-		template< class Stmt, typename Type >
-		inline void InsertAndRetrieveFast( DatabaseConnectionPtr connection, const String & name, typename Helpers< Type >::ParamType valueIn = Helpers< Type >::InitialiseValue() )
+		template< class Stmt, EFieldType FieldType >
+		inline void InsertAndRetrieveFast( DatabaseConnectionPtr connection, const String & name, typename Helpers< FieldType >::ParamType valueIn = Helpers< FieldType >::InitialiseValue() )
 		{
 			try
 			{
@@ -563,8 +635,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( stmtInsert && stmtSelect )
 				{
-					BOOST_CHECK( stmtInsert->CreateParameter( name, SDataTypeFieldTyper< Type >::Value, Helpers< Type >::Limit, EParameterType_IN ) );
-					BOOST_CHECK( stmtSelect->CreateParameter( name, SDataTypeFieldTyper< Type >::Value, Helpers< Type >::Limit, EParameterType_IN ) );
+					BOOST_CHECK( stmtInsert->CreateParameter( name, FieldType, Helpers< FieldType >::Limit, EParameterType_IN ) );
+					BOOST_CHECK( stmtSelect->CreateParameter( name, FieldType, Helpers< FieldType >::Limit, EParameterType_IN ) );
 
 					BOOST_CHECK( stmtInsert->Initialize() == EErrorType_NONE );
 					BOOST_CHECK( stmtSelect->Initialize() == EErrorType_NONE );
@@ -579,15 +651,21 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 					if ( result && result->GetRowCount() )
 					{
-						typename Helpers< Type >::FieldType valueOut;
+						typename Helpers< FieldType >::FieldType valueOut;
 						BOOST_CHECK_NO_THROW( result->GetFirstRow()->GetFast( 0, valueOut ) );
-						Compare< Type >()( valueIn, valueOut );
-					}
-					else
-					{
-						BOOST_CHECK( false );
+						Compare< FieldType >()( valueIn, valueOut );
 					}
 				}
+			}
+			catch ( CExceptionDatabase & exc )
+			{
+				CLogger::LogError( exc.GetFullDescription() );
+				BOOST_CHECK( false );
+			}
+			catch ( std::exception & exc )
+			{
+				CLogger::LogError( exc.what() );
+				BOOST_CHECK( false );
 			}
 			catch ( ... )
 			{
@@ -595,8 +673,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 		}
 
-		template< class Stmt, typename Type >
-		inline void InsertAndRetrieveFastOtherIndex( DatabaseConnectionPtr connection, const String & name, typename Helpers< Type >::ParamType valueIn = Helpers< Type >::InitialiseValue() )
+		template< class Stmt, EFieldType FieldType >
+		inline void InsertAndRetrieveFastOtherIndex( DatabaseConnectionPtr connection, const String & name, typename Helpers< FieldType >::ParamType valueIn = Helpers< FieldType >::InitialiseValue() )
 		{
 			try
 			{
@@ -607,10 +685,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( stmtInsert && stmtSelect )
 				{
-					BOOST_CHECK( stmtInsert->CreateParameter( STR( "IntField" ), EFieldType_INTEGER, EParameterType_IN ) );
-					BOOST_CHECK( stmtInsert->CreateParameter( name, SDataTypeFieldTyper< Type >::Value, Helpers< Type >::Limit, EParameterType_IN ) );
-					BOOST_CHECK( stmtSelect->CreateParameter( STR( "IntField" ), EFieldType_INTEGER, EParameterType_IN ) );
-					BOOST_CHECK( stmtSelect->CreateParameter( name, SDataTypeFieldTyper< Type >::Value, Helpers< Type >::Limit, EParameterType_IN ) );
+					BOOST_CHECK( stmtInsert->CreateParameter( STR( "IntField" ), EFieldType_INT32, EParameterType_IN ) );
+					BOOST_CHECK( stmtInsert->CreateParameter( name, FieldType, Helpers< FieldType >::Limit, EParameterType_IN ) );
+					BOOST_CHECK( stmtSelect->CreateParameter( STR( "IntField" ), EFieldType_INT32, EParameterType_IN ) );
+					BOOST_CHECK( stmtSelect->CreateParameter( name, FieldType, Helpers< FieldType >::Limit, EParameterType_IN ) );
 
 					BOOST_CHECK( stmtInsert->Initialize() == EErrorType_NONE );
 					BOOST_CHECK( stmtSelect->Initialize() == EErrorType_NONE );
@@ -627,15 +705,21 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 					if ( result && result->GetRowCount() )
 					{
-						typename Helpers< Type >::FieldType valueOut;
+						typename Helpers< FieldType >::FieldType valueOut;
 						BOOST_CHECK_NO_THROW( result->GetFirstRow()->GetFast( 0, valueOut ) );
-						Compare< Type >()( valueIn, valueOut );
-					}
-					else
-					{
-						BOOST_CHECK( false );
+						Compare< FieldType >()( valueIn, valueOut );
 					}
 				}
+			}
+			catch ( CExceptionDatabase & exc )
+			{
+				CLogger::LogError( exc.GetFullDescription() );
+				BOOST_CHECK( false );
+			}
+			catch ( std::exception & exc )
+			{
+				CLogger::LogError( exc.what() );
+				BOOST_CHECK( false );
 			}
 			catch ( ... )
 			{
@@ -700,6 +784,16 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					}
 				}
 			}
+			catch ( CExceptionDatabase & exc )
+			{
+				CLogger::LogError( exc.GetFullDescription() );
+				BOOST_CHECK( false );
+			}
+			catch ( std::exception & exc )
+			{
+				CLogger::LogError( exc.what() );
+				BOOST_CHECK( false );
+			}
 			catch ( ... )
 			{
 				BOOST_CHECK( false );
@@ -733,6 +827,16 @@ BEGIN_NAMESPACE_DATABASE_TEST
 						}
 					}
 				}
+			}
+			catch ( CExceptionDatabase & exc )
+			{
+				CLogger::LogError( exc.GetFullDescription() );
+				BOOST_CHECK( false );
+			}
+			catch ( std::exception & exc )
+			{
+				CLogger::LogError( exc.what() );
+				BOOST_CHECK( false );
 			}
 			catch ( ... )
 			{
@@ -770,7 +874,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					if ( stmtUpdate )
 					{
 						CreateParameters( stmtUpdate );
-						BOOST_CHECK( stmtUpdate->CreateParameter( STR( "IDTest" ), EFieldType_LONG_INTEGER, EParameterType_IN ) );
+						BOOST_CHECK( stmtUpdate->CreateParameter( STR( "IDTest" ), EFieldType_INT64, EParameterType_IN ) );
 						BOOST_CHECK( stmtUpdate->Initialize() == EErrorType_NONE );
 
 						for ( int i = 0; i < 10; i++ )
@@ -782,6 +886,16 @@ BEGIN_NAMESPACE_DATABASE_TEST
 						}
 					}
 				}
+			}
+			catch ( CExceptionDatabase & exc )
+			{
+				CLogger::LogError( exc.GetFullDescription() );
+				BOOST_CHECK( false );
+			}
+			catch ( std::exception & exc )
+			{
+				CLogger::LogError( exc.what() );
+				BOOST_CHECK( false );
 			}
 			catch ( ... )
 			{
@@ -818,7 +932,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 					if ( stmtDelete )
 					{
-						BOOST_CHECK( stmtDelete->CreateParameter( STR( "IDTest" ), EFieldType_LONG_INTEGER, EParameterType_IN ) );
+						BOOST_CHECK( stmtDelete->CreateParameter( STR( "IDTest" ), EFieldType_INT64, EParameterType_IN ) );
 						BOOST_CHECK( stmtDelete->Initialize() == EErrorType_NONE );
 
 						for ( int i = 0; i < 5; i++ )
@@ -829,6 +943,16 @@ BEGIN_NAMESPACE_DATABASE_TEST
 						}
 					}
 				}
+			}
+			catch ( CExceptionDatabase & exc )
+			{
+				CLogger::LogError( exc.GetFullDescription() );
+				BOOST_CHECK( false );
+			}
+			catch ( std::exception & exc )
+			{
+				CLogger::LogError( exc.what() );
+				BOOST_CHECK( false );
 			}
 			catch ( ... )
 			{
@@ -853,6 +977,16 @@ BEGIN_NAMESPACE_DATABASE_TEST
 						BOOST_CHECK( stmtClear->ExecuteUpdate() );
 					}
 				}
+			}
+			catch ( CExceptionDatabase & exc )
+			{
+				CLogger::LogError( exc.GetFullDescription() );
+				BOOST_CHECK( false );
+			}
+			catch ( std::exception & exc )
+			{
+				CLogger::LogError( exc.what() );
+				BOOST_CHECK( false );
 			}
 			catch ( ... )
 			{
@@ -894,6 +1028,16 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					}
 				}
 			}
+			catch ( CExceptionDatabase & exc )
+			{
+				CLogger::LogError( exc.GetFullDescription() );
+				BOOST_CHECK( false );
+			}
+			catch ( std::exception & exc )
+			{
+				CLogger::LogError( exc.what() );
+				BOOST_CHECK( false );
+			}
 			catch ( ... )
 			{
 				BOOST_CHECK( false );
@@ -929,7 +1073,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 					if ( stmtDelete )
 					{
-						BOOST_CHECK( stmtDelete->CreateParameter( STR( "IDTest" ), EFieldType_LONG_INTEGER, EParameterType_IN ) );
+						BOOST_CHECK( stmtDelete->CreateParameter( STR( "IDTest" ), EFieldType_INT64, EParameterType_IN ) );
 						BOOST_CHECK( stmtDelete->Initialize() == EErrorType_NONE );
 
 						for ( int i = 0; i < 5; i++ )
@@ -940,6 +1084,16 @@ BEGIN_NAMESPACE_DATABASE_TEST
 						}
 					}
 				}
+			}
+			catch ( CExceptionDatabase & exc )
+			{
+				CLogger::LogError( exc.GetFullDescription() );
+				BOOST_CHECK( false );
+			}
+			catch ( std::exception & exc )
+			{
+				CLogger::LogError( exc.what() );
+				BOOST_CHECK( false );
 			}
 			catch ( ... )
 			{
@@ -978,7 +1132,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 					if ( stmtAddElement )
 					{
-						BOOST_CHECK( stmtAddElement->CreateParameter( STR( "IDTest" ), EFieldType_LONG_INTEGER, EParameterType_INOUT ) );
+						BOOST_CHECK( stmtAddElement->CreateParameter( STR( "IDTest" ), EFieldType_INT64, EParameterType_INOUT ) );
 						CreateParameters( stmtAddElement );
 						BOOST_CHECK( stmtAddElement->Initialize() == EErrorType_NONE );
 						int64_t id( 1 );
@@ -995,6 +1149,16 @@ BEGIN_NAMESPACE_DATABASE_TEST
 						}
 					}
 				}
+			}
+			catch ( CExceptionDatabase & exc )
+			{
+				CLogger::LogError( exc.GetFullDescription() );
+				BOOST_CHECK( false );
+			}
+			catch ( std::exception & exc )
+			{
+				CLogger::LogError( exc.what() );
+				BOOST_CHECK( false );
 			}
 			catch ( ... )
 			{
@@ -1033,7 +1197,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 					if ( stmtUpdateElement )
 					{
-						BOOST_CHECK( stmtUpdateElement->CreateParameter( STR( "IDTest" ), EFieldType_LONG_INTEGER, EParameterType_INOUT ) );
+						BOOST_CHECK( stmtUpdateElement->CreateParameter( STR( "IDTest" ), EFieldType_INT64, EParameterType_INOUT ) );
 						CreateParameters( stmtUpdateElement );
 						BOOST_CHECK( stmtUpdateElement->CreateParameter( STR( "Date" ), EFieldType_DATETIME, EParameterType_OUT ) );
 						BOOST_CHECK( stmtUpdateElement->Initialize() == EErrorType_NONE );
@@ -1052,6 +1216,16 @@ BEGIN_NAMESPACE_DATABASE_TEST
 						}
 					}
 				}
+			}
+			catch ( CExceptionDatabase & exc )
+			{
+				CLogger::LogError( exc.GetFullDescription() );
+				BOOST_CHECK( false );
+			}
+			catch ( std::exception & exc )
+			{
+				CLogger::LogError( exc.what() );
+				BOOST_CHECK( false );
 			}
 			catch ( ... )
 			{
@@ -1080,7 +1254,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					stmtGetActors->Initialize();
 					std::clock_t start = std::clock();
 					DatabaseResultPtr result = stmtGetActors->ExecuteSelect();
-					CLogger::LogMessage( StringStream() << "    Selected the elements in " << float( std::clock() - start ) / CLOCKS_PER_SEC << "seconds (no fetch)" );
+					CLogger::LogInfo( StringStream() << "    Selected the elements in " << float( std::clock() - start ) / CLOCKS_PER_SEC << "seconds (no fetch)" );
 
 					start = std::clock();
 					uint32_t count = result->GetRowCount();
@@ -1095,8 +1269,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 						}
 					}
 
-					CLogger::LogMessage( StringStream() << "    Fetched " << count << " elements in " << float( std::clock() - start ) / CLOCKS_PER_SEC << "seconds" );
+					CLogger::LogInfo( StringStream() << "    Fetched " << count << " elements in " << float( std::clock() - start ) / CLOCKS_PER_SEC << "seconds" );
 				}
+			}
+			catch ( CExceptionDatabase & exc )
+			{
+				CLogger::LogError( exc.GetFullDescription() );
+				BOOST_CHECK( false );
+			}
+			catch ( std::exception & exc )
+			{
+				CLogger::LogError( exc.what() );
+				BOOST_CHECK( false );
 			}
 			catch ( ... )
 			{
@@ -1118,7 +1302,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					std::clock_t start = std::clock();
 					stmtGetActors->SetParameterValue( 0, whereClause );
 					DatabaseResultPtr result = stmtGetActors->ExecuteSelect();
-					CLogger::LogMessage( StringStream() << "    Selected the elements in " << float( std::clock() - start ) / CLOCKS_PER_SEC << "seconds (no fetch)" );
+					CLogger::LogInfo( StringStream() << "    Selected the elements in " << float( std::clock() - start ) / CLOCKS_PER_SEC << "seconds (no fetch)" );
 
 					start = std::clock();
 					uint32_t count = result->GetRowCount();
@@ -1133,8 +1317,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 						}
 					}
 
-					CLogger::LogMessage( StringStream() << "    Fetched " << count << " elements in " << float( std::clock() - start ) / CLOCKS_PER_SEC << "seconds" );
+					CLogger::LogInfo( StringStream() << "    Fetched " << count << " elements in " << float( std::clock() - start ) / CLOCKS_PER_SEC << "seconds" );
 				}
+			}
+			catch ( CExceptionDatabase & exc )
+			{
+				CLogger::LogError( exc.GetFullDescription() );
+				BOOST_CHECK( false );
+			}
+			catch ( std::exception & exc )
+			{
+				CLogger::LogError( exc.what() );
+				BOOST_CHECK( false );
 			}
 			catch ( ... )
 			{
@@ -1167,7 +1361,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 					if ( stmtDelete )
 					{
-						stmtDelete->CreateParameter( STR( "id" ), EFieldType_LONG_INTEGER, EParameterType_IN );
+						stmtDelete->CreateParameter( STR( "id" ), EFieldType_INT64, EParameterType_IN );
 						stmtDelete->Initialize();
 						std::clock_t const start = std::clock();
 
@@ -1178,9 +1372,19 @@ BEGIN_NAMESPACE_DATABASE_TEST
 							stmtDelete->ExecuteUpdate();
 						}
 
-						CLogger::LogMessage( StringStream() << "    Deleted " << testCount << " elements in " << float( std::clock() - start ) / CLOCKS_PER_SEC << "seconds" );
+						CLogger::LogInfo( StringStream() << "    Deleted " << testCount << " elements in " << float( std::clock() - start ) / CLOCKS_PER_SEC << "seconds" );
 					}
 				}
+			}
+			catch ( CExceptionDatabase & exc )
+			{
+				CLogger::LogError( exc.GetFullDescription() );
+				BOOST_CHECK( false );
+			}
+			catch ( std::exception & exc )
+			{
+				CLogger::LogError( exc.what() );
+				BOOST_CHECK( false );
 			}
 			catch ( ... )
 			{
@@ -1213,7 +1417,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 					if ( stmtDelete )
 					{
-						stmtDelete->CreateParameter( STR( "id" ), EFieldType_LONG_INTEGER, EParameterType_IN );
+						stmtDelete->CreateParameter( STR( "id" ), EFieldType_INT64, EParameterType_IN );
 						stmtDelete->Initialize();
 						std::clock_t const start = std::clock();
 
@@ -1224,9 +1428,19 @@ BEGIN_NAMESPACE_DATABASE_TEST
 							stmtDelete->ExecuteUpdate();
 						}
 
-						CLogger::LogMessage( StringStream() << "    Deleted " << testCount << " elements in " << float( std::clock() - start ) / CLOCKS_PER_SEC << "seconds" );
+						CLogger::LogInfo( StringStream() << "    Deleted " << testCount << " elements in " << float( std::clock() - start ) / CLOCKS_PER_SEC << "seconds" );
 					}
 				}
+			}
+			catch ( CExceptionDatabase & exc )
+			{
+				CLogger::LogError( exc.GetFullDescription() );
+				BOOST_CHECK( false );
+			}
+			catch ( std::exception & exc )
+			{
+				CLogger::LogError( exc.what() );
+				BOOST_CHECK( false );
 			}
 			catch ( ... )
 			{

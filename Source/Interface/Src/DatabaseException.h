@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file ExceptionDatabase.h
- * @author Sylvain Doremus
- * @version 1.0
- * @date 3/18/2014 2:47:39 PM
- *
- *
- * @brief CExceptionDatabase class declaration and definition.
- *
- * @details Should be thrown when a problem occured in the database interface.
- *
- ***************************************************************************/
+* @file ExceptionDatabase.h
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/18/2014 2:47:39 PM
+*
+*
+* @brief CExceptionDatabase class declaration and definition.
+*
+* @details Should be thrown when a problem occured in the database interface.
+*
+***************************************************************************/
 
 #ifndef ___DATABASE_EXCEPTION_DATABASE_H___
 #define ___DATABASE_EXCEPTION_DATABASE_H___
@@ -37,7 +37,7 @@ BEGIN_NAMESPACE_DATABASE
 		EDatabaseExceptionCodes_ItemNotFound,
 		EDatabaseExceptionCodes_InternalError,
 
-		EDatabaseExceptionCodes_LastCode ///< Represent the maximum number of exception code. Must be always the last.
+		EDatabaseExceptionCodes_LastCode //!< Represent the maximum number of exception code. Must be always the last.
 	};
 
 	/** Should be thrown when a problem occured in the database interface.
@@ -48,37 +48,37 @@ BEGIN_NAMESPACE_DATABASE
 	public:
 		/** Create a exception for the database.
 		@param number
-		    Error code.
+			Error code.
 		@param description
-		    Error description.
+			Error description.
 		@param source
-		    Error source function.
+			Error source function.
 		@param file
-		    Source file name.
+			Source file name.
 		@param line
-		    Source file line number.
+			Source file line number.
 		*/
 		DatabaseExport CExceptionDatabase( int number, const String & description, const std::string & source, const std::string & file, long line );
 
 		/** Create a exception for the database.
 		@param number
-		    Error code.
+			Error code.
 		@param description
-		    Error description.
+			Error description.
 		@param source
-		    Error source function.
+			Error source function.
 		@param type
-		    Error type.
+			Error type.
 		@param file
-		    Source file name.
+			Source file name.
 		@param line
-		    Source file line number.
+			Source file line number.
 		*/
 		DatabaseExport CExceptionDatabase( int number, const String & description, const std::string & source, const String & type, const std::string & file, long line );
 
 		/** Get the error code.
 		@return
-		    Return the error code.
+			Return the error code.
 		*/
 		DatabaseExport virtual int GetNumber() const throw()
 		{
@@ -87,34 +87,34 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Get the source function.
 		@return
-		    Return the error source function.
+			Return the error source function.
 		*/
 		DatabaseExport virtual const String & GetSource() const { return _source; }
 
 		/** Get the source file name.
 		@return
-		    Return error source file name.
+			Return error source file name.
 		*/
 		DatabaseExport virtual const String & GetFile() const { return _file; }
 
 		/** Get the line number.
 		@return
-		    Return error line number.
+			Return error line number.
 		*/
 		DatabaseExport virtual long GetLine() const { return _line; }
 
 		/** Return a string with only the 'description' field of this exception.
-		    @remarks
-		        Use GetFullDescriptionton to get a full description of the error including
-		        line number, error number and what function threw the exception.
+			@remarks
+				Use GetFullDescriptionton to get a full description of the error including
+				line number, error number and what function threw the exception.
 		*/
 		DatabaseExport virtual const String & GetDescription() const { return _description; }
 
 		/** Return a string with the full description of this error.
-		    @remarks
-		        The description contains the error number, the description
-		        supplied by the thrower, what routine threw the exception,
-		        and will also supply extra platform-specific information if applicable.
+			@remarks
+				The description contains the error number, the description
+				supplied by the thrower, what routine threw the exception,
+				and will also supply extra platform-specific information if applicable.
 		*/
 		DatabaseExport virtual const String & GetFullDescription() const;
 
@@ -140,8 +140,8 @@ BEGIN_NAMESPACE_DATABASE
 		mutable std::string _what;
 	};
 
-#   define DB_EXCEPT( number, description ) throw CExceptionDatabase( number, description, __FUNCTION__, __FILE__, __LINE__ )
-
-} END_NAMESPACE_DATABASE
+#	define DB_EXCEPT( number, description ) throw CExceptionDatabase( number, description, __FUNCTION__, __FILE__, __LINE__ )
+}
+END_NAMESPACE_DATABASE
 
 #endif // ___DATABASE_EXCEPTION_DATABASE_H___

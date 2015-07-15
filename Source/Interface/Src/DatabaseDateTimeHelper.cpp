@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DateTimeHelper.cpp
- * @author Sylvain Doremus
- * @version 1.0
- * @date 3/19/2014 3:03:29 PM
- *
- *
- * @brief Helping functions for date/time management.
- *
- * @details Helping functions for date/time management.
- *
- ***************************************************************************/
+* @file DateTimeHelper.cpp
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/19/2014 3:03:29 PM
+*
+*
+* @brief Helping functions for date/time management.
+*
+* @details Helping functions for date/time management.
+*
+***************************************************************************/
 
 #include "DatabasePch.h"
 
@@ -26,7 +26,7 @@
 
 BEGIN_NAMESPACE_DATABASE
 {
-	static const String DATETIME_FORMALIZE_ERROR = STR( "Error while formatting: " );
+	static const String ERROR_DB_FORMALIZE = STR( "Error while formatting: " );
 
 	bool IsLeap( int year )
 	{
@@ -99,7 +99,7 @@ BEGIN_NAMESPACE_DATABASE
 		catch ( ... )
 		{
 			StringStream message;
-			message << DATETIME_FORMALIZE_ERROR << formattedString.c_str();
+			message << ERROR_DB_FORMALIZE << formattedString.c_str();
 			CLogger::LogError( message.str() );
 			DB_EXCEPT( EDatabaseExceptionCodes_DateTimeError, message.str() );
 		}
@@ -176,7 +176,7 @@ BEGIN_NAMESPACE_DATABASE
 		catch ( ... )
 		{
 			StringStream message;
-			message << DATETIME_FORMALIZE_ERROR << formattedString.c_str();
+			message << ERROR_DB_FORMALIZE << formattedString.c_str();
 			CLogger::LogError( message.str() );
 			DB_EXCEPT( EDatabaseExceptionCodes_DateTimeError, message.str() );
 		}

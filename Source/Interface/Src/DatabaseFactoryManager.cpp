@@ -1,16 +1,16 @@
 /************************************************************************//**
- * @file FactoryObjectManager.cpp
- * @author spastor
- * @version 1.0
- * @date 2/13/2013 4:27:50 PM
- *
- *
- * @brief This manager manages factory objects.
- *
- * @details This class not only manages the object themselves, it also manages
- *          the factory classes wich allow the creation of specific objects.
- *
- ***************************************************************************/
+* @file FactoryObjectManager.cpp
+* @author spastor
+* @version 1.0
+* @date 2/13/2013 4:27:50 PM
+*
+*
+* @brief This manager manages factory objects.
+*
+* @details This class not only manages the object themselves, it also manages
+*          the factory classes wich allow the creation of specific objects.
+*
+***************************************************************************/
 
 #include "DatabasePch.h"
 
@@ -19,8 +19,8 @@
 
 BEGIN_NAMESPACE_DATABASE
 {
-	static const String ERROR_FACTORY_TYPE_NOT_FOUND = STR( "Factory type %1% not found in registered factories" );
-	static const String ERROR_OBJECT_TYPE_NOT_FOUND = STR( "Object type %1% not found in registered objects" );
+	static const String ERROR_DB_FACTORY_TYPE_NOT_FOUND = STR( "Factory type %1% not found in registered factories" );
+	static const String ERROR_DB_OBJECT_TYPE_NOT_FOUND = STR( "Object type %1% not found in registered objects" );
 
 	CFactoryManager::CFactoryManager()
 	{
@@ -34,30 +34,29 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		_factories.insert( std::make_pair( factory->GetType(), factory ) );
 
-		///@remarks Create the association between an object type and its factory.
-		std::list<String> objTypes = factory->GetObjectTypes();
-		std::list<String>::iterator it;
+		//!@remarks Create the association between an object type and its factory.
+		auto && objTypes = factory->GetObjectTypes();
 
-		for ( it = objTypes.begin(); it != objTypes.end(); ++it )
+		for ( auto && name : objTypes )
 		{
-			_objectFactories.insert( std::make_pair( *it, factory->GetType() ) );
+			_objectFactories.insert( std::make_pair( name, factory->GetType() ) );
 		}
 	}
 
 	void CFactoryManager::RemoveFactory( CFactoryDatabase * factory )
 	{
-		std::map< String, CFactoryDatabase * >::iterator itFactory = _factories.find( factory->GetType() );
+		auto && itFactory = _factories.find( factory->GetType() );
 
 		if ( itFactory != _factories.end() )
 		{
 			_factories.erase( itFactory );
 
-			///@remarks Remove the association between an object type and its factory.
-			std::list< String > objTypes = factory->GetObjectTypes();
+			//!@remarks Remove the association between an object type and its factory.
+			auto && objTypes = factory->GetObjectTypes();
 
-			for ( std::list< String >::iterator it = objTypes.begin(); it != objTypes.end(); ++it )
+			for ( auto && name : objTypes )
 			{
-				std::map< String, String >::iterator itObject = _objectFactories.find( *it );
+				auto && itObject = _objectFactories.find( name );
 
 				if ( itObject != _objectFactories.end() )
 				{
@@ -71,8 +70,8 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		CDatabase * object = NULL;
 
-		///@remarks Find factory object.
-		std::map< String, CFactoryDatabase * >::iterator itFactory = _factories.find( factoryType );
+		//!@remarks Find factory object.
+		auto && itFactory = _factories.find( factoryType );
 
 		if ( itFactory != _factories.end() )
 		{
@@ -80,19 +79,19 @@ BEGIN_NAMESPACE_DATABASE
 
 			if ( factory )
 			{
-				///@remarks Create a new object instance.
+				//!@remarks Create a new object instance.
 				object = factory->CreateInstance( objectType );
 			}
 			else
 			{
-				Format fmt( ERROR_FACTORY_TYPE_NOT_FOUND );
+				Format fmt( ERROR_DB_FACTORY_TYPE_NOT_FOUND );
 				fmt % factoryType;
 				DB_EXCEPT( EDatabaseExceptionCodes_NullPointer, fmt.str() );
 			}
 		}
 		else
 		{
-			Format fmt( ERROR_FACTORY_TYPE_NOT_FOUND );
+			Format fmt( ERROR_DB_FACTORY_TYPE_NOT_FOUND );
 			fmt % factoryType;
 			DB_EXCEPT( EDatabaseExceptionCodes_ItemNotFound, fmt.str() );
 		}
@@ -102,17 +101,17 @@ BEGIN_NAMESPACE_DATABASE
 
 	CDatabase * CFactoryManager::CreateInstance( const String & objectType )
 	{
-		///@remarks Find factory type.
-		std::map< String, String >::iterator itObject = _objectFactories.find( objectType );
+		//!@remarks Find factory type.
+		auto && itObject = _objectFactories.find( objectType );
 
 		if ( itObject != _objectFactories.end() )
 		{
-			///@remarks Create a new object instance.
+			//!@remarks Create a new object instance.
 			return CreateInstance( itObject->second, objectType );
 		}
 		else
 		{
-			Format fmt( ERROR_OBJECT_TYPE_NOT_FOUND );
+			Format fmt( ERROR_DB_OBJECT_TYPE_NOT_FOUND );
 			fmt % objectType;
 			DB_EXCEPT( EDatabaseExceptionCodes_ItemNotFound, fmt.str() );
 		}

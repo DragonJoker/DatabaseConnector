@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DatabaseSqlitePch.h
- * @author Sylvain Doremus
- * @version 1.0
- * @date 03/14/2014 11:00:50 AM
- *
- *
- * @brief Database SQLite precompiled header.
- *
- * @details This file generates the Database SQLite precompiled headers.
- *
- ***************************************************************************/
+* @file DatabaseSqlitePch.h
+* @author Sylvain Doremus
+* @version 1.0
+* @date 03/14/2014 11:00:50 AM
+*
+*
+* @brief Database SQLite precompiled header.
+*
+* @details This file generates the Database SQLite precompiled headers.
+*
+***************************************************************************/
 
 #ifndef ___DATABASE_SQLITE_PCH_H___
 #define ___DATABASE_SQLITE_PCH_H___

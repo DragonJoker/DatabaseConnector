@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DatabaseStatementParameterSqlite.h
- * @author Sylvain Doremus
- * @version 1.0
- * @date 3/20/2014 2:47:39 PM
- *
- *
- * @brief CDatabaseStatementParameterSqlite class declaration.
- *
- * @details Describes a statement parameter for SQLite database.
- *
- ***************************************************************************/
+* @file DatabaseStatementParameterSqlite.h
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/20/2014 2:47:39 PM
+*
+*
+* @brief CDatabaseStatementParameterSqlite class declaration.
+*
+* @details Describes a statement parameter for SQLite database.
+*
+***************************************************************************/
 
 #ifndef ___DATABASE_STATEMENT_PARAMETER_SQLITE_H___
 #define ___DATABASE_STATEMENT_PARAMETER_SQLITE_H___
@@ -21,18 +21,6 @@
 
 BEGIN_NAMESPACE_DATABASE_SQLITE
 {
-	/** Used to stream a byte array into an std::istream
-	*/
-	struct membuf
-			: std::streambuf
-	{
-		/** Consctructor
-		*/
-		membuf( char * begin, char * end )
-		{
-			this->setg( begin, begin, end );
-		}
-	};
 	/** Describes a statement parameter for SQLite database.
 	*/
 	class CDatabaseStatementParameterSqlite
@@ -55,7 +43,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@param[in] updater
 		    The parent updater
 		 */
-		DatabaseSqliteExport CDatabaseStatementParameterSqlite( DatabaseConnectionSqlitePtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, SValueUpdater * updater );
+		DatabaseSqliteExport CDatabaseStatementParameterSqlite( DatabaseConnectionSqlitePtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
 
 		/** Constructor.
 		@param[in] connection
@@ -73,7 +61,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@param[in] updater
 		    The parent updater
 		 */
-		DatabaseSqliteExport CDatabaseStatementParameterSqlite( DatabaseConnectionSqlitePtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, SValueUpdater * updater );
+		DatabaseSqliteExport CDatabaseStatementParameterSqlite( DatabaseConnectionSqlitePtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
 
 		/** Destructor.
 		 */
@@ -98,7 +86,6 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 			CDatabaseValuedObject::DoSetValue( value );
 			_binding->UpdateValue();
-			_updater->Update( shared_from_this() );
 		}
 
 		/** Set parameter value
@@ -110,7 +97,6 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 			CDatabaseValuedObject::DoSetValue( value );
 			_binding->UpdateValue();
-			_updater->Update( shared_from_this() );
 		}
 
 		/** Set parameter value
@@ -124,7 +110,6 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 			CDatabaseValuedObject::DoSetValueFast( value );
 			_binding->UpdateValue();
-			_updater->Update( shared_from_this() );
 		}
 
 		/** Set parameter value
@@ -138,11 +123,22 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 			CDatabaseValuedObject::DoSetValueFast( value );
 			_binding->UpdateValue();
-			_updater->Update( shared_from_this() );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
 		DatabaseSqliteExport virtual void DoSetValue( const bool & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseSqliteExport virtual void DoSetValue( const int8_t & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseSqliteExport virtual void DoSetValue( const uint8_t & value )
 		{
 			DoSetAndUpdateValue( value );
 		}
@@ -155,6 +151,18 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
 		DatabaseSqliteExport virtual void DoSetValue( const uint16_t & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseSqliteExport virtual void DoSetValue( const int24_t & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseSqliteExport virtual void DoSetValue( const uint24_t & value )
 		{
 			DoSetAndUpdateValue( value );
 		}
@@ -202,6 +210,12 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseSqliteExport virtual void DoSetValue( const CFixedPoint & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
 		DatabaseSqliteExport virtual void DoSetValue( const std::string & value )
 		{
 			DoSetAndUpdateValue( value );
@@ -232,13 +246,25 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
-		DatabaseSqliteExport virtual void DoSetValue( const std::vector< uint8_t > & value )
+		DatabaseSqliteExport virtual void DoSetValue( const ByteArray & value )
 		{
 			DoSetAndUpdateValue( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
 		DatabaseSqliteExport virtual void DoSetValueFast( const bool & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseSqliteExport virtual void DoSetValueFast( const int8_t & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseSqliteExport virtual void DoSetValueFast( const uint8_t & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}
@@ -251,6 +277,18 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
 		DatabaseSqliteExport virtual void DoSetValueFast( const uint16_t & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseSqliteExport virtual void DoSetValueFast( const int24_t & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseSqliteExport virtual void DoSetValueFast( const uint24_t & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}
@@ -298,6 +336,12 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseSqliteExport virtual void DoSetValueFast( const CFixedPoint & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
 		DatabaseSqliteExport virtual void DoSetValueFast( const std::string & value )
 		{
 			DoSetAndUpdateValueFast( value );
@@ -328,7 +372,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
-		DatabaseSqliteExport virtual void DoSetValueFast( const std::vector< uint8_t > & value )
+		DatabaseSqliteExport virtual void DoSetValueFast( const ByteArray & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}

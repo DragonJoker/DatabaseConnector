@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DatabaseStatementOdbc.h
- * @author Sylvain Doremus
- * @version 1.0
- * @date 3/20/2014 2:47:39 PM
- *
- *
- * @brief CDatabaseStatementOdbc class declaration.
- *
- * @details Describes a statement for ODBC database.
- *
- ***************************************************************************/
+* @file DatabaseStatementOdbc.h
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/20/2014 2:47:39 PM
+*
+*
+* @brief CDatabaseStatementOdbc class declaration.
+*
+* @details Describes a statement for ODBC database.
+*
+***************************************************************************/
 
 #ifndef ___DATABASE_STATEMENT_ODBC_H___
 #define ___DATABASE_STATEMENT_ODBC_H___
@@ -25,31 +25,30 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	class CDatabaseStatementOdbc
 		: public CDatabaseStatement
 	{
-
 	public:
 		/** Constructor.
 		@param[in] connection
-		    Database connection.
+			Database connection.
 		@param[in] query
-		    Request text.
+			Request text.
 		*/
 		CDatabaseStatementOdbc( DatabaseConnectionOdbcPtr connection, const String & query );
 
 		/** Destructor.
-		 */
+			*/
 		virtual ~CDatabaseStatementOdbc();
 
 		/** Initialize this statement.
 		@return
-		    Error code.
+			Error code.
 		*/
 		virtual EErrorType Initialize();
 
 		/** Prepare the statement.
 		@remarks
-		    The statement *MUST* be prepared, *AFTER* all parameters have been created.
+			The statement *MUST* be prepared, *AFTER* all parameters have been created.
 		@return
-		    Error code.
+			Error code.
 		*/
 		virtual EErrorType Prepare()
 		{
@@ -58,17 +57,17 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 		/** Execute this statement.
 		@param[out] result
-		    Error code.
+			Error code.
 		@return
-		    The result.
+			The result.
 		*/
 		virtual bool ExecuteUpdate( EErrorType * result = NULL );
 
 		/** Execute this statement.
 		@param[out] result
-		    Error code.
+			Error code.
 		@return
-		    The result.
+			The result.
 		*/
 		virtual DatabaseResultPtr ExecuteSelect( EErrorType * result = NULL );
 
@@ -78,57 +77,57 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 		/** Create a parameter.
 		@param[in] name
-		    Parameter name.
+			Parameter name.
 		@param[in] fieldType
-		    Date type.
+			Date type.
 		@param[in] parameterType
-		    Parameter type.
+			Parameter type.
 		@return
-		    Created parameter.
+			Created parameter.
 		*/
 		virtual DatabaseParameterPtr CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType );
 
 		/** Create a parameter which has limits (strings, etc.).
 		@param[in] name
-		    Parameter name.
+			Parameter name.
 		@param[in] fieldType
-		    Date type.
+			Date type.
 		@param[in] limits
-		    Size limits.
+			Size limits.
 		@param[in] parameterType
-		    Parameter type.
+			Parameter type.
 		@return
-		    Created parameter.
+			Created parameter.
 		*/
 		virtual DatabaseParameterPtr CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType );
 
 	private:
 		/** Pre-execute operations.
 		@return
-		    Error code.
+			Error code.
 		*/
 		EErrorType DoPreExecute();
 
 		/** Execute this statement.
 		@param[out] ret
-		    Receives the result set, if any.
+			Receives the result set, if any.
 		@return
-		    The error code.
+			The error code.
 		*/
 		virtual EErrorType DoExecute( DatabaseResultPtr & ret );
 
 		/** Function called when the result set is fully fetched (to retrieve out parameters values)
 		@param statementHandle
-		    The statement fetched
+			The statement fetched
 		@info
-		    The execution result
+			The execution result
 		*/
 		void OnResultSetFullyFetched( HSTMT statementHandle, SQLRETURN info );
 
 	private:
-		/// Statement handle.
+		//! Statement handle.
 		SQLHSTMT _statementHandle;
-		/// Database connection.
+		//! Database connection.
 		DatabaseConnectionOdbcPtr _connectionOdbc;
 	};
 }

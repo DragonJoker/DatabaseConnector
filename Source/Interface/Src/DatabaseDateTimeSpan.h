@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DateTimeSpan.h
- * @author Sylvain Doremus
- * @version 1.0
- * @date 3/20/2014 2:47:39 PM
- *
- *
- * @brief CDateTimeSpan class declaration.
- *
- * @details Describes a date and/or time difference.
- *
- ***************************************************************************/
+* @file DateTimeSpan.h
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/20/2014 2:47:39 PM
+*
+*
+* @brief CDateTimeSpan class declaration.
+*
+* @details Describes a date and/or time difference.
+*
+***************************************************************************/
 
 #ifndef ___DATABASE_DATE_TIME_SPAN_H___
 #define ___DATABASE_DATE_TIME_SPAN_H___
@@ -22,7 +22,6 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	class DatabaseExport CDateTimeSpan
 	{
-
 	public:
 		/** Default constructor.
 		*/
@@ -30,19 +29,19 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Constructor.
 		@param  span
-		    Number of days.
+			Number of days.
 		*/
 		CDateTimeSpan( double span );
 
 		/** Constructeur
 		@param  days
-		    Number of days.
+			Number of days.
 		@param hours
-		    Hours.
+			Hours.
 		@param minutes
-		    Minutes.
+			Minutes.
 		@param seconds
-		    Seconds.
+			Seconds.
 		*/
 		CDateTimeSpan( int days, int hours, int minutes, int seconds );
 
@@ -51,33 +50,30 @@ BEGIN_NAMESPACE_DATABASE
 		~CDateTimeSpan();
 
 	private:
-
 		/** Add a span to a date/time
 		@param dateTime
-		    Date/time.
+			Date/time.
 		@param dateTimeSpan
-		    Time interval.
+			Time interval.
 		@return
-		    Date/time
+			Date/time
 		*/
 		friend CDateTime operator +( const CDateTime & dateTime, const CDateTimeSpan & dateTimeSpan );
 
 		/** Substract a span to a date/time
 		@param dateTime
-		    Date/time.
+			Date/time.
 		@param dateTimeSpan
-		    Time interval.
+			Time interval.
 		@return
-		    Date/time
+			Date/time
 		*/
 		friend CDateTime operator -( const CDateTime & dateTime, const CDateTimeSpan & dateTimeSpan );
 
 	protected:
-
-		double _span;   ///< Difference (in days).
-
-	}; // class CDateTimeSpan
-
+		//!< Difference (in days).
+		double _span;
+	};
 }
 END_NAMESPACE_DATABASE
 

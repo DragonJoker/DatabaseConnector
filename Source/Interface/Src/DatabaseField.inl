@@ -1,25 +1,23 @@
 /************************************************************************//**
- * @file DatabaseField.inl
- * @author Sylvain Doremus
- * @version 1.0
- * @date 3/20/2014 2:47:39 PM
- *
- *
- * @brief CDatabaseField class template functionalities.
- *
- * @details Describes a database field.
- *
- ***************************************************************************/
+* @file DatabaseField.inl
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/20/2014 2:47:39 PM
+*
+*
+* @brief CDatabaseField class template functionalities.
+*
+* @details Describes a database field.
+*
+***************************************************************************/
 
 #include "DatabasePrerequisites.h" // Help doxygen
 
 #include "DatabaseValue.h"
+#include "DatabaseNullable.h"
 
 BEGIN_NAMESPACE_DATABASE
 {
-	static const String DATABASE_FIELD_TYPE_ERROR = STR( "Unknown field type" );
-	static const String DATABASE_FIELD_NULL_VALUE_ERROR = STR( "Field value is null: " );
-
 	template< typename T >
 	inline T CDatabaseField::GetValue() const
 	{
@@ -35,19 +33,19 @@ BEGIN_NAMESPACE_DATABASE
 	}
 
 	template< typename T >
-	inline boost::optional< T > CDatabaseField::GetValueOpt() const
+	inline CDatabaseNullable< T > CDatabaseField::GetValueOpt() const
 	{
-		boost::optional< T > tReturn;
+		CDatabaseNullable< T > tReturn;
 		GetValueOpt( tReturn );
 		return tReturn;
 	}
 
 	template< typename T >
-	inline void CDatabaseField::GetValueOpt( boost::optional< T > & value ) const
+	inline void CDatabaseField::GetValueOpt( CDatabaseNullable< T > & value ) const
 	{
 		if ( GetObjectValue().IsNull() )
 		{
-			value = boost::none;
+			value = None;
 		}
 		else
 		{
@@ -72,19 +70,19 @@ BEGIN_NAMESPACE_DATABASE
 	}
 
 	template< typename T >
-	inline boost::optional< T > CDatabaseField::GetValueOptFast() const
+	inline CDatabaseNullable< T > CDatabaseField::GetValueOptFast() const
 	{
-		boost::optional< T > tReturn;
+		CDatabaseNullable< T > tReturn;
 		GetValueOptFast( tReturn );
 		return tReturn;
 	}
 
 	template< typename T >
-	inline void CDatabaseField::GetValueOptFast( boost::optional< T > & value ) const
+	inline void CDatabaseField::GetValueOptFast( CDatabaseNullable< T > & value ) const
 	{
 		if ( GetObjectValue().IsNull() )
 		{
-			value = boost::none;
+			value = None;
 		}
 		else
 		{

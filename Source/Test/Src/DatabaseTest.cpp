@@ -39,9 +39,9 @@ void Startup( char * arg )
 
 	// Configure logger
 #if defined( NDEBUG )
-	NAMESPACE_DATABASE::CLogger::Initialise( NAMESPACE_DATABASE::eLOG_TYPE_MESSAGE );
+	NAMESPACE_DATABASE::CLogger::Initialise( NAMESPACE_DATABASE::ELogType_INFO );
 #else
-	NAMESPACE_DATABASE::CLogger::Initialise( NAMESPACE_DATABASE::eLOG_TYPE_DEBUG );
+	NAMESPACE_DATABASE::CLogger::Initialise( NAMESPACE_DATABASE::ELogType_DEBUG );
 #endif
 	NAMESPACE_DATABASE::CLogger::SetFileName( g_path + STR( "DatabaseTest.log" ) );
 
@@ -73,7 +73,7 @@ boost::unit_test::test_suite * init_unit_test_suite( int argc, char * argv[] )
 	NAMESPACE_DATABASE_TEST::Tests_Creation();
 
 	Shutdown();
-	///@remarks Exit the test application.
+	//!@remarks Exit the test application.
 	return 0;
 }
 #else
@@ -86,16 +86,16 @@ int main( int argc, char * argv[] )
 {
 	Startup( argv[0] );
 
-	///@remarks Master TS initialization.
+	//!@remarks Master TS initialization.
 	boost::unit_test::master_test_suite_t & masterTestSuite = boost::unit_test::framework::master_test_suite();
 	boost::unit_test::init_unit_test_func();
 
-	///@remarks Master TS Execution.
+	//!@remarks Master TS Execution.
 	boost::unit_test::unit_test_main( &NAMESPACE_DATABASE_TEST::boost_main_init_function, argc, argv );
 
 	Shutdown();
 
-	///@remarks Exit the test application.
+	//!@remarks Exit the test application.
 	return 0;
 }
 
@@ -103,10 +103,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 {
 	bool boost_main_init_function()
 	{
-		///@remarks execute the test suite.
+		//!@remarks execute the test suite.
 		Tests_Creation();
 
-		///@remarks Exit the Master TS initialization.
+		//!@remarks Exit the Master TS initialization.
 		return true;
 	}
 }
@@ -117,22 +117,22 @@ BEGIN_NAMESPACE_DATABASE_TEST
 {
 	void Tests_Creation()
 	{
-		///@remarks Clear the TS' List
+		//!@remarks Clear the TS' List
 		TS_List.clear();
 
-		///@remarks Create the TS' sequences
+		//!@remarks Create the TS' sequences
 #if defined( TESTING_PLUGIN_MYSQL )
 		//TS_List.push_back( DatabaseMySqlTest->Init_Test_Suite() );
 #endif
 #if defined( TESTING_PLUGIN_SQLITE )
-		TS_List.push_back( DatabaseSqliteTest->Init_Test_Suite() );
+		//TS_List.push_back( DatabaseSqliteTest->Init_Test_Suite() );
 #endif
 #if defined( TESTING_PLUGIN_ODBC )
-		//TS_List.push_back( DatabaseOdbcMySqlTest->Init_Test_Suite() );
+		TS_List.push_back( DatabaseOdbcMySqlTest->Init_Test_Suite() );
 		//TS_List.push_back( DatabaseOdbcMsSqlTest->Init_Test_Suite() );
 #endif
 
-		///@remarks Add the TS' sequences into the Master TS
+		//!@remarks Add the TS' sequences into the Master TS
 		for ( auto suite : TS_List )
 		{
 			boost::unit_test::framework::master_test_suite().add( suite );

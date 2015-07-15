@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DatabaseFieldInfos.cpp
- * @author Sylvain Doremus
- * @version 1.0
- * @date 3/20/2014 2:47:39 PM
- *
- *
- * @brief CDatabaseFieldInfos class definition.
- *
- * @details Describes database field information.
- *
- ***************************************************************************/
+* @file DatabaseFieldInfos.cpp
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/20/2014 2:47:39 PM
+*
+*
+* @brief CDatabaseFieldInfos class definition.
+*
+* @details Describes database field information.
+*
+***************************************************************************/
 
 #include "DatabasePch.h"
 
@@ -49,34 +49,55 @@ BEGIN_NAMESPACE_DATABASE
 	}
 
 	CDatabaseFieldInfos::CDatabaseFieldInfos( DatabaseConnectionPtr connection, const String & name, EFieldType type, uint32_t limprec )
-		:   _name( name )
-		,   _type( type )
-		,   _limits( limprec )
-		,   _connection( connection )
+		: _name( name )
+		, _type( type )
+		, _precision( std::make_pair( limprec, 0 ) )
+		, _connection( connection )
+	{
+		// Empty
+	}
+
+	CDatabaseFieldInfos::CDatabaseFieldInfos( DatabaseConnectionPtr connection, const String & name, EFieldType type, std::pair< uint32_t, uint32_t > precision )
+		: _name( name )
+		, _type( type )
+		, _precision( precision )
+		, _connection( connection )
 	{
 		// Empty
 	}
 
 	CDatabaseFieldInfos::CDatabaseFieldInfos( DatabaseConnectionPtr connection, const String & name, const String & type, uint32_t limprec )
-		:   _name( name )
-		,   _type( EFieldType_NULL )
-		,   _limits( limprec )
-		,   _connection( connection )
+		: _name( name )
+		, _type( EFieldType_NULL )
+		, _precision( std::make_pair( limprec, 0 ) )
+		, _connection( connection )
 	{
 		String strTypel = CStrUtils::UpperCase( type );
 		size_t index;
 
-		if ( strTypel.find( STR( "BIGINT" ) ) != String::npos || strTypel == STR( "MAX" ) || strTypel == STR( "COUNT" ) || strTypel == STR( "MIN" ) )
+		if ( strTypel.find( STR( "BIGINT" ) ) != String::npos
+				|| strTypel == STR( "MAX" )
+				|| strTypel == STR( "COUNT" )
+				|| strTypel == STR( "MIN" ) )
 		{
-			_type = EFieldType_LONG_INTEGER;
+			_type = EFieldType_INT64;
 		}
 		else if ( strTypel.find( STR( "SMALLINT" ) ) != String::npos )
 		{
-			_type = EFieldType_SMALL_INTEGER;
+			_type = EFieldType_INT16;
+		}
+		else if ( strTypel.find( STR( "BOOL" ) ) != String::npos
+				  || strTypel.find( STR( "BIT" ) ) != String::npos )
+		{
+			_type = EFieldType_BIT;
 		}
 		else if ( strTypel.find( STR( "TINYINT" ) ) != String::npos )
 		{
-			_type = EFieldType_BOOL;
+			_type = EFieldType_INT8;
+		}
+		else if ( ( index = strTypel.find( STR( "MEDIUMINT" ) ) ) != String::npos )
+		{
+			_type = EFieldType_INT24;
 		}
 		else if ( ( index = strTypel.find( STR( "INT" ) ) ) != String::npos )
 		{
@@ -90,42 +111,47 @@ BEGIN_NAMESPACE_DATABASE
 				{
 					if ( prec == 1 )
 					{
-						_type = EFieldType_BOOL;
+						_type = EFieldType_INT8;
 					}
 					else if ( prec == 2 )
 					{
-						_type = EFieldType_SMALL_INTEGER;
+						_type = EFieldType_INT16;
+					}
+					else if ( prec <= 3 )
+					{
+						_type = EFieldType_INT24;
 					}
 					else if ( prec <= 4 )
 					{
-						_type = EFieldType_INTEGER;
+						_type = EFieldType_INT32;
 					}
 					else
 					{
-						_type = EFieldType_LONG_INTEGER;
+						_type = EFieldType_INT64;
 					}
 				}
 				else
 				{
-					_type = EFieldType_INTEGER;
+					_type = EFieldType_INT32;
 				}
 			}
 			else
 			{
-				_type = EFieldType_INTEGER;
+				_type = EFieldType_INT32;
 			}
 		}
-		else if ( strTypel.find( STR( "NCHAR" ) ) != String::npos || strTypel.find( STR( "NVARCHAR" ) ) != String::npos )
+		else if ( strTypel.find( STR( "NCHAR" ) ) != String::npos
+				  || strTypel.find( STR( "NVARCHAR" ) ) != String::npos )
 		{
 			_type = EFieldType_NVARCHAR;
 
 			if ( limprec == -1 )
 			{
-				_limits = RetrieveLimits( strTypel ).first;
+				_precision = RetrieveLimits( strTypel );
 			}
 			else
 			{
-				_limits = limprec;
+				_precision.first = limprec;
 			}
 		}
 		else if ( strTypel.find( STR( "CHAR" ) ) != String::npos )
@@ -134,42 +160,46 @@ BEGIN_NAMESPACE_DATABASE
 
 			if ( limprec == -1 )
 			{
-				_limits = RetrieveLimits( strTypel ).first;
+				_precision = RetrieveLimits( strTypel );
 			}
 			else
 			{
-				_limits = limprec;
+				_precision.first = limprec;
 			}
 		}
 		else if ( strTypel.find( STR( "NTEXT" ) ) != String::npos )
 		{
 			_type = EFieldType_NTEXT;
-			_limits = -1;
+			_precision.first = -1;
 		}
-		else if ( strTypel.find( STR( "CLOB" ) ) != String::npos || strTypel.find( STR( "TEXT" ) ) != String::npos )
+		else if ( strTypel.find( STR( "CLOB" ) ) != String::npos
+				  || strTypel.find( STR( "TEXT" ) ) != String::npos )
 		{
 			_type = EFieldType_TEXT;
-			_limits = -1;
+			_precision.first = -1;
 		}
-		else if ( strTypel.find( STR( "FLOA" ) ) != String::npos || strTypel == STR( "SUM" ) )
+		else if ( strTypel.find( STR( "FLOA" ) ) != String::npos
+				  || strTypel == STR( "SUM" ) )
 		{
-			_type = EFieldType_FLOAT;
+			_type = EFieldType_FLOAT32;
 		}
-		else if ( strTypel.find( STR( "REAL" ) ) != String::npos || strTypel.find( STR( "DOUB" ) ) != String::npos )
+		else if ( strTypel.find( STR( "REAL" ) ) != String::npos
+				  || strTypel.find( STR( "DOUB" ) ) != String::npos )
 		{
-			_type = EFieldType_DOUBLE;
+			_type = EFieldType_FLOAT64;
 		}
-		else if ( strTypel.find( STR( "DECIMAL" ) ) != String::npos )
+		else if ( strTypel.find( STR( "DECIMAL" ) ) != String::npos
+				  || strTypel.find( STR( "NUMERIC" ) ) != String::npos )
 		{
-			_type = EFieldType_DOUBLE;
+			_type = EFieldType_FIXED_POINT;
 
 			if ( limprec == -1 )
 			{
-				_limits = RetrieveLimits( strTypel ).second;
+				_precision = RetrieveLimits( strTypel );
 			}
 			else
 			{
-				_limits = limprec;
+				_precision = std::make_pair( limprec, limprec );
 			}
 		}
 		else if ( strTypel == STR( "DATETIME" ) )
@@ -184,14 +214,10 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			_type = EFieldType_TIME;
 		}
-		else if ( strTypel.find( STR( "BOOL" ) ) != String::npos )
-		{
-			_type = EFieldType_BOOL;
-		}
 		else if ( strTypel.find( STR( "BLOB" ) ) != String::npos )
 		{
 			_type = EFieldType_LONG_VARBINARY;
-			_limits = -1;
+			_precision.first = -1;
 		}
 		else if ( strTypel.find( STR( "VARBINARY" ) ) != String::npos )
 		{
@@ -199,11 +225,11 @@ BEGIN_NAMESPACE_DATABASE
 
 			if ( limprec == -1 )
 			{
-				_limits = RetrieveLimits( strTypel ).first;
+				_precision = RetrieveLimits( strTypel );
 			}
 			else
 			{
-				_limits = limprec;
+				_precision.first = limprec;
 			}
 		}
 		else if ( strTypel.find( STR( "BINARY" ) ) != String::npos )
@@ -212,22 +238,13 @@ BEGIN_NAMESPACE_DATABASE
 
 			if ( limprec == -1 )
 			{
-				_limits = RetrieveLimits( strTypel ).first;
+				_precision = RetrieveLimits( strTypel );
 			}
 			else
 			{
-				_limits = limprec;
+				_precision.first = limprec;
 			}
 		}
-	}
-
-	CDatabaseFieldInfos::CDatabaseFieldInfos( const CDatabaseFieldInfos & fieldInfos )
-		:   _name( fieldInfos._name )
-		,   _type( fieldInfos._type )
-		,   _limits( fieldInfos._limits )
-		,   _connection( fieldInfos._connection )
-	{
-		// Empty
 	}
 
 	CDatabaseFieldInfos::~CDatabaseFieldInfos()
@@ -252,7 +269,12 @@ BEGIN_NAMESPACE_DATABASE
 
 	const uint32_t & CDatabaseFieldInfos::GetLimits() const
 	{
-		return _limits;
+		return _precision.first;
+	}
+
+	const std::pair< uint32_t, uint32_t > & CDatabaseFieldInfos::GetPrecision() const
+	{
+		return _precision;
 	}
 
 	DatabaseConnectionPtr CDatabaseFieldInfos::GetConnection() const

@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DatabaseStatement.cpp
- * @author Sylvain Doremus
- * @version 1.0
- * @date 3/20/2014 2:47:39 PM
- *
- *
- * @brief CDatabaseStatement class definition.
- *
- * @details Describes a database statement.
- *
- ***************************************************************************/
+* @file DatabaseStatement.cpp
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/20/2014 2:47:39 PM
+*
+*
+* @brief CDatabaseStatement class definition.
+*
+* @details Describes a database statement.
+*
+***************************************************************************/
 
 #include "DatabasePch.h"
 
@@ -24,10 +24,10 @@
 
 BEGIN_NAMESPACE_DATABASE
 {
-	static const String DATABASE_STATEMENT_INDEX_ERROR = STR( "No statement parameter at index: " );
-	static const String DATABASE_STATEMENT_NAME_ERROR = STR( "No statement parameter named: " );
-	static const String DATABASE_STATEMENT_ALREADY_ADDED_PARAMETER = STR( "Parameter with name [%1%] already exists." );
-	static const String DATABASE_STATEMENT_NULL_PARAMETER = STR( "Trying to add a null parameter." );
+	static const String ERROR_DB_STATEMENT_INDEX = STR( "No statement parameter at index: " );
+	static const String ERROR_DB_STATEMENT_NAME = STR( "No statement parameter named: " );
+	static const String ERROR_DB_STATEMENT_ALREADY_ADDED_PARAMETER = STR( "Parameter with name [%1%] already exists." );
+	static const String WARNING_DB_STATEMENT_NULL_PARAMETER = STR( "Trying to add a null parameter." );
 
 	CDatabaseStatement::SValueUpdater::SValueUpdater( CDatabaseStatement * stmt )
 		: _stmt( stmt )
@@ -40,8 +40,8 @@ BEGIN_NAMESPACE_DATABASE
 	}
 
 	CDatabaseStatement::CDatabaseStatement( DatabaseConnectionPtr connection, const String & query )
-		:   _connection( connection )
-		,   _query( query )
+		: _connection( connection )
+		, _query( query )
 	{
 		// Empty
 	}
@@ -65,7 +65,7 @@ BEGIN_NAMESPACE_DATABASE
 		catch ( ... )
 		{
 			StringStream message;
-			message << DATABASE_STATEMENT_INDEX_ERROR << index;
+			message << ERROR_DB_STATEMENT_INDEX << index;
 			CLogger::LogError( message.str() );
 			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, message.str() );
 		}
@@ -73,7 +73,7 @@ BEGIN_NAMESPACE_DATABASE
 
 	DatabaseParameterPtr CDatabaseStatement::GetParameter( const String & name )const
 	{
-		auto it = std::find_if( _arrayParams.begin(), _arrayParams.end(), [&name]( DatabaseParameterPtr parameter )
+		auto && it = std::find_if( _arrayParams.begin(), _arrayParams.end(), [&name]( DatabaseParameterPtr parameter )
 		{
 			return parameter->GetName() == name;
 		} );
@@ -81,7 +81,7 @@ BEGIN_NAMESPACE_DATABASE
 		if ( it == _arrayParams.end() )
 		{
 			StringStream message;
-			message << DATABASE_STATEMENT_NAME_ERROR << name;
+			message << ERROR_DB_STATEMENT_NAME << name;
 			CLogger::LogError( message.str() );
 			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, message.str() );
 		}
@@ -132,14 +132,14 @@ BEGIN_NAMESPACE_DATABASE
 			}
 			else
 			{
-				Format format( DATABASE_STATEMENT_ALREADY_ADDED_PARAMETER );
+				Format format( ERROR_DB_STATEMENT_ALREADY_ADDED_PARAMETER );
 				format % parameter->GetName();
 				CLogger::LogError( format.str() );
 			}
 		}
 		else
 		{
-			CLogger::LogError( DATABASE_STATEMENT_NULL_PARAMETER );
+			CLogger::LogError( WARNING_DB_STATEMENT_NULL_PARAMETER );
 		}
 
 		return bReturn;

@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DatabaseOdbcPch.h
- * @author Sylvain Doremus
- * @version 1.0
- * @date 03/14/2014 11:00:50 AM
- *
- *
- * @brief Database ODBC precompiled header.
- *
- * @details This file generates the Database ODBC precompiled headers.
- *
- ***************************************************************************/
+* @file DatabaseOdbcPch.h
+* @author Sylvain Doremus
+* @version 1.0
+* @date 03/14/2014 11:00:50 AM
+*
+*
+* @brief Database ODBC precompiled header.
+*
+* @details This file generates the Database ODBC precompiled headers.
+*
+***************************************************************************/
 
 #ifndef ___DATABASE_ODBC_PCH_H___
 #define ___DATABASE_ODBC_PCH_H___

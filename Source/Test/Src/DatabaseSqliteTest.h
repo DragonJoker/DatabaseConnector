@@ -24,7 +24,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		: public CDatabaseTest
 	{
 		/** @name Default constructor / Destructor */
-		///@{
+		//!@{
 	public:
 		/** Default constructor.
 		*/
@@ -33,7 +33,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		/** Destructor.
 		*/
 		~CDatabaseSqliteTest();
-		///@}
+		//!@}
 
 	private:
 		/** Loads the database plugin

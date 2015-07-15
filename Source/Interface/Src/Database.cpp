@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file Database/Interface/Src/Database.cpp
- * @author Sylvain Doremus
- * @version 1.0
- * @date 3/20/2014 2:47:39 PM
- *
- *
- * @brief CDatabase class definition.
- *
- * @details Describes a database.
- *
- ***************************************************************************/
+* @file Database/Interface/Src/Database.cpp
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/20/2014 2:47:39 PM
+*
+*
+* @brief CDatabase class definition.
+*
+* @details Describes a database.
+*
+***************************************************************************/
 
 #include "DatabasePch.h"
 
@@ -19,11 +19,10 @@
 #include "DatabaseDate.h"
 #include "DatabaseDateTime.h"
 #include "DatabaseTime.h"
+#include "DatabaseStringUtils.h"
 
 BEGIN_NAMESPACE_DATABASE
 {
-	const String LOGGER_NAME_CDATABASE = STR( "Database.CDatabase" );
-
 	CDatabase::CDatabase()
 	{
 		// Empty

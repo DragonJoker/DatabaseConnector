@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DatabaseOdbcPrerequisites.h
- * @author Sylvain Doremus
- * @version 1.0
- * @date 03/14/2014 11:48:00 AM
- *
- *
- * @brief Database ODBC prerequisite header.
- *
- * @details This file contains all Database ODBC prerequisite instructions.
- *
- ***************************************************************************/
+* @file DatabaseOdbcPrerequisites.h
+* @author Sylvain Doremus
+* @version 1.0
+* @date 03/14/2014 11:48:00 AM
+*
+*
+* @brief Database ODBC prerequisite header.
+*
+* @details This file contains all Database ODBC prerequisite instructions.
+*
+***************************************************************************/
 
 #ifndef ___DATABASE_ODBC_PREREQUISITES_H___
 #define ___DATABASE_ODBC_PREREQUISITES_H___
@@ -29,18 +29,15 @@
 #   include <sqlext.h>
 #endif
 
-#define BEGIN_NAMESPACE_DATABASE_ODBC      BEGIN_NAMESPACE_DATABASE { namespace Odbc
-#define NAMESPACE_DATABASE_ODBC            NAMESPACE_DATABASE::Odbc
-#define END_NAMESPACE_DATABASE_ODBC        END_NAMESPACE_DATABASE }
+#define BEGIN_NAMESPACE_DATABASE_ODBC BEGIN_NAMESPACE_DATABASE { namespace Odbc
+#define NAMESPACE_DATABASE_ODBC NAMESPACE_DATABASE::Odbc
+#define END_NAMESPACE_DATABASE_ODBC } END_NAMESPACE_DATABASE
 
 BEGIN_NAMESPACE_DATABASE
 {
-
-	/** ODBC namespace
-	*/
 	namespace Odbc
 	{
-		static const String ERROR_ODBC_DRIVER_ERROR = STR( "ODBC driver error while exceuting action: " );
+		static const String ERROR_ODBC_DRIVER = STR( "ODBC Driver error" );
 
 		// Pre-declare classes
 		// Allows use of pointers in header files without including individual .h
@@ -89,8 +86,8 @@ BEGIN_NAMESPACE_DATABASE
 			}\
 		}
 
-	} // namespace Odbc
-
-} END_NAMESPACE_DATABASE
+	}
+}
+END_NAMESPACE_DATABASE
 
 #endif // ___DATABASE_ODBC_PREREQUISITES_H___

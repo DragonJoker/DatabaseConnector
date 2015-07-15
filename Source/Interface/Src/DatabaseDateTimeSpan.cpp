@@ -1,15 +1,15 @@
 /************************************************************************//**
- * @file DateTimeSpan.cpp
- * @author Sylvain Doremus
- * @version 1.0
- * @date 3/20/2014 2:47:39 PM
- *
- *
- * @brief CDateTimeSpan class definition.
- *
- * @details Describes a date and/or time difference.
- *
- ***************************************************************************/
+* @file DateTimeSpan.cpp
+* @author Sylvain Doremus
+* @version 1.0
+* @date 3/20/2014 2:47:39 PM
+*
+*
+* @brief CDateTimeSpan class definition.
+*
+* @details Describes a date and/or time difference.
+*
+***************************************************************************/
 
 #include "DatabasePch.h"
 
@@ -18,13 +18,13 @@
 BEGIN_NAMESPACE_DATABASE
 {
 	CDateTimeSpan::CDateTimeSpan()
-		:   _span( 0 )
+		: _span( 0 )
 	{
 		// Empty
 	}
 
 	CDateTimeSpan::CDateTimeSpan( double span )
-		:   _span( span )
+		: _span( span )
 	{
 		// Empty
 	}
