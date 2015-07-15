@@ -64,7 +64,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	*/
 	template<> struct SFieldTypeMySqlDataTyper< EFieldType_INT24 >
 	{
-		static const enum_field_types MySqlFieldType = MYSQL_TYPE_INT24;
+		static const enum_field_types MySqlFieldType = MYSQL_TYPE_LONG;
 		typedef int24_t FieldDataType;
 	};
 
@@ -429,18 +429,20 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			: SOutMySqlBindBase( bind, type, parameter )
 			, _value( value )
 		{
-			_bind.buffer_length = sizeof( int24_t );
-			bind.buffer = value.GetPtrValue();
+			_bind.buffer_length = sizeof( int32_t );
+			bind.buffer = &_holder;
 		}
 
 		//!@copydoc SOutMySqlBindBase::DoSetValue
 		virtual void UpdateValue()
 		{
-			// Empty
+			_holder = int32_t( _value.GetValue() );
 		}
 
 		//! The parameter value
 		CDatabaseValue< EFieldType_INT24 > & _value;
+		//! The value holder
+		int32_t _holder;
 	};
 
 	/** SOutMySqlBind specialization for CFixedPoint

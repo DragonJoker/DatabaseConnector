@@ -101,8 +101,8 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	}
 
 	static const String INFO_ODBC_DescribeParam = STR( "SQLDescribeParam" );
-	static const String INFO_ODBC_PutData = STR( "SQLPutData" );
 	static const String INFO_ODBC_GetData = STR( "SQLGetData" );
+	static const String INFO_ODBC_PutData = STR( "SQLPutData: " );
 
 	static const String ERROR_ODBC_PARAMETER_TYPE = STR( "Undefined parameter type when trying to set its binding." );
 

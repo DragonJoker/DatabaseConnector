@@ -75,14 +75,12 @@ BEGIN_NAMESPACE_DATABASE
 
 	void CLoggerImpl::PrintMessage( ELogType logLevel, std::string const & message )
 	{
-		_console->BeginLog( logLevel );
-		_console->Print( CStrUtils::ToString( message ), true );
+		DoPrintMessage( logLevel, CStrUtils::ToString( message ) );
 	}
 
 	void CLoggerImpl::PrintMessage( ELogType logLevel, std::wstring const & message )
 	{
-		_console->BeginLog( logLevel );
-		_console->Print( CStrUtils::ToString( message ), true );
+		DoPrintMessage( logLevel, CStrUtils::ToString( message ) );
 	}
 
 	void CLoggerImpl::LogMessageQueue( MessageQueue const & p_queue )
@@ -152,11 +150,33 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	}
 
+	void CLoggerImpl::DoPrintMessage( ELogType logLevel, String const & message )
+	{
+		if ( message.find( STR( '\n' ) ) != String::npos )
+		{
+			StringArray array = CStrUtils::Split( message, STR( "\n" ), uint32_t( std::count( message.begin(), message.end(), STR( '\n' ) ) + 1 ) );
+
+			for ( auto && line : array )
+			{
+				DoPrintLine( line, logLevel );
+			}
+		}
+		else
+		{
+			DoPrintLine( message, logLevel );
+		}
+	}
+
+	void CLoggerImpl::DoPrintLine( String const & line, ELogType logLevel )
+	{
+		_console->BeginLog( logLevel );
+		_console->Print( line, true );
+	}
+
 	void CLoggerImpl::DoLogLine( String const & timestamp, String const & line, FILE * logFile, ELogType logLevel )
 	{
 #if defined( NDEBUG )
-		_console->BeginLog( logLevel );
-		_console->Print( line, true );
+		DoPrintLine( line, logLevel );
 #endif
 
 		if ( logFile )

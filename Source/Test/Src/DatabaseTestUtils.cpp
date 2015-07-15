@@ -179,19 +179,19 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	static const String MYSQL = STR( "MySql" );
 	static const String MSSQL = STR( "MsSql" );
 
-	static const String SCRIPT_DATABASE_INSTALL = STR( "CreateDatabase" );
-	static const String SCRIPT_DATABASE_UNINSTALL = STR( "DeleteDatabase" );
+	static const String SCRIPT_DATABASE_CREATE = STR( "CreateDatabase" );
+	static const String SCRIPT_DATABASE_DELETE = STR( "DeleteDatabase" );
 	static const String SCRIPT_ODBC_INSTALL = STR( "InstallOdbc" );
 	static const String SCRIPT_ODBC_UNINSTALL = STR( "UninstallOdbc" );
 
 	int InstallDatabaseMySql( const String & database, const String & user, const String & pass )
 	{
-		return ExecuteScript( SCRIPT_FILES_DIR, SCRIPT_DATABASE_INSTALL + MYSQL + SCRIPT_EXT, { STR( "\"" ) + MYSQL_COMMAND + STR( "\"" ), database, user, pass } );
+		return ExecuteScript( SCRIPT_FILES_DIR, SCRIPT_DATABASE_CREATE + MYSQL + SCRIPT_EXT, { STR( "\"" ) + MYSQL_COMMAND + STR( "\"" ), database, user, pass } );
 	}
 
 	int UninstallDatabaseMySql( const String & database, const String & user, const String & pass )
 	{
-		return ExecuteScript( SCRIPT_FILES_DIR, SCRIPT_DATABASE_UNINSTALL + MYSQL + SCRIPT_EXT, { STR( "\"" ) + MYSQL_COMMAND + STR( "\"" ), database, user, pass } );
+		return ExecuteScript( SCRIPT_FILES_DIR, SCRIPT_DATABASE_DELETE + MYSQL + SCRIPT_EXT, { STR( "\"" ) + MYSQL_COMMAND + STR( "\"" ), database, user, pass } );
 	}
 
 	int InstallSourceOdbcMySql( const String & database )
@@ -201,18 +201,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 	int UninstallSourceOdbcMySql( const String & database )
 	{
-		return ExecuteScript( SCRIPT_FILES_DIR, SCRIPT_ODBC_UNINSTALL, { database } );
+		return ExecuteScript( SCRIPT_FILES_DIR, SCRIPT_ODBC_UNINSTALL + SCRIPT_EXT, { database } );
 	}
 
 #if defined( WIN32 )
 	int InstallDatabaseMsSql( const String & database, const String & user, const String & pass )
 	{
-		return ExecuteScript( SCRIPT_FILES_DIR, SCRIPT_DATABASE_INSTALL + MSSQL + SCRIPT_EXT, { database, user, pass } );
+		return ExecuteScript( SCRIPT_FILES_DIR, SCRIPT_DATABASE_CREATE + MSSQL + SCRIPT_EXT, { database, user, pass } );
 	}
 
 	int UninstallDatabaseMsSql( const String & database, const String & user, const String & pass )
 	{
-		return ExecuteScript( SCRIPT_FILES_DIR, SCRIPT_DATABASE_UNINSTALL + MSSQL + SCRIPT_EXT, { database, user, pass } );
+		return ExecuteScript( SCRIPT_FILES_DIR, SCRIPT_DATABASE_DELETE + MSSQL + SCRIPT_EXT, { database, user, pass } );
 	}
 
 	int InstallSourceOdbcMsSql( const String & database )
@@ -222,7 +222,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 	int UninstallSourceOdbcMsSql( const String & database )
 	{
-		return ExecuteScript( SCRIPT_FILES_DIR, SCRIPT_ODBC_UNINSTALL + MSSQL + SCRIPT_EXT, { database } );
+		return ExecuteScript( SCRIPT_FILES_DIR, SCRIPT_ODBC_UNINSTALL + SCRIPT_EXT, { database } );
 	}
 #endif
 }

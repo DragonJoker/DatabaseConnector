@@ -419,9 +419,9 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		{
 			CLogger::LogInfo( StringStream() << STR( "IntField : " ) << row->Get< int32_t >( index++ ) );
 			CLogger::LogInfo( StringStream() << STR( "IntegerField : " ) << row->Get< int32_t >( index++ ) );
-			CLogger::LogInfo( StringStream() << STR( "TinyIntField : " ) << row->Get< int8_t >( index++ ) );
+			CLogger::LogInfo( StringStream() << STR( "TinyIntField : " ) << int( row->Get< int8_t >( index++ ) ) );
 			CLogger::LogInfo( StringStream() << STR( "SmallIntField : " ) << row->Get< int16_t >( index++ ) );
-			CLogger::LogInfo( StringStream() << STR( "MediumIntField : " ) << row->Get< int32_t >( index++ ) );
+			CLogger::LogInfo( StringStream() << STR( "MediumIntField : " ) << int32_t( row->Get< int24_t >( index++ ) ) );
 			CLogger::LogInfo( StringStream() << STR( "BigIntField : " ) << row->Get< int64_t >( index++ ) );
 			CLogger::LogInfo( StringStream() << STR( "Int2Field : " ) << row->Get< int16_t >( index++ ) );
 			CLogger::LogInfo( StringStream() << STR( "Int8Field : " ) << row->Get< int64_t >( index++ ) );
@@ -540,14 +540,16 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 					BOOST_CHECK( stmtInsert->ExecuteUpdate() );
 					DatabaseResultPtr result = stmtSelect->ExecuteSelect();
-					BOOST_CHECK( result );
-					BOOST_CHECK( result && result->GetRowCount() );
 
 					if ( result && result->GetRowCount() )
 					{
 						typename Helpers< FieldType >::FieldType valueOut;
 						BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, valueOut ) );
 						Compare< FieldType >()( valueIn, valueOut );
+					}
+					else
+					{
+						BOOST_CHECK( result && result->GetRowCount() );
 					}
 				}
 			}

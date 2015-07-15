@@ -59,19 +59,19 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		@return
 			The error code
 		*/
-		virtual EErrorType BindValue()const = 0;
+		virtual EErrorType UpdateValue()const = 0;
 
 		/** Sends data at execution of query
 		@return
 			The error code
 		*/
-		EErrorType PutData()const;
+		virtual EErrorType PutData()const;
 
 		/** Retrieves data after execution of query
 		@return
 			The error code
 		*/
-		EErrorType GetData();
+		virtual EErrorType GetData();
 
 		//! The parameter index
 		SQLUSMALLINT _index;
@@ -121,9 +121,9 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		{
 		}
 
-		/** @copydoc Database::Odbc::COutOdbcBindBase::BindValue
+		/** @copydoc Database::Odbc::COutOdbcBindBase::UpdateValue
 		*/
-		virtual EErrorType BindValue()const
+		virtual EErrorType UpdateValue()const
 		{
 			EErrorType errorType = EErrorType_NONE;
 			StringStream message;
@@ -146,6 +146,103 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		CDatabaseValue< Type > & _value;
 	};
 
+	/** Template binding class, used to bind data
+	*/
+	template<>
+	struct COutOdbcBind< EFieldType_INT8 >
+		: public COutOdbcBindBase
+	{
+		/** Constructor.
+		@param[in] statement
+			The statement.
+		@param[in] index
+			Internal index.
+		@param[in] parameterType
+			Parameter type.
+		@param[in] value
+			Parameter value.
+		*/
+		COutOdbcBind( HSTMT statement, uint16_t index, EParameterType parameterType, const String & name, CDatabaseValue< EFieldType_INT8 > & value )
+			: COutOdbcBindBase( statement, index, EFieldType_INT8, parameterType, name, value )
+			, _value( value )
+		{
+		}
+
+		/** @copydoc Database::Odbc::COutOdbcBindBase::UpdateValue
+		*/
+		virtual EErrorType UpdateValue()const
+		{
+			EErrorType errorType = EErrorType_NONE;
+			StringStream message;
+			message << INFO_ODBC_BIND_PARAMETER_NAME << _name << STR( ", " ) << INFO_ODBC_BIND_PARAMETER_VALUE << STR( "[" ) << int16_t( _value.GetValue() ) << STR( "]" );
+
+			if ( _value.IsNull() || _value.GetPtrSize() == 0 )
+			{
+				_columnLenOrInd = SQL_NULL_DATA;
+			}
+			else
+			{
+				_columnLenOrInd = _value.GetPtrSize();
+			}
+
+			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, _value.GetPtrValue(), _value.GetPtrSize(), &_columnLenOrInd ), SQL_HANDLE_STMT, _statement, INFO_ODBC_BindParameter + message.str() );
+			return errorType;
+		}
+
+		//! The explicitly typed value
+		CDatabaseValue< EFieldType_INT8 > & _value;
+	};
+
+	/** Template binding class, used to bind data
+	*/
+	template<>
+	struct COutOdbcBind< EFieldType_INT24 >
+		: public COutOdbcBindBase
+	{
+		/** Constructor.
+		@param[in] statement
+			The statement.
+		@param[in] index
+			Internal index.
+		@param[in] parameterType
+			Parameter type.
+		@param[in] value
+			Parameter value.
+		*/
+		COutOdbcBind( HSTMT statement, uint16_t index, EParameterType parameterType, const String & name, CDatabaseValue< EFieldType_INT24 > & value )
+			: COutOdbcBindBase( statement, index, EFieldType_INT24, parameterType, name, value )
+			, _value( value )
+		{
+		}
+
+		/** @copydoc Database::Odbc::COutOdbcBindBase::UpdateValue
+		*/
+		virtual EErrorType UpdateValue()const
+		{
+			EErrorType errorType = EErrorType_NONE;
+			_holder = int32_t( _value.GetValue() );
+			StringStream message;
+			message << INFO_ODBC_BIND_PARAMETER_NAME << _name << STR( ", " ) << INFO_ODBC_BIND_PARAMETER_VALUE << STR( "[" ) << _holder << STR( "]" );
+
+			if ( _value.IsNull() || _value.GetPtrSize() == 0 )
+			{
+				_columnLenOrInd = SQL_NULL_DATA;
+			}
+			else
+			{
+				_columnLenOrInd = _value.GetPtrSize();
+			}
+
+			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, SQLPOINTER( &_holder ), sizeof( int32_t ), &_columnLenOrInd ), SQL_HANDLE_STMT, _statement, INFO_ODBC_BindParameter + message.str() );
+			return errorType;
+		}
+
+		//! The explicitly typed value
+		CDatabaseValue< EFieldType_INT24 > & _value;
+		//! value holder
+		mutable int32_t _holder;
+	};
+
 	/** COutOdbcBind specialisation for EFieldType_FIXED_POINT
 	*/
 	template<>
@@ -163,41 +260,37 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			Parameter value.
 		*/
 		COutOdbcBind( HSTMT statement, uint16_t index, EParameterType parameterType, const String & name, CDatabaseValue< EFieldType_FIXED_POINT > & value )
-			: COutOdbcBindBase( statement, index, EFieldType_DATETIME, parameterType, name, value )
+			: COutOdbcBindBase( statement, index, EFieldType_FIXED_POINT, parameterType, name, value )
 			, _value( value )
 			, _holder()
 		{
 		}
 
-		/** @copydoc Database::Odbc::COutOdbcBindBase::BindValue
+		/** @copydoc Database::Odbc::COutOdbcBindBase::UpdateValue
 		*/
-		virtual EErrorType BindValue()const
+		virtual EErrorType UpdateValue()const
 		{
 			EErrorType errorType = EErrorType_NONE;
 			StringStream message;
 			message << INFO_ODBC_BIND_PARAMETER_NAME << _name << STR( ", " ) << INFO_ODBC_BIND_PARAMETER_VALUE << STR( "[" ) << _value.GetValue().ToString() << STR( "]" );
 
-			CFixedPoint const & fixedPoint = _value.GetValue();
-			_holder.precision = fixedPoint.GetPrecision();
-			_holder.scale = 1;
-			_holder.sign = fixedPoint.IsSigned();
-			strcpy( ( char * )_holder.val, CStrUtils::ToStr( fixedPoint.ToString() ).c_str() );
-
-			if ( _value.IsNull() || _value.GetPtrSize() == 0 )
+			if ( _value.IsNull() )
 			{
 				_columnLenOrInd = SQL_NULL_DATA;
 			}
 			else
 			{
-				_columnLenOrInd = _value.GetPtrSize();
+				std::string value = CStrUtils::ToStr( _value.GetValue().ToString() );
+				strcpy( _holder, value.c_str() );
+				_columnLenOrInd = value.size();
 			}
 
-			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, SQLPOINTER( &_holder ), sizeof( _holder ), &_columnLenOrInd ), SQL_HANDLE_STMT, _statement, INFO_ODBC_BindParameter + message.str() );
+			SqlTry( SQLBindParameter( _statement, _index, _inputOutputType, SQL_C_CHAR, _parameterType, _columnSize, 0, SQLPOINTER( &_holder ), sizeof( _holder ), &_columnLenOrInd ), SQL_HANDLE_STMT, _statement, INFO_ODBC_BindParameter + message.str() );
 			return errorType;
 		}
 
 		CDatabaseValue< EFieldType_FIXED_POINT > & _value;
-		mutable SQL_NUMERIC_STRUCT _holder;
+		mutable char _holder[32];
 	};
 
 	/** COutOdbcBind specialisation for EFieldType_DATE
@@ -223,9 +316,9 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		{
 		}
 
-		/** @copydoc Database::Odbc::COutOdbcBindBase::BindValue
+		/** @copydoc Database::Odbc::COutOdbcBindBase::UpdateValue
 		*/
-		virtual EErrorType BindValue()const
+		virtual EErrorType UpdateValue()const
 		{
 			EErrorType errorType = EErrorType_NONE;
 			StringStream message;
@@ -278,9 +371,9 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		{
 		}
 
-		/** @copydoc Database::Odbc::COutOdbcBindBase::BindValue
+		/** @copydoc Database::Odbc::COutOdbcBindBase::UpdateValue
 		*/
-		virtual EErrorType BindValue()const
+		virtual EErrorType UpdateValue()const
 		{
 			EErrorType errorType = EErrorType_NONE;
 			StringStream message;
@@ -333,9 +426,9 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		{
 		}
 
-		/** @copydoc Database::Odbc::COutOdbcBindBase::BindValue
+		/** @copydoc Database::Odbc::COutOdbcBindBase::UpdateValue
 		*/
-		virtual EErrorType BindValue()const
+		virtual EErrorType UpdateValue()const
 		{
 			EErrorType errorType = EErrorType_NONE;
 			StringStream message;
@@ -390,9 +483,9 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		{
 		}
 
-		/** @copydoc Database::Odbc::COutOdbcBindBase::BindValue
+		/** @copydoc Database::Odbc::COutOdbcBindBase::UpdateValue
 		*/
-		virtual EErrorType BindValue()const
+		virtual EErrorType UpdateValue()const
 		{
 			EErrorType errorType = EErrorType_NONE;
 			StringStream message;
@@ -437,9 +530,9 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		{
 		}
 
-		/** @copydoc Database::Odbc::COutOdbcBindBase::BindValue
+		/** @copydoc Database::Odbc::COutOdbcBindBase::UpdateValue
 		*/
-		virtual EErrorType BindValue()const
+		virtual EErrorType UpdateValue()const
 		{
 			EErrorType errorType = EErrorType_NONE;
 			StringStream message;
@@ -486,9 +579,9 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		{
 		}
 
-		/** @copydoc Database::Odbc::COutOdbcBindBase::BindValue
+		/** @copydoc Database::Odbc::COutOdbcBindBase::UpdateValue
 		*/
-		virtual EErrorType BindValue()const
+		virtual EErrorType UpdateValue()const
 		{
 			EErrorType errorType = EErrorType_NONE;
 			StringStream message;
@@ -542,9 +635,9 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		{
 		}
 
-		/** @copydoc Database::Odbc::COutOdbcBindBase::BindValue
+		/** @copydoc Database::Odbc::COutOdbcBindBase::UpdateValue
 		*/
-		virtual EErrorType BindValue()const
+		virtual EErrorType UpdateValue()const
 		{
 			EErrorType errorType = EErrorType_NONE;
 			StringStream message;
@@ -598,9 +691,9 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		{
 		}
 
-		/** @copydoc Database::Odbc::COutOdbcBindBase::BindValue
+		/** @copydoc Database::Odbc::COutOdbcBindBase::UpdateValue
 		*/
-		virtual EErrorType BindValue()const
+		virtual EErrorType UpdateValue()const
 		{
 			EErrorType errorType = EErrorType_NONE;
 			StringStream message;

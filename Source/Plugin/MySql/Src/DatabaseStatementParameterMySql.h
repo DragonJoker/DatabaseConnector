@@ -75,6 +75,15 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		*/
 		DatabaseMySqlExport void SetBinding( MYSQL_BIND * bind );
 
+		/** Retrieves the data binding
+		@return
+			The binding
+		*/
+		MYSQL_BIND * GetBinding()const
+		{
+			return &_binding->_bind;
+		}
+
 		/** Defines the prepared statement
 		@param statement
 			The statement
@@ -82,15 +91,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		inline void SetStatement( MYSQL_STMT * statement )
 		{
 			_statement = statement;
-		}
-
-		/** Retrieves the data binding
-		@return
-			The binding
-		*/
-		inline MYSQL_BIND * GetBinding()const
-		{
-			return &_binding->_bind;
 		}
 
 		/** Retrieves the statement
@@ -153,6 +153,18 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
 		DatabaseMySqlExport virtual void DoSetValue( const bool & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseMySqlExport virtual void DoSetValue( const int8_t & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseMySqlExport virtual void DoSetValue( const uint8_t & value )
 		{
 			DoSetAndUpdateValue( value );
 		}
@@ -267,6 +279,18 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
 		DatabaseMySqlExport virtual void DoSetValueFast( const bool & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseMySqlExport virtual void DoSetValueFast( const int8_t & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseMySqlExport virtual void DoSetValueFast( const uint8_t & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}

@@ -110,9 +110,9 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	{
 		EErrorType eResult = EErrorType_NONE;
 
-		for ( auto && it = _arrayParams.begin() ; it != _arrayParams.end() && eResult == EErrorType_NONE ; ++it )
+		for ( auto && parameter : _arrayParams )
 		{
-			eResult = std::static_pointer_cast< CDatabaseQueryParameterOdbc >( *it )->GetBinding().BindValue();
+			eResult = std::static_pointer_cast< CDatabaseQueryParameterOdbc >( parameter )->GetBinding().UpdateValue();
 		}
 
 		if ( eResult == EErrorType_NONE )

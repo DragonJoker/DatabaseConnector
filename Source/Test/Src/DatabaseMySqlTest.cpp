@@ -25,7 +25,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	static const String DATABASE_MYSQL_TYPE = STR( "Database.MySql" );
 
 	CDatabaseMySqlTest::CDatabaseMySqlTest()
-		: CDatabaseTest( DATABASE_MYSQL_TYPE, DB_SERVER, DB_DATABASE, DB_USER, DB_PASS, false )
+		: CDatabaseTest( DATABASE_MYSQL_TYPE, DB_SERVER, DB_DATABASE, DB_USER, DB_PASS, false, true )
 	{
 		_createTable += STR( "CREATE TABLE Test" );
 		_createTable += STR( "(	IDTest INTEGER PRIMARY KEY AUTO_INCREMENT\n" );

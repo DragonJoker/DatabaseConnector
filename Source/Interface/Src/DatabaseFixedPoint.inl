@@ -220,7 +220,7 @@ private:
 		return _signed;
 	}
 
-	inline int64_t CFixedPoint::GetRawValue()const
+	inline const int64_t & CFixedPoint::GetRawValue()const
 	{
 		return _value;
 	}

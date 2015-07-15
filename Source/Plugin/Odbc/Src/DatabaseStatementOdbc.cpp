@@ -154,11 +154,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	{
 		EErrorType eResult = EErrorType_NONE;
 
-		for ( auto && it = _arrayParams.begin() ; it != _arrayParams.end() && eResult == EErrorType_NONE ; ++it )
-		{
-			eResult = std::static_pointer_cast< CDatabaseStatementParameterOdbc >( *it )->GetBinding().BindValue();
-		}
-
 		if ( eResult == EErrorType_NONE )
 		{
 			SQLRETURN retCode = SQLExecute( _statementHandle );

@@ -98,6 +98,136 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 	namespace
 	{
+		struct CInMySqlBindBase
+			: public SMySqlBindBase
+		{
+			unsigned long _length = 0;
+
+			CInMySqlBindBase( MYSQL_BIND & bind )
+				: SMySqlBindBase( bind )
+			{
+				bind.length = &_length;
+			}
+		};
+
+		template< typename T, typename U = T >
+		struct SInMySqlBind
+			: public CInMySqlBindBase
+		{
+			T _value;
+
+			SInMySqlBind( MYSQL_BIND & bind )
+				: CInMySqlBindBase( bind )
+			{
+				bind.buffer = &_value;
+			}
+
+			T const & GetValue()const
+			{
+				return _value;
+			}
+		};
+
+		template<>
+		struct SInMySqlBind< bool, bool >
+			: public CInMySqlBindBase
+		{
+			int8_t _value;
+
+			SInMySqlBind( MYSQL_BIND & bind )
+				: CInMySqlBindBase( bind )
+			{
+				bind.buffer = &_value;
+			}
+
+			bool GetValue()const
+			{
+				return _value != 0;
+			}
+		};
+
+		template<>
+		struct SInMySqlBind< int32_t, int24_t >
+			: public CInMySqlBindBase
+		{
+			int32_t _value;
+
+			SInMySqlBind( MYSQL_BIND & bind )
+				: CInMySqlBindBase( bind )
+			{
+				bind.buffer = &_value;
+				bind.buffer_length = sizeof( int32_t );
+			}
+
+			int24_t GetValue()const
+			{
+				return int24_t( _value );
+			}
+		};
+
+		template< typename T >
+		struct SInMySqlBind< T *, T * >
+			: public CInMySqlBindBase
+		{
+			T _value[8192];
+
+			SInMySqlBind( MYSQL_BIND & bind )
+				: CInMySqlBindBase( bind )
+			{
+				memset( _value, 0, sizeof( _value ) );
+				bind.buffer = _value;
+				bind.buffer_length = sizeof( _value ) / sizeof( *_value );
+			}
+
+			T const * GetValue()const
+			{
+				return _value;
+			}
+		};
+
+		template<>
+		struct SInMySqlBind< char *, CFixedPoint >
+			: public CInMySqlBindBase
+		{
+			char _value[8192];
+
+			SInMySqlBind( MYSQL_BIND & bind, uint32_t precision )
+				: CInMySqlBindBase( bind )
+				, _precision( uint8_t( precision ) )
+			{
+				memset( _value, 0, sizeof( _value ) );
+				bind.buffer = _value;
+				bind.buffer_length = sizeof( _value ) / sizeof( *_value );
+			}
+
+			CFixedPoint GetValue()const
+			{
+				return CFixedPoint( _value, _precision );
+			}
+
+			uint8_t _precision;
+		};
+
+		template<>
+		struct SInMySqlBind< char *, int32_t >
+			: public CInMySqlBindBase
+		{
+			char _value[8192];
+
+			SInMySqlBind( MYSQL_BIND & bind )
+				: CInMySqlBindBase( bind )
+			{
+				memset( _value, 0, sizeof( _value ) );
+				bind.buffer = _value;
+				bind.buffer_length = sizeof( _value ) / sizeof( _value );
+			}
+
+			int32_t GetValue()const
+			{
+				return CStrUtils::ToInt( _value );
+			}
+		};
+
 		EFieldType GetFieldType( enum_field_types sqlType, int charset, int length )
 		{
 			EFieldType result = EFieldType_NULL;
@@ -209,7 +339,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				break;
 
 			case MYSQL_TYPE_INT24:
-				result = std::make_unique< SInMySqlBind< int24_t > >( bind );
+				result = std::make_unique< SInMySqlBind< int32_t, int24_t > >( bind );
 				bind.is_unsigned = false;
 				break;
 
@@ -336,7 +466,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 									break;
 
 								case EFieldType_INT24:
-									static_cast< CDatabaseValue< EFieldType_INT24 > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< int24_t > const & >( *bind ).GetValue() );
+									static_cast< CDatabaseValue< EFieldType_INT24 > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< int32_t, int24_t > const & >( *bind ).GetValue() );
 									break;
 
 								case EFieldType_INT32:

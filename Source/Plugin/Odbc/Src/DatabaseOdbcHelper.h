@@ -53,10 +53,12 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	/** Retrieves the field type corresponding to concise type.
 	@param[in] sqlType
 		SQL type identifier.
+	@param[in] limits
+		digits count for integer type, used to select int24 or int32.
 	@return
 		Database field type.
 	*/
-	EFieldType GetFieldTypeFromConciseType( SQLLEN sqlType );
+	EFieldType GetFieldTypeFromConciseType( SQLLEN sqlType, uint32_t limits );
 
 	/** Retrieves the field type corresponding to C type.
 	@param[in] sqlType

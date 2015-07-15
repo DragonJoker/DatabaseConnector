@@ -136,6 +136,22 @@ BEGIN_NAMESPACE_DATABASE
 		void LogMessageQueue( MessageQueue const & queue );
 
 	private:
+		/** Prints a message to the console
+		@param[in] logLevel
+			The log level.
+		@param[in] message
+			The message.
+		*/
+		void DoPrintMessage( ELogType logLevel, String const & message );
+
+		/** Prints a line to the console
+		@param[in] line
+			The line
+		@param[in] logType
+			The log level
+		*/
+		void DoPrintLine( String const & line, ELogType logType );
+
 		/** Logs a line in the given file
 		@param[in] timestamp
 			The line timestamp
