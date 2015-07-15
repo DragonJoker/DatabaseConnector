@@ -5,7 +5,7 @@
 * @date 11/08/2014 14:12:58
 *
 *
-* @brief SFieldTypeDataTyper, SDataTypeFieldTyper and CDatabaseValuePolicy classes
+* @brief SFieldTypeDataTyper, SDataTypeFieldTyper and SDatabaseValuePolicy classes
 *
 * @details Helps specifying value behaviour
 *
@@ -29,13 +29,13 @@ BEGIN_NAMESPACE_DATABASE
 {
 	/** Structure used to retrieve the data type from the field type
 	*/
-	template< EFieldType Type > class SFieldTypeDataTyper;
+	template< EFieldType Type > struct SFieldTypeDataTyper;
 
 	/** SFieldTypeDataTyper specialization for EFieldType_BIT
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_BIT >
 	{
-		static const size_t Size = 1;
+		static const size_t size = 1;
 		typedef bool value_type;
 	};
 
@@ -43,7 +43,7 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_INT8 >
 	{
-		static const size_t Size = 8;
+		static const size_t size = 8;
 		typedef int8_t value_type;
 	};
 
@@ -51,7 +51,7 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_INT16 >
 	{
-		static const size_t Size = 16;
+		static const size_t size = 16;
 		typedef int16_t value_type;
 	};
 
@@ -59,7 +59,7 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_INT24 >
 	{
-		static const size_t Size = 24;
+		static const size_t size = 24;
 		typedef int24_t value_type;
 	};
 
@@ -67,7 +67,7 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_INT32 >
 	{
-		static const size_t Size = 32;
+		static const size_t size = 32;
 		typedef int32_t value_type;
 	};
 
@@ -75,7 +75,7 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_INT64 >
 	{
-		static const size_t Size = 64;
+		static const size_t size = 64;
 		typedef int64_t value_type;
 	};
 
@@ -83,7 +83,7 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_FLOAT32 >
 	{
-		static const size_t Size = 32;
+		static const size_t size = 32;
 		typedef float value_type;
 	};
 
@@ -91,7 +91,7 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_FLOAT64 >
 	{
-		static const size_t Size = 64;
+		static const size_t size = 64;
 		typedef double value_type;
 	};
 
@@ -99,7 +99,7 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_FIXED_POINT >
 	{
-		static const size_t Size = 64;
+		static const size_t size = 64;
 		typedef CFixedPoint value_type;
 	};
 
@@ -107,7 +107,7 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_DATE >
 	{
-		static const size_t Size = 0;
+		static const size_t size = 0;
 		typedef CDate value_type;
 	};
 
@@ -115,7 +115,7 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_DATETIME >
 	{
-		static const size_t Size = 0;
+		static const size_t size = 0;
 		typedef CDateTime value_type;
 	};
 
@@ -123,7 +123,7 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_TIME >
 	{
-		static const size_t Size = 0;
+		static const size_t size = 0;
 		typedef CTime value_type;
 	};
 
@@ -131,7 +131,7 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_VARCHAR >
 	{
-		static const size_t Size = 0;
+		static const size_t size = 0;
 		typedef std::string value_type;
 	};
 
@@ -139,7 +139,7 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_TEXT >
 	{
-		static const size_t Size = 0;
+		static const size_t size = 0;
 		typedef std::string value_type;
 	};
 
@@ -147,7 +147,7 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_NVARCHAR >
 	{
-		static const size_t Size = 0;
+		static const size_t size = 0;
 		typedef std::wstring value_type;
 	};
 
@@ -155,7 +155,7 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_NTEXT >
 	{
-		static const size_t Size = 0;
+		static const size_t size = 0;
 		typedef std::wstring value_type;
 	};
 
@@ -163,7 +163,7 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_BINARY >
 	{
-		static const size_t Size = 0;
+		static const size_t size = 0;
 		typedef ByteArray value_type;
 	};
 
@@ -171,7 +171,7 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_VARBINARY >
 	{
-		static const size_t Size = 0;
+		static const size_t size = 0;
 		typedef ByteArray value_type;
 	};
 
@@ -179,7 +179,7 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_LONG_VARBINARY >
 	{
-		static const size_t Size = 0;
+		static const size_t size = 0;
 		typedef ByteArray value_type;
 	};
 
@@ -187,12 +187,10 @@ BEGIN_NAMESPACE_DATABASE
 
 	/** Structure used to specialize functions for given data type
 	*/
-	template< typename T, size_t Size > class CDatabaseValuePolicy
+	template< EFieldType FieldType > struct SDatabaseValuePolicy
 	{
-	protected:
-		typedef T value_type;
+		typedef typename SFieldTypeDataTyper< FieldType >::value_type value_type;
 
-	public:
 		/** Reinitializes the given value
 		@param value
 		    The value
@@ -260,14 +258,12 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	};
 
-	/** CDatabaseValuePolicy specialization for int8_t data type
+	/** SDatabaseValuePolicy specialization for EFieldType_INT8 type
 	*/
-	template<> class CDatabaseValuePolicy< int8_t >
+	template<> struct SDatabaseValuePolicy< EFieldType_INT8 >
 	{
-	protected:
-		typedef int8_t value_type;
+		typedef SFieldTypeDataTyper< EFieldType_INT8 >::value_type value_type;
 
-	public:
 		/** Reinitializes the given value
 		@param value
 		    The value
@@ -335,15 +331,13 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	};
 
-	/** Structure used to specialize functions for given data type
+	/** SDatabaseValuePolicy specialization for EFieldType_INT24 type
 	*/
 	template<>
-	class CDatabaseValuePolicy< int24_t >
+	struct SDatabaseValuePolicy< EFieldType_INT24 >
 	{
-	protected:
-		typedef uint32_t value_type;
+		typedef SFieldTypeDataTyper< EFieldType_INT24 >::value_type value_type;
 
-	public:
 		/** Reinitializes the given value
 		@param value
 		    The value
@@ -402,7 +396,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			if ( valSet )
 			{
-				return CStrUtils::ToString( value );
+				return CStrUtils::ToString( int32_t( value ) );
 			}
 			else
 			{
@@ -411,14 +405,12 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	};
 
-	/** CDatabaseValuePolicy specialization for float data type
+	/** SDatabaseValuePolicy specialization for EFieldType_FLOAT32 type
 	*/
-	template<> class CDatabaseValuePolicy< float >
+	template<> struct SDatabaseValuePolicy< EFieldType_FLOAT32 >
 	{
-	protected:
-		typedef float value_type;
+		typedef SFieldTypeDataTyper< EFieldType_FLOAT32 >::value_type value_type;
 
-	public:
 		/** Reinitializes the given value
 		@param value
 		    The value
@@ -489,14 +481,12 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	};
 
-	/** CDatabaseValuePolicy specialization for double data type
+	/** SDatabaseValuePolicy specialization for EFieldType_FLOAT64 type
 	*/
-	template<> class CDatabaseValuePolicy< double >
+	template<> struct SDatabaseValuePolicy< EFieldType_FLOAT64 >
 	{
-	protected:
-		typedef double value_type;
+		typedef SFieldTypeDataTyper< EFieldType_FLOAT64 >::value_type value_type;
 
-	public:
 		/** Reinitializes the given value
 		@param value
 		    The value
@@ -567,14 +557,12 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	};
 
-	/** CDatabaseValuePolicy specialization for bool data type
+	/** SDatabaseValuePolicy specialization for EFieldType_BIT type
 	*/
-	template<> class CDatabaseValuePolicy< bool >
+	template<> struct SDatabaseValuePolicy< EFieldType_BIT >
 	{
-	protected:
-		typedef bool value_type;
+		typedef SFieldTypeDataTyper< EFieldType_BIT >::value_type value_type;
 
-	public:
 		/** Reinitializes the given value
 		@param value
 		    The value
@@ -642,14 +630,12 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	};
 
-	/** CDatabaseValuePolicy specialization for std::string data type
+	/** Policy used for text, char and nvarchar fields
 	*/
-	template<> class CDatabaseValuePolicy< std::string >
+	struct CTextDatabaseValuePolicy
 	{
-	protected:
 		typedef std::string value_type;
 
-	public:
 		/** Reinitializes the given value
 		@param value
 		    The value
@@ -731,14 +717,28 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	};
 
-	/** CDatabaseValuePolicy specialization for std::wstring data type
+	/** SDatabaseValuePolicy specialization for EFieldType_VARCHAR type
 	*/
-	template<> class CDatabaseValuePolicy< std::wstring >
+	template<> struct SDatabaseValuePolicy< EFieldType_VARCHAR >
+		: public CTextDatabaseValuePolicy
 	{
-	protected:
+		typedef CTextDatabaseValuePolicy::value_type value_type;
+	};
+
+	/** SDatabaseValuePolicy specialization for EFieldType_TEXT type
+	*/
+	template<> struct SDatabaseValuePolicy< EFieldType_TEXT >
+		: public CTextDatabaseValuePolicy
+	{
+		typedef CTextDatabaseValuePolicy::value_type value_type;
+	};
+
+	/** Value policy used by nchar, nvarchar and ntext fields
+	*/
+	struct SNTextDatabaseValuePolicy
+	{
 		typedef std::wstring value_type;
 
-	public:
 		/** Reinitializes the given value
 		@param value
 		    The value
@@ -820,14 +820,28 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	};
 
-	/** CDatabaseValuePolicy specialization for ByteArray data type
+	/** SDatabaseValuePolicy specialization for EFieldType_NVARCHAR type
 	*/
-	template<> class CDatabaseValuePolicy< ByteArray >
+	template<> struct SDatabaseValuePolicy< EFieldType_NVARCHAR >
+		: public SNTextDatabaseValuePolicy
 	{
-	protected:
+		typedef SNTextDatabaseValuePolicy::value_type value_type;
+	};
+
+	/** SDatabaseValuePolicy specialization for EFieldType_NTEXT type
+	*/
+	template<> struct SDatabaseValuePolicy< EFieldType_NTEXT >
+		: public SNTextDatabaseValuePolicy
+	{
+		typedef SNTextDatabaseValuePolicy::value_type value_type;
+	};
+
+	/** ByteArray value policy (shared amongst EFieldType_BINARY, EFieldType_VARBINARY, and EFieldType_LONG_VARBINARY)
+	*/
+	struct SByteArrayDatabaseValuePolicy
+	{
 		typedef ByteArray value_type;
 
-	public:
 		/** Reinitializes the given value
 		@param value
 		    The value
@@ -926,14 +940,36 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	};
 
-	/** CDatabaseValuePolicy specialization for CDate data type
+	/** SDatabaseValuePolicy specialization for EFieldType_BINARY type
 	*/
-	template<> class CDatabaseValuePolicy< CDate >
+	template<> struct SDatabaseValuePolicy< EFieldType_BINARY >
+		: public SByteArrayDatabaseValuePolicy
 	{
-	protected:
-		typedef CDate value_type;
+		typedef SByteArrayDatabaseValuePolicy::value_type value_type;
+	};
 
-	public:
+	/** SDatabaseValuePolicy specialization for EFieldType_VARBINARY type
+	*/
+	template<> struct SDatabaseValuePolicy< EFieldType_VARBINARY >
+		: public SByteArrayDatabaseValuePolicy
+	{
+		typedef SByteArrayDatabaseValuePolicy::value_type value_type;
+	};
+
+	/** SDatabaseValuePolicy specialization for EFieldType_LONG_VARBINARY type
+	*/
+	template<> struct SDatabaseValuePolicy< EFieldType_LONG_VARBINARY >
+		: public SByteArrayDatabaseValuePolicy
+	{
+		typedef SByteArrayDatabaseValuePolicy::value_type value_type;
+	};
+
+	/** SDatabaseValuePolicy specialization for EFieldType_DATE type
+	*/
+	template<> struct SDatabaseValuePolicy< EFieldType_DATE >
+	{
+		typedef SFieldTypeDataTyper< EFieldType_DATE >::value_type value_type;
+
 		/** Reinitializes the given value
 		@param value
 		    The value
@@ -1015,18 +1051,15 @@ BEGIN_NAMESPACE_DATABASE
 			}
 		}
 
-	private:
 		std::string _value;
 	};
 
-	/** CDatabaseValuePolicy specialization for CTime data type
+	/** SDatabaseValuePolicy specialization for EFieldType_TIME type
 	*/
-	template<> class CDatabaseValuePolicy< CTime >
+	template<> struct SDatabaseValuePolicy< EFieldType_TIME >
 	{
-	protected:
-		typedef CTime value_type;
+		typedef SFieldTypeDataTyper< EFieldType_TIME >::value_type value_type;
 
-	public:
 		/** Reinitializes the given value
 		@param value
 		    The value
@@ -1108,18 +1141,15 @@ BEGIN_NAMESPACE_DATABASE
 			}
 		}
 
-	private:
 		std::string _value;
 	};
 
-	/** CDatabaseValuePolicy specialization for CDateTime data type
+	/** SDatabaseValuePolicy specialization for EFieldType_DATETIME type
 	*/
-	template<> class CDatabaseValuePolicy< CDateTime >
+	template<> struct SDatabaseValuePolicy< EFieldType_DATETIME >
 	{
-	protected:
-		typedef CDateTime value_type;
+		typedef SFieldTypeDataTyper< EFieldType_DATETIME >::value_type value_type;
 
-	public:
 		/** Reinitializes the given value
 		@param value
 		    The value
@@ -1201,18 +1231,15 @@ BEGIN_NAMESPACE_DATABASE
 			}
 		}
 
-	private:
 		std::string _value;
 	};
 
-	/** CDatabaseValuePolicy specialization for CFixedPoint data type
+	/** SDatabaseValuePolicy specialization for EFieldType_FIXED_POINT type
 	*/
-	template<> class CDatabaseValuePolicy< CFixedPoint >
+	template<> struct SDatabaseValuePolicy< EFieldType_FIXED_POINT >
 	{
-	protected:
-		typedef CFixedPoint value_type;
+		typedef SFieldTypeDataTyper< EFieldType_FIXED_POINT >::value_type value_type;
 
-	public:
 		/** Reinitializes the given value
 		@param value
 		    The value

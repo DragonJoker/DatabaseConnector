@@ -291,7 +291,7 @@ BEGIN_NAMESPACE_DATABASE
 		case EFieldType_BIT:
 			value = static_cast< CDatabaseValue< EFieldType_BIT > & >( *_value ).GetValue() ? 1 : 0;
 			break;
-			
+
 		case EFieldType_INT8:
 			value = static_cast< CDatabaseValue< EFieldType_INT8 > & >( *_value ).GetValue();
 			break;

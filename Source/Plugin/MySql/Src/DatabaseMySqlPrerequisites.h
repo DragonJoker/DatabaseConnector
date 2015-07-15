@@ -67,13 +67,13 @@ BEGIN_NAMESPACE_DATABASE
 		const String DATABASE_MYSQL_TYPE = STR( "Database.MySql" );
 		const String PLUGIN_NAME_DATABASE_MYSQL = STR( "Plugin Database MySql" );
 
-		struct CMySqlBindBase
+		struct SMySqlBindBase
 		{
 			my_bool _null = 0;
 			my_bool _error = 0;
 			MYSQL_BIND & _bind;
 
-			CMySqlBindBase( MYSQL_BIND & bind )
+			SMySqlBindBase( MYSQL_BIND & bind )
 				: _bind( bind )
 			{
 				bind.error = &_error;
@@ -82,24 +82,24 @@ BEGIN_NAMESPACE_DATABASE
 		};
 
 		struct CInMySqlBindBase
-				: public CMySqlBindBase
+			: public SMySqlBindBase
 		{
 			unsigned long _length = 0;
 
 			CInMySqlBindBase( MYSQL_BIND & bind )
-				: CMySqlBindBase( bind )
+				: SMySqlBindBase( bind )
 			{
 				bind.length = &_length;
 			}
 		};
 
 		template< typename T, typename U = T >
-		struct CInMySqlBind
-				: public CInMySqlBindBase
+		struct SInMySqlBind
+			: public CInMySqlBindBase
 		{
 			T _value;
 
-			CInMySqlBind( MYSQL_BIND & bind )
+			SInMySqlBind( MYSQL_BIND & bind )
 				: CInMySqlBindBase( bind )
 			{
 				bind.buffer = &_value;
@@ -112,12 +112,12 @@ BEGIN_NAMESPACE_DATABASE
 		};
 
 		template<>
-		struct CInMySqlBind< bool, bool >
-				: public CInMySqlBindBase
+		struct SInMySqlBind< bool, bool >
+			: public CInMySqlBindBase
 		{
 			int8_t _value;
 
-			CInMySqlBind( MYSQL_BIND & bind )
+			SInMySqlBind( MYSQL_BIND & bind )
 				: CInMySqlBindBase( bind )
 			{
 				bind.buffer = &_value;
@@ -130,12 +130,12 @@ BEGIN_NAMESPACE_DATABASE
 		};
 
 		template< typename T >
-		struct CInMySqlBind< T *, T * >
-				: public CInMySqlBindBase
+		struct SInMySqlBind< T *, T * >
+			: public CInMySqlBindBase
 		{
 			T _value[8192];
 
-			CInMySqlBind( MYSQL_BIND & bind )
+			SInMySqlBind( MYSQL_BIND & bind )
 				: CInMySqlBindBase( bind )
 			{
 				memset( _value, 0, sizeof( _value ) );
@@ -150,12 +150,12 @@ BEGIN_NAMESPACE_DATABASE
 		};
 
 		template<>
-		struct CInMySqlBind< char *, CFixedPoint >
-				: public CInMySqlBindBase
+		struct SInMySqlBind< char *, CFixedPoint >
+			: public CInMySqlBindBase
 		{
 			char _value[8192];
 
-			CInMySqlBind( MYSQL_BIND & bind, uint32_t precision )
+			SInMySqlBind( MYSQL_BIND & bind, uint32_t precision )
 				: CInMySqlBindBase( bind )
 				, _precision( uint8_t( precision ) )
 			{
@@ -173,12 +173,12 @@ BEGIN_NAMESPACE_DATABASE
 		};
 
 		template<>
-		struct CInMySqlBind< char *, int32_t >
-				: public CInMySqlBindBase
+		struct SInMySqlBind< char *, int32_t >
+			: public CInMySqlBindBase
 		{
 			char _value[8192];
 
-			CInMySqlBind( MYSQL_BIND & bind )
+			SInMySqlBind( MYSQL_BIND & bind )
 				: CInMySqlBindBase( bind )
 			{
 				memset( _value, 0, sizeof( _value ) );
@@ -192,10 +192,10 @@ BEGIN_NAMESPACE_DATABASE
 			}
 		};
 
-		struct COutMySqlBindBase
-				: public CMySqlBindBase
+		struct SOutMySqlBindBase
+			: public SMySqlBindBase
 		{
-			COutMySqlBindBase( MYSQL_BIND & bind, enum_field_types type, CDatabaseStatementParameterMySql & parameter );
+			SOutMySqlBindBase( MYSQL_BIND & bind, enum_field_types type, CDatabaseStatementParameterMySql & parameter );
 
 			virtual void UpdateValue() = 0;
 

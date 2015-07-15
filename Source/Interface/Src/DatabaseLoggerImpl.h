@@ -50,7 +50,7 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	template< typename Char >
 	struct SBasicMessage
-			: public SMessageBase
+		: public SMessageBase
 	{
 		typedef std::basic_string< Char > string_type;
 
@@ -107,11 +107,27 @@ BEGIN_NAMESPACE_DATABASE
 		/** Sets the file for given log level
 		@param[in] logFilePath
 			The file path
-		@param[in] logType
+		@param[in] logLevel
 			The log level.
 			If ELogType_COUNT, sets the file for every log level
 		*/
-		void SetFileName( String const & logFilePath, ELogType logType );
+		void SetFileName( String const & logFilePath, ELogType logLevel );
+
+		/** Prints a message to the console
+		@param[in] logLevel
+			The log level.
+		@param[in] message
+			The message.
+		*/
+		void PrintMessage( ELogType logLevel, std::string const & message );
+
+		/** Prints a message to the console
+		@param[in] logLevel
+			The log level.
+		@param[in] message
+			The message.
+		*/
+		void PrintMessage( ELogType logLevel, std::wstring const & message );
 
 		/** Logs a message queue
 		@param[in] queue

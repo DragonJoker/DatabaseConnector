@@ -28,7 +28,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		/** Used to stream a byte array into an std::istream
 		*/
 		struct membuf
-				: std::streambuf
+			: std::streambuf
 		{
 			/** Constructor
 			*/

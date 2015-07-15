@@ -121,6 +121,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				{
 					result = EFieldType_BIT;
 				}
+
 				break;
 
 			case MYSQL_TYPE_SHORT:
@@ -198,38 +199,42 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				break;
 
 			case MYSQL_TYPE_TINY:
-				result = std::make_unique< CInMySqlBind< int8_t > >( bind );
+				result = std::make_unique< SInMySqlBind< int8_t > >( bind );
 				bind.is_unsigned = false;
 				break;
 
 			case MYSQL_TYPE_SHORT:
-				result = std::make_unique< CInMySqlBind< int16_t > >( bind );
+				result = std::make_unique< SInMySqlBind< int16_t > >( bind );
 				bind.is_unsigned = false;
 				break;
 
 			case MYSQL_TYPE_INT24:
+				result = std::make_unique< SInMySqlBind< int24_t > >( bind );
+				bind.is_unsigned = false;
+				break;
+
 			case MYSQL_TYPE_LONG:
-				result = std::make_unique< CInMySqlBind< int32_t > >( bind );
+				result = std::make_unique< SInMySqlBind< int32_t > >( bind );
 				bind.is_unsigned = false;
 				break;
 
 			case MYSQL_TYPE_LONGLONG:
-				result = std::make_unique< CInMySqlBind< int64_t > >( bind );
+				result = std::make_unique< SInMySqlBind< int64_t > >( bind );
 				bind.is_unsigned = false;
 				break;
 
 			case MYSQL_TYPE_FLOAT:
-				result = std::make_unique< CInMySqlBind< float > >( bind );
+				result = std::make_unique< SInMySqlBind< float > >( bind );
 				bind.is_unsigned = false;
 				break;
 
 			case MYSQL_TYPE_DOUBLE:
-				result = std::make_unique< CInMySqlBind< double > >( bind );
+				result = std::make_unique< SInMySqlBind< double > >( bind );
 				bind.is_unsigned = false;
 				break;
 
 			case MYSQL_TYPE_NEWDECIMAL:
-				result = std::make_unique< CInMySqlBind< char *, CFixedPoint > >( bind, precision );
+				result = std::make_unique< SInMySqlBind< char *, CFixedPoint > >( bind, precision );
 				bind.is_unsigned = false;
 				break;
 
@@ -237,7 +242,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			case MYSQL_TYPE_DATE:
 			case MYSQL_TYPE_DATETIME:
 			case MYSQL_TYPE_TIME:
-				result = std::make_unique< CInMySqlBind< MYSQL_TIME > >( bind );
+				result = std::make_unique< SInMySqlBind< MYSQL_TIME > >( bind );
 				bind.is_unsigned = false;
 				break;
 
@@ -247,7 +252,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			case MYSQL_TYPE_TINY_BLOB:
 			case MYSQL_TYPE_MEDIUM_BLOB:
 			case MYSQL_TYPE_LONG_BLOB:
-				result = std::make_unique< CInMySqlBind< char * > >( bind );
+				result = std::make_unique< SInMySqlBind< char * > >( bind );
 				bind.is_unsigned = false;
 				break;
 			}
@@ -319,39 +324,39 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 								switch ( pInfos->GetType() )
 								{
 								case EFieldType_BIT:
-									static_cast< CDatabaseValue< EFieldType_BIT > & >( field->GetObjectValue() ).SetValue( static_cast< CInMySqlBind< bool > const & >( *bind ).GetValue() != 0 );
+									static_cast< CDatabaseValue< EFieldType_BIT > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< bool > const & >( *bind ).GetValue() != 0 );
 									break;
 
 								case EFieldType_INT8:
-									static_cast< CDatabaseValue< EFieldType_INT8 > & >( field->GetObjectValue() ).SetValue( static_cast< CInMySqlBind< int8_t > const & >( *bind ).GetValue() );
+									static_cast< CDatabaseValue< EFieldType_INT8 > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< int8_t > const & >( *bind ).GetValue() );
 									break;
 
 								case EFieldType_INT16:
-									static_cast< CDatabaseValue< EFieldType_INT16 > & >( field->GetObjectValue() ).SetValue( static_cast< CInMySqlBind< int16_t > const & >( *bind ).GetValue() );
+									static_cast< CDatabaseValue< EFieldType_INT16 > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< int16_t > const & >( *bind ).GetValue() );
 									break;
 
 								case EFieldType_INT24:
-									static_cast< CDatabaseValue< EFieldType_INT24 > & >( field->GetObjectValue() ).SetValue( static_cast< CInMySqlBind< int24_t > const & >( *bind ).GetValue() );
+									static_cast< CDatabaseValue< EFieldType_INT24 > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< int24_t > const & >( *bind ).GetValue() );
 									break;
 
 								case EFieldType_INT32:
-									static_cast< CDatabaseValue< EFieldType_INT32 > & >( field->GetObjectValue() ).SetValue( static_cast< CInMySqlBind< int32_t > const & >( *bind ).GetValue() );
+									static_cast< CDatabaseValue< EFieldType_INT32 > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< int32_t > const & >( *bind ).GetValue() );
 									break;
 
 								case EFieldType_INT64:
-									static_cast< CDatabaseValue< EFieldType_INT64 > & >( field->GetObjectValue() ).SetValue( static_cast< CInMySqlBind< int64_t > const & >( *bind ).GetValue() );
+									static_cast< CDatabaseValue< EFieldType_INT64 > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< int64_t > const & >( *bind ).GetValue() );
 									break;
 
 								case EFieldType_FLOAT32:
-									static_cast< CDatabaseValue< EFieldType_FLOAT32 > & >( field->GetObjectValue() ).SetValue( static_cast< CInMySqlBind< float > const & >( *bind ).GetValue() );
+									static_cast< CDatabaseValue< EFieldType_FLOAT32 > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< float > const & >( *bind ).GetValue() );
 									break;
 
 								case EFieldType_FLOAT64:
-									static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( field->GetObjectValue() ).SetValue( static_cast< CInMySqlBind< double > const & >( *bind ).GetValue() );
+									static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< double > const & >( *bind ).GetValue() );
 									break;
 
 								case EFieldType_FIXED_POINT:
-									static_cast< CDatabaseValue< EFieldType_FIXED_POINT > & >( field->GetObjectValue() ).SetValue( static_cast< CInMySqlBind< char *, CFixedPoint > const & >( *bind ).GetValue() );
+									static_cast< CDatabaseValue< EFieldType_FIXED_POINT > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< char *, CFixedPoint > const & >( *bind ).GetValue() );
 									break;
 
 								case EFieldType_VARCHAR:
@@ -383,34 +388,34 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 								}
 
 								case EFieldType_DATE:
-									static_cast< CDatabaseValue< EFieldType_DATE > & >( field->GetObjectValue() ).SetValue( CDateFromMySqlTime( static_cast< CInMySqlBind< MYSQL_TIME > const & >( *bind ).GetValue() ) );
+									static_cast< CDatabaseValue< EFieldType_DATE > & >( field->GetObjectValue() ).SetValue( CDateFromMySqlTime( static_cast< SInMySqlBind< MYSQL_TIME > const & >( *bind ).GetValue() ) );
 									break;
 
 								case EFieldType_DATETIME:
-									static_cast< CDatabaseValue< EFieldType_DATETIME > & >( field->GetObjectValue() ).SetValue( CDateTimeFromMySqlTime( static_cast< CInMySqlBind< MYSQL_TIME > const & >( *bind ).GetValue() ) );
+									static_cast< CDatabaseValue< EFieldType_DATETIME > & >( field->GetObjectValue() ).SetValue( CDateTimeFromMySqlTime( static_cast< SInMySqlBind< MYSQL_TIME > const & >( *bind ).GetValue() ) );
 									break;
 
 								case EFieldType_TIME:
-									static_cast< CDatabaseValue< EFieldType_TIME > & >( field->GetObjectValue() ).SetValue( CTimeFromMySqlTime( static_cast< CInMySqlBind< MYSQL_TIME > const & >( *bind ).GetValue() ) );
+									static_cast< CDatabaseValue< EFieldType_TIME > & >( field->GetObjectValue() ).SetValue( CTimeFromMySqlTime( static_cast< SInMySqlBind< MYSQL_TIME > const & >( *bind ).GetValue() ) );
 									break;
 
 								case EFieldType_BINARY:
 								{
-									auto value = static_cast< CInMySqlBind< uint8_t * > const & >( *bind ).GetValue();
+									auto value = static_cast< SInMySqlBind< uint8_t * > const & >( *bind ).GetValue();
 									static_cast< CDatabaseValue< EFieldType_BINARY > & >( field->GetObjectValue() ).SetValue( ByteArray( value, value + bind->_length ) );
 									break;
 								}
 
 								case EFieldType_VARBINARY:
 								{
-									auto value = static_cast< CInMySqlBind< uint8_t * > const & >( *bind ).GetValue();
+									auto value = static_cast< SInMySqlBind< uint8_t * > const & >( *bind ).GetValue();
 									static_cast< CDatabaseValue< EFieldType_VARBINARY > & >( field->GetObjectValue() ).SetValue( ByteArray( value, value + bind->_length ) );
 									break;
 								}
 
 								case EFieldType_LONG_VARBINARY:
 								{
-									auto value = static_cast< CInMySqlBind< uint8_t * > const & >( *bind ).GetValue();
+									auto value = static_cast< SInMySqlBind< uint8_t * > const & >( *bind ).GetValue();
 									static_cast< CDatabaseValue< EFieldType_LONG_VARBINARY > & >( field->GetObjectValue() ).SetValue( ByteArray( value, value + bind->_length ) );
 									break;
 								}

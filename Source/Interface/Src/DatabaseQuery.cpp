@@ -260,12 +260,12 @@ BEGIN_NAMESPACE_DATABASE
 
 			if ( parameter->GetParamType() == EParameterType_IN )
 			{
-				query << parameter->GetObjectValue().GetQueryValue( !parameter->GetObjectValue().IsNull() ).c_str();
+				query << parameter->GetObjectValue().GetQueryValue().c_str();
 			}
 			else if ( parameter->GetParamType() == EParameterType_INOUT )
 			{
 				query << DB_SQL_PARAM + parameter->GetName();
-				inOutInitializers.push_back( DB_SQL_SET + parameter->GetName() + STR( " = " ) + parameter->GetObjectValue().GetQueryValue( !parameter->GetObjectValue().IsNull() ) );
+				inOutInitializers.push_back( DB_SQL_SET + parameter->GetName() + STR( " = " ) + parameter->GetObjectValue().GetQueryValue() );
 				outParams.push_back( parameter );
 			}
 			else if ( parameter->GetParamType() == EParameterType_OUT )
@@ -324,7 +324,7 @@ BEGIN_NAMESPACE_DATABASE
 						{
 							field = row->GetField( parameter->GetName() );
 						}
-						catch( CExceptionDatabase & exc )
+						catch ( CExceptionDatabase & exc )
 						{
 							CLogger::LogError( exc.GetFullDescription() );
 						}

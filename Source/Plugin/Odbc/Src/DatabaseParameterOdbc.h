@@ -103,7 +103,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	*/
 	template< EFieldType Type >
 	struct COutOdbcBind
-			: public COutOdbcBindBase
+		: public COutOdbcBindBase
 	{
 		/** Constructor.
 		@param[in] statement
@@ -150,7 +150,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	*/
 	template<>
 	struct COutOdbcBind< EFieldType_FIXED_POINT >
-			: public COutOdbcBindBase
+		: public COutOdbcBindBase
 	{
 		/** Constructor.
 		@param[in] statement
@@ -204,7 +204,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	*/
 	template<>
 	struct COutOdbcBind< EFieldType_DATE >
-			: public COutOdbcBindBase
+		: public COutOdbcBindBase
 	{
 		/** Constructor.
 		@param[in] statement
@@ -259,7 +259,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	*/
 	template<>
 	struct COutOdbcBind< EFieldType_TIME >
-			: public COutOdbcBindBase
+		: public COutOdbcBindBase
 	{
 		/** Constructor.
 		@param[in] statement
@@ -314,7 +314,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	*/
 	template<>
 	struct COutOdbcBind< EFieldType_DATETIME >
-			: public COutOdbcBindBase
+		: public COutOdbcBindBase
 	{
 		/** Constructor.
 		@param[in] statement
@@ -372,7 +372,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	*/
 	template<>
 	struct COutOdbcBind< EFieldType_VARCHAR >
-			: public COutOdbcBindBase
+		: public COutOdbcBindBase
 	{
 		/** Constructor.
 		@param[in] statement
@@ -419,7 +419,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	*/
 	template<>
 	struct COutOdbcBind< EFieldType_NVARCHAR >
-			: public COutOdbcBindBase
+		: public COutOdbcBindBase
 	{
 		/** Constructor.
 		@param[in] statement
@@ -468,7 +468,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	*/
 	template<>
 	struct COutOdbcBind< EFieldType_TEXT >
-			: public COutOdbcBindBase
+		: public COutOdbcBindBase
 	{
 		/** Constructor.
 		@param[in] statement
@@ -524,7 +524,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	*/
 	template<>
 	struct COutOdbcBind< EFieldType_NTEXT >
-			: public COutOdbcBindBase
+		: public COutOdbcBindBase
 	{
 		/** Constructor.
 		@param[in] statement
@@ -580,7 +580,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	*/
 	template<>
 	struct COutOdbcBind< EFieldType_LONG_VARBINARY >
-			: public COutOdbcBindBase
+		: public COutOdbcBindBase
 	{
 		/** Constructor.
 		@param[in] statement

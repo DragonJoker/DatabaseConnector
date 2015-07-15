@@ -23,7 +23,7 @@ BEGIN_NAMESPACE_DATABASE
 
 	/** Describes a value, used in fields and parameters.
 	*/
-	template< EFieldType Type, typename ValuePolicy >
+	template< EFieldType FieldType, typename ValuePolicy >
 	class CDatabaseValue
 		: public CDatabaseValueBase
 		, private ValuePolicy
@@ -55,7 +55,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline void SetValue( CDatabaseValueBase const & value )
 		{
-			SetValue( static_cast< CDatabaseValue< Type > const & >( value )._tValue );
+			SetValue( static_cast< CDatabaseValue< FieldType > const & >( value )._tValue );
 		}
 
 		/** Set value.
@@ -68,14 +68,12 @@ BEGIN_NAMESPACE_DATABASE
 		}
 
 		/** Get the value.
-		@param valueSet
-			Tells if the value is set (true) or NULL (false)
 		@return
 			The value.
 		*/
-		inline String GetQueryValue( bool valueSet )
+		inline String GetQueryValue()
 		{
-			return ValuePolicy::ToQueryValue( _tValue, valueSet, _connection );
+			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), _connection );
 		}
 
 		/** Get a pointer to the value.
@@ -194,14 +192,12 @@ BEGIN_NAMESPACE_DATABASE
 		}
 
 		/** Get the value.
-		@param valueSet
-			Tells if the value is set (true) or NULL (false)
 		@return
 			The value.
 		*/
-		inline String GetQueryValue( bool valueSet )
+		inline String GetQueryValue()
 		{
-			return ValuePolicy::ToQueryValue( _tValue, valueSet, _connection );
+			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), _connection );
 		}
 
 		/** Get a pointer to the value.
@@ -320,14 +316,12 @@ BEGIN_NAMESPACE_DATABASE
 		}
 
 		/** Get the value.
-		@param valueSet
-			Tells if the value is set (true) or NULL (false)
 		@return
 			The value.
 		*/
-		inline String GetQueryValue( bool valueSet )
+		inline String GetQueryValue()
 		{
-			return ValuePolicy::ToQueryValue( _tValue, valueSet, _connection );
+			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), _connection );
 		}
 
 		/** Get a pointer to the value.
@@ -446,14 +440,12 @@ BEGIN_NAMESPACE_DATABASE
 		}
 
 		/** Get the value.
-		@param valueSet
-			Tells if the value is set (true) or NULL (false)
 		@return
 			The value.
 		*/
-		inline String GetQueryValue( bool valueSet )
+		inline String GetQueryValue()
 		{
-			return ValuePolicy::ToQueryValue( _tValue, valueSet, _connection );
+			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), _connection );
 		}
 
 		/** Get a pointer to the value.
@@ -572,14 +564,12 @@ BEGIN_NAMESPACE_DATABASE
 		}
 
 		/** Get the value.
-		@param valueSet
-			Tells if the value is set (true) or NULL (false)
 		@return
 			The value.
 		*/
-		inline String GetQueryValue( bool valueSet )
+		inline String GetQueryValue()
 		{
-			return ValuePolicy::ToQueryValue( _tValue, valueSet, _connection );
+			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), _connection );
 		}
 
 		/** Get a pointer to the value.
@@ -698,14 +688,12 @@ BEGIN_NAMESPACE_DATABASE
 		}
 
 		/** Get the value.
-		@param valueSet
-			Tells if the value is set (true) or NULL (false)
 		@return
 			The value.
 		*/
-		inline String GetQueryValue( bool valueSet )
+		inline String GetQueryValue()
 		{
-			return ValuePolicy::ToQueryValue( _tValue, valueSet, _connection );
+			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), _connection );
 		}
 
 		/** Get a pointer to the value.
@@ -824,14 +812,12 @@ BEGIN_NAMESPACE_DATABASE
 		}
 
 		/** Get the value.
-		@param valueSet
-			Tells if the value is set (true) or NULL (false)
 		@return
 			The value.
 		*/
-		inline String GetQueryValue( bool valueSet )
+		inline String GetQueryValue()
 		{
-			return ValuePolicy::ToQueryValue( _tValue, valueSet, _connection );
+			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), _connection );
 		}
 
 		/** Get a pointer to the value.
@@ -950,14 +936,12 @@ BEGIN_NAMESPACE_DATABASE
 		}
 
 		/** Get the value.
-		@param valueSet
-			Tells if the value is set (true) or NULL (false)
 		@return
 			The value.
 		*/
-		inline String GetQueryValue( bool valueSet )
+		inline String GetQueryValue()
 		{
-			return ValuePolicy::ToQueryValue( _tValue, valueSet, _connection );
+			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), _connection );
 		}
 
 		/** Get a pointer to the value.

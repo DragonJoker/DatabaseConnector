@@ -26,15 +26,15 @@ BEGIN_NAMESPACE_DATABASE
 		if ( _value[2] & 0x80 )
 		{
 			return ( 0xff << 24 )
-				| ( _value[2] << 16 )
-				| ( _value[1] <<  8 )
-				| ( _value[0] );
+			| ( _value[2] << 16 )
+			| ( _value[1] <<  8 )
+			| ( _value[0] );
 		}
 		else
 		{
 			return ( _value[2] << 16 )
-				| ( _value[1] <<  8 )
-				| ( _value[0] );
+			| ( _value[1] <<  8 )
+			| ( _value[0] );
 		}
 	}
 
@@ -188,8 +188,8 @@ BEGIN_NAMESPACE_DATABASE
 	inline uint24_t::operator uint32_t() const
 	{
 		return ( _value[2] << 16 )
-			| ( _value[1] <<  8 )
-			| ( _value[0] );
+		| ( _value[1] <<  8 )
+		| ( _value[0] );
 	}
 
 	inline uint24_t::operator uint64_t() const

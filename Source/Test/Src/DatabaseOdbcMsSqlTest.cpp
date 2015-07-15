@@ -17,7 +17,7 @@
 
 BEGIN_NAMESPACE_DATABASE_TEST
 {
-	static const String DB_DATABASE = STR( "db_test_odbc_mysql" );
+	static const String DB_DATABASE = STR( "db_test_odbc_mssql" );
 	static const String DB_SERVER = STR( "127.0.0.1" );
 	static const String DB_USER = STR( "test_user" );
 	static const String DB_PASS = STR( "test_pwd" );

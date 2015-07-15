@@ -295,9 +295,9 @@ BEGIN_NAMESPACE_DATABASE
 		The result
 	*/
 	inline int24_t operator-( const int24_t & rhs );
-	
-	static const int24_t INT24_MAX = int24_t( 8388607 );
-	static const int24_t INT24_MIN = int24_t( -8388607 );
+
+	static const int24_t INT24_MAX = int24_t( 0x007FFFFF );
+	static const int24_t INT24_MIN = int24_t( 0x00800000 );
 	static const int24_t INT24_LOWEST = INT24_MIN;
 
 	/** Unsigned 24 bits integer
@@ -482,7 +482,7 @@ BEGIN_NAMESPACE_DATABASE
 		uint8_t _value[3];
 	};
 
-	static const uint24_t UINT24_MAX = uint24_t( 16777215 );
+	static const uint24_t UINT24_MAX = uint24_t( 0x00FFFFFF );
 	static const uint24_t UINT24_MIN = uint24_t( 0 );
 	static const uint24_t UINT24_LOWEST = UINT24_MIN;
 
@@ -582,7 +582,8 @@ namespace std
 	*/
 	template<>
 	class numeric_limits< NAMESPACE_DATABASE::int24_t >
-	{	// limits for type int
+	{
+		// limits for type int
 	public:
 		typedef NAMESPACE_DATABASE::int24_t my_type;
 
@@ -656,7 +657,7 @@ namespace std
 		static const int max_exponent10 = 0;
 		static const int min_exponent = 0;
 		static const int min_exponent10 = 0;
-		
+
 		static const bool is_bounded = true;
 		static const bool is_exact = true;
 		static const bool is_integer = true;
@@ -673,7 +674,8 @@ namespace std
 	*/
 	template<>
 	class numeric_limits< NAMESPACE_DATABASE::uint24_t >
-	{	// limits for type int
+	{
+		// limits for type int
 	public:
 		typedef NAMESPACE_DATABASE::uint24_t my_type;
 
@@ -747,7 +749,7 @@ namespace std
 		static const int max_exponent10 = 0;
 		static const int min_exponent = 0;
 		static const int min_exponent10 = 0;
-		
+
 		static const bool is_bounded = true;
 		static const bool is_exact = true;
 		static const bool is_integer = true;

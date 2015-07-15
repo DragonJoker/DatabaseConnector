@@ -64,8 +64,8 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	*/
 	template<> struct SFieldTypeMySqlDataTyper< EFieldType_INT24 >
 	{
-		static const enum_field_types MySqlFieldType = MYSQL_TYPE_LONG;
-		typedef int32_t FieldDataType;
+		static const enum_field_types MySqlFieldType = MYSQL_TYPE_INT24;
+		typedef int24_t FieldDataType;
 	};
 
 	/** Specialization for EFieldType_INT32
@@ -188,8 +188,8 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		typedef uint8_t * FieldDataType;
 	};
 
-	COutMySqlBindBase::COutMySqlBindBase( MYSQL_BIND & bind, enum_field_types type, CDatabaseStatementParameterMySql & parameter )
-		: CMySqlBindBase( bind )
+	SOutMySqlBindBase::SOutMySqlBindBase( MYSQL_BIND & bind, enum_field_types type, CDatabaseStatementParameterMySql & parameter )
+		: SMySqlBindBase( bind )
 		, _statement( parameter.GetStatement() )
 		, _connection( std::static_pointer_cast< CDatabaseConnectionMySql >( parameter.GetConnection() )->GetConnection() )
 	{
@@ -199,8 +199,8 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	/** Generic template class to update the binding from the parameter value
 	*/
 	template< typename T >
-	struct COutMySqlBind
-			: public COutMySqlBindBase
+	struct SOutMySqlBind
+		: public SOutMySqlBindBase
 	{
 		/** Constructor
 		@param bind
@@ -212,15 +212,15 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		@param parameter
 			The parameter
 		*/
-		COutMySqlBind( MYSQL_BIND & bind, enum_field_types type, CDatabaseValueBase & value, CDatabaseStatementParameterMySql & parameter )
-			: COutMySqlBindBase( bind, type, parameter )
+		SOutMySqlBind( MYSQL_BIND & bind, enum_field_types type, CDatabaseValueBase & value, CDatabaseStatementParameterMySql & parameter )
+			: SOutMySqlBindBase( bind, type, parameter )
 			, _value( value )
 		{
 			_bind.buffer_length = sizeof( T );
 			bind.buffer = value.GetPtrValue();
 		}
 
-		//!@copydoc COutMySqlBindBase::DoSetValue
+		//!@copydoc SOutMySqlBindBase::DoSetValue
 		virtual void UpdateValue()
 		{
 			// Empty
@@ -230,11 +230,11 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		CDatabaseValueBase & _value;
 	};
 
-	/** Specialization for pointer types
+	/** SOutMySqlBind specialization for pointer types
 	*/
 	template< typename T >
-	struct COutMySqlBind< T * >
-			: public COutMySqlBindBase
+	struct SOutMySqlBind< T * >
+		: public SOutMySqlBindBase
 	{
 		/** Constructor
 		@param bind
@@ -246,30 +246,30 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		@param parameter
 			The parameter
 		*/
-		COutMySqlBind( MYSQL_BIND & bind, enum_field_types type, CDatabaseValueBase & value, CDatabaseStatementParameterMySql & parameter )
-			: COutMySqlBindBase( bind, type, parameter )
+		SOutMySqlBind( MYSQL_BIND & bind, enum_field_types type, CDatabaseValueBase & value, CDatabaseStatementParameterMySql & parameter )
+			: SOutMySqlBindBase( bind, type, parameter )
 			, _value( value )
 		{
 			if ( type == MYSQL_TYPE_STRING || type == MYSQL_TYPE_BLOB || parameter.GetLimits() == -1 || parameter.GetLimits() == 0 )
 			{
-				_updateFunc = &COutMySqlBind< T * >::DoUpdateUnlimited;
+				_updateFunc = &SOutMySqlBind< T * >::DoUpdateUnlimited;
 			}
 			else
 			{
 				_bind.buffer_length = parameter.GetLimits() * sizeof( T );
 				_holder.resize( _bind.buffer_length );
 				_bind.buffer = _holder.data();
-				_updateFunc = &COutMySqlBind< T * >::DoUpdateLimited;
+				_updateFunc = &SOutMySqlBind< T * >::DoUpdateLimited;
 			}
 		}
 
 		/** Destructor
 		*/
-		~COutMySqlBind()
+		~SOutMySqlBind()
 		{
 		}
 
-		//!@copydoc COutMySqlBindBase::DoSetValue
+		//!@copydoc SOutMySqlBindBase::DoSetValue
 		virtual void UpdateValue()
 		{
 			( this->*_updateFunc )();
@@ -295,14 +295,14 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		//! The value holder
 		std::vector< T > _holder;
 		//! The method used to send the value to the server
-		void ( COutMySqlBind< T * >::*_updateFunc )();
+		void ( SOutMySqlBind< T * >::*_updateFunc )();
 	};
 
-	/** Specialization for wchar_t pointers, since MySQL only support char pointers
+	/** SOutMySqlBind specialization for wchar_t pointers, since MySQL only support char pointers
 	*/
 	template<>
-	struct COutMySqlBind< wchar_t * >
-			: public COutMySqlBindBase
+	struct SOutMySqlBind< wchar_t * >
+		: public SOutMySqlBindBase
 	{
 		/** Constructor
 		@param bind
@@ -314,8 +314,8 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		@param parameter
 			The parameter
 		*/
-		COutMySqlBind( MYSQL_BIND & bind, enum_field_types type, CDatabaseValueBase & value, CDatabaseStatementParameterMySql & parameter )
-			: COutMySqlBindBase( bind, type, parameter )
+		SOutMySqlBind( MYSQL_BIND & bind, enum_field_types type, CDatabaseValueBase & value, CDatabaseStatementParameterMySql & parameter )
+			: SOutMySqlBindBase( bind, type, parameter )
 			, _value( value )
 			, _length( 0 )
 		{
@@ -323,24 +323,24 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 			if ( type == MYSQL_TYPE_STRING || parameter.GetLimits() == -1 || parameter.GetLimits() == 0 )
 			{
-				_updateFunc = &COutMySqlBind< wchar_t * >::DoUpdateUnlimited;
+				_updateFunc = &SOutMySqlBind< wchar_t * >::DoUpdateUnlimited;
 			}
 			else
 			{
 				_bind.buffer_length = parameter.GetLimits();
 				_holder.resize( _bind.buffer_length );
 				_bind.buffer = _holder.data();
-				_updateFunc = &COutMySqlBind< wchar_t * >::DoUpdateLimited;
+				_updateFunc = &SOutMySqlBind< wchar_t * >::DoUpdateLimited;
 			}
 		}
 
 		/** Destructor
 		*/
-		~COutMySqlBind()
+		~SOutMySqlBind()
 		{
 		}
 
-		//!@copydoc COutMySqlBindBase::DoSetValue
+		//!@copydoc SOutMySqlBindBase::DoSetValue
 		virtual void UpdateValue()
 		{
 			std::string str = CStrUtils::ToStr( reinterpret_cast< const wchar_t * >( _value.GetPtrValue() ) );
@@ -368,14 +368,14 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		//! The binding length
 		unsigned long _length;
 		//! The method used to send the value to the server
-		void ( COutMySqlBind< wchar_t * >::*_updateFunc )( const std::string & );
+		void ( SOutMySqlBind< wchar_t * >::*_updateFunc )( const std::string & );
 	};
 
-	/** Specialization for bool
+	/** SOutMySqlBind specialization for bool
 	*/
 	template<>
-	struct COutMySqlBind< bool >
-			: public COutMySqlBindBase
+	struct SOutMySqlBind< bool >
+		: public SOutMySqlBindBase
 	{
 		/** Constructor
 		@param bind
@@ -387,8 +387,8 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		@param parameter
 			The parameter
 		*/
-		COutMySqlBind( MYSQL_BIND & bind, enum_field_types type, CDatabaseValue< EFieldType_BIT > & value, CDatabaseStatementParameterMySql & parameter )
-			: COutMySqlBindBase( bind, type, parameter )
+		SOutMySqlBind( MYSQL_BIND & bind, enum_field_types type, CDatabaseValue< EFieldType_BIT > & value, CDatabaseStatementParameterMySql & parameter )
+			: SOutMySqlBindBase( bind, type, parameter )
 			, _value( value )
 			, _holder( 0 )
 		{
@@ -397,7 +397,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			bind.buffer = &_holder;
 		}
 
-		//!@copydoc COutMySqlBindBase::DoSetValue
+		//!@copydoc SOutMySqlBindBase::DoSetValue
 		virtual void UpdateValue()
 		{
 			_holder = _value.GetValue() ? 1 : 0;
@@ -409,11 +409,11 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		int8_t _holder;
 	};
 
-	/** Generic template class to update the binding from the parameter value
+	/** SOutMySqlBind specialization for int24_t
 	*/
 	template<>
-	struct COutMySqlBind< CFixedPoint >
-			: public COutMySqlBindBase
+	struct SOutMySqlBind< int24_t >
+		: public SOutMySqlBindBase
 	{
 		/** Constructor
 		@param bind
@@ -425,21 +425,55 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		@param parameter
 			The parameter
 		*/
-		COutMySqlBind( MYSQL_BIND & bind, enum_field_types type, CDatabaseValue< EFieldType_FIXED_POINT > & value, CDatabaseStatementParameterMySql & parameter )
-			: COutMySqlBindBase( bind, type, parameter )
+		SOutMySqlBind( MYSQL_BIND & bind, enum_field_types type, CDatabaseValue< EFieldType_INT24 > & value, CDatabaseStatementParameterMySql & parameter )
+			: SOutMySqlBindBase( bind, type, parameter )
+			, _value( value )
+		{
+			_bind.buffer_length = sizeof( int24_t );
+			bind.buffer = value.GetPtrValue();
+		}
+
+		//!@copydoc SOutMySqlBindBase::DoSetValue
+		virtual void UpdateValue()
+		{
+			// Empty
+		}
+
+		//! The parameter value
+		CDatabaseValue< EFieldType_INT24 > & _value;
+	};
+
+	/** SOutMySqlBind specialization for CFixedPoint
+	*/
+	template<>
+	struct SOutMySqlBind< CFixedPoint >
+		: public SOutMySqlBindBase
+	{
+		/** Constructor
+		@param bind
+			The binding
+		@param type
+			The MySQL data type
+		@param value
+			The parameter value
+		@param parameter
+			The parameter
+		*/
+		SOutMySqlBind( MYSQL_BIND & bind, enum_field_types type, CDatabaseValue< EFieldType_FIXED_POINT > & value, CDatabaseStatementParameterMySql & parameter )
+			: SOutMySqlBindBase( bind, type, parameter )
 			, _value( value )
 			, _length( 0 )
 		{
 			_bind.length = &_length;
-			_bind.buffer_length = _holder.size();
+			_bind.buffer_length = static_cast< unsigned long >( _holder.size() );
 			bind.buffer = _holder.data();
 		}
 
-		//!@copydoc COutMySqlBindBase::DoSetValue
+		//!@copydoc SOutMySqlBindBase::DoSetValue
 		virtual void UpdateValue()
 		{
 			String value = _value.GetValue().ToString();
-			_length = value.size();
+			_length = static_cast< unsigned long >( value.size() );
 			assert( _length < 32 );
 			strcpy( _holder.data(), value.data() );
 		}
@@ -452,11 +486,11 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		unsigned long _length;
 	};
 
-	/** Specialization for CDate
+	/** SOutMySqlBind specialization for CDate
 	*/
 	template<>
-	struct COutMySqlBind< CDate >
-			: public COutMySqlBindBase
+	struct SOutMySqlBind< CDate >
+		: public SOutMySqlBindBase
 	{
 		/** Constructor
 		@param bind
@@ -468,15 +502,15 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		@param parameter
 			The parameter
 		*/
-		COutMySqlBind( MYSQL_BIND & bind, enum_field_types type, CDatabaseValue< EFieldType_DATE > & value, CDatabaseStatementParameterMySql & parameter )
-			: COutMySqlBindBase( bind, type, parameter )
+		SOutMySqlBind( MYSQL_BIND & bind, enum_field_types type, CDatabaseValue< EFieldType_DATE > & value, CDatabaseStatementParameterMySql & parameter )
+			: SOutMySqlBindBase( bind, type, parameter )
 			, _value( value )
 		{
 			_bind.buffer_length = sizeof( _holder );
 			bind.buffer = &_holder;
 		}
 
-		//!@copydoc COutMySqlBindBase::DoSetValue
+		//!@copydoc SOutMySqlBindBase::DoSetValue
 		virtual void UpdateValue()
 		{
 			_holder = MySqlTimeFromCDate( _value.GetValue() );
@@ -488,11 +522,11 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		MYSQL_TIME _holder;
 	};
 
-	/** Specialization for CDateTime
+	/** SOutMySqlBind specialization for CDateTime
 	*/
 	template<>
-	struct COutMySqlBind< CDateTime >
-			: public COutMySqlBindBase
+	struct SOutMySqlBind< CDateTime >
+		: public SOutMySqlBindBase
 	{
 		/** Constructor
 		@param bind
@@ -504,15 +538,15 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		@param parameter
 			The parameter
 		*/
-		COutMySqlBind( MYSQL_BIND & bind, enum_field_types type, CDatabaseValue< EFieldType_DATETIME > & value, CDatabaseStatementParameterMySql & parameter )
-			: COutMySqlBindBase( bind, type, parameter )
+		SOutMySqlBind( MYSQL_BIND & bind, enum_field_types type, CDatabaseValue< EFieldType_DATETIME > & value, CDatabaseStatementParameterMySql & parameter )
+			: SOutMySqlBindBase( bind, type, parameter )
 			, _value( value )
 		{
 			_bind.buffer_length = sizeof( _holder );
 			bind.buffer = &_holder;
 		}
 
-		//!@copydoc COutMySqlBindBase::DoSetValue
+		//!@copydoc SOutMySqlBindBase::DoSetValue
 		virtual void UpdateValue()
 		{
 			_holder = MySqlTimeFromCDateTime( _value.GetValue() );
@@ -524,11 +558,11 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		MYSQL_TIME _holder;
 	};
 
-	/** Specialization for CTime
+	/** SOutMySqlBind specialization for CTime
 	*/
 	template<>
-	struct COutMySqlBind< CTime >
-			: public COutMySqlBindBase
+	struct SOutMySqlBind< CTime >
+		: public SOutMySqlBindBase
 	{
 		/** Constructor
 		@param bind
@@ -540,15 +574,15 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		@param parameter
 			The parameter
 		*/
-		COutMySqlBind( MYSQL_BIND & bind, enum_field_types type, CDatabaseValue< EFieldType_TIME > & value, CDatabaseStatementParameterMySql & parameter )
-			: COutMySqlBindBase( bind, type, parameter )
+		SOutMySqlBind( MYSQL_BIND & bind, enum_field_types type, CDatabaseValue< EFieldType_TIME > & value, CDatabaseStatementParameterMySql & parameter )
+			: SOutMySqlBindBase( bind, type, parameter )
 			, _value( value )
 		{
 			_bind.buffer_length = sizeof( _holder );
 			bind.buffer = &_holder;
 		}
 
-		//!@copydoc COutMySqlBindBase::DoSetValue
+		//!@copydoc SOutMySqlBindBase::DoSetValue
 		virtual void UpdateValue()
 		{
 			_holder = MySqlTimeFromCTime( _value.GetValue() );
@@ -560,7 +594,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		MYSQL_TIME _holder;
 	};
 
-	/** Function used to create a COutMySqlBind easily
+	/** Function used to create a SOutMySqlBind easily
 	@param bind
 		The binding
 	@param value
@@ -568,9 +602,9 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	@param parameter
 		The parameter
 	*/
-	template< EFieldType Type > std::unique_ptr< COutMySqlBindBase > MakeOutBind( MYSQL_BIND & bind, CDatabaseValueBase & value, CDatabaseStatementParameterMySql & parameter )
+	template< EFieldType Type > std::unique_ptr< SOutMySqlBindBase > MakeOutBind( MYSQL_BIND & bind, CDatabaseValueBase & value, CDatabaseStatementParameterMySql & parameter )
 	{
-		return std::make_unique< COutMySqlBind< typename SFieldTypeMySqlDataTyper< Type >::FieldDataType > >( bind, SFieldTypeMySqlDataTyper< Type >::MySqlFieldType, static_cast< CDatabaseValue< Type > & >( value ), parameter );
+		return std::make_unique< SOutMySqlBind< typename SFieldTypeMySqlDataTyper< Type >::FieldDataType > >( bind, SFieldTypeMySqlDataTyper< Type >::MySqlFieldType, static_cast< CDatabaseValue< Type > & >( value ), parameter );
 	}
 }
 END_NAMESPACE_DATABASE_MYSQL

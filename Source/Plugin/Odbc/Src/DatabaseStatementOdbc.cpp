@@ -29,7 +29,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 {
 	static const String ERROR_ODBC_MISSING_INITIALIZATION = STR( "Method Initialize must be called before calling method CreateParameter" );
 	static const String ERROR_ODBC_STATEMENT_UNKNOWN_POINTER = STR( "The pointer given by SQLParamData is unknown to the statement" );
-	
+
 	static const String INFO_ODBC_PREPARING_STATEMENT = STR( "Preparing statement for query: " );
 	static const String INFO_ODBC_EXECUTE_STATEMENT = STR( "Execute statement for query: " );
 
@@ -40,7 +40,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	static const String INFO_ODBC_FreeStmt = STR( "SQLFreeStmt" );
 	static const String INFO_ODBC_NumParams = STR( "SQLNumParams" );
 	static const String INFO_ODBC_ParamData = STR( "SQLParamData " );
-	
+
 	static const String DEBUG_ODBC_EXPECTED_PARAMETERS = STR( "Expected parameters : " );
 
 	CDatabaseStatementOdbc::CDatabaseStatementOdbc( DatabaseConnectionOdbcPtr connection, const String & query )

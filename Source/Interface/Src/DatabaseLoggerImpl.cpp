@@ -27,7 +27,7 @@ BEGIN_NAMESPACE_DATABASE
 	CLoggerImpl::CLoggerImpl()
 	{
 #if defined( NDEBUG )
-		_console = std::make_unique< CDummyConsole >();
+		_console = std::make_unique< CDefaultConsole >();
 #else
 		_console = std::make_unique< CDebugConsole >();
 #endif
@@ -50,18 +50,18 @@ BEGIN_NAMESPACE_DATABASE
 	{
 	}
 
-	void CLoggerImpl::SetFileName( String const & logFilePath, ELogType logType )
+	void CLoggerImpl::SetFileName( String const & logFilePath, ELogType logLevel )
 	{
-		if ( logType == ELogType_COUNT )
+		if ( logLevel == ELogType_COUNT )
 		{
-			for ( int i = 0; i < ELogType_COUNT; i++ )
+			for ( auto & path : _logFilePath )
 			{
-				_logFilePath[i] = logFilePath;
+				path = logFilePath;
 			}
 		}
 		else
 		{
-			_logFilePath[logType] = logFilePath;
+			_logFilePath[logLevel] = logFilePath;
 		}
 
 		FILE * file;
@@ -73,17 +73,16 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	}
 
-	void CLoggerImpl::DoLogLine( String const & timestamp, String const & line, FILE * logFile, ELogType logType )
+	void CLoggerImpl::PrintMessage( ELogType logLevel, std::string const & message )
 	{
-		_console->BeginLog( logType );
-		_console->Print( line, true );
+		_console->BeginLog( logLevel );
+		_console->Print( CStrUtils::ToString( message ), true );
+	}
 
-		if ( logFile )
-		{
-			std::string logLine = CStrUtils::ToStr( timestamp + STR( " - " ) + _headers[logType] + line );
-			fwrite( logLine.c_str(), 1, logLine.size(), logFile );
-			fwrite( "\n", 1, 1, logFile );
-		}
+	void CLoggerImpl::PrintMessage( ELogType logLevel, std::wstring const & message )
+	{
+		_console->BeginLog( logLevel );
+		_console->Print( CStrUtils::ToString( message ), true );
 	}
 
 	void CLoggerImpl::LogMessageQueue( MessageQueue const & p_queue )
@@ -150,6 +149,21 @@ BEGIN_NAMESPACE_DATABASE
 		catch ( std::exception & )
 		{
 			//m_pConsole->Print( STR( "Couldn't open log file : " ) + CStrUtils::ToString( exc.what() ), true );
+		}
+	}
+
+	void CLoggerImpl::DoLogLine( String const & timestamp, String const & line, FILE * logFile, ELogType logLevel )
+	{
+#if defined( NDEBUG )
+		_console->BeginLog( logLevel );
+		_console->Print( line, true );
+#endif
+
+		if ( logFile )
+		{
+			std::string logLine = CStrUtils::ToStr( timestamp + STR( " - " ) + _headers[logLevel] + line );
+			fwrite( logLine.c_str(), 1, logLine.size(), logFile );
+			fwrite( "\n", 1, 1, logFile );
 		}
 	}
 }

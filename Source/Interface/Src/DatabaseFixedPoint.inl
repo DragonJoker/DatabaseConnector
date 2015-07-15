@@ -24,7 +24,7 @@ BEGIN_NAMESPACE_DATABASE
 		static const String ERROR_DB_INTEGER_UNDERFLOW = STR( "Integer underflow" );
 
 		template< typename T > struct SFixedPointOperations;
-		
+
 		using boost::multiprecision::int512_t;
 		using boost::multiprecision::uint512_t;
 
@@ -132,7 +132,7 @@ BEGIN_NAMESPACE_DATABASE
 				return result;
 			}
 
-		private:
+private:
 			static int64_t AdjustPrecision( CFixedPoint const & lhs, CFixedPoint const & rhs )
 			{
 				int64_t rhr = rhs.GetRawValue();

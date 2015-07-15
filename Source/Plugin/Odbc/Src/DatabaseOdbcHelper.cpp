@@ -93,7 +93,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		*/
 		template< typename T, typename U = T >
 		struct CInOdbcBind
-				: public CInOdbcBindBase
+			: public CInOdbcBindBase
 		{
 			T _value;
 
@@ -114,7 +114,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		*/
 		template<>
 		struct CInOdbcBind< bool, bool >
-				: public CInOdbcBindBase
+			: public CInOdbcBindBase
 		{
 			int8_t _value;
 
@@ -135,7 +135,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		*/
 		template< typename T >
 		struct CInOdbcBind< T *, T * >
-				: public CInOdbcBindBase
+			: public CInOdbcBindBase
 		{
 			std::vector< T > _value;
 
@@ -156,7 +156,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		*/
 		template<>
 		struct CInOdbcBind< char *, char * >
-				: public CInOdbcBindBase
+			: public CInOdbcBindBase
 		{
 			std::vector< char > _value;
 
@@ -177,7 +177,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		*/
 		template<>
 		struct CInOdbcBind< wchar_t *, wchar_t * >
-				: public CInOdbcBindBase
+			: public CInOdbcBindBase
 		{
 			std::vector< wchar_t > _value;
 
@@ -198,7 +198,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		*/
 		template<>
 		struct CInOdbcBind< char *, double >
-				: public CInOdbcBindBase
+			: public CInOdbcBindBase
 		{
 			char _value[8192];
 
@@ -219,7 +219,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		*/
 		template<>
 		struct CInOdbcBind< char *, int32_t >
-				: public CInOdbcBindBase
+			: public CInOdbcBindBase
 		{
 			char _value[8192];
 
@@ -679,11 +679,11 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			String state = ( char * )sqlState;
 			StringStream LogInfo;
 			LogInfo << INFO_ODBC_STATUS << state
-					   << STR( ", " )
-					   << INFO_ODBC_NATIVE << nativeError
-					   << STR( ", " ) << sqlMessage
-					   << STR( ", " )
-					   << INFO_ODBC_REQUEST << query;
+					<< STR( ", " )
+					<< INFO_ODBC_NATIVE << nativeError
+					<< STR( ", " ) << sqlMessage
+					<< STR( ", " )
+					<< INFO_ODBC_REQUEST << query;
 
 			if ( nativeError == ODBC_RERUN_TRANSACTION_CODE )
 			{
@@ -783,7 +783,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		case SQL_DOUBLE:
 			fieldType = EFieldType_FLOAT64;
 			break;
-			
+
 		case SQL_DECIMAL:
 		case SQL_NUMERIC:
 			fieldType = EFieldType_FIXED_POINT;

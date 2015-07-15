@@ -232,7 +232,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MYSQL
 	static const String ODBC_SQL_COLLATE = STR( " CHARACTER SET utf8 COLLATE utf8_general_ci" );
 	static const String ODBC_SQL_USE_DATABASE = STR( "USE " );
 	static const String ODBC_SQL_DROP_DATABASE = STR( "DROP DATABASE " );
-	
+
 	static const String ODBC_DSN_DSN = STR( "DSN=" );
 	static const String ODBC_DSN_UID = STR( ";UID=" );
 	static const String ODBC_DSN_PWD = STR( ";PWD=" );

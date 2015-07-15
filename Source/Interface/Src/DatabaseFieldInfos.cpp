@@ -76,9 +76,9 @@ BEGIN_NAMESPACE_DATABASE
 		size_t index;
 
 		if ( strTypel.find( STR( "BIGINT" ) ) != String::npos
-			|| strTypel == STR( "MAX" )
-			|| strTypel == STR( "COUNT" )
-			|| strTypel == STR( "MIN" ) )
+				|| strTypel == STR( "MAX" )
+				|| strTypel == STR( "COUNT" )
+				|| strTypel == STR( "MIN" ) )
 		{
 			_type = EFieldType_INT64;
 		}
@@ -86,14 +86,18 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			_type = EFieldType_INT16;
 		}
-		else if ( strTypel.find( STR( "BOOL" ) ) != String::npos 
-				|| strTypel.find( STR( "BIT" ) ) != String::npos )
+		else if ( strTypel.find( STR( "BOOL" ) ) != String::npos
+				  || strTypel.find( STR( "BIT" ) ) != String::npos )
 		{
 			_type = EFieldType_BIT;
 		}
 		else if ( strTypel.find( STR( "TINYINT" ) ) != String::npos )
 		{
 			_type = EFieldType_INT8;
+		}
+		else if ( ( index = strTypel.find( STR( "MEDIUMINT" ) ) ) != String::npos )
+		{
+			_type = EFieldType_INT24;
 		}
 		else if ( ( index = strTypel.find( STR( "INT" ) ) ) != String::npos )
 		{
@@ -137,7 +141,7 @@ BEGIN_NAMESPACE_DATABASE
 			}
 		}
 		else if ( strTypel.find( STR( "NCHAR" ) ) != String::npos
-			|| strTypel.find( STR( "NVARCHAR" ) ) != String::npos )
+				  || strTypel.find( STR( "NVARCHAR" ) ) != String::npos )
 		{
 			_type = EFieldType_NVARCHAR;
 
@@ -169,23 +173,23 @@ BEGIN_NAMESPACE_DATABASE
 			_precision.first = -1;
 		}
 		else if ( strTypel.find( STR( "CLOB" ) ) != String::npos
-			|| strTypel.find( STR( "TEXT" ) ) != String::npos )
+				  || strTypel.find( STR( "TEXT" ) ) != String::npos )
 		{
 			_type = EFieldType_TEXT;
 			_precision.first = -1;
 		}
 		else if ( strTypel.find( STR( "FLOA" ) ) != String::npos
-			|| strTypel == STR( "SUM" ) )
+				  || strTypel == STR( "SUM" ) )
 		{
 			_type = EFieldType_FLOAT32;
 		}
 		else if ( strTypel.find( STR( "REAL" ) ) != String::npos
-			|| strTypel.find( STR( "DOUB" ) ) != String::npos )
+				  || strTypel.find( STR( "DOUB" ) ) != String::npos )
 		{
 			_type = EFieldType_FLOAT64;
 		}
 		else if ( strTypel.find( STR( "DECIMAL" ) ) != String::npos
-			|| strTypel.find( STR( "NUMERIC" ) ) != String::npos )
+				  || strTypel.find( STR( "NUMERIC" ) ) != String::npos )
 		{
 			_type = EFieldType_FIXED_POINT;
 

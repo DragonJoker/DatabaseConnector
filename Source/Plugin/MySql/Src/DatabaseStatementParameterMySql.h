@@ -170,6 +170,18 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseMySqlExport virtual void DoSetValue( const int24_t & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
+		DatabaseMySqlExport virtual void DoSetValue( const uint24_t & value )
+		{
+			DoSetAndUpdateValue( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
 		DatabaseMySqlExport virtual void DoSetValue( const int32_t & value )
 		{
 			DoSetAndUpdateValue( value );
@@ -272,6 +284,18 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseMySqlExport virtual void DoSetValueFast( const int24_t & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
+		DatabaseMySqlExport virtual void DoSetValueFast( const uint24_t & value )
+		{
+			DoSetAndUpdateValueFast( value );
+		}
+
+		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
 		DatabaseMySqlExport virtual void DoSetValueFast( const int32_t & value )
 		{
 			DoSetAndUpdateValueFast( value );
@@ -357,7 +381,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 	private:
 		//! The data binding
-		std::unique_ptr< COutMySqlBindBase > _binding;
+		std::unique_ptr< SOutMySqlBindBase > _binding;
 		//! The prepared statement
 		MYSQL_STMT * _statement;
 	};

@@ -284,7 +284,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 						{
 							field = row->GetField( parameter->GetName() );
 						}
-						catch( CExceptionDatabase & exc )
+						catch ( CExceptionDatabase & exc )
 						{
 							CLogger::LogError( exc.GetFullDescription() );
 						}
@@ -297,7 +297,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 				}
 			}
 		}
-		
+
 		SQLiteTry( SQLite::ClearBindings( _statement ), INFO_SQLITE_STATEMENT_CLEAR_BINDINGS, EDatabaseExceptionCodes_StatementError, _connectionSqlite->GetConnection() );
 		SQLiteTry( SQLite::Reset( _statement ), INFO_SQLITE_STATEMENT_RESET, EDatabaseExceptionCodes_StatementError, _connectionSqlite->GetConnection() );
 	}

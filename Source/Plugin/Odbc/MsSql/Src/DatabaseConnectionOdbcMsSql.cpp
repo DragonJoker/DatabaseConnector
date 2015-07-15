@@ -27,7 +27,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 	static const String ODBC_SQL_COLLATE = STR( " COLLATE utf8_BIN" );
 	static const String ODBC_SQL_USE_DATABASE = STR( "USE " );
 	static const String ODBC_SQL_DROP_DATABASE = STR( "DROP DATABASE " );
-	
+
 	static const String ODBC_DSN_DRIVER = STR( "DRIVER={SQL Server};SERVER=" );
 	static const String ODBC_DSN_UID = STR( ";UID=" );
 	static const String ODBC_DSN_PWD = STR( ";PWD=" );

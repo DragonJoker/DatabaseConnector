@@ -40,7 +40,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		return SBlockGuard< CleanFunc >( init, clean );
 	}
 
-	template< EFieldType FieldType, uint8_t Precision=0 >
+	template< EFieldType FieldType, uint8_t Precision = 0 >
 	struct BatchTests
 	{
 		template< typename Function >

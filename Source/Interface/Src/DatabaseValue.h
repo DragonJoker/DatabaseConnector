@@ -49,12 +49,10 @@ BEGIN_NAMESPACE_DATABASE
 		DatabaseExport virtual void SetValue( CDatabaseValueBase const & value ) = 0;
 
 		/** Get the value.
-		@param valueSet
-			Tells if the value is set (true) or NULL (false)
 		@return
 			The value.
 		*/
-		DatabaseExport virtual String GetQueryValue( bool valueSet ) = 0;
+		DatabaseExport virtual String GetQueryValue() = 0;
 
 		/** Get a pointer to the value.
 		@return

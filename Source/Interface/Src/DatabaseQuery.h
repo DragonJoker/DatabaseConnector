@@ -265,7 +265,7 @@ BEGIN_NAMESPACE_DATABASE
 		/** Inform parent query from the value changes
 		*/
 		struct SValueUpdater
-				: public CDatabaseParameter::SValueUpdater
+			: public CDatabaseParameter::SValueUpdater
 		{
 			/** Constructor
 			@param query

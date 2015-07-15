@@ -156,7 +156,7 @@ BEGIN_NAMESPACE_DATABASE
 		/** Retrieves the raw value
 		*/
 		inline int64_t GetRawValue()const;
-		
+
 		/** Multiplication assignment operator
 		@param[in] rhs
 			The multiplicator

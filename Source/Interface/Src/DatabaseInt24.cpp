@@ -118,7 +118,7 @@ BEGIN_NAMESPACE_DATABASE
 		_value[1] = ( ( uint8_t * )&in )[1];
 		_value[2] = ( ( uint8_t * )&in )[2];
 	}
-	
+
 	uint24_t::uint24_t()
 		: _value()
 	{

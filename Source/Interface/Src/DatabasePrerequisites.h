@@ -91,9 +91,9 @@ namespace Database
 	class CDatabaseField;
 	class CDatabaseFieldInfos;
 	class CDatabaseValueBase;
-	template< typename Type, size_t Size = 0 > struct CDatabaseValuePolicy;
-	template< EFieldType Type > struct SFieldTypeDataTyper;
-	template< EFieldType Type, typename ValuePolicy = CDatabaseValuePolicy< typename SFieldTypeDataTyper< Type >::value_type, SFieldTypeDataTyper< Type >::Size > > class CDatabaseValue;
+	template< EFieldType FieldType > struct SFieldTypeDataTyper;
+	template< EFieldType FieldType > struct SDatabaseValuePolicy;
+	template< EFieldType FieldType, typename ValuePolicy = SDatabaseValuePolicy< FieldType > > class CDatabaseValue;
 	class CDatabaseParameter;
 	class CDatabaseQuery;
 	class CDatabaseResult;
