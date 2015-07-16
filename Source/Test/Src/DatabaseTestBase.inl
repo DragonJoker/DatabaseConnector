@@ -47,16 +47,19 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, typename DatabaseUtils::Helpers< FieldType >::ParamType valueIn = DatabaseUtils::Helpers< FieldType >::InitialiseValue() )
 		{
 			typedef typename DatabaseUtils::Helpers< FieldType >::ParamType param_type;
-			CLogger::LogInfo( StringStream() << "  Lowest" );
-			function( connection, name, std::numeric_limits< param_type >::lowest() );
-			CLogger::LogInfo( StringStream() << "  Max" );
-			function( connection, name, std::numeric_limits< param_type >::max() );
-			CLogger::LogInfo( StringStream() << "  Min" );
-			function( connection, name, std::numeric_limits< param_type >::min() );
+			param_type value = param_type();
+			CLogger::LogInfo( StringStream() << "  NULL" );
+			function( connection, name, NULL, true );
 			CLogger::LogInfo( StringStream() << "  Default" );
-			function( connection, name, param_type() );
+			function( connection, name, &value, true );
+			CLogger::LogInfo( StringStream() << "  Lowest" );
+			function( connection, name, &( value = std::numeric_limits< param_type >::lowest() ), true );
+			CLogger::LogInfo( StringStream() << "  Max" );
+			function( connection, name, &( value = std::numeric_limits< param_type >::max() ), true );
+			CLogger::LogInfo( StringStream() << "  Min" );
+			function( connection, name, &( value = std::numeric_limits< param_type >::min() ), true );
 			CLogger::LogInfo( StringStream() << "  Given" );
-			function( connection, name, valueIn );
+			function( connection, name, &valueIn, true );
 		}
 	};
 
@@ -66,16 +69,20 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template< typename Function >
 		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, typename DatabaseUtils::Helpers< EFieldType_FLOAT64 >::ParamType valueIn = DatabaseUtils::Helpers< EFieldType_FLOAT64 >::InitialiseValue() )
 		{
-			CLogger::LogInfo( StringStream() << "  Lowest / 2" );
-			function( connection, name, std::numeric_limits< double >::lowest() / 2 );
-			CLogger::LogInfo( StringStream() << "  Max / 2" );
-			function( connection, name, std::numeric_limits< double >::max() / 2 );
-			CLogger::LogInfo( StringStream() << "  Min / 2" );
-			function( connection, name, std::numeric_limits< double >::min() );
+			typedef DatabaseUtils::Helpers< EFieldType_FLOAT64 >::ParamType param_type;
+			param_type value = param_type();
+			CLogger::LogInfo( StringStream() << "  NULL" );
+			function( connection, name, NULL, true );
 			CLogger::LogInfo( StringStream() << "  Default" );
-			function( connection, name, double() );
+			function( connection, name, &value, true );
+			CLogger::LogInfo( StringStream() << "  Lowest / 2" );
+			function( connection, name, &( value = std::numeric_limits< double >::lowest() / 2 ), true );
+			CLogger::LogInfo( StringStream() << "  Max / 2" );
+			function( connection, name, &( value = std::numeric_limits< double >::max() / 2 ), true );
+			CLogger::LogInfo( StringStream() << "  Min / 2" );
+			function( connection, name, &( value = std::numeric_limits< double >::min() ), true );
 			CLogger::LogInfo( StringStream() << "  Given" );
-			function( connection, name, valueIn );
+			function( connection, name, &valueIn, true );
 		}
 	};
 
@@ -85,8 +92,14 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template< typename Function >
 		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, typename DatabaseUtils::Helpers< EFieldType_DATE >::ParamType valueIn = DatabaseUtils::Helpers< EFieldType_DATE >::InitialiseValue() )
 		{
+			typedef DatabaseUtils::Helpers< EFieldType_DATE >::ParamType param_type;
+			param_type value = param_type();
+			CLogger::LogInfo( StringStream() << "  NULL" );
+			function( connection, name, NULL, true );
+			CLogger::LogInfo( StringStream() << "  Default" );
+			function( connection, name, &value, true );
 			CLogger::LogInfo( StringStream() << "  Given" );
-			function( connection, name, valueIn );
+			function( connection, name, &valueIn, true );
 		}
 	};
 
@@ -96,8 +109,14 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template< typename Function >
 		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, typename DatabaseUtils::Helpers< EFieldType_DATETIME >::ParamType valueIn = DatabaseUtils::Helpers< EFieldType_DATETIME >::InitialiseValue() )
 		{
+			typedef DatabaseUtils::Helpers< EFieldType_DATETIME >::ParamType param_type;
+			param_type value = param_type();
+			CLogger::LogInfo( StringStream() << "  NULL" );
+			function( connection, name, NULL, true );
+			CLogger::LogInfo( StringStream() << "  Default" );
+			function( connection, name, &value, true );
 			CLogger::LogInfo( StringStream() << "  Given" );
-			function( connection, name, valueIn );
+			function( connection, name, &valueIn, true );
 		}
 	};
 
@@ -107,8 +126,14 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template< typename Function >
 		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, typename DatabaseUtils::Helpers< EFieldType_TIME >::ParamType valueIn = DatabaseUtils::Helpers< EFieldType_TIME >::InitialiseValue() )
 		{
+			typedef DatabaseUtils::Helpers< EFieldType_TIME >::ParamType param_type;
+			param_type value = param_type();
+			CLogger::LogInfo( StringStream() << "  NULL" );
+			function( connection, name, NULL, true );
+			CLogger::LogInfo( StringStream() << "  Default" );
+			function( connection, name, &value, true );
 			CLogger::LogInfo( StringStream() << "  Given" );
-			function( connection, name, valueIn );
+			function( connection, name, &valueIn, true );
 		}
 	};
 
@@ -118,10 +143,16 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template< typename Function >
 		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, typename DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::ParamType valueIn = DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue( Precision ) )
 		{
+			typedef DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::ParamType param_type;
+			param_type value = param_type();
+			CLogger::LogInfo( StringStream() << "  NULL" );
+			function( connection, name, NULL, true );
+			CLogger::LogInfo( StringStream() << "  Default" );
+			function( connection, name, &value, true );
 			CLogger::LogInfo( StringStream() << "  Given" );
-			function( connection, name, valueIn );
+			function( connection, name, &valueIn, true );
 			CLogger::LogInfo( StringStream() << "  Specific value, precision test" );
-			function( connection, name, CFixedPoint( 602872352, Precision ) );
+			function( connection, name, &( value = param_type( 602872352, Precision ) ), true );
 		}
 	};
 
@@ -131,8 +162,16 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template< typename Function >
 		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, typename DatabaseUtils::Helpers< EFieldType_VARCHAR >::ParamType valueIn = DatabaseUtils::Helpers< EFieldType_VARCHAR >::InitialiseValue() )
 		{
+			typedef DatabaseUtils::Helpers< EFieldType_VARCHAR >::ParamType param_type;
+			param_type value = param_type();
+			CLogger::LogInfo( StringStream() << "  NULL" );
+			function( connection, name, NULL, true );
+			CLogger::LogInfo( StringStream() << "  Default" );
+			function( connection, name, &value, true );
+			CLogger::LogInfo( StringStream() << "  Truncate" );
+			function( connection, name, &( value = DatabaseUtils::Helpers< EFieldType_VARCHAR >::InitialiseValue( 1024 ) ), false );
 			CLogger::LogInfo( StringStream() << "  Given" );
-			function( connection, name, valueIn );
+			function( connection, name, &valueIn, true );
 		}
 	};
 
@@ -142,8 +181,16 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template< typename Function >
 		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, typename DatabaseUtils::Helpers< EFieldType_NVARCHAR >::ParamType valueIn = DatabaseUtils::Helpers< EFieldType_NVARCHAR >::InitialiseValue() )
 		{
+			typedef DatabaseUtils::Helpers< EFieldType_NVARCHAR >::ParamType param_type;
+			param_type value = param_type();
+			CLogger::LogInfo( StringStream() << "  NULL" );
+			function( connection, name, NULL, true );
+			CLogger::LogInfo( StringStream() << "  Default" );
+			function( connection, name, &value, true );
+			CLogger::LogInfo( StringStream() << "  Truncate" );
+			function( connection, name, &( value = DatabaseUtils::Helpers< EFieldType_NVARCHAR >::InitialiseValue( 1024 ) ), false );
 			CLogger::LogInfo( StringStream() << "  Given" );
-			function( connection, name, valueIn );
+			function( connection, name, &valueIn, true );
 		}
 	};
 
@@ -153,8 +200,16 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template< typename Function >
 		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, typename DatabaseUtils::Helpers< EFieldType_TEXT >::ParamType valueIn = DatabaseUtils::Helpers< EFieldType_TEXT >::InitialiseValue() )
 		{
+			typedef DatabaseUtils::Helpers< EFieldType_TEXT >::ParamType param_type;
+			param_type value = param_type();
+			CLogger::LogInfo( StringStream() << "  NULL" );
+			function( connection, name, NULL, true );
+			CLogger::LogInfo( StringStream() << "  Default" );
+			function( connection, name, &value, true );
+			CLogger::LogInfo( StringStream() << "  Big" );
+			function( connection, name, &( value = DatabaseUtils::Helpers< EFieldType_TEXT >::InitialiseValue( 1024 * 16 ) ), true );
 			CLogger::LogInfo( StringStream() << "  Given" );
-			function( connection, name, valueIn );
+			function( connection, name, &valueIn, true );
 		}
 	};
 
@@ -164,8 +219,14 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template< typename Function >
 		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, typename DatabaseUtils::Helpers< EFieldType_VARBINARY >::ParamType valueIn = DatabaseUtils::Helpers< EFieldType_VARBINARY >::InitialiseValue() )
 		{
+			typedef DatabaseUtils::Helpers< EFieldType_VARBINARY >::ParamType param_type;
+			param_type value = param_type();
+			CLogger::LogInfo( StringStream() << "  NULL" );
+			function( connection, name, NULL, true );
+			CLogger::LogInfo( StringStream() << "  Big" );
+			function( connection, name, &( value = DatabaseUtils::Helpers< EFieldType_VARBINARY >::InitialiseValue( 1024 * 16 ) ), true );
 			CLogger::LogInfo( StringStream() << "  Given" );
-			function( connection, name, valueIn );
+			function( connection, name, &valueIn, true );
 		}
 	};
 

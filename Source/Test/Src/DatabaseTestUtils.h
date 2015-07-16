@@ -301,6 +301,25 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				static char l_return[] = "Bonjour, comment va?";
 				return l_return;
 			}
+
+			static ParamType InitialiseValue( size_t size )
+			{
+				std::stringstream text;
+
+				for ( size_t i = 0; i < size; ++i )
+				{
+					char c = char( 32 + ( rand() % 95 ) );
+
+					if ( c == '\\' )
+					{
+						c = '/';
+					}
+
+					text << c;
+				};
+
+				return text.str();
+			}
 		};
 
 		template<> struct Helpers< EFieldType_NVARCHAR >
@@ -313,6 +332,25 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			{
 				static wchar_t l_return[] = L"Ca va bien, et toi?";
 				return l_return;
+			}
+
+			static ParamType InitialiseValue( size_t size )
+			{
+				std::wstringstream text;
+
+				for ( size_t i = 0; i < size; ++i )
+				{
+					wchar_t c = wchar_t( 32 + ( rand() % 95 ) );
+
+					if ( c == L'\\' )
+					{
+						c = L'/';
+					}
+
+					text << c;
+				};
+
+				return text.str();
 			}
 		};
 
@@ -340,11 +378,30 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					}\n\
 				}" );
 			}
+
+			static ParamType InitialiseValue( size_t size )
+			{
+				std::stringstream text;
+
+				for ( size_t i = 0; i < size; ++i )
+				{
+					char c = char( 32 + ( rand() % 95 ) );
+
+					if ( c == '\\' )
+					{
+						c = '/';
+					}
+
+					text << c;
+				};
+
+				return text.str();
+			}
 		};
 
 		template<> struct Helpers< EFieldType_VARBINARY >
 		{
-			static const uint32_t Limit = 32;
+			static const uint32_t Limit = -1;
 			typedef ByteArray ParamType;
 			typedef ParamType FieldType;
 
@@ -355,6 +412,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
 					0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF
 				};
+				return blob;
+			}
+
+			static ParamType InitialiseValue( size_t size )
+			{
+				ByteArray blob( size );
+
+				for ( auto & value : blob )
+				{
+					value = rand() % 256;
+				};
+
 				return blob;
 			}
 		};
@@ -445,25 +514,64 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template< EFieldType FieldType >
 		struct Compare
 		{
-			inline void operator()( typename Helpers< FieldType >::ParamType const & a, typename Helpers< FieldType >::FieldType const & b )
+			typedef typename Helpers< FieldType >::ParamType ParamType;
+			typedef typename Helpers< FieldType >::FieldType FieldType;
+
+			static void Equal( ParamType const & a, FieldType const & b )
 			{
 				BOOST_CHECK_EQUAL( a, b );
+			}
+			static void Different( ParamType const & a, FieldType const & b )
+			{
+				BOOST_CHECK_NE( a, b );
+			}
+			void operator()( bool equal, ParamType const & a, FieldType const & b )
+			{
+				if ( equal )
+				{
+					Equal( a, b );
+				}
+				else
+				{
+					Different( a, b );
+				}
 			}
 		};
 
 		template<>
 		struct Compare< EFieldType_INT8 >
 		{
-			inline void operator()( Helpers< EFieldType_INT8 >::ParamType const & a, Helpers< EFieldType_INT8 >::FieldType const & b )
+			typedef Helpers< EFieldType_INT8 >::ParamType ParamType;
+			typedef Helpers< EFieldType_INT8 >::FieldType FieldType;
+
+			static void Equal( ParamType const & a, FieldType const & b )
 			{
 				BOOST_CHECK_EQUAL( int16_t( a ), int16_t( b ) );
+			}
+			static void Different( ParamType const & a, FieldType const & b )
+			{
+				BOOST_CHECK_NE( int16_t( a ), int16_t( b ) );
+			}
+			void operator()( bool equal, ParamType const & a, FieldType const & b )
+			{
+				if ( equal )
+				{
+					Equal( a, b );
+				}
+				else
+				{
+					Different( a, b );
+				}
 			}
 		};
 
 		template<>
 		struct Compare< EFieldType_FLOAT32 >
 		{
-			inline void operator()( Helpers< EFieldType_FLOAT32 >::ParamType const & a, Helpers< EFieldType_FLOAT32 >::FieldType const & b )
+			typedef Helpers< EFieldType_FLOAT32 >::ParamType ParamType;
+			typedef Helpers< EFieldType_FLOAT32 >::FieldType FieldType;
+
+			static void Equal( ParamType const & a, FieldType const & b )
 			{
 				if ( a != b )
 				{
@@ -473,12 +581,30 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					}
 				}
 			}
+			static void Different( ParamType const & a, FieldType const & b )
+			{
+				BOOST_CHECK_NE( a, b );
+			}
+			void operator()( bool equal, ParamType const & a, FieldType const & b )
+			{
+				if ( equal )
+				{
+					Equal( a, b );
+				}
+				else
+				{
+					Different( a, b );
+				}
+			}
 		};
 
 		template<>
 		struct Compare< EFieldType_FLOAT64 >
 		{
-			inline void operator()( Helpers< EFieldType_FLOAT64 >::ParamType const & a, Helpers< EFieldType_FLOAT64 >::FieldType const & b )
+			typedef Helpers< EFieldType_FLOAT64 >::ParamType ParamType;
+			typedef Helpers< EFieldType_FLOAT64 >::FieldType FieldType;
+
+			static void Equal( ParamType const & a, FieldType const & b )
 			{
 				if ( a != b )
 				{
@@ -488,42 +614,121 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					}
 				}
 			}
+			static void Different( ParamType const & a, FieldType const & b )
+			{
+				BOOST_CHECK_NE( a, b );
+			}
+			void operator()( bool equal, ParamType const & a, FieldType const & b )
+			{
+				if ( equal )
+				{
+					Equal( a, b );
+				}
+				else
+				{
+					Different( a, b );
+				}
+			}
 		};
 
 		template<>
 		struct Compare< EFieldType_VARCHAR >
 		{
-			inline void operator()( Helpers< EFieldType_VARCHAR >::ParamType const & a, Helpers< EFieldType_VARCHAR >::FieldType const & b )
+			typedef Helpers< EFieldType_VARCHAR >::ParamType ParamType;
+			typedef Helpers< EFieldType_VARCHAR >::FieldType FieldType;
+
+			static void Equal( ParamType const & a, FieldType const & b )
 			{
 				BOOST_CHECK_EQUAL( std::string( a ), std::string( b ) );
+			}
+			static void Different( ParamType const & a, FieldType const & b )
+			{
+				BOOST_CHECK_NE( std::string( a ), std::string( b ) );
+			}
+			void operator()( bool equal, ParamType const & a, FieldType const & b )
+			{
+				if ( equal )
+				{
+					Equal( a, b );
+				}
+				else
+				{
+					Different( a, b );
+				}
 			}
 		};
 
 		template<>
 		struct Compare< EFieldType_NVARCHAR >
 		{
-			inline void operator()( Helpers< EFieldType_NVARCHAR >::ParamType const & a, Helpers< EFieldType_NVARCHAR >::FieldType const & b )
+			typedef Helpers< EFieldType_NVARCHAR >::ParamType ParamType;
+			typedef Helpers< EFieldType_NVARCHAR >::FieldType FieldType;
+
+			static void Equal( ParamType const & a, FieldType const & b )
 			{
 				BOOST_CHECK_EQUAL( CStrUtils::ToStr( a ), CStrUtils::ToStr( b ) );
+			}
+			static void Different( ParamType const & a, FieldType const & b )
+			{
+				BOOST_CHECK_NE( CStrUtils::ToStr( a ), CStrUtils::ToStr( b ) );
+			}
+			void operator()( bool equal, ParamType const & a, FieldType const & b )
+			{
+				if ( equal )
+				{
+					Equal( a, b );
+				}
+				else
+				{
+					Different( a, b );
+				}
 			}
 		};
 
 		template<>
 		struct Compare< EFieldType_VARBINARY >
 		{
-			inline void operator()( Helpers< EFieldType_VARBINARY >::ParamType const & a, Helpers< EFieldType_VARBINARY >::FieldType const & b )
+			typedef Helpers< EFieldType_VARBINARY >::ParamType ParamType;
+			typedef Helpers< EFieldType_VARBINARY >::FieldType FieldType;
+
+			static void Equal( ParamType const & a, FieldType const & b )
 			{
-				BOOST_CHECK( a == b );
+				BOOST_CHECK_EQUAL_COLLECTIONS( a.begin(), a.end(), b.begin(), b.end() );
+			}
+			static void Different( ParamType const & a, FieldType const & b )
+			{
+				BOOST_CHECK( a != b );
+			}
+			void operator()( bool equal, ParamType const & a, FieldType const & b )
+			{
+				if ( equal )
+				{
+					Equal( a, b );
+				}
+				else
+				{
+					Different( a, b );
+				}
 			}
 		};
 
 		template< class Stmt, EFieldType FieldType >
-		inline void InsertAndRetrieve( DatabaseConnectionPtr connection, const String & name, typename Helpers< FieldType >::ParamType valueIn = Helpers< FieldType >::InitialiseValue() )
+		inline void InsertAndRetrieve( DatabaseConnectionPtr connection, const String & name, typename Helpers< FieldType >::ParamType * valueIn, bool equal )
 		{
 			try
 			{
 				auto && stmtInsert = CreateStmt< Stmt >( connection, STR( "INSERT INTO Test (" ) + name + STR( ") VALUES (?)" ) );
-				auto && stmtSelect = CreateStmt< Stmt >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE " ) + name + STR( " = ?" ) );
+				std::shared_ptr< Stmt > stmtSelect;
+				
+				if ( valueIn )
+				{
+					stmtSelect = CreateStmt< Stmt >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE " ) + name + STR( " = ?" ) );
+				}
+				else
+				{
+					stmtSelect = CreateStmt< Stmt >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE " ) + name + STR( " IS ?" ) );
+				}
+
 				BOOST_CHECK( stmtInsert );
 				BOOST_CHECK( stmtSelect );
 
@@ -535,17 +740,41 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					BOOST_CHECK( stmtInsert->Initialize() == EErrorType_NONE );
 					BOOST_CHECK( stmtSelect->Initialize() == EErrorType_NONE );
 
-					BOOST_CHECK_NO_THROW( stmtInsert->SetParameterValue( 0, valueIn ) );
-					BOOST_CHECK_NO_THROW( stmtSelect->SetParameterValue( 0, valueIn ) );
+					if ( valueIn )
+					{
+						BOOST_CHECK_NO_THROW( stmtInsert->SetParameterValue( 0, *valueIn ) );
+						BOOST_CHECK_NO_THROW( stmtSelect->SetParameterValue( 0, *valueIn ) );
+					}
+					else
+					{
+						BOOST_CHECK_NO_THROW( stmtInsert->SetParameterNull( 0 ) );
+						BOOST_CHECK_NO_THROW( stmtSelect->SetParameterNull( 0 ) );
+					}
 
 					BOOST_CHECK( stmtInsert->ExecuteUpdate() );
 					DatabaseResultPtr result = stmtSelect->ExecuteSelect();
 
 					if ( result && result->GetRowCount() )
 					{
-						typename Helpers< FieldType >::FieldType valueOut;
-						BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, valueOut ) );
-						Compare< FieldType >()( valueIn, valueOut );
+						if ( valueIn )
+						{
+							typename Helpers< FieldType >::FieldType valueOut;
+							BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, valueOut ) );
+							Compare< FieldType >()( equal, *valueIn, valueOut );
+						}
+						else
+						{
+							try
+							{
+								DatabaseFieldPtr field = result->GetFirstRow()->GetField( 0 );
+								BOOST_CHECK( field->GetObjectValue().IsNull() );
+							}
+							catch ( CExceptionDatabase & exc )
+							{
+								CLogger::LogError( exc.GetFullDescription() );
+								BOOST_CHECK_NO_THROW( result->GetFirstRow()->GetField( 0 ) );
+							}
+						}
 					}
 					else
 					{
@@ -570,12 +799,22 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< class Stmt, EFieldType FieldType >
-		inline void InsertAndRetrieveOtherIndex( DatabaseConnectionPtr connection, const String & name, typename Helpers< FieldType >::ParamType valueIn = Helpers< FieldType >::InitialiseValue() )
+		inline void InsertAndRetrieveOtherIndex( DatabaseConnectionPtr connection, const String & name, typename Helpers< FieldType >::ParamType * valueIn, bool equal )
 		{
 			try
 			{
 				auto && stmtInsert = CreateStmt< Stmt >( connection, STR( "INSERT INTO Test (IntField, " ) + name + STR( ") VALUES (?, ?)" ) );
-				auto && stmtSelect = CreateStmt< Stmt >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE IntField = ? AND " ) + name + STR( " = ?" ) );
+				std::shared_ptr< Stmt > stmtSelect;
+				
+				if ( valueIn )
+				{
+					stmtSelect = CreateStmt< Stmt >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE IntField = ? AND " ) + name + STR( " = ?" ) );
+				}
+				else
+				{
+					stmtSelect = CreateStmt< Stmt >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE IntField = ? AND " ) + name + STR( " IS ?" ) );
+				}
+
 				BOOST_CHECK( stmtInsert );
 				BOOST_CHECK( stmtSelect );
 
@@ -590,9 +829,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					BOOST_CHECK( stmtSelect->Initialize() == EErrorType_NONE );
 
 					BOOST_CHECK_NO_THROW( stmtInsert->SetParameterValue( 0, 18 ) );
-					BOOST_CHECK_NO_THROW( stmtInsert->SetParameterValue( 1, valueIn ) );
 					BOOST_CHECK_NO_THROW( stmtSelect->SetParameterValue( 0, 18 ) );
-					BOOST_CHECK_NO_THROW( stmtSelect->SetParameterValue( 1, valueIn ) );
+
+					if ( valueIn )
+					{
+						BOOST_CHECK_NO_THROW( stmtInsert->SetParameterValue( 1, *valueIn ) );
+						BOOST_CHECK_NO_THROW( stmtSelect->SetParameterValue( 1, *valueIn ) );
+					}
+					else
+					{
+						BOOST_CHECK_NO_THROW( stmtInsert->SetParameterNull( 1 ) );
+						BOOST_CHECK_NO_THROW( stmtSelect->SetParameterNull( 1 ) );
+					}
 
 					BOOST_CHECK( stmtInsert->ExecuteUpdate() );
 					DatabaseResultPtr result = stmtSelect->ExecuteSelect();
@@ -601,9 +849,25 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 					if ( result && result->GetRowCount() )
 					{
-						typename Helpers< FieldType >::FieldType valueOut;
-						BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, valueOut ) );
-						Compare< FieldType >()( valueIn, valueOut );
+						if ( valueIn )
+						{
+							typename Helpers< FieldType >::FieldType valueOut;
+							BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, valueOut ) );
+							Compare< FieldType >()( equal, *valueIn, valueOut );
+						}
+						else
+						{
+							try
+							{
+								DatabaseFieldPtr field = result->GetFirstRow()->GetField( 0 );
+								BOOST_CHECK( field->GetObjectValue().IsNull() );
+							}
+							catch ( CExceptionDatabase & exc )
+							{
+								CLogger::LogError( exc.GetFullDescription() );
+								BOOST_CHECK_NO_THROW( result->GetFirstRow()->GetField( 0 ) );
+							}
+						}
 					}
 				}
 			}
@@ -624,12 +888,22 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< class Stmt, EFieldType FieldType >
-		inline void InsertAndRetrieveFast( DatabaseConnectionPtr connection, const String & name, typename Helpers< FieldType >::ParamType valueIn = Helpers< FieldType >::InitialiseValue() )
+		inline void InsertAndRetrieveFast( DatabaseConnectionPtr connection, const String & name, typename Helpers< FieldType >::ParamType * valueIn, bool equal )
 		{
 			try
 			{
 				auto && stmtInsert = CreateStmt< Stmt >( connection, STR( "INSERT INTO Test (" ) + name + STR( ") VALUES (?)" ) );
-				auto && stmtSelect = CreateStmt< Stmt >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE " ) + name + STR( " = ?" ) );
+				std::shared_ptr< Stmt > stmtSelect;
+				
+				if ( valueIn )
+				{
+					stmtSelect = CreateStmt< Stmt >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE " ) + name + STR( " = ?" ) );
+				}
+				else
+				{
+					stmtSelect = CreateStmt< Stmt >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE " ) + name + STR( " IS ?" ) );
+				}
+
 				BOOST_CHECK( stmtInsert );
 				BOOST_CHECK( stmtSelect );
 
@@ -641,8 +915,16 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					BOOST_CHECK( stmtInsert->Initialize() == EErrorType_NONE );
 					BOOST_CHECK( stmtSelect->Initialize() == EErrorType_NONE );
 
-					BOOST_CHECK_NO_THROW( stmtInsert->SetParameterValueFast( 0, valueIn ) );
-					BOOST_CHECK_NO_THROW( stmtSelect->SetParameterValueFast( 0, valueIn ) );
+					if ( valueIn )
+					{
+						BOOST_CHECK_NO_THROW( stmtInsert->SetParameterValueFast( 0, *valueIn ) );
+						BOOST_CHECK_NO_THROW( stmtSelect->SetParameterValueFast( 0, *valueIn ) );
+					}
+					else
+					{
+						BOOST_CHECK_NO_THROW( stmtInsert->SetParameterNull( 0 ) );
+						BOOST_CHECK_NO_THROW( stmtSelect->SetParameterNull( 0 ) );
+					}
 
 					BOOST_CHECK( stmtInsert->ExecuteUpdate() );
 					DatabaseResultPtr result = stmtSelect->ExecuteSelect();
@@ -651,9 +933,25 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 					if ( result && result->GetRowCount() )
 					{
-						typename Helpers< FieldType >::FieldType valueOut;
-						BOOST_CHECK_NO_THROW( result->GetFirstRow()->GetFast( 0, valueOut ) );
-						Compare< FieldType >()( valueIn, valueOut );
+						if ( valueIn )
+						{
+							typename Helpers< FieldType >::FieldType valueOut;
+							BOOST_CHECK_NO_THROW( result->GetFirstRow()->GetFast( 0, valueOut ) );
+							Compare< FieldType >()( equal, *valueIn, valueOut );
+						}
+						else
+						{
+							try
+							{
+								DatabaseFieldPtr field = result->GetFirstRow()->GetField( 0 );
+								BOOST_CHECK( field->GetObjectValue().IsNull() );
+							}
+							catch ( CExceptionDatabase & exc )
+							{
+								CLogger::LogError( exc.GetFullDescription() );
+								BOOST_CHECK_NO_THROW( result->GetFirstRow()->GetField( 0 ) );
+							}
+						}
 					}
 				}
 			}
@@ -674,12 +972,22 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< class Stmt, EFieldType FieldType >
-		inline void InsertAndRetrieveFastOtherIndex( DatabaseConnectionPtr connection, const String & name, typename Helpers< FieldType >::ParamType valueIn = Helpers< FieldType >::InitialiseValue() )
+		inline void InsertAndRetrieveFastOtherIndex( DatabaseConnectionPtr connection, const String & name, typename Helpers< FieldType >::ParamType * valueIn, bool equal )
 		{
 			try
 			{
 				auto && stmtInsert = CreateStmt< Stmt >( connection, STR( "INSERT INTO Test (IntField, " ) + name + STR( ") VALUES (?, ?)" ) );
-				auto && stmtSelect = CreateStmt< Stmt >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE IntField = ? AND " ) + name + STR( " = ?" ) );
+				std::shared_ptr< Stmt > stmtSelect;
+				
+				if ( valueIn )
+				{
+					stmtSelect = CreateStmt< Stmt >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE IntField = ? AND " ) + name + STR( " = ?" ) );
+				}
+				else
+				{
+					stmtSelect = CreateStmt< Stmt >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE IntField = ? AND " ) + name + STR( " IS ?" ) );
+				}
+
 				BOOST_CHECK( stmtInsert );
 				BOOST_CHECK( stmtSelect );
 
@@ -694,9 +1002,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					BOOST_CHECK( stmtSelect->Initialize() == EErrorType_NONE );
 
 					BOOST_CHECK_NO_THROW( stmtInsert->SetParameterValueFast( 0, 18 ) );
-					BOOST_CHECK_NO_THROW( stmtInsert->SetParameterValueFast( 1, valueIn ) );
 					BOOST_CHECK_NO_THROW( stmtSelect->SetParameterValueFast( 0, 18 ) );
-					BOOST_CHECK_NO_THROW( stmtSelect->SetParameterValueFast( 1, valueIn ) );
+
+					if ( valueIn )
+					{
+						BOOST_CHECK_NO_THROW( stmtInsert->SetParameterValue( 1, *valueIn ) );
+						BOOST_CHECK_NO_THROW( stmtSelect->SetParameterValue( 1, *valueIn ) );
+					}
+					else
+					{
+						BOOST_CHECK_NO_THROW( stmtInsert->SetParameterNull( 1 ) );
+						BOOST_CHECK_NO_THROW( stmtSelect->SetParameterNull( 1 ) );
+					}
 
 					BOOST_CHECK( stmtInsert->ExecuteUpdate() );
 					DatabaseResultPtr result = stmtSelect->ExecuteSelect();
@@ -705,9 +1022,25 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 					if ( result && result->GetRowCount() )
 					{
-						typename Helpers< FieldType >::FieldType valueOut;
-						BOOST_CHECK_NO_THROW( result->GetFirstRow()->GetFast( 0, valueOut ) );
-						Compare< FieldType >()( valueIn, valueOut );
+						if ( valueIn )
+						{
+							typename Helpers< FieldType >::FieldType valueOut;
+							BOOST_CHECK_NO_THROW( result->GetFirstRow()->GetFast( 0, valueOut ) );
+							Compare< FieldType >()( equal, *valueIn, valueOut );
+						}
+						else
+						{
+							try
+							{
+								DatabaseFieldPtr field = result->GetFirstRow()->GetField( 0 );
+								BOOST_CHECK( field->GetObjectValue().IsNull() );
+							}
+							catch ( CExceptionDatabase & exc )
+							{
+								CLogger::LogError( exc.GetFullDescription() );
+								BOOST_CHECK_NO_THROW( result->GetFirstRow()->GetField( 0 ) );
+							}
+						}
 					}
 				}
 			}

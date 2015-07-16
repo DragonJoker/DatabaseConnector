@@ -121,11 +121,11 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		TS_List.clear();
 
 		//!@remarks Create the TS' sequences
-#if defined( TESTING_PLUGIN_MYSQL )
-		TS_List.push_back( DatabaseMySqlTest->Init_Test_Suite() );
-#endif
 #if defined( TESTING_PLUGIN_SQLITE )
-		//TS_List.push_back( DatabaseSqliteTest->Init_Test_Suite() );
+		TS_List.push_back( DatabaseSqliteTest->Init_Test_Suite() );
+#endif
+#if defined( TESTING_PLUGIN_MYSQL )
+		//TS_List.push_back( DatabaseMySqlTest->Init_Test_Suite() );
 #endif
 #if defined( TESTING_PLUGIN_ODBC )
 		//TS_List.push_back( DatabaseOdbcMySqlTest->Init_Test_Suite() );
