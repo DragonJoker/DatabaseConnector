@@ -338,11 +338,12 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				EErrorType errorType = EErrorType_NONE;
 				_statement = stmt;
 				_index = index;
-				//SqlTry( SQLBindCol( stmt, index, _targetType, _targetValuePtr, _bufferLength, &( _strLenOrInd ) ), SQL_HANDLE_STMT, stmt, INFO_ODBC_BindCol );
+				SQLLEN precision = _precision;
+				SQLLEN scale = _scale;
 
 				SqlTry( SQLSetDescField( desc, index, SQL_DESC_TYPE, SQLPOINTER( SQL_C_NUMERIC ), 0 ), SQL_HANDLE_DESC, desc, INFO_ODBC_SetDescField + ODBC_OPTION_DESC_TYPE );
-				SqlTry( SQLSetDescField( desc, index, SQL_DESC_PRECISION, SQLPOINTER( _precision ), 0 ), SQL_HANDLE_DESC, desc, INFO_ODBC_SetDescField + ODBC_OPTION_DESC_PRECISION );
-				SqlTry( SQLSetDescField( desc, index, SQL_DESC_SCALE, SQLPOINTER( _scale ), 0 ), SQL_HANDLE_DESC, desc, INFO_ODBC_SetDescField + ODBC_OPTION_DESC_SCALE );
+				SqlTry( SQLSetDescField( desc, index, SQL_DESC_PRECISION, SQLPOINTER( precision ), 0 ), SQL_HANDLE_DESC, desc, INFO_ODBC_SetDescField + ODBC_OPTION_DESC_PRECISION );
+				SqlTry( SQLSetDescField( desc, index, SQL_DESC_SCALE, SQLPOINTER( scale ), 0 ), SQL_HANDLE_DESC, desc, INFO_ODBC_SetDescField + ODBC_OPTION_DESC_SCALE );
 				return errorType;
 			}
 
@@ -620,7 +621,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				stringLength = 0;
 				numericAttribute = 0;
 				SqlTry( SQLColAttribute( stmt, i, SQL_DESC_CONCISE_TYPE, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_CONCISE_TYPE );
-				SQLINTEGER conciseType = numericAttribute;
+				SQLINTEGER conciseType = SQLINTEGER( numericAttribute );
 				
 				// Its type name
 				std::memset( buffer, 0, BUFFER_SIZE );
