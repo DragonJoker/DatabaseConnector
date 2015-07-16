@@ -46,14 +46,15 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template< typename Function >
 		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, typename DatabaseUtils::Helpers< FieldType >::ParamType valueIn = DatabaseUtils::Helpers< FieldType >::InitialiseValue() )
 		{
+			typedef typename DatabaseUtils::Helpers< FieldType >::ParamType param_type;
 			CLogger::LogInfo( StringStream() << "  Lowest" );
-			function( connection, name, std::numeric_limits< DatabaseUtils::Helpers< FieldType >::ParamType >::lowest() );
+			function( connection, name, std::numeric_limits< param_type >::lowest() );
 			CLogger::LogInfo( StringStream() << "  Max" );
-			function( connection, name, std::numeric_limits< DatabaseUtils::Helpers< FieldType >::ParamType >::max() );
+			function( connection, name, std::numeric_limits< param_type >::max() );
 			CLogger::LogInfo( StringStream() << "  Min" );
-			function( connection, name, std::numeric_limits< DatabaseUtils::Helpers< FieldType >::ParamType >::min() );
+			function( connection, name, std::numeric_limits< param_type >::min() );
 			CLogger::LogInfo( StringStream() << "  Default" );
-			function( connection, name, DatabaseUtils::Helpers< FieldType >::ParamType() );
+			function( connection, name, param_type() );
 			CLogger::LogInfo( StringStream() << "  Given" );
 			function( connection, name, valueIn );
 		}

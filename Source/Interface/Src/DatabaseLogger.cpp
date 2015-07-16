@@ -17,7 +17,7 @@
 
 #include "DatabaseLoggerImpl.h"
 #include "DatabaseStringUtils.h"
-#include "DAtabaseException.h"
+#include "DatabaseException.h"
 
 BEGIN_NAMESPACE_DATABASE
 {

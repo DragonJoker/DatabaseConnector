@@ -17,6 +17,7 @@
 #include "DatabasePrerequisites.h"
 
 #include "ELogType.h"
+#include "DatabaseStringUtils.h"
 
 #pragma warning( push )
 #pragma warning( disable:4290 )

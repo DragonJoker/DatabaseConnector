@@ -93,12 +93,6 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport explicit int24_t( const double rhs );
 
-		/** Constructor from long double
-		@param rhs
-			The value
-		*/
-		DatabaseExport explicit int24_t( const long double rhs );
-
 		/** uint24_t conversion operator
 		@return
 			This value as uint24_t
@@ -128,13 +122,6 @@ BEGIN_NAMESPACE_DATABASE
 			This value as double
 		*/
 		inline explicit operator double() const;
-
-		/** long double conversion operator
-		@return
-			This value as long double
-		*/
-		inline explicit operator long double() const;
-
 		/** Implicit conversion to bool
 		*/
 		inline operator bool() const;
@@ -375,12 +362,6 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport explicit uint24_t( const double rhs );
 
-		/** Constructor from long double
-		@param rhs
-			The value
-		*/
-		DatabaseExport explicit uint24_t( const long double rhs );
-
 		/** int24_t Implicit conversion operator
 		@return
 			This value as int24_t
@@ -410,12 +391,6 @@ BEGIN_NAMESPACE_DATABASE
 			This value as double
 		*/
 		inline explicit operator double() const;
-
-		/** long double conversion operator
-		@return
-			This value as long double
-		*/
-		inline explicit operator long double() const;
 
 		/** Implicit conversion to bool
 		*/

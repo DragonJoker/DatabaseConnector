@@ -25,19 +25,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 {
 	namespace DatabaseUtilsUtf8
 	{
-		/** Used to stream a byte array into an std::istream
-		*/
-		struct membuf
-			: std::streambuf
-		{
-			/** Constructor
-			*/
-			membuf( char * begin, char * end )
-			{
-				this->setg( begin, begin, end );
-			}
-		};
-
 		template< class Stmt >
 		inline void CreateParameters( std::shared_ptr< Stmt > stmt )
 		{
@@ -69,36 +56,36 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template< class Stmt >
 		inline void SetParametersValue( uint32_t & index, int mult, int i, std::shared_ptr< Stmt > stmt )
 		{
-			stmt->SetParameterValue( index++, Helpers< EFieldType_INT32 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_INT32 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_INT8 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_INT16 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_INT24 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_INT64 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_INT16 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_INT64 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_FLOAT64 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_FLOAT64 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_FLOAT64 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_FLOAT32 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_FIXED_POINT >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_FIXED_POINT >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_BIT >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_DATE >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_DATETIME >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_INT32 >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_INT32 >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_INT8 >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_INT16 >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_INT24 >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_INT64 >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_INT16 >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_INT64 >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_FLOAT64 >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_FLOAT64 >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_FLOAT64 >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_FLOAT32 >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_BIT >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_DATE >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_DATETIME >::InitialiseValue() );
 			stmt->SetParameterValue( index++, "CHAR: Areva Intercontrôle " + std::to_string( mult * i + index ) );
 			stmt->SetParameterValue( index++, "VARCHAR: Areva Intercontrôle " + std::to_string( mult * i + index ) );
 			stmt->SetParameterValue( index++, "NCHAR: Areva Intercontrôle " + std::to_string( mult * i + index ) );
 			stmt->SetParameterValue( index++, "NVARCHAR: Areva Intercontrôle " + std::to_string( mult * i + index ) );
 			stmt->SetParameterValue( index++, "TEXT: Areva Intercontrôle " + std::to_string( mult * i + index ) );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_VARBINARY >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_VARBINARY >::InitialiseValue() );
 		}
 
 		inline void DisplayValues( uint32_t & index, DatabaseRowPtr row )
 		{
 			CLogger::LogInfo( StringStream() << STR( "IntField : " ) << row->Get< int32_t >( index++ ) );
 			CLogger::LogInfo( StringStream() << STR( "IntegerField : " ) << row->Get< int32_t >( index++ ) );
-			CLogger::LogInfo( StringStream() << STR( "TinyIntField : " ) << row->Get< int8_t >( index++ ) );
+			CLogger::LogInfo( StringStream() << STR( "TinyIntField : " ) << int16_t( row->Get< int8_t >( index++ ) ) );
 			CLogger::LogInfo( StringStream() << STR( "SmallIntField : " ) << row->Get< int16_t >( index++ ) );
 			CLogger::LogInfo( StringStream() << STR( "MediumIntField : " ) << row->Get< int32_t >( index++ ) );
 			CLogger::LogInfo( StringStream() << STR( "BigIntField : " ) << row->Get< int64_t >( index++ ) );

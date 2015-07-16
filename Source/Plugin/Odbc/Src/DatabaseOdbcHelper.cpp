@@ -306,8 +306,8 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			mutable SQL_NUMERIC_STRUCT _value;
 			HSTMT _statement;
 			SQLUSMALLINT _index;
-			uint32_t _precision;
-			uint32_t _scale;
+			SQLSMALLINT _precision;
+			SQLSMALLINT _scale;
 
 			/** Constructor
 			@param targetType
@@ -353,9 +353,9 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 			CFixedPoint GetValue()const
 			{
-				SQLINTEGER a = sizeof( _value );
+				SQLLEN length = sizeof( _value );
 				EErrorType errorType = EErrorType_NONE;
-				SqlTry( SQLGetData( _statement, _index, SQL_ARD_TYPE, &_value, 19, &a ), SQL_HANDLE_STMT, _statement, INFO_ODBC_BindCol );
+				SqlTry( SQLGetData( _statement, _index, SQL_ARD_TYPE, &_value, 19, &length ), SQL_HANDLE_STMT, _statement, INFO_ODBC_BindCol );
 				return CFixedPoint( *( uint64_t * )( _value.val ), _value.scale );
 			}
 		};

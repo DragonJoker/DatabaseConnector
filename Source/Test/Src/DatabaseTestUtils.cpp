@@ -154,6 +154,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				}
 			}
 
+			int nChildResult = 0;
 			waitpid( processId, &nChildResult, 0 );
 
 			if ( WIFEXITED( nChildResult ) )
@@ -184,14 +185,21 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	static const String SCRIPT_ODBC_INSTALL = STR( "InstallOdbc" );
 	static const String SCRIPT_ODBC_UNINSTALL = STR( "UninstallOdbc" );
 
+	String MakeMySqlCommand()
+	{
+		StringStream ss;
+		ss << STR( "\"" ) << MYSQL_COMMAND << STR( "\"" );
+		return ss.str();
+	}
+
 	int InstallDatabaseMySql( const String & database, const String & user, const String & pass )
 	{
-		return ExecuteScript( SCRIPT_FILES_DIR, SCRIPT_DATABASE_CREATE + MYSQL + SCRIPT_EXT, { STR( "\"" ) + MYSQL_COMMAND + STR( "\"" ), database, user, pass } );
+		return ExecuteScript( SCRIPT_FILES_DIR, SCRIPT_DATABASE_CREATE + MYSQL + SCRIPT_EXT, { MakeMySqlCommand(), database, user, pass } );
 	}
 
 	int UninstallDatabaseMySql( const String & database, const String & user, const String & pass )
 	{
-		return ExecuteScript( SCRIPT_FILES_DIR, SCRIPT_DATABASE_DELETE + MYSQL + SCRIPT_EXT, { STR( "\"" ) + MYSQL_COMMAND + STR( "\"" ), database, user, pass } );
+		return ExecuteScript( SCRIPT_FILES_DIR, SCRIPT_DATABASE_DELETE + MYSQL + SCRIPT_EXT, { MakeMySqlCommand(), database, user, pass } );
 	}
 
 	int InstallSourceOdbcMySql( const String & database )

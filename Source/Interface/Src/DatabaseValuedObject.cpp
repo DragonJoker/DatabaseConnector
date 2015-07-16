@@ -468,46 +468,6 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	}
 
-	void CDatabaseValuedObject::DoGetValue( long double & value ) const
-	{
-		switch ( GetType() )
-		{
-		case EFieldType_INT16:
-			value = double( static_cast< CDatabaseValue< EFieldType_INT16 > & >( *_value ).GetValue() );
-			break;
-
-		case EFieldType_INT24:
-			value = double( static_cast< CDatabaseValue< EFieldType_INT24 > & >( *_value ).GetValue() );
-			break;
-
-		case EFieldType_INT32:
-			value = double( static_cast< CDatabaseValue< EFieldType_INT32 > & >( *_value ).GetValue() );
-			break;
-
-		case EFieldType_INT64:
-			value = double( static_cast< CDatabaseValue< EFieldType_INT64 > & >( *_value ).GetValue() );
-			break;
-
-		case EFieldType_FLOAT32:
-			value = double( static_cast< CDatabaseValue< EFieldType_FLOAT32 > & >( *_value ).GetValue() );
-			break;
-
-		case EFieldType_FLOAT64:
-			value = static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( *_value ).GetValue();
-			break;
-
-		case EFieldType_FIXED_POINT:
-			value = static_cast< CDatabaseValue< EFieldType_FIXED_POINT > & >( *_value ).GetValue().ToLongDouble();
-			break;
-
-		default:
-			String errMsg = ERROR_DB_FIELD_GETVALUE_TYPE + this->GetName();
-			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_GETVALUE_TYPE );
-			break;
-		}
-	}
-
 	void CDatabaseValuedObject::DoGetValue( CFixedPoint & value ) const
 	{
 		switch ( GetType() )
@@ -769,12 +729,6 @@ BEGIN_NAMESPACE_DATABASE
 	}
 
 	void CDatabaseValuedObject::DoGetValueFast( double & value ) const
-	{
-		assert( GetType() == EFieldType_FLOAT64 );
-		value = static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( *_value ).GetValue();
-	}
-
-	void CDatabaseValuedObject::DoGetValueFast( long double & value ) const
 	{
 		assert( GetType() == EFieldType_FLOAT64 );
 		value = static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( *_value ).GetValue();
@@ -1328,42 +1282,6 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	}
 
-	void CDatabaseValuedObject::DoSetValue( const long double & value )
-	{
-		switch ( GetType() )
-		{
-		case EFieldType_INT16:
-			static_cast< CDatabaseValue< EFieldType_INT16 > & >( *_value ).SetValue( int16_t( value ) );
-			break;
-
-		case EFieldType_INT24:
-			static_cast< CDatabaseValue< EFieldType_INT24 > & >( *_value ).SetValue( int24_t( value ) );
-			break;
-
-		case EFieldType_INT32:
-			static_cast< CDatabaseValue< EFieldType_INT32 > & >( *_value ).SetValue( int32_t( value ) );
-			break;
-
-		case EFieldType_INT64:
-			static_cast< CDatabaseValue< EFieldType_INT64 > & >( *_value ).SetValue( int64_t( value ) );
-			break;
-
-		case EFieldType_FLOAT32:
-			static_cast< CDatabaseValue< EFieldType_FLOAT32 > & >( *_value ).SetValue( float( value ) );
-			break;
-
-		case EFieldType_FLOAT64:
-			static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( *_value ).SetValue( double( value ) );
-			break;
-
-		default:
-			String errMsg = ERROR_DB_FIELD_SETVALUE_TYPE + this->GetName();
-			CLogger::LogError( errMsg );
-			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_FIELD_SETVALUE_TYPE );
-			break;
-		}
-	}
-
 	void CDatabaseValuedObject::DoSetValue( const CFixedPoint & value )
 	{
 		switch ( GetType() )
@@ -1607,12 +1525,6 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		assert( GetType() == EFieldType_FLOAT64 );
 		static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( *_value ).SetValue( value );
-	}
-
-	void CDatabaseValuedObject::DoSetValueFast( const long double & value )
-	{
-		assert( GetType() == EFieldType_FLOAT64 );
-		static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( *_value ).SetValue( double( value ) );
 	}
 
 	void CDatabaseValuedObject::DoSetValueFast( const CFixedPoint & value )

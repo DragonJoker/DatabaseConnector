@@ -230,12 +230,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
-		DatabaseMySqlExport virtual void DoSetValue( const long double & value )
-		{
-			DoSetAndUpdateValue( value );
-		}
-
-		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
 		DatabaseMySqlExport virtual void DoSetValue( const CFixedPoint & value )
 		{
 			DoSetAndUpdateValue( value );
@@ -351,12 +345,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
 		DatabaseMySqlExport virtual void DoSetValueFast( const double & value )
-		{
-			DoSetAndUpdateValueFast( value );
-		}
-
-		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
-		DatabaseMySqlExport virtual void DoSetValueFast( const long double & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}

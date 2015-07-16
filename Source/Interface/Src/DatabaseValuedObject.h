@@ -156,12 +156,6 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport virtual void DoGetValue( double & value ) const;
 
-		/** Get value as long double.
-		@param[out] value
-			Value as long double.
-		*/
-		DatabaseExport virtual void DoGetValue( long double & value ) const;
-
 		/** Get value as fixed point numeric.
 		@param[out] value
 			Value as long double.
@@ -308,14 +302,6 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport virtual void DoGetValueFast( double & value ) const;
 
-		/** Get value as long double.
-		@remarks
-			No check is made in this function, so the value type must match the field type
-		@param[out] value
-			Value as long double.
-		*/
-		DatabaseExport virtual void DoGetValueFast( long double & value ) const;
-
 		/** Get value as fixed point numeric.
 		@remarks
 			No check is made in this function, so the value type must match the field type
@@ -449,12 +435,6 @@ BEGIN_NAMESPACE_DATABASE
 			New parameter value.
 		*/
 		DatabaseExport virtual void DoSetValue( const double & value );
-
-		/** Set parameter value as a long double.
-		@param value
-			New parameter value.
-		*/
-		DatabaseExport virtual void DoSetValue( const long double & value );
 
 		/** Set parameter value as a fixed point numeric.
 		@param value
@@ -601,14 +581,6 @@ BEGIN_NAMESPACE_DATABASE
 			New parameter value.
 		*/
 		DatabaseExport virtual void DoSetValueFast( const double & value );
-
-		/** Set parameter value as a long double.
-		@remarks
-			Don't perform type checks
-		@param value
-			New parameter value.
-		*/
-		DatabaseExport virtual void DoSetValueFast( const long double & value );
 
 		/** Set parameter value as a fixed point numeric.
 		@remarks

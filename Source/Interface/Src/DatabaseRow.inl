@@ -97,7 +97,7 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		try
 		{
-			GetField( name )->GetValueOpt( value );
+			GetField( index )->GetValueOpt( value );
 		}
 		catch ( const CExceptionDatabase & )
 		{
@@ -181,7 +181,7 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		try
 		{
-			GetField( name )->GetValueOptFast( value );
+			GetField( index )->GetValueOptFast( value );
 		}
 		catch ( const CExceptionDatabase & )
 		{

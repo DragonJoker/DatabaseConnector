@@ -53,11 +53,6 @@ BEGIN_NAMESPACE_DATABASE
 		return double( int32_t( *this ) );
 	}
 
-	inline int24_t::operator long double() const
-	{
-		return long double( int32_t( *this ) );
-	}
-
 	inline int24_t & int24_t::operator=( const int32_t input )
 	{
 		_value[0] = ( ( uint8_t * )&input )[0];
@@ -205,11 +200,6 @@ BEGIN_NAMESPACE_DATABASE
 	inline uint24_t::operator double() const
 	{
 		return double( int32_t( *this ) );
-	}
-
-	inline uint24_t::operator long double() const
-	{
-		return long double( int32_t( *this ) );
 	}
 
 	inline uint24_t & uint24_t::operator=( const uint32_t input )

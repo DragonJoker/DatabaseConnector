@@ -110,15 +110,6 @@ BEGIN_NAMESPACE_DATABASE
 		_value[2] = ( ( uint8_t * )&in )[2];
 	}
 
-	int24_t::int24_t( const long double input )
-		: _value()
-	{
-		int32_t in = int32_t( input );
-		_value[0] = ( ( uint8_t * )&in )[0];
-		_value[1] = ( ( uint8_t * )&in )[1];
-		_value[2] = ( ( uint8_t * )&in )[2];
-	}
-
 	uint24_t::uint24_t()
 		: _value()
 	{
@@ -202,15 +193,6 @@ BEGIN_NAMESPACE_DATABASE
 	}
 
 	uint24_t::uint24_t( const double input )
-		: _value()
-	{
-		int32_t in = int32_t( input );
-		_value[0] = ( ( uint8_t * )&in )[0];
-		_value[1] = ( ( uint8_t * )&in )[1];
-		_value[2] = ( ( uint8_t * )&in )[2];
-	}
-
-	uint24_t::uint24_t( const long double input )
 		: _value()
 	{
 		int32_t in = int32_t( input );

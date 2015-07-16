@@ -6,13 +6,13 @@ set( DBI_VERSION_BUILD	0 )
 
 set( BinsDependencies
     ${BinsDependencies}
-    Database
+    ${PROJECT_NAME}
 )
 
 include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
 
 add_target(
-    Database
+    ${PROJECT_NAME}
     api_dll
     ""
     "${MinLibraries}"
@@ -23,6 +23,8 @@ add_target(
 
 if ( WIN32 )
 	include( InstallRequiredSystemLibraries )
+else ()
+  target_link_libraries( ${PROJECT_NAME} dl )
 endif ()
 
 copy_dll( ${PROJECT_NAME} "${Boost_DATE_TIME_LIBRARY_DEBUG}" Debug )
@@ -34,5 +36,5 @@ copy_dll( ${PROJECT_NAME} "${Boost_LOCALE_LIBRARY_RELEASE}" Release )
 copy_dll( ${PROJECT_NAME} "${Boost_SYSTEM_LIBRARY_DEBUG}" Debug )
 copy_dll( ${PROJECT_NAME} "${Boost_SYSTEM_LIBRARY_RELEASE}" Release )
 
-set_property( TARGET Database PROPERTY FOLDER "Interface" )
-add_target_astyle( Database ".h;.hpp;.inl;.cpp" )
+set_property( TARGET ${PROJECT_NAME} PROPERTY FOLDER "Interface" )
+add_target_astyle( ${PROJECT_NAME} ".h;.hpp;.inl;.cpp" )

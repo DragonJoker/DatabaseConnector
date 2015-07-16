@@ -200,12 +200,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
-		virtual void DoSetValue( const long double & value )
-		{
-			DoSetAndUpdateValue( value );
-		}
-
-		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
 		virtual void DoSetValue( const CFixedPoint & value )
 		{
 			DoSetAndUpdateValue( value );
@@ -321,12 +315,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
 		virtual void DoSetValueFast( const double & value )
-		{
-			DoSetAndUpdateValueFast( value );
-		}
-
-		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
-		virtual void DoSetValueFast( const long double & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}
