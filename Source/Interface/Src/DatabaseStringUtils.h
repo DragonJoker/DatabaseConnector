@@ -440,6 +440,72 @@ BEGIN_NAMESPACE_DATABASE
 		The stream.
 	*/
 	DatabaseExport std::ostream & operator <<( std::ostream & stream, wchar_t const * string );
+	
+	namespace
+	{
+		/** Helper structure used to cast a string for one char type to another char type
+		*/
+		template< typename CharOut, typename CharIn > struct StringCaster;
+
+		/** @copydoc Database::StringCaster
+		@remarks Specialisation for no convertion
+		*/
+		template< typename Char >
+		struct StringCaster< Char, Char >
+		{
+			static inline std::basic_string< Char > Cast( const Char * in )
+			{
+				return std::basic_string< Char >( in );
+			}
+		};
+
+		/** @copydoc Database::StringCaster
+		@remarks Specialisation for convertion to wchar_t
+		*/
+		template<>
+		struct StringCaster< wchar_t, char >
+		{
+			static inline std::wstring Cast( const char * in )
+			{
+				return CStrUtils::ToWStr( std::string( in, in + strlen( in ) ) );
+			}
+		};
+
+		/** @copydoc Database::StringCaster
+		@remarks Specialisation for convertion to char
+		*/
+		template<>
+		struct StringCaster< char, wchar_t >
+		{
+			static inline std::string Cast( const wchar_t * in )
+			{
+				return CStrUtils::ToStr( std::wstring( in, in + wcslen( in ) ) );
+			}
+		};
+	}
+
+	/** Helper function used to convert an input char type to an output char type
+	@param[in] in
+		The input string
+	@return
+		The output string
+	*/
+	template< typename CharOut, typename CharIn > std::basic_string< CharOut > StringCast( const CharIn * in )
+	{
+		return StringCaster< CharOut, CharIn >::Cast( in );
+	}
+
+	/** Helper function used to convert an input char type to an output char type
+	@param[in] in
+		The input string
+	@return
+		The output string
+	*/
+	template< typename CharOut, typename CharIn > 
+	inline std::basic_string< CharOut > StringCast( const std::basic_string< CharIn > & in )
+	{
+		return StringCast< CharOut >( in.c_str() );
+	}
 }
 END_NAMESPACE_DATABASE
 

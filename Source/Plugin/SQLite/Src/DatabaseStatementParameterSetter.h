@@ -27,6 +27,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 	static const String ERROR_SQLITE_UPDATE_UNIMPLEMENTED = STR( "UpdateValue not implemented for this data type" );
 
 	static const String INFO_SQLITE_SET_PARAMETER_VALUE = STR( "Set parameter value: " );
+	static const String INFO_SQLITE_SET_PARAMETER_NULL = STR( "Set parameter NULL" );
 
 	/** Generic template class to set the parameter value
 	*/
@@ -44,7 +45,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@param value
 			The parameter value
 		*/
-		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< Type > const & value )
+		SSqliteBinding( sqlite3_stmt * statement, sqlite3 * connection, uint16_t index, CDatabaseValue< Type > const & value )
 			: SSqliteBindingBase( statement, connection, index )
 			, _value( value )
 		{
@@ -76,7 +77,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@param value
 			The parameter value
 		*/
-		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_BIT > const & value )
+		SSqliteBinding( sqlite3_stmt * statement, sqlite3 * connection, uint16_t index, CDatabaseValue< EFieldType_BIT > const & value )
 			: SSqliteBindingBase( statement, connection, index )
 			, _value( value )
 		{
@@ -85,7 +86,14 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		//!@copydoc SSqliteBindingBase::DoSetValue
 		virtual void UpdateValue()
 		{
-			SQLiteTry( SQLite::BindInt( _statement, _index, _value.GetValue() ? 1 : 0 ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			if ( _value.IsNull() )
+			{
+				SQLiteTry( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
+			}
+			else
+			{
+				SQLiteTry( sqlite3_bind_int( _statement, _index, _value.GetValue() ? 1 : 0 ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			}
 		}
 
 		//! The parameter value
@@ -108,7 +116,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@param value
 			The parameter value
 		*/
-		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_INT8 > const & value )
+		SSqliteBinding( sqlite3_stmt * statement, sqlite3 * connection, uint16_t index, CDatabaseValue< EFieldType_INT8 > const & value )
 			: SSqliteBindingBase( statement, connection, index )
 			, _value( value )
 		{
@@ -117,7 +125,14 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		//!@copydoc SSqliteBindingBase::DoSetValue
 		virtual void UpdateValue()
 		{
-			SQLiteTry( SQLite::BindInt( _statement, _index, _value.GetValue() ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << int16_t( _value.GetValue() ), EDatabaseExceptionCodes_StatementError, _connection );
+			if ( _value.IsNull() )
+			{
+				SQLiteTry( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
+			}
+			else
+			{
+				SQLiteTry( sqlite3_bind_int( _statement, _index, _value.GetValue() ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << int16_t( _value.GetValue() ), EDatabaseExceptionCodes_StatementError, _connection );
+			}
 		}
 
 		//! The parameter value
@@ -140,7 +155,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@param value
 			The parameter value
 		*/
-		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_INT16 > const & value )
+		SSqliteBinding( sqlite3_stmt * statement, sqlite3 * connection, uint16_t index, CDatabaseValue< EFieldType_INT16 > const & value )
 			: SSqliteBindingBase( statement, connection, index )
 			, _value( value )
 		{
@@ -149,7 +164,14 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		//!@copydoc SSqliteBindingBase::DoSetValue
 		virtual void UpdateValue()
 		{
-			SQLiteTry( SQLite::BindInt( _statement, _index, _value.GetValue() ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			if ( _value.IsNull() )
+			{
+				SQLiteTry( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
+			}
+			else
+			{
+				SQLiteTry( sqlite3_bind_int( _statement, _index, _value.GetValue() ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			}
 		}
 
 		//! The parameter value
@@ -172,7 +194,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@param value
 			The parameter value
 		*/
-		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_INT24 > const & value )
+		SSqliteBinding( sqlite3_stmt * statement, sqlite3 * connection, uint16_t index, CDatabaseValue< EFieldType_INT24 > const & value )
 			: SSqliteBindingBase( statement, connection, index )
 			, _value( value )
 		{
@@ -181,7 +203,14 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		//!@copydoc SSqliteBindingBase::DoSetValue
 		virtual void UpdateValue()
 		{
-			SQLiteTry( SQLite::BindInt( _statement, _index, int32_t( _value.GetValue() ) ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << int32_t( _value.GetValue() ), EDatabaseExceptionCodes_StatementError, _connection );
+			if ( _value.IsNull() )
+			{
+				SQLiteTry( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
+			}
+			else
+			{
+				SQLiteTry( sqlite3_bind_int( _statement, _index, int32_t( _value.GetValue() ) ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << int32_t( _value.GetValue() ), EDatabaseExceptionCodes_StatementError, _connection );
+			}
 		}
 
 		//! The parameter value
@@ -204,7 +233,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@param value
 			The parameter value
 		*/
-		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_INT32 > const & value )
+		SSqliteBinding( sqlite3_stmt * statement, sqlite3 * connection, uint16_t index, CDatabaseValue< EFieldType_INT32 > const & value )
 			: SSqliteBindingBase( statement, connection, index )
 			, _value( value )
 		{
@@ -213,7 +242,14 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		//!@copydoc SSqliteBindingBase::DoSetValue
 		virtual void UpdateValue()
 		{
-			SQLiteTry( SQLite::BindInt( _statement, _index, _value.GetValue() ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			if ( _value.IsNull() )
+			{
+				SQLiteTry( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
+			}
+			else
+			{
+				SQLiteTry( sqlite3_bind_int( _statement, _index, _value.GetValue() ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			}
 		}
 
 		//! The parameter value
@@ -236,7 +272,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@param value
 			The parameter value
 		*/
-		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_INT64 > const & value )
+		SSqliteBinding( sqlite3_stmt * statement, sqlite3 * connection, uint16_t index, CDatabaseValue< EFieldType_INT64 > const & value )
 			: SSqliteBindingBase( statement, connection, index )
 			, _value( value )
 		{
@@ -245,7 +281,14 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		//!@copydoc SSqliteBindingBase::DoSetValue
 		virtual void UpdateValue()
 		{
-			SQLiteTry( SQLite::BindInt64( _statement, _index, _value.GetValue() ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			if ( _value.IsNull() )
+			{
+				SQLiteTry( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
+			}
+			else
+			{
+				SQLiteTry( sqlite3_bind_int64( _statement, _index, _value.GetValue() ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			}
 		}
 
 		//! The parameter value
@@ -268,7 +311,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@param value
 			The parameter value
 		*/
-		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_FLOAT32 > const & value )
+		SSqliteBinding( sqlite3_stmt * statement, sqlite3 * connection, uint16_t index, CDatabaseValue< EFieldType_FLOAT32 > const & value )
 			: SSqliteBindingBase( statement, connection, index )
 			, _value( value )
 		{
@@ -277,7 +320,14 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		//!@copydoc SSqliteBindingBase::DoSetValue
 		virtual void UpdateValue()
 		{
-			SQLiteTry( SQLite::BindDouble( _statement, _index, _value.GetValue() ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			if ( _value.IsNull() )
+			{
+				SQLiteTry( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
+			}
+			else
+			{
+				SQLiteTry( sqlite3_bind_double( _statement, _index, _value.GetValue() ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			}
 		}
 
 		//! The parameter value
@@ -300,7 +350,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@param value
 			The parameter value
 		*/
-		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_FLOAT64 > const & value )
+		SSqliteBinding( sqlite3_stmt * statement, sqlite3 * connection, uint16_t index, CDatabaseValue< EFieldType_FLOAT64 > const & value )
 			: SSqliteBindingBase( statement, connection, index )
 			, _value( value )
 		{
@@ -309,7 +359,14 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		//!@copydoc SSqliteBindingBase::DoSetValue
 		virtual void UpdateValue()
 		{
-			SQLiteTry( SQLite::BindDouble( _statement, _index, _value.GetValue() ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			if ( _value.IsNull() )
+			{
+				SQLiteTry( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
+			}
+			else
+			{
+				SQLiteTry( sqlite3_bind_double( _statement, _index, _value.GetValue() ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			}
 		}
 
 		//! The parameter value
@@ -332,7 +389,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@param value
 			The parameter value
 		*/
-		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_FIXED_POINT > const & value )
+		SSqliteBinding( sqlite3_stmt * statement, sqlite3 * connection, uint16_t index, CDatabaseValue< EFieldType_FIXED_POINT > const & value )
 			: SSqliteBindingBase( statement, connection, index )
 			, _value( value )
 		{
@@ -341,7 +398,14 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		//!@copydoc SSqliteBindingBase::DoSetValue
 		virtual void UpdateValue()
 		{
-			SQLiteTry( SQLite::BindDouble( _statement, _index, _value.GetValue().ToDouble() ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue().ToString(), EDatabaseExceptionCodes_StatementError, _connection );
+			if ( _value.IsNull() )
+			{
+				SQLiteTry( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
+			}
+			else
+			{
+				SQLiteTry( sqlite3_bind_double( _statement, _index, _value.GetValue().ToDouble() ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue().ToString(), EDatabaseExceptionCodes_StatementError, _connection );
+			}
 		}
 
 		//! The parameter value
@@ -364,7 +428,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@param value
 			The parameter value
 		*/
-		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_VARCHAR > const & value )
+		SSqliteBinding( sqlite3_stmt * statement, sqlite3 * connection, uint16_t index, CDatabaseValue< EFieldType_VARCHAR > const & value )
 			: SSqliteBindingBase( statement, connection, index )
 			, _value( value )
 		{
@@ -373,7 +437,14 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		//!@copydoc SSqliteBindingBase::DoSetValue
 		virtual void UpdateValue()
 		{
-			SQLiteTry( SQLite::BindText( _statement, _index, ( const char * )_value.GetPtrValue(), _value.GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			if ( _value.IsNull() )
+			{
+				SQLiteTry( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
+			}
+			else
+			{
+				SQLiteTry( sqlite3_bind_text64( _statement, _index, ( const char * )_value.GetPtrValue(), _value.GetPtrSize(), SQLITE_STATIC, SQLite::eENCODING_UTF8 ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << STR( "[" ) <<  _value.GetValue() << STR( "]" ), EDatabaseExceptionCodes_StatementError, _connection );
+			}
 		}
 
 		//! The parameter value
@@ -396,7 +467,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@param value
 			The parameter value
 		*/
-		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_TEXT > const & value )
+		SSqliteBinding( sqlite3_stmt * statement, sqlite3 * connection, uint16_t index, CDatabaseValue< EFieldType_TEXT > const & value )
 			: SSqliteBindingBase( statement, connection, index )
 			, _value( value )
 		{
@@ -405,7 +476,14 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		//!@copydoc SSqliteBindingBase::DoSetValue
 		virtual void UpdateValue()
 		{
-			SQLiteTry( SQLite::BindText( _statement, _index, ( const char * )_value.GetPtrValue(), _value.GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			if ( _value.IsNull() )
+			{
+				SQLiteTry( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
+			}
+			else
+			{
+				SQLiteTry( sqlite3_bind_text64( _statement, _index, ( const char * )_value.GetPtrValue(), _value.GetPtrSize(), SQLITE_STATIC, SQLite::eENCODING_UTF8 ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << STR( "[" ) <<  _value.GetValue() << STR( "]" ), EDatabaseExceptionCodes_StatementError, _connection );
+			}
 		}
 
 		//! The parameter value
@@ -428,7 +506,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@param value
 			The parameter value
 		*/
-		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_NVARCHAR > const & value )
+		SSqliteBinding( sqlite3_stmt * statement, sqlite3 * connection, uint16_t index, CDatabaseValue< EFieldType_NVARCHAR > const & value )
 			: SSqliteBindingBase( statement, connection, index )
 			, _value( value )
 		{
@@ -437,7 +515,14 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		//!@copydoc SSqliteBindingBase::DoSetValue
 		virtual void UpdateValue()
 		{
-			SQLiteTry( SQLite::BindText16( _statement, _index, _value.GetPtrValue(), _value.GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetPtrValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			if ( _value.IsNull() )
+			{
+				SQLiteTry( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
+			}
+			else
+			{
+				SQLiteTry( sqlite3_bind_text16( _statement, _index, _value.GetPtrValue(), _value.GetPtrSize(), SQLITE_STATIC ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetPtrValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			}
 		}
 
 		//! The parameter value
@@ -460,7 +545,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@param value
 			The parameter value
 		*/
-		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_NTEXT > const & value )
+		SSqliteBinding( sqlite3_stmt * statement, sqlite3 * connection, uint16_t index, CDatabaseValue< EFieldType_NTEXT > const & value )
 			: SSqliteBindingBase( statement, connection, index )
 			, _value( value )
 		{
@@ -469,7 +554,14 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		//!@copydoc SSqliteBindingBase::DoSetValue
 		virtual void UpdateValue()
 		{
-			SQLiteTry( SQLite::BindText16( _statement, _index, _value.GetPtrValue(), _value.GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetPtrValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			if ( _value.IsNull() )
+			{
+				SQLiteTry( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
+			}
+			else
+			{
+				SQLiteTry( sqlite3_bind_text16( _statement, _index, _value.GetPtrValue(), _value.GetPtrSize(), SQLITE_STATIC ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetPtrValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			}
 		}
 
 		//! The parameter value
@@ -492,7 +584,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@param value
 			The parameter value
 		*/
-		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_DATE > const & value )
+		SSqliteBinding( sqlite3_stmt * statement, sqlite3 * connection, uint16_t index, CDatabaseValue< EFieldType_DATE > const & value )
 			: SSqliteBindingBase( statement, connection, index )
 			, _value( value )
 		{
@@ -501,7 +593,14 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		//!@copydoc SSqliteBindingBase::DoSetValue
 		virtual void UpdateValue()
 		{
-			SQLiteTry( SQLite::BindText( _statement, _index, ( const char * )_value.GetPtrValue(), _value.GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			if ( _value.IsNull() )
+			{
+				SQLiteTry( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
+			}
+			else
+			{
+				SQLiteTry( sqlite3_bind_text( _statement, _index, ( const char * )_value.GetPtrValue(), _value.GetPtrSize(), SQLITE_STATIC ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			}
 		}
 
 		//! The parameter value
@@ -524,7 +623,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@param value
 			The parameter value
 		*/
-		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_DATETIME > const & value )
+		SSqliteBinding( sqlite3_stmt * statement, sqlite3 * connection, uint16_t index, CDatabaseValue< EFieldType_DATETIME > const & value )
 			: SSqliteBindingBase( statement, connection, index )
 			, _value( value )
 		{
@@ -533,7 +632,14 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		//!@copydoc SSqliteBindingBase::DoSetValue
 		virtual void UpdateValue()
 		{
-			SQLiteTry( SQLite::BindText( _statement, _index, ( const char * )_value.GetPtrValue(), _value.GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			if ( _value.IsNull() )
+			{
+				SQLiteTry( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
+			}
+			else
+			{
+				SQLiteTry( sqlite3_bind_text( _statement, _index, ( const char * )_value.GetPtrValue(), _value.GetPtrSize(), SQLITE_STATIC ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			}
 		}
 
 		//! The parameter value
@@ -556,7 +662,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@param value
 			The parameter value
 		*/
-		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_TIME > const & value )
+		SSqliteBinding( sqlite3_stmt * statement, sqlite3 * connection, uint16_t index, CDatabaseValue< EFieldType_TIME > const & value )
 			: SSqliteBindingBase( statement, connection, index )
 			, _value( value )
 		{
@@ -565,7 +671,14 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		//!@copydoc SSqliteBindingBase::DoSetValue
 		virtual void UpdateValue()
 		{
-			SQLiteTry( SQLite::BindText( _statement, _index, ( const char * )_value.GetPtrValue(), _value.GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			if ( _value.IsNull() )
+			{
+				SQLiteTry( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
+			}
+			else
+			{
+				SQLiteTry( sqlite3_bind_text( _statement, _index, ( const char * )_value.GetPtrValue(), _value.GetPtrSize(), SQLITE_STATIC ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			}
 		}
 
 		//! The parameter value
@@ -588,7 +701,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@param value
 			The parameter value
 		*/
-		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_BINARY > const & value )
+		SSqliteBinding( sqlite3_stmt * statement, sqlite3 * connection, uint16_t index, CDatabaseValue< EFieldType_BINARY > const & value )
 			: SSqliteBindingBase( statement, connection, index )
 			, _value( value )
 		{
@@ -597,7 +710,14 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		//!@copydoc SSqliteBindingBase::DoSetValue
 		virtual void UpdateValue()
 		{
-			SQLiteTry( SQLite::BindBlob( _statement, _index, _value.GetPtrValue(), _value.GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetPtrValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			if ( _value.IsNull() )
+			{
+				SQLiteTry( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
+			}
+			else
+			{
+				SQLiteTry( sqlite3_bind_blob( _statement, _index, _value.GetPtrValue(), _value.GetPtrSize(), SQLITE_STATIC ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetPtrValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			}
 		}
 
 		//! The parameter value
@@ -620,7 +740,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@param value
 			The parameter value
 		*/
-		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_VARBINARY > const & value )
+		SSqliteBinding( sqlite3_stmt * statement, sqlite3 * connection, uint16_t index, CDatabaseValue< EFieldType_VARBINARY > const & value )
 			: SSqliteBindingBase( statement, connection, index )
 			, _value( value )
 		{
@@ -629,7 +749,14 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		//!@copydoc SSqliteBindingBase::DoSetValue
 		virtual void UpdateValue()
 		{
-			SQLiteTry( SQLite::BindBlob( _statement, _index, _value.GetPtrValue(), _value.GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetPtrValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			if ( _value.IsNull() )
+			{
+				SQLiteTry( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
+			}
+			else
+			{
+				SQLiteTry( sqlite3_bind_blob( _statement, _index, _value.GetPtrValue(), _value.GetPtrSize(), SQLITE_STATIC ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetPtrValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			}
 		}
 
 		//! The parameter value
@@ -652,7 +779,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@param value
 			The parameter value
 		*/
-		SSqliteBinding( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index, CDatabaseValue< EFieldType_LONG_VARBINARY > const & value )
+		SSqliteBinding( sqlite3_stmt * statement, sqlite3 * connection, uint16_t index, CDatabaseValue< EFieldType_LONG_VARBINARY > const & value )
 			: SSqliteBindingBase( statement, connection, index )
 			, _value( value )
 		{
@@ -661,7 +788,14 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		//!@copydoc SSqliteBindingBase::DoSetValue
 		virtual void UpdateValue()
 		{
-			SQLiteTry( SQLite::BindBlob( _statement, _index, _value.GetPtrValue(), _value.GetPtrSize(), SQLite::NULL_DESTRUCTOR ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetPtrValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			if ( _value.IsNull() )
+			{
+				SQLiteTry( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
+			}
+			else
+			{
+				SQLiteTry( sqlite3_bind_blob( _statement, _index, _value.GetPtrValue(), _value.GetPtrSize(), SQLITE_STATIC ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetPtrValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			}
 		}
 
 		//! The parameter value
@@ -679,7 +813,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		The parameter value
 	*/
 	template< EFieldType Type >
-	std::unique_ptr< SSqliteBindingBase > MakeSqliteBind( SQLite::Statement * statement, DatabaseConnectionPtr connection, uint16_t index, CDatabaseValueBase const & value )
+	std::unique_ptr< SSqliteBindingBase > MakeSqliteBind( sqlite3_stmt * statement, DatabaseConnectionPtr connection, uint16_t index, CDatabaseValueBase const & value )
 	{
 		return std::make_unique< SSqliteBinding< Type > >( statement, std::static_pointer_cast< CDatabaseConnectionSqlite >( connection )->GetConnection(), index, static_cast< CDatabaseValue< Type > const & >( value ) );
 	}

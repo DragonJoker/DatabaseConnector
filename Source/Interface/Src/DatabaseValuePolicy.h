@@ -193,7 +193,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Reinitializes the given value
 		@param value
-		    The value
+			The value
 		*/
 		void Reset( value_type & value )
 		{
@@ -202,13 +202,13 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Sets the value to the given one
 		@param in
-		    The input value
+			The input value
 		@param out
-		    The output value
+			The output value
 		@param size
-		    Receives the new value size
+			Receives the new value size
 		@param connection
-		    The connection used to format the value
+			The connection used to format the value
 		*/
 		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
 		{
@@ -219,7 +219,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Retrieves a pointer from the given value
 		@param value
-		    The value
+			The value
 		*/
 		void * Ptr( value_type & value )
 		{
@@ -228,7 +228,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Retrieves a pointer from the given value
 		@param value
-		    The value
+			The value
 		*/
 		const void * Ptr( const value_type & value )const
 		{
@@ -237,13 +237,13 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Puts the value into the given string
 		@param value
-		    The value
+			The value
 		@param valSet
-		    Tells that the value is set
+			Tells that the value is set
 		@param connection
-		    The connection used to format the value
+			The connection used to format the value
 		@param result
-		    Receives the insertable value
+			Receives the insertable value
 		*/
 		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
 		{
@@ -266,7 +266,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Reinitializes the given value
 		@param value
-		    The value
+			The value
 		*/
 		void Reset( value_type & value )
 		{
@@ -275,13 +275,13 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Sets the value to the given one
 		@param in
-		    The input value
+			The input value
 		@param out
-		    The output value
+			The output value
 		@param size
-		    Receives the new value size
+			Receives the new value size
 		@param connection
-		    The connection used to format the value
+			The connection used to format the value
 		*/
 		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
 		{
@@ -292,7 +292,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Retrieves a pointer from the given value
 		@param value
-		    The value
+			The value
 		*/
 		void * Ptr( value_type & value )
 		{
@@ -301,7 +301,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Retrieves a pointer from the given value
 		@param value
-		    The value
+			The value
 		*/
 		const void * Ptr( const value_type & value )const
 		{
@@ -310,13 +310,13 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Puts the value into the given string
 		@param value
-		    The value
+			The value
 		@param valSet
-		    Tells that the value is set
+			Tells that the value is set
 		@param connection
-		    The connection used to format the value
+			The connection used to format the value
 		@param result
-		    Receives the insertable value
+			Receives the insertable value
 		*/
 		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
 		{
@@ -340,7 +340,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Reinitializes the given value
 		@param value
-		    The value
+			The value
 		*/
 		void Reset( value_type & value )
 		{
@@ -349,13 +349,13 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Sets the value to the given one
 		@param in
-		    The input value
+			The input value
 		@param out
-		    The output value
+			The output value
 		@param size
-		    Receives the new value size
+			Receives the new value size
 		@param connection
-		    The connection used to format the value
+			The connection used to format the value
 		*/
 		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
 		{
@@ -366,7 +366,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Retrieves a pointer from the given value
 		@param value
-		    The value
+			The value
 		*/
 		void * Ptr( value_type & value )
 		{
@@ -375,7 +375,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Retrieves a pointer from the given value
 		@param value
-		    The value
+			The value
 		*/
 		const void * Ptr( const value_type & value )const
 		{
@@ -384,13 +384,13 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Puts the value into the given string
 		@param value
-		    The value
+			The value
 		@param valSet
-		    Tells that the value is set
+			Tells that the value is set
 		@param connection
-		    The connection used to format the value
+			The connection used to format the value
 		@param result
-		    Receives the insertable value
+			Receives the insertable value
 		*/
 		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
 		{
@@ -413,7 +413,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Reinitializes the given value
 		@param value
-		    The value
+			The value
 		*/
 		void Reset( value_type & value )
 		{
@@ -422,13 +422,13 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Sets the value to the given one
 		@param in
-		    The input value
+			The input value
 		@param out
-		    The output value
+			The output value
 		@param size
-		    Receives the new value size
+			Receives the new value size
 		@param connection
-		    The connection used to format the value
+			The connection used to format the value
 		*/
 		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
 		{
@@ -439,7 +439,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Retrieves a pointer from the given value
 		@param value
-		    The value
+			The value
 		*/
 		void * Ptr( value_type & value )
 		{
@@ -448,7 +448,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Retrieves a pointer from the given value
 		@param value
-		    The value
+			The value
 		*/
 		const void * Ptr( const value_type & value )const
 		{
@@ -457,13 +457,13 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Puts the value into the given string
 		@param value
-		    The value
+			The value
 		@param valSet
-		    Tells that the value is set
+			Tells that the value is set
 		@param connection
-		    The connection used to format the value
+			The connection used to format the value
 		@param result
-		    Receives the insertable value
+			Receives the insertable value
 		*/
 		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
 		{
@@ -489,7 +489,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Reinitializes the given value
 		@param value
-		    The value
+			The value
 		*/
 		void Reset( value_type & value )
 		{
@@ -498,13 +498,13 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Sets the value to the given one
 		@param in
-		    The input value
+			The input value
 		@param out
-		    The output value
+			The output value
 		@param size
-		    Receives the new value size
+			Receives the new value size
 		@param connection
-		    The connection used to format the value
+			The connection used to format the value
 		*/
 		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
 		{
@@ -515,7 +515,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Retrieves a pointer from the given value
 		@param value
-		    The value
+			The value
 		*/
 		void * Ptr( value_type & value )
 		{
@@ -524,7 +524,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Retrieves a pointer from the given value
 		@param value
-		    The value
+			The value
 		*/
 		const void * Ptr( const value_type & value )const
 		{
@@ -533,13 +533,13 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Puts the value into the given string
 		@param value
-		    The value
+			The value
 		@param valSet
-		    Tells that the value is set
+			Tells that the value is set
 		@param connection
-		    The connection used to format the value
+			The connection used to format the value
 		@param result
-		    Receives the insertable value
+			Receives the insertable value
 		*/
 		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
 		{
@@ -565,7 +565,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Reinitializes the given value
 		@param value
-		    The value
+			The value
 		*/
 		void Reset( value_type & value )
 		{
@@ -574,13 +574,13 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Sets the value to the given one
 		@param in
-		    The input value
+			The input value
 		@param out
-		    The output value
+			The output value
 		@param size
-		    Receives the new value size
+			Receives the new value size
 		@param connection
-		    The connection used to format the value
+			The connection used to format the value
 		*/
 		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
 		{
@@ -591,7 +591,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Retrieves a pointer from the given value
 		@param value
-		    The value
+			The value
 		*/
 		void * Ptr( value_type & value )
 		{
@@ -600,7 +600,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Retrieves a pointer from the given value
 		@param value
-		    The value
+			The value
 		*/
 		const void * Ptr( const value_type & value )const
 		{
@@ -609,13 +609,13 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Puts the value into the given string
 		@param value
-		    The value
+			The value
 		@param valSet
-		    Tells that the value is set
+			Tells that the value is set
 		@param connection
-		    The connection used to format the value
+			The connection used to format the value
 		@param result
-		    Receives the insertable value
+			Receives the insertable value
 		*/
 		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
 		{
@@ -638,7 +638,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Reinitializes the given value
 		@param value
-		    The value
+			The value
 		*/
 		void Reset( value_type & value )
 		{
@@ -647,13 +647,13 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Sets the value to the given one
 		@param in
-		    The input value
+			The input value
 		@param out
-		    The output value
+			The output value
 		@param size
-		    Receives the new value size
+			Receives the new value size
 		@param connection
-		    The connection used to format the value
+			The connection used to format the value
 		*/
 		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
 		{
@@ -664,45 +664,31 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Retrieves a pointer from the given value
 		@param value
-		    The value
+			The value
 		*/
 		void * Ptr( value_type & value )
 		{
-			void * result = NULL;
-
-			if ( !value.empty() )
-			{
-				result = &value[0];
-			}
-
-			return result;
+			return &value[0];
 		}
 
 		/** Retrieves a pointer from the given value
 		@param value
-		    The value
+			The value
 		*/
 		const void * Ptr( const value_type & value )const
 		{
-			void const * result = NULL;
-
-			if ( !value.empty() )
-			{
-				result = value.data();
-			}
-
-			return result;
+			return &value[0];
 		}
 
 		/** Puts the value into the given string
 		@param value
-		    The value
+			The value
 		@param valSet
-		    Tells that the value is set
+			Tells that the value is set
 		@param connection
-		    The connection used to format the value
+			The connection used to format the value
 		@param result
-		    Receives the insertable value
+			Receives the insertable value
 		*/
 		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
 		{
@@ -741,7 +727,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Reinitializes the given value
 		@param value
-		    The value
+			The value
 		*/
 		void Reset( value_type & value )
 		{
@@ -750,13 +736,13 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Sets the value to the given one
 		@param in
-		    The input value
+			The input value
 		@param out
-		    The output value
+			The output value
 		@param size
-		    Receives the new value size
+			Receives the new value size
 		@param connection
-		    The connection used to format the value
+			The connection used to format the value
 		*/
 		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
 		{
@@ -767,45 +753,31 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Retrieves a pointer from the given value
 		@param value
-		    The value
+			The value
 		*/
 		void * Ptr( value_type & value )
 		{
-			void * result = NULL;
-
-			if ( !value.empty() )
-			{
-				result = &value[0];
-			}
-
-			return result;
+			return &value[0];
 		}
 
 		/** Retrieves a pointer from the given value
 		@param value
-		    The value
+			The value
 		*/
 		const void * Ptr( const value_type & value )const
 		{
-			void const * result = NULL;
-
-			if ( !value.empty() )
-			{
-				result = value.data();
-			}
-
-			return result;
+			return &value[0];
 		}
 
 		/** Puts the value into the given string
 		@param value
-		    The value
+			The value
 		@param valSet
-		    Tells that the value is set
+			Tells that the value is set
 		@param connection
-		    The connection used to format the value
+			The connection used to format the value
 		@param result
-		    Receives the insertable value
+			Receives the insertable value
 		*/
 		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
 		{
@@ -844,7 +816,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Reinitializes the given value
 		@param value
-		    The value
+			The value
 		*/
 		void Reset( value_type & value )
 		{
@@ -853,13 +825,13 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Sets the value to the given one
 		@param in
-		    The input value
+			The input value
 		@param out
-		    The output value
+			The output value
 		@param size
-		    Receives the new value size
+			Receives the new value size
 		@param connection
-		    The connection used to format the value
+			The connection used to format the value
 		*/
 		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
 		{
@@ -877,7 +849,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Retrieves a pointer from the given value
 		@param value
-		    The value
+			The value
 		*/
 		void * Ptr( value_type & value )
 		{
@@ -893,7 +865,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Retrieves a pointer from the given value
 		@param value
-		    The value
+			The value
 		*/
 		const void * Ptr( const value_type & value )const
 		{
@@ -909,13 +881,13 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Puts the value into the given string
 		@param value
-		    The value
+			The value
 		@param valSet
-		    Tells that the value is set
+			Tells that the value is set
 		@param connection
-		    The connection used to format the value
+			The connection used to format the value
 		@param result
-		    Receives the insertable value
+			Receives the insertable value
 		*/
 		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
 		{
@@ -972,7 +944,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Reinitializes the given value
 		@param value
-		    The value
+			The value
 		*/
 		void Reset( value_type & value )
 		{
@@ -981,13 +953,13 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Sets the value to the given one
 		@param in
-		    The input value
+			The input value
 		@param out
-		    The output value
+			The output value
 		@param size
-		    Receives the new value size
+			Receives the new value size
 		@param connection
-		    The connection used to format the value
+			The connection used to format the value
 		*/
 		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
 		{
@@ -999,7 +971,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Retrieves a pointer from the given value
 		@param value
-		    The value
+			The value
 		*/
 		void * Ptr( value_type & value )
 		{
@@ -1015,7 +987,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Retrieves a pointer from the given value
 		@param value
-		    The value
+			The value
 		*/
 		const void * Ptr( const value_type & value )const
 		{
@@ -1031,13 +1003,13 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Puts the value into the given string
 		@param value
-		    The value
+			The value
 		@param valSet
-		    Tells that the value is set
+			Tells that the value is set
 		@param connection
-		    The connection used to format the value
+			The connection used to format the value
 		@param result
-		    Receives the insertable value
+			Receives the insertable value
 		*/
 		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
 		{
@@ -1062,7 +1034,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Reinitializes the given value
 		@param value
-		    The value
+			The value
 		*/
 		void Reset( value_type & value )
 		{
@@ -1071,13 +1043,13 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Sets the value to the given one
 		@param in
-		    The input value
+			The input value
 		@param out
-		    The output value
+			The output value
 		@param size
-		    Receives the new value size
+			Receives the new value size
 		@param connection
-		    The connection used to format the value
+			The connection used to format the value
 		*/
 		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
 		{
@@ -1089,7 +1061,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Retrieves a pointer from the given value
 		@param value
-		    The value
+			The value
 		*/
 		void * Ptr( value_type & value )
 		{
@@ -1105,7 +1077,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Retrieves a pointer from the given value
 		@param value
-		    The value
+			The value
 		*/
 		const void * Ptr( const value_type & value )const
 		{
@@ -1121,13 +1093,13 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Puts the value into the given string
 		@param value
-		    The value
+			The value
 		@param valSet
-		    Tells that the value is set
+			Tells that the value is set
 		@param connection
-		    The connection used to format the value
+			The connection used to format the value
 		@param result
-		    Receives the insertable value
+			Receives the insertable value
 		*/
 		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
 		{
@@ -1152,7 +1124,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Reinitializes the given value
 		@param value
-		    The value
+			The value
 		*/
 		void Reset( value_type & value )
 		{
@@ -1161,13 +1133,13 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Sets the value to the given one
 		@param in
-		    The input value
+			The input value
 		@param out
-		    The output value
+			The output value
 		@param size
-		    Receives the new value size
+			Receives the new value size
 		@param connection
-		    The connection used to format the value
+			The connection used to format the value
 		*/
 		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
 		{
@@ -1179,7 +1151,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Retrieves a pointer from the given value
 		@param value
-		    The value
+			The value
 		*/
 		void * Ptr( value_type & value )
 		{
@@ -1195,7 +1167,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Retrieves a pointer from the given value
 		@param value
-		    The value
+			The value
 		*/
 		const void * Ptr( const value_type & value )const
 		{
@@ -1211,13 +1183,13 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Puts the value into the given string
 		@param value
-		    The value
+			The value
 		@param valSet
-		    Tells that the value is set
+			Tells that the value is set
 		@param connection
-		    The connection used to format the value
+			The connection used to format the value
 		@param result
-		    Receives the insertable value
+			Receives the insertable value
 		*/
 		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
 		{
@@ -1242,7 +1214,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Reinitializes the given value
 		@param value
-		    The value
+			The value
 		*/
 		void Reset( value_type & value )
 		{
@@ -1251,13 +1223,13 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Sets the value to the given one
 		@param in
-		    The input value
+			The input value
 		@param out
-		    The output value
+			The output value
 		@param size
-		    Receives the new value size
+			Receives the new value size
 		@param connection
-		    The connection used to format the value
+			The connection used to format the value
 		*/
 		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
 		{
@@ -1268,7 +1240,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Retrieves a pointer from the given value
 		@param value
-		    The value
+			The value
 		*/
 		void * Ptr( value_type & value )
 		{
@@ -1277,7 +1249,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Retrieves a pointer from the given value
 		@param value
-		    The value
+			The value
 		*/
 		const void * Ptr( const value_type & value )const
 		{
@@ -1286,13 +1258,13 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Puts the value into the given string
 		@param value
-		    The value
+			The value
 		@param valSet
-		    Tells that the value is set
+			Tells that the value is set
 		@param connection
-		    The connection used to format the value
+			The connection used to format the value
 		@param result
-		    Receives the insertable value
+			Receives the insertable value
 		*/
 		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
 		{

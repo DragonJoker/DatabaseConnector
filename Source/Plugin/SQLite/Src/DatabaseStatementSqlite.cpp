@@ -28,8 +28,8 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 {
 	static const String ERROR_SQLITE_MISSING_INITIALIZATION = STR( "Method Initialize must be called before calling method CreateParameter" );
 	static const String ERROR_SQLITE_CANT_PREPARE_STATEMENT = STR( "Couldn't prepare the statement" );
-	static const String ERROR_SQLITE_EXECUTION_ERROR = STR( "Couldn't execute the statement : " );
-	static const String ERROR_SQLITE_QUERY_INCONSISTENCY_ERROR = STR( "Number of parameters doesn't match the sizes of parameter containers." );
+	static const String ERROR_SQLITE_EXECUTION = STR( "Couldn't execute the statement : " );
+	static const String ERROR_SQLITE_QUERY_INCONSISTENCY = STR( "Number of parameters doesn't match the sizes of parameter containers: " );
 
 	static const TChar * INFO_SQLITE_STATEMENT_PREPARATION = STR( "Statement preparation" );
 	static const TChar * INFO_SQLITE_STATEMENT_FINALISATION = STR( "Statement finalisation" );
@@ -138,9 +138,9 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			_stmtOutParams->Initialize();
 		}
 
-		SQLite::Database * connection = _connectionSqlite->GetConnection();
+		sqlite3 * connection = _connectionSqlite->GetConnection();
 		std::string query2 = CStrUtils::ToStr( _query );
-		SQLiteTry( SQLite::PrepareV2( connection, query2.c_str(), int( query2.size() ), &_statement, NULL ), INFO_SQLITE_STATEMENT_PREPARATION, EDatabaseExceptionCodes_StatementError, connection );
+		SQLiteTry( sqlite3_prepare_v2( connection, query2.c_str(), int( query2.size() ), &_statement, NULL ), INFO_SQLITE_STATEMENT_PREPARATION, EDatabaseExceptionCodes_StatementError, connection );
 
 		if ( !_statement )
 		{
@@ -148,8 +148,20 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		}
 		else
 		{
-			CLogger::LogDebug( StringStream() << INFO_SQLITE_STMT_PARAMS_COUNT << SQLite::BindParameterCount( _statement ) );
-			eReturn = EErrorType_NONE;
+			int count = sqlite3_bind_parameter_count( _statement );
+
+			if ( count == _arrayParams.size() )
+			{
+				CLogger::LogDebug( StringStream() << INFO_SQLITE_STMT_PARAMS_COUNT << count );
+				eReturn = EErrorType_NONE;
+			}
+			else
+			{
+				StringStream error;
+				error << ERROR_SQLITE_QUERY_INCONSISTENCY << _arrayParams.size() << STR( ", Expected: " ) << count;
+				CLogger::LogError( error );
+				DB_EXCEPT( EDatabaseExceptionCodes_StatementError, error.str() );
+			}
 		}
 
 		for ( DatabaseParameterPtrArray::iterator it = _arrayInParams.begin(); it != _arrayInParams.end(); ++it )
@@ -198,7 +210,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 	{
 		if ( _statement )
 		{
-			SQLiteTry( SQLite::Finalize( _statement ), INFO_SQLITE_STATEMENT_FINALISATION, EDatabaseExceptionCodes_StatementError, _connectionSqlite->GetConnection() );
+			SQLiteTry( sqlite3_finalize( _statement ), INFO_SQLITE_STATEMENT_FINALISATION, EDatabaseExceptionCodes_StatementError, _connectionSqlite->GetConnection() );
 			_statement = NULL;
 		}
 
@@ -298,8 +310,8 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			}
 		}
 
-		SQLiteTry( SQLite::ClearBindings( _statement ), INFO_SQLITE_STATEMENT_CLEAR_BINDINGS, EDatabaseExceptionCodes_StatementError, _connectionSqlite->GetConnection() );
-		SQLiteTry( SQLite::Reset( _statement ), INFO_SQLITE_STATEMENT_RESET, EDatabaseExceptionCodes_StatementError, _connectionSqlite->GetConnection() );
+		SQLiteTry( sqlite3_clear_bindings( _statement ), INFO_SQLITE_STATEMENT_CLEAR_BINDINGS, EDatabaseExceptionCodes_StatementError, _connectionSqlite->GetConnection() );
+		SQLiteTry( sqlite3_reset( _statement ), INFO_SQLITE_STATEMENT_RESET, EDatabaseExceptionCodes_StatementError, _connectionSqlite->GetConnection() );
 	}
 }
 END_NAMESPACE_DATABASE_SQLITE

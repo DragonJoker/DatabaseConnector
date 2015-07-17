@@ -74,7 +74,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@param statement
 		    The statement
 		*/
-		DatabaseSqliteExport void SetStatement( SQLite::Statement * statement );
+		DatabaseSqliteExport void SetStatement( sqlite3_stmt * statement );
 
 	private:
 		/** Set parameter value
@@ -368,7 +368,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		//! The parameter value setter
 		std::unique_ptr< SSqliteBindingBase > _binding;
 		//! The prepared statement
-		SQLite::Statement * _statement;
+		sqlite3_stmt * _statement;
 	};
 }
 END_NAMESPACE_DATABASE_SQLITE

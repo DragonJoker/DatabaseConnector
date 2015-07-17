@@ -139,12 +139,12 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		unsigned long const chunk = 1024;
 		unsigned long remaining = value.GetPtrSize();
 		char * data = reinterpret_cast< char * >( value.GetPtrValue() );
-		int ret = 0;
+		my_bool ret = 0;
 
 		while ( remaining && !ret )
 		{
 			unsigned long length = std::min( chunk, remaining );
-			mysql_stmt_send_long_data( statement, bind.param_number, data, length );
+			ret = mysql_stmt_send_long_data( statement, bind.param_number, data, length );
 			data += length;
 			remaining -= length;
 		}

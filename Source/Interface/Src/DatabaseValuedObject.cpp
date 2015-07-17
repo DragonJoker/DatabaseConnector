@@ -1536,13 +1536,13 @@ BEGIN_NAMESPACE_DATABASE
 	void CDatabaseValuedObject::DoSetValueFast( const std::string & value )
 	{
 		assert( GetType() == EFieldType_TEXT || GetType() == EFieldType_VARCHAR );
-		static_cast< CDatabaseValue< EFieldType_TEXT > & >( *_value ).SetValue( value );
+		static_cast< CDatabaseValue< EFieldType_TEXT > & >( *_value ).SetValue( value.c_str(), std::min( GetLimits(), uint32_t( value.size() ) ) );
 	}
 
 	void CDatabaseValuedObject::DoSetValueFast( const std::wstring & value )
 	{
 		assert( GetType() == EFieldType_NTEXT || GetType() == EFieldType_NVARCHAR );
-		static_cast< CDatabaseValue< EFieldType_NTEXT > & >( *_value ).SetValue( value );
+		static_cast< CDatabaseValue< EFieldType_NTEXT > & >( *_value ).SetValue( value.c_str(), std::min( GetLimits(), uint32_t( value.size() ) ) );
 	}
 
 	void CDatabaseValuedObject::DoSetValueFast( const CDate & value )

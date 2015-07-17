@@ -40,6 +40,7 @@
 
 BEGIN_NAMESPACE_DATABASE
 {
+#	include "sqlite3.h"
 	namespace Sqlite
 	{
 		// Pre-declare classes
@@ -68,7 +69,6 @@ BEGIN_NAMESPACE_DATABASE
 
 		namespace SQLite
 		{
-#			include "sqlite3.h"
 
 			typedef enum
 			{
@@ -101,7 +101,7 @@ BEGIN_NAMESPACE_DATABASE
 				eCODE_NOTADB = SQLITE_NOTADB,
 				eCODE_ROW = SQLITE_ROW,
 				eCODE_DONE = SQLITE_DONE,
-			}   eCODE;
+			}	eCODE;
 
 			typedef enum
 			{
@@ -123,7 +123,7 @@ BEGIN_NAMESPACE_DATABASE
 				eEXTENDED_CODE_CLOSE = SQLITE_IOERR_CLOSE,
 				eEXTENDED_CODE_DIR_CLOSE = SQLITE_IOERR_DIR_CLOSE,
 				eEXTENDED_CODE_LOCKED_SHAREDCACHE = SQLITE_LOCKED_SHAREDCACHE,
-			}   eEXTENDED_CODE;
+			}	eEXTENDED_CODE;
 
 			typedef enum
 			{
@@ -144,261 +144,27 @@ BEGIN_NAMESPACE_DATABASE
 				eOPEN_FLAG_FULLMUTEX = SQLITE_OPEN_FULLMUTEX,
 				eOPEN_FLAG_SHAREDCACHE = SQLITE_OPEN_SHAREDCACHE,
 				eOPEN_FLAG_PRIVATECACHE = SQLITE_OPEN_PRIVATECACHE,
-			}   eOPEN_FLAG;
+			}	eOPEN_FLAG;
 
-			typedef sqlite3_destructor_type DestructorType;
-			static const SQLite::DestructorType NULL_DESTRUCTOR = 0;
+			typedef enum
+				: uint8_t
+			{
+				eENCODING_UTF8			= 1,	// IMP: R-37514-35566
+				eENCODING_UTF16LE		= 2,	// IMP: R-03371-37637
+				eENCODING_UTF16BE		= 3,	// IMP: R-51971-34154
+				eENCODING_UTF16			= 4,	// Use native byte order
+				eENCODING_ANY			= 5,	// Deprecated
+				eENCODING_UTF16_ALIGNED	= 8,	// sqlite3_create_collation only
+			}	eENCODING;
 
-			typedef sqlite3_stmt Statement;
-			typedef sqlite3 Database;
-			typedef sqlite3_int64 Int64;
-
-			class Value
-			{
-			public:
-				Value( sqlite3_value * value )
-					: _value( value )
-				{
-				}
-
-				int GetType()
-				{
-					return sqlite3_value_type( _value );
-				}
-				int GetNumericType()
-				{
-					return sqlite3_value_numeric_type( _value );
-				}
-				int GetBytes()
-				{
-					return sqlite3_value_bytes( _value );
-				}
-				int GetBytes16()
-				{
-					return  sqlite3_value_bytes16( _value );
-				}
-
-				const void * AsBlob()
-				{
-					return sqlite3_value_blob( _value );
-				}
-				double AsDouble()
-				{
-					return  sqlite3_value_double( _value );
-				}
-				int AsInt()
-				{
-					return  sqlite3_value_int( _value );
-				}
-				sqlite3_int64 AsInt64()
-				{
-					return  sqlite3_value_int64( _value );
-				}
-				const unsigned char * AsText()
-				{
-					return sqlite3_value_text( _value );
-				}
-				const void * AsText16()
-				{
-					return sqlite3_value_text16( _value );
-				}
-				const void * AsText16le()
-				{
-					return sqlite3_value_text16le( _value );
-				}
-				const void * AsText16be()
-				{
-					return sqlite3_value_text16be( _value );
-				}
-
-				operator sqlite3_value const * ()const
-				{
-					return _value;
-				}
-
-			private:
-				sqlite3_value * _value;
-			};
-
-			inline eCODE Step( Statement * pStatement )
-			{
-				return eCODE( sqlite3_step( pStatement ) );
-			}
-			inline eCODE Finalize( Statement * pStatement )
-			{
-				return eCODE( sqlite3_finalize( pStatement ) );
-			}
-			inline eCODE Reset( Statement * pStatement )
-			{
-				return eCODE( sqlite3_reset( pStatement ) );
-			}
-			inline eCODE ClearBindings( Statement * pStatement )
-			{
-				return eCODE( sqlite3_clear_bindings( pStatement ) );
-			}
-			inline eCODE ColumnCount( Statement * pStatement )
-			{
-				return eCODE( sqlite3_column_count( pStatement ) );
-			}
-			inline char const * ColumnName( Statement * pStatement, int iCol )
-			{
-				return sqlite3_column_name( pStatement, iCol );
-			}
-			inline void const * ColumnName16( Statement * pStatement, int iCol )
-			{
-				return sqlite3_column_name16( pStatement, iCol );
-			}
-			inline char const * ColumnDecltype( Statement * pStatement, int iCol )
-			{
-				return sqlite3_column_decltype( pStatement, iCol );
-			}
-			inline void const * ColumnDecltype16( Statement * pStatement, int iCol )
-			{
-				return sqlite3_column_decltype16( pStatement, iCol );
-			}
-			inline void const * ColumnBlob( Statement * pStatement, int iCol )
-			{
-				return sqlite3_column_blob( pStatement, iCol );
-			}
-			inline int ColumnBytes( Statement * pStatement, int iCol )
-			{
-				return sqlite3_column_bytes( pStatement, iCol );
-			}
-			inline int ColumnBytes16( Statement * pStatement, int iCol )
-			{
-				return sqlite3_column_bytes16( pStatement, iCol );
-			}
-			inline double ColumnDouble( Statement * pStatement, int iCol )
-			{
-				return sqlite3_column_double( pStatement, iCol );
-			}
-			inline int ColumnInt( Statement * pStatement, int iCol )
-			{
-				return sqlite3_column_int( pStatement, iCol );
-			}
-			inline Int64 ColumnInt64( Statement * pStatement, int iCol )
-			{
-				return sqlite3_column_int64( pStatement, iCol );
-			}
-			inline const unsigned char * ColumnText( Statement * pStatement, int iCol )
-			{
-				return sqlite3_column_text( pStatement, iCol );
-			}
-			inline void const * ColumnText16( Statement * pStatement, int iCol )
-			{
-				return sqlite3_column_text16( pStatement, iCol );
-			}
-			inline int ColumnType( Statement * pStatement, int iCol )
-			{
-				return sqlite3_column_type( pStatement, iCol );
-			}
-			inline Value ColumnValue( Statement * pStatement, int iCol )
-			{
-				return Value( sqlite3_column_value( pStatement, iCol ) );
-			}
-
-			inline eCODE BindBlob( Statement * pStatement, int iCol, const void * pValue, int iSizeInBytes, DestructorType pfnDestructor )
-			{
-				return eCODE( sqlite3_bind_blob( pStatement, iCol, pValue, iSizeInBytes, pfnDestructor ) );
-			}
-			inline eCODE BindDouble( Statement * pStatement, int iCol, double dValue )
-			{
-				return eCODE( sqlite3_bind_double( pStatement, iCol, dValue ) );
-			}
-			inline eCODE BindInt( Statement * pStatement, int iCol, int iValue )
-			{
-				return eCODE( sqlite3_bind_int( pStatement, iCol, iValue ) );
-			}
-			inline eCODE BindInt64( Statement * pStatement, int iCol, Int64 i64value )
-			{
-				return eCODE( sqlite3_bind_int64( pStatement, iCol, i64value ) );
-			}
-			inline eCODE BindNull( Statement * pStatement, int iCol )
-			{
-				return eCODE( sqlite3_bind_null( pStatement, iCol ) );
-			}
-			inline eCODE BindText( Statement * pStatement, int iCol, const char * szValue, int iSizeInBytes, DestructorType pfnDestructor )
-			{
-				return eCODE( sqlite3_bind_text( pStatement, iCol, szValue, iSizeInBytes, pfnDestructor ) );
-			}
-			inline eCODE BindText16( Statement * pStatement, int iCol, const void * wszValue, int iSizeInBytes, DestructorType pfnDestructor )
-			{
-				return eCODE( sqlite3_bind_text16( pStatement, iCol, wszValue, iSizeInBytes, pfnDestructor ) );
-			}
-			inline eCODE BindValue( Statement * pStatement, int iCol, const Value & pValue )
-			{
-				return eCODE( sqlite3_bind_value( pStatement, iCol, pValue ) );
-			}
-			inline eCODE BindZeroblob( Statement * pStatement, int iCol, int iSizeInBytes )
-			{
-				return eCODE( sqlite3_bind_zeroblob( pStatement, iCol, iSizeInBytes ) );
-			}
-			inline int BindParameterCount( Statement * pStatement )
-			{
-				return sqlite3_bind_parameter_count( pStatement );
-			}
-
-			inline eCODE Errcode( Database * pDb )
-			{
-				return eCODE( sqlite3_errcode( pDb ) );
-			}
-			inline eEXTENDED_CODE ExtendedErrcode( Database * pDb )
-			{
-				return eEXTENDED_CODE( sqlite3_extended_errcode( pDb ) );
-			}
-			inline char const * Errmsg( Database * pDb )
-			{
-				return sqlite3_errmsg( pDb );
-			}
-			inline void const * Errmsg16( Database * pDb )
-			{
-				return sqlite3_errmsg16( pDb );
-			}
-
-			inline eCODE Open( char const * szFilename, Database ** ppDb )
-			{
-				return eCODE( sqlite3_open( szFilename, ppDb ) );
-			}
-			inline eCODE Open16( void const * wszfilename, Database ** ppDb )
-			{
-				return eCODE( sqlite3_open16( wszfilename, ppDb ) );
-			}
-			inline eCODE OpenV2( char const * szFilename, Database ** ppDb, int iFlags, char const * szVfs )
-			{
-				return eCODE( sqlite3_open_v2( szFilename, ppDb, iFlags, szVfs ) );
-			}
-			inline eCODE Close( Database * pDb )
-			{
-				return eCODE( sqlite3_close( pDb ) );
-			}
-			inline eCODE DbStatus( Database * pDb, int op, int * pCur, int * pHiwtr, int resetFlg )
-			{
-				return eCODE( sqlite3_db_status( pDb, op, pCur, pHiwtr, resetFlg ) );
-			}
-
-			inline eCODE Prepare( Database * pDb, char const * szSql, int iByte, Statement ** ppStmt, char const ** pszTail )
-			{
-				return eCODE( sqlite3_prepare( pDb, szSql, iByte, ppStmt, pszTail ) );
-			}
-			inline eCODE PrepareV2( Database * pDb, char const * szSql, int iByte, Statement ** ppStmt, char const ** pszTail )
-			{
-				return eCODE( sqlite3_prepare_v2( pDb, szSql, iByte, ppStmt, pszTail ) );
-			}
-			inline eCODE Prepare16( Database * pDb, char const * szSql, int iByte, Statement ** ppStmt, void const ** pszTail )
-			{
-				return eCODE( sqlite3_prepare16( pDb, szSql, iByte, ppStmt, pszTail ) );
-			}
-			inline eCODE Prepare16V2( Database * pDb, char const * szSql, int iByte, Statement ** ppStmt, void const ** pszTail )
-			{
-				return eCODE( sqlite3_prepare16_v2( pDb, szSql, iByte, ppStmt, pszTail ) );
-			}
+			static const sqlite3_destructor_type NULL_DESTRUCTOR = 0;
 		}
 
-		DatabaseFieldInfosPtrArray SqliteGetColumns( SQLite::Statement * statement, DatabaseConnectionPtr connection );
-		DatabaseResultPtr SqliteExecute( SQLite::Statement * statement, SQLite::eCODE & code, DatabaseFieldInfosPtrArray const & columns, DatabaseConnectionPtr connection );
+		DatabaseFieldInfosPtrArray SqliteGetColumns( sqlite3_stmt * statement, DatabaseConnectionPtr connection );
+		DatabaseResultPtr SqliteExecute( sqlite3_stmt * statement, int & code, DatabaseFieldInfosPtrArray const & columns, DatabaseConnectionPtr connection );
 
-		void SQLiteTry( SQLite::eCODE code, TChar const * msg, EDatabaseExceptionCodes exc, SQLite::Database * database );
-		void SQLiteTry( SQLite::eCODE code, std::ostream const & stream, EDatabaseExceptionCodes exc, SQLite::Database * database );
+		void SQLiteTry( int code, TChar const * msg, EDatabaseExceptionCodes exc, sqlite3 * database );
+		void SQLiteTry( int code, std::ostream const & stream, EDatabaseExceptionCodes exc, sqlite3 * database );
 
 		/** Base binding uupdater class
 		*/
@@ -412,7 +178,7 @@ BEGIN_NAMESPACE_DATABASE
 			@param index
 				The parameter index
 			*/
-			SSqliteBindingBase( SQLite::Statement * statement, SQLite::Database * connection, uint16_t index )
+			SSqliteBindingBase( sqlite3_stmt * statement, sqlite3 * connection, uint16_t index )
 				: _statement( statement )
 				, _connection( connection )
 				, _index( index )
@@ -430,9 +196,9 @@ BEGIN_NAMESPACE_DATABASE
 			virtual void UpdateValue() = 0;
 
 			//! The statement
-			SQLite::Statement * _statement;
+			sqlite3_stmt * _statement;
 			//! The database connection
-			SQLite::Database * _connection;
+			sqlite3 * _connection;
 			// The parameter index
 			uint16_t _index;
 		};

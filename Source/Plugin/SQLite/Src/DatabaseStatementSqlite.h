@@ -119,7 +119,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		void DoPostExecute( EErrorType * result );
 
 		//! Prepared statement.
-		SQLite::Statement * _statement;
+		sqlite3_stmt * _statement;
 		//! Database connection.
 		DatabaseConnectionSqlitePtr _connectionSqlite;
 		//! Tokenized string (delimiter is "?").

@@ -47,15 +47,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 	void CDatabaseStatementParameterSqlite::SetNull()
 	{
-		if ( _statement )
-		{
-			SQLite::BindNull( _statement, GetIndex() );
-		}
-
 		CDatabaseParameter::SetNull();
+		_binding->UpdateValue();
 	}
 
-	void CDatabaseStatementParameterSqlite::SetStatement( SQLite::Statement * statement )
+	void CDatabaseStatementParameterSqlite::SetStatement( sqlite3_stmt * statement )
 	{
 		_statement = statement;
 

@@ -421,7 +421,14 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				for ( auto & value : blob )
 				{
-					value = rand() % 256;
+					char c = char( 32 + ( rand() % 95 ) );
+
+					if ( c == '\\' )
+					{
+						c = '/';
+					}
+
+					value = c;
 				};
 
 				return blob;
@@ -713,7 +720,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		};
 
 		template< class Stmt, EFieldType FieldType >
-		inline void InsertAndRetrieve( DatabaseConnectionPtr connection, const String & name, typename Helpers< FieldType >::ParamType * valueIn, bool equal )
+		inline void InsertAndRetrieve( DatabaseConnectionPtr connection, const String & name, typename Helpers< FieldType >::ParamType * valueIn, bool equal, String const & is )
 		{
 			try
 			{
@@ -726,7 +733,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				}
 				else
 				{
-					stmtSelect = CreateStmt< Stmt >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE " ) + name + STR( " IS ?" ) );
+					stmtSelect = CreateStmt< Stmt >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE " ) + name + STR( " " ) + is + STR( " ?" ) );
 				}
 
 				BOOST_CHECK( stmtInsert );
@@ -799,7 +806,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< class Stmt, EFieldType FieldType >
-		inline void InsertAndRetrieveOtherIndex( DatabaseConnectionPtr connection, const String & name, typename Helpers< FieldType >::ParamType * valueIn, bool equal )
+		inline void InsertAndRetrieveOtherIndex( DatabaseConnectionPtr connection, const String & name, typename Helpers< FieldType >::ParamType * valueIn, bool equal, String const & is )
 		{
 			try
 			{
@@ -812,7 +819,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				}
 				else
 				{
-					stmtSelect = CreateStmt< Stmt >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE IntField = ? AND " ) + name + STR( " IS ?" ) );
+					stmtSelect = CreateStmt< Stmt >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE IntField = ? AND " ) + name + STR( " " ) + is + STR( " ?" ) );
 				}
 
 				BOOST_CHECK( stmtInsert );
@@ -888,7 +895,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< class Stmt, EFieldType FieldType >
-		inline void InsertAndRetrieveFast( DatabaseConnectionPtr connection, const String & name, typename Helpers< FieldType >::ParamType * valueIn, bool equal )
+		inline void InsertAndRetrieveFast( DatabaseConnectionPtr connection, const String & name, typename Helpers< FieldType >::ParamType * valueIn, bool equal, String const & is )
 		{
 			try
 			{
@@ -901,7 +908,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				}
 				else
 				{
-					stmtSelect = CreateStmt< Stmt >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE " ) + name + STR( " IS ?" ) );
+					stmtSelect = CreateStmt< Stmt >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE " ) + name + STR( " " ) + is + STR( " ?" ) );
 				}
 
 				BOOST_CHECK( stmtInsert );
@@ -972,7 +979,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< class Stmt, EFieldType FieldType >
-		inline void InsertAndRetrieveFastOtherIndex( DatabaseConnectionPtr connection, const String & name, typename Helpers< FieldType >::ParamType * valueIn, bool equal )
+		inline void InsertAndRetrieveFastOtherIndex( DatabaseConnectionPtr connection, const String & name, typename Helpers< FieldType >::ParamType * valueIn, bool equal, String const & is )
 		{
 			try
 			{
@@ -985,7 +992,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				}
 				else
 				{
-					stmtSelect = CreateStmt< Stmt >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE IntField = ? AND " ) + name + STR( " IS ?" ) );
+					stmtSelect = CreateStmt< Stmt >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE IntField = ? AND " ) + name + STR( " " ) + is + STR( " ?" ) );
 				}
 
 				BOOST_CHECK( stmtInsert );
@@ -1006,8 +1013,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 					if ( valueIn )
 					{
-						BOOST_CHECK_NO_THROW( stmtInsert->SetParameterValue( 1, *valueIn ) );
-						BOOST_CHECK_NO_THROW( stmtSelect->SetParameterValue( 1, *valueIn ) );
+						BOOST_CHECK_NO_THROW( stmtInsert->SetParameterValueFast( 1, *valueIn ) );
+						BOOST_CHECK_NO_THROW( stmtSelect->SetParameterValueFast( 1, *valueIn ) );
 					}
 					else
 					{

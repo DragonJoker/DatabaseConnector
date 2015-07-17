@@ -307,7 +307,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			The connection handle.
 		*/
-		DatabaseSqliteExport SQLite::Database * GetConnection() const;
+		DatabaseSqliteExport sqlite3 * GetConnection() const;
 
 		/** Retrieves the statement date type size
 		@return
@@ -333,7 +333,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			The result
 		*/
-		bool ExecuteUpdate( SQLite::Statement * statement );
+		bool ExecuteUpdate( sqlite3_stmt * statement );
 
 		/** Executes a statement and retrieves the result set if needed
 		@param statement
@@ -341,7 +341,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			The result
 		*/
-		DatabaseResultPtr ExecuteSelect( SQLite::Statement * statement );
+		DatabaseResultPtr ExecuteSelect( sqlite3_stmt * statement );
 
 	protected:
 		/** Connect to the database.
@@ -398,7 +398,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 	protected:
 		//! The connection
-		SQLite::Database * _connection;
+		sqlite3 * _connection;
 	};
 }
 END_NAMESPACE_DATABASE_SQLITE

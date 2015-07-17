@@ -19,6 +19,7 @@
 BEGIN_NAMESPACE_DATABASE
 {
 	static const double GREGORIAN_MEAN_YEAR = 365.2425;
+	static int MonthMaxDays[12] = { 31, 28, 31, 30, 31 , 30 , 31 , 31 , 30 , 31 , 30 , 31 };
 
 	/** Check if parameter number is a leap year.
 	@param year
@@ -83,6 +84,22 @@ BEGIN_NAMESPACE_DATABASE
 		Format to use.
 	*/
 	DatabaseExport void Formalize( std::wstring & formattedString, int maxSize, const wchar_t * format, ... );
+
+	/** Retrieves count characters from the given string buffer and converts them to an integer
+	@remarks
+		The buffer is then offseted of count characters
+	@param[in, out] in
+		The buffer
+	@param[in] count
+		The number of characters to retrieve
+	*/
+	template< typename CharType >
+	int stoi( CharType const *& in, size_t count )
+	{
+		int result = std::stoi( std::basic_string< CharType >( in, in + count ) );
+		in += count;
+		return result;
+	}
 }
 END_NAMESPACE_DATABASE
 
