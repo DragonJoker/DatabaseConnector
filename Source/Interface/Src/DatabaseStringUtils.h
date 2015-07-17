@@ -440,7 +440,7 @@ BEGIN_NAMESPACE_DATABASE
 		The stream.
 	*/
 	DatabaseExport std::ostream & operator <<( std::ostream & stream, wchar_t const * string );
-	
+
 	namespace
 	{
 		/** Helper structure used to cast a string for one char type to another char type
@@ -501,7 +501,7 @@ BEGIN_NAMESPACE_DATABASE
 	@return
 		The output string
 	*/
-	template< typename CharOut, typename CharIn > 
+	template< typename CharOut, typename CharIn >
 	inline std::basic_string< CharOut > StringCast( const std::basic_string< CharIn > & in )
 	{
 		return StringCast< CharOut >( in.c_str() );

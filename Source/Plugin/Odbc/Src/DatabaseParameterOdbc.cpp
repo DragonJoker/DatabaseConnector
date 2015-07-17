@@ -130,7 +130,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	EErrorType COutOdbcBindBase::Initialize()
 	{
 		EErrorType errorType = EErrorType_NONE;
-		SqlTry( SQLDescribeParam( _statement, _index, &_dataType, &_columnSize, &_decimalDigits, &_nullable ), SQL_HANDLE_STMT, _statement, INFO_ODBC_DescribeParam );
+		OdbcCheck( SQLDescribeParam( _statement, _index, &_dataType, &_columnSize, &_decimalDigits, &_nullable ), SQL_HANDLE_STMT, _statement, INFO_ODBC_DescribeParam );
 		return errorType;
 	}
 
@@ -143,14 +143,14 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 		while ( remaining > batch && errorType == EErrorType_NONE )
 		{
-			SqlTry( SQLPutData( _statement, buffer, batch ), SQL_HANDLE_STMT, _statement, INFO_ODBC_PutData );
+			OdbcCheck( SQLPutData( _statement, buffer, batch ), SQL_HANDLE_STMT, _statement, INFO_ODBC_PutData );
 			buffer += batch;
 			remaining -= batch;
 		}
 
 		if ( errorType == EErrorType_NONE && remaining > 0 )
 		{
-			SqlTry( SQLPutData( _statement, buffer, remaining ), SQL_HANDLE_STMT, _statement, INFO_ODBC_PutData );
+			OdbcCheck( SQLPutData( _statement, buffer, remaining ), SQL_HANDLE_STMT, _statement, INFO_ODBC_PutData );
 		}
 
 		return errorType;
@@ -166,14 +166,14 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 		while ( remaining > batch && errorType == EErrorType_NONE )
 		{
-			SqlTry( SQLGetData( _statement, _index, _valueType, buffer, batch, &retrieved ), SQL_HANDLE_STMT, _statement, INFO_ODBC_GetData );
+			OdbcCheck( SQLGetData( _statement, _index, _valueType, buffer, batch, &retrieved ), SQL_HANDLE_STMT, _statement, INFO_ODBC_GetData );
 			buffer += batch;
 			remaining -= batch;
 		}
 
 		if ( errorType == EErrorType_NONE && remaining > 0 )
 		{
-			SqlTry( SQLGetData( _statement, _index, _valueType, buffer, remaining, &retrieved ), SQL_HANDLE_STMT, _statement, INFO_ODBC_GetData );
+			OdbcCheck( SQLGetData( _statement, _index, _valueType, buffer, remaining, &retrieved ), SQL_HANDLE_STMT, _statement, INFO_ODBC_GetData );
 		}
 
 		return errorType;

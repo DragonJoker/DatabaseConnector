@@ -47,6 +47,12 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		*/
 		DatabaseMySqlExport virtual ~CDatabaseConnectionMySql();
 
+		/** Retrieves the precision for given field type.
+		@return
+			The precision.
+		*/
+		DatabaseMySqlExport virtual uint32_t GetPrecision( EFieldType type ) const;
+
 		/** Initialize a named transaction.
 		@param[in] name
 			Transaction name.

@@ -5,26 +5,27 @@ set( DBI_VERSION_MINOR	1 )
 set( DBI_VERSION_BUILD	0 )
 
 set( BinsDependencies
-    ${BinsDependencies}
-    ${PROJECT_NAME}
+	${BinsDependencies}
+	${PROJECT_NAME}
 )
 
 include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
 
 add_target(
-    ${PROJECT_NAME}
-    api_dll
-    ""
-    "${MinLibraries}"
-    "DatabasePch.h"
-    "DatabasePch.cpp"
-    ""	""	""
+	${PROJECT_NAME}
+	api_dll
+	""
+	"${MinLibraries}"
+	"DatabasePch.h"
+	"DatabasePch.cpp"
+	""	""	""
 )
 
 if ( WIN32 )
 	include( InstallRequiredSystemLibraries )
+	target_link_libraries( ${PROJECT_NAME} Dbghelp )
 else ()
-  target_link_libraries( ${PROJECT_NAME} dl )
+	target_link_libraries( ${PROJECT_NAME} dl )
 endif ()
 
 copy_dll( ${PROJECT_NAME} "${Boost_DATE_TIME_LIBRARY_DEBUG}" Debug )

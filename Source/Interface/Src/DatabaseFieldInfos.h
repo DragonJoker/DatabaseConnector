@@ -49,18 +49,6 @@ BEGIN_NAMESPACE_DATABASE
 			*/
 		DatabaseExport CDatabaseFieldInfos( DatabaseConnectionPtr connection, const String & name, EFieldType type, std::pair< uint32_t, uint32_t > _precision );
 
-		/** Constructor.
-		@param[in] connection
-			Database connection.
-		@param[in] name
-			Field name.
-		@param[in] type
-			Field type as string
-		@param[in] limprec
-			Field limits or precision (depends on field type)
-		*/
-		DatabaseExport CDatabaseFieldInfos( DatabaseConnectionPtr connection, const String & name, const String & type, uint32_t limprec = -1 );
-
 		/** Destructor.
 		*/
 		DatabaseExport virtual ~CDatabaseFieldInfos();

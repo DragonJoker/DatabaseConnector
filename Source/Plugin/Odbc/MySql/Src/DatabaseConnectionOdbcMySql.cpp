@@ -254,6 +254,24 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MYSQL
 		DoDisconnect();
 	}
 
+	uint32_t CDatabaseConnectionOdbcMySql::GetPrecision( EFieldType type ) const
+	{
+		uint32_t result = 0;
+
+		switch ( type )
+		{
+		case EFieldType_FLOAT32:
+			result = 6;
+			break;
+
+		case EFieldType_FLOAT64:
+			result = 17;
+			break;
+		}
+
+		return result;
+	}
+
 	void CDatabaseConnectionOdbcMySql::CreateDatabase( const String & database )
 	{
 		if ( !IsConnected() )

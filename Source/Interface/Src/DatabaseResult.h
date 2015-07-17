@@ -43,26 +43,6 @@ BEGIN_NAMESPACE_DATABASE
 			*/
 		DatabaseExport virtual ~CDatabaseResult();
 
-		/** Add a field which information are known.
-		@param[in] name
-			Field name.
-		@param[in] type
-			Field type.
-		@param[in] limits
-			Field limits.
-		*/
-		DatabaseExport void AddField( const String & name, EFieldType type, uint32_t limits = 0 );
-
-		/** Add a field which information are unknown.
-		@param[in] name
-			Field name.
-		@param[in] type
-			Field type.
-		@param[in] length
-			Field length.
-		*/
-		DatabaseExport void AddField( const String & name, const String & type, int length = -1 );
-
 		/** Get number of fields in result.
 			*/
 		DatabaseExport uint32_t GetFieldCount() const;

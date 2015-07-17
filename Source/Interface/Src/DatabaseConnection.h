@@ -283,6 +283,12 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport String WriteStmtDateTime( const CDateTime & dateTime ) const;
 
+		/** Retrieves the precision for given field type.
+		@return
+			The precision.
+		*/
+		DatabaseExport virtual uint32_t GetPrecision( EFieldType type ) const = 0;
+
 		/** Initialize a named transaction.
 		@param[in] name
 			Transaction name.

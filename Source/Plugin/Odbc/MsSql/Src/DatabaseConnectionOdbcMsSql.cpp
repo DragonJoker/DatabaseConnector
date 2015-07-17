@@ -47,6 +47,24 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		DoDisconnect();
 	}
 
+	uint32_t CDatabaseConnectionOdbcMsSql::GetPrecision( EFieldType type ) const
+	{
+		uint32_t result = 0;
+
+		switch ( type )
+		{
+		case EFieldType_FLOAT32:
+			result = 6;
+			break;
+
+		case EFieldType_FLOAT64:
+			result = 17;
+			break;
+		}
+
+		return result;
+	}
+
 	void CDatabaseConnectionOdbcMsSql::CreateDatabase( const String & database )
 	{
 		if ( !IsConnected() )

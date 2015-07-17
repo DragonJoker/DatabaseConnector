@@ -16,6 +16,7 @@
 
 #include "DatabaseMySqlPrerequisites.h"
 
+#include "DatabaseMySqlHelper.h"
 #include "DatabaseStatementParameterMySql.h"
 
 #include <DatabaseStringUtils.h>
@@ -287,7 +288,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		*/
 		void DoUpdateUnlimited()
 		{
-			MySqlSendLongData( _value, _bind, _statement, _connection );
+			MySqlSendLongData( _value, _bind.param_number, _statement, _connection );
 		}
 
 		//! The parameter value
@@ -359,7 +360,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		*/
 		void DoUpdateUnlimited( const std::string & str )
 		{
-			MySqlSendLongData( _value, _bind, _statement, _connection );
+			MySqlSendLongData( _value, _bind.param_number, _statement, _connection );
 		}
 
 		CDatabaseValueBase & _value;

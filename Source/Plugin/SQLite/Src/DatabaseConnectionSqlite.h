@@ -45,6 +45,12 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		*/
 		DatabaseSqliteExport virtual ~CDatabaseConnectionSqlite();
 
+		/** Retrieves the precision for given field type.
+		@return
+			The precision.
+		*/
+		DatabaseSqliteExport virtual uint32_t GetPrecision( EFieldType type ) const;
+
 		/** Initialize a named transaction.
 		@param[in] name
 			Transaction name.

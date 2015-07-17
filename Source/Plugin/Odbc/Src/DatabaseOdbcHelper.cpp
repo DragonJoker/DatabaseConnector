@@ -94,7 +94,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			virtual EErrorType Initialise( HSTMT stmt, SQLUSMALLINT index, SQLHDESC desc )
 			{
 				EErrorType errorType = EErrorType_NONE;
-				SqlTry( SQLBindCol( stmt, index, _targetType, _targetValuePtr, _bufferLength, &( _strLenOrInd ) ), SQL_HANDLE_STMT, stmt, INFO_ODBC_BindCol );
+				OdbcCheck( SQLBindCol( stmt, index, _targetType, _targetValuePtr, _bufferLength, &( _strLenOrInd ) ), SQL_HANDLE_STMT, stmt, INFO_ODBC_BindCol );
 				return errorType;
 			}
 
@@ -341,9 +341,9 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				SQLLEN precision = _precision;
 				SQLLEN scale = _scale;
 
-				SqlTry( SQLSetDescField( desc, index, SQL_DESC_TYPE, SQLPOINTER( SQL_C_NUMERIC ), 0 ), SQL_HANDLE_DESC, desc, INFO_ODBC_SetDescField + ODBC_OPTION_DESC_TYPE );
-				SqlTry( SQLSetDescField( desc, index, SQL_DESC_PRECISION, SQLPOINTER( precision ), 0 ), SQL_HANDLE_DESC, desc, INFO_ODBC_SetDescField + ODBC_OPTION_DESC_PRECISION );
-				SqlTry( SQLSetDescField( desc, index, SQL_DESC_SCALE, SQLPOINTER( scale ), 0 ), SQL_HANDLE_DESC, desc, INFO_ODBC_SetDescField + ODBC_OPTION_DESC_SCALE );
+				OdbcCheck( SQLSetDescField( desc, index, SQL_DESC_TYPE, SQLPOINTER( SQL_C_NUMERIC ), 0 ), SQL_HANDLE_DESC, desc, INFO_ODBC_SetDescField + ODBC_OPTION_DESC_TYPE );
+				OdbcCheck( SQLSetDescField( desc, index, SQL_DESC_PRECISION, SQLPOINTER( precision ), 0 ), SQL_HANDLE_DESC, desc, INFO_ODBC_SetDescField + ODBC_OPTION_DESC_PRECISION );
+				OdbcCheck( SQLSetDescField( desc, index, SQL_DESC_SCALE, SQLPOINTER( scale ), 0 ), SQL_HANDLE_DESC, desc, INFO_ODBC_SetDescField + ODBC_OPTION_DESC_SCALE );
 				return errorType;
 			}
 
@@ -356,7 +356,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			{
 				SQLLEN length = sizeof( _value );
 				EErrorType errorType = EErrorType_NONE;
-				SqlTry( SQLGetData( _statement, _index, SQL_ARD_TYPE, &_value, 19, &length ), SQL_HANDLE_STMT, _statement, INFO_ODBC_BindCol );
+				OdbcCheck( SQLGetData( _statement, _index, SQL_ARD_TYPE, &_value, 19, &length ), SQL_HANDLE_STMT, _statement, INFO_ODBC_BindCol );
 				return CFixedPoint( *( uint64_t * )( _value.val ), _value.scale );
 			}
 		};
@@ -424,6 +424,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				{
 					result = std::make_unique< CInOdbcBind< double > >( SQL_C_DOUBLE );
 				}
+
 				break;
 
 			case SQL_DOUBLE:
@@ -444,6 +445,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				{
 					result = std::make_unique< CInOdbcBind< int32_t > >( SQL_C_SLONG );
 				}
+
 				break;
 
 			case SQL_SMALLINT:
@@ -570,6 +572,192 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			return result;
 		}
 
+		std::pair< int, int > RetrieveLimits( String const & type )
+		{
+			std::pair< int, int > result( -1, -1 );
+			size_t index = type.find( STR( "(" ) );
+
+			if ( index != String::npos )
+			{
+				size_t dotIndex = type.find( STR( "," ), index );
+
+				if ( dotIndex == String::npos )
+				{
+					String limit = type.substr( index + 1, type.find( STR( ")" ) ) - index );
+					result.first = CStrUtils::ToInt( CStrUtils::Trim( limit ) );
+				}
+				else
+				{
+					String limit1 = type.substr( index + 1, dotIndex - index );
+					result.first = CStrUtils::ToInt( CStrUtils::Trim( limit1 ) );
+					String limit2 = type.substr( dotIndex + 1, type.find( STR( ")" ) ) - dotIndex );
+					result.second = CStrUtils::ToInt( CStrUtils::Trim( limit2 ) );
+				}
+			}
+
+			return result;
+		}
+
+		EFieldType GetFieldTypeFromTypeName( const String & type, std::pair< uint32_t, uint32_t > & limprec )
+		{
+			String strTypel = CStrUtils::UpperCase( type );
+			size_t index;
+			EFieldType result;
+
+			if ( strTypel.find( STR( "BIGINT" ) ) != String::npos
+					|| strTypel == STR( "MAX" )
+					|| strTypel == STR( "COUNT" )
+					|| strTypel == STR( "MIN" ) )
+			{
+				result = EFieldType_INT64;
+			}
+			else if ( strTypel.find( STR( "SMALLINT" ) ) != String::npos )
+			{
+				result = EFieldType_INT16;
+			}
+			else if ( strTypel.find( STR( "BOOL" ) ) != String::npos
+					  || strTypel.find( STR( "BIT" ) ) != String::npos )
+			{
+				result = EFieldType_BIT;
+			}
+			else if ( strTypel.find( STR( "TINYINT" ) ) != String::npos )
+			{
+				result = EFieldType_INT8;
+			}
+			else if ( ( index = strTypel.find( STR( "MEDIUMINT" ) ) ) != String::npos )
+			{
+				result = EFieldType_INT24;
+			}
+			else if ( ( index = strTypel.find( STR( "INT" ) ) ) != String::npos )
+			{
+				if ( index != std::string::npos && strTypel.size() > 3 )
+				{
+					int prec = 0;
+					std::stringstream stream( strTypel.substr( index + 3 ) );
+					stream >> prec;
+
+					if ( prec )
+					{
+						if ( prec == 1 )
+						{
+							result = EFieldType_INT8;
+						}
+						else if ( prec == 2 )
+						{
+							result = EFieldType_INT16;
+						}
+						else if ( prec <= 3 )
+						{
+							result = EFieldType_INT24;
+						}
+						else if ( prec <= 4 )
+						{
+							result = EFieldType_INT32;
+						}
+						else
+						{
+							result = EFieldType_INT64;
+						}
+					}
+					else
+					{
+						result = EFieldType_INT32;
+					}
+				}
+				else
+				{
+					result = EFieldType_INT32;
+				}
+			}
+			else if ( strTypel.find( STR( "NCHAR" ) ) != String::npos
+					  || strTypel.find( STR( "NVARCHAR" ) ) != String::npos )
+			{
+				result = EFieldType_NVARCHAR;
+
+				if ( limprec.first == -1 )
+				{
+					limprec = RetrieveLimits( strTypel );
+				}
+			}
+			else if ( strTypel.find( STR( "CHAR" ) ) != String::npos )
+			{
+				result = EFieldType_VARCHAR;
+
+				if ( limprec.first == -1 )
+				{
+					limprec = RetrieveLimits( strTypel );
+				}
+			}
+			else if ( strTypel.find( STR( "NTEXT" ) ) != String::npos )
+			{
+				result = EFieldType_NTEXT;
+				limprec.first = -1;
+			}
+			else if ( strTypel.find( STR( "CLOB" ) ) != String::npos
+					  || strTypel.find( STR( "TEXT" ) ) != String::npos )
+			{
+				result = EFieldType_TEXT;
+				limprec.first = -1;
+			}
+			else if ( strTypel.find( STR( "FLOA" ) ) != String::npos
+					  || strTypel == STR( "SUM" ) )
+			{
+				result = EFieldType_FLOAT32;
+			}
+			else if ( strTypel.find( STR( "REAL" ) ) != String::npos
+					  || strTypel.find( STR( "DOUB" ) ) != String::npos )
+			{
+				result = EFieldType_FLOAT64;
+			}
+			else if ( strTypel.find( STR( "DECIMAL" ) ) != String::npos
+					  || strTypel.find( STR( "NUMERIC" ) ) != String::npos )
+			{
+				result = EFieldType_FIXED_POINT;
+
+				if ( limprec.first == -1 )
+				{
+					limprec = RetrieveLimits( strTypel );
+				}
+			}
+			else if ( strTypel == STR( "DATETIME" ) )
+			{
+				result = EFieldType_DATETIME;
+			}
+			else if ( strTypel == STR( "DATE" ) )
+			{
+				result = EFieldType_DATE;
+			}
+			else if ( strTypel == STR( "TIME" ) )
+			{
+				result = EFieldType_TIME;
+			}
+			else if ( strTypel.find( STR( "BLOB" ) ) != String::npos )
+			{
+				result = EFieldType_LONG_VARBINARY;
+				limprec.first = -1;
+			}
+			else if ( strTypel.find( STR( "VARBINARY" ) ) != String::npos )
+			{
+				result = EFieldType_VARBINARY;
+
+				if ( limprec.first == -1 )
+				{
+					limprec = RetrieveLimits( strTypel );
+				}
+			}
+			else if ( strTypel.find( STR( "BINARY" ) ) != String::npos )
+			{
+				result = EFieldType_BINARY;
+
+				if ( limprec.first == -1 )
+				{
+					limprec = RetrieveLimits( strTypel );
+				}
+			}
+
+			return result;
+		}
+
 		DatabaseFieldInfosPtrArray InitializeColumns( SQLSMALLINT columnCount, DatabaseConnectionPtr connection, std::vector< std::unique_ptr< CInOdbcBindBase > > & columns, SQLHSTMT stmt )
 		{
 			static const SQLSMALLINT BUFFER_SIZE = 255;
@@ -585,56 +773,57 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				std::unique_ptr< CInOdbcBindBase > bind;
 
 				// Retrieve the column name
-				SqlTry( SQLColAttribute( stmt, i, SQL_DESC_LABEL, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_LABEL );
+				OdbcCheck( SQLColAttribute( stmt, i, SQL_DESC_LABEL, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_LABEL );
 				String name = CStrUtils::ToString( buffer );
 
 				// Its length
 				std::memset( buffer, 0, BUFFER_SIZE );
 				stringLength = 0;
 				numericAttribute = 0;
-				SqlTry( SQLColAttribute( stmt, i, SQL_DESC_LENGTH, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_LENGTH );
+				OdbcCheck( SQLColAttribute( stmt, i, SQL_DESC_LENGTH, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_LENGTH );
 				uint32_t limits = uint32_t( numericAttribute );
 
 				// Its precision (numeric types)
 				std::memset( buffer, 0, BUFFER_SIZE );
 				stringLength = 0;
 				numericAttribute = 0;
-				SqlTry( SQLColAttribute( stmt, i, SQL_DESC_PRECISION, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_PRECISION );
+				OdbcCheck( SQLColAttribute( stmt, i, SQL_DESC_PRECISION, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_PRECISION );
 				uint32_t precision = uint32_t( numericAttribute );
 
 				// Its scale (numeric types)
 				std::memset( buffer, 0, BUFFER_SIZE );
 				stringLength = 0;
 				numericAttribute = 0;
-				SqlTry( SQLColAttribute( stmt, i, SQL_DESC_SCALE, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_SCALE );
+				OdbcCheck( SQLColAttribute( stmt, i, SQL_DESC_SCALE, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_SCALE );
 				uint32_t scale = uint32_t( numericAttribute );
 
 				// Its SQL type
 				std::memset( buffer, 0, BUFFER_SIZE );
 				stringLength = 0;
 				numericAttribute = 0;
-				SqlTry( SQLColAttribute( stmt, i, SQL_DESC_TYPE, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_TYPE );
+				OdbcCheck( SQLColAttribute( stmt, i, SQL_DESC_TYPE, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_TYPE );
 				SQLINTEGER type = uint32_t( numericAttribute );
 
 				// Its concise type
 				std::memset( buffer, 0, BUFFER_SIZE );
 				stringLength = 0;
 				numericAttribute = 0;
-				SqlTry( SQLColAttribute( stmt, i, SQL_DESC_CONCISE_TYPE, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_CONCISE_TYPE );
+				OdbcCheck( SQLColAttribute( stmt, i, SQL_DESC_CONCISE_TYPE, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_CONCISE_TYPE );
 				SQLINTEGER conciseType = SQLINTEGER( numericAttribute );
-				
+
 				// Its type name
 				std::memset( buffer, 0, BUFFER_SIZE );
 				stringLength = 0;
 				numericAttribute = 0;
-				SqlTry( SQLColAttribute( stmt, i, SQL_DESC_TYPE_NAME, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_TYPE_NAME );
+				OdbcCheck( SQLColAttribute( stmt, i, SQL_DESC_TYPE_NAME, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_TYPE_NAME );
 				String typeName = CStrUtils::ToString( buffer );
 
 				if ( conciseType == SQL_NTS || conciseType == SQL_TINYINT || conciseType == SQL_CHAR || conciseType == SQL_VARCHAR )
 				{
 					if ( errorType == EErrorType_NONE )
 					{
-						infos = std::make_shared< CDatabaseFieldInfos >( connection, name, typeName );
+						std::pair< uint32_t, uint32_t > limprec( limits, precision );
+						infos = std::make_shared< CDatabaseFieldInfos >( connection, name, GetFieldTypeFromTypeName( typeName, limprec ), limprec );
 						bind = GetBindFromFieldType( infos->GetType(), limits, precision, scale );
 					}
 				}
@@ -741,26 +930,26 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			EErrorType errorType = EErrorType_NONE;
 			SQLRETURN res;
 			SQLLEN rowCount = 0;
-			SqlTry( SQLRowCount( statementHandle, &rowCount ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_RowCount );
+			OdbcCheck( SQLRowCount( statementHandle, &rowCount ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_RowCount );
 
 			if ( errorType == EErrorType_NONE && rowCount )
 			{
 				try
 				{
 					SQLHDESC descriptor = NULL;
-					SqlTry( SQLGetStmtAttr( statementHandle, SQL_ATTR_APP_ROW_DESC, &descriptor, 0, NULL ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_GetStmtAttr );
+					OdbcCheck( SQLGetStmtAttr( statementHandle, SQL_ATTR_APP_ROW_DESC, &descriptor, 0, NULL ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_GetStmtAttr );
 					SQLUSMALLINT index = 1;
 
 					for ( auto && binding : bindings )
 					{
 						binding->Initialise( statementHandle, index++, descriptor );
 					}
-				
+
 					res = SQLFetch( statementHandle );
 
 					if ( res != SQL_NO_DATA && res != SQL_SUCCESS )
 					{
-						SqlTry( res, SQL_HANDLE_STMT, statementHandle, INFO_ODBC_Fetch );
+						OdbcCheck( res, SQL_HANDLE_STMT, statementHandle, INFO_ODBC_Fetch );
 					}
 					else if ( res == SQL_NO_DATA )
 					{
@@ -804,12 +993,12 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 						if ( res != SQL_NO_DATA && res != SQL_SUCCESS )
 						{
-							SqlTry( res, SQL_HANDLE_STMT, statementHandle, INFO_ODBC_Fetch );
+							OdbcCheck( res, SQL_HANDLE_STMT, statementHandle, INFO_ODBC_Fetch );
 						}
 					}
 
 					// free memory from the binding
-					SqlTry( SQLFreeStmt( statementHandle, SQL_UNBIND ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_FreeStmt );
+					OdbcCheck( SQLFreeStmt( statementHandle, SQL_UNBIND ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_FreeStmt );
 				}
 				catch ( const std::exception & e )
 				{
@@ -961,6 +1150,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			{
 				fieldType = EFieldType_FLOAT64;
 			}
+
 			break;
 
 		case SQL_DOUBLE:
@@ -981,6 +1171,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			{
 				fieldType = EFieldType_INT32;
 			}
+
 			break;
 
 		case SQL_SMALLINT:
@@ -1051,7 +1242,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		do
 		{
 			SQLSMALLINT numColumns;
-			SqlTry( SQLNumResultCols( statementHandle, &numColumns ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_NumResultCols );
+			OdbcCheck( SQLNumResultCols( statementHandle, &numColumns ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_NumResultCols );
 
 			if ( numColumns )
 			{
@@ -1062,7 +1253,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			}
 
 			res = SQLMoreResults( statementHandle );
-			SqlTry( res, SQL_HANDLE_STMT, statementHandle, INFO_ODBC_MoreResults );
+			OdbcCheck( res, SQL_HANDLE_STMT, statementHandle, INFO_ODBC_MoreResults );
 
 			if ( res != SQL_NO_DATA && errorType == EErrorType_NONE )
 			{
@@ -1072,10 +1263,10 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			{
 				onFullyfetched( statementHandle, res );
 				EErrorType errorType = EErrorType_NONE;
-				SqlTry( SQLCloseCursor( statementHandle ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_CloseCursor );
-				SqlTry( SQLFreeStmt( statementHandle, SQL_CLOSE ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_FreeStmt + STR( " (Close)" ) );
-				SqlTry( SQLFreeStmt( statementHandle, SQL_UNBIND ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_FreeStmt + STR( " (Unbind)" ) );
-				SqlTry( SQLFreeStmt( statementHandle, SQL_RESET_PARAMS ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_FreeStmt + STR( " (ResetParams)" ) );
+				OdbcCheck( SQLCloseCursor( statementHandle ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_CloseCursor );
+				OdbcCheck( SQLFreeStmt( statementHandle, SQL_CLOSE ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_FreeStmt + STR( " (Close)" ) );
+				OdbcCheck( SQLFreeStmt( statementHandle, SQL_UNBIND ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_FreeStmt + STR( " (Unbind)" ) );
+				OdbcCheck( SQLFreeStmt( statementHandle, SQL_RESET_PARAMS ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_FreeStmt + STR( " (ResetParams)" ) );
 			}
 		}
 

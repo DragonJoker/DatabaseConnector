@@ -16,7 +16,9 @@
 #include "DatabaseConnectionSqlite.h"
 
 #include "DatabaseStatementSqlite.h"
+#include "DatabaseQuerySqlite.h"
 #include "ExceptionDatabaseSqlite.h"
+#include "DatabaseSqliteHelper.h"
 
 #include <DatabaseQuery.h>
 #include <DatabaseDate.h>
@@ -96,6 +98,24 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 	CDatabaseConnectionSqlite::~CDatabaseConnectionSqlite()
 	{
 		DoDisconnect();
+	}
+
+	uint32_t CDatabaseConnectionSqlite::GetPrecision( EFieldType type ) const
+	{
+		uint32_t result = 0;
+
+		switch ( type )
+		{
+		case EFieldType_FLOAT32:
+			result = 7;
+			break;
+
+		case EFieldType_FLOAT64:
+			result = 15;
+			break;
+		}
+
+		return result;
 	}
 
 	EErrorType CDatabaseConnectionSqlite::BeginTransaction( const String & name )
@@ -232,7 +252,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			sqlite3_close( _connection );
 		}
 
-		SQLiteTry( sqlite3_open( CStrUtils::ToStr( _server + PATH_SEP + database ).c_str(), &_connection ), StringStream() << ERROR_SQLITE_SELECTION, EDatabaseExceptionCodes_ConnectionError, _connection );
+		SQLiteCheck( sqlite3_open( CStrUtils::ToStr( _server + PATH_SEP + database ).c_str(), &_connection ), StringStream() << ERROR_SQLITE_SELECTION, EDatabaseExceptionCodes_ConnectionError, _connection );
 		_database = database;
 	}
 
@@ -642,10 +662,10 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 		try
 		{
-			int code = SQLite::eCODE_ERROR;
-			DatabaseConnectionPtr connection = shared_from_this();
+			int code = SQLITE_ERROR;
+			DatabaseConnectionSqlitePtr connection = std::static_pointer_cast< CDatabaseConnectionSqlite >( shared_from_this() );
 			DatabaseFieldInfosPtrArray columns = SqliteGetColumns( statement, connection );
-			result = SqliteExecute( statement, code, columns, connection );
+			result = SqliteFetchResult( statement, code, columns, connection );
 		}
 		catch ( CExceptionDatabase & exc )
 		{
@@ -686,13 +706,13 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		try
 		{
 			sqlite3_stmt * statement = NULL;
-			SQLite::eCODE code = SQLite::eCODE( sqlite3_prepare_v2( _connection, CStrUtils::ToStr( query ).c_str(), int( query.size() ), &statement, NULL ) );
+			int code = sqlite3_prepare_v2( _connection, CStrUtils::ToStr( query ).c_str(), int( query.size() ), &statement, NULL );
 
-			while ( code == SQLite::eCODE_BUSY || code == SQLite::eCODE_LOCKED )
+			while ( code == SQLITE_BUSY || code == SQLITE_LOCKED )
 			{
 				// Tant qu'on n'a pas réussi à compiler la requête parce que la BDD est lockée ou occupée, on retente le coup
 				std::this_thread::sleep_for( std::chrono::milliseconds( 10 ) );
-				code = SQLite::eCODE( sqlite3_prepare_v2( _connection, CStrUtils::ToStr( query ).c_str(), int( query.size() ), &statement, NULL ) );
+				code = sqlite3_prepare_v2( _connection, CStrUtils::ToStr( query ).c_str(), int( query.size() ), &statement, NULL );
 			}
 
 			if ( !statement )
@@ -704,7 +724,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			else
 			{
 				ret = ExecuteUpdate( statement );
-				SQLiteTry( sqlite3_finalize( statement ), INFO_SQLITE_STATEMENT_FINALISATION, EDatabaseExceptionCodes_ConnectionError, _connection );
+				SQLiteCheck( sqlite3_finalize( statement ), INFO_SQLITE_STATEMENT_FINALISATION, EDatabaseExceptionCodes_ConnectionError, _connection );
 			}
 		}
 		catch ( CExceptionDatabase & exc )
@@ -735,13 +755,13 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		try
 		{
 			sqlite3_stmt * statement = NULL;
-			SQLite::eCODE code = SQLite::eCODE( sqlite3_prepare_v2( _connection, CStrUtils::ToStr( query ).c_str(), int( query.size() ), &statement, NULL ) );
+			int code = sqlite3_prepare_v2( _connection, CStrUtils::ToStr( query ).c_str(), int( query.size() ), &statement, NULL );
 
-			while ( code == SQLite::eCODE_BUSY || code == SQLite::eCODE_LOCKED )
+			while ( code == SQLITE_BUSY || code == SQLITE_LOCKED )
 			{
 				// Tant qu'on n'a pas réussi à compiler la requête parce que la BDD est lockée ou occupée, on retente le coup
 				std::this_thread::sleep_for( std::chrono::milliseconds( 10 ) );
-				code = SQLite::eCODE( sqlite3_prepare_v2( _connection, CStrUtils::ToStr( query ).c_str(), int( query.size() ), &statement, NULL ) );
+				code = sqlite3_prepare_v2( _connection, CStrUtils::ToStr( query ).c_str(), int( query.size() ), &statement, NULL );
 			}
 
 			if ( !statement )
@@ -753,7 +773,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			else
 			{
 				ret = ExecuteSelect( statement );
-				SQLiteTry( sqlite3_finalize( statement ), INFO_SQLITE_STATEMENT_FINALISATION, EDatabaseExceptionCodes_ConnectionError, _connection );
+				SQLiteCheck( sqlite3_finalize( statement ), INFO_SQLITE_STATEMENT_FINALISATION, EDatabaseExceptionCodes_ConnectionError, _connection );
 			}
 		}
 		catch ( CExceptionDatabase & exc )

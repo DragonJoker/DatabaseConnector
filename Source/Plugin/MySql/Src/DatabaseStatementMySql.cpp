@@ -157,7 +157,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		}
 
 		std::string strQuery = CStrUtils::ToStr( _query );
-		MySQLTry( mysql_stmt_prepare( _statement, strQuery.c_str(), uint32_t( strQuery.size() ) ), INFO_MYSQL_STATEMENT_PREPARATION, EDatabaseExceptionCodes_StatementError, _connectionMySql->GetConnection() );
+		MySQLCheck( mysql_stmt_prepare( _statement, strQuery.c_str(), uint32_t( strQuery.size() ) ), INFO_MYSQL_STATEMENT_PREPARATION, EDatabaseExceptionCodes_StatementError, _connectionMySql->GetConnection() );
 		size_t index = 0;
 
 		for ( auto && it : _arrayInParams )
@@ -166,7 +166,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			it->SetBinding( &_bindings[index++] );
 		}
 
-		MySQLTry( mysql_stmt_bind_param( _statement, _bindings.data() ), INFO_MYSQL_STATEMENT_PARAMS_BINDING, EDatabaseExceptionCodes_StatementError, _connectionMySql->GetConnection() );
+		MySQLCheck( mysql_stmt_bind_param( _statement, _bindings.data() ), INFO_MYSQL_STATEMENT_PARAMS_BINDING, EDatabaseExceptionCodes_StatementError, _connectionMySql->GetConnection() );
 		return eReturn;
 	}
 
@@ -306,7 +306,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			}
 		}
 
-		MySQLTry( mysql_stmt_reset( _statement ), INFO_MYSQL_STATEMENT_RESET, EDatabaseExceptionCodes_StatementError, _connectionMySql->GetConnection() );
+		MySQLCheck( mysql_stmt_reset( _statement ), INFO_MYSQL_STATEMENT_RESET, EDatabaseExceptionCodes_StatementError, _connectionMySql->GetConnection() );
 	}
 }
 END_NAMESPACE_DATABASE_MYSQL

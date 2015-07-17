@@ -16,7 +16,7 @@
 #include "DatabaseStatementParameterMySql.h"
 
 #include "DatabaseConnectionMySql.h"
-#include "DatabaseStatementParameterSetter.h"
+#include "DatabaseMySqlParameterBinding.h"
 
 #include <DatabaseException.h>
 #include <DatabaseLogger.h>

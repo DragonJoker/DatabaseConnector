@@ -17,6 +17,7 @@
 #include "DatabaseSqlitePrerequisites.h"
 
 #include "DatabaseStatementParameterSqlite.h"
+#include "DatabaseSqliteHelper.h"
 
 #include <DatabaseStringUtils.h>
 #include <DatabaseLogger.h>
@@ -88,11 +89,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 			if ( _value.IsNull() )
 			{
-				SQLiteTry( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
+				SQLiteCheck( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
 			}
 			else
 			{
-				SQLiteTry( sqlite3_bind_int( _statement, _index, _value.GetValue() ? 1 : 0 ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+				SQLiteCheck( sqlite3_bind_int( _statement, _index, _value.GetValue() ? 1 : 0 ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
 			}
 		}
 
@@ -127,11 +128,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 			if ( _value.IsNull() )
 			{
-				SQLiteTry( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
+				SQLiteCheck( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
 			}
 			else
 			{
-				SQLiteTry( sqlite3_bind_int( _statement, _index, _value.GetValue() ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << int16_t( _value.GetValue() ), EDatabaseExceptionCodes_StatementError, _connection );
+				SQLiteCheck( sqlite3_bind_int( _statement, _index, _value.GetValue() ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << int16_t( _value.GetValue() ), EDatabaseExceptionCodes_StatementError, _connection );
 			}
 		}
 
@@ -166,11 +167,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 			if ( _value.IsNull() )
 			{
-				SQLiteTry( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
+				SQLiteCheck( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
 			}
 			else
 			{
-				SQLiteTry( sqlite3_bind_int( _statement, _index, _value.GetValue() ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+				SQLiteCheck( sqlite3_bind_int( _statement, _index, _value.GetValue() ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
 			}
 		}
 
@@ -205,11 +206,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 			if ( _value.IsNull() )
 			{
-				SQLiteTry( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
+				SQLiteCheck( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
 			}
 			else
 			{
-				SQLiteTry( sqlite3_bind_int( _statement, _index, int32_t( _value.GetValue() ) ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << int32_t( _value.GetValue() ), EDatabaseExceptionCodes_StatementError, _connection );
+				SQLiteCheck( sqlite3_bind_int( _statement, _index, int32_t( _value.GetValue() ) ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << int32_t( _value.GetValue() ), EDatabaseExceptionCodes_StatementError, _connection );
 			}
 		}
 
@@ -244,11 +245,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 			if ( _value.IsNull() )
 			{
-				SQLiteTry( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
+				SQLiteCheck( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
 			}
 			else
 			{
-				SQLiteTry( sqlite3_bind_int( _statement, _index, _value.GetValue() ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+				SQLiteCheck( sqlite3_bind_int( _statement, _index, _value.GetValue() ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
 			}
 		}
 
@@ -283,11 +284,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 			if ( _value.IsNull() )
 			{
-				SQLiteTry( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
+				SQLiteCheck( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
 			}
 			else
 			{
-				SQLiteTry( sqlite3_bind_int64( _statement, _index, _value.GetValue() ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+				SQLiteCheck( sqlite3_bind_int64( _statement, _index, _value.GetValue() ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
 			}
 		}
 
@@ -322,11 +323,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 			if ( _value.IsNull() )
 			{
-				SQLiteTry( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
+				SQLiteCheck( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
 			}
 			else
 			{
-				SQLiteTry( sqlite3_bind_double( _statement, _index, _value.GetValue() ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+				SQLiteCheck( sqlite3_bind_double( _statement, _index, _value.GetValue() ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
 			}
 		}
 
@@ -361,11 +362,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 			if ( _value.IsNull() )
 			{
-				SQLiteTry( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
+				SQLiteCheck( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
 			}
 			else
 			{
-				SQLiteTry( sqlite3_bind_double( _statement, _index, _value.GetValue() ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+				SQLiteCheck( sqlite3_bind_double( _statement, _index, _value.GetValue() ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
 			}
 		}
 
@@ -400,11 +401,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 			if ( _value.IsNull() )
 			{
-				SQLiteTry( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
+				SQLiteCheck( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
 			}
 			else
 			{
-				SQLiteTry( sqlite3_bind_double( _statement, _index, _value.GetValue().ToDouble() ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue().ToString(), EDatabaseExceptionCodes_StatementError, _connection );
+				SQLiteCheck( sqlite3_bind_double( _statement, _index, _value.GetValue().ToDouble() ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue().ToString(), EDatabaseExceptionCodes_StatementError, _connection );
 			}
 		}
 
@@ -439,11 +440,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 			if ( _value.IsNull() )
 			{
-				SQLiteTry( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
+				SQLiteCheck( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
 			}
 			else
 			{
-				SQLiteTry( sqlite3_bind_text64( _statement, _index, ( const char * )_value.GetPtrValue(), _value.GetPtrSize(), SQLITE_STATIC, SQLite::eENCODING_UTF8 ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << STR( "[" ) <<  _value.GetValue() << STR( "]" ), EDatabaseExceptionCodes_StatementError, _connection );
+				SQLiteCheck( sqlite3_bind_text64( _statement, _index, ( const char * )_value.GetPtrValue(), _value.GetPtrSize(), SQLITE_STATIC, SQLITE_UTF8 ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << STR( "[" ) <<  _value.GetValue() << STR( "]" ), EDatabaseExceptionCodes_StatementError, _connection );
 			}
 		}
 
@@ -478,11 +479,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 			if ( _value.IsNull() )
 			{
-				SQLiteTry( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
+				SQLiteCheck( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
 			}
 			else
 			{
-				SQLiteTry( sqlite3_bind_text64( _statement, _index, ( const char * )_value.GetPtrValue(), _value.GetPtrSize(), SQLITE_STATIC, SQLite::eENCODING_UTF8 ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << STR( "[" ) <<  _value.GetValue() << STR( "]" ), EDatabaseExceptionCodes_StatementError, _connection );
+				SQLiteCheck( sqlite3_bind_text64( _statement, _index, ( const char * )_value.GetPtrValue(), _value.GetPtrSize(), SQLITE_STATIC, SQLITE_UTF8 ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << STR( "[" ) <<  _value.GetValue() << STR( "]" ), EDatabaseExceptionCodes_StatementError, _connection );
 			}
 		}
 
@@ -517,11 +518,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 			if ( _value.IsNull() )
 			{
-				SQLiteTry( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
+				SQLiteCheck( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
 			}
 			else
 			{
-				SQLiteTry( sqlite3_bind_text16( _statement, _index, _value.GetPtrValue(), _value.GetPtrSize(), SQLITE_STATIC ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetPtrValue(), EDatabaseExceptionCodes_StatementError, _connection );
+				SQLiteCheck( sqlite3_bind_text16( _statement, _index, _value.GetPtrValue(), _value.GetPtrSize(), SQLITE_STATIC ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetPtrValue(), EDatabaseExceptionCodes_StatementError, _connection );
 			}
 		}
 
@@ -556,11 +557,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 			if ( _value.IsNull() )
 			{
-				SQLiteTry( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
+				SQLiteCheck( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
 			}
 			else
 			{
-				SQLiteTry( sqlite3_bind_text16( _statement, _index, _value.GetPtrValue(), _value.GetPtrSize(), SQLITE_STATIC ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetPtrValue(), EDatabaseExceptionCodes_StatementError, _connection );
+				SQLiteCheck( sqlite3_bind_text16( _statement, _index, _value.GetPtrValue(), _value.GetPtrSize(), SQLITE_STATIC ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetPtrValue(), EDatabaseExceptionCodes_StatementError, _connection );
 			}
 		}
 
@@ -595,11 +596,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 			if ( _value.IsNull() )
 			{
-				SQLiteTry( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
+				SQLiteCheck( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
 			}
 			else
 			{
-				SQLiteTry( sqlite3_bind_text( _statement, _index, ( const char * )_value.GetPtrValue(), _value.GetPtrSize(), SQLITE_STATIC ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+				SQLiteCheck( sqlite3_bind_text( _statement, _index, ( const char * )_value.GetPtrValue(), _value.GetPtrSize(), SQLITE_STATIC ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
 			}
 		}
 
@@ -634,11 +635,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 			if ( _value.IsNull() )
 			{
-				SQLiteTry( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
+				SQLiteCheck( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
 			}
 			else
 			{
-				SQLiteTry( sqlite3_bind_text( _statement, _index, ( const char * )_value.GetPtrValue(), _value.GetPtrSize(), SQLITE_STATIC ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+				SQLiteCheck( sqlite3_bind_text( _statement, _index, ( const char * )_value.GetPtrValue(), _value.GetPtrSize(), SQLITE_STATIC ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
 			}
 		}
 
@@ -673,11 +674,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 			if ( _value.IsNull() )
 			{
-				SQLiteTry( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
+				SQLiteCheck( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
 			}
 			else
 			{
-				SQLiteTry( sqlite3_bind_text( _statement, _index, ( const char * )_value.GetPtrValue(), _value.GetPtrSize(), SQLITE_STATIC ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+				SQLiteCheck( sqlite3_bind_text( _statement, _index, ( const char * )_value.GetPtrValue(), _value.GetPtrSize(), SQLITE_STATIC ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
 			}
 		}
 
@@ -712,11 +713,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 			if ( _value.IsNull() )
 			{
-				SQLiteTry( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
+				SQLiteCheck( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
 			}
 			else
 			{
-				SQLiteTry( sqlite3_bind_blob( _statement, _index, _value.GetPtrValue(), _value.GetPtrSize(), SQLITE_STATIC ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetPtrValue(), EDatabaseExceptionCodes_StatementError, _connection );
+				SQLiteCheck( sqlite3_bind_blob( _statement, _index, _value.GetPtrValue(), _value.GetPtrSize(), SQLITE_STATIC ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetPtrValue(), EDatabaseExceptionCodes_StatementError, _connection );
 			}
 		}
 
@@ -751,11 +752,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 			if ( _value.IsNull() )
 			{
-				SQLiteTry( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
+				SQLiteCheck( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
 			}
 			else
 			{
-				SQLiteTry( sqlite3_bind_blob( _statement, _index, _value.GetPtrValue(), _value.GetPtrSize(), SQLITE_STATIC ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetPtrValue(), EDatabaseExceptionCodes_StatementError, _connection );
+				SQLiteCheck( sqlite3_bind_blob( _statement, _index, _value.GetPtrValue(), _value.GetPtrSize(), SQLITE_STATIC ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetPtrValue(), EDatabaseExceptionCodes_StatementError, _connection );
 			}
 		}
 
@@ -790,11 +791,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 			if ( _value.IsNull() )
 			{
-				SQLiteTry( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
+				SQLiteCheck( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
 			}
 			else
 			{
-				SQLiteTry( sqlite3_bind_blob( _statement, _index, _value.GetPtrValue(), _value.GetPtrSize(), SQLITE_STATIC ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetPtrValue(), EDatabaseExceptionCodes_StatementError, _connection );
+				SQLiteCheck( sqlite3_bind_blob( _statement, _index, _value.GetPtrValue(), _value.GetPtrSize(), SQLITE_STATIC ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetPtrValue(), EDatabaseExceptionCodes_StatementError, _connection );
 			}
 		}
 

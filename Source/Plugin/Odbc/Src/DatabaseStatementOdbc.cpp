@@ -66,20 +66,20 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 		if ( errorType == EErrorType_NONE )
 		{
-			SqlTry( SQLSetStmtAttr( _statementHandle, SQL_SOPT_SS_DEFER_PREPARE, SQL_DP_OFF, SQL_IS_UINTEGER ), SQL_HANDLE_STMT, _statementHandle, INFO_ODBC_SetStmtAttr );
+			OdbcCheck( SQLSetStmtAttr( _statementHandle, SQL_SOPT_SS_DEFER_PREPARE, SQL_DP_OFF, SQL_IS_UINTEGER ), SQL_HANDLE_STMT, _statementHandle, INFO_ODBC_SetStmtAttr );
 		}
 
 #endif
 
 		if ( errorType == EErrorType_NONE )
 		{
-			SqlTry( SQLPrepareA( _statementHandle, ( SqlChar * )_query.c_str(), SQLINTEGER( _query.size() ) ), SQL_HANDLE_STMT, _statementHandle, INFO_ODBC_Prepare );
+			OdbcCheck( SQLPrepareA( _statementHandle, ( SqlChar * )_query.c_str(), SQLINTEGER( _query.size() ) ), SQL_HANDLE_STMT, _statementHandle, INFO_ODBC_Prepare );
 		}
 
 		if ( errorType == EErrorType_NONE )
 		{
 			SQLSMALLINT count = 0;
-			SqlTry( SQLNumParams( _statementHandle, &count ), SQL_HANDLE_STMT, _statementHandle, INFO_ODBC_NumParams );
+			OdbcCheck( SQLNumParams( _statementHandle, &count ), SQL_HANDLE_STMT, _statementHandle, INFO_ODBC_NumParams );
 			CLogger::LogDebug( DEBUG_ODBC_EXPECTED_PARAMETERS + CStrUtils::ToString( count ) );
 		}
 

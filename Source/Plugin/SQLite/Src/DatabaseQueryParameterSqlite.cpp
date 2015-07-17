@@ -1,19 +1,19 @@
 /************************************************************************//**
-* @file DatabaseStatementParameterSqlite.cpp
+* @file DatabaseQueryParameterSqlite.cpp
 * @author Sylvain Doremus
 * @version 1.0
 * @date 3/20/2014 2:47:39 PM
 *
 *
-* @brief CDatabaseStatementParameterSqlite class declaration.
+* @brief CDatabaseQueryParameterSqlite class declaration.
 *
-* @details Describes a statement parameter for SQLITE database.
+* @details Describes a query parameter for SQLITE database.
 *
 ***************************************************************************/
 
 #include "DatabaseSqlitePch.h"
 
-#include "DatabaseStatementParameterSqlite.h"
+#include "DatabaseQueryParameterSqlite.h"
 
 #include "DatabaseConnectionSqlite.h"
 #include "DatabaseSqliteParameterBinding.h"
@@ -26,32 +26,32 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 {
 	static const String ERROR_SQLITE_PARAMETER_TYPE = STR( "Undefined parameter type when trying to set its binding." );
 
-	CDatabaseStatementParameterSqlite::CDatabaseStatementParameterSqlite( DatabaseConnectionSqlitePtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
+	CDatabaseQueryParameterSqlite::CDatabaseQueryParameterSqlite( DatabaseConnectionSqlitePtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
 		: CDatabaseParameter( connection, name, index, fieldType, parameterType, std::move( updater ) )
 		, CDatabaseParameterSqlite( fieldType )
 		, _statement( NULL )
 	{
 	}
 
-	CDatabaseStatementParameterSqlite::CDatabaseStatementParameterSqlite( DatabaseConnectionSqlitePtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
+	CDatabaseQueryParameterSqlite::CDatabaseQueryParameterSqlite( DatabaseConnectionSqlitePtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
 		: CDatabaseParameter( connection, name, index, fieldType, limits, parameterType, std::move( updater ) )
 		, CDatabaseParameterSqlite( fieldType )
 		, _statement( NULL )
 	{
 	}
 
-	CDatabaseStatementParameterSqlite::~CDatabaseStatementParameterSqlite()
+	CDatabaseQueryParameterSqlite::~CDatabaseQueryParameterSqlite()
 	{
 		_statement = NULL;
 	}
 
-	void CDatabaseStatementParameterSqlite::SetNull()
+	void CDatabaseQueryParameterSqlite::SetNull()
 	{
 		CDatabaseParameter::SetNull();
 		_binding->UpdateValue();
 	}
 
-	void CDatabaseStatementParameterSqlite::SetStatement( sqlite3_stmt * statement )
+	void CDatabaseQueryParameterSqlite::SetStatement( sqlite3_stmt * statement )
 	{
 		_statement = statement;
 

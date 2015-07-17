@@ -17,6 +17,7 @@
 
 #include "DatabaseStatementMySql.h"
 #include "ExceptionDatabaseMySql.h"
+#include "DatabaseMySqlHelper.h"
 
 #include <DatabaseQuery.h>
 #include <DatabaseDate.h>
@@ -41,14 +42,10 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 {
 	static const String ERROR_MYSQL_CONNECTION = STR( "Couldn't create the connection" );
 	static const String ERROR_MYSQL_CONNECT = STR( "Couldn't initialise the connection: " );
-	static const String ERROR_MYSQL_EXECUTION_ERROR = STR( "Couldn't execute the query" );
-	static const String ERROR_MYSQL_UNKNOWN_ERROR = STR( "Unknown error" );
+	static const String ERROR_MYSQL_EXECUTION = STR( "Couldn't execute the query" );
 	static const String ERROR_MYSQL_NOT_CONNECTED = STR( "Not connected" );
 	static const String ERROR_MYSQL_ALREADY_IN_TRANSACTION = STR( "Already in a transaction" );
 	static const String ERROR_MYSQL_NOT_IN_TRANSACTION = STR( "Not in a transaction" );
-	static const String ERROR_MYSQL_DRIVER = STR( "MYSQL Driver error : " );
-	static const String ERROR_MYSQL_UNKNOWN = STR( "Unknown error encountered while executing query" );
-	static const String ERROR_MYSQL_STMT_METADATA = STR( "Could not retrieve metadata from the statement" );
 
 	static const String WARNING_MYSQL_UNKNOWN_OPTION = STR( "Unsupported option: " );
 	static const String WARNING_MYSQL_INIT_COMMAND = STR( "MYSQL_INIT_COMMAND" );
@@ -60,25 +57,16 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	static const TChar * INFO_MYSQL_DATABASE_SELECTION = STR( "Database selection" );
 	static const String INFO_MYSQL_EXECUTING_UPDATE = STR( "Executing update: " );
 	static const String INFO_MYSQL_EXECUTING_SELECT = STR( "Executing select: " );
-	static const String INFO_MYSQL_STMT_ATTR_SET = STR( "Setting statement attribute" );
-	static const String INFO_MYSQL_STMT_STORE_RESULT = STR( "Storing statement results" );
-	static const String INFO_MYSQL_STMT_BIND_RESULT = STR( "Binding statement results" );
 
 	static const String DEBUG_MYSQL_CONNECTED = STR( "Connected to database" );
 	static const String DEBUG_MYSQL_CLIENT_VERSION = STR( "Client Version: " );
 	static const String DEBUG_MYSQL_SERVER_HOST = STR( "Server Host: " );
 	static const String DEBUG_MYSQL_SERVER_VERSION = STR( "Server Version: " );
 
-	static const String MYSQL_ATTRIBUTE_UPDATE_MAX_LENGTH = STR( "STMT_ATTR_UPDATE_MAX_LENGTH" );
-
 	static const String MYSQL_SQL_CREATE_DATABASE = STR( "CREATE DATABASE " );
 	static const String MYSQL_SQL_CHARSET = STR( " CHARACTER SET utf8 COLLATE utf8_general_ci" );
 	static const String MYSQL_SQL_USE = STR( "USE " );
 	static const String MYSQL_SQL_DROP_DATABASE = STR( "DROP DATABASE " );
-	static const String MYSQL_SQL_TRANSACTION_BEGIN = STR( "BEGIN TRANSACTION " );
-	static const String MYSQL_SQL_TRANSACTION_COMMIT = STR( "COMMIT TRANSACTION " );
-	static const String MYSQL_SQL_TRANSACTION_ROLLBACK = STR( "ROLLBACK TRANSACTION " );
-	static const String MYSQL_SQL_NULL = STR( "NULL" );
 
 	static const std::string MYSQL_SQL_SNULL = "NULL";
 	static const std::wstring MYSQL_SQL_WNULL = L"NULL";
@@ -107,631 +95,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	// cf. https://dev.mysql.com/doc/refman/5.1/en/c-api-data-structures.html
 	static const int MYSQL_BINARY_CHARSET = 63;
 
-	namespace
-	{
-		struct CInMySqlBindBase
-			: public SMySqlBindBase
-		{
-			unsigned long _length = 0;
-
-			CInMySqlBindBase( MYSQL_BIND & bind )
-				: SMySqlBindBase( bind )
-			{
-				bind.length = &_length;
-			}
-		};
-
-		template< EFieldType FieldType >
-		struct SInMySqlBind
-			: public CInMySqlBindBase
-		{
-			typedef typename SFieldTypeDataTyper< FieldType >::value_type value_type;
-			value_type _value;
-
-			SInMySqlBind( MYSQL_BIND & bind )
-				: CInMySqlBindBase( bind )
-			{
-				bind.buffer = &_value;
-			}
-
-			value_type const & GetValue()const
-			{
-				return _value;
-			}
-		};
-
-		template<>
-		struct SInMySqlBind< EFieldType_BIT >
-			: public CInMySqlBindBase
-		{
-			int8_t _value;
-
-			SInMySqlBind( MYSQL_BIND & bind )
-				: CInMySqlBindBase( bind )
-			{
-				bind.buffer = &_value;
-			}
-
-			bool GetValue()const
-			{
-				return _value != 0;
-			}
-		};
-
-		template<>
-		struct SInMySqlBind< EFieldType_INT24 >
-			: public CInMySqlBindBase
-		{
-			int32_t _value;
-
-			SInMySqlBind( MYSQL_BIND & bind )
-				: CInMySqlBindBase( bind )
-			{
-				bind.buffer = &_value;
-				bind.buffer_length = sizeof( int32_t );
-			}
-
-			int24_t GetValue()const
-			{
-				return int24_t( _value );
-			}
-		};
-
-		template< typename T >
-		struct SBufferInMySqlBind
-			: public CInMySqlBindBase
-		{
-			std::vector< T > _value;
-
-			SBufferInMySqlBind( MYSQL_BIND & bind, uint32_t length )
-				: CInMySqlBindBase( bind )
-				, _value( length )
-			{
-				bind.buffer = _value.data();
-				bind.buffer_length = length;
-			}
-
-			T const * GetValue()const
-			{
-				return _value.data();
-			}
-		};
-
-		template<>
-		struct SInMySqlBind< EFieldType_VARCHAR >
-			: public SBufferInMySqlBind< char >
-		{
-			SInMySqlBind( MYSQL_BIND & bind, uint32_t length )
-				: SBufferInMySqlBind< char >( bind, length + 1 )
-			{
-			}
-		};
-
-		template<>
-		struct SInMySqlBind< EFieldType_TEXT >
-			: public SBufferInMySqlBind< char >
-		{
-			SInMySqlBind( MYSQL_BIND & bind, uint32_t length )
-				: SBufferInMySqlBind< char >( bind, length + 1 )
-			{
-			}
-		};
-
-		template<>
-		struct SInMySqlBind< EFieldType_BINARY >
-			: public SBufferInMySqlBind< uint8_t >
-		{
-			SInMySqlBind( MYSQL_BIND & bind, uint32_t length )
-				: SBufferInMySqlBind< uint8_t >( bind, length )
-			{
-			}
-		};
-
-		template<>
-		struct SInMySqlBind< EFieldType_VARBINARY >
-			: public SBufferInMySqlBind< uint8_t >
-		{
-			SInMySqlBind( MYSQL_BIND & bind, uint32_t length )
-				: SBufferInMySqlBind< uint8_t >( bind, length )
-			{
-			}
-		};
-
-		template<>
-		struct SInMySqlBind< EFieldType_LONG_VARBINARY >
-			: public SBufferInMySqlBind< uint8_t >
-		{
-			SInMySqlBind( MYSQL_BIND & bind, uint32_t length )
-				: SBufferInMySqlBind< uint8_t >( bind, length )
-			{
-			}
-		};
-
-		template<>
-		struct SInMySqlBind< EFieldType_FIXED_POINT >
-			: public CInMySqlBindBase
-		{
-			char _value[8192];
-
-			SInMySqlBind( MYSQL_BIND & bind, uint32_t precision )
-				: CInMySqlBindBase( bind )
-				, _precision( uint8_t( precision ) )
-			{
-				memset( _value, 0, sizeof( _value ) );
-				bind.buffer = _value;
-				bind.buffer_length = sizeof( _value ) / sizeof( *_value );
-			}
-
-			CFixedPoint GetValue()const
-			{
-				return CFixedPoint( _value, _precision );
-			}
-
-			uint8_t _precision;
-		};
-
-		struct STimeInMySqlBind
-			: public CInMySqlBindBase
-		{
-			MYSQL_TIME _value;
-
-			STimeInMySqlBind( MYSQL_BIND & bind )
-				: CInMySqlBindBase( bind )
-			{
-				bind.buffer = &_value;
-				bind.buffer_length = sizeof( _value );
-			}
-
-			MYSQL_TIME GetValue()const
-			{
-				return _value;
-			}
-		};
-
-		template<>
-		struct SInMySqlBind< EFieldType_DATE >
-			: public STimeInMySqlBind
-		{
-			SInMySqlBind( MYSQL_BIND & bind )
-				: STimeInMySqlBind( bind )
-			{
-			}
-		};
-
-		template<>
-		struct SInMySqlBind< EFieldType_DATETIME >
-			: public STimeInMySqlBind
-		{
-			SInMySqlBind( MYSQL_BIND & bind )
-				: STimeInMySqlBind( bind )
-			{
-			}
-		};
-
-		template<>
-		struct SInMySqlBind< EFieldType_TIME >
-			: public STimeInMySqlBind
-		{
-			SInMySqlBind( MYSQL_BIND & bind )
-				: STimeInMySqlBind( bind )
-			{
-			}
-		};
-
-		EFieldType GetFieldType( enum_field_types sqlType, int charset, int length )
-		{
-			EFieldType result = EFieldType_NULL;
-
-			switch ( sqlType )
-			{
-			case MYSQL_TYPE_NULL:
-				result = EFieldType_NULL;
-				break;
-
-			case MYSQL_TYPE_BIT:
-				result = EFieldType_BIT;
-				break;
-
-			case MYSQL_TYPE_TINY:
-				if ( length > 1 )
-				{
-					result = EFieldType_INT8;
-				}
-				else
-				{
-					result = EFieldType_BIT;
-				}
-
-				break;
-
-			case MYSQL_TYPE_SHORT:
-				result = EFieldType_INT16;
-				break;
-
-			case MYSQL_TYPE_INT24:
-				result = EFieldType_INT24;
-				break;
-
-			case MYSQL_TYPE_LONG:
-				result = EFieldType_INT32;
-				break;
-
-			case MYSQL_TYPE_LONGLONG:
-				result = EFieldType_INT64;
-				break;
-
-			case MYSQL_TYPE_FLOAT:
-				result = EFieldType_FLOAT32;
-				break;
-
-			case MYSQL_TYPE_DOUBLE:
-				result = EFieldType_FLOAT64;
-				break;
-
-			case MYSQL_TYPE_NEWDECIMAL:
-				result = EFieldType_FIXED_POINT;
-				break;
-
-			case MYSQL_TYPE_VAR_STRING:
-			case MYSQL_TYPE_STRING:
-				result = EFieldType_VARCHAR;
-				break;
-
-			case MYSQL_TYPE_DATE:
-				result = EFieldType_DATE;
-				break;
-
-			case MYSQL_TYPE_DATETIME:
-				result = EFieldType_DATETIME;
-				break;
-
-			case MYSQL_TYPE_TIME:
-				result = EFieldType_TIME;
-				break;
-
-			case MYSQL_TYPE_BLOB:
-				if ( charset == MYSQL_BINARY_CHARSET )
-				{
-					result = EFieldType_VARBINARY;
-				}
-				else
-				{
-					result = EFieldType_TEXT;
-				}
-
-				break;
-			}
-
-			return result;
-		}
-
-		std::unique_ptr< CInMySqlBindBase > GetInBind( EFieldType type, enum_field_types sqlType, MYSQL_BIND & bind, std::uint32_t precision, uint32_t length )
-		{
-			std::unique_ptr< CInMySqlBindBase > result;
-			bind.buffer_type = sqlType;
-
-			switch ( type )
-			{
-			case EFieldType_BIT:
-				result = std::make_unique< SInMySqlBind< EFieldType_BIT > >( bind );
-				bind.is_unsigned = false;
-				break;
-
-			case EFieldType_INT8:
-				result = std::make_unique< SInMySqlBind< EFieldType_INT8 > >( bind );
-				bind.is_unsigned = false;
-				break;
-
-			case EFieldType_INT16:
-				result = std::make_unique< SInMySqlBind< EFieldType_INT16 > >( bind );
-				bind.is_unsigned = false;
-				break;
-
-			case EFieldType_INT24:
-				result = std::make_unique< SInMySqlBind< EFieldType_INT24 > >( bind );
-				bind.is_unsigned = false;
-				break;
-
-			case EFieldType_INT32:
-				result = std::make_unique< SInMySqlBind< EFieldType_INT32 > >( bind );
-				bind.is_unsigned = false;
-				break;
-
-			case EFieldType_INT64:
-				result = std::make_unique< SInMySqlBind< EFieldType_INT64 > >( bind );
-				bind.is_unsigned = false;
-				break;
-
-			case EFieldType_FLOAT32:
-				result = std::make_unique< SInMySqlBind< EFieldType_FLOAT32 > >( bind );
-				bind.is_unsigned = false;
-				break;
-
-			case EFieldType_FLOAT64:
-				result = std::make_unique< SInMySqlBind< EFieldType_FLOAT64 > >( bind );
-				bind.is_unsigned = false;
-				break;
-
-			case EFieldType_FIXED_POINT:
-				result = std::make_unique< SInMySqlBind< EFieldType_FIXED_POINT > >( bind, precision );
-				bind.is_unsigned = false;
-				break;
-
-			case EFieldType_DATE:
-				result = std::make_unique< SInMySqlBind< EFieldType_DATE > >( bind );
-				bind.is_unsigned = false;
-				break;
-
-			case EFieldType_DATETIME:
-				result = std::make_unique< SInMySqlBind< EFieldType_DATETIME > >( bind );
-				bind.is_unsigned = false;
-				break;
-
-			case EFieldType_TIME:
-				result = std::make_unique< SInMySqlBind< EFieldType_TIME > >( bind );
-				bind.is_unsigned = false;
-				break;
-
-			case EFieldType_VARCHAR:
-				result = std::make_unique< SInMySqlBind< EFieldType_VARCHAR > >( bind, length );
-				bind.is_unsigned = false;
-				break;
-
-			case EFieldType_TEXT:
-				result = std::make_unique< SInMySqlBind< EFieldType_TEXT > >( bind, length );
-				bind.is_unsigned = false;
-				break;
-
-			case EFieldType_BINARY:
-				result = std::make_unique< SInMySqlBind< EFieldType_BINARY > >( bind, length );
-				bind.is_unsigned = false;
-				break;
-
-			case EFieldType_VARBINARY:
-				result = std::make_unique< SInMySqlBind< EFieldType_VARBINARY > >( bind, length );
-				bind.is_unsigned = false;
-				break;
-
-			case EFieldType_LONG_VARBINARY:
-				result = std::make_unique< SInMySqlBind< EFieldType_LONG_VARBINARY > >( bind, length );
-				bind.is_unsigned = false;
-				break;
-			}
-
-			return result;
-		}
-		
-		DatabaseFieldInfosPtrArray GetColumns( MYSQL_STMT * stmt, DatabaseConnectionMySqlPtr pConnexion, std::vector< std::unique_ptr< CInMySqlBindBase > > & inbinds, std::vector< MYSQL_BIND > & binds )
-		{
-			MySQLTry( mysql_stmt_attr_set( stmt, STMT_ATTR_UPDATE_MAX_LENGTH, NULL ), ( INFO_MYSQL_STMT_ATTR_SET + MYSQL_ATTRIBUTE_UPDATE_MAX_LENGTH ).c_str(), EDatabaseExceptionCodes_StatementError, pConnexion->GetConnection() );
-			MySQLTry( mysql_stmt_store_result( stmt ), INFO_MYSQL_STMT_STORE_RESULT.c_str(), EDatabaseExceptionCodes_StatementError, pConnexion->GetConnection() );
-
-			MYSQL_RES * data = mysql_stmt_result_metadata( stmt );
-
-			if ( !data )
-			{
-				CLogger::LogError( ERROR_MYSQL_STMT_METADATA );
-				throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_MYSQL_STMT_METADATA, __FUNCTION__, __FILE__, __LINE__ );
-			}
-
-			DatabaseFieldInfosPtrArray arrayReturn;
-			uint32_t columnCount = mysql_num_fields( data );
-			binds.resize( columnCount, { 0 } );
-
-			for ( auto && bind : binds )
-			{
-				bind = { 0 };
-				MYSQL_FIELD * field = mysql_fetch_field( data );
-				EFieldType type = GetFieldType( field->type, field->charsetnr, field->length );
-				arrayReturn.push_back( std::make_shared< CDatabaseFieldInfos >( pConnexion, CStrUtils::ToString( field->name ), type, field->length ) );
-				inbinds.emplace_back( GetInBind( type, field->type, bind, field->decimals, std::max( field->length, field->max_length ) ) );
-			}
-
-			mysql_free_result( data );
-			return arrayReturn;
-		}
-
-		DatabaseResultPtr Execute( MYSQL_STMT * statement, DatabaseFieldInfosPtrArray const & arrayColumns, DatabaseConnectionMySqlPtr pConnexion, std::vector< std::unique_ptr< CInMySqlBindBase > > const & inbinds, std::vector< MYSQL_BIND > & binds )
-		{
-			DatabaseResultPtr pReturn;
-
-			try
-			{
-				if ( pConnexion->IsConnected() )
-				{
-					pReturn = std::make_unique< CDatabaseResult >( pConnexion, arrayColumns );
-					int iNbColumns = int( arrayColumns.size() );
-					MySQLTry( mysql_stmt_bind_result( statement, binds.data() ), INFO_MYSQL_STMT_BIND_RESULT.c_str(), EDatabaseExceptionCodes_StatementError, pConnexion->GetConnection() );
-					int result = 0;
-
-					while ( ( result = mysql_stmt_fetch( statement ) ) == 0 || result == MYSQL_DATA_TRUNCATED )
-					{
-						DatabaseRowPtr pRow = std::make_shared< CDatabaseRow >( pConnexion );
-						int index = 0;
-
-						for ( auto && bind : inbinds )
-						{
-							DatabaseFieldInfosPtr pInfos;
-
-							try
-							{
-								pInfos = pReturn->GetFieldInfos( index++ );
-							}
-							catch ( CExceptionDatabase & )
-							{
-								throw;
-							}
-
-							DatabaseFieldPtr field = std::make_shared< CDatabaseField >( pInfos );
-
-							if ( !bind->_null )
-							{
-								switch ( pInfos->GetType() )
-								{
-								case EFieldType_BIT:
-									static_cast< CDatabaseValue< EFieldType_BIT > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< EFieldType_BIT > const & >( *bind ).GetValue() != 0 );
-									break;
-
-								case EFieldType_INT8:
-									static_cast< CDatabaseValue< EFieldType_INT8 > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< EFieldType_INT8 > const & >( *bind ).GetValue() );
-									break;
-
-								case EFieldType_INT16:
-									static_cast< CDatabaseValue< EFieldType_INT16 > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< EFieldType_INT16 > const & >( *bind ).GetValue() );
-									break;
-
-								case EFieldType_INT24:
-									static_cast< CDatabaseValue< EFieldType_INT24 > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< EFieldType_INT24 > const & >( *bind ).GetValue() );
-									break;
-
-								case EFieldType_INT32:
-									static_cast< CDatabaseValue< EFieldType_INT32 > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< EFieldType_INT32 > const & >( *bind ).GetValue() );
-									break;
-
-								case EFieldType_INT64:
-									static_cast< CDatabaseValue< EFieldType_INT64 > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< EFieldType_INT64 > const & >( *bind ).GetValue() );
-									break;
-
-								case EFieldType_FLOAT32:
-									static_cast< CDatabaseValue< EFieldType_FLOAT32 > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< EFieldType_FLOAT32 > const & >( *bind ).GetValue() );
-									break;
-
-								case EFieldType_FLOAT64:
-									static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< EFieldType_FLOAT64 > const & >( *bind ).GetValue() );
-									break;
-
-								case EFieldType_FIXED_POINT:
-									static_cast< CDatabaseValue< EFieldType_FIXED_POINT > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< EFieldType_FIXED_POINT > const & >( *bind ).GetValue() );
-									break;
-
-								case EFieldType_VARCHAR:
-								{
-									std::string value = StringFromMySqlString( bind->_bind, result != 0 );
-									static_cast< CDatabaseValue< EFieldType_VARCHAR > & >( field->GetObjectValue() ).SetValue( value.c_str() );
-									break;
-								}
-
-								case EFieldType_TEXT:
-								{
-									std::string value = StringFromMySqlString( bind->_bind, result != 0 );
-									static_cast< CDatabaseValue< EFieldType_TEXT > & >( field->GetObjectValue() ).SetValue( value );
-									break;
-								}
-
-								case EFieldType_NVARCHAR:
-								{
-									std::string value = StringFromMySqlString( bind->_bind, result != 0 );
-									static_cast< CDatabaseValue< EFieldType_NVARCHAR > & >( field->GetObjectValue() ).SetValue( CStrUtils::ToWStr( value ).c_str() );
-									break;
-								}
-
-								case EFieldType_NTEXT:
-								{
-									std::string value = StringFromMySqlString( bind->_bind, result != 0 );
-									static_cast< CDatabaseValue< EFieldType_NTEXT > & >( field->GetObjectValue() ).SetValue( CStrUtils::ToWStr( value ) );
-									break;
-								}
-
-								case EFieldType_DATE:
-									static_cast< CDatabaseValue< EFieldType_DATE > & >( field->GetObjectValue() ).SetValue( CDateFromMySqlTime( static_cast< SInMySqlBind< EFieldType_DATE > const & >( *bind ).GetValue() ) );
-									break;
-
-								case EFieldType_DATETIME:
-									static_cast< CDatabaseValue< EFieldType_DATETIME > & >( field->GetObjectValue() ).SetValue( CDateTimeFromMySqlTime( static_cast< SInMySqlBind< EFieldType_DATETIME > const & >( *bind ).GetValue() ) );
-									break;
-
-								case EFieldType_TIME:
-									static_cast< CDatabaseValue< EFieldType_TIME > & >( field->GetObjectValue() ).SetValue( CTimeFromMySqlTime( static_cast< SInMySqlBind< EFieldType_TIME > const & >( *bind ).GetValue() ) );
-									break;
-
-								case EFieldType_BINARY:
-								{
-									auto value = static_cast< SInMySqlBind< EFieldType_VARBINARY > const & >( *bind ).GetValue();
-									static_cast< CDatabaseValue< EFieldType_BINARY > & >( field->GetObjectValue() ).SetValue( ByteArray( value, value + bind->_length ) );
-									break;
-								}
-
-								case EFieldType_VARBINARY:
-								{
-									auto value = static_cast< SInMySqlBind< EFieldType_VARBINARY > const & >( *bind ).GetValue();
-									static_cast< CDatabaseValue< EFieldType_VARBINARY > & >( field->GetObjectValue() ).SetValue( ByteArray( value, value + bind->_length ) );
-									break;
-								}
-
-								case EFieldType_LONG_VARBINARY:
-								{
-									auto value = static_cast< SInMySqlBind< EFieldType_VARBINARY > const & >( *bind ).GetValue();
-									static_cast< CDatabaseValue< EFieldType_LONG_VARBINARY > & >( field->GetObjectValue() ).SetValue( ByteArray( value, value + bind->_length ) );
-									break;
-								}
-
-								default:
-									break;
-								}
-							}
-
-							pRow->AddField( field );
-						}
-
-						pReturn->AddRow( pRow );
-					}
-
-					if ( statement )
-					{
-						///@remarks Consume the result set
-						while ( !mysql_stmt_fetch( statement ) );
-					}
-
-					///@remarks Flush the statement
-					//try
-					//{
-					//	bool hasResult = false;
-
-					//	while ( hasResult = statement->getMoreResults() )
-					//	{
-					//		rs.reset( statement->getResultSet() );
-					//		CLogger::LogDebug( "Success : Result set retrieval" );
-					//	}
-					//}
-					//catch ( sql::SQLException & e )
-					//{
-					//	StringStream stream;
-					//	stream << "Failure : " << "Get more results" << std::endl;
-					//	stream << "    MySQL Error code : " << e.getErrorCode() << std::endl;
-					//	stream << "    SQL State : " << e.getSQLState().c_str() << std::endl;
-					//	stream << "    Why : " << e.what() << std::endl;
-					//	CLogger::LogDebug( stream.str() );
-					//}
-				}
-			}
-			catch ( const CExceptionDatabase & e )
-			{
-				StringStream message;
-				message << ERROR_MYSQL_DRIVER << STR( " - " )
-						<< e.what();
-				CLogger::LogError( message );
-				throw CExceptionDatabaseMySql( EDatabaseMySqlExceptionCodes_GenericError, message.str(), __FUNCTION__, __FILE__, __LINE__ );
-			}
-			catch ( const std::exception & e )
-			{
-				StringStream message;
-				message << ERROR_MYSQL_DRIVER << STR( " - " )
-						<< e.what();
-				CLogger::LogError( message );
-				throw CExceptionDatabaseMySql( EDatabaseMySqlExceptionCodes_GenericError, message.str(), __FUNCTION__, __FILE__, __LINE__ );
-			}
-			catch ( ... )
-			{
-				StringStream message;
-				message << ERROR_MYSQL_DRIVER << STR( " - " )
-						<< ERROR_MYSQL_UNKNOWN;
-				CLogger::LogError( message );
-				throw CExceptionDatabaseMySql( EDatabaseMySqlExceptionCodes_UnknownError, message.str(), __FUNCTION__, __FILE__, __LINE__ );
-			}
-
-			return pReturn;
-		}
-	}
 
 	CDatabaseConnectionMySql::CDatabaseConnectionMySql( const String & server, const String & userName, const String & password, String & connectionString )
 		: CDatabaseConnection( server, userName, password )
@@ -744,6 +107,24 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	CDatabaseConnectionMySql::~CDatabaseConnectionMySql()
 	{
 		DoDisconnect();
+	}
+
+	uint32_t CDatabaseConnectionMySql::GetPrecision( EFieldType type ) const
+	{
+		uint32_t result = 0;
+
+		switch ( type )
+		{
+		case EFieldType_FLOAT32:
+			result = 6;
+			break;
+
+		case EFieldType_FLOAT64:
+			result = 17;
+			break;
+		}
+
+		return result;
 	}
 
 	EErrorType CDatabaseConnectionMySql::BeginTransaction( const String & name )
@@ -1222,20 +603,20 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 		try
 		{
-			MySQLTry( mysql_stmt_execute( statement ), INFO_MYSQL_STATEMENT_EXECUTION, EDatabaseExceptionCodes_StatementError, _connection );
+			MySQLCheck( mysql_stmt_execute( statement ), INFO_MYSQL_STATEMENT_EXECUTION, EDatabaseExceptionCodes_StatementError, _connection );
 			uint64_t affected = mysql_stmt_affected_rows( statement );
 			result = true;
 		}
 		catch ( CExceptionDatabase & exc )
 		{
 			StringStream stream;
-			stream << ERROR_MYSQL_EXECUTION_ERROR << STR( " - " ) << exc.GetFullDescription();
+			stream << ERROR_MYSQL_EXECUTION << STR( " - " ) << exc.GetFullDescription();
 			CLogger::LogError( stream );
 		}
 		catch ( std::exception & exc )
 		{
 			StringStream stream;
-			stream << ERROR_MYSQL_EXECUTION_ERROR << STR( " - " ) << exc.what();
+			stream << ERROR_MYSQL_EXECUTION << STR( " - " ) << exc.what();
 			CLogger::LogError( stream );
 		}
 
@@ -1249,19 +630,19 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		try
 		{
 			bool hasResults = false;
-			MySQLTry( mysql_stmt_execute( statement ), INFO_MYSQL_STATEMENT_EXECUTION, EDatabaseExceptionCodes_StatementError, _connection );
+			MySQLCheck( mysql_stmt_execute( statement ), INFO_MYSQL_STATEMENT_EXECUTION, EDatabaseExceptionCodes_StatementError, _connection );
 			result = DoRetrieveResults( statement );
 		}
 		catch ( CExceptionDatabase & exc )
 		{
 			StringStream stream;
-			stream << ERROR_MYSQL_EXECUTION_ERROR << STR( " - " ) << exc.GetFullDescription();
+			stream << ERROR_MYSQL_EXECUTION << STR( " - " ) << exc.GetFullDescription();
 			CLogger::LogError( stream );
 		}
 		catch ( std::exception & exc )
 		{
 			StringStream stream;
-			stream << ERROR_MYSQL_EXECUTION_ERROR << STR( " - " ) << exc.what();
+			stream << ERROR_MYSQL_EXECUTION << STR( " - " ) << exc.what();
 			CLogger::LogError( stream );
 		}
 
@@ -1290,7 +671,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		if ( _connection )
 		{
 			std::string query = CStrUtils::ToStr( MYSQL_SQL_USE + database );
-			MySQLTry( mysql_real_query( _connection, query.c_str(), uint32_t( query.size() ) ), INFO_MYSQL_DATABASE_SELECTION, EDatabaseExceptionCodes_ConnectionError, _connection );
+			MySQLCheck( mysql_real_query( _connection, query.c_str(), uint32_t( query.size() ) ), INFO_MYSQL_DATABASE_SELECTION, EDatabaseExceptionCodes_ConnectionError, _connection );
 			_database = database;
 		}
 	}
@@ -1407,7 +788,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 		CLogger::LogInfo( INFO_MYSQL_EXECUTING_UPDATE + query );
 		std::string strQuery = CStrUtils::ToStr( query );
-		MySQLTry( mysql_stmt_prepare( _statement, strQuery.c_str(), uint32_t( strQuery.size() ) ), INFO_MYSQL_STATEMENT_PREPARATION, EDatabaseExceptionCodes_StatementError, _connection );
+		MySQLCheck( mysql_stmt_prepare( _statement, strQuery.c_str(), uint32_t( strQuery.size() ) ), INFO_MYSQL_STATEMENT_PREPARATION, EDatabaseExceptionCodes_StatementError, _connection );
 		return ExecuteUpdate( _statement );
 	}
 
@@ -1421,7 +802,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 		CLogger::LogInfo( INFO_MYSQL_EXECUTING_SELECT + query );
 		std::string strQuery = CStrUtils::ToStr( query );
-		MySQLTry( mysql_stmt_prepare( _statement, strQuery.c_str(), uint32_t( strQuery.size() ) ), INFO_MYSQL_STATEMENT_PREPARATION, EDatabaseExceptionCodes_StatementError, _connection );
+		MySQLCheck( mysql_stmt_prepare( _statement, strQuery.c_str(), uint32_t( strQuery.size() ) ), INFO_MYSQL_STATEMENT_PREPARATION, EDatabaseExceptionCodes_StatementError, _connection );
 		return ExecuteSelect( _statement );
 	}
 
@@ -1479,21 +860,21 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			{
 				DatabaseConnectionMySqlPtr connection = std::static_pointer_cast< CDatabaseConnectionMySql >( shared_from_this() );
 				std::vector< MYSQL_BIND > binds;
-				std::vector< std::unique_ptr< CInMySqlBindBase > > inbinds;
-				DatabaseFieldInfosPtrArray columns = GetColumns( statement, connection, inbinds, binds );
-				pResult = Execute( statement, columns, connection, inbinds, binds );
+				std::vector< std::unique_ptr< SInMySqlBindBase > > inbinds;
+				DatabaseFieldInfosPtrArray columns = MySqlGetColumns( statement, connection, inbinds, binds );
+				pResult = MySqlFetchResult( statement, columns, connection, inbinds, binds );
 			}
 		}
 		catch ( CExceptionDatabase & exc )
 		{
 			StringStream stream;
-			stream << ERROR_MYSQL_EXECUTION_ERROR << exc.GetFullDescription();
+			stream << ERROR_MYSQL_EXECUTION << exc.GetFullDescription();
 			CLogger::LogError( stream.str() );
 		}
 		catch ( std::exception & exc )
 		{
 			StringStream stream;
-			stream << ERROR_MYSQL_EXECUTION_ERROR << exc.what();
+			stream << ERROR_MYSQL_EXECUTION << exc.what();
 			CLogger::LogError( stream.str() );
 		}
 

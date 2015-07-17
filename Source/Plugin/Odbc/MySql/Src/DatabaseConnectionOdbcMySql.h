@@ -45,6 +45,12 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MYSQL
 			*/
 		virtual ~CDatabaseConnectionOdbcMySql();
 
+		/** Retrieves the precision for given field type.
+		@return
+			The precision.
+		*/
+		virtual uint32_t GetPrecision( EFieldType type ) const;
+
 		/** Creates a database.
 		@param[in] database
 			Database identifier (name or DSN (ODBC)).

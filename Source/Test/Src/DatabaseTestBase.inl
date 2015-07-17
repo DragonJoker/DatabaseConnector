@@ -71,6 +71,36 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	};
 
 	template<>
+	struct BatchTests< EFieldType_FLOAT32 >
+	{
+		typedef DatabaseUtils::Helpers< EFieldType_FLOAT32 > helper_type;
+		typedef helper_type::ParamType param_type;
+
+		template< typename Function >
+		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, String const & is, param_type valueIn = helper_type::InitialiseValue() )
+		{
+			param_type value = param_type();
+
+			if ( is == STR( "IS" ) )
+			{
+				CLogger::LogInfo( StringStream() << "  NULL" );
+				function( connection, name, NULL, true, is );
+			}
+
+			CLogger::LogInfo( StringStream() << "  Default" );
+			function( connection, name, &value, true, is );
+			CLogger::LogInfo( StringStream() << "  Lowest" );
+			function( connection, name, &( value = std::numeric_limits< param_type >::lowest() ), true, is );
+			CLogger::LogInfo( StringStream() << "  Max" );
+			function( connection, name, &( value = std::numeric_limits< param_type >::max() ), true, is );
+			CLogger::LogInfo( StringStream() << "  Min" );
+			function( connection, name, &( value = std::numeric_limits< param_type >::min() ), true, is );
+			CLogger::LogInfo( StringStream() << "  Given" );
+			function( connection, name, &valueIn, true, is );
+		}
+	};
+
+	template<>
 	struct BatchTests< EFieldType_FLOAT64 >
 	{
 		typedef DatabaseUtils::Helpers< EFieldType_FLOAT64 > helper_type;
@@ -90,11 +120,11 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			CLogger::LogInfo( StringStream() << "  Default" );
 			function( connection, name, &value, true, is );
 			CLogger::LogInfo( StringStream() << "  Lowest / 2" );
-			function( connection, name, &( value = std::numeric_limits< double >::lowest() / 2 ), true, is );
+			function( connection, name, &( value = std::numeric_limits< param_type >::lowest() / 2 ), true, is );
 			CLogger::LogInfo( StringStream() << "  Max / 2" );
-			function( connection, name, &( value = std::numeric_limits< double >::max() / 2 ), true, is );
-			CLogger::LogInfo( StringStream() << "  Min / 2" );
-			function( connection, name, &( value = std::numeric_limits< double >::min() ), true, is );
+			function( connection, name, &( value = std::numeric_limits< param_type >::max() / 2 ), true, is );
+			CLogger::LogInfo( StringStream() << "  Min" );
+			function( connection, name, &( value = std::numeric_limits< param_type >::min() ), true, is );
 			CLogger::LogInfo( StringStream() << "  Given" );
 			function( connection, name, &valueIn, true, is );
 		}
@@ -327,7 +357,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				{
 					connection->SelectDatabase( _database );
 					DoFlushTable( connection );
-					//BatchTests< EFieldType_INT32 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_INT32 >, connection, STR( "IntegerField" ), _is );
+					BatchTests< EFieldType_INT32 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_INT32 >, connection, STR( "IntegerField" ), _is );
 					BatchTests< EFieldType_INT8 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_INT8 >, connection, STR( "TinyIntField" ), _is );
 					BatchTests< EFieldType_INT16 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_INT16 >, connection, STR( "SmallIntField" ), _is );
 					BatchTests< EFieldType_INT24 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_INT24 >, connection, STR( "MediumIntField" ), _is );
@@ -378,7 +408,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				{
 					connection->SelectDatabase( _database );
 					DoFlushTable( connection );
-					//BatchTests< EFieldType_INT32 >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_INT32 >, connection, STR( "IntegerField" ), _is );
+					BatchTests< EFieldType_INT32 >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_INT32 >, connection, STR( "IntegerField" ), _is );
 					BatchTests< EFieldType_INT8 >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_INT8 >, connection, STR( "TinyIntField" ), _is );
 					BatchTests< EFieldType_INT16 >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_INT16 >, connection, STR( "SmallIntField" ), _is );
 					BatchTests< EFieldType_INT24 >()( &DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_INT24 >, connection, STR( "MediumIntField" ), _is );
@@ -429,7 +459,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				{
 					connection->SelectDatabase( _database );
 					DoFlushTable( connection );
-					//BatchTests< EFieldType_INT32 >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_INT32 >, connection, STR( "IntegerField" ), _is );
+					BatchTests< EFieldType_INT32 >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_INT32 >, connection, STR( "IntegerField" ), _is );
 					BatchTests< EFieldType_INT8 >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_INT8 >, connection, STR( "TinyIntField" ), _is );
 					BatchTests< EFieldType_INT16 >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_INT16 >, connection, STR( "SmallIntField" ), _is );
 					BatchTests< EFieldType_INT24 >()( &DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_INT24 >, connection, STR( "MediumIntField" ), _is );
@@ -488,7 +518,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				{
 					connection->SelectDatabase( _database );
 					DoFlushTable( connection );
-					//BatchTests< EFieldType_INT32 >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_INT32 >, connection, STR( "IntegerField" ), _is );
+					BatchTests< EFieldType_INT32 >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_INT32 >, connection, STR( "IntegerField" ), _is );
 					BatchTests< EFieldType_INT8 >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_INT8 >, connection, STR( "TinyIntField" ), _is );
 					BatchTests< EFieldType_INT16 >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_INT16 >, connection, STR( "SmallIntField" ), _is );
 					BatchTests< EFieldType_INT24 >()( &DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_INT24 >, connection, STR( "MediumIntField" ), _is );

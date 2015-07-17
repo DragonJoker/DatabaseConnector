@@ -470,7 +470,7 @@ BEGIN_NAMESPACE_DATABASE
 			if ( valSet )
 			{
 				StringStream stream;
-				stream.precision( 10 );
+				stream.precision( connection->GetPrecision( EFieldType_FLOAT32 ) );
 				stream << value;
 				return stream.str();
 			}
@@ -546,7 +546,7 @@ BEGIN_NAMESPACE_DATABASE
 			if ( valSet )
 			{
 				StringStream stream;
-				stream.precision( 30 );
+				stream.precision( connection->GetPrecision( EFieldType_FLOAT64 ) );
 				stream << value;
 				return stream.str();
 			}

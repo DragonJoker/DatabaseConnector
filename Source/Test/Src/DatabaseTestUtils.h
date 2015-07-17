@@ -582,7 +582,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			{
 				if ( a != b )
 				{
-					if ( std::abs( a - b ) > std::numeric_limits< float >::epsilon() )
+					if ( std::abs( a - b ) > std::numeric_limits< ParamType >::epsilon() )
 					{
 						BOOST_CHECK_EQUAL( a, b );
 					}
@@ -615,7 +615,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			{
 				if ( a != b )
 				{
-					if ( std::abs( a - b ) > std::numeric_limits< double >::epsilon() )
+					if ( std::abs( a - b ) > std::numeric_limits< ParamType >::epsilon() )
 					{
 						BOOST_CHECK_EQUAL( a, b );
 					}
@@ -726,7 +726,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			{
 				auto && stmtInsert = CreateStmt< Stmt >( connection, STR( "INSERT INTO Test (" ) + name + STR( ") VALUES (?)" ) );
 				std::shared_ptr< Stmt > stmtSelect;
-				
+
 				if ( valueIn )
 				{
 					stmtSelect = CreateStmt< Stmt >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE " ) + name + STR( " = ?" ) );
@@ -785,6 +785,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					}
 					else
 					{
+						BOOST_CHECK( result );
 						BOOST_CHECK( result && result->GetRowCount() );
 					}
 				}
@@ -812,7 +813,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			{
 				auto && stmtInsert = CreateStmt< Stmt >( connection, STR( "INSERT INTO Test (IntField, " ) + name + STR( ") VALUES (?, ?)" ) );
 				std::shared_ptr< Stmt > stmtSelect;
-				
+
 				if ( valueIn )
 				{
 					stmtSelect = CreateStmt< Stmt >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE IntField = ? AND " ) + name + STR( " = ?" ) );
@@ -851,8 +852,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 					BOOST_CHECK( stmtInsert->ExecuteUpdate() );
 					DatabaseResultPtr result = stmtSelect->ExecuteSelect();
-					BOOST_CHECK( result );
-					BOOST_CHECK( result && result->GetRowCount() );
 
 					if ( result && result->GetRowCount() )
 					{
@@ -875,6 +874,11 @@ BEGIN_NAMESPACE_DATABASE_TEST
 								BOOST_CHECK_NO_THROW( result->GetFirstRow()->GetField( 0 ) );
 							}
 						}
+					}
+					else
+					{
+						BOOST_CHECK( result );
+						BOOST_CHECK( result && result->GetRowCount() );
 					}
 				}
 			}
@@ -901,7 +905,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			{
 				auto && stmtInsert = CreateStmt< Stmt >( connection, STR( "INSERT INTO Test (" ) + name + STR( ") VALUES (?)" ) );
 				std::shared_ptr< Stmt > stmtSelect;
-				
+
 				if ( valueIn )
 				{
 					stmtSelect = CreateStmt< Stmt >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE " ) + name + STR( " = ?" ) );
@@ -935,8 +939,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 					BOOST_CHECK( stmtInsert->ExecuteUpdate() );
 					DatabaseResultPtr result = stmtSelect->ExecuteSelect();
-					BOOST_CHECK( result );
-					BOOST_CHECK( result && result->GetRowCount() );
 
 					if ( result && result->GetRowCount() )
 					{
@@ -959,6 +961,11 @@ BEGIN_NAMESPACE_DATABASE_TEST
 								BOOST_CHECK_NO_THROW( result->GetFirstRow()->GetField( 0 ) );
 							}
 						}
+					}
+					else
+					{
+						BOOST_CHECK( result );
+						BOOST_CHECK( result && result->GetRowCount() );
 					}
 				}
 			}
@@ -985,7 +992,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			{
 				auto && stmtInsert = CreateStmt< Stmt >( connection, STR( "INSERT INTO Test (IntField, " ) + name + STR( ") VALUES (?, ?)" ) );
 				std::shared_ptr< Stmt > stmtSelect;
-				
+
 				if ( valueIn )
 				{
 					stmtSelect = CreateStmt< Stmt >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE IntField = ? AND " ) + name + STR( " = ?" ) );
@@ -1024,8 +1031,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 					BOOST_CHECK( stmtInsert->ExecuteUpdate() );
 					DatabaseResultPtr result = stmtSelect->ExecuteSelect();
-					BOOST_CHECK( result );
-					BOOST_CHECK( result && result->GetRowCount() );
 
 					if ( result && result->GetRowCount() )
 					{
@@ -1048,6 +1053,11 @@ BEGIN_NAMESPACE_DATABASE_TEST
 								BOOST_CHECK_NO_THROW( result->GetFirstRow()->GetField( 0 ) );
 							}
 						}
+					}
+					else
+					{
+						BOOST_CHECK( result );
+						BOOST_CHECK( result && result->GetRowCount() );
 					}
 				}
 			}
@@ -1080,12 +1090,15 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				{
 					BOOST_CHECK( stmtGetCount->Initialize() == EErrorType_NONE );
 					DatabaseResultPtr result = stmtGetCount->ExecuteSelect();
-					BOOST_CHECK( result );
-					BOOST_CHECK( result && result->GetRowCount() );
 
 					if ( result && result->GetRowCount() )
 					{
 						BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, count ) );
+					}
+					else
+					{
+						BOOST_CHECK( result );
+						BOOST_CHECK( result && result->GetRowCount() );
 					}
 				}
 
@@ -1111,8 +1124,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 						count--;
 						DatabaseResultPtr result = stmtGetCount->ExecuteSelect();
-						BOOST_CHECK( result );
-						BOOST_CHECK( result && result->GetRowCount() );
 
 						if ( result && result->GetRowCount() )
 						{
@@ -1120,6 +1131,11 @@ BEGIN_NAMESPACE_DATABASE_TEST
 							BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, field ) );
 							BOOST_CHECK_EQUAL( field, count + inserts );
 							count++;
+						}
+						else
+						{
+							BOOST_CHECK( result );
+							BOOST_CHECK( result && result->GetRowCount() );
 						}
 					}
 				}
@@ -1152,8 +1168,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				{
 					BOOST_CHECK( stmtSelect->Initialize() == EErrorType_NONE );
 					DatabaseResultPtr result = stmtSelect->ExecuteSelect();
-					BOOST_CHECK( result );
-					BOOST_CHECK( result && result->GetRowCount() );
 
 					if ( result && result->GetRowCount() )
 					{
@@ -1165,6 +1179,11 @@ BEGIN_NAMESPACE_DATABASE_TEST
 							DisplayValues( index, row );
 							row = result->GetNextRow();
 						}
+					}
+					else
+					{
+						BOOST_CHECK( result );
+						BOOST_CHECK( result && result->GetRowCount() );
 					}
 				}
 			}
@@ -1197,12 +1216,15 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				{
 					BOOST_CHECK( stmtGetMin->Initialize() == EErrorType_NONE );
 					DatabaseResultPtr result = stmtGetMin->ExecuteSelect();
-					BOOST_CHECK( result );
-					BOOST_CHECK( result && result->GetRowCount() );
 
 					if ( result && result->GetRowCount() )
 					{
 						BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, min ) );
+					}
+					else
+					{
+						BOOST_CHECK( result );
+						BOOST_CHECK( result && result->GetRowCount() );
 					}
 				}
 
@@ -1256,12 +1278,15 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				{
 					BOOST_CHECK( stmtGetMin->Initialize() == EErrorType_NONE );
 					DatabaseResultPtr result = stmtGetMin->ExecuteSelect();
-					BOOST_CHECK( result );
-					BOOST_CHECK( result && result->GetRowCount() );
 
 					if ( result && result->GetRowCount() )
 					{
 						BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, min ) );
+					}
+					else
+					{
+						BOOST_CHECK( result );
+						BOOST_CHECK( result && result->GetRowCount() );
 					}
 				}
 
@@ -1351,8 +1376,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					{
 						stmtGetElements->SetParameterValue( 0, where );
 						DatabaseResultPtr result = stmtGetElements->ExecuteSelect();
-						BOOST_CHECK( result );
-						BOOST_CHECK( result && result->GetRowCount() );
 
 						if ( result && result->GetRowCount() )
 						{
@@ -1364,6 +1387,11 @@ BEGIN_NAMESPACE_DATABASE_TEST
 								DisplayValues( index, row );
 								row = result->GetNextRow();
 							}
+						}
+						else
+						{
+							BOOST_CHECK( result );
+							BOOST_CHECK( result && result->GetRowCount() );
 						}
 					}
 				}
@@ -1397,12 +1425,15 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				{
 					BOOST_CHECK( stmtGetMin->Initialize() == EErrorType_NONE );
 					DatabaseResultPtr result = stmtGetMin->ExecuteSelect();
-					BOOST_CHECK( result );
-					BOOST_CHECK( result && result->GetRowCount() );
 
 					if ( result && result->GetRowCount() )
 					{
 						BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, min ) );
+					}
+					else
+					{
+						BOOST_CHECK( result );
+						BOOST_CHECK( result && result->GetRowCount() );
 					}
 				}
 
@@ -1454,12 +1485,15 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				{
 					BOOST_CHECK( stmtGetCount->Initialize() == EErrorType_NONE );
 					DatabaseResultPtr result = stmtGetCount->ExecuteSelect();
-					BOOST_CHECK( result );
-					BOOST_CHECK( result && result->GetRowCount() );
 
 					if ( result && result->GetRowCount() )
 					{
 						BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, count ) );
+					}
+					else
+					{
+						BOOST_CHECK( result );
+						BOOST_CHECK( result && result->GetRowCount() );
 					}
 				}
 
@@ -1519,12 +1553,15 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				{
 					BOOST_CHECK( stmtGetCount->Initialize() == EErrorType_NONE );
 					DatabaseResultPtr result = stmtGetCount->ExecuteSelect();
-					BOOST_CHECK( result );
-					BOOST_CHECK( result && result->GetRowCount() );
 
 					if ( result && result->GetRowCount() )
 					{
 						BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, count ) );
+					}
+					else
+					{
+						BOOST_CHECK( result );
+						BOOST_CHECK( result && result->GetRowCount() );
 					}
 				}
 

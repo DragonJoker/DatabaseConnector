@@ -46,16 +46,6 @@ BEGIN_NAMESPACE_DATABASE
 		_arrayFieldInfos.clear();
 	}
 
-	void CDatabaseResult::AddField( const String & name, EFieldType type, uint32_t limits )
-	{
-		_arrayFieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( _connection, name, type, limits ) );
-	}
-
-	void CDatabaseResult::AddField( const String & name, const String & type, int length )
-	{
-		_arrayFieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( _connection, name, type, length ) );
-	}
-
 	void CDatabaseResult::AddRow( DatabaseRowPtr row )
 	{
 		_listRows.push_back( row );
