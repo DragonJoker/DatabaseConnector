@@ -21,14 +21,11 @@ REM *********************************<+>*************************************
 :: ===================================================
 
 SET SOURCE_NAME=%1
-SET SERVER=%2
-SET PORT=%3
-SET DATABASE_NAME=%4
-SET USER=%5
-SET PASSWORD=%6
+SET SERVER=127.0.0.1
+SET DATABASE_NAME=%1
 SET DRIVER_PATH=C:\Windows\system32\sqlncli11.dll
 SET DRIVER_DESCRIPTION=SQL Server Native Client 11.0
-SET DESCRIPTION=FDMS
+SET DESCRIPTION=%1
 SET HKEY=CURRENT_USER
 
 :: ===================================================

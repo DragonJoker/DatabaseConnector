@@ -18,6 +18,7 @@
 
 #include <DatabaseParameter.h>
 #include "DatabaseParameterSqlite.h"
+#include "DatabaseSqliteHelper.h"
 
 BEGIN_NAMESPACE_DATABASE_SQLITE
 {
@@ -62,6 +63,24 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		    The parent updater
 		 */
 		DatabaseSqliteExport CDatabaseStatementParameterSqlite( DatabaseConnectionSqlitePtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
+
+		/** Constructor.
+		@param[in] connection
+		    Connection to database.
+		@param[in] name
+		    Parameter name.
+		@param[in] index
+		    Internal index.
+		@param[in] fieldType
+		    Field type.
+		@param[in] precision
+		    Field precision.
+		@param[in] parameterType
+		    Parameter type.
+		@param[in] updater
+		    The parent updater
+		 */
+		DatabaseSqliteExport CDatabaseStatementParameterSqlite( DatabaseConnectionSqlitePtr connection, const String & name, unsigned short index, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
 
 		/** Destructor.
 		 */

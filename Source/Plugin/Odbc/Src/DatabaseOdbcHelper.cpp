@@ -357,18 +357,25 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				SQLLEN length = sizeof( _value );
 				EErrorType errorType = EErrorType_NONE;
 				OdbcCheck( SQLGetData( _statement, _index, SQL_ARD_TYPE, &_value, 19, &length ), SQL_HANDLE_STMT, _statement, INFO_ODBC_BindCol );
-				return CFixedPoint( *( uint64_t * )( _value.val ), _value.scale );
+				int64_t value = *( int64_t * )( _value.val );
+
+				if ( !_value.sign )
+				{
+					value = -value;
+				}
+
+				return CFixedPoint( value, _value.precision, _value.scale );
 			}
 		};
 
 		std::string StringFromOdbcString( CInOdbcBind< char * > const & bind )
 		{
-			return std::string( bind.GetValue(), bind.GetValue() + bind._strLenOrInd );
+			return std::string( bind.GetValue(), bind.GetValue() + std::min< size_t >( strlen(bind.GetValue() ), bind._strLenOrInd ) );
 		}
 
 		std::wstring StringFromOdbcWString( CInOdbcBind< wchar_t * > const & bind )
 		{
-			return std::wstring( bind.GetValue(), bind.GetValue() + bind._strLenOrInd );
+			return std::wstring( bind.GetValue(), bind.GetValue() + std::min< size_t >( wcslen(bind.GetValue() ), bind._strLenOrInd ) );
 		}
 
 		ByteArray VectorFromOdbcBinary( CInOdbcBind< uint8_t * > const & bind )
@@ -393,111 +400,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			return CTime( ts.hour, ts.minute, ts.second );
 		}
 
-		std::unique_ptr< CInOdbcBindBase > GetBindFromConciseType( SQLLEN sqlType, uint32_t limits, uint32_t precision, uint32_t scale )
-		{
-			std::unique_ptr< CInOdbcBindBase > result;
-
-			switch ( sqlType )
-			{
-			case SQL_CHAR:
-			case SQL_VARCHAR:
-			case SQL_LONGVARCHAR:
-				result = std::make_unique< CInOdbcBind< char * > >( SQL_C_CHAR, limits );
-				break;
-
-			case SQL_WCHAR:
-			case SQL_WVARCHAR:
-			case SQL_WLONGVARCHAR:
-				result = std::make_unique< CInOdbcBind< wchar_t * > >( SQL_C_WCHAR, limits );
-				break;
-
-			case SQL_FLOAT:
-				result = std::make_unique< CInOdbcBind< float > >( SQL_C_FLOAT );
-				break;
-
-			case SQL_REAL:
-				if ( limits <= 7 )
-				{
-					result = std::make_unique< CInOdbcBind< float > >( SQL_C_FLOAT );
-				}
-				else
-				{
-					result = std::make_unique< CInOdbcBind< double > >( SQL_C_DOUBLE );
-				}
-
-				break;
-
-			case SQL_DOUBLE:
-				result = std::make_unique< CInOdbcBind< double > >( SQL_C_DOUBLE );
-				break;
-
-			case SQL_DECIMAL:
-			case SQL_NUMERIC:
-				result = std::make_unique< CInOdbcBind< SQL_NUMERIC_STRUCT, CFixedPoint > >( SQL_C_NUMERIC, precision, scale );
-				break;
-
-			case SQL_INTEGER:
-				if ( limits == 8 )
-				{
-					result = std::make_unique< CInOdbcBind< int24_t > >( SQL_C_SLONG );
-				}
-				else
-				{
-					result = std::make_unique< CInOdbcBind< int32_t > >( SQL_C_SLONG );
-				}
-
-				break;
-
-			case SQL_SMALLINT:
-				result = std::make_unique< CInOdbcBind< int16_t > >( SQL_C_SSHORT );
-				break;
-
-			case SQL_BIGINT:
-				result = std::make_unique< CInOdbcBind< int64_t > >( SQL_C_SBIGINT );
-				break;
-
-			case SQL_BIT:
-				result = std::make_unique< CInOdbcBind< bool > >( SQL_C_BIT );
-				break;
-
-			case SQL_TINYINT:
-				result = std::make_unique< CInOdbcBind< int8_t > >( SQL_C_TINYINT );
-				break;
-
-			case SQL_BINARY:
-			case SQL_VARBINARY:
-			case SQL_LONGVARBINARY:
-				result = std::make_unique< CInOdbcBind< uint8_t * > >( SQL_C_BINARY, limits );
-				break;
-
-			case SQL_TYPE_DATE:
-			case SQL_INTERVAL_MONTH:
-			case SQL_INTERVAL_YEAR:
-			case SQL_INTERVAL_YEAR_TO_MONTH:
-			case SQL_INTERVAL_DAY:
-				result = std::make_unique< CInOdbcBind< DATE_STRUCT > >( SQL_C_TYPE_DATE );
-				break;
-
-			case SQL_TYPE_TIME:
-			case SQL_INTERVAL_HOUR:
-			case SQL_INTERVAL_MINUTE:
-			case SQL_INTERVAL_SECOND:
-			case SQL_INTERVAL_HOUR_TO_MINUTE:
-			case SQL_INTERVAL_HOUR_TO_SECOND:
-				result = std::make_unique< CInOdbcBind< TIME_STRUCT > >( SQL_C_TYPE_TIME );
-				break;
-
-			case SQL_TYPE_TIMESTAMP:
-			case SQL_INTERVAL_DAY_TO_HOUR:
-			case SQL_INTERVAL_DAY_TO_MINUTE:
-			case SQL_INTERVAL_DAY_TO_SECOND:
-				result = std::make_unique< CInOdbcBind< TIMESTAMP_STRUCT > >( SQL_C_TYPE_TIMESTAMP );
-				break;
-			}
-
-			return result;
-		}
-
 		std::unique_ptr< CInOdbcBindBase > GetBindFromFieldType( EFieldType type, uint32_t limits, uint32_t precision, uint32_t scale )
 		{
 			std::unique_ptr< CInOdbcBindBase > result;
@@ -508,24 +410,44 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				result = std::make_unique< CInOdbcBind< bool > >( SQL_C_BIT );
 				break;
 
-			case EFieldType_INT8:
+			case EFieldType_SINT8:
+				result = std::make_unique< CInOdbcBind< int8_t > >( SQL_C_STINYINT );
+				break;
+
+			case EFieldType_SINT16:
 				result = std::make_unique< CInOdbcBind< int16_t > >( SQL_C_SSHORT );
 				break;
 
-			case EFieldType_INT16:
-				result = std::make_unique< CInOdbcBind< int16_t > >( SQL_C_SSHORT );
-				break;
-
-			case EFieldType_INT24:
+			case EFieldType_SINT24:
 				result = std::make_unique< CInOdbcBind< int32_t > >( SQL_C_SLONG );
 				break;
 
-			case EFieldType_INT32:
+			case EFieldType_SINT32:
 				result = std::make_unique< CInOdbcBind< int32_t > >( SQL_C_SLONG );
 				break;
 
-			case EFieldType_INT64:
+			case EFieldType_SINT64:
 				result = std::make_unique< CInOdbcBind< int64_t > >( SQL_C_SBIGINT );
+				break;
+
+			case EFieldType_UINT8:
+				result = std::make_unique< CInOdbcBind< int16_t > >( SQL_C_UTINYINT );
+				break;
+
+			case EFieldType_UINT16:
+				result = std::make_unique< CInOdbcBind< int16_t > >( SQL_C_USHORT );
+				break;
+
+			case EFieldType_UINT24:
+				result = std::make_unique< CInOdbcBind< int32_t > >( SQL_C_ULONG );
+				break;
+
+			case EFieldType_UINT32:
+				result = std::make_unique< CInOdbcBind< int32_t > >( SQL_C_ULONG );
+				break;
+
+			case EFieldType_UINT64:
+				result = std::make_unique< CInOdbcBind< int64_t > >( SQL_C_UBIGINT );
 				break;
 
 			case EFieldType_FLOAT32:
@@ -609,11 +531,11 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 					|| strTypel == STR( "COUNT" )
 					|| strTypel == STR( "MIN" ) )
 			{
-				result = EFieldType_INT64;
+				result = EFieldType_SINT64;
 			}
 			else if ( strTypel.find( STR( "SMALLINT" ) ) != String::npos )
 			{
-				result = EFieldType_INT16;
+				result = EFieldType_SINT16;
 			}
 			else if ( strTypel.find( STR( "BOOL" ) ) != String::npos
 					  || strTypel.find( STR( "BIT" ) ) != String::npos )
@@ -622,11 +544,11 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			}
 			else if ( strTypel.find( STR( "TINYINT" ) ) != String::npos )
 			{
-				result = EFieldType_INT8;
+				result = EFieldType_UINT8;
 			}
 			else if ( ( index = strTypel.find( STR( "MEDIUMINT" ) ) ) != String::npos )
 			{
-				result = EFieldType_INT24;
+				result = EFieldType_SINT24;
 			}
 			else if ( ( index = strTypel.find( STR( "INT" ) ) ) != String::npos )
 			{
@@ -640,33 +562,33 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 					{
 						if ( prec == 1 )
 						{
-							result = EFieldType_INT8;
+							result = EFieldType_UINT8;
 						}
 						else if ( prec == 2 )
 						{
-							result = EFieldType_INT16;
+							result = EFieldType_SINT16;
 						}
 						else if ( prec <= 3 )
 						{
-							result = EFieldType_INT24;
+							result = EFieldType_SINT24;
 						}
 						else if ( prec <= 4 )
 						{
-							result = EFieldType_INT32;
+							result = EFieldType_SINT32;
 						}
 						else
 						{
-							result = EFieldType_INT64;
+							result = EFieldType_SINT64;
 						}
 					}
 					else
 					{
-						result = EFieldType_INT32;
+						result = EFieldType_SINT32;
 					}
 				}
 				else
 				{
-					result = EFieldType_INT32;
+					result = EFieldType_SINT32;
 				}
 			}
 			else if ( strTypel.find( STR( "NCHAR" ) ) != String::npos
@@ -802,7 +724,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				stringLength = 0;
 				numericAttribute = 0;
 				OdbcCheck( SQLColAttribute( stmt, i, SQL_DESC_TYPE, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_TYPE );
-				SQLINTEGER type = uint32_t( numericAttribute );
+				SQLINTEGER sqlType = uint32_t( numericAttribute );
 
 				// Its concise type
 				std::memset( buffer, 0, BUFFER_SIZE );
@@ -822,15 +744,16 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				{
 					if ( errorType == EErrorType_NONE )
 					{
-						std::pair< uint32_t, uint32_t > limprec( limits, precision );
-						infos = std::make_shared< CDatabaseFieldInfos >( connection, name, GetFieldTypeFromTypeName( typeName, limprec ), limprec );
+						std::pair< uint32_t, uint32_t > limprec( precision, scale );
+						infos = std::make_shared< CDatabaseFieldInfos >( connection, name, GetFieldTypeFromTypeName( typeName, limprec ), std::make_pair( precision, scale ) );
 						bind = GetBindFromFieldType( infos->GetType(), limits, precision, scale );
 					}
 				}
 				else
 				{
-					bind = GetBindFromConciseType( conciseType, limits, precision, scale );
-					infos = std::make_shared< CDatabaseFieldInfos >( connection, name, GetFieldTypeFromConciseType( conciseType, limits ), limits );
+					EFieldType type = GetFieldTypeFromConciseType( conciseType, limits );
+					bind = GetBindFromFieldType( type, limits, precision, scale );
+					infos = std::make_shared< CDatabaseFieldInfos >( connection, name, type, std::make_pair( precision, scale ) );
 				}
 
 				columns.push_back( std::move( bind ) );
@@ -848,24 +771,44 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				static_cast< CDatabaseValue< EFieldType_BIT > & >( value ).SetValue( static_cast< CInOdbcBind< bool > const & >( bind ).GetValue() != 0 );
 				break;
 
-			case EFieldType_INT8:
-				static_cast< CDatabaseValue< EFieldType_INT8 > & >( value ).SetValue( static_cast< CInOdbcBind< int8_t > const & >( bind ).GetValue() );
+			case EFieldType_SINT8:
+				static_cast< CDatabaseValue< EFieldType_SINT8 > & >( value ).SetValue( static_cast< CInOdbcBind< int8_t > const & >( bind ).GetValue() );
 				break;
 
-			case EFieldType_INT16:
-				static_cast< CDatabaseValue< EFieldType_INT16 > & >( value ).SetValue( static_cast< CInOdbcBind< int16_t > const & >( bind ).GetValue() );
+			case EFieldType_SINT16:
+				static_cast< CDatabaseValue< EFieldType_SINT16 > & >( value ).SetValue( static_cast< CInOdbcBind< int16_t > const & >( bind ).GetValue() );
 				break;
 
-			case EFieldType_INT24:
-				static_cast< CDatabaseValue< EFieldType_INT24 > & >( value ).SetValue( static_cast< CInOdbcBind< int24_t > const & >( bind ).GetValue() );
+			case EFieldType_SINT24:
+				static_cast< CDatabaseValue< EFieldType_SINT24 > & >( value ).SetValue( static_cast< CInOdbcBind< int24_t > const & >( bind ).GetValue() );
 				break;
 
-			case EFieldType_INT32:
-				static_cast< CDatabaseValue< EFieldType_INT32 > & >( value ).SetValue( static_cast< CInOdbcBind< int32_t > const & >( bind ).GetValue() );
+			case EFieldType_SINT32:
+				static_cast< CDatabaseValue< EFieldType_SINT32 > & >( value ).SetValue( static_cast< CInOdbcBind< int32_t > const & >( bind ).GetValue() );
 				break;
 
-			case EFieldType_INT64:
-				static_cast< CDatabaseValue< EFieldType_INT64 > & >( value ).SetValue( static_cast< CInOdbcBind< int64_t > const & >( bind ).GetValue() );
+			case EFieldType_SINT64:
+				static_cast< CDatabaseValue< EFieldType_SINT64 > & >( value ).SetValue( static_cast< CInOdbcBind< int64_t > const & >( bind ).GetValue() );
+				break;
+
+			case EFieldType_UINT8:
+				static_cast< CDatabaseValue< EFieldType_UINT8 > & >( value ).SetValue( static_cast< CInOdbcBind< uint8_t > const & >( bind ).GetValue() );
+				break;
+
+			case EFieldType_UINT16:
+				static_cast< CDatabaseValue< EFieldType_UINT16 > & >( value ).SetValue( static_cast< CInOdbcBind< uint16_t > const & >( bind ).GetValue() );
+				break;
+
+			case EFieldType_UINT24:
+				static_cast< CDatabaseValue< EFieldType_UINT24 > & >( value ).SetValue( static_cast< CInOdbcBind< uint24_t > const & >( bind ).GetValue() );
+				break;
+
+			case EFieldType_UINT32:
+				static_cast< CDatabaseValue< EFieldType_UINT32 > & >( value ).SetValue( static_cast< CInOdbcBind< uint32_t > const & >( bind ).GetValue() );
+				break;
+
+			case EFieldType_UINT64:
+				static_cast< CDatabaseValue< EFieldType_UINT64 > & >( value ).SetValue( static_cast< CInOdbcBind< uint64_t > const & >( bind ).GetValue() );
 				break;
 
 			case EFieldType_FLOAT32:
@@ -980,8 +923,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 								StringStream message;
 								message << ERROR_ODBC_DRIVER << std::endl;
 								message << e.what();
-								CLogger::LogError( message );
-								throw CExceptionDatabaseOdbc( EDatabaseOdbcExceptionCodes_GenericError, message.str(), __FUNCTION__, __FILE__, __LINE__ );
+								ODBC_EXCEPT( EDatabaseOdbcExceptionCodes_GenericError, message.str() );
 							}
 
 							row->AddField( field );
@@ -1005,16 +947,14 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 					StringStream message;
 					message << ERROR_ODBC_DRIVER << std::endl;
 					message << e.what();
-					CLogger::LogError( message );
-					throw CExceptionDatabaseOdbc( EDatabaseOdbcExceptionCodes_GenericError, message.str(), __FUNCTION__, __FILE__, __LINE__ );
+					ODBC_EXCEPT( EDatabaseOdbcExceptionCodes_GenericError, message.str() );
 				}
 				catch ( ... )
 				{
 					StringStream message;
 					message << ERROR_ODBC_DRIVER << std::endl;
 					message << ERROR_ODBC_UNKNOWN;
-					CLogger::LogError( message );
-					throw CExceptionDatabaseOdbc( EDatabaseOdbcExceptionCodes_UnknownError, message.str(), __FUNCTION__, __FILE__, __LINE__ );
+					ODBC_EXCEPT( EDatabaseOdbcExceptionCodes_UnknownError, message.str() );
 				}
 			}
 
@@ -1066,7 +1006,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		}
 
 		if ( ( errorCount == 2 && errorType != EErrorType_RETRY )
-				|| ( errorCount > 2 && errorCount == EErrorType_RETRY ) )
+				|| ( errorCount > 2 && errorType == EErrorType_RETRY ) )
 		{
 			StringStream LogInfo;
 			LogInfo << ERROR_ODBC_QUERY << query;
@@ -1138,11 +1078,8 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			break;
 
 		case SQL_FLOAT:
-			fieldType = EFieldType_FLOAT32;
-			break;
-
 		case SQL_REAL:
-			if ( limits <= 7 )
+			if ( limits < 25 )
 			{
 				fieldType = EFieldType_FLOAT32;
 			}
@@ -1165,25 +1102,25 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		case SQL_INTEGER:
 			if ( limits == 8 )
 			{
-				fieldType = EFieldType_INT24;
+				fieldType = EFieldType_SINT24;
 			}
 			else
 			{
-				fieldType = EFieldType_INT32;
+				fieldType = EFieldType_SINT32;
 			}
 
 			break;
 
 		case SQL_SMALLINT:
-			fieldType = EFieldType_INT16;
+			fieldType = EFieldType_SINT16;
 			break;
 
 		case SQL_BIGINT:
-			fieldType = EFieldType_INT64;
+			fieldType = EFieldType_SINT64;
 			break;
 
 		case SQL_TINYINT:
-			fieldType = EFieldType_INT8;
+			fieldType = EFieldType_UINT8;
 			break;
 
 		case SQL_BIT:
@@ -1262,11 +1199,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			else
 			{
 				onFullyfetched( statementHandle, res );
-				EErrorType errorType = EErrorType_NONE;
-				OdbcCheck( SQLCloseCursor( statementHandle ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_CloseCursor );
-				OdbcCheck( SQLFreeStmt( statementHandle, SQL_CLOSE ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_FreeStmt + STR( " (Close)" ) );
-				OdbcCheck( SQLFreeStmt( statementHandle, SQL_UNBIND ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_FreeStmt + STR( " (Unbind)" ) );
-				OdbcCheck( SQLFreeStmt( statementHandle, SQL_RESET_PARAMS ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_FreeStmt + STR( " (ResetParams)" ) );
 			}
 		}
 

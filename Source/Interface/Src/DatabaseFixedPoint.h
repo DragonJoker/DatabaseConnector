@@ -31,65 +31,81 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] value
 			The value
 		@param[in] precision
-			The precision
+			The precision (total digits count)
+		@param[in] decimals
+			The decimals (digits afet decimals separator)
 		*/
-		DatabaseExport CFixedPoint( int32_t value, uint8_t precision );
+		DatabaseExport CFixedPoint( int32_t value, uint8_t precision, uint8_t decimals );
 
 		/** Constructor from uint32_t
 		@param[in] value
 			The value
 		@param[in] precision
-			The precision
+			The precision (total digits count)
+		@param[in] decimals
+			The decimals (digits afet decimals separator)
 		*/
-		DatabaseExport CFixedPoint( uint32_t value, uint8_t precision );
+		DatabaseExport CFixedPoint( uint32_t value, uint8_t precision, uint8_t decimals );
 
 		/** Constructor from int64_t
 		@param[in] value
 			The value
 		@param[in] precision
-			The precision
+			The precision (total digits count)
+		@param[in] decimals
+			The decimals (digits afet decimals separator)
 		*/
-		DatabaseExport CFixedPoint( int64_t value, uint8_t precision );
+		DatabaseExport CFixedPoint( int64_t value, uint8_t precision, uint8_t decimals );
 
 		/** Constructor from uint64_t
 		@param[in] value
 			The value
 		@param[in] precision
-			The precision
+			The precision (total digits count)
+		@param[in] decimals
+			The decimals (digits afet decimals separator)
 		*/
-		DatabaseExport CFixedPoint( uint64_t value, uint8_t precision );
+		DatabaseExport CFixedPoint( uint64_t value, uint8_t precision, uint8_t decimals );
 
 		/** Constructor from float
 		@param[in] value
 			The value
 		@param[in] precision
-			The precision
+			The precision (total digits count)
+		@param[in] decimals
+			The decimals (digits afet decimals separator)
 		*/
-		DatabaseExport CFixedPoint( float value, uint8_t precision );
+		DatabaseExport CFixedPoint( float value, uint8_t precision, uint8_t decimals );
 
 		/** Constructor from double
 		@param[in] value
 			The value
 		@param[in] precision
-			The precision
+			The precision (total digits count)
+		@param[in] decimals
+			The decimals (digits afet decimals separator)
 		*/
-		DatabaseExport CFixedPoint( double value, uint8_t precision );
+		DatabaseExport CFixedPoint( double value, uint8_t precision, uint8_t decimals );
 
 		/** Constructor from double
 		@param[in] value
 			The value
 		@param[in] precision
-			The precision
+			The precision (total digits count)
+		@param[in] decimals
+			The decimals (digits afet decimals separator)
 		*/
-		DatabaseExport CFixedPoint( long double value, uint8_t precision );
+		DatabaseExport CFixedPoint( long double value, uint8_t precision, uint8_t decimals );
 
 		/** Constructor from String
 		@param[in] value
 			The value
 		@param[in] precision
-			The precision
+			The precision (total digits count)
+		@param[in] decimals
+			The decimals (digits afet decimals separator)
 		*/
-		DatabaseExport CFixedPoint( String const & value, uint8_t precision );
+		DatabaseExport CFixedPoint( String const & value, uint8_t precision, uint8_t decimals );
 
 		/** Destructor
 		*/
@@ -186,8 +202,15 @@ BEGIN_NAMESPACE_DATABASE
 		inline CFixedPoint & operator -=( const T & rhs );
 
 	private:
-		//! The value precision (decimals count)
-		uint8_t _precision;
+		/** Adjusts the value to the decimals, checks the precision
+		@param precision
+			The wanted precision, throws an exception if the value is over 10 ^ precision
+		*/
+		void DoAdjustValue( uint8_t precision );
+
+	private:
+		//! The value decimals (digits after decimals separator)
+		uint8_t _decimals;
 		//! The raw value
 		int64_t _value;
 		//! Tells if the value is signed or not

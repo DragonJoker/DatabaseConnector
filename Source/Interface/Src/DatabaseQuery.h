@@ -49,7 +49,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Error code.
 		*/
-		DatabaseExport virtual EErrorType Initialize();
+		DatabaseExport EErrorType Initialize();
 
 		/** Execute a query that has no result set.
 		@param[out] result
@@ -57,7 +57,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Results.
 		*/
-		DatabaseExport virtual bool ExecuteUpdate( EErrorType * result = NULL );
+		DatabaseExport bool ExecuteUpdate( EErrorType * result = NULL );
 
 		/** Execute query that has a result set.
 		@param[out] result
@@ -65,23 +65,21 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Results.
 		*/
-		DatabaseExport virtual DatabaseResultPtr ExecuteSelect( EErrorType * result = NULL );
+		DatabaseExport DatabaseResultPtr ExecuteSelect( EErrorType * result = NULL );
 
 		/** Clean query.
 		*/
-		DatabaseExport virtual void Cleanup();
+		DatabaseExport void Cleanup();
 
 		/** Create a query parameter.
 		@param[in] name
 			Parameter name.
 		@param[in] fieldType
 			Field type.
-		@param[in] parameterType
-			Parameter type.
 		@return
 			Created query parameter.
 		*/
-		DatabaseExport virtual DatabaseParameterPtr CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType = EParameterType_IN );
+		DatabaseExport DatabaseParameterPtr CreateParameter( const String & name, EFieldType fieldType );
 
 		/** Create a query parameter for variable-sized parameter (with limits)
 		@param[in] name
@@ -89,13 +87,23 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] fieldType
 			Field type.
 		@param[in] limits
-			Filed limits.
-		@param[in] parameterType
-			Parameter type.
+			Field limits.
 		@return
 			Created query parameter.
 		*/
-		DatabaseExport virtual DatabaseParameterPtr CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType = EParameterType_IN );
+		DatabaseExport DatabaseParameterPtr CreateParameter( const String & name, EFieldType fieldType, uint32_t limits );
+
+		/** Create a query parameter for variable-sized parameter (with limits)
+		@param[in] name
+			Parameter name.
+		@param[in] fieldType
+			Field type.
+		@param[in] limits
+			Field precision and scale.
+		@return
+			Created query parameter.
+		*/
+		DatabaseExport DatabaseParameterPtr CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision );
 
 		/** Retrieves a parameter, by index
 		@param[in] index
@@ -221,14 +229,10 @@ BEGIN_NAMESPACE_DATABASE
 		/** Pre-execution action
 		@remarks
 			Computes the final query from parameters values
-		@param[out] outParams
-			Receives the out parameters
-		@param[out] result
-			Receives the error code
 		@return
 			The full query
 		*/
-		DatabaseExport String DoPreExecute( DatabaseParameterPtrArray & outParams, EErrorType * result );
+		DatabaseExport String DoPreExecute();
 
 		/** Execute query.
 		@param[out] result
@@ -238,21 +242,9 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport DatabaseResultPtr DoExecute( EErrorType * result = NULL );
 
-		/** Pre-execution action
-		@remarks
-			Computes the final query from parameters values
-		@param[in] outParams
-			The output parameters
-		@param[out] result
-			Receives the error code
-		*/
-		DatabaseExport void DoPostExecute( DatabaseParameterPtrArray const & outParams, EErrorType * result );
-
 	protected:
 		//! Array of parameters (addition order).
 		DatabaseParameterPtrArray _arrayParams;
-		//! Map of parameters by pointers.
-		std::map< void *, DatabaseParameterPtr > _mapParamsByPointer;
 		//! Request text.
 		String _query;
 		//! Tokenized string (delimiter is "?").
@@ -262,22 +254,17 @@ BEGIN_NAMESPACE_DATABASE
 		//! Number of parameters (i.e. number of "?").
 		uint32_t _paramsCount;
 
-		/** Inform parent query from the value changes
+		/** Does nothing
 		*/
-		struct SValueUpdater
+		struct SDummyValueUpdater
 			: public CDatabaseParameter::SValueUpdater
 		{
 			/** Constructor
-			@param query
-				The parent query
 			*/
-			DatabaseExport SValueUpdater( CDatabaseQuery * query );
+			DatabaseExport SDummyValueUpdater(){}
 
 			//!@copydoc CDatabaseParameter::SValueUpdater
-			DatabaseExport virtual void Update( DatabaseParameterPtr value );
-
-			//! The parent query
-			CDatabaseQuery * _query;
+			DatabaseExport virtual void Update( DatabaseParameterPtr value ){}
 		};
 	};
 }

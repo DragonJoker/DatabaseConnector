@@ -48,7 +48,7 @@ BEGIN_NAMESPACE_DATABASE
 		class CDatabaseConnectionMySql;
 		class CDatabaseMySql;
 		class CDatabaseStatementMySql;
-		class CDatabaseStatementParameterMySql;
+		class CDatabaseParameterMySql;
 		class CExceptionDatabaseMySql;
 		class CPluginDatabaseMySql;
 		class CFactoryDatabaseMySql;
@@ -57,9 +57,9 @@ BEGIN_NAMESPACE_DATABASE
 		// Pointers
 		typedef std::shared_ptr< CDatabaseConnectionMySql > DatabaseConnectionMySqlPtr;
 		typedef std::shared_ptr< CDatabaseStatementMySql > DatabaseStatementMySqlPtr;
-		typedef std::shared_ptr< CDatabaseStatementParameterMySql > DatabaseStatementParameterMySqlPtr;
+		typedef std::shared_ptr< CDatabaseParameterMySql > DatabaseParameterMySqlPtr;
 
-		typedef std::vector< DatabaseStatementParameterMySqlPtr > DatabaseStatementParameterMySqlPtrArray;
+		typedef std::vector< DatabaseParameterMySqlPtr > DatabaseParameterMySqlPtrArray;
 
 		// Factory constants
 		const String FACTORY_DATABASE_MYSQL = STR( "Factory Database MySql" );

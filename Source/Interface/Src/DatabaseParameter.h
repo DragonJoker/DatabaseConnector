@@ -85,7 +85,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] fieldType
 			Field type.
 		@param[in] precision
-			Precision (floating and fixed points)
+			Field precision and scale (for FIXED_POINT)
 		@param[in] parameterType
 			Parameter type (in, inout, out).
 		@param[in] updater

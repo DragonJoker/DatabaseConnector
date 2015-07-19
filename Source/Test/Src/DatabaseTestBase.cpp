@@ -6,13 +6,26 @@
  *
  *
  * @brief Base class for database tests
+ * @todo
+ *	Transactions test:
+ *		Commit, close conn.
+ *		Rollback, close conn.
+ *		Begin, no modif, close conn.
+ *		Begin, no modif, commit, close conn.
+ *		Begin, no modif, rollback, close conn.
+ *		Begin, modif, close conn.
+ *		Begin, modif, commit, close conn.
+ *		Begin, modif, rollback, close conn.
+ *		Begin, begin, close conn.
+ *	Stored procedures
+ *	Multithread test
+ *	Multistatmeent test
  *
  ***************************************************************************/
 
 #include "DatabaseTestPch.h"
 
 #include "DatabaseTestBase.h"
-#include "DatabaseTestUtilsUtf8.h"
 
 BEGIN_NAMESPACE_DATABASE_TEST
 {
@@ -122,7 +135,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	STR( "	IDTest=?" );
 	String const QUERY_DIRECT_DELETE_ELEMENT = STR( "DELETE FROM Test WHERE IDTest=?" );
 
-	CDatabaseTest::CDatabaseTest( const String & type, const String & server, const String & database, const String & user, const String & password, bool hasNChar, bool hasSeparateBooleanAndTinyInt, const String & is )
+	CDatabaseTest::CDatabaseTest( const String & type, const String & server, const String & database, const String & user, const String & password, bool hasNChar, bool hasSeparateBooleanAndTinyInt, const String & is, bool hasInt24, bool hasUnsignedTiny )
 		: _type( type )
 		, _server( server )
 		, _database( database )
@@ -131,6 +144,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		, _hasNChar( hasNChar )
 		, _hasSeparateBooleanAndTinyInt( hasSeparateBooleanAndTinyInt )
 		, _is( is )
+		, _hasInt24( hasInt24 )
+		, _hasUnsignedTiny( hasUnsignedTiny )
 	{
 	}
 
@@ -145,18 +160,22 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		//!@remarks Add the TC to the internal TS.
 		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_CreateDatabase, this ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseQueryFieldsInsertRetrieve, this ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseQueryFieldsInsertRetrieveOtherIndex, this ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseQueryFieldsInsertRetrieveFast, this ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseQueryFieldsInsertRetrieveFastOtherIndex, this ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseQueryDirectQuery, this ) ) );
-		//testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseQueryStoredProcedure, this ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseStatementFieldsInsertRetrieve, this ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseStatementFieldsInsertRetrieveOtherIndex, this ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseStatementFieldsInsertRetrieveFast, this ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseStatementFieldsInsertRetrieveFastOtherIndex, this ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseStatementDirectQuery, this ) ) );
-		//testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseStatementStoredProcedure, this ) ) );
+
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieve< CDatabaseQuery >, this, STR( "Query" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieveOtherIndex< CDatabaseQuery >, this, STR( "Query" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieveFast< CDatabaseQuery >, this, STR( "Query" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieveFastOtherIndex< CDatabaseQuery >, this , STR( "Query" )) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseDirectQuery< CDatabaseQuery >, this, STR( "Query" ) ) ) );
+
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieve< CDatabaseStatement >, this, STR( "Statement" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieveOtherIndex< CDatabaseStatement >, this, STR( "Statement" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieveFast< CDatabaseStatement >, this, STR( "Statement" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieveFastOtherIndex< CDatabaseStatement >, this, STR( "Statement" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseDirectQuery< CDatabaseStatement >, this, STR( "Statement" ) ) ) );
+
+		//testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseStoredProcedure< CDatabaseQuery >, this ) ) );
+		//testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseStoredProcedure< CDatabaseStatement >, this ) ) );
+
 		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DestroyDatabase, this ) ) );
 
 		//!@remarks Return the TS instance.
@@ -165,119 +184,33 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 	void CDatabaseTest::TestCase_CreateDatabase()
 	{
-		CLogger::LogInfo( StringStream() << "**** Start TestCase_CreateDatabase ****" );
+		auto const guard = make_block_guard( [this]()
 		{
-			auto const guard = make_block_guard( [this]()
-			{
-				DoLoadPlugins();
-			}, []()
-			{
-				UnloadPlugins();
-			} );
-			std::unique_ptr< CDatabase > database( InstantiateDatabase( _type ) );
+			CLogger::LogInfo( StringStream() << "**** Start TestCase_CreateDatabase ****" );
+			DoLoadPlugins();
+		}, []()
+		{
+			UnloadPlugins();
+			CLogger::LogInfo( StringStream() << "**** End TestCase_CreateDatabase ****" );
+		} );
+		std::unique_ptr< CDatabase > database( InstantiateDatabase( _type ) );
 
-			if ( database )
-			{
-				DatabaseConnectionPtr connection = CreateConnection( *database, _server, _user, _password );
+		if ( database )
+		{
+			DatabaseConnectionPtr connection = CreateConnection( *database, _server, _user, _password );
 
-				if ( connection )
+			if ( connection )
+			{
+				if ( connection->IsConnected() )
 				{
-					if ( connection->IsConnected() )
-					{
-						connection->CreateDatabase( _database );
-						connection->SelectDatabase( _database );
-						connection->ExecuteUpdate( _createTable );
-					}
-
-					database->RemoveConnection();
+					connection->CreateDatabase( _database );
+					connection->SelectDatabase( _database );
+					connection->ExecuteUpdate( _createTable );
 				}
+
+				database->RemoveConnection();
 			}
 		}
-		CLogger::LogInfo( StringStream() << "**** End TestCase_CreateDatabase ****" );
-	}
-
-	void CDatabaseTest::TestCase_DatabaseQueryFieldsInsertRetrieve()
-	{
-		CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseQueryFieldsInsertRetrieve ****" );
-		TestCase_DatabaseFieldsInsertRetrieve< CDatabaseQuery >();
-		CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseQueryFieldsInsertRetrieve ****" );
-	}
-
-	void CDatabaseTest::TestCase_DatabaseQueryFieldsInsertRetrieveOtherIndex()
-	{
-		CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseQueryFieldsInsertRetrieveOtherIndex ****" );
-		TestCase_DatabaseFieldsInsertRetrieveOtherIndex< CDatabaseQuery >();
-		CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseQueryFieldsInsertRetrieveOtherIndex ****" );
-	}
-
-	void CDatabaseTest::TestCase_DatabaseQueryFieldsInsertRetrieveFast()
-	{
-		CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseQueryFieldsInsertRetrieveFast ****" );
-		TestCase_DatabaseFieldsInsertRetrieveFast< CDatabaseQuery >();
-		CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseQueryFieldsInsertRetrieveFast ****" );
-	}
-
-	void CDatabaseTest::TestCase_DatabaseQueryFieldsInsertRetrieveFastOtherIndex()
-	{
-		CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseQueryFieldsInsertRetrieveFastOtherIndex ****" );
-		TestCase_DatabaseFieldsInsertRetrieveFastOtherIndex< CDatabaseQuery >();
-		CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseQueryFieldsInsertRetrieveFastOtherIndex ****" );
-	}
-
-	void CDatabaseTest::TestCase_DatabaseQueryDirectQuery()
-	{
-		CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseQueryDirectQuery ****" );
-		TestCase_DatabaseDirectQuery< CDatabaseQuery >();
-		CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseQueryDirectQuery ****" );
-	}
-
-	void CDatabaseTest::TestCase_DatabaseQueryStoredProcedure()
-	{
-		CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseQueryStoredProcedure ****" );
-		TestCase_DatabaseStoredProcedure< CDatabaseQuery >();
-		CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseQueryStoredProcedure ****" );
-	}
-
-	void CDatabaseTest::TestCase_DatabaseStatementFieldsInsertRetrieve()
-	{
-		CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseStatementFieldsInsertRetrieve ****" );
-		TestCase_DatabaseFieldsInsertRetrieve< CDatabaseStatement >();
-		CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseStatementFieldsInsertRetrieve ****" );
-	}
-
-	void CDatabaseTest::TestCase_DatabaseStatementFieldsInsertRetrieveOtherIndex()
-	{
-		CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseStatementFieldsInsertRetrieveOtherIndex ****" );
-		TestCase_DatabaseFieldsInsertRetrieveOtherIndex< CDatabaseStatement >();
-		CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseStatementFieldsInsertRetrieveOtherIndex ****" );
-	}
-
-	void CDatabaseTest::TestCase_DatabaseStatementFieldsInsertRetrieveFast()
-	{
-		CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseStatementFieldsInsertRetrieve ****" );
-		TestCase_DatabaseFieldsInsertRetrieveFast< CDatabaseStatement >();
-		CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseStatementFieldsInsertRetrieve ****" );
-	}
-
-	void CDatabaseTest::TestCase_DatabaseStatementFieldsInsertRetrieveFastOtherIndex()
-	{
-		CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseStatementFieldsInsertRetrieveFastOtherIndex ****" );
-		TestCase_DatabaseFieldsInsertRetrieveFastOtherIndex< CDatabaseStatement >();
-		CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseStatementFieldsInsertRetrieveFastOtherIndex ****" );
-	}
-
-	void CDatabaseTest::TestCase_DatabaseStatementDirectQuery()
-	{
-		CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseStatementDirectQuery ****" );
-		TestCase_DatabaseDirectQuery< CDatabaseStatement >();
-		CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseStatementDirectQuery ****" );
-	}
-
-	void CDatabaseTest::TestCase_DatabaseStatementStoredProcedure()
-	{
-		CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseStatementStoredProcedure ****" );
-		TestCase_DatabaseStoredProcedure< CDatabaseStatement >();
-		CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseStatementStoredProcedure ****" );
 	}
 
 	void CDatabaseTest::TestCase_DestroyDatabase()
@@ -312,22 +245,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 		CLogger::LogInfo( StringStream() << "**** End TestCase_DestroyDatabase ****" );
 	}
-
-#if defined( PERF_TEST )
-	void CDatabaseTest::TestCase_DatabaseStatementPerformances()
-	{
-		CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseStatementPerformances ****" );
-		TestCase_DatabasePerformances< CDatabaseQuery >();
-		CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseStatementPerformances ****" );
-	}
-
-	void CDatabaseTest::TestCase_DatabaseQueryPerformances()
-	{
-		CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseQueryPerformances ****" );
-		TestCase_DatabasePerformances< CDatabaseStatement >();
-		CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseQueryPerformances ****" );
-	}
-#endif
 
 	void CDatabaseTest::DoFlushTable( DatabaseConnectionPtr connection )
 	{

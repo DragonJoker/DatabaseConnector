@@ -52,10 +52,10 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 		}
 
-		//!@copydoc SSqliteBindingBase::DoSetValue
+		//!@copydoc SSqliteBindingBase::UpdateValue
 		virtual void UpdateValue()
 		{
-			throw DB_EXCEPT( EDatabaseExceptionCodes_Unimplemented, ERROR_SQLITE_UPDATE_UNIMPLEMENTED );
+			DB_EXCEPT( EDatabaseExceptionCodes_Unimplemented, ERROR_SQLITE_UPDATE_UNIMPLEMENTED );
 		}
 
 		//! The parameter value
@@ -84,7 +84,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 		}
 
-		//!@copydoc SSqliteBindingBase::DoSetValue
+		//!@copydoc SSqliteBindingBase::UpdateValue
 		virtual void UpdateValue()
 		{
 			if ( _value.IsNull() )
@@ -101,10 +101,9 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		CDatabaseValue< EFieldType_BIT > const & _value;
 	};
 
-	/** SSqliteBinding specialization for EFieldType_INT8
+	/** base class for all integer type bindings
 	*/
-	template<>
-	struct SSqliteBinding< EFieldType_INT8 >
+	struct SSqliteIntegerBinding
 		: public SSqliteBindingBase
 	{
 		/** Constructor
@@ -117,34 +116,35 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@param value
 			The parameter value
 		*/
-		SSqliteBinding( sqlite3_stmt * statement, sqlite3 * connection, uint16_t index, CDatabaseValue< EFieldType_INT8 > const & value )
+		SSqliteIntegerBinding( sqlite3_stmt * statement, sqlite3 * connection, uint16_t index )
 			: SSqliteBindingBase( statement, connection, index )
-			, _value( value )
 		{
 		}
 
-		//!@copydoc SSqliteBindingBase::DoSetValue
-		virtual void UpdateValue()
+		/** Updates the binding value
+		@param[in] null
+			Tells if the parameter is null
+		@param[in] value
+			The value
+		*/
+		void UpdateValue( bool null, int value )
 		{
-			if ( _value.IsNull() )
+			if ( null )
 			{
 				SQLiteCheck( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
 			}
 			else
 			{
-				SQLiteCheck( sqlite3_bind_int( _statement, _index, _value.GetValue() ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << int16_t( _value.GetValue() ), EDatabaseExceptionCodes_StatementError, _connection );
+				SQLiteCheck( sqlite3_bind_int( _statement, _index, value ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << value, EDatabaseExceptionCodes_StatementError, _connection );
 			}
 		}
-
-		//! The parameter value
-		CDatabaseValue< EFieldType_INT8 > const & _value;
 	};
 
-	/** SSqliteBinding specialization for EFieldType_INT16
+	/** SSqliteBinding specialization for EFieldType_SINT8
 	*/
 	template<>
-	struct SSqliteBinding< EFieldType_INT16 >
-		: public SSqliteBindingBase
+	struct SSqliteBinding< EFieldType_SINT8 >
+		: public SSqliteIntegerBinding
 	{
 		/** Constructor
 		@param statement
@@ -156,34 +156,27 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@param value
 			The parameter value
 		*/
-		SSqliteBinding( sqlite3_stmt * statement, sqlite3 * connection, uint16_t index, CDatabaseValue< EFieldType_INT16 > const & value )
-			: SSqliteBindingBase( statement, connection, index )
+		SSqliteBinding( sqlite3_stmt * statement, sqlite3 * connection, uint16_t index, CDatabaseValue< EFieldType_SINT8 > const & value )
+			: SSqliteIntegerBinding( statement, connection, index )
 			, _value( value )
 		{
 		}
 
-		//!@copydoc SSqliteBindingBase::DoSetValue
+		//!@copydoc SSqliteBindingBase::UpdateValue
 		virtual void UpdateValue()
 		{
-			if ( _value.IsNull() )
-			{
-				SQLiteCheck( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
-			}
-			else
-			{
-				SQLiteCheck( sqlite3_bind_int( _statement, _index, _value.GetValue() ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
-			}
+			SSqliteIntegerBinding::UpdateValue( _value.IsNull(), int( _value.GetValue() ) );
 		}
 
 		//! The parameter value
-		CDatabaseValue< EFieldType_INT16 > const & _value;
+		CDatabaseValue< EFieldType_SINT8 > const & _value;
 	};
 
-	/** SSqliteBinding specialization for EFieldType_INT24
+	/** SSqliteBinding specialization for EFieldType_UINT8
 	*/
 	template<>
-	struct SSqliteBinding< EFieldType_INT24 >
-		: public SSqliteBindingBase
+	struct SSqliteBinding< EFieldType_UINT8 >
+		: public SSqliteIntegerBinding
 	{
 		/** Constructor
 		@param statement
@@ -195,34 +188,27 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@param value
 			The parameter value
 		*/
-		SSqliteBinding( sqlite3_stmt * statement, sqlite3 * connection, uint16_t index, CDatabaseValue< EFieldType_INT24 > const & value )
-			: SSqliteBindingBase( statement, connection, index )
+		SSqliteBinding( sqlite3_stmt * statement, sqlite3 * connection, uint16_t index, CDatabaseValue< EFieldType_UINT8 > const & value )
+			: SSqliteIntegerBinding( statement, connection, index )
 			, _value( value )
 		{
 		}
 
-		//!@copydoc SSqliteBindingBase::DoSetValue
+		//!@copydoc SSqliteBindingBase::UpdateValue
 		virtual void UpdateValue()
 		{
-			if ( _value.IsNull() )
-			{
-				SQLiteCheck( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
-			}
-			else
-			{
-				SQLiteCheck( sqlite3_bind_int( _statement, _index, int32_t( _value.GetValue() ) ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << int32_t( _value.GetValue() ), EDatabaseExceptionCodes_StatementError, _connection );
-			}
+			SSqliteIntegerBinding::UpdateValue( _value.IsNull(), int( _value.GetValue() ) );
 		}
 
 		//! The parameter value
-		CDatabaseValue< EFieldType_INT24 > const & _value;
+		CDatabaseValue< EFieldType_UINT8 > const & _value;
 	};
 
-	/** SSqliteBinding specialization for EFieldType_INT32
+	/** SSqliteBinding specialization for EFieldType_SINT16
 	*/
 	template<>
-	struct SSqliteBinding< EFieldType_INT32 >
-		: public SSqliteBindingBase
+	struct SSqliteBinding< EFieldType_SINT16 >
+		: public SSqliteIntegerBinding
 	{
 		/** Constructor
 		@param statement
@@ -234,33 +220,186 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@param value
 			The parameter value
 		*/
-		SSqliteBinding( sqlite3_stmt * statement, sqlite3 * connection, uint16_t index, CDatabaseValue< EFieldType_INT32 > const & value )
-			: SSqliteBindingBase( statement, connection, index )
+		SSqliteBinding( sqlite3_stmt * statement, sqlite3 * connection, uint16_t index, CDatabaseValue< EFieldType_SINT16 > const & value )
+			: SSqliteIntegerBinding( statement, connection, index )
 			, _value( value )
 		{
 		}
 
-		//!@copydoc SSqliteBindingBase::DoSetValue
+		//!@copydoc SSqliteBindingBase::UpdateValue
 		virtual void UpdateValue()
 		{
-			if ( _value.IsNull() )
-			{
-				SQLiteCheck( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
-			}
-			else
-			{
-				SQLiteCheck( sqlite3_bind_int( _statement, _index, _value.GetValue() ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
-			}
+			SSqliteIntegerBinding::UpdateValue( _value.IsNull(), int( _value.GetValue() ) );
 		}
 
 		//! The parameter value
-		CDatabaseValue< EFieldType_INT32 > const & _value;
+		CDatabaseValue< EFieldType_SINT16 > const & _value;
+	};
+
+	/** SSqliteBinding specialization for EFieldType_UINT16
+	*/
+	template<>
+	struct SSqliteBinding< EFieldType_UINT16 >
+		: public SSqliteIntegerBinding
+	{
+		/** Constructor
+		@param statement
+			The statement
+		@param connection
+			The database connection
+		@param index
+			The parameter index
+		@param value
+			The parameter value
+		*/
+		SSqliteBinding( sqlite3_stmt * statement, sqlite3 * connection, uint16_t index, CDatabaseValue< EFieldType_UINT16 > const & value )
+			: SSqliteIntegerBinding( statement, connection, index )
+			, _value( value )
+		{
+		}
+
+		//!@copydoc SSqliteBindingBase::UpdateValue
+		virtual void UpdateValue()
+		{
+			SSqliteIntegerBinding::UpdateValue( _value.IsNull(), int( _value.GetValue() ) );
+		}
+
+		//! The parameter value
+		CDatabaseValue< EFieldType_UINT16 > const & _value;
+	};
+
+	/** SSqliteBinding specialization for EFieldType_SINT24
+	*/
+	template<>
+	struct SSqliteBinding< EFieldType_SINT24 >
+		: public SSqliteIntegerBinding
+	{
+		/** Constructor
+		@param statement
+			The statement
+		@param connection
+			The database connection
+		@param index
+			The parameter index
+		@param value
+			The parameter value
+		*/
+		SSqliteBinding( sqlite3_stmt * statement, sqlite3 * connection, uint16_t index, CDatabaseValue< EFieldType_SINT24 > const & value )
+			: SSqliteIntegerBinding( statement, connection, index )
+			, _value( value )
+		{
+		}
+
+		//!@copydoc SSqliteBindingBase::UpdateValue
+		virtual void UpdateValue()
+		{
+			SSqliteIntegerBinding::UpdateValue( _value.IsNull(), int32_t( _value.GetValue() ) );
+		}
+
+		//! The parameter value
+		CDatabaseValue< EFieldType_SINT24 > const & _value;
+	};
+
+	/** SSqliteBinding specialization for EFieldType_UINT24
+	*/
+	template<>
+	struct SSqliteBinding< EFieldType_UINT24 >
+		: public SSqliteIntegerBinding
+	{
+		/** Constructor
+		@param statement
+			The statement
+		@param connection
+			The database connection
+		@param index
+			The parameter index
+		@param value
+			The parameter value
+		*/
+		SSqliteBinding( sqlite3_stmt * statement, sqlite3 * connection, uint16_t index, CDatabaseValue< EFieldType_UINT24 > const & value )
+			: SSqliteIntegerBinding( statement, connection, index )
+			, _value( value )
+		{
+		}
+
+		//!@copydoc SSqliteBindingBase::UpdateValue
+		virtual void UpdateValue()
+		{
+			SSqliteIntegerBinding::UpdateValue( _value.IsNull(), int32_t( _value.GetValue() ) );
+		}
+
+		//! The parameter value
+		CDatabaseValue< EFieldType_UINT24 > const & _value;
+	};
+
+	/** SSqliteBinding specialization for EFieldType_SINT32
+	*/
+	template<>
+	struct SSqliteBinding< EFieldType_SINT32 >
+		: public SSqliteIntegerBinding
+	{
+		/** Constructor
+		@param statement
+			The statement
+		@param connection
+			The database connection
+		@param index
+			The parameter index
+		@param value
+			The parameter value
+		*/
+		SSqliteBinding( sqlite3_stmt * statement, sqlite3 * connection, uint16_t index, CDatabaseValue< EFieldType_SINT32 > const & value )
+			: SSqliteIntegerBinding( statement, connection, index )
+			, _value( value )
+		{
+		}
+
+		//!@copydoc SSqliteBindingBase::UpdateValue
+		virtual void UpdateValue()
+		{
+			SSqliteIntegerBinding::UpdateValue( _value.IsNull(), int( _value.GetValue() ) );
+		}
+
+		//! The parameter value
+		CDatabaseValue< EFieldType_SINT32 > const & _value;
+	};
+
+	/** SSqliteBinding specialization for EFieldType_UINT32
+	*/
+	template<>
+	struct SSqliteBinding< EFieldType_UINT32 >
+		: public SSqliteIntegerBinding
+	{
+		/** Constructor
+		@param statement
+			The statement
+		@param connection
+			The database connection
+		@param index
+			The parameter index
+		@param value
+			The parameter value
+		*/
+		SSqliteBinding( sqlite3_stmt * statement, sqlite3 * connection, uint16_t index, CDatabaseValue< EFieldType_UINT32 > const & value )
+			: SSqliteIntegerBinding( statement, connection, index )
+			, _value( value )
+		{
+		}
+
+		//!@copydoc SSqliteBindingBase::UpdateValue
+		virtual void UpdateValue()
+		{
+			SSqliteIntegerBinding::UpdateValue( _value.IsNull(), int( _value.GetValue() ) );
+		}
+
+		//! The parameter value
+		CDatabaseValue< EFieldType_UINT32 > const & _value;
 	};
 
 	/** SSqliteBinding specialization for EFieldType_INT64
 	*/
 	template<>
-	struct SSqliteBinding< EFieldType_INT64 >
+	struct SSqliteBinding< EFieldType_SINT64 >
 		: public SSqliteBindingBase
 	{
 		/** Constructor
@@ -273,13 +412,13 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@param value
 			The parameter value
 		*/
-		SSqliteBinding( sqlite3_stmt * statement, sqlite3 * connection, uint16_t index, CDatabaseValue< EFieldType_INT64 > const & value )
+		SSqliteBinding( sqlite3_stmt * statement, sqlite3 * connection, uint16_t index, CDatabaseValue< EFieldType_SINT64 > const & value )
 			: SSqliteBindingBase( statement, connection, index )
 			, _value( value )
 		{
 		}
 
-		//!@copydoc SSqliteBindingBase::DoSetValue
+		//!@copydoc SSqliteBindingBase::UpdateValue
 		virtual void UpdateValue()
 		{
 			if ( _value.IsNull() )
@@ -293,7 +432,46 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		}
 
 		//! The parameter value
-		CDatabaseValue< EFieldType_INT64 > const & _value;
+		CDatabaseValue< EFieldType_SINT64 > const & _value;
+	};
+
+	/** SSqliteBinding specialization for EFieldType_UINT64
+	*/
+	template<>
+	struct SSqliteBinding< EFieldType_UINT64 >
+		: public SSqliteBindingBase
+	{
+		/** Constructor
+		@param statement
+			The statement
+		@param connection
+			The database connection
+		@param index
+			The parameter index
+		@param value
+			The parameter value
+		*/
+		SSqliteBinding( sqlite3_stmt * statement, sqlite3 * connection, uint16_t index, CDatabaseValue< EFieldType_UINT64 > const & value )
+			: SSqliteBindingBase( statement, connection, index )
+			, _value( value )
+		{
+		}
+
+		//!@copydoc SSqliteBindingBase::UpdateValue
+		virtual void UpdateValue()
+		{
+			if ( _value.IsNull() )
+			{
+				SQLiteCheck( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
+			}
+			else
+			{
+				SQLiteCheck( sqlite3_bind_int64( _statement, _index, _value.GetValue() ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			}
+		}
+
+		//! The parameter value
+		CDatabaseValue< EFieldType_UINT64 > const & _value;
 	};
 
 	/** SSqliteBinding specialization for EFieldType_FLOAT32
@@ -318,7 +496,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 		}
 
-		//!@copydoc SSqliteBindingBase::DoSetValue
+		//!@copydoc SSqliteBindingBase::UpdateValue
 		virtual void UpdateValue()
 		{
 			if ( _value.IsNull() )
@@ -357,7 +535,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 		}
 
-		//!@copydoc SSqliteBindingBase::DoSetValue
+		//!@copydoc SSqliteBindingBase::UpdateValue
 		virtual void UpdateValue()
 		{
 			if ( _value.IsNull() )
@@ -396,7 +574,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 		}
 
-		//!@copydoc SSqliteBindingBase::DoSetValue
+		//!@copydoc SSqliteBindingBase::UpdateValue
 		virtual void UpdateValue()
 		{
 			if ( _value.IsNull() )
@@ -435,7 +613,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 		}
 
-		//!@copydoc SSqliteBindingBase::DoSetValue
+		//!@copydoc SSqliteBindingBase::UpdateValue
 		virtual void UpdateValue()
 		{
 			if ( _value.IsNull() )
@@ -474,7 +652,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 		}
 
-		//!@copydoc SSqliteBindingBase::DoSetValue
+		//!@copydoc SSqliteBindingBase::UpdateValue
 		virtual void UpdateValue()
 		{
 			if ( _value.IsNull() )
@@ -513,7 +691,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 		}
 
-		//!@copydoc SSqliteBindingBase::DoSetValue
+		//!@copydoc SSqliteBindingBase::UpdateValue
 		virtual void UpdateValue()
 		{
 			if ( _value.IsNull() )
@@ -552,7 +730,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 		}
 
-		//!@copydoc SSqliteBindingBase::DoSetValue
+		//!@copydoc SSqliteBindingBase::UpdateValue
 		virtual void UpdateValue()
 		{
 			if ( _value.IsNull() )
@@ -591,7 +769,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 		}
 
-		//!@copydoc SSqliteBindingBase::DoSetValue
+		//!@copydoc SSqliteBindingBase::UpdateValue
 		virtual void UpdateValue()
 		{
 			if ( _value.IsNull() )
@@ -630,7 +808,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 		}
 
-		//!@copydoc SSqliteBindingBase::DoSetValue
+		//!@copydoc SSqliteBindingBase::UpdateValue
 		virtual void UpdateValue()
 		{
 			if ( _value.IsNull() )
@@ -669,7 +847,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 		}
 
-		//!@copydoc SSqliteBindingBase::DoSetValue
+		//!@copydoc SSqliteBindingBase::UpdateValue
 		virtual void UpdateValue()
 		{
 			if ( _value.IsNull() )
@@ -708,7 +886,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 		}
 
-		//!@copydoc SSqliteBindingBase::DoSetValue
+		//!@copydoc SSqliteBindingBase::UpdateValue
 		virtual void UpdateValue()
 		{
 			if ( _value.IsNull() )
@@ -747,7 +925,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 		}
 
-		//!@copydoc SSqliteBindingBase::DoSetValue
+		//!@copydoc SSqliteBindingBase::UpdateValue
 		virtual void UpdateValue()
 		{
 			if ( _value.IsNull() )
@@ -786,7 +964,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 		}
 
-		//!@copydoc SSqliteBindingBase::DoSetValue
+		//!@copydoc SSqliteBindingBase::UpdateValue
 		virtual void UpdateValue()
 		{
 			if ( _value.IsNull() )

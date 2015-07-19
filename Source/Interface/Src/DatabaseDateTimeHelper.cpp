@@ -100,7 +100,6 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			StringStream message;
 			message << ERROR_DB_FORMALIZE << formattedString.c_str();
-			CLogger::LogError( message.str() );
 			DB_EXCEPT( EDatabaseExceptionCodes_DateTimeError, message.str() );
 		}
 	}
@@ -177,7 +176,6 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			StringStream message;
 			message << ERROR_DB_FORMALIZE << formattedString.c_str();
-			CLogger::LogError( message.str() );
 			DB_EXCEPT( EDatabaseExceptionCodes_DateTimeError, message.str() );
 		}
 	}

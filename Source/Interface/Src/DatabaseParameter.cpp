@@ -31,8 +31,14 @@ BEGIN_NAMESPACE_DATABASE
 			return true;
 		}
 
-		if ( ( typeA == EFieldType_INT16 || typeA == EFieldType_INT24 || typeA == EFieldType_INT32 || typeA == EFieldType_INT64 )
-				&& ( typeB == EFieldType_INT16 || typeB == EFieldType_INT24 || typeB == EFieldType_INT32 || typeB == EFieldType_INT64 ) )
+		if ( ( typeA == EFieldType_SINT16 || typeA == EFieldType_SINT24 || typeA == EFieldType_SINT32 || typeA == EFieldType_SINT64 )
+				&& ( typeB == EFieldType_SINT16 || typeB == EFieldType_SINT24 || typeB == EFieldType_SINT32 || typeB == EFieldType_SINT64 ) )
+		{
+			return true;
+		}
+
+		if ( ( typeA == EFieldType_UINT16 || typeA == EFieldType_UINT24 || typeA == EFieldType_UINT32 || typeA == EFieldType_UINT64 )
+				&& ( typeB == EFieldType_UINT16 || typeB == EFieldType_UINT24 || typeB == EFieldType_UINT32 || typeB == EFieldType_UINT64 ) )
 		{
 			return true;
 		}
@@ -127,7 +133,6 @@ BEGIN_NAMESPACE_DATABASE
 		if ( !AreTypesCompatible( GetType(), field->GetType() ) )
 		{
 			String errMsg = ERROR_DB_INCOMPATIBLE_TYPES + this->GetName();
-			CLogger::LogError( errMsg );
 			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, errMsg );
 		}
 
@@ -139,7 +144,6 @@ BEGIN_NAMESPACE_DATABASE
 		if ( !AreTypesCompatible( GetType(), parameter->GetType() ) )
 		{
 			String errMsg = ERROR_DB_INCOMPATIBLE_TYPES + this->GetName();
-			CLogger::LogError( errMsg );
 			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, errMsg );
 		}
 
@@ -154,24 +158,44 @@ BEGIN_NAMESPACE_DATABASE
 			DoSetValue( static_cast< CDatabaseValue< EFieldType_BIT > const & >( value ).GetValue() );
 			break;
 
-		case EFieldType_INT8:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_INT8 > const & >( value ).GetValue() );
+		case EFieldType_SINT8:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_SINT8 > const & >( value ).GetValue() );
 			break;
 
-		case EFieldType_INT16:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_INT16 > const & >( value ).GetValue() );
+		case EFieldType_SINT16:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_SINT16 > const & >( value ).GetValue() );
 			break;
 
-		case EFieldType_INT24:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_INT24 > const & >( value ).GetValue() );
+		case EFieldType_SINT24:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_SINT24 > const & >( value ).GetValue() );
 			break;
 
-		case EFieldType_INT32:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_INT32 > const & >( value ).GetValue() );
+		case EFieldType_SINT32:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_SINT32 > const & >( value ).GetValue() );
 			break;
 
-		case EFieldType_INT64:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_INT64 > const & >( value ).GetValue() );
+		case EFieldType_SINT64:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_SINT64 > const & >( value ).GetValue() );
+			break;
+
+		case EFieldType_UINT8:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_UINT8 > const & >( value ).GetValue() );
+			break;
+
+		case EFieldType_UINT16:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_UINT16 > const & >( value ).GetValue() );
+			break;
+
+		case EFieldType_UINT24:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_UINT24 > const & >( value ).GetValue() );
+			break;
+
+		case EFieldType_UINT32:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_UINT32 > const & >( value ).GetValue() );
+			break;
+
+		case EFieldType_UINT64:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_UINT64 > const & >( value ).GetValue() );
 			break;
 
 		case EFieldType_FLOAT32:
@@ -227,7 +251,6 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		default:
-			CLogger::LogError( ERROR_DB_PARAMETER_SETVALUE_TYPE + this->GetName() );
 			DB_EXCEPT( EDatabaseExceptionCodes_ParameterError, ERROR_DB_PARAMETER_SETVALUE_TYPE + this->GetName() );
 			break;
 		}

@@ -77,7 +77,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		@param[in] parameter
 			The parameter
 		*/
-		SOutMySqlBindBase( MYSQL_BIND & bind, enum_field_types type, CDatabaseStatementParameterMySql & parameter );
+		SOutMySqlBindBase( MYSQL_BIND & bind, enum_field_types type, CDatabaseParameterMySql & parameter );
 
 		/** Function called when CDatabaseParameter::SetValue/SetValueFast is called, to update the bind
 		*/
@@ -128,30 +128,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		The MySQL database connection, to retrieve a detailed error message
 	*/
 	void MySQLCheck( int code, TChar const * msg, EDatabaseExceptionCodes exc, MYSQL * connection );
-
-	/** Converts a CDate to a MYSQL_TIME
-	@param[in] date
-		The CDate
-	@return
-		The MYSQL_TIME
-	*/
-	MYSQL_TIME MySqlTimeFromCDate( CDate const & date );
-
-	/** Converts a CDateTime to a MYSQL_TIME
-	@param[in] dateTime
-		The CDateTime
-	@return
-		The MYSQL_TIME
-	*/
-	MYSQL_TIME MySqlTimeFromCDateTime( CDateTime const & dateTime );
-
-	/** Converts a CTime to a MYSQL_TIME
-	@param[in] time
-		The CTime
-	@return
-		The MYSQL_TIME
-	*/
-	MYSQL_TIME MySqlTimeFromCTime( CTime const & time );
 
 	/** Sends data to the server, using mysql_stmt_send_long_data
 	@param[in] value

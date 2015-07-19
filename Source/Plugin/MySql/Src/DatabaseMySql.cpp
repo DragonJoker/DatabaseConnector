@@ -31,8 +31,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	{
 		if ( mysql_library_init( 0, NULL, NULL ) )
 		{
-			CLogger::LogError( ERROR_MYSQL_INITIALISATION );
-			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_MYSQL_INITIALISATION, __FUNCTION__, __FILE__, __LINE__ );
+			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_MYSQL_INITIALISATION );
 		}
 	}
 

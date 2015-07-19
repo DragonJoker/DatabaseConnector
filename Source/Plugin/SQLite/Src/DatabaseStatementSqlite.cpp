@@ -59,7 +59,55 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		Cleanup();
 	}
 
-	EErrorType CDatabaseStatementSqlite::Initialize()
+	DatabaseParameterPtr CDatabaseStatementSqlite::CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType )
+	{
+		DatabaseParameterPtr pReturn = std::make_shared< CDatabaseStatementParameterSqlite >( _connectionSqlite, name, ( unsigned short )_arrayInParams.size() + 1, fieldType, parameterType, std::make_unique< SValueUpdater >( this ) );
+
+		if ( !DoAddParameter( pReturn ) )
+		{
+			pReturn.reset();
+		}
+		else if ( parameterType == EParameterType_IN )
+		{
+			_arrayInParams.push_back( pReturn );
+		}
+
+		return pReturn;
+	}
+
+	DatabaseParameterPtr CDatabaseStatementSqlite::CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType )
+	{
+		DatabaseParameterPtr pReturn = std::make_shared< CDatabaseStatementParameterSqlite >( _connectionSqlite, name, ( unsigned short )_arrayInParams.size() + 1, fieldType, limits, parameterType, std::make_unique< SValueUpdater >( this ) );
+
+		if ( !DoAddParameter( pReturn ) )
+		{
+			pReturn.reset();
+		}
+		else if ( parameterType == EParameterType_IN )
+		{
+			_arrayInParams.push_back( pReturn );
+		}
+
+		return pReturn;
+	}
+
+	DatabaseParameterPtr CDatabaseStatementSqlite::CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType )
+	{
+		DatabaseParameterPtr pReturn = std::make_shared< CDatabaseStatementParameterSqlite >( _connectionSqlite, name, ( unsigned short )_arrayInParams.size() + 1, fieldType, precision, parameterType, std::make_unique< SValueUpdater >( this ) );
+
+		if ( !DoAddParameter( pReturn ) )
+		{
+			pReturn.reset();
+		}
+		else if ( parameterType == EParameterType_IN )
+		{
+			_arrayInParams.push_back( pReturn );
+		}
+
+		return pReturn;
+	}
+
+	EErrorType CDatabaseStatementSqlite::DoInitialize()
 	{
 		EErrorType eReturn = EErrorType_ERROR;
 
@@ -160,7 +208,6 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			{
 				StringStream error;
 				error << ERROR_SQLITE_QUERY_INCONSISTENCY << _arrayParams.size() << STR( ", Expected: " ) << count;
-				CLogger::LogError( error );
 				DB_EXCEPT( EDatabaseExceptionCodes_StatementError, error.str() );
 			}
 		}
@@ -173,7 +220,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		return eReturn;
 	}
 
-	bool CDatabaseStatementSqlite::ExecuteUpdate( EErrorType * result )
+	bool CDatabaseStatementSqlite::DoExecuteUpdate( EErrorType * result )
 	{
 		DoPreExecute( result );
 
@@ -190,7 +237,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		return bReturn;
 	}
 
-	DatabaseResultPtr CDatabaseStatementSqlite::ExecuteSelect( EErrorType * result )
+	DatabaseResultPtr CDatabaseStatementSqlite::DoExecuteSelect( EErrorType * result )
 	{
 		DoPreExecute( result );
 
@@ -207,7 +254,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		return pReturn;
 	}
 
-	void CDatabaseStatementSqlite::Cleanup()
+	void CDatabaseStatementSqlite::DoCleanup()
 	{
 		if ( _statement )
 		{
@@ -221,38 +268,6 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		_arrayQueries.clear();
 		_paramsCount = 0;
 		_stmtOutParams.reset();
-	}
-
-	DatabaseParameterPtr CDatabaseStatementSqlite::CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType )
-	{
-		DatabaseParameterPtr pReturn = std::make_shared< CDatabaseStatementParameterSqlite >( _connectionSqlite, name, ( unsigned short )_arrayInParams.size() + 1, fieldType, parameterType, std::make_unique< SValueUpdater >( this ) );
-
-		if ( !DoAddParameter( pReturn ) )
-		{
-			pReturn.reset();
-		}
-		else if ( parameterType == EParameterType_IN )
-		{
-			_arrayInParams.push_back( pReturn );
-		}
-
-		return pReturn;
-	}
-
-	DatabaseParameterPtr CDatabaseStatementSqlite::CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType )
-	{
-		DatabaseParameterPtr pReturn = std::make_shared< CDatabaseStatementParameterSqlite >( _connectionSqlite, name, ( unsigned short )_arrayInParams.size() + 1, fieldType, limits, parameterType, std::make_unique< SValueUpdater >( this ) );
-
-		if ( !DoAddParameter( pReturn ) )
-		{
-			pReturn.reset();
-		}
-		else if ( parameterType == EParameterType_IN )
-		{
-			_arrayInParams.push_back( pReturn );
-		}
-
-		return pReturn;
 	}
 
 	void CDatabaseStatementSqlite::DoPreExecute( EErrorType * result )

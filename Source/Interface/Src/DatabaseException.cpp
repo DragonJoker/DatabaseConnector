@@ -36,7 +36,7 @@ BEGIN_NAMESPACE_DATABASE
 
 	namespace
 	{
-		static void showBacktrace()
+		static void ShowBacktrace( std::stringstream & stream )
 		{
 		}
 	}
@@ -46,9 +46,9 @@ BEGIN_NAMESPACE_DATABASE
 
 	namespace
 	{
-		void ShowBacktrace( StringStream & stream )
+		void ShowBacktrace( std::stringstream & stream )
 		{
-			stream << "== Call Stack ==" << std::endl;
+			stream << std::endl << "== Call Stack ==" << std::endl;
 
 			// For now we just print out a message on sterr.
 			void * backTrace[NumOfFnCallsToCapture];
@@ -68,7 +68,7 @@ BEGIN_NAMESPACE_DATABASE
 
 	namespace
 	{
-		void ShowBacktrace( StringStream & stream )
+		void ShowBacktrace( std::stringstream & stream )
 		{
 			const int MaxFnNameLen( 255 );
 
@@ -83,15 +83,13 @@ BEGIN_NAMESPACE_DATABASE
 			::HANDLE process( ::GetCurrentProcess() );
 			SymInitialize( process, NULL, TRUE );
 
-			stream << "== Call Stack ==" << std::endl;
+			stream << std::endl << "== Call Stack ==" << std::endl;
 
 			// For now we just print out a message on sterr.
 			for ( unsigned int i = 0; i < num; ++i )
 			{
 				SymFromAddr( process, reinterpret_cast< DWORD64 >( backTrace[i] ), 0, symbol );
-				symbol->Name[symbol->NameLen] = '\0';
-
-				stream << "== " << symbol->Name << std::endl;
+				stream << "== " << std::string( symbol->Name, symbol->Name + symbol->NameLen ) << std::endl;
 			}
 
 			free( symbol );
@@ -109,7 +107,9 @@ BEGIN_NAMESPACE_DATABASE
 		, _file( CStrUtils::ToString( file ) )
 		, _line( line )
 	{
-		// Empty
+		std::stringstream stream;
+		ShowBacktrace( stream );
+		_callstack = stream.str();
 	}
 
 	CExceptionDatabase::CExceptionDatabase( int number, const String & description, const std::string & source, const String & type, const std::string & file, long line )
@@ -120,7 +120,9 @@ BEGIN_NAMESPACE_DATABASE
 		, _file( CStrUtils::ToString( file ) )
 		, _line( line )
 	{
-		// Empty
+		std::stringstream stream;
+		ShowBacktrace( stream );
+		_callstack = stream.str();
 	}
 
 	const String & CExceptionDatabase::GetFullDescription() const
@@ -138,9 +140,7 @@ BEGIN_NAMESPACE_DATABASE
 				desc << " at " << _file << " ( line " << _line << " )";
 			}
 
-#if !defined( NDEBUG )
-			ShowBacktrace( desc );
-#endif
+			desc << _callstack;
 			_fullDesc = desc.str();
 			_what = CStrUtils::ToStr( _fullDesc );
 		}

@@ -34,7 +34,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 	@param[in] connection
 		The database connection
 	*/
-	DatabaseResultPtr SqliteFetchResult( sqlite3_stmt * statement, int & code, DatabaseFieldInfosPtrArray const & columns, DatabaseConnectionSqlitePtr connection );
+	DatabaseResultPtr SqliteFetchResult( sqlite3_stmt * statement, DatabaseFieldInfosPtrArray const & columns, DatabaseConnectionSqlitePtr connection );
 
 	/** Checks the given code, throws an exception if it is not an acceptable one
 	@param[in] code

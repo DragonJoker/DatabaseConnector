@@ -49,7 +49,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Error code.
 		*/
-		DatabaseExport virtual EErrorType Initialize() = 0;
+		DatabaseExport EErrorType Initialize();
 
 		/** Execute a query that has no result set.
 		@param[out] result
@@ -57,7 +57,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Results.
 		*/
-		DatabaseExport virtual bool ExecuteUpdate( EErrorType * result = NULL ) = 0;
+		DatabaseExport bool ExecuteUpdate( EErrorType * result = NULL );
 
 		/** Execute query that has a result set.
 		@param[out] result
@@ -65,11 +65,11 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Results.
 		*/
-		DatabaseExport virtual DatabaseResultPtr ExecuteSelect( EErrorType * result = NULL ) = 0;
+		DatabaseExport DatabaseResultPtr ExecuteSelect( EErrorType * result = NULL );
 
 		/** Clean query.
 		*/
-		DatabaseExport virtual void Cleanup() = 0;
+		DatabaseExport void Cleanup();
 
 		/** Create a statement parameter.
 		@param[in] name
@@ -81,7 +81,19 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Created statement parameter.
 		*/
-		DatabaseExport virtual DatabaseParameterPtr CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType ) = 0;
+		DatabaseExport virtual DatabaseParameterPtr CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType = EParameterType_IN ) = 0;
+
+		/** Create a query parameter for variable-sized parameter (with limits)
+		@param[in] name
+			Parameter name.
+		@param[in] fieldType
+			Field type.
+		@param[in] precision
+			Field precision and scale.
+		@return
+			Created query parameter.
+		*/
+		DatabaseExport virtual DatabaseParameterPtr CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType = EParameterType_IN ) = 0;
 
 		/** Create a statement parameter for variable-sized parameter (with limits)
 		@param[in] name
@@ -89,13 +101,13 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] fieldType
 			Field type.
 		@param[in] limits
-			Filed limits.
+			Field limits.
 		@param[in] parameterType
 			Parameter type.
 		@return
 			Created statement parameter.
 		*/
-		DatabaseExport virtual DatabaseParameterPtr CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType ) = 0;
+		DatabaseExport virtual DatabaseParameterPtr CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType = EParameterType_IN ) = 0;
 
 		/** Retrieves a parameter, by index
 		@param[in] index
@@ -217,6 +229,34 @@ BEGIN_NAMESPACE_DATABASE
 			true if addition succeeds, false otherwise.
 		*/
 		DatabaseExport bool DoAddParameter( DatabaseParameterPtr parameter );
+
+		/** Initialize query.
+		@remarks
+			The statement *MUST* be initialized, *AFTER* all parameters have been created.
+		@return
+			Error code.
+		*/
+		DatabaseExport virtual EErrorType DoInitialize() = 0;
+
+		/** Execute a query that has no result set.
+		@param[out] result
+			Error code.
+		@return
+			Results.
+		*/
+		DatabaseExport virtual bool DoExecuteUpdate( EErrorType * result = NULL ) = 0;
+
+		/** Execute query that has a result set.
+		@param[out] result
+			Error code.
+		@return
+			Results.
+		*/
+		DatabaseExport virtual DatabaseResultPtr DoExecuteSelect( EErrorType * result = NULL ) = 0;
+
+		/** Clean query.
+		*/
+		DatabaseExport virtual void DoCleanup() = 0;
 
 	protected:
 		//! Array of parameters (addition order).

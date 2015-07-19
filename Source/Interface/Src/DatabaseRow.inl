@@ -50,7 +50,6 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			StringStream message;
 			message << ERROR_DB_ROW_INDEX << index;
-			CLogger::LogError( message );
 			DB_EXCEPT( EDatabaseExceptionCodes_RowError, message.str() );
 		}
 	}
@@ -71,7 +70,6 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			StringStream message;
 			message << ERROR_DB_ROW_NAME << name;
-			CLogger::LogError( message );
 			DB_EXCEPT( EDatabaseExceptionCodes_RowError, message.str() );
 		}
 	}
@@ -108,7 +106,6 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			StringStream message;
 			message << ERROR_DB_ROW_INDEX << index;
-			CLogger::LogError( message );
 			DB_EXCEPT( EDatabaseExceptionCodes_RowError, message.str() );
 		}
 	}
@@ -129,7 +126,6 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			StringStream message;
 			message << ERROR_DB_ROW_NAME << name;
-			CLogger::LogError( message );
 			DB_EXCEPT( EDatabaseExceptionCodes_RowError, message.str() );
 		}
 	}
@@ -150,7 +146,6 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			StringStream message;
 			message << ERROR_DB_ROW_INDEX << index;
-			CLogger::LogError( message );
 			DB_EXCEPT( EDatabaseExceptionCodes_RowError, message.str() );
 		}
 	}
@@ -171,7 +166,6 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			StringStream message;
 			message << ERROR_DB_ROW_NAME << name;
-			CLogger::LogError( message );
 			DB_EXCEPT( EDatabaseExceptionCodes_RowError, message.str() );
 		}
 	}
@@ -192,7 +186,6 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			StringStream message;
 			message << ERROR_DB_ROW_INDEX << index;
-			CLogger::LogError( message );
 			DB_EXCEPT( EDatabaseExceptionCodes_RowError, message.str() );
 		}
 	}
@@ -213,7 +206,6 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			StringStream message;
 			message << ERROR_DB_ROW_NAME << name;
-			CLogger::LogError( message );
 			DB_EXCEPT( EDatabaseExceptionCodes_RowError, message.str() );
 		}
 	}

@@ -138,6 +138,8 @@ BEGIN_NAMESPACE_DATABASE
 		mutable String _fullDesc;
 		//!< Full std::string error description.
 		mutable std::string _what;
+		//! The stack trace
+		std::string _callstack;
 	};
 
 #	define DB_EXCEPT( number, description ) throw CExceptionDatabase( number, description, __FUNCTION__, __FILE__, __LINE__ )

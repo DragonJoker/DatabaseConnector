@@ -97,13 +97,13 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			int8_t _value;
 		};
 
-		/** SInMySqlBind specialisation for EFieldType_INT24
+		/** SInMySqlBind specialisation for EFieldType_SINT24
 		@remarks
 			Holds the value as an int32_t.
 			The conversion is done when the call is made to GetValue
 		*/
 		template<>
-		struct SInMySqlBind< EFieldType_INT24 >
+		struct SInMySqlBind< EFieldType_SINT24 >
 			: public SInMySqlBindBase
 		{
 			/** Constructor
@@ -128,6 +128,39 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 			//! The value holder
 			int32_t _value;
+		};
+
+		/** SInMySqlBind specialisation for EFieldType_UINT24
+		@remarks
+			Holds the value as an uint32_t.
+			The conversion is done when the call is made to GetValue
+		*/
+		template<>
+		struct SInMySqlBind< EFieldType_UINT24 >
+			: public SInMySqlBindBase
+		{
+			/** Constructor
+			@param[in] bind
+				The MySQL bind
+			*/
+			SInMySqlBind( MYSQL_BIND & bind )
+				: SInMySqlBindBase( bind )
+			{
+				bind.buffer = &_value;
+				bind.buffer_length = sizeof( uint32_t );
+			}
+
+			/** Retrieves the binding's value
+			@return
+				The value
+			*/
+			uint24_t GetValue()const
+			{
+				return uint24_t( _value );
+			}
+
+			//! The value holder
+			uint32_t _value;
 		};
 
 		/** Common holder for buffers
@@ -331,9 +364,9 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			@return
 				The value
 			*/
-			std::vector< uint8_t > const & GetValue()const
+			std::vector< uint8_t > GetValue()const
 			{
-				return _value;
+				return std::vector< uint8_t >( _value.data(), _value.data() + *_bind.length );
 			}
 		};
 
@@ -405,9 +438,10 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			@param[in] precision
 				The value precision
 			*/
-			SInMySqlBind( MYSQL_BIND & bind, uint32_t precision )
+			SInMySqlBind( MYSQL_BIND & bind, uint8_t precision, uint8_t decimals )
 				: SInMySqlBindBase( bind )
-				, _precision( uint8_t( precision ) )
+				, _precision( precision )
+				, _decimals( decimals )
 			{
 				memset( _value, 0, sizeof( _value ) );
 				bind.buffer = _value;
@@ -420,13 +454,15 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			*/
 			CFixedPoint GetValue()const
 			{
-				return CFixedPoint( _value, _precision );
+				return CFixedPoint( _value, _precision, _decimals );
 			}
 
 			//! The value holder
 			char _value[1024];
 			//! The value precision
 			uint8_t _precision;
+			//! The value decimals
+			uint8_t _decimals;
 		};
 
 		/** Common holder for EFieldType_DATE, EFieldType_DATETIME, and EFieldType_TIME
@@ -542,7 +578,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			case MYSQL_TYPE_TINY:
 				if ( length > 1 )
 				{
-					result = EFieldType_INT8;
+					result = EFieldType_SINT8;
 				}
 				else
 				{
@@ -552,19 +588,19 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				break;
 
 			case MYSQL_TYPE_SHORT:
-				result = EFieldType_INT16;
+				result = EFieldType_SINT16;
 				break;
 
 			case MYSQL_TYPE_INT24:
-				result = EFieldType_INT24;
+				result = EFieldType_SINT24;
 				break;
 
 			case MYSQL_TYPE_LONG:
-				result = EFieldType_INT32;
+				result = EFieldType_SINT32;
 				break;
 
 			case MYSQL_TYPE_LONGLONG:
-				result = EFieldType_INT64;
+				result = EFieldType_SINT64;
 				break;
 
 			case MYSQL_TYPE_FLOAT:
@@ -612,7 +648,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			return result;
 		}
 
-		std::unique_ptr< SInMySqlBindBase > GetInBind( EFieldType type, enum_field_types sqlType, MYSQL_BIND & bind, std::uint32_t precision, uint32_t length )
+		std::unique_ptr< SInMySqlBindBase > GetInBind( EFieldType type, enum_field_types sqlType, MYSQL_BIND & bind, std::uint32_t precision, std::uint32_t decimals, uint32_t length )
 		{
 			std::unique_ptr< SInMySqlBindBase > result;
 			bind.buffer_type = sqlType;
@@ -624,29 +660,54 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				bind.is_unsigned = false;
 				break;
 
-			case EFieldType_INT8:
-				result = std::make_unique< SInMySqlBind< EFieldType_INT8 > >( bind );
+			case EFieldType_SINT8:
+				result = std::make_unique< SInMySqlBind< EFieldType_SINT8 > >( bind );
 				bind.is_unsigned = false;
 				break;
 
-			case EFieldType_INT16:
-				result = std::make_unique< SInMySqlBind< EFieldType_INT16 > >( bind );
+			case EFieldType_SINT16:
+				result = std::make_unique< SInMySqlBind< EFieldType_SINT16 > >( bind );
 				bind.is_unsigned = false;
 				break;
 
-			case EFieldType_INT24:
-				result = std::make_unique< SInMySqlBind< EFieldType_INT24 > >( bind );
+			case EFieldType_SINT24:
+				result = std::make_unique< SInMySqlBind< EFieldType_SINT24 > >( bind );
 				bind.is_unsigned = false;
 				break;
 
-			case EFieldType_INT32:
-				result = std::make_unique< SInMySqlBind< EFieldType_INT32 > >( bind );
+			case EFieldType_SINT32:
+				result = std::make_unique< SInMySqlBind< EFieldType_SINT32 > >( bind );
 				bind.is_unsigned = false;
 				break;
 
-			case EFieldType_INT64:
-				result = std::make_unique< SInMySqlBind< EFieldType_INT64 > >( bind );
+			case EFieldType_SINT64:
+				result = std::make_unique< SInMySqlBind< EFieldType_SINT64 > >( bind );
 				bind.is_unsigned = false;
+				break;
+
+			case EFieldType_UINT8:
+				result = std::make_unique< SInMySqlBind< EFieldType_UINT8 > >( bind );
+				bind.is_unsigned = true;
+				break;
+
+			case EFieldType_UINT16:
+				result = std::make_unique< SInMySqlBind< EFieldType_UINT16 > >( bind );
+				bind.is_unsigned = true;
+				break;
+
+			case EFieldType_UINT24:
+				result = std::make_unique< SInMySqlBind< EFieldType_UINT24 > >( bind );
+				bind.is_unsigned = true;
+				break;
+
+			case EFieldType_UINT32:
+				result = std::make_unique< SInMySqlBind< EFieldType_UINT32 > >( bind );
+				bind.is_unsigned = true;
+				break;
+
+			case EFieldType_UINT64:
+				result = std::make_unique< SInMySqlBind< EFieldType_UINT64 > >( bind );
+				bind.is_unsigned = true;
 				break;
 
 			case EFieldType_FLOAT32:
@@ -660,7 +721,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				break;
 
 			case EFieldType_FIXED_POINT:
-				result = std::make_unique< SInMySqlBind< EFieldType_FIXED_POINT > >( bind, precision );
+				result = std::make_unique< SInMySqlBind< EFieldType_FIXED_POINT > >( bind, precision, decimals );
 				bind.is_unsigned = false;
 				break;
 
@@ -716,24 +777,44 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				static_cast< CDatabaseValue< EFieldType_BIT > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< EFieldType_BIT > const & >( bind ).GetValue() != 0 );
 				break;
 
-			case EFieldType_INT8:
-				static_cast< CDatabaseValue< EFieldType_INT8 > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< EFieldType_INT8 > const & >( bind ).GetValue() );
+			case EFieldType_SINT8:
+				static_cast< CDatabaseValue< EFieldType_SINT8 > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< EFieldType_SINT8 > const & >( bind ).GetValue() );
 				break;
 
-			case EFieldType_INT16:
-				static_cast< CDatabaseValue< EFieldType_INT16 > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< EFieldType_INT16 > const & >( bind ).GetValue() );
+			case EFieldType_SINT16:
+				static_cast< CDatabaseValue< EFieldType_SINT16 > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< EFieldType_SINT16 > const & >( bind ).GetValue() );
 				break;
 
-			case EFieldType_INT24:
-				static_cast< CDatabaseValue< EFieldType_INT24 > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< EFieldType_INT24 > const & >( bind ).GetValue() );
+			case EFieldType_SINT24:
+				static_cast< CDatabaseValue< EFieldType_SINT24 > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< EFieldType_SINT24 > const & >( bind ).GetValue() );
 				break;
 
-			case EFieldType_INT32:
-				static_cast< CDatabaseValue< EFieldType_INT32 > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< EFieldType_INT32 > const & >( bind ).GetValue() );
+			case EFieldType_SINT32:
+				static_cast< CDatabaseValue< EFieldType_SINT32 > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< EFieldType_SINT32 > const & >( bind ).GetValue() );
 				break;
 
-			case EFieldType_INT64:
-				static_cast< CDatabaseValue< EFieldType_INT64 > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< EFieldType_INT64 > const & >( bind ).GetValue() );
+			case EFieldType_SINT64:
+				static_cast< CDatabaseValue< EFieldType_SINT64 > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< EFieldType_SINT64 > const & >( bind ).GetValue() );
+				break;
+
+			case EFieldType_UINT8:
+				static_cast< CDatabaseValue< EFieldType_UINT8 > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< EFieldType_UINT8 > const & >( bind ).GetValue() );
+				break;
+
+			case EFieldType_UINT16:
+				static_cast< CDatabaseValue< EFieldType_UINT16 > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< EFieldType_UINT16 > const & >( bind ).GetValue() );
+				break;
+
+			case EFieldType_UINT24:
+				static_cast< CDatabaseValue< EFieldType_UINT24 > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< EFieldType_UINT24 > const & >( bind ).GetValue() );
+				break;
+
+			case EFieldType_UINT32:
+				static_cast< CDatabaseValue< EFieldType_UINT32 > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< EFieldType_UINT32 > const & >( bind ).GetValue() );
+				break;
+
+			case EFieldType_UINT64:
+				static_cast< CDatabaseValue< EFieldType_UINT64 > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< EFieldType_UINT64 > const & >( bind ).GetValue() );
 				break;
 
 			case EFieldType_FLOAT32:
@@ -803,8 +884,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 		if ( !data )
 		{
-			CLogger::LogError( ERROR_MYSQL_STMT_METADATA );
-			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_MYSQL_STMT_METADATA, __FUNCTION__, __FILE__, __LINE__ );
+			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_MYSQL_STMT_METADATA );
 		}
 
 		DatabaseFieldInfosPtrArray arrayReturn;
@@ -817,7 +897,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			MYSQL_FIELD * field = mysql_fetch_field( data );
 			EFieldType type = GetFieldType( field->type, field->charsetnr, field->length );
 			arrayReturn.push_back( std::make_shared< CDatabaseFieldInfos >( connection, CStrUtils::ToString( field->name ), type, field->length ) );
-			inbinds.emplace_back( GetInBind( type, field->type, bind, field->decimals, std::max( field->length, field->max_length ) ) );
+			inbinds.emplace_back( GetInBind( type, field->type, bind, field->length, field->decimals, std::max( field->length, field->max_length ) ) );
 		}
 
 		mysql_free_result( data );
@@ -924,7 +1004,8 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		{
 			StringStream error;
 			error << STR( "Failure: " ) << msg << std::endl;
-			error << STR( "(" ) << result << STR( ")" ) << mysql_error( connection );
+			String mysql = mysql_error( connection );
+			error << STR( "(" ) << result << STR( ") " ) << mysql;
 			DB_EXCEPT( code, error.str() );
 		}
 
@@ -936,39 +1017,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		}
 
 #endif
-	}
-
-	MYSQL_TIME MySqlTimeFromCDate( CDate const & value )
-	{
-		MYSQL_TIME ts = { 0 };
-		ts.time_type = MYSQL_TIMESTAMP_DATE;
-		ts.year = value.GetYear();
-		ts.month = value.GetMonth() + 1;
-		ts.day = value.GetMonthDay();
-		return ts;
-	}
-
-	MYSQL_TIME MySqlTimeFromCDateTime( CDateTime const & value )
-	{
-		MYSQL_TIME ts = { 0 };
-		ts.time_type = MYSQL_TIMESTAMP_DATETIME;
-		ts.year = value.GetYear();
-		ts.month = value.GetMonth() + 1;
-		ts.day = value.GetMonthDay();
-		ts.hour = value.GetHour();
-		ts.minute = value.GetMinute();
-		ts.second = value.GetSecond();
-		return ts;
-	}
-
-	MYSQL_TIME MySqlTimeFromCTime( CTime const & value )
-	{
-		MYSQL_TIME ts = { 0 };
-		ts.time_type = MYSQL_TIMESTAMP_TIME;
-		ts.hour = value.GetHour();
-		ts.minute = value.GetMinute();
-		ts.second = value.GetSecond();
-		return ts;
 	}
 
 	void MySqlSendLongData( CDatabaseValueBase & value, unsigned int index, MYSQL_STMT * statement, MYSQL * connection )

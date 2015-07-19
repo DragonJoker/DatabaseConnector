@@ -17,83 +17,95 @@
 
 BEGIN_NAMESPACE_DATABASE
 {
+	static const String ERROR_INVALID_DECIMALS = STR( "Invalid decimals (should be: 0 <= decimals <= precision)" );
+	static const String ERROR_PRECISION_OVERFLOW = STR( "Precision overflow" );
+
 	CFixedPoint::CFixedPoint()
 		: _value( 0 )
-		, _precision( 8 )
+		, _decimals( 8 )
 		, _signed( true )
 	{
 	}
 
-	CFixedPoint::CFixedPoint( int32_t value, uint8_t precision )
+	CFixedPoint::CFixedPoint( int32_t value, uint8_t precision, uint8_t decimals )
 		: _value( value )
-		, _precision( precision )
+		, _decimals( decimals )
 		, _signed( true )
 	{
+		DoAdjustValue( precision );
 	}
 
-	CFixedPoint::CFixedPoint( uint32_t value, uint8_t precision )
+	CFixedPoint::CFixedPoint( uint32_t value, uint8_t precision, uint8_t decimals )
 		: _value( value )
-		, _precision( precision )
+		, _decimals( decimals )
 		, _signed( false )
 	{
+		DoAdjustValue( precision );
 	}
 
-	CFixedPoint::CFixedPoint( int64_t value, uint8_t precision )
+	CFixedPoint::CFixedPoint( int64_t value, uint8_t precision, uint8_t decimals )
 		: _value( value )
-		, _precision( precision )
+		, _decimals( decimals )
 		, _signed( true )
 	{
+		DoAdjustValue( precision );
 	}
 
-	CFixedPoint::CFixedPoint( uint64_t value, uint8_t precision )
+	CFixedPoint::CFixedPoint( uint64_t value, uint8_t precision, uint8_t decimals )
 		: _value( value )
-		, _precision( precision )
+		, _decimals( decimals )
 		, _signed( false )
 	{
+		DoAdjustValue( precision );
 	}
 
-	CFixedPoint::CFixedPoint( float value, uint8_t precision )
-		: _precision( precision )
+	CFixedPoint::CFixedPoint( float value, uint8_t precision, uint8_t decimals )
+		: _decimals( decimals )
 		, _signed( false )
 	{
-		_value = int64_t( value * GetDecimalMult( _precision ) );
+		_value = int64_t( value * GetDecimalMult( decimals ) );
+		DoAdjustValue( precision );
 	}
 
-	CFixedPoint::CFixedPoint( double value, uint8_t precision )
-		: _precision( precision )
+	CFixedPoint::CFixedPoint( double value, uint8_t precision, uint8_t decimals )
+		: _decimals( decimals )
 		, _signed( false )
 	{
-		_value = int64_t( value * GetDecimalMult( _precision ) );
+		_value = int64_t( value * GetDecimalMult( decimals ) );
+		DoAdjustValue( precision );
 	}
 
-	CFixedPoint::CFixedPoint( long double value, uint8_t precision )
-		: _precision( precision )
+	CFixedPoint::CFixedPoint( long double value, uint8_t precision, uint8_t decimals )
+		: _decimals( decimals )
 		, _signed( false )
 	{
-		_value = int64_t( value * GetDecimalMult( _precision ) );
+		_value = int64_t( value * GetDecimalMult( decimals ) );
+		DoAdjustValue( precision );
 	}
 
-	CFixedPoint::CFixedPoint( String const & value, uint8_t precision )
-		: _precision( precision )
+	CFixedPoint::CFixedPoint( String const & value, uint8_t precision, uint8_t decimals )
+		: _decimals( decimals )
 	{
 		size_t index = value.find( STR( '.' ) );
 
 		if ( index == String::npos )
 		{
-			_value = CStrUtils::ToLongLong( value ) * GetDecimalMult( _precision );
+			_value = CStrUtils::ToLongLong( value ) * GetDecimalMult( _decimals );
 		}
-		else if ( value.size() - ( index + 1 ) < _precision )
+		else if ( value.size() - ( index + 1 ) < _decimals )
 		{
 			StringStream adjusted;
-			adjusted.width( index + precision );
+			adjusted.width( index + decimals );
 			adjusted.fill( '0' );
 			adjusted << std::left << String( value.substr( 0, index ) + value.substr( index + 1 ) );
 			_value = CStrUtils::ToLongLong( adjusted.str() );
 		}
 		else
 		{
-			_value = CStrUtils::ToLongLong( value.substr( 0, index ) + value.substr( index + 1, _precision ) );
+			_value = CStrUtils::ToLongLong( value.substr( 0, index ) + value.substr( index + 1, _decimals ) );
 		}
+
+		DoAdjustValue( precision );
 	}
 
 	CFixedPoint::~CFixedPoint()
@@ -106,16 +118,26 @@ BEGIN_NAMESPACE_DATABASE
 
 		if ( IsSigned() )
 		{
-			result = CStrUtils::ToString( uint64_t( _value ) );
+			result = CStrUtils::ToString( _value );
 		}
 		else
 		{
 			result = CStrUtils::ToString( _value );
 		}
 
-		if ( _value && _precision )
+		if ( _value && _decimals )
 		{
-			result.insert( ( result.rbegin() + _precision ).base(), '.' );
+			if ( result.size() < _decimals )
+			{
+				while ( result.size() < _decimals )
+				{
+					result = "0" + result;
+				}
+
+				result = "0" + result;
+			}
+
+			result.insert( ( result.rbegin() + _decimals ).base(), '.' );
 		}
 
 		return result;
@@ -123,23 +145,39 @@ BEGIN_NAMESPACE_DATABASE
 
 	int64_t CFixedPoint::GetDecimals()const
 	{
-		return _value - ( ToInt64() * GetDecimalMult( _precision ) );
+		return _value - ( ToInt64() * GetDecimalMult( _decimals ) );
 	}
 
 	int64_t CFixedPoint::GetDecimals( uint8_t precision )const
 	{
 		int64_t decimals = GetDecimals();
 
-		if ( precision > _precision )
+		if ( precision > _decimals )
 		{
-			decimals *= GetDecimalMult( precision - _precision );
+			decimals *= GetDecimalMult( precision - _decimals );
 		}
-		else if ( precision < _precision )
+		else if ( precision < _decimals )
 		{
-			decimals /= GetDecimalMult( _precision - precision );
+			decimals /= GetDecimalMult( _decimals - precision );
 		}
 
 		return decimals;
+	}
+
+	void CFixedPoint::DoAdjustValue( uint8_t precision )
+	{
+		if ( precision )
+		{
+			if ( _decimals > precision )
+			{
+				DB_EXCEPT( EDatabaseExceptionCodes_InternalError, ERROR_INVALID_DECIMALS );
+			}
+
+			if ( abs( _value ) > int64_t( GetDecimalMult( precision ) ) )
+			{
+				DB_EXCEPT( EDatabaseExceptionCodes_InternalError, ERROR_PRECISION_OVERFLOW );
+			}
+		}
 	}
 
 	bool operator ==( const CFixedPoint & lhs, const CFixedPoint & rhs )

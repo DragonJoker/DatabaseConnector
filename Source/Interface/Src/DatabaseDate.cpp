@@ -148,20 +148,46 @@ BEGIN_NAMESPACE_DATABASE
 
 	std::string CDate::Format( const std::string & format ) const
 	{
-		char buffer[DateUtils::DATE_MAX_SIZE + 1] = { 0 };
-		std::tm tm = ToTm();
-		size_t length = strftime( buffer, DateUtils::DATE_MAX_SIZE, format.c_str(), &tm );
-		assert( length < DateUtils::DATE_MAX_SIZE );
-		return std::string( buffer, buffer + length );
+		std::string result;
+
+		if ( !IsValid() )
+		{
+			std::stringstream stream;
+			stream << "invalid: (" << GetYear() << "-" << ( GetMonth() + 1 ) << "-" << GetMonthDay() << ")";
+			result = stream.str();
+		}
+		else
+		{
+			char buffer[DateUtils::DATE_MAX_SIZE + 1] = { 0 };
+			std::tm tm = ToTm();
+			size_t length = strftime( buffer, DateUtils::DATE_MAX_SIZE, format.c_str(), &tm );
+			assert( length < DateUtils::DATE_MAX_SIZE );
+			result = std::string( buffer, buffer + length );
+		}
+
+		return result;
 	}
 
 	std::wstring CDate::Format( const std::wstring & format ) const
 	{
-		wchar_t buffer[DateUtils::DATE_MAX_SIZE + 1] = { 0 };
-		std::tm tm = ToTm();
-		size_t length = wcsftime( buffer, DateUtils::DATE_MAX_SIZE, format.c_str(), &tm );
-		assert( length < DateUtils::DATE_MAX_SIZE );
-		return std::wstring( buffer, buffer + length );
+		std::wstring result;
+
+		if ( !IsValid() )
+		{
+			std::wstringstream stream;
+			stream << L"invalid: (" << GetYear() << L"-" << ( GetMonth() + 1 ) << L"-" << GetMonthDay() << L")";
+			result = stream.str();
+		}
+		else
+		{
+			wchar_t buffer[DateUtils::DATE_MAX_SIZE + 1] = { 0 };
+			std::tm tm = ToTm();
+			size_t length = wcsftime( buffer, DateUtils::DATE_MAX_SIZE, format.c_str(), &tm );
+			assert( length < DateUtils::DATE_MAX_SIZE );
+			result = std::wstring( buffer, buffer + length );
+		}
+
+		return result;
 	}
 
 	void CDate::SetDate( int year, EDateMonth month, int day )
@@ -232,7 +258,7 @@ BEGIN_NAMESPACE_DATABASE
 		int iMonth = GetMonth();
 		int iYear = GetYear();
 
-		if ( iMonth >= EDateMonth_JANUARY && iMonthDay > 0 && iYear != -1 )
+		if ( iMonth >= EDateMonth_JANUARY && iMonthDay > 0 && iYear >= 0 )
 		{
 			if ( iMonth != EDateMonth_FEBRUARY )
 			{

@@ -55,7 +55,43 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		Cleanup();
 	}
 
-	EErrorType CDatabaseStatementOdbc::Initialize()
+	DatabaseParameterPtr CDatabaseStatementOdbc::CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType )
+	{
+		DatabaseParameterPtr pReturn = std::make_shared< CDatabaseStatementParameterOdbc >( std::static_pointer_cast< CDatabaseConnectionOdbc >( _connectionOdbc ), name, ( unsigned short )_arrayParams.size() + 1, fieldType, parameterType, std::make_unique< SValueUpdater >( this ) );
+
+		if ( !DoAddParameter( pReturn ) )
+		{
+			pReturn.reset();
+		}
+
+		return pReturn;
+	}
+
+	DatabaseParameterPtr CDatabaseStatementOdbc::CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType )
+	{
+		DatabaseParameterPtr pReturn = std::make_shared< CDatabaseStatementParameterOdbc >( std::static_pointer_cast< CDatabaseConnectionOdbc >( _connectionOdbc ), name, ( unsigned short )_arrayParams.size() + 1, fieldType, limits, parameterType, std::make_unique< SValueUpdater >( this ) );
+
+		if ( !DoAddParameter( pReturn ) )
+		{
+			pReturn.reset();
+		}
+
+		return pReturn;
+	}
+
+	DatabaseParameterPtr CDatabaseStatementOdbc::CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType )
+	{
+		DatabaseParameterPtr pReturn = std::make_shared< CDatabaseStatementParameterOdbc >( std::static_pointer_cast< CDatabaseConnectionOdbc >( _connectionOdbc ), name, ( unsigned short )_arrayParams.size() + 1, fieldType, precision, parameterType, std::make_unique< SValueUpdater >( this ) );
+
+		if ( !DoAddParameter( pReturn ) )
+		{
+			pReturn.reset();
+		}
+
+		return pReturn;
+	}
+
+	EErrorType CDatabaseStatementOdbc::DoInitialize()
 	{
 		EErrorType errorType;
 		HDBC hParentStmt = _connectionOdbc->GetHdbc();
@@ -91,7 +127,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		return errorType;
 	}
 
-	bool CDatabaseStatementOdbc::ExecuteUpdate( EErrorType * result )
+	bool CDatabaseStatementOdbc::DoExecuteUpdate( EErrorType * result )
 	{
 		DatabaseResultPtr rs;
 		EErrorType error = DoExecute( rs );
@@ -104,7 +140,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		return error == EErrorType_NONE;
 	}
 
-	DatabaseResultPtr CDatabaseStatementOdbc::ExecuteSelect( EErrorType * result )
+	DatabaseResultPtr CDatabaseStatementOdbc::DoExecuteSelect( EErrorType * result )
 	{
 		DatabaseResultPtr rs;
 		EErrorType error = DoExecute( rs );
@@ -117,37 +153,13 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		return rs;
 	}
 
-	void CDatabaseStatementOdbc::Cleanup()
+	void CDatabaseStatementOdbc::DoCleanup()
 	{
 		if ( _statementHandle != SQL_NULL_HSTMT )
 		{
 			SQLFreeHandle( SQL_HANDLE_STMT, _statementHandle );
 			_statementHandle = SQL_NULL_HSTMT;
 		}
-	}
-
-	DatabaseParameterPtr CDatabaseStatementOdbc::CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType )
-	{
-		DatabaseParameterPtr pReturn = std::make_shared< CDatabaseStatementParameterOdbc >( std::static_pointer_cast< CDatabaseConnectionOdbc >( _connectionOdbc ), name, ( unsigned short )_arrayParams.size() + 1, fieldType, parameterType, std::make_unique< SValueUpdater >( this ) );
-
-		if ( !DoAddParameter( pReturn ) )
-		{
-			pReturn.reset();
-		}
-
-		return pReturn;
-	}
-
-	DatabaseParameterPtr CDatabaseStatementOdbc::CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType )
-	{
-		DatabaseParameterPtr pReturn = std::make_shared< CDatabaseStatementParameterOdbc >( std::static_pointer_cast< CDatabaseConnectionOdbc >( _connectionOdbc ), name, ( unsigned short )_arrayParams.size() + 1, fieldType, limits, parameterType, std::make_unique< SValueUpdater >( this ) );
-
-		if ( !DoAddParameter( pReturn ) )
-		{
-			pReturn.reset();
-		}
-
-		return pReturn;
 	}
 
 	EErrorType CDatabaseStatementOdbc::DoPreExecute()
@@ -226,6 +238,11 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 			SqlSuccess( retCode, SQL_HANDLE_STMT, _statementHandle, INFO_ODBC_ParamData );
 		}
+
+		EErrorType errorType = EErrorType_NONE;
+		OdbcCheck( SQLFreeStmt( statementHandle, SQL_CLOSE ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_FreeStmt + STR( " (Close)" ) );
+		OdbcCheck( SQLFreeStmt( statementHandle, SQL_UNBIND ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_FreeStmt + STR( " (Unbind)" ) );
+		OdbcCheck( SQLFreeStmt( statementHandle, SQL_RESET_PARAMS ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_FreeStmt + STR( " (ResetParams)" ) );
 
 #endif
 	}

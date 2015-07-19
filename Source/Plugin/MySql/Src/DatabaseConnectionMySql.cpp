@@ -19,7 +19,6 @@
 #include "ExceptionDatabaseMySql.h"
 #include "DatabaseMySqlHelper.h"
 
-#include <DatabaseQuery.h>
 #include <DatabaseDate.h>
 #include <DatabaseDateTime.h>
 #include <DatabaseDateTimeHelper.h>
@@ -125,74 +124,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		}
 
 		return result;
-	}
-
-	EErrorType CDatabaseConnectionMySql::BeginTransaction( const String & name )
-	{
-		EErrorType eReturn = EErrorType_ERROR;
-
-		if ( !IsConnected() )
-		{
-			CLogger::LogError( ERROR_MYSQL_NOT_CONNECTED );
-			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_MYSQL_NOT_CONNECTED, __FUNCTION__, __FILE__, __LINE__ );
-		}
-
-		if ( IsInTransaction() )
-		{
-			CLogger::LogError( ERROR_MYSQL_ALREADY_IN_TRANSACTION );
-			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_MYSQL_ALREADY_IN_TRANSACTION, __FUNCTION__, __FILE__, __LINE__ );
-		}
-
-		mysql_autocommit( _connection, false );
-		DoSetInTransaction( true );
-		eReturn = EErrorType_NONE;
-		return eReturn;
-	}
-
-	EErrorType CDatabaseConnectionMySql::Commit( const String & name )
-	{
-		EErrorType eReturn = EErrorType_ERROR;
-
-		if ( !IsConnected() )
-		{
-			CLogger::LogError( ERROR_MYSQL_NOT_CONNECTED );
-			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_MYSQL_NOT_CONNECTED, __FUNCTION__, __FILE__, __LINE__ );
-		}
-
-		if ( !IsInTransaction() )
-		{
-			CLogger::LogError( ERROR_MYSQL_NOT_IN_TRANSACTION );
-			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_MYSQL_NOT_IN_TRANSACTION, __FUNCTION__, __FILE__, __LINE__ );
-		}
-
-		mysql_commit( _connection );
-		mysql_autocommit( _connection, true );
-		DoSetInTransaction( false );
-		eReturn = EErrorType_NONE;
-		return eReturn;
-	}
-
-	EErrorType CDatabaseConnectionMySql::RollBack( const String & name )
-	{
-		EErrorType eReturn = EErrorType_ERROR;
-
-		if ( !IsConnected() )
-		{
-			CLogger::LogError( ERROR_MYSQL_NOT_CONNECTED );
-			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_MYSQL_NOT_CONNECTED, __FUNCTION__, __FILE__, __LINE__ );
-		}
-
-		if ( !IsInTransaction() )
-		{
-			CLogger::LogError( ERROR_MYSQL_NOT_IN_TRANSACTION );
-			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_MYSQL_NOT_IN_TRANSACTION, __FUNCTION__, __FILE__, __LINE__ );
-		}
-
-		mysql_rollback( _connection );
-		mysql_autocommit( _connection, true );
-		DoSetInTransaction( false );
-		eReturn = EErrorType_NONE;
-		return eReturn;
 	}
 
 	std::string CDatabaseConnectionMySql::WriteText( const std::string & text ) const
@@ -653,19 +584,17 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	{
 		if ( !IsConnected() )
 		{
-			CLogger::LogError( ERROR_MYSQL_NOT_CONNECTED );
-			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_MYSQL_NOT_CONNECTED, __FUNCTION__, __FILE__, __LINE__ );
+			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_MYSQL_NOT_CONNECTED );
 		}
 
-		DoExecuteUpdate( MYSQL_SQL_CREATE_DATABASE + database + MYSQL_SQL_CHARSET, NULL );
+		DoExecuteUpdate( MYSQL_SQL_CREATE_DATABASE + database + MYSQL_SQL_CHARSET );
 	}
 
 	void CDatabaseConnectionMySql::SelectDatabase( const String & database )
 	{
 		if ( !IsConnected() )
 		{
-			CLogger::LogError( ERROR_MYSQL_NOT_CONNECTED );
-			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_MYSQL_NOT_CONNECTED, __FUNCTION__, __FILE__, __LINE__ );
+			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_MYSQL_NOT_CONNECTED );
 		}
 
 		if ( _connection )
@@ -680,11 +609,10 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	{
 		if ( !IsConnected() )
 		{
-			CLogger::LogError( ERROR_MYSQL_NOT_CONNECTED );
-			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_MYSQL_NOT_CONNECTED, __FUNCTION__, __FILE__, __LINE__ );
+			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_MYSQL_NOT_CONNECTED );
 		}
 
-		DoExecuteUpdate( MYSQL_SQL_DROP_DATABASE + database, NULL );
+		DoExecuteUpdate( MYSQL_SQL_DROP_DATABASE + database );
 	}
 
 	EErrorType CDatabaseConnectionMySql::DoConnect( String & connectionString )
@@ -697,8 +625,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 			if ( !_connection )
 			{
-				CLogger::LogError( ERROR_MYSQL_CONNECTION );
-				throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_MYSQL_CONNECTION, __FUNCTION__, __FILE__, __LINE__ );
+				DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_MYSQL_CONNECTION );
 			}
 
 			if ( mysql_options( _connection, MYSQL_INIT_COMMAND, MYSQL_OPTION_NAMES ) )
@@ -729,8 +656,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			{
 				StringStream error( ERROR_MYSQL_CONNECT );
 				error << mysql_error( _connection );
-				CLogger::LogError( error );
-				throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, error.str(), __FUNCTION__, __FILE__, __LINE__ );
+				DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, error.str() );
 			}
 
 			CLogger::LogDebug( StringStream() << DEBUG_MYSQL_CONNECTED );
@@ -778,76 +704,52 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		}
 	}
 
-	bool CDatabaseConnectionMySql::DoExecuteUpdate( const String & query, EErrorType * result )
+	bool CDatabaseConnectionMySql::DoBeginTransaction( const String & name )
 	{
-		if ( !IsConnected() )
+		return mysql_autocommit( _connection, false ) == 0;
+	}
+
+	bool CDatabaseConnectionMySql::DoCommit( const String & name )
+	{
+		bool result = mysql_commit( _connection ) == 0;
+
+		if ( result )
 		{
-			CLogger::LogError( ERROR_MYSQL_NOT_CONNECTED );
-			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_MYSQL_NOT_CONNECTED, __FUNCTION__, __FILE__, __LINE__ );
+			result = mysql_autocommit( _connection, true ) == 0;
 		}
 
-		CLogger::LogInfo( INFO_MYSQL_EXECUTING_UPDATE + query );
+		return result;
+	}
+
+	bool CDatabaseConnectionMySql::DoRollBack( const String & name )
+	{
+		bool result = mysql_rollback( _connection ) == 0;
+
+		if ( result )
+		{
+			result = mysql_autocommit( _connection, true ) == 0;
+		}
+
+		return result;
+	}
+
+	bool CDatabaseConnectionMySql::DoExecuteUpdate( const String & query )
+	{
 		std::string strQuery = CStrUtils::ToStr( query );
 		MySQLCheck( mysql_stmt_prepare( _statement, strQuery.c_str(), uint32_t( strQuery.size() ) ), INFO_MYSQL_STATEMENT_PREPARATION, EDatabaseExceptionCodes_StatementError, _connection );
 		return ExecuteUpdate( _statement );
 	}
 
-	DatabaseResultPtr CDatabaseConnectionMySql::DoExecuteSelect( const String & query, EErrorType * result )
+	DatabaseResultPtr CDatabaseConnectionMySql::DoExecuteSelect( const String & query )
 	{
-		if ( !IsConnected() )
-		{
-			CLogger::LogError( ERROR_MYSQL_NOT_CONNECTED );
-			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_MYSQL_NOT_CONNECTED, __FUNCTION__, __FILE__, __LINE__ );
-		}
-
-		CLogger::LogInfo( INFO_MYSQL_EXECUTING_SELECT + query );
 		std::string strQuery = CStrUtils::ToStr( query );
 		MySQLCheck( mysql_stmt_prepare( _statement, strQuery.c_str(), uint32_t( strQuery.size() ) ), INFO_MYSQL_STATEMENT_PREPARATION, EDatabaseExceptionCodes_StatementError, _connection );
 		return ExecuteSelect( _statement );
 	}
 
-	DatabaseStatementPtr CDatabaseConnectionMySql::DoCreateStatement( const String & request, EErrorType * result )
+	DatabaseStatementPtr CDatabaseConnectionMySql::DoCreateStatement( const String & request )
 	{
-		DatabaseStatementPtr pReturn;
-		EErrorType eResult = EErrorType_ERROR;
-
-		if ( !IsConnected() )
-		{
-			CLogger::LogError( ERROR_MYSQL_NOT_CONNECTED );
-			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_MYSQL_NOT_CONNECTED, __FUNCTION__, __FILE__, __LINE__ );
-		}
-
-		pReturn = std::make_shared< CDatabaseStatementMySql >( shared_from_this(), request );
-		eResult = EErrorType_NONE;
-
-		if ( result )
-		{
-			*result = eResult;
-		}
-
-		return pReturn;
-	}
-
-	DatabaseQueryPtr CDatabaseConnectionMySql::DoCreateQuery( const String & request, EErrorType * result )
-	{
-		DatabaseQueryPtr pReturn;
-		EErrorType eResult = EErrorType_ERROR;
-
-		if ( !IsConnected() )
-		{
-			CLogger::LogError( ERROR_MYSQL_NOT_CONNECTED );
-			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_MYSQL_NOT_CONNECTED, __FUNCTION__, __FILE__, __LINE__ );
-		}
-
-		pReturn = std::make_shared< CDatabaseQuery >( shared_from_this(), request );
-		eResult = EErrorType_NONE;
-
-		if ( result )
-		{
-			*result = eResult;
-		}
-
-		return pReturn;
+		return std::make_shared< CDatabaseStatementMySql >( std::static_pointer_cast< CDatabaseConnectionMySql >( shared_from_this() ), request );
 	}
 
 	DatabaseResultPtr CDatabaseConnectionMySql::DoRetrieveResults( MYSQL_STMT * statement )

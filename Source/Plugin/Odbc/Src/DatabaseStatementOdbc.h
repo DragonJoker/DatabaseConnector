@@ -38,43 +38,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			*/
 		virtual ~CDatabaseStatementOdbc();
 
-		/** Initialize this statement.
-		@return
-			Error code.
-		*/
-		virtual EErrorType Initialize();
-
-		/** Prepare the statement.
-		@remarks
-			The statement *MUST* be prepared, *AFTER* all parameters have been created.
-		@return
-			Error code.
-		*/
-		virtual EErrorType Prepare()
-		{
-			return EErrorType_NONE;
-		}
-
-		/** Execute this statement.
-		@param[out] result
-			Error code.
-		@return
-			The result.
-		*/
-		virtual bool ExecuteUpdate( EErrorType * result = NULL );
-
-		/** Execute this statement.
-		@param[out] result
-			Error code.
-		@return
-			The result.
-		*/
-		virtual DatabaseResultPtr ExecuteSelect( EErrorType * result = NULL );
-
-		/** Clean statement.
-		*/
-		virtual void Cleanup();
-
 		/** Create a parameter.
 		@param[in] name
 			Parameter name.
@@ -101,7 +64,49 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		*/
 		virtual DatabaseParameterPtr CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType );
 
+		/** Create a parameter which has limits (strings, etc.).
+		@param[in] name
+			Parameter name.
+		@param[in] fieldType
+			Date type.
+		@param[in] precision
+			Field precision.
+		@param[in] parameterType
+			Parameter type.
+		@return
+			Created parameter.
+		*/
+		virtual DatabaseParameterPtr CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType );
+
 	private:
+		/** Initialize this statement.
+		@remarks
+			The statement *MUST* be initialised, *AFTER* all parameters have been created.
+		@return
+			Error code.
+		*/
+		virtual EErrorType DoInitialize();
+
+		/** Execute this statement.
+		@param[out] result
+			Error code.
+		@return
+			The result.
+		*/
+		virtual bool DoExecuteUpdate( EErrorType * result = NULL );
+
+		/** Execute this statement.
+		@param[out] result
+			Error code.
+		@return
+			The result.
+		*/
+		virtual DatabaseResultPtr DoExecuteSelect( EErrorType * result = NULL );
+
+		/** Clean statement.
+		*/
+		virtual void DoCleanup();
+
 		/** Pre-execute operations.
 		@return
 			Error code.

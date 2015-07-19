@@ -88,7 +88,6 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			StringStream message;
 			message << ERROR_DB_NO_FIELD << CStrUtils::ToString( index );
-			CLogger::LogError( message );
 			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, message.str() );
 		}
 

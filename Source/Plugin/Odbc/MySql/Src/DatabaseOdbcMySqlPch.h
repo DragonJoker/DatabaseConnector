@@ -23,7 +23,6 @@
 
 #include <DatabaseConnectionOdbc.h>
 #include <DatabaseStatementOdbc.h>
-#include <DatabaseQueryOdbc.h>
 #include <DatabaseOdbcHelper.h>
 
 #if defined( _WIN32 )

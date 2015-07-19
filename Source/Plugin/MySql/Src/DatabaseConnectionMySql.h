@@ -26,7 +26,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	*/
 	class CDatabaseConnectionMySql
 		: public CDatabaseConnection
-		, public std::enable_shared_from_this< CDatabaseConnectionMySql >
 	{
 	public:
 		/** Constructor.
@@ -52,30 +51,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			The precision.
 		*/
 		DatabaseMySqlExport virtual uint32_t GetPrecision( EFieldType type ) const;
-
-		/** Initialize a named transaction.
-		@param[in] name
-			Transaction name.
-		@return
-			Error code, EErrorType_NONE if no problem.
-		*/
-		DatabaseMySqlExport virtual EErrorType BeginTransaction( const String & name );
-
-		/** Validate a named transaction.
-		@param[in] name
-			Transaction name.
-		@return
-			Error code, EErrorType_NONE if no problem.
-		*/
-		DatabaseMySqlExport virtual EErrorType Commit( const String & name );
-
-		/** Invalidate a named transaction.
-		@param[in] name
-			Transaction name.
-		@return
-			Error code, EErrorType_NONE if no problem.
-		*/
-		DatabaseMySqlExport virtual EErrorType RollBack( const String & name );
 
 		/** Creates a database.
 		@param[in] database
@@ -364,15 +339,29 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		*/
 		DatabaseMySqlExport virtual void DoDisconnect();
 
-		/** Execute directly a request.
-		@param[in]  query
-			Request text.
-		@param[out] result
-			Error code if the returned value is NULL.
+		/** Initialize a named transaction.
+		@param[in] name
+			Transaction name.
 		@return
-			The result.
+			true if no problem
 		*/
-		DatabaseMySqlExport virtual bool DoExecuteUpdate( const String & query, EErrorType * result );
+		DatabaseMySqlExport virtual bool DoBeginTransaction( const String & name );
+
+		/** Validate a named transaction.
+		@param[in] name
+			Transaction name.
+		@return
+			true if no problem
+		*/
+		DatabaseMySqlExport virtual bool DoCommit( const String & name );
+
+		/** Invalidate a named transaction.
+		@param[in] name
+			Transaction name.
+		@return
+			true if no problem
+		*/
+		DatabaseMySqlExport virtual bool DoRollBack( const String & name );
 
 		/** Execute directly a request.
 		@param[in]  query
@@ -382,7 +371,17 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		@return
 			The result.
 		*/
-		DatabaseMySqlExport virtual DatabaseResultPtr DoExecuteSelect( const String & query, EErrorType * result );
+		DatabaseMySqlExport virtual bool DoExecuteUpdate( const String & query );
+
+		/** Execute directly a request.
+		@param[in]  query
+			Request text.
+		@param[out] result
+			Error code if the returned value is NULL.
+		@return
+			The result.
+		*/
+		DatabaseMySqlExport virtual DatabaseResultPtr DoExecuteSelect( const String & query );
 
 		/** Create a statement from a request.
 		@param[in]  query
@@ -392,17 +391,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		@return
 			The created statement.
 		*/
-		DatabaseMySqlExport virtual DatabaseStatementPtr DoCreateStatement( const String & query, EErrorType * result );
-
-		/** Create a query from a request.
-		@param[in]  query
-			Request text.
-		@param[out] result
-			Error code if the returned value is NULL.
-		@return
-			The created query.
-		*/
-		DatabaseMySqlExport virtual DatabaseQueryPtr DoCreateQuery( const String & query, EErrorType * result );
+		DatabaseMySqlExport virtual DatabaseStatementPtr DoCreateStatement( const String & query );
 
 		/** Retrieves the result for the statement
 		@param statement

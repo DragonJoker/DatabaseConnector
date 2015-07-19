@@ -40,6 +40,13 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 	{
 	}
 
+	CDatabaseStatementParameterSqlite::CDatabaseStatementParameterSqlite( DatabaseConnectionSqlitePtr connection, const String & name, unsigned short index, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
+		: CDatabaseParameter( connection, name, index, fieldType, precision, parameterType, std::move( updater ) )
+		, CDatabaseParameterSqlite( fieldType )
+		, _statement( NULL )
+	{
+	}
+
 	CDatabaseStatementParameterSqlite::~CDatabaseStatementParameterSqlite()
 	{
 		_statement = NULL;
@@ -61,24 +68,44 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			_binding = MakeSqliteBind< EFieldType_BIT >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
 			break;
 
-		case EFieldType_INT8:
-			_binding = MakeSqliteBind< EFieldType_INT8 >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
+		case EFieldType_SINT8:
+			_binding = MakeSqliteBind< EFieldType_SINT8 >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
 			break;
 
-		case EFieldType_INT16:
-			_binding = MakeSqliteBind< EFieldType_INT16 >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
+		case EFieldType_SINT16:
+			_binding = MakeSqliteBind< EFieldType_SINT16 >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
 			break;
 
-		case EFieldType_INT24:
-			_binding = MakeSqliteBind< EFieldType_INT24 >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
+		case EFieldType_SINT24:
+			_binding = MakeSqliteBind< EFieldType_SINT24 >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
 			break;
 
-		case EFieldType_INT32:
-			_binding = MakeSqliteBind< EFieldType_INT32 >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
+		case EFieldType_SINT32:
+			_binding = MakeSqliteBind< EFieldType_SINT32 >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
 			break;
 
-		case EFieldType_INT64:
-			_binding = MakeSqliteBind< EFieldType_INT64 >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
+		case EFieldType_SINT64:
+			_binding = MakeSqliteBind< EFieldType_SINT64 >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
+			break;
+
+		case EFieldType_UINT8:
+			_binding = MakeSqliteBind< EFieldType_UINT8 >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
+			break;
+
+		case EFieldType_UINT16:
+			_binding = MakeSqliteBind< EFieldType_UINT16 >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
+			break;
+
+		case EFieldType_UINT24:
+			_binding = MakeSqliteBind< EFieldType_UINT24 >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
+			break;
+
+		case EFieldType_UINT32:
+			_binding = MakeSqliteBind< EFieldType_UINT32 >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
+			break;
+
+		case EFieldType_UINT64:
+			_binding = MakeSqliteBind< EFieldType_UINT64 >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
 			break;
 
 		case EFieldType_FLOAT32:
@@ -134,7 +161,6 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			break;
 
 		default:
-			CLogger::LogError( ERROR_SQLITE_PARAMETER_TYPE );
 			DB_EXCEPT( EDatabaseExceptionCodes_ParameterError, ERROR_SQLITE_PARAMETER_TYPE );
 			break;
 		}

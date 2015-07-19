@@ -5,7 +5,7 @@
 * @date 3/20/2014 2:47:39 PM
 *
 *
-* @brief CDatabaseStatementParameterMySql class declaration.
+* @brief CDatabaseParameterMySql class declaration.
 *
 * @details Describes a statement parameter for MYSQL database.
 *
@@ -26,7 +26,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 {
 	/** Describes a statement parameter for MYSQL database.
 	*/
-	class CDatabaseStatementParameterMySql
+	class CDatabaseParameterMySql
 		: public CDatabaseParameter
 	{
 	public:
@@ -44,7 +44,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		@param[in] updater
 			The parent updater
 		*/
-		DatabaseMySqlExport CDatabaseStatementParameterMySql( DatabaseConnectionMySqlPtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
+		DatabaseMySqlExport CDatabaseParameterMySql( DatabaseConnectionMySqlPtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
 
 		/** Constructor.
 		@param[in] connection
@@ -62,11 +62,29 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		@param[in] updater
 			The parent updater
 		*/
-		DatabaseMySqlExport CDatabaseStatementParameterMySql( DatabaseConnectionMySqlPtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
+		DatabaseMySqlExport CDatabaseParameterMySql( DatabaseConnectionMySqlPtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
+
+		/** Constructor.
+		@param[in] connection
+			Connection to database.
+		@param[in] name
+			Parameter name.
+		@param[in] index
+			Internal index.
+		@param[in] fieldType
+			Field type.
+		@param[in] precision
+			Field precision.
+		@param[in] parameterType
+			Parameter type.
+		@param[in] updater
+			The parent updater
+		*/
+		DatabaseMySqlExport CDatabaseParameterMySql( DatabaseConnectionMySqlPtr connection, const String & name, unsigned short index, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
 
 		/** Destructor.
 		*/
-		DatabaseMySqlExport virtual ~CDatabaseStatementParameterMySql();
+		DatabaseMySqlExport virtual ~CDatabaseParameterMySql();
 
 		//!@copydoc Database::CDatabaseParameter::SetNull
 		DatabaseMySqlExport virtual void SetNull();

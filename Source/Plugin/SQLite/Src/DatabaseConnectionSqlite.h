@@ -24,7 +24,6 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 	*/
 	class CDatabaseConnectionSqlite
 		: public CDatabaseConnection
-		, public std::enable_shared_from_this< CDatabaseConnectionSqlite >
 	{
 	public:
 		/** Constructor.
@@ -50,30 +49,6 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			The precision.
 		*/
 		DatabaseSqliteExport virtual uint32_t GetPrecision( EFieldType type ) const;
-
-		/** Initialize a named transaction.
-		@param[in] name
-			Transaction name.
-		@return
-			Error code, EErrorType_NONE if no problem.
-		*/
-		DatabaseSqliteExport virtual EErrorType BeginTransaction( const String & name );
-
-		/** Validate a named transaction.
-		@param[in] name
-			Transaction name.
-		@return
-			Error code, EErrorType_NONE if no problem.
-		*/
-		DatabaseSqliteExport virtual EErrorType Commit( const String & name );
-
-		/** Invalidate a named transaction.
-		@param[in] name
-			Transaction name.
-		@return
-			Error code, EErrorType_NONE if no problem.
-		*/
-		DatabaseSqliteExport virtual EErrorType RollBack( const String & name );
 
 		/** Creates a database.
 		@param[in] database
@@ -362,15 +337,29 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		*/
 		DatabaseSqliteExport virtual void DoDisconnect();
 
-		/** Execute directly a request.
-		@param[in]  query
-			Request text.
-		@param[out] result
-			Error code if the returned value is NULL.
+		/** Initialize a named transaction.
+		@param[in] name
+			Transaction name.
 		@return
-			The result.
+			Error code, EErrorType_NONE if no problem.
 		*/
-		DatabaseSqliteExport virtual bool DoExecuteUpdate( const String & query, EErrorType * result );
+		DatabaseSqliteExport virtual bool DoBeginTransaction( const String & name );
+
+		/** Validate a named transaction.
+		@param[in] name
+			Transaction name.
+		@return
+			Error code, EErrorType_NONE if no problem.
+		*/
+		DatabaseSqliteExport virtual bool DoCommit( const String & name );
+
+		/** Invalidate a named transaction.
+		@param[in] name
+			Transaction name.
+		@return
+			Error code, EErrorType_NONE if no problem.
+		*/
+		DatabaseSqliteExport virtual bool DoRollBack( const String & name );
 
 		/** Execute directly a request.
 		@param[in]  query
@@ -380,7 +369,17 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			The result.
 		*/
-		DatabaseSqliteExport virtual DatabaseResultPtr DoExecuteSelect( const String & query, EErrorType * result );
+		DatabaseSqliteExport virtual bool DoExecuteUpdate( const String & query);
+
+		/** Execute directly a request.
+		@param[in]  query
+			Request text.
+		@param[out] result
+			Error code if the returned value is NULL.
+		@return
+			The result.
+		*/
+		DatabaseSqliteExport virtual DatabaseResultPtr DoExecuteSelect( const String & query);
 
 		/** Create a statement from a request.
 		@param[in]  query
@@ -390,17 +389,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			The created statement.
 		*/
-		DatabaseSqliteExport virtual DatabaseStatementPtr DoCreateStatement( const String & query, EErrorType * result );
-
-		/** Create a query from a request.
-		@param[in]  query
-			Request text.
-		@param[out] result
-			Error code if the returned value is NULL.
-		@return
-			The created query.
-		*/
-		DatabaseSqliteExport virtual DatabaseQueryPtr DoCreateQuery( const String & query, EErrorType * result );
+		DatabaseSqliteExport virtual DatabaseStatementPtr DoCreateStatement( const String & query);
 
 	protected:
 		//! The connection
