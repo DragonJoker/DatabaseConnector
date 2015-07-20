@@ -61,7 +61,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 	void CDatabaseOdbcMsSqlTest::DoLoadPlugins()
 	{
-		LoadPlugins( InitializeSingletons(), false, false, false, true );
+		LoadPlugins( InitializeSingletons(), false, false, false, true, false );
 	}
 
 	void CDatabaseOdbcMsSqlTest::TestCase_CreateDatabase()

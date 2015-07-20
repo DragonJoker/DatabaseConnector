@@ -61,7 +61,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 	void CDatabaseMySqlTest::DoLoadPlugins()
 	{
-		LoadPlugins( InitializeSingletons(), true, false, false, false );
+		LoadPlugins( InitializeSingletons(), true, false, false, false, false );
 	}
 }
 END_NAMESPACE_DATABASE_TEST

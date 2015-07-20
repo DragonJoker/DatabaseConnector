@@ -61,7 +61,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 	void CDatabaseOdbcMySqlTest::DoLoadPlugins()
 	{
-		LoadPlugins( InitializeSingletons(), false, false, true, false );
+		LoadPlugins( InitializeSingletons(), false, false, true, false, false );
 	}
 
 	void CDatabaseOdbcMySqlTest::TestCase_CreateDatabase()

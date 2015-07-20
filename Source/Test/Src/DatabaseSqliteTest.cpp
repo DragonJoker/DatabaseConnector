@@ -61,7 +61,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 	void CDatabaseSqliteTest::DoLoadPlugins()
 	{
-		LoadPlugins( InitializeSingletons(), false, true, false, false );
+		LoadPlugins( InitializeSingletons(), false, true, false, false, false );
 	}
 }
 END_NAMESPACE_DATABASE_TEST
