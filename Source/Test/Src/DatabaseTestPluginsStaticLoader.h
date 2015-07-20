@@ -5,9 +5,9 @@
  * @date 16/06/2014 12:04:36
  *
  *
- * @brief Specialization of CStaticLibLoader for Database needed plugins
+ * @brief CTestPluginsLoader class
  *
- * @details Loads the static library of the Database needed plugins
+ * @details Class used to load pluginsm dynamically or statically
  *
  ***************************************************************************/
 
@@ -24,20 +24,109 @@
 
 BEGIN_NAMESPACE_DATABASE_TEST
 {
-	/** Specialization of CStaticLibLoader for Database plugins
+	/** Structure holding the needed loading informations about one plugin
 	*/
-	class CTestPluginsStaticLoader
+	class CPluginConfigBase
+	{
+	public:
+		/** Constructor
+		*/
+		CPluginConfigBase( bool load );
+
+		/** Loads the plugin, if needed
+		*/
+		virtual void Load() = 0;
+
+		/** Unloads the plugin, if needed
+		*/
+		virtual void Unload() = 0;
+
+		//! Tells if plugin is to load/loaded
+		bool _load = false;
+	};
+
+#if defined( STATIC_LIB )
+	template< typename PluginType >
+	class CPluginConfig
+		: public CPluginConfigBase
+	{
+	public:
+		/** Constructor
+		*/
+		CPluginConfig( bool load );
+
+		/** Loads the plugin, if needed
+		*/
+		void Load();
+
+		/** Unloads the plugin, if needed
+		*/
+		void Unload();
+
+		//! The plugin
+		PluginType * _plugin = NULL;
+	};
+#else
+	/** Structure holding the needed loading informations about one plugin
+	*/
+	class CPluginConfig
+		: public CPluginConfigBase
+	{
+	public:
+		/** Constructor
+		*/
+		CPluginConfig( bool load, const String & path, const String & name );
+
+		/** Loads the plugin, if needed
+		*/
+		void Load();
+
+		/** Unloads the plugin, if needed
+		*/
+		void Unload();
+
+		//! The plugins path
+		String _path;
+		//! The plugin name
+		String _plugin;
+	};
+#endif
+
+	/** Structure holding the needed informations about plugins to load, and plugins path
+	*/
+	struct SPluginsConfig
+	{
+		//! The MySQL plugin
+		std::unique_ptr< CPluginConfigBase > _mySql;
+		//! The SQLite plugin
+		std::unique_ptr< CPluginConfigBase > _sqlite;
+		//! The ODBC MySQL plugin
+		std::unique_ptr< CPluginConfigBase > _odbcMySql;
+		//! The ODBC MSSQL plugin
+		std::unique_ptr< CPluginConfigBase > _odbcMsSql;
+	};
+
+	/** Class used to load pluginsm dynamically or statically
+	*/
+	class CTestPluginsLoader
 	{
 	public:
 		/** Default constructor
 		*/
-		CTestPluginsStaticLoader();
+		CTestPluginsLoader();
 
 		/** Destructor
 		*/
-		virtual ~CTestPluginsStaticLoader();
+		virtual ~CTestPluginsLoader();
 
-		void Load( bool mySql, bool odbcMySql, bool odbcMsSql );
+		/** Load the plugins wanted in the given config
+		@param[in] config
+			The config
+		*/
+		void Load( SPluginsConfig && config );
+
+		/** Unloads every loaded plugin
+		*/
 		void Unload();
 
 	private:
@@ -49,17 +138,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		*/
 		void OnUnload();
 
-#ifdef STATIC_LIB
-		//! ODBC MySSQL database plugin
-		Odbc::MySql::CPluginDatabaseOdbcMySql * _pluginOdbcMySql;
-		//! ODBC MSSQL database plugin
-		Odbc::MsSql::CPluginDatabaseOdbcMsSql * _pluginOdbcMsSql;
-		//! MySQL database plugin
-		MySql::CPluginDatabaseMySql * _pluginMySql;
-#endif
-		bool _mySql;
-		bool _odbcMySql;
-		bool _odbcMsSql;
+		//! The current configuration
+		SPluginsConfig _config;
 	};
 }
 END_NAMESPACE_DATABASE_TEST

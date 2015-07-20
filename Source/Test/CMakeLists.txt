@@ -42,9 +42,10 @@ file( TO_NATIVE_PATH ${SCRIPT_FILES_DIR} SCRIPT_FILES_DIR )
 string( REPLACE "\\" "\\\\" SCRIPT_FILES_DIR ${SCRIPT_FILES_DIR} )
 configure_file( ${CMAKE_TEMPLATES_DIR}/DatabaseTestUtilities.h.in ${CMAKE_CURRENT_BINARY_DIR}/DatabaseTestUtilities.h NEWLINE_STYLE LF )
 
-set( DBT_VERSION_MAJOR	0 )
-set( DBT_VERSION_MINOR	1 )
-set( DBT_VERSION_BUILD	0 )
+set( PROJECT_DESC "DatabaseConnector Test" )
+set( ${PROJECT_NAME}_VERSION_MAJOR	0 )
+set( ${PROJECT_NAME}_VERSION_MINOR	1 )
+set( ${PROJECT_NAME}_VERSION_BUILD	0 )
 
 set( BinsDependencies
     ${BinsDependencies}
@@ -56,6 +57,7 @@ include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/../Plugin/MySql/Src )
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/../Plugin/Odbc/Src )
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/../Plugin/Odbc/MySql/Src )
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/../Plugin/Odbc/MsSql/Src )
+include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/../Plugin/Sqlite/Src )
 
 find_package( Boost COMPONENTS unit_test_framework )
 
@@ -72,7 +74,7 @@ if( Boost_UNIT_TEST_FRAMEWORK_FOUND )
 	ENDFOREACH()
 	
 	add_target(
-		DatabaseTest
+		${PROJECT_NAME}
 		bin_dos
 		"${BinsDependencies}"
 		"${BinsDependencies};${BoostUnitTestLibraries};${MinLibraries};"
@@ -85,45 +87,39 @@ if( Boost_UNIT_TEST_FRAMEWORK_FOUND )
 	)
 
 	if( ${BUILD_MySQL_PLUGIN} )
-		add_dependencies( DatabaseTest DatabasePluginMySql )
+		add_dependencies( ${PROJECT_NAME} DatabasePluginMySql )
 		set( ADDITIONAL_FLAGS ${ADDITIONAL_FLAGS} TESTING_PLUGIN_MYSQL )
 	endif()
 	if( ${BUILD_ODBC_PLUGIN} )
-		add_dependencies( DatabaseTest DatabasePluginOdbcMySql DatabasePluginOdbcMsSql )
+		add_dependencies( ${PROJECT_NAME} DatabasePluginOdbcMySql DatabasePluginOdbcMsSql )
 		set( ADDITIONAL_FLAGS ${ADDITIONAL_FLAGS} TESTING_PLUGIN_ODBC )
 	endif()
 	if( ${BUILD_SQLite_PLUGIN} )
-		add_dependencies( DatabaseTest DatabasePluginSqlite )
+		add_dependencies( ${PROJECT_NAME} DatabasePluginSqlite )
 		set( ADDITIONAL_FLAGS ${ADDITIONAL_FLAGS} TESTING_PLUGIN_SQLITE )
 	endif()
 
 	set( ADDITIONAL_FLAGS ${ADDITIONAL_FLAGS} BOOST_TEST_DYN_LINK )
-	
+
 	if ( NOT "" STREQUAL "${ADDITIONAL_FLAGS}" )
-	  set_target_properties( DatabaseTest PROPERTIES COMPILE_DEFINITIONS "${ADDITIONAL_FLAGS}" )
+	  set_target_properties( ${PROJECT_NAME} PROPERTIES COMPILE_DEFINITIONS "${ADDITIONAL_FLAGS}" )
 	endif ()
-	set_property( TARGET DatabaseTest PROPERTY FOLDER "Test" )
-	add_target_astyle( DatabaseTest ".h;.hpp;.inl;.cpp" )
+
+	set_property( TARGET ${PROJECT_NAME} PROPERTY FOLDER "Test" )
+	add_target_astyle( ${PROJECT_NAME} ".h;.hpp;.inl;.cpp" )
 	
 	# Adding debug test
 	add_test( NAME DatabaseTest_boost_test_debug
 		CONFIGURATIONS Debug
-		COMMAND "DatabaseTest"
+		COMMAND "${PROJECT_NAME}d"
 		WORKING_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Debug"
 	)
 
 	# Adding release test
 	add_test( NAME DatabaseTest_boost_test_release
 		CONFIGURATIONS Release
-		COMMAND "DatabaseTest"
+		COMMAND "${PROJECT_NAME}"
 		WORKING_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Release"
-	)
-
-	# Adding release with debug info test
-	add_test( NAME DatabaseTest_boost_test_relwithdebinfo
-		CONFIGURATIONS RelWithDebInfo
-		COMMAND "DatabaseTest"
-		WORKING_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/RelWithDebInfo"
 	)
 
 	copy_dll( ${PROJECT_NAME} "${Boost_UNIT_TEST_FRAMEWORK_LIBRARY_DEBUG}" Debug )

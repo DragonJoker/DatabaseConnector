@@ -24,10 +24,11 @@
 
 NAMESPACE_DATABASE::String g_path;
 
-std::shared_ptr< NAMESPACE_DATABASE_TEST::CDatabaseMySqlTest > DatabaseMySqlTest; //!<A shared pointer to the CDatabaseMySqlTest class.
-std::shared_ptr< NAMESPACE_DATABASE_TEST::CDatabaseSqliteTest > DatabaseSqliteTest; //!<A shared pointer to the CDatabasePluginSqlite class.
-std::shared_ptr< NAMESPACE_DATABASE_TEST::CDatabaseOdbcMySqlTest > DatabaseOdbcMySqlTest; //!<A shared pointer to the CDatabaseOdbcMySqlTest class.
-std::shared_ptr< NAMESPACE_DATABASE_TEST::CDatabaseOdbcMsSqlTest > DatabaseOdbcMsSqlTest; //!<A shared pointer to the CDatabaseOdbcMsSqlTest class.
+std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseMySqlTest > g_databaseMySqlTest; //!<A pointer to the CDatabaseMySqlTest class.
+std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseSqliteTest > g_databaseSqliteTest; //!<A pointer to the CDatabasePluginSqlite class.
+std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseOdbcMySqlTest > g_databaseOdbcMySqlTest; //!<A pointer to the CDatabaseOdbcMySqlTest class.
+std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseOdbcMsSqlTest > g_databaseOdbcMsSqlTest; //!<A pointer to the CDatabaseOdbcMsSqlTest class.
+std::unique_ptr< NAMESPACE_DATABASE_TEST::CTestPluginsLoader > g_pluginsLoader;
 
 void Startup( char * arg )
 {
@@ -45,18 +46,20 @@ void Startup( char * arg )
 #endif
 	NAMESPACE_DATABASE::CLogger::SetFileName( g_path + STR( "DatabaseTest.log" ) );
 
-	DatabaseMySqlTest = std::make_shared< NAMESPACE_DATABASE_TEST::CDatabaseMySqlTest >();
-	DatabaseSqliteTest = std::make_shared< NAMESPACE_DATABASE_TEST::CDatabaseSqliteTest >();
-	DatabaseOdbcMySqlTest = std::make_shared< NAMESPACE_DATABASE_TEST::CDatabaseOdbcMySqlTest >();
-	DatabaseOdbcMsSqlTest = std::make_shared< NAMESPACE_DATABASE_TEST::CDatabaseOdbcMsSqlTest >();
+	g_databaseMySqlTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseMySqlTest >();
+	g_databaseSqliteTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseSqliteTest >();
+	g_databaseOdbcMySqlTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseOdbcMySqlTest >();
+	g_databaseOdbcMsSqlTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseOdbcMsSqlTest >();
+	g_pluginsLoader = std::make_unique< NAMESPACE_DATABASE_TEST::CTestPluginsLoader >();
 }
 
 void Shutdown()
 {
-	DatabaseMySqlTest.reset();
-	DatabaseSqliteTest.reset();
-	DatabaseOdbcMySqlTest.reset();
-	DatabaseOdbcMsSqlTest.reset();
+	g_pluginsLoader.reset();
+	g_databaseMySqlTest.reset();
+	g_databaseSqliteTest.reset();
+	g_databaseOdbcMySqlTest.reset();
+	g_databaseOdbcMsSqlTest.reset();
 	NAMESPACE_DATABASE::CLogger::Cleanup();
 }
 
@@ -122,14 +125,14 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		//!@remarks Create the TS' sequences
 #if defined( TESTING_PLUGIN_SQLITE )
-		TS_List.push_back( DatabaseSqliteTest->Init_Test_Suite() );
+		TS_List.push_back( g_databaseSqliteTest->Init_Test_Suite() );
 #endif
 #if defined( TESTING_PLUGIN_MYSQL )
-		TS_List.push_back( DatabaseMySqlTest->Init_Test_Suite() );
+		//TS_List.push_back( g_databaseMySqlTest->Init_Test_Suite() );
 #endif
 #if defined( TESTING_PLUGIN_ODBC )
-		TS_List.push_back( DatabaseOdbcMySqlTest->Init_Test_Suite() );
-		//TS_List.push_back( DatabaseOdbcMsSqlTest->Init_Test_Suite() );
+		//TS_List.push_back( g_databaseOdbcMySqlTest->Init_Test_Suite() );
+		//TS_List.push_back( g_databaseOdbcMsSqlTest->Init_Test_Suite() );
 #endif
 
 		//!@remarks Add the TS' sequences into the Master TS
@@ -137,39 +140,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		{
 			boost::unit_test::framework::master_test_suite().add( suite );
 		}
-	}
-	static const String MYSQL_PLUGIN = STR( "DatabasePluginMySql" );
-	static const String SQLITE_PLUGIN = STR( "DatabasePluginSqlite" );
-	static const String ODBC_MYSQL_PLUGIN = STR( "DatabasePluginOdbcMySql" );
-	static const String ODBC_MSSQL_PLUGIN = STR( "DatabasePluginOdbcMsSql" );
-
-#if defined( _WIN32 )
-	static const String LIB_PREFIX;
-	static const String LIB_EXT = STR( ".dll" );
-#else
-	static const String LIB_PREFIX = STR( "lib" );
-	static const String LIB_EXT = STR( ".so" );
-#endif
-#if defined( NDEBUG )
-	static const String LIB_SUFFIX;
-#else
-	static const String LIB_SUFFIX = "d";
-#endif
-	static struct SPluginsConfig
-	{
-		String _path;
-		bool _mySql;
-		bool _sqlite;
-		bool _odbcMySql;
-		bool _odbcMsSql;
-#if defined( STATIC_LIB )
-		CTestPluginsStaticLoader _loader;
-#endif
-	} pluginsConfig;
-
-	String GetLibName( const String & name )
-	{
-		return LIB_PREFIX + name + LIB_SUFFIX + LIB_EXT;
 	}
 
 	String InitializeSingletons()
@@ -196,67 +166,31 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		return result;
 	}
 
+	static const String MYSQL_PLUGIN = STR( "DatabasePluginMySql" );
+	static const String SQLITE_PLUGIN = STR( "DatabasePluginSqlite" );
+	static const String ODBC_MYSQL_PLUGIN = STR( "DatabasePluginOdbcMySql" );
+	static const String ODBC_MSSQL_PLUGIN = STR( "DatabasePluginOdbcMsSql" );
+
 	void LoadPlugins( const String & path, bool mySql, bool sqlite, bool odbcMySql, bool odbcMsSql )
 	{
-		pluginsConfig._path = path;
-		pluginsConfig._mySql = mySql;
-		pluginsConfig._sqlite = sqlite;
-		pluginsConfig._odbcMySql = odbcMySql;
-		pluginsConfig._odbcMsSql = odbcMsSql;
+		SPluginsConfig pluginsConfig;
 #if !defined( STATIC_LIB )
-
-		if ( pluginsConfig._odbcMsSql )
-		{
-			CPluginManager::Instance().LoadPlugin( pluginsConfig._path + GetLibName( ODBC_MSSQL_PLUGIN ) );
-		}
-
-		if ( pluginsConfig._odbcMySql )
-		{
-			CPluginManager::Instance().LoadPlugin( pluginsConfig._path + GetLibName( ODBC_MYSQL_PLUGIN ) );
-		}
-
-		if ( pluginsConfig._sqlite )
-		{
-			CPluginManager::Instance().LoadPlugin( pluginsConfig._path + GetLibName( SQLITE_PLUGIN ) );
-		}
-
-		if ( pluginsConfig._mySql )
-		{
-			CPluginManager::Instance().LoadPlugin( pluginsConfig._path + GetLibName( MYSQL_PLUGIN ) );
-		}
-
+		pluginsConfig._mySql = std::make_unique< CPluginConfig >( mySql, path, MYSQL_PLUGIN );
+		pluginsConfig._sqlite = std::make_unique< CPluginConfig >( sqlite, path, SQLITE_PLUGIN );
+		pluginsConfig._odbcMySql = std::make_unique< CPluginConfig >( odbcMySql, path, ODBC_MYSQL_PLUGIN );
+		pluginsConfig._odbcMsSql = std::make_unique< CPluginConfig >( odbcMsSql, path, ODBC_MSSQL_PLUGIN );
 #else
-		pluginsConfig._loader.Load( mySql, odbcMySql, odbcMsSql );
+		pluginsConfig._mySql = std::make_unique< CPluginConfig< MySql::CDatabasePluginMySql > >( mySql );
+		pluginsConfig._sqlite = std::make_unique< CPluginConfig< Sqlite::CDatabasePluginSqlite > >( sqlite );
+		pluginsConfig._odbcMySql = std::make_unique< CPluginConfig< Odbc::MySql::CDatabasePluginOdbcMySql > >( odbcMySql );
+		pluginsConfig._odbcMsSql = std::make_unique< CPluginConfig< Odbc::MsSql::CDatabasePluginOdbcMsSql > >( odbcMsSql );
 #endif
+		g_pluginsLoader->Load( std::move( pluginsConfig ) );
 	}
 
 	void UnloadPlugins()
 	{
-#if !defined( STATIC_LIB )
-
-		if ( pluginsConfig._odbcMsSql )
-		{
-			CPluginManager::Instance().UnloadPlugin( pluginsConfig._path + GetLibName( ODBC_MSSQL_PLUGIN ) );
-		}
-
-		if ( pluginsConfig._odbcMySql )
-		{
-			CPluginManager::Instance().UnloadPlugin( pluginsConfig._path + GetLibName( ODBC_MYSQL_PLUGIN ) );
-		}
-
-		if ( pluginsConfig._sqlite )
-		{
-			CPluginManager::Instance().UnloadPlugin( pluginsConfig._path + GetLibName( SQLITE_PLUGIN ) );
-		}
-
-		if ( pluginsConfig._mySql )
-		{
-			CPluginManager::Instance().UnloadPlugin( pluginsConfig._path + GetLibName( MYSQL_PLUGIN ) );
-		}
-
-#else
-		pluginsConfig._loader.Unload();
-#endif
+		g_pluginsLoader->Unload();
 	}
 
 	CDatabase * InstantiateDatabase( const String & type )
