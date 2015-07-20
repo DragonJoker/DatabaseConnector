@@ -135,17 +135,13 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	STR( "	IDTest=?" );
 	String const QUERY_DIRECT_DELETE_ELEMENT = STR( "DELETE FROM Test WHERE IDTest=?" );
 
-	CDatabaseTest::CDatabaseTest( const String & type, const String & server, const String & database, const String & user, const String & password, bool hasNChar, bool hasSeparateBooleanAndTinyInt, const String & is, bool hasInt24, bool hasUnsignedTiny )
+	CDatabaseTest::CDatabaseTest( const String & type, const String & server, const String & database, const String & user, const String & password, const STestConfig & config )
 		: _type( type )
 		, _server( server )
 		, _database( database )
 		, _user( user )
 		, _password( password )
-		, _hasNChar( hasNChar )
-		, _hasSeparateBooleanAndTinyInt( hasSeparateBooleanAndTinyInt )
-		, _is( is )
-		, _hasInt24( hasInt24 )
-		, _hasUnsignedTiny( hasUnsignedTiny )
+		, _config( config )
 	{
 	}
 

@@ -350,6 +350,38 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 		};
 
+		template<> struct Helpers< EFieldType_CHAR >
+		{
+			static const uint32_t Limit = 20;
+			typedef std::string ParamType;
+			typedef std::string FieldType;
+
+			static ParamType InitialiseValue()
+			{
+				static char l_return[] = "Bonjour, comment va?";
+				return l_return;
+			}
+
+			static ParamType InitialiseValue( size_t size )
+			{
+				std::stringstream text;
+
+				for ( size_t i = 0; i < size; ++i )
+				{
+					char c = char( 32 + ( rand() % 95 ) );
+
+					if ( c == '\\' )
+					{
+						c = '/';
+					}
+
+					text << c;
+				};
+
+				return text.str();
+			}
+		};
+
 		template<> struct Helpers< EFieldType_VARCHAR >
 		{
 			static const uint32_t Limit = 20;
@@ -373,6 +405,38 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					if ( c == '\\' )
 					{
 						c = '/';
+					}
+
+					text << c;
+				};
+
+				return text.str();
+			}
+		};
+
+		template<> struct Helpers< EFieldType_NCHAR >
+		{
+			static const uint32_t Limit = 55;
+			typedef std::wstring ParamType;
+			typedef std::wstring FieldType;
+
+			static ParamType InitialiseValue()
+			{
+				static wchar_t l_return[] = L"Ca va bien, et toi?";
+				return l_return;
+			}
+
+			static ParamType InitialiseValue( size_t size )
+			{
+				std::wstringstream text;
+
+				for ( size_t i = 0; i < size; ++i )
+				{
+					wchar_t c = wchar_t( 32 + ( rand() % 95 ) );
+
+					if ( c == L'\\' )
+					{
+						c = L'/';
 					}
 
 					text << c;
@@ -515,9 +579,9 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			BOOST_CHECK( stmt->CreateParameter( STR( "BooleanField" ), EFieldType_BIT ) );
 			BOOST_CHECK( stmt->CreateParameter( STR( "DateField" ), EFieldType_DATE ) );
 			BOOST_CHECK( stmt->CreateParameter( STR( "DateTimeField" ), EFieldType_DATETIME ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "CharacterField" ), EFieldType_VARCHAR, 20 ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "CharacterField" ), EFieldType_CHAR, 20 ) );
 			BOOST_CHECK( stmt->CreateParameter( STR( "VarcharField" ), EFieldType_VARCHAR, 255 ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "NcharField" ), EFieldType_NVARCHAR, 55 ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "NcharField" ), EFieldType_NCHAR, 55 ) );
 			BOOST_CHECK( stmt->CreateParameter( STR( "NVarcharField" ), EFieldType_NVARCHAR, 100 ) );
 			BOOST_CHECK( stmt->CreateParameter( STR( "TextField" ), EFieldType_TEXT ) );
 			BOOST_CHECK( stmt->CreateParameter( STR( "BlobField" ), EFieldType_VARBINARY ) );
@@ -543,9 +607,9 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			stmt->SetParameterValue( index++, Helpers< EFieldType_BIT >::InitialiseValue() );
 			stmt->SetParameterValue( index++, Helpers< EFieldType_DATE >::InitialiseValue() );
 			stmt->SetParameterValue( index++, Helpers< EFieldType_DATETIME >::InitialiseValue() );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_CHAR >::InitialiseValue() );
 			stmt->SetParameterValue( index++, Helpers< EFieldType_VARCHAR >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_VARCHAR >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_NVARCHAR >::InitialiseValue() );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_NCHAR >::InitialiseValue() );
 			stmt->SetParameterValue( index++, Helpers< EFieldType_NVARCHAR >::InitialiseValue() );
 			stmt->SetParameterValue( index++, Helpers< EFieldType_TEXT >::InitialiseValue() );
 			stmt->SetParameterValue( index++, Helpers< EFieldType_VARBINARY >::InitialiseValue() );
@@ -555,7 +619,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		{
 			CLogger::LogInfo( StringStream() << STR( "IntField : " ) << row->Get< int32_t >( index++ ) );
 			CLogger::LogInfo( StringStream() << STR( "IntegerField : " ) << row->Get< int32_t >( index++ ) );
-			CLogger::LogInfo( StringStream() << STR( "TinyIntField : " ) << int( row->Get< int8_t >( index++ ) ) );
+			CLogger::LogInfo( StringStream() << STR( "TinyIntField : " ) << int( row->Get< int16_t >( index++ ) ) );
 			CLogger::LogInfo( StringStream() << STR( "SmallIntField : " ) << row->Get< int16_t >( index++ ) );
 			CLogger::LogInfo( StringStream() << STR( "MediumIntField : " ) << int32_t( row->Get< int24_t >( index++ ) ) );
 			CLogger::LogInfo( StringStream() << STR( "BigIntField : " ) << row->Get< int64_t >( index++ ) );
@@ -726,6 +790,33 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		};
 
 		template<>
+		struct Compare< EFieldType_CHAR >
+		{
+			typedef Helpers< EFieldType_CHAR >::ParamType param_type;
+			typedef Helpers< EFieldType_CHAR >::FieldType field_type;
+
+			static void Equal( param_type const & a, field_type const & b )
+			{
+				BOOST_CHECK_EQUAL( std::string( a ), std::string( b ) );
+			}
+			static void Different( param_type const & a, field_type const & b )
+			{
+				BOOST_CHECK_NE( std::string( a ), std::string( b ) );
+			}
+			void operator()( bool equal, param_type const & a, field_type const & b )
+			{
+				if ( equal )
+				{
+					Equal( a, b );
+				}
+				else
+				{
+					Different( a, b );
+				}
+			}
+		};
+
+		template<>
 		struct Compare< EFieldType_VARCHAR >
 		{
 			typedef Helpers< EFieldType_VARCHAR >::ParamType param_type;
@@ -738,6 +829,33 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			static void Different( param_type const & a, field_type const & b )
 			{
 				BOOST_CHECK_NE( std::string( a ), std::string( b ) );
+			}
+			void operator()( bool equal, param_type const & a, field_type const & b )
+			{
+				if ( equal )
+				{
+					Equal( a, b );
+				}
+				else
+				{
+					Different( a, b );
+				}
+			}
+		};
+
+		template<>
+		struct Compare< EFieldType_NCHAR >
+		{
+			typedef Helpers< EFieldType_NCHAR >::ParamType param_type;
+			typedef Helpers< EFieldType_NCHAR >::FieldType field_type;
+
+			static void Equal( param_type const & a, field_type const & b )
+			{
+				BOOST_CHECK_EQUAL( CStrUtils::ToStr( a ), CStrUtils::ToStr( b ) );
+			}
+			static void Different( param_type const & a, field_type const & b )
+			{
+				BOOST_CHECK_NE( CStrUtils::ToStr( a ), CStrUtils::ToStr( b ) );
 			}
 			void operator()( bool equal, param_type const & a, field_type const & b )
 			{
@@ -854,7 +972,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 						{
 							typename Helpers< FieldType >::FieldType valueOut;
 							BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, valueOut ) );
-							Compare< FieldType >()( equal, *valueIn, valueOut );
+							Compare< FieldType >()( equal, static_cast< CDatabaseValue< FieldType > const & >( stmtInsert->GetParameter( 0 )->GetObjectValue() ).GetValue(), valueOut );
 						}
 						else
 						{
@@ -946,7 +1064,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 						{
 							typename Helpers< FieldType >::FieldType valueOut;
 							BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, valueOut ) );
-							Compare< FieldType >()( equal, *valueIn, valueOut );
+							Compare< FieldType >()( equal, static_cast< CDatabaseValue< FieldType > const & >( stmtInsert->GetParameter( 1 )->GetObjectValue() ).GetValue(), valueOut );
 						}
 						else
 						{
@@ -1045,7 +1163,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 						{
 							typename Helpers< FieldType >::FieldType valueOut;
 							BOOST_CHECK_NO_THROW( result->GetFirstRow()->GetFast( 0, valueOut ) );
-							Compare< FieldType >()( equal, *valueIn, valueOut );
+							Compare< FieldType >()( equal, static_cast< CDatabaseValue< FieldType > const & >( stmtInsert->GetParameter( 0 )->GetObjectValue() ).GetValue(), valueOut );
 						}
 						else
 						{
@@ -1149,7 +1267,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 						{
 							typename Helpers< FieldType >::FieldType valueOut;
 							BOOST_CHECK_NO_THROW( result->GetFirstRow()->GetFast( 0, valueOut ) );
-							Compare< FieldType >()( equal, *valueIn, valueOut );
+							Compare< FieldType >()( equal, static_cast< CDatabaseValue< FieldType > const & >( stmtInsert->GetParameter( 1 )->GetObjectValue() ).GetValue(), valueOut );
 						}
 						else
 						{

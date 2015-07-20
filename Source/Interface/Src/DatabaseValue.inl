@@ -124,6 +124,144 @@ BEGIN_NAMESPACE_DATABASE
 		value_type _tValue;
 	};
 
+	/** Describes a EFieldType_CHAR field value.
+	*/
+	template< typename ValuePolicy >
+	class CDatabaseValue< EFieldType_CHAR, ValuePolicy >
+		: public CDatabaseValueBase
+		, private ValuePolicy
+	{
+	public:
+		typedef typename ValuePolicy::value_type value_type;
+
+	public:
+		/** Default constructor.
+		*/
+		CDatabaseValue( DatabaseConnectionPtr connection )
+			: CDatabaseValueBase( connection )
+			, _tValue( value_type() )
+		{
+			// Empty
+		}
+
+		/** Destructor.
+		*/
+		inline ~CDatabaseValue()
+		{
+			Reset();
+		}
+
+		/** Defines this value from the given one
+		@param value
+			The value
+		@param limits
+			The field size limit
+		*/
+		inline void SetValue( CDatabaseValueBase const & value )
+		{
+			CDatabaseValue< EFieldType_CHAR > const & val = static_cast< CDatabaseValue< EFieldType_CHAR > const & >( value );
+			SetValue( val._tValue.c_str(), val.GetPtrSize() );
+		}
+
+		/** Set value.
+		@param[in] tValue
+			New value.
+		@param[in] limits
+			Parameter limits.
+		*/
+		inline void SetValue( const value_type & tValue )
+		{
+			SetNull( !ValuePolicy::Set( tValue, _tValue, _valueSize, _connection ) );
+		}
+
+		/** Set value.
+		@param[in] tValue
+			New value.
+		@param[in] limits
+			Parameter limits.
+		*/
+		inline void SetValue( const char * tValue, uint32_t limits )
+		{
+			value_type value;
+
+			if ( limits != 0 )
+			{
+				size_t length = strlen( tValue );
+
+				if ( length < limits )
+				{
+					std::stringstream stream;
+					stream.width( limits );
+					stream.fill( ' ' );
+					stream << std::left << tValue;
+					value = stream.str();
+				}
+				else
+				{
+					value.assign( tValue, tValue + limits );
+				}
+			}
+
+			SetValue( value );
+		}
+
+		/** Get the value.
+		@return
+			The value.
+		*/
+		inline String GetQueryValue()
+		{
+			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), _connection );
+		}
+
+		/** Get a pointer to the value.
+		@return
+			Pointer to the value or NULL.
+		*/
+		inline void * GetPtrValue()
+		{
+			return ValuePolicy::Ptr( _tValue );
+		}
+
+		/** Get a pointer to the value.
+		@return
+			Pointer to the value or NULL.
+		*/
+		inline const void * GetPtrValue()const
+		{
+			return ValuePolicy::Ptr( _tValue );
+		}
+
+		/** Get the value.
+		@return
+			The value.
+		*/
+		inline const value_type & GetValue()const
+		{
+			return _tValue;
+		}
+
+		/** Re-initialize internal values.
+		*/
+		inline void Reset()
+		{
+			ValuePolicy::Reset( _tValue );
+		}
+
+	private:
+		/** Set parameter value to NULL.
+		*/
+		inline void DoSetNull()
+		{
+			_tValue = value_type();
+			_valueSize = 0;
+		}
+
+	private:
+		//! The value
+		value_type _tValue;
+	};
+
 	/** Describes a EFieldType_VARCHAR field value.
 	*/
 	template< typename ValuePolicy >
@@ -248,7 +386,7 @@ BEGIN_NAMESPACE_DATABASE
 		value_type _tValue;
 	};
 
-	/** Describes a EFieldType_VARCHAR field value.
+	/** Describes a EFieldType_TEXT field value.
 	*/
 	template< typename ValuePolicy >
 	class CDatabaseValue< EFieldType_TEXT, ValuePolicy >
@@ -310,6 +448,144 @@ BEGIN_NAMESPACE_DATABASE
 			if ( limits != 0 )
 			{
 				value.assign( tValue, tValue + std::min< uint32_t >( limits, uint32_t( strlen( tValue ) ) ) );
+			}
+
+			SetValue( value );
+		}
+
+		/** Get the value.
+		@return
+			The value.
+		*/
+		inline String GetQueryValue()
+		{
+			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), _connection );
+		}
+
+		/** Get a pointer to the value.
+		@return
+			Pointer to the value or NULL.
+		*/
+		inline void * GetPtrValue()
+		{
+			return ValuePolicy::Ptr( _tValue );
+		}
+
+		/** Get a pointer to the value.
+		@return
+			Pointer to the value or NULL.
+		*/
+		inline const void * GetPtrValue()const
+		{
+			return ValuePolicy::Ptr( _tValue );
+		}
+
+		/** Get the value.
+		@return
+			The value.
+		*/
+		inline const value_type & GetValue()const
+		{
+			return _tValue;
+		}
+
+		/** Re-initialize internal values.
+		*/
+		inline void Reset()
+		{
+			ValuePolicy::Reset( _tValue );
+		}
+
+	private:
+		/** Set parameter value to NULL.
+		*/
+		inline void DoSetNull()
+		{
+			_tValue = value_type();
+			_valueSize = 0;
+		}
+
+	private:
+		//! The value
+		value_type _tValue;
+	};
+
+	/** Describes a EFieldType_NCHAR field value.
+	*/
+	template< typename ValuePolicy >
+	class CDatabaseValue< EFieldType_NCHAR, ValuePolicy >
+		: public CDatabaseValueBase
+		, private ValuePolicy
+	{
+	public:
+		typedef typename ValuePolicy::value_type value_type;
+
+	public:
+		/** Default constructor.
+		*/
+		CDatabaseValue( DatabaseConnectionPtr connection )
+			: CDatabaseValueBase( connection )
+			, _tValue( value_type() )
+		{
+			// Empty
+		}
+
+		/** Destructor.
+		*/
+		inline ~CDatabaseValue()
+		{
+			Reset();
+		}
+
+		/** Defines this value from the given one
+		@param value
+			The value
+		@param limits
+			The field size limit
+		*/
+		inline void SetValue( CDatabaseValueBase const & value )
+		{
+			CDatabaseValue< EFieldType_NCHAR > const & val = static_cast< CDatabaseValue< EFieldType_NCHAR > const & >( value );
+			SetValue( val._tValue.c_str(), val.GetPtrSize() );
+		}
+
+		/** Set value.
+		@param[in] tValue
+			New value.
+		@param[in] limits
+			Parameter limits.
+		*/
+		inline void SetValue( const value_type & tValue )
+		{
+			SetNull( !ValuePolicy::Set( tValue, _tValue, _valueSize, _connection ) );
+		}
+
+		/** Set value.
+		@param[in] tValue
+			New value.
+		@param[in] limits
+			Parameter limits.
+		*/
+		inline void SetValue( const wchar_t * tValue, uint32_t limits )
+		{
+			value_type value;
+
+			if ( limits != 0 )
+			{
+				size_t length = wcslen( tValue );
+
+				if ( length < limits )
+				{
+					std::wstringstream stream;
+					stream.width( limits );
+					stream.fill( L' ' );
+					stream << std::left << tValue;
+					value = stream.str();
+				}
+				else
+				{
+					value.assign( tValue, tValue + limits );
+				}
 			}
 
 			SetValue( value );

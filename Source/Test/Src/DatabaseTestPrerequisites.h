@@ -50,7 +50,7 @@ BEGIN_NAMESPACE_DATABASE
 	namespace Test
 	{
 		String InitializeSingletons();
-		void LoadPlugins( const String & path, bool mySql, bool sqlite, bool odbcMySql, bool odbcMsSql );
+		void LoadPlugins( const String & path, bool mySql, bool sqlite, bool odbcMySql, bool odbcMsSql, bool postgreSql );
 		void UnloadPlugins();
 		CDatabase * InstantiateDatabase( const String & type );
 		DatabaseConnectionPtr CreateConnection( CDatabase & database, const String & server, const String & user, const String & pwd );

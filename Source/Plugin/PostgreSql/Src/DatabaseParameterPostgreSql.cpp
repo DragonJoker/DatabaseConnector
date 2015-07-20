@@ -117,12 +117,20 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			_binding = MakeOutBind< EFieldType_FIXED_POINT >( *bind, GetObjectValue(), *this );
 			break;
 
+		case EFieldType_CHAR:
+			_binding = MakeOutBind< EFieldType_CHAR >( *bind, GetObjectValue(), *this );
+			break;
+
 		case EFieldType_VARCHAR:
 			_binding = MakeOutBind< EFieldType_VARCHAR >( *bind, GetObjectValue(), *this );
 			break;
 
 		case EFieldType_TEXT:
 			_binding = MakeOutBind< EFieldType_TEXT >( *bind, GetObjectValue(), *this );
+			break;
+
+		case EFieldType_NCHAR:
+			_binding = MakeOutBind< EFieldType_NCHAR >( *bind, GetObjectValue(), *this );
 			break;
 
 		case EFieldType_NVARCHAR:

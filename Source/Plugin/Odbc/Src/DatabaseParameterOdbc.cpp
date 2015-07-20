@@ -37,8 +37,10 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			SQL_C_FLOAT,		//!< EFieldType_FLOAT32
 			SQL_C_DOUBLE,		//!< EFieldType_FLOAT64
 			SQL_C_NUMERIC,		//!< EFieldType_FIXED_POINT
+			SQL_C_CHAR,			//!< EFieldType_CHAR
 			SQL_C_CHAR,			//!< EFieldType_VARCHAR
 			SQL_C_CHAR,			//!< EFieldType_TEXT
+			SQL_C_WCHAR,		//!< EFieldType_NCHAR
 			SQL_C_WCHAR,		//!< EFieldType_NVARCHAR
 			SQL_C_WCHAR,		//!< EFieldType_NTEXT
 			SQL_C_DATE,			//!< EFieldType_DATE
@@ -66,8 +68,10 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			SQL_FLOAT,			//!< EFieldType_FLOAT32
 			SQL_DOUBLE,			//!< EFieldType_FLOAT64
 			SQL_NUMERIC,		//!< EFieldType_FIXED_POINT
+			SQL_CHAR,			//!< EFieldType_CHAR
 			SQL_VARCHAR,		//!< EFieldType_VARCHAR
 			SQL_LONGVARCHAR,	//!< EFieldType_TEXT
+			SQL_CHAR,			//!< EFieldType_NCHAR
 			SQL_VARCHAR,		//!< EFieldType_NVARCHAR
 			SQL_LONGVARCHAR,	//!< EFieldType_NTEXT
 			SQL_DATE,			//!< EFieldType_DATE
@@ -95,8 +99,10 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			15,	//!< EFieldType_FLOAT32
 			15,	//!< EFieldType_FLOAT64
 			15,	//!< EFieldType_FIXED_POINT
+			0,	//!< EFieldType_CHAR
 			0,	//!< EFieldType_VARCHAR
 			0,	//!< EFieldType_TEXT
+			0,	//!< EFieldType_NCHAR
 			0,	//!< EFieldType_NVARCHAR
 			0,	//!< EFieldType_NTEXT
 			16,	//!< EFieldType_DATE
@@ -264,12 +270,20 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			_binding = MakeOutBind< EFieldType_FIXED_POINT >( statementHandle, parameter, parameter.GetObjectValue() );
 			break;
 
+		case EFieldType_CHAR:
+			_binding = MakeOutBind< EFieldType_CHAR >( statementHandle, parameter, parameter.GetObjectValue() );
+			break;
+
 		case EFieldType_VARCHAR:
 			_binding = MakeOutBind< EFieldType_VARCHAR >( statementHandle, parameter, parameter.GetObjectValue() );
 			break;
 
 		case EFieldType_TEXT:
 			_binding = MakeOutBind< EFieldType_TEXT >( statementHandle, parameter, parameter.GetObjectValue() );
+			break;
+
+		case EFieldType_NCHAR:
+			_binding = MakeOutBind< EFieldType_NCHAR >( statementHandle, parameter, parameter.GetObjectValue() );
 			break;
 
 		case EFieldType_NVARCHAR:

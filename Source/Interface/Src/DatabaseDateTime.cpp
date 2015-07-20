@@ -126,6 +126,7 @@ BEGIN_NAMESPACE_DATABASE
 	CDateTime::CDateTime()
 		: _date()
 	{
+		_date.tm_year = 1;
 		_date.tm_mday = 1;
 		_date.tm_yday = 1;
 		_date.tm_isdst = -1;

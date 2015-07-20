@@ -24,8 +24,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 	static const String DATABASE_SQLITE_TYPE = STR( "Database.SQLite" );
 
+	static STestConfig g_config = { false, true, STR( "=" ), true, true, false };
+
 	CDatabaseSqliteTest::CDatabaseSqliteTest()
-		: CDatabaseTest( DATABASE_SQLITE_TYPE, DB_SERVER, DB_DATABASE, DB_USER, DB_PASS, false, true, STR( "=" ), true, false )
+		: CDatabaseTest( DATABASE_SQLITE_TYPE, DB_SERVER, DB_DATABASE, DB_USER, DB_PASS, g_config )
 	{
 		_createTable += STR( "CREATE TABLE IF NOT EXISTS Test" );
 		_createTable += STR( "(	IDTest INTEGER PRIMARY KEY\n" );

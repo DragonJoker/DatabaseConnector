@@ -147,18 +147,20 @@ BEGIN_NAMESPACE_DATABASE
 		}
 		catch ( CExceptionDatabase & exc )
 		{
-			CLogger::LogError( exc.what() );
+			StringStream stream;
+			stream << ERROR_DB_EXECUTION_ERROR << exc.GetFullDescription();
+			CLogger::LogError( stream );
 		}
 		catch ( std::exception & exc )
 		{
 			StringStream stream;
-			stream << ERROR_DB_EXECUTION_ERROR << STR( " - " ) << exc.what();
+			stream << ERROR_DB_EXECUTION_ERROR << exc.what();
 			CLogger::LogError( stream );
 		}
 		catch ( ... )
 		{
 			StringStream stream;
-			stream << ERROR_DB_EXECUTION_ERROR << STR( " - UNKNOWN" );
+			stream << ERROR_DB_EXECUTION_ERROR << STR( "UNKNOWN" );
 			CLogger::LogError( stream );
 		}
 
@@ -181,7 +183,9 @@ BEGIN_NAMESPACE_DATABASE
 		}
 		catch ( CExceptionDatabase & exc )
 		{
-			CLogger::LogError( exc.what() );
+			StringStream stream;
+			stream << ERROR_DB_EXECUTION_ERROR << exc.GetFullDescription();
+			CLogger::LogError( stream );
 		}
 		catch ( std::exception & exc )
 		{

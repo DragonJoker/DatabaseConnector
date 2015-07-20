@@ -18,6 +18,16 @@
 
 BEGIN_NAMESPACE_DATABASE_TEST
 {
+	struct STestConfig
+	{
+		bool hasNChar;
+		bool hasSeparateBooleanAndTinyInt;
+		const String & is;
+		bool hasInt24;
+		bool hasTinyInt;
+		bool hasUnsignedTiny;
+	};
+
 	/** Database unit test class
 	*/
 	class CDatabaseTest
@@ -27,7 +37,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	public:
 		/** Default constructor.
 		*/
-		CDatabaseTest( const String & type, const String & server, const String & database, const String & user, const String & password, bool hasNChar, bool hasSeparateBooleanAndTinyInt, const String & in, bool hasInt24, bool hasUnsignedTiny );
+		CDatabaseTest( const String & type, const String & server, const String & database, const String & user, const String & password, const STestConfig & config );
 
 		/** Destructor.
 		*/
@@ -115,11 +125,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		const String _database;
 		const String _user;
 		const String _password;
-		const bool _hasNChar;
-		const bool _hasSeparateBooleanAndTinyInt;
-		const String _is;
-		const bool _hasInt24;
-		const bool _hasUnsignedTiny;
+		STestConfig _config;
 	};
 }
 END_NAMESPACE_DATABASE_TEST

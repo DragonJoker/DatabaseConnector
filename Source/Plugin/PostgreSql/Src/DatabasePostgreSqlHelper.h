@@ -142,6 +142,12 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 	*/
 	Oid GetOidFromFieldType( EFieldType type );
 
+	/** Retrieves the textual connection status name
+	@param[in] status
+		The connection status
+	*/
+	String GetStatusName( ConnStatusType status );
+
 }
 END_NAMESPACE_DATABASE_POSTGRESQL
 

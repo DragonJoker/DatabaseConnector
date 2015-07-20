@@ -127,8 +127,16 @@ BEGIN_NAMESPACE_DATABASE
 			value = static_cast< CDatabaseValue< EFieldType_SINT8 > & >( *_value ).GetValue();
 			break;
 
+		case EFieldType_SINT16:
+			value = int8_t( static_cast< CDatabaseValue< EFieldType_SINT16 > & >( *_value ).GetValue() );
+			break;
+
 		case EFieldType_UINT8:
 			value = static_cast< CDatabaseValue< EFieldType_UINT8 > & >( *_value ).GetValue();
+			break;
+
+		case EFieldType_UINT16:
+			value = int8_t( static_cast< CDatabaseValue< EFieldType_UINT16 > & >( *_value ).GetValue() );
 			break;
 
 		default:
@@ -150,9 +158,16 @@ BEGIN_NAMESPACE_DATABASE
 			value = static_cast< CDatabaseValue< EFieldType_SINT8 > & >( *_value ).GetValue();
 			break;
 
+		case EFieldType_SINT16:
+			value = uint8_t( static_cast< CDatabaseValue< EFieldType_SINT16 > & >( *_value ).GetValue() );
+			break;
+
 		case EFieldType_UINT8:
 			value = static_cast< CDatabaseValue< EFieldType_UINT8 > & >( *_value ).GetValue();
 			break;
+
+		case EFieldType_UINT16:
+			value = uint8_t( static_cast< CDatabaseValue< EFieldType_UINT16 > & >( *_value ).GetValue() );
 
 		default:
 			String errMsg = ERROR_DB_FIELD_GETVALUE_TYPE + this->GetName();
@@ -243,6 +258,10 @@ BEGIN_NAMESPACE_DATABASE
 			value = static_cast< CDatabaseValue< EFieldType_SINT24 > & >( *_value ).GetValue();
 			break;
 
+		case EFieldType_SINT32:
+			value = static_cast< CDatabaseValue< EFieldType_SINT32 > & >( *_value ).GetValue();
+			break;
+
 		case EFieldType_UINT8:
 			value = static_cast< CDatabaseValue< EFieldType_UINT8 > & >( *_value ).GetValue();
 			break;
@@ -253,6 +272,10 @@ BEGIN_NAMESPACE_DATABASE
 
 		case EFieldType_UINT24:
 			value = static_cast< CDatabaseValue< EFieldType_UINT24 > & >( *_value ).GetValue();
+			break;
+
+		case EFieldType_UINT32:
+			value = static_cast< CDatabaseValue< EFieldType_UINT32 > & >( *_value ).GetValue();
 			break;
 
 		default:
@@ -684,12 +707,20 @@ BEGIN_NAMESPACE_DATABASE
 			value = static_cast< CDatabaseValue< EFieldType_TEXT > & >( *_value ).GetValue();
 			break;
 
+		case EFieldType_CHAR:
+			value = static_cast< CDatabaseValue< EFieldType_CHAR > & >( *_value ).GetValue();
+			break;
+
 		case EFieldType_VARCHAR:
 			value = static_cast< CDatabaseValue< EFieldType_VARCHAR > & >( *_value ).GetValue();
 			break;
 
 		case EFieldType_NTEXT:
 			value = CStrUtils::ToStr( static_cast< CDatabaseValue< EFieldType_TEXT > & >( *_value ).GetValue() );
+			break;
+
+		case EFieldType_NCHAR:
+			value = CStrUtils::ToStr( static_cast< CDatabaseValue< EFieldType_NCHAR > & >( *_value ).GetValue() );
 			break;
 
 		case EFieldType_NVARCHAR:
@@ -711,12 +742,20 @@ BEGIN_NAMESPACE_DATABASE
 			value = CStrUtils::ToWStr( static_cast< CDatabaseValue< EFieldType_TEXT > & >( *_value ).GetValue() );
 			break;
 
+		case EFieldType_CHAR:
+			value = CStrUtils::ToWStr( static_cast< CDatabaseValue< EFieldType_CHAR > & >( *_value ).GetValue() );
+			break;
+
 		case EFieldType_VARCHAR:
 			value = CStrUtils::ToWStr( static_cast< CDatabaseValue< EFieldType_VARCHAR > & >( *_value ).GetValue() );
 			break;
 
 		case EFieldType_NTEXT:
 			value = static_cast< CDatabaseValue< EFieldType_NTEXT > & >( *_value ).GetValue();
+			break;
+
+		case EFieldType_NCHAR:
+			value = static_cast< CDatabaseValue< EFieldType_NCHAR > & >( *_value ).GetValue();
 			break;
 
 		case EFieldType_NVARCHAR:
@@ -906,7 +945,7 @@ BEGIN_NAMESPACE_DATABASE
 
 	void CDatabaseValuedObject::DoGetValueFast( std::string & value ) const
 	{
-		assert( GetType() == EFieldType_TEXT || GetType() == EFieldType_VARCHAR );
+		assert( GetType() == EFieldType_TEXT || GetType() == EFieldType_VARCHAR || GetType() == EFieldType_CHAR );
 
 		if ( _value->GetPtrValue() )
 		{
@@ -914,9 +953,13 @@ BEGIN_NAMESPACE_DATABASE
 			{
 				value = static_cast< CDatabaseValue< EFieldType_TEXT > & >( *_value ).GetValue();
 			}
-			else
+			else if ( GetType() == EFieldType_VARCHAR )
 			{
 				value = static_cast< CDatabaseValue< EFieldType_VARCHAR > & >( *_value ).GetValue();
+			}
+			else
+			{
+				value = static_cast< CDatabaseValue< EFieldType_CHAR > & >( *_value ).GetValue();
 			}
 		}
 		else
@@ -927,7 +970,7 @@ BEGIN_NAMESPACE_DATABASE
 
 	void CDatabaseValuedObject::DoGetValueFast( std::wstring & value ) const
 	{
-		assert( GetType() == EFieldType_NTEXT || GetType() == EFieldType_NVARCHAR );
+		assert( GetType() == EFieldType_NTEXT || GetType() == EFieldType_NVARCHAR || GetType() == EFieldType_NCHAR );
 
 		if ( _value->GetPtrValue() )
 		{
@@ -935,9 +978,13 @@ BEGIN_NAMESPACE_DATABASE
 			{
 				value = static_cast< CDatabaseValue< EFieldType_NTEXT > & >( *_value ).GetValue();
 			}
-			else
+			else if ( GetType() == EFieldType_NVARCHAR )
 			{
 				value = static_cast< CDatabaseValue< EFieldType_NVARCHAR > & >( *_value ).GetValue();
+			}
+			else
+			{
+				value = static_cast< CDatabaseValue< EFieldType_NCHAR > & >( *_value ).GetValue();
 			}
 		}
 		else
@@ -1616,12 +1663,20 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		switch ( GetType() )
 		{
+		case EFieldType_CHAR:
+			static_cast< CDatabaseValue< EFieldType_CHAR > & >( *_value ).SetValue( value.c_str(), GetLimits() );
+			break;
+
 		case EFieldType_VARCHAR:
 			static_cast< CDatabaseValue< EFieldType_VARCHAR > & >( *_value ).SetValue( value.c_str(), std::min( GetLimits(), uint32_t( value.size() ) ) );
 			break;
 
 		case EFieldType_TEXT:
 			static_cast< CDatabaseValue< EFieldType_TEXT > & >( *_value ).SetValue( value );
+			break;
+
+		case EFieldType_NCHAR:
+			static_cast< CDatabaseValue< EFieldType_NVARCHAR > & >( *_value ).SetValue( CStrUtils::ToWStr( value ).c_str(), GetLimits() );
 			break;
 
 		case EFieldType_NVARCHAR:
@@ -1643,20 +1698,28 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		switch ( GetType() )
 		{
-		case EFieldType_TEXT:
-			static_cast< CDatabaseValue< EFieldType_TEXT > & >( *_value ).SetValue( CStrUtils::ToStr( value ) );
+		case EFieldType_CHAR:
+			static_cast< CDatabaseValue< EFieldType_CHAR > & >( *_value ).SetValue( CStrUtils::ToStr( value ).c_str(), GetLimits() );
 			break;
 
 		case EFieldType_VARCHAR:
 			static_cast< CDatabaseValue< EFieldType_VARCHAR > & >( *_value ).SetValue( CStrUtils::ToStr( value ).c_str(), std::min( GetLimits(), uint32_t( value.size() ) ) );
 			break;
 
-		case EFieldType_NTEXT:
-			static_cast< CDatabaseValue< EFieldType_NTEXT > & >( *_value ).SetValue( value );
+		case EFieldType_TEXT:
+			static_cast< CDatabaseValue< EFieldType_TEXT > & >( *_value ).SetValue( CStrUtils::ToStr( value ) );
+			break;
+
+		case EFieldType_NCHAR:
+			static_cast< CDatabaseValue< EFieldType_NCHAR > & >( *_value ).SetValue( value.c_str(), GetLimits() );
 			break;
 
 		case EFieldType_NVARCHAR:
 			static_cast< CDatabaseValue< EFieldType_NVARCHAR > & >( *_value ).SetValue( value.c_str(), std::min( GetLimits(), uint32_t( value.size() ) ) );
+			break;
+
+		case EFieldType_NTEXT:
+			static_cast< CDatabaseValue< EFieldType_NTEXT > & >( *_value ).SetValue( value );
 			break;
 
 		default:
@@ -1835,14 +1898,30 @@ BEGIN_NAMESPACE_DATABASE
 
 	void CDatabaseValuedObject::DoSetValueFast( const std::string & value )
 	{
-		assert( GetType() == EFieldType_TEXT || GetType() == EFieldType_VARCHAR );
-		static_cast< CDatabaseValue< EFieldType_TEXT > & >( *_value ).SetValue( value.c_str(), std::min( GetLimits(), uint32_t( value.size() ) ) );
+		assert( GetType() == EFieldType_TEXT || GetType() == EFieldType_VARCHAR || GetType() == EFieldType_CHAR );
+
+		if ( GetType() == EFieldType_CHAR )
+		{
+			static_cast< CDatabaseValue< EFieldType_CHAR > & >( *_value ).SetValue( value.c_str(), GetLimits() );
+		}
+		else
+		{
+			static_cast< CDatabaseValue< EFieldType_TEXT > & >( *_value ).SetValue( value.c_str(), std::min( GetLimits(), uint32_t( value.size() ) ) );
+		}
 	}
 
 	void CDatabaseValuedObject::DoSetValueFast( const std::wstring & value )
 	{
-		assert( GetType() == EFieldType_NTEXT || GetType() == EFieldType_NVARCHAR );
-		static_cast< CDatabaseValue< EFieldType_NTEXT > & >( *_value ).SetValue( value.c_str(), std::min( GetLimits(), uint32_t( value.size() ) ) );
+		assert( GetType() == EFieldType_NTEXT || GetType() == EFieldType_NVARCHAR || GetType() == EFieldType_NCHAR );
+
+		if ( GetType() == EFieldType_NCHAR )
+		{
+			static_cast< CDatabaseValue< EFieldType_NCHAR > & >( *_value ).SetValue( value.c_str(), GetLimits() );
+		}
+		else
+		{
+			static_cast< CDatabaseValue< EFieldType_NTEXT > & >( *_value ).SetValue( value.c_str(), std::min( GetLimits(), uint32_t( value.size() ) ) );
+		}
 	}
 
 	void CDatabaseValuedObject::DoSetValueFast( const CDate & value )
@@ -1929,12 +2008,20 @@ BEGIN_NAMESPACE_DATABASE
 			_value = std::make_unique< CDatabaseValue< EFieldType_FIXED_POINT > >( GetConnection() );
 			break;
 
+		case EFieldType_CHAR:
+			_value = std::make_unique< CDatabaseValue< EFieldType_CHAR > >( GetConnection() );
+			break;
+
 		case EFieldType_VARCHAR:
 			_value = std::make_unique< CDatabaseValue< EFieldType_VARCHAR > >( GetConnection() );
 			break;
 
 		case EFieldType_TEXT:
 			_value = std::make_unique< CDatabaseValue< EFieldType_TEXT > >( GetConnection() );
+			break;
+
+		case EFieldType_NCHAR:
+			_value = std::make_unique< CDatabaseValue< EFieldType_NCHAR > >( GetConnection() );
 			break;
 
 		case EFieldType_NVARCHAR:

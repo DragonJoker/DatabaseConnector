@@ -591,6 +591,45 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		CDatabaseValue< EFieldType_FIXED_POINT > const & _value;
 	};
 
+	/** SSqliteBinding specialization for EFieldType_CHAR
+	*/
+	template<>
+	struct SSqliteBinding< EFieldType_CHAR >
+		: public SSqliteBindingBase
+	{
+		/** Constructor
+		@param statement
+			The statement
+		@param connection
+			The database connection
+		@param index
+			The parameter index
+		@param value
+			The parameter value
+		*/
+		SSqliteBinding( sqlite3_stmt * statement, sqlite3 * connection, uint16_t index, CDatabaseValue< EFieldType_CHAR > const & value )
+			: SSqliteBindingBase( statement, connection, index )
+			, _value( value )
+		{
+		}
+
+		//!@copydoc SSqliteBindingBase::UpdateValue
+		virtual void UpdateValue()
+		{
+			if ( _value.IsNull() )
+			{
+				SQLiteCheck( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
+			}
+			else
+			{
+				SQLiteCheck( sqlite3_bind_text64( _statement, _index, ( const char * )_value.GetPtrValue(), _value.GetPtrSize(), SQLITE_STATIC, SQLITE_UTF8 ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << STR( "[" ) <<  _value.GetValue() << STR( "]" ), EDatabaseExceptionCodes_StatementError, _connection );
+			}
+		}
+
+		//! The parameter value
+		CDatabaseValue< EFieldType_CHAR > const & _value;
+	};
+
 	/** SSqliteBinding specialization for EFieldType_VARCHAR
 	*/
 	template<>
@@ -667,6 +706,45 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 		//! The parameter value
 		CDatabaseValue< EFieldType_TEXT > const & _value;
+	};
+
+	/** SSqliteBinding specialization for EFieldType_NVARCHAR
+	*/
+	template<>
+	struct SSqliteBinding< EFieldType_NCHAR >
+		: public SSqliteBindingBase
+	{
+		/** Constructor
+		@param statement
+			The statement
+		@param connection
+			The database connection
+		@param index
+			The parameter index
+		@param value
+			The parameter value
+		*/
+		SSqliteBinding( sqlite3_stmt * statement, sqlite3 * connection, uint16_t index, CDatabaseValue< EFieldType_NCHAR > const & value )
+			: SSqliteBindingBase( statement, connection, index )
+			, _value( value )
+		{
+		}
+
+		//!@copydoc SSqliteBindingBase::UpdateValue
+		virtual void UpdateValue()
+		{
+			if ( _value.IsNull() )
+			{
+				SQLiteCheck( sqlite3_bind_null( _statement, _index ), StringStream() << INFO_SQLITE_SET_PARAMETER_NULL, EDatabaseExceptionCodes_StatementError, _connection );
+			}
+			else
+			{
+				SQLiteCheck( sqlite3_bind_text16( _statement, _index, _value.GetPtrValue(), _value.GetPtrSize(), SQLITE_STATIC ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetPtrValue(), EDatabaseExceptionCodes_StatementError, _connection );
+			}
+		}
+
+		//! The parameter value
+		CDatabaseValue< EFieldType_NCHAR > const & _value;
 	};
 
 	/** SSqliteBinding specialization for EFieldType_NVARCHAR

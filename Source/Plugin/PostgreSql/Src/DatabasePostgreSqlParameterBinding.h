@@ -62,8 +62,10 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		FLOAT4OID,		// EFieldType_FLOAT32,
 		FLOAT8OID,		// EFieldType_FLOAT64,
 		NUMERICOID,		// EFieldType_FIXED_POINT,
+		BPCHAROID,		// EFieldType_CHAR,
 		VARCHAROID,		// EFieldType_VARCHAR,
 		TEXTOID,		// EFieldType_TEXT,
+		BPCHAROID,		// EFieldType_NCHAR,
 		VARCHAROID,		// EFieldType_NVARCHAR,
 		TEXTOID,		// EFieldType_NTEXT,
 		DATEOID,		// EFieldType_DATE,
@@ -197,6 +199,13 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		typedef CTime FieldDataType;
 	};
 
+	/** Specialization for EFieldType_CHAR
+	*/
+	template<> struct SFieldTypePostgreSqlDataTyper< EFieldType_CHAR >
+	{
+		typedef char * FieldDataType;
+	};
+
 	/** Specialization for EFieldType_VARCHAR
 	*/
 	template<> struct SFieldTypePostgreSqlDataTyper< EFieldType_VARCHAR >
@@ -209,6 +218,13 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 	template<> struct SFieldTypePostgreSqlDataTyper< EFieldType_TEXT >
 	{
 		typedef char * FieldDataType;
+	};
+
+	/** Specialization for EFieldType_NCHAR
+	*/
+	template<> struct SFieldTypePostgreSqlDataTyper< EFieldType_NCHAR >
+	{
+		typedef wchar_t * FieldDataType;
 	};
 
 	/** Specialization for EFieldType_NVARCHAR
@@ -272,7 +288,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		virtual void DoUpdateValue()
 		{
 			_bind.length = sizeof( T );
-			_bind.value = static_cast< char * >( value.GetPtrValue() );
+			_bind.value = static_cast< char * >( _value.GetPtrValue() );
 		}
 
 		//! The parameter value
@@ -311,8 +327,8 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		virtual void DoUpdateValue()
 		{
 			_bind.length = int( _value.GetPtrSize() );
-			memcpy( _holder.data(), _value.GetPtrValue(), length );
-			_bind.buffer = _holder.data();
+			memcpy( _holder.data(), _value.GetPtrValue(), _bind.length );
+			_bind.value = reinterpret_cast< char * >( _holder.data() );
 		}
 
 		//! The parameter value

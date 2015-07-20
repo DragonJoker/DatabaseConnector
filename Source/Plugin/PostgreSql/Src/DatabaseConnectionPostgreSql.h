@@ -319,6 +319,16 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		DatabasePostgreSqlExport PGconn * GetConnection() const;
 
 	protected:
+		/** Connect to a database.
+		@param[in] database
+			The database name, can be empty
+		@param[out] connectionString
+			Connection string in case of error.
+		@return
+			Error code, true if no problem.
+		*/
+		DatabasePostgreSqlExport virtual bool DoConnect( String const & database, String & connectionString );
+
 		/** Connect to the database.
 		@param[out] connectionString
 			Connection string in case of error.
@@ -384,14 +394,6 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			The created statement.
 		*/
 		DatabasePostgreSqlExport virtual DatabaseStatementPtr DoCreateStatement( const String & query );
-
-		/** Retrieves the result for the statement
-		@param statement
-			The statement
-		@param rs
-			The result set
-		*/
-		DatabaseResultPtr DoRetrieveResults( PGresult * result );
 
 	protected:
 		//! The connection

@@ -462,11 +462,13 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				result = std::make_unique< CInOdbcBind< SQL_NUMERIC_STRUCT, CFixedPoint > >( SQL_C_NUMERIC, precision, scale );
 				break;
 
+			case EFieldType_CHAR:
 			case EFieldType_VARCHAR:
 			case EFieldType_TEXT:
 				result = std::make_unique< CInOdbcBind< char * > >( SQL_C_CHAR, limits );
 				break;
 
+			case EFieldType_NCHAR:
 			case EFieldType_NVARCHAR:
 			case EFieldType_NTEXT:
 				result = std::make_unique< CInOdbcBind< char * > >( SQL_C_WCHAR, limits );
@@ -591,8 +593,16 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 					result = EFieldType_SINT32;
 				}
 			}
-			else if ( strTypel.find( STR( "NCHAR" ) ) != String::npos
-					  || strTypel.find( STR( "NVARCHAR" ) ) != String::npos )
+			else if ( strTypel.find( STR( "NCHAR" ) ) != String::npos )
+			{
+				result = EFieldType_NCHAR;
+
+				if ( limprec.first == -1 )
+				{
+					limprec = RetrieveLimits( strTypel );
+				}
+			}
+			else if ( strTypel.find( STR( "NVARCHAR" ) ) != String::npos )
 			{
 				result = EFieldType_NVARCHAR;
 
@@ -601,9 +611,18 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 					limprec = RetrieveLimits( strTypel );
 				}
 			}
-			else if ( strTypel.find( STR( "CHAR" ) ) != String::npos )
+			else if ( strTypel.find( STR( "VARCHAR" ) ) != String::npos )
 			{
 				result = EFieldType_VARCHAR;
+
+				if ( limprec.first == -1 )
+				{
+					limprec = RetrieveLimits( strTypel );
+				}
+			}
+			else if ( strTypel.find( STR( "CHAR" ) ) != String::npos )
+			{
+				result = EFieldType_CHAR;
 
 				if ( limprec.first == -1 )
 				{
@@ -823,12 +842,20 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				static_cast< CDatabaseValue< EFieldType_FIXED_POINT > & >( value ).SetValue( static_cast< CInOdbcBind< SQL_NUMERIC_STRUCT, CFixedPoint > const & >( bind ).GetValue() );
 				break;
 
+			case EFieldType_CHAR:
+				static_cast< CDatabaseValue< EFieldType_CHAR > & >( value ).SetValue( StringFromOdbcString( static_cast< CInOdbcBind< char * > const & >( bind ) ) );
+				break;
+
 			case EFieldType_VARCHAR:
 				static_cast< CDatabaseValue< EFieldType_VARCHAR > & >( value ).SetValue( StringFromOdbcString( static_cast< CInOdbcBind< char * > const & >( bind ) ) );
 				break;
 
 			case EFieldType_TEXT:
 				static_cast< CDatabaseValue< EFieldType_TEXT > & >( value ).SetValue( StringFromOdbcString( static_cast< CInOdbcBind< char * > const & >( bind ) ) );
+				break;
+
+			case EFieldType_NCHAR:
+				static_cast< CDatabaseValue< EFieldType_NCHAR > & >( value ).SetValue( StringFromOdbcWString( static_cast< CInOdbcBind< wchar_t * > const & >( bind ) ) );
 				break;
 
 			case EFieldType_NVARCHAR:
@@ -1060,11 +1087,17 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		switch ( sqlType )
 		{
 		case SQL_CHAR:
+			fieldType = EFieldType_CHAR;
+			break;
+
 		case SQL_VARCHAR:
 			fieldType = EFieldType_VARCHAR;
 			break;
 
 		case SQL_WCHAR:
+			fieldType = EFieldType_NCHAR;
+			break;
+
 		case SQL_WVARCHAR:
 			fieldType = EFieldType_NVARCHAR;
 			break;

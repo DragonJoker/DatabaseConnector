@@ -178,7 +178,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 	bool CDatabaseStatementPostgreSql::DoExecuteUpdate( EErrorType * result )
 	{
 		EErrorType eResult = EErrorType_NONE;
-		PGresult * pgresult = PQexecPrepared( _connectionPostgreSql->GetConnection(), _statement.c_str(), int( _arrayParams.size() ), _arrayValues.data(), _arrayLengths.data(), _arrayFormats.data(), 1 );
+		PGresult * pgresult = PQexecPrepared( _connectionPostgreSql->GetConnection(), _statement.c_str(), int( _arrayParams.size() ), _arrayValues.data(), _arrayLengths.data(), _arrayFormats.data(), 0 );
 		PostgreSQLCheck( pgresult, INFO_POSTGRESQL_STATEMENT_EXECUTION, EDatabaseExceptionCodes_StatementError, _connectionPostgreSql->GetConnection() );
 
 		if ( result )
@@ -193,7 +193,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 	{
 		DatabaseResultPtr pReturn;
 		EErrorType eResult = EErrorType_NONE;
-		PGresult * pgresult = PQexecPrepared( _connectionPostgreSql->GetConnection(), _statement.c_str(), int( _arrayParams.size() ), _arrayValues.data(), _arrayLengths.data(), _arrayFormats.data(), 1 );
+		PGresult * pgresult = PQexecPrepared( _connectionPostgreSql->GetConnection(), _statement.c_str(), int( _arrayParams.size() ), _arrayValues.data(), _arrayLengths.data(), _arrayFormats.data(), 0 );
 		PostgreSQLCheck( pgresult, INFO_POSTGRESQL_STATEMENT_EXECUTION, EDatabaseExceptionCodes_StatementError, _connectionPostgreSql->GetConnection() );
 
 		std::vector< std::unique_ptr< SInPostgreSqlBindBase > > binds;

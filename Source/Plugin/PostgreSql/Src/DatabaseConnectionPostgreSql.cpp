@@ -38,54 +38,34 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 {
 	static const String ERROR_POSTGRESQL_CONNECTION = STR( "Couldn't create the connection" );
 	static const String ERROR_POSTGRESQL_CONNECT = STR( "Couldn't initialise the connection: " );
-	static const String ERROR_POSTGRESQL_EXECUTION = STR( "Couldn't execute the query" );
 	static const String ERROR_POSTGRESQL_NOT_CONNECTED = STR( "Not connected" );
-	static const String ERROR_POSTGRESQL_ALREADY_IN_TRANSACTION = STR( "Already in a transaction" );
-	static const String ERROR_POSTGRESQL_NOT_IN_TRANSACTION = STR( "Not in a transaction" );
 
-	static const String WARNING_POSTGRESQL_UNKNOWN_OPTION = STR( "Unsupported option: " );
-	static const String WARNING_POSTGRESQL_INIT_COMMAND = STR( "POSTGRESQL_INIT_COMMAND" );
-	static const String WARNING_POSTGRESQL_SET_CHARSET_NAME = STR( "POSTGRESQL_SET_CHARSET_NAME" );
-	static const String WARNING_POSTGRESQL_OPT_CONNECT_TIMEOUT = STR( "POSTGRESQL_OPT_CONNECT_TIMEOUT" );
-
-	static const TChar * INFO_POSTGRESQL_STATEMENT_EXECUTION = STR( "Statement execution" );
-	static const TChar * INFO_POSTGRESQL_STATEMENT_PREPARATION = STR( "Statement preparation" );
-	static const TChar * INFO_POSTGRESQL_DATABASE_SELECTION = STR( "Database selection" );
+	static const TChar * INFO_POSTGRESQL_QUERY_EXECUTION = STR( "Query execution" );
 	static const TChar * INFO_ESCAPING_TEXT = STR( "Escaping text" );
 	static const TChar * INFO_ESCAPING_IDENTIFIER = STR( "Escaping identifier" );
-	static const String INFO_POSTGRESQL_EXECUTING_UPDATE = STR( "Executing update: " );
-	static const String INFO_POSTGRESQL_EXECUTING_SELECT = STR( "Executing select: " );
-
-	static const String DEBUG_POSTGRESQL_CONNECTED = STR( "Connected to database" );
-	static const String DEBUG_POSTGRESQL_CLIENT_VERSION = STR( "Client Version: " );
-	static const String DEBUG_POSTGRESQL_SERVER_HOST = STR( "Server Host: " );
-	static const String DEBUG_POSTGRESQL_SERVER_VERSION = STR( "Server Version: " );
+	static const TChar * INFO_ESCAPING_BINARY = STR( "Escaping byte array" );
 
 	static const String POSTGRESQL_SQL_CREATE_DATABASE = STR( "CREATE DATABASE " );
-	static const String POSTGRESQL_SQL_CHARSET = STR( " CHARACTER SET utf8 COLLATE utf8_general_ci" );
-	static const String POSTGRESQL_SQL_USE = STR( "USE " );
+	static const String POSTGRESQL_SQL_CHARSET = STR( " ENCODING = 'UTF8'" );
 	static const String POSTGRESQL_SQL_DROP_DATABASE = STR( "DROP DATABASE " );
 
 	static const std::string POSTGRESQL_SQL_SNULL = "NULL";
 	static const std::wstring POSTGRESQL_SQL_WNULL = L"NULL";
 
-	static const char * POSTGRESQL_OPTION_NAMES = "SET NAMES 'utf8'";
-	static const char * POSTGRESQL_OPTION_UTF8 = "utf8";
-
 	static const std::string POSTGRESQL_FORMAT_SDATE = "CAST('%Y-%m-%d' AS DATE)";
 	static const std::string POSTGRESQL_FORMAT_STIME = "CAST('%H:%M:%S' AS TIME)";
-	static const std::string POSTGRESQL_FORMAT_SDATETIME = "CAST('%Y-%m-%d %H:%M:%S' AS DATETIME)";
-	static const std::string POSTGRESQL_FORMAT_SDATETIME_DATE = "CAST('%Y-%m-%d 00:00:00' AS DATETIME)";
-	static const std::string POSTGRESQL_FORMAT_SDATETIME_TIME = "CAST('0000-00-00 %H:%M:%S' AS DATETIME)";
+	static const std::string POSTGRESQL_FORMAT_SDATETIME = "CAST('%Y-%m-%d %H:%M:%S' AS TIMESTAMP)";
+	static const std::string POSTGRESQL_FORMAT_SDATETIME_DATE = "CAST('%Y-%m-%d 00:00:00' AS TIMESTAMP)";
+	static const std::string POSTGRESQL_FORMAT_SDATETIME_TIME = "CAST('0000-00-00 %H:%M:%S' AS TIMESTAMP)";
 	static const std::string POSTGRESQL_FORMAT_STMT_SDATE = "{-d %Y-%m-%d}";
 	static const std::string POSTGRESQL_FORMAT_STMT_STIME = "{-t %H:%M:%S}";
 	static const std::string POSTGRESQL_FORMAT_STMT_SDATETIME = "{-ts %Y-%m-%d %H:%M:%S}";
 
 	static const std::wstring POSTGRESQL_FORMAT_WDATE = L"CAST('%Y-%m-%d' AS DATE)";
 	static const std::wstring POSTGRESQL_FORMAT_WTIME = L"CAST('%H:%M:%S' AS TIME)";
-	static const std::wstring POSTGRESQL_FORMAT_WDATETIME = L"CAST('%Y-%m-%d %H:%M:%S' AS DATETIME)";
-	static const std::wstring POSTGRESQL_FORMAT_WDATETIME_DATE = L"CAST('%Y-%m-%d 00:00:00' AS DATETIME)";
-	static const std::wstring POSTGRESQL_FORMAT_WDATETIME_TIME = L"CAST('0000-00-00 %H:%M:%S' AS DATETIME)";
+	static const std::wstring POSTGRESQL_FORMAT_WDATETIME = L"CAST('%Y-%m-%d %H:%M:%S' AS TIMESTAMP)";
+	static const std::wstring POSTGRESQL_FORMAT_WDATETIME_DATE = L"CAST('%Y-%m-%d 00:00:00' AS TIMESTAMP)";
+	static const std::wstring POSTGRESQL_FORMAT_WDATETIME_TIME = L"CAST('0000-00-00 %H:%M:%S' AS TIMESTAMP)";
 	static const std::wstring POSTGRESQL_FORMAT_STMT_WDATE = L"{-d %Y-%m-%d}";
 	static const std::wstring POSTGRESQL_FORMAT_STMT_WTIME = L"{-t %H:%M:%S}";
 	static const std::wstring POSTGRESQL_FORMAT_STMT_WDATETIME = L"{-ts %Y-%m-%d %H:%M:%S}";
@@ -176,12 +156,12 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 
 		if ( escaped )
 		{
-			result = reinterpret_cast< char * >( escaped );
+			result = STR( "'" ) + CStrUtils::ToString( reinterpret_cast< char * >( escaped ) ) + STR( "'" );
 			PQfreemem( escaped );
 		}
 		else
 		{
-			PostgreSQLCheck( NULL, INFO_ESCAPING_TEXT, EDatabaseExceptionCodes_ConnectionError, _connection );
+			PostgreSQLCheck( NULL, INFO_ESCAPING_BINARY, EDatabaseExceptionCodes_ConnectionError, _connection );
 		}
 
 		return result;
@@ -467,7 +447,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 
 	String CDatabaseConnectionPostgreSql::WriteBool( bool value ) const
 	{
-		return ( value ? STR( "1" ) : STR( "0" ) );
+		return ( value ? STR( "true" ) : STR( "false" ) );
 	}
 
 	String CDatabaseConnectionPostgreSql::WriteBool( const String & value ) const
@@ -585,22 +565,21 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_POSTGRESQL_NOT_CONNECTED );
 		}
 
-		DoExecuteUpdate( POSTGRESQL_SQL_CREATE_DATABASE + database + POSTGRESQL_SQL_CHARSET );
+		ExecuteUpdate( POSTGRESQL_SQL_CREATE_DATABASE + database + POSTGRESQL_SQL_CHARSET );
 	}
 
 	void CDatabaseConnectionPostgreSql::SelectDatabase( const String & database )
 	{
-		if ( !IsConnected() )
+		if ( IsConnected() )
 		{
-			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_POSTGRESQL_NOT_CONNECTED );
+			DoDisconnect();
 		}
 
-		if ( _connection )
+		String connectionString;
+
+		if ( DoConnect( database, connectionString ) )
 		{
-			if ( ExecuteUpdate( POSTGRESQL_SQL_USE + database ) )
-			{
-				_database = database;
-			}
+			_database = database;
 		}
 	}
 
@@ -611,18 +590,26 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_POSTGRESQL_NOT_CONNECTED );
 		}
 
-		DoExecuteUpdate( POSTGRESQL_SQL_DROP_DATABASE + database );
+		ExecuteUpdate( POSTGRESQL_SQL_DROP_DATABASE + database );
 	}
 
-	EErrorType CDatabaseConnectionPostgreSql::DoConnect( String & connectionString )
+	bool CDatabaseConnectionPostgreSql::DoConnect( String const & database, String & connectionString )
 	{
-		EErrorType ret = EErrorType_NONE;
+		bool ret = false;
 
 		try
 		{
 			std::stringstream stream;
 			stream << "host=" << _server;
-			stream << " hostaddr=" << _server;
+
+			if ( database.empty() )
+			{
+				stream << " dbname=template1";
+			}
+			else
+			{
+				stream << " dbname=" << database;
+			}
 
 			if ( !_userName.empty() )
 			{
@@ -635,32 +622,68 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			}
 
 			_connection = PQconnectdb( stream.str().c_str() );
-			connectionString = CStrUtils::ToStr( stream.str() );
 
 			if ( !_connection )
 			{
 				DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_POSTGRESQL_CONNECTION );
 			}
 
-			DoSetConnected( true );
+			ConnStatusType status = PQstatus( _connection );
+			CLogger::LogDebug( STR( "Connection status: " ) + GetStatusName( status ) );
+
+			if ( status != CONNECTION_OK )
+			{
+				DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_POSTGRESQL_CONNECTION );
+			}
+			
+			PQconninfoOption * info = PQconninfo( _connection );
+
+			if ( !info )
+			{
+				DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_POSTGRESQL_CONNECTION );
+			}
+
+			PQconninfoOption * array( info );
+
+			while ( array->keyword )
+			{
+				if ( array->val )
+				{
+					CLogger::LogDebug( std::stringstream() << array->keyword << ": " << array->val );
+				}
+				else
+				{
+					CLogger::LogDebug( std::stringstream() << array->keyword << ": Not displayed" );
+				}
+
+				++array;
+			}
+
+			PQconninfoFree( info );
+			connectionString = CStrUtils::ToStr( stream.str() );
+
+			ret = true;
 		}
 		catch ( CExceptionDatabase & exc )
 		{
 			CLogger::LogError( StringStream() << ERROR_POSTGRESQL_CONNECTION << STR( " - " ) << exc.GetFullDescription() );
-			ret = EErrorType_ERROR;
 		}
 		catch ( std::exception & exc )
 		{
 			CLogger::LogError( StringStream() << ERROR_POSTGRESQL_CONNECTION << STR( " - " ) << exc.what() );
-			ret = EErrorType_ERROR;
 		}
 		catch ( ... )
 		{
 			CLogger::LogError( ERROR_POSTGRESQL_CONNECTION );
-			ret = EErrorType_ERROR;
 		}
 
+		DoSetConnected( ret );
 		return ret;
+	}
+
+	EErrorType CDatabaseConnectionPostgreSql::DoConnect( String & connectionString )
+	{
+		return DoConnect( String(), connectionString ) ? EErrorType_NONE : EErrorType_ERROR;
 	}
 
 	void CDatabaseConnectionPostgreSql::DoDisconnect()
@@ -711,7 +734,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 	{
 		std::string strQuery = CStrUtils::ToStr( query );
 		PGresult * result = PQexec( _connection, strQuery.c_str() );
-		PostgreSQLCheck( result, INFO_POSTGRESQL_STATEMENT_PREPARATION, EDatabaseExceptionCodes_StatementError, _connection );
+		PostgreSQLCheck( result, INFO_POSTGRESQL_QUERY_EXECUTION, EDatabaseExceptionCodes_StatementError, _connection );
 		PQclear( result );
 		return true;
 	}
@@ -721,42 +744,16 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		DatabaseResultPtr ret;
 		std::string strQuery = CStrUtils::ToStr( query );
 		PGresult * result = PQexec( _connection, strQuery.c_str() );
-		PostgreSQLCheck( result, INFO_POSTGRESQL_STATEMENT_PREPARATION, EDatabaseExceptionCodes_StatementError, _connection );
-		return DoRetrieveResults( result );
+		PostgreSQLCheck( result, INFO_POSTGRESQL_QUERY_EXECUTION, EDatabaseExceptionCodes_StatementError, _connection );
+
+		DatabaseConnectionPostgreSqlPtr connection = std::static_pointer_cast< CDatabaseConnectionPostgreSql >( shared_from_this() );
+		std::vector< std::unique_ptr< SInPostgreSqlBindBase > > binds;
+		return PostgreSqlFetchResult( result, PostgreSqlGetColumns( result, connection, binds ), connection, binds );
 	}
 
 	DatabaseStatementPtr CDatabaseConnectionPostgreSql::DoCreateStatement( const String & request )
 	{
 		return std::make_shared< CDatabaseStatementPostgreSql >( std::static_pointer_cast< CDatabaseConnectionPostgreSql >( shared_from_this() ), request );
-	}
-
-	DatabaseResultPtr CDatabaseConnectionPostgreSql::DoRetrieveResults( PGresult * result )
-	{
-		DatabaseResultPtr pResult;
-
-		try
-		{
-			DatabaseConnectionPostgreSqlPtr connection = std::static_pointer_cast< CDatabaseConnectionPostgreSql >( shared_from_this() );
-			std::vector< PGbind > binds;
-			std::vector< std::unique_ptr< SInPostgreSqlBindBase > > inbinds;
-			DatabaseFieldInfosPtrArray columns = PostgreSqlGetColumns( result, connection, inbinds, binds );
-			pResult = PostgreSqlFetchResult( result, columns, connection, inbinds, binds );
-		}
-		catch ( CExceptionDatabase & exc )
-		{
-			StringStream stream;
-			stream << ERROR_POSTGRESQL_EXECUTION << exc.GetFullDescription();
-			CLogger::LogError( stream.str() );
-		}
-		catch ( std::exception & exc )
-		{
-			StringStream stream;
-			stream << ERROR_POSTGRESQL_EXECUTION << exc.what();
-			CLogger::LogError( stream.str() );
-		}
-
-		PQclear( result );
-		return pResult;
 	}
 }
 END_NAMESPACE_DATABASE_POSTGRESQL

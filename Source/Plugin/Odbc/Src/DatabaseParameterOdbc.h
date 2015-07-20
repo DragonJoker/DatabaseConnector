@@ -562,7 +562,105 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		mutable SQL_TIMESTAMP_STRUCT _holder;
 	};
 
-	/** COutOdbcBind specialisation for EFieldType_LONG_VARBINARY
+	/** COutOdbcBind specialisation for EFieldType_CHAR
+	*/
+	template<>
+	struct COutOdbcBind< EFieldType_CHAR >
+		: public COutOdbcBindBase
+	{
+		/** Constructor.
+		@param[in] statement
+			The statement.
+		@param[in] index
+			Internal index.
+		@param[in] parameterType
+			Parameter type.
+		@param[in] value
+			Parameter value.
+		*/
+		COutOdbcBind( HSTMT statement, uint16_t index, EParameterType parameterType, const String & name, CDatabaseValue< EFieldType_CHAR > & value )
+			: COutOdbcBindBase( statement, index, EFieldType_CHAR, parameterType, name, value )
+			, _value( value )
+		{
+		}
+
+		/** @copydoc Database::Odbc::COutOdbcBindBase::UpdateValue
+		*/
+		virtual EErrorType UpdateValue()const
+		{
+			EErrorType errorType = EErrorType_NONE;
+			StringStream message;
+			message << INFO_ODBC_BIND_PARAMETER_NAME << _name << STR( ", " ) << INFO_ODBC_BIND_PARAMETER_VALUE << STR( "[" ) << _value.GetValue() << STR( "]" );
+			SQLUINTEGER columnSize = _columnSize;
+
+			if ( _value.IsNull() )
+			{
+				_columnLenOrInd = SQL_NULL_DATA;
+			}
+			else
+			{
+				_columnLenOrInd = _value.GetPtrSize();
+				columnSize = _value.GetPtrSize();
+			}
+
+			OdbcCheck( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, columnSize, 0, _value.GetPtrValue(), _value.GetPtrSize(), &_columnLenOrInd ), SQL_HANDLE_STMT, _statement, INFO_ODBC_BindParameter + message.str() );
+			return errorType;
+		}
+
+		//! The explicitly typed value
+		CDatabaseValue< EFieldType_CHAR > & _value;
+	};
+
+	/** COutOdbcBind specialisation for EFieldType_NCHAR
+	*/
+	template<>
+	struct COutOdbcBind< EFieldType_NCHAR >
+		: public COutOdbcBindBase
+	{
+		/** Constructor.
+		@param[in] statement
+			The statement.
+		@param[in] index
+			Internal index.
+		@param[in] parameterType
+			Parameter type.
+		@param[in] value
+			Parameter value.
+		*/
+		COutOdbcBind( HSTMT statement, uint16_t index, EParameterType parameterType, const String & name, CDatabaseValue< EFieldType_NCHAR > & value )
+			: COutOdbcBindBase( statement, index, EFieldType_NCHAR, parameterType, name, value )
+			, _value( value )
+		{
+		}
+
+		/** @copydoc Database::Odbc::COutOdbcBindBase::UpdateValue
+		*/
+		virtual EErrorType UpdateValue()const
+		{
+			EErrorType errorType = EErrorType_NONE;
+			StringStream message;
+			message << INFO_ODBC_BIND_PARAMETER_NAME << _name << STR( ", " ) << INFO_ODBC_BIND_PARAMETER_VALUE << STR( "[" ) << _value.GetPtrValue() << STR( "]" );
+			SQLUINTEGER columnSize = _columnSize;
+
+			if ( _value.IsNull() )
+			{
+				_columnLenOrInd = SQL_NULL_DATA;
+			}
+			else
+			{
+				_columnLenOrInd = _value.GetPtrSize();
+				columnSize = _value.GetPtrSize();
+			}
+
+			OdbcCheck( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, columnSize, 0, _value.GetPtrValue(), _value.GetPtrSize(), &_columnLenOrInd ), SQL_HANDLE_STMT, _statement, INFO_ODBC_BindParameter + message.str() );
+			return errorType;
+		}
+
+		//! The explicitly typed value
+		CDatabaseValue< EFieldType_NCHAR > & _value;
+	};
+
+	/** COutOdbcBind specialisation for EFieldType_VARCHAR
 	*/
 	template<>
 	struct COutOdbcBind< EFieldType_VARCHAR >
@@ -611,7 +709,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		CDatabaseValue< EFieldType_VARCHAR > & _value;
 	};
 
-	/** COutOdbcBind specialisation for EFieldType_LONG_VARBINARY
+	/** COutOdbcBind specialisation for EFieldType_NVARCHAR
 	*/
 	template<>
 	struct COutOdbcBind< EFieldType_NVARCHAR >

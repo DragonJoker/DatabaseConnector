@@ -237,6 +237,33 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 	};
 
+	template< uint8_t Size >
+	struct BatchTests< EFieldType_CHAR, Size >
+	{
+		typedef DatabaseUtils::Helpers< EFieldType_CHAR > helper_type;
+		typedef helper_type::ParamType param_type;
+
+		template< typename Function >
+		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, String const & is, param_type valueIn = helper_type::InitialiseValue( Size ) )
+		{
+			typedef DatabaseUtils::Helpers< EFieldType_CHAR >::ParamType param_type;
+			param_type value = param_type();
+
+			if ( is == STR( "IS" ) )
+			{
+				CLogger::LogInfo( StringStream() << "  NULL" );
+				function( connection, name, NULL, true, is );
+			}
+
+			CLogger::LogInfo( StringStream() << "  Default" );
+			function( connection, name, &value, true, is );
+			CLogger::LogInfo( StringStream() << "  Truncate" );
+			function( connection, name, &( value = DatabaseUtils::Helpers< EFieldType_CHAR >::InitialiseValue( 1024 ) ), true, is );
+			CLogger::LogInfo( StringStream() << "  Given" );
+			function( connection, name, &valueIn, true, is );
+		}
+	};
+
 	template<>
 	struct BatchTests< EFieldType_VARCHAR >
 	{
@@ -258,7 +285,34 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			CLogger::LogInfo( StringStream() << "  Default" );
 			function( connection, name, &value, true, is );
 			CLogger::LogInfo( StringStream() << "  Truncate" );
-			function( connection, name, &( value = DatabaseUtils::Helpers< EFieldType_VARCHAR >::InitialiseValue( 1024 ) ), false, is );
+			function( connection, name, &( value = DatabaseUtils::Helpers< EFieldType_VARCHAR >::InitialiseValue( 1024 ) ), true, is );
+			CLogger::LogInfo( StringStream() << "  Given" );
+			function( connection, name, &valueIn, true, is );
+		}
+	};
+
+	template< uint8_t Size >
+	struct BatchTests< EFieldType_NCHAR, Size >
+	{
+		typedef DatabaseUtils::Helpers< EFieldType_NCHAR > helper_type;
+		typedef helper_type::ParamType param_type;
+
+		template< typename Function >
+		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, String const & is, param_type valueIn = helper_type::InitialiseValue() )
+		{
+			typedef DatabaseUtils::Helpers< EFieldType_NCHAR >::ParamType param_type;
+			param_type value = param_type();
+
+			if ( is == STR( "IS" ) )
+			{
+				CLogger::LogInfo( StringStream() << "  NULL" );
+				function( connection, name, NULL, true, is );
+			}
+
+			CLogger::LogInfo( StringStream() << "  Default" );
+			function( connection, name, &value, true, is );
+			CLogger::LogInfo( StringStream() << "  Truncate" );
+			function( connection, name, &( value = DatabaseUtils::Helpers< EFieldType_NCHAR >::InitialiseValue( 1024 ) ), true, is );
 			CLogger::LogInfo( StringStream() << "  Given" );
 			function( connection, name, &valueIn, true, is );
 		}
@@ -285,7 +339,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			CLogger::LogInfo( StringStream() << "  Default" );
 			function( connection, name, &value, true, is );
 			CLogger::LogInfo( StringStream() << "  Truncate" );
-			function( connection, name, &( value = DatabaseUtils::Helpers< EFieldType_NVARCHAR >::InitialiseValue( 1024 ) ), false, is );
+			function( connection, name, &( value = DatabaseUtils::Helpers< EFieldType_NVARCHAR >::InitialiseValue( 1024 ) ), true, is );
 			CLogger::LogInfo( StringStream() << "  Given" );
 			function( connection, name, &valueIn, true, is );
 		}
@@ -367,39 +421,39 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				{
 					connection->SelectDatabase( _database );
 					DoFlushTable( connection );
-					BatchTests< EFieldType_SINT32 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_SINT32 >, connection, STR( "IntegerField" ), _is );
-					BatchTests< EFieldType_SINT16 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_SINT16 >, connection, STR( "SmallIntField" ), _is );
-					BatchTests< EFieldType_SINT64 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_SINT64 >, connection, STR( "BigIntField" ), _is );
-					BatchTests< EFieldType_SINT16 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_SINT16 >, connection, STR( "Int2Field" ), _is );
-					BatchTests< EFieldType_SINT64 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_SINT64 >, connection, STR( "Int8Field" ), _is );
-					BatchTests< EFieldType_FLOAT64 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_FLOAT64 >, connection, STR( "RealField" ), _is );
-					BatchTests< EFieldType_FLOAT64 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_FLOAT64 >, connection, STR( "DoubleField" ), _is );
-					BatchTests< EFieldType_FLOAT64 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_FLOAT64 >, connection, STR( "DoublePrecisionField" ), _is );
-					BatchTests< EFieldType_FLOAT32 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_FLOAT32 >, connection, STR( "FloatField" ), _is );
-					BatchTests< EFieldType_FIXED_POINT, 10, 0 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_FIXED_POINT >, connection, STR( "NumericField" ), _is );
-					BatchTests< EFieldType_FIXED_POINT, 10, 5 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_FIXED_POINT >, connection, STR( "DecimalField" ), _is );
-					BatchTests< EFieldType_BIT >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_BIT >, connection, STR( "BooleanField" ), _is );
-					BatchTests< EFieldType_DATE >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_DATE >, connection, STR( "DateField" ), _is );
-					BatchTests< EFieldType_DATETIME >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_DATETIME >, connection, STR( "DateTimeField" ), _is );
-					BatchTests< EFieldType_VARCHAR >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_VARCHAR >, connection, STR( "CharacterField" ), _is );
-					BatchTests< EFieldType_VARCHAR >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_VARCHAR >, connection, STR( "VarcharField" ), _is );
-					BatchTests< EFieldType_NVARCHAR >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_NVARCHAR >, connection, STR( "NcharField" ), _is );
-					BatchTests< EFieldType_NVARCHAR >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_NVARCHAR >, connection, STR( "NVarcharField" ), _is );
-					BatchTests< EFieldType_TEXT >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_TEXT >, connection, STR( "TextField" ), _is );
-					BatchTests< EFieldType_VARBINARY >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_VARBINARY >, connection, STR( "BlobField" ), _is );
+					BatchTests< EFieldType_SINT32 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_SINT32 >, connection, STR( "IntegerField" ), _config.is );
+					BatchTests< EFieldType_SINT16 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_SINT16 >, connection, STR( "SmallIntField" ), _config.is );
+					BatchTests< EFieldType_SINT64 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_SINT64 >, connection, STR( "BigIntField" ), _config.is );
+					BatchTests< EFieldType_SINT16 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_SINT16 >, connection, STR( "Int2Field" ), _config.is );
+					BatchTests< EFieldType_SINT64 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_SINT64 >, connection, STR( "Int8Field" ), _config.is );
+					BatchTests< EFieldType_FLOAT64 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_FLOAT64 >, connection, STR( "RealField" ), _config.is );
+					BatchTests< EFieldType_FLOAT64 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_FLOAT64 >, connection, STR( "DoubleField" ), _config.is );
+					BatchTests< EFieldType_FLOAT64 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_FLOAT64 >, connection, STR( "DoublePrecisionField" ), _config.is );
+					BatchTests< EFieldType_FLOAT32 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_FLOAT32 >, connection, STR( "FloatField" ), _config.is );
+					BatchTests< EFieldType_FIXED_POINT, 10, 0 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_FIXED_POINT >, connection, STR( "NumericField" ), _config.is );
+					BatchTests< EFieldType_FIXED_POINT, 10, 5 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_FIXED_POINT >, connection, STR( "DecimalField" ), _config.is );
+					BatchTests< EFieldType_BIT >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_BIT >, connection, STR( "BooleanField" ), _config.is );
+					BatchTests< EFieldType_DATE >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_DATE >, connection, STR( "DateField" ), _config.is );
+					BatchTests< EFieldType_DATETIME >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_DATETIME >, connection, STR( "DateTimeField" ), _config.is );
+					BatchTests< EFieldType_CHAR, 20 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_CHAR >, connection, STR( "CharacterField" ), _config.is );
+					BatchTests< EFieldType_VARCHAR >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_VARCHAR >, connection, STR( "VarcharField" ), _config.is );
+					BatchTests< EFieldType_NCHAR, 55 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_NCHAR >, connection, STR( "NcharField" ), _config.is );
+					BatchTests< EFieldType_NVARCHAR >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_NVARCHAR >, connection, STR( "NVarcharField" ), _config.is );
+					BatchTests< EFieldType_TEXT >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_TEXT >, connection, STR( "TextField" ), _config.is );
+					BatchTests< EFieldType_VARBINARY >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_VARBINARY >, connection, STR( "BlobField" ), _config.is );
 
-					if ( _hasUnsignedTiny )
+					if ( _config.hasUnsignedTiny )
 					{
-						BatchTests< EFieldType_UINT8 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_UINT8 >, connection, STR( "TinyIntField" ), _is );
+						BatchTests< EFieldType_UINT8 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_UINT8 >, connection, STR( "TinyIntField" ), _config.is );
 					}
 					else
 					{
-						BatchTests< EFieldType_SINT8 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_SINT8 >, connection, STR( "TinyIntField" ), _is );
+						BatchTests< EFieldType_SINT8 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_SINT8 >, connection, STR( "TinyIntField" ), _config.is );
 					}
 
-					if ( _hasInt24 )
+					if ( _config.hasInt24 )
 					{
-						BatchTests< EFieldType_SINT24 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_SINT24 >, connection, STR( "MediumIntField" ), _is );
+						BatchTests< EFieldType_SINT24 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_SINT24 >, connection, STR( "MediumIntField" ), _config.is );
 					}
 				}
 
@@ -432,39 +486,39 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				{
 					connection->SelectDatabase( _database );
 					DoFlushTable( connection );
-					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_SINT32 >( connection, STR( "IntegerField" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_SINT16 >( connection, STR( "SmallIntField" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_SINT64 >( connection, STR( "BigIntField" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_SINT16 >( connection, STR( "Int2Field" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_SINT64 >( connection, STR( "Int8Field" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_FLOAT64 >( connection, STR( "RealField" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_FLOAT64 >( connection, STR( "DoubleField" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_FLOAT64 >( connection, STR( "DoublePrecisionField" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_FLOAT32 >( connection, STR( "FloatField" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_FIXED_POINT >( connection, STR( "NumericField" ), DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue( 10, 0 ), true, _is );
-					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_FIXED_POINT >( connection, STR( "DecimalField" ), DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue( 10, 5 ), true, _is );
-					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_BIT >( connection, STR( "BooleanField" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_DATE >( connection, STR( "DateField" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_DATETIME >( connection, STR( "DateTimeField" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_VARCHAR >( connection, STR( "CharacterField" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_VARCHAR >( connection, STR( "VarcharField" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_NVARCHAR >( connection, STR( "NcharField" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_NVARCHAR >( connection, STR( "NVarcharField" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_TEXT >( connection, STR( "TextField" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_VARBINARY >( connection, STR( "BlobField" ), true, _is );
+					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_SINT32 >( connection, STR( "IntegerField" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_SINT16 >( connection, STR( "SmallIntField" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_SINT64 >( connection, STR( "BigIntField" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_SINT16 >( connection, STR( "Int2Field" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_SINT64 >( connection, STR( "Int8Field" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_FLOAT64 >( connection, STR( "RealField" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_FLOAT64 >( connection, STR( "DoubleField" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_FLOAT64 >( connection, STR( "DoublePrecisionField" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_FLOAT32 >( connection, STR( "FloatField" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_FIXED_POINT >( connection, STR( "NumericField" ), DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue( 10, 0 ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_FIXED_POINT >( connection, STR( "DecimalField" ), DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue( 10, 5 ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_BIT >( connection, STR( "BooleanField" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_DATE >( connection, STR( "DateField" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_DATETIME >( connection, STR( "DateTimeField" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_CHAR >( connection, STR( "CharacterField" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_VARCHAR >( connection, STR( "VarcharField" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_NCHAR >( connection, STR( "NcharField" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_NVARCHAR >( connection, STR( "NVarcharField" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_TEXT >( connection, STR( "TextField" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_VARBINARY >( connection, STR( "BlobField" ), true, _config.is );
 
-					if ( _hasUnsignedTiny )
+					if ( _config.hasUnsignedTiny )
 					{
-						DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_UINT8 >( connection, STR( "TinyIntField" ), true, _is );
+						DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_UINT8 >( connection, STR( "TinyIntField" ), true, _config.is );
 					}
 					else
 					{
-						DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_SINT8 >( connection, STR( "TinyIntField" ), true, _is );
+						DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_SINT8 >( connection, STR( "TinyIntField" ), true, _config.is );
 					}
 
-					if ( _hasInt24 )
+					if ( _config.hasInt24 )
 					{
-						DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_SINT24 >( connection, STR( "MediumIntField" ), true, _is );
+						DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_SINT24 >( connection, STR( "MediumIntField" ), true, _config.is );
 					}
 				}
 
@@ -497,47 +551,50 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				{
 					connection->SelectDatabase( _database );
 					DoFlushTable( connection );
-					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_SINT32 >( connection, STR( "IntegerField" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_SINT16 >( connection, STR( "SmallIntField" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_SINT64 >( connection, STR( "BigIntField" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_SINT16 >( connection, STR( "Int2Field" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_SINT64 >( connection, STR( "Int8Field" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_FLOAT64 >( connection, STR( "RealField" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_FLOAT64 >( connection, STR( "DoubleField" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_FLOAT64 >( connection, STR( "DoublePrecisionField" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_FLOAT32 >( connection, STR( "FloatField" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_FIXED_POINT >( connection, STR( "NumericField" ), DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue( 10, 0 ), true, _is );
-					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_FIXED_POINT >( connection, STR( "DecimalField" ), DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue( 10, 5 ), true, _is );
-					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_DATE >( connection, STR( "DateField" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_DATETIME >( connection, STR( "DateTimeField" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_VARCHAR >( connection, STR( "CharacterField" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_VARCHAR >( connection, STR( "VarcharField" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_TEXT >( connection, STR( "TextField" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_VARBINARY >( connection, STR( "BlobField" ), true, _is );
+					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_SINT32 >( connection, STR( "IntegerField" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_SINT16 >( connection, STR( "SmallIntField" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_SINT64 >( connection, STR( "BigIntField" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_SINT16 >( connection, STR( "Int2Field" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_SINT64 >( connection, STR( "Int8Field" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_FLOAT64 >( connection, STR( "RealField" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_FLOAT64 >( connection, STR( "DoubleField" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_FLOAT64 >( connection, STR( "DoublePrecisionField" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_FLOAT32 >( connection, STR( "FloatField" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_FIXED_POINT >( connection, STR( "NumericField" ), DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue( 10, 0 ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_FIXED_POINT >( connection, STR( "DecimalField" ), DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue( 10, 5 ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_DATE >( connection, STR( "DateField" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_DATETIME >( connection, STR( "DateTimeField" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_CHAR >( connection, STR( "CharacterField" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_VARCHAR >( connection, STR( "VarcharField" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_TEXT >( connection, STR( "TextField" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_VARBINARY >( connection, STR( "BlobField" ), true, _config.is );
 
-					if ( _hasUnsignedTiny )
+					if ( _config.hasTinyInt )
 					{
-						DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_UINT8 >( connection, STR( "TinyIntField" ), true, _is );
-					}
-					else
-					{
-						DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_SINT8 >( connection, STR( "TinyIntField" ), true, _is );
-					}
-
-					if ( _hasInt24 )
-					{
-						DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_SINT24 >( connection, STR( "MediumIntField" ), true, _is );
+						if ( _config.hasUnsignedTiny )
+						{
+							DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_UINT8 >( connection, STR( "TinyIntField" ), true, _config.is );
+						}
+						else
+						{
+							DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_SINT8 >( connection, STR( "TinyIntField" ), true, _config.is );
+						}
 					}
 
-					if ( _hasNChar )
+					if ( _config.hasInt24 )
 					{
-						DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_NVARCHAR >( connection, STR( "NcharField" ), true, _is );
-						DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_NVARCHAR >( connection, STR( "NVarcharField" ), true, _is );
+						DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_SINT24 >( connection, STR( "MediumIntField" ), true, _config.is );
 					}
 
-					if ( _hasSeparateBooleanAndTinyInt )
+					if ( _config.hasNChar )
 					{
-						DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_BIT >( connection, STR( "BooleanField" ), true, _is );
+						DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_NCHAR >( connection, STR( "NcharField" ), true, _config.is );
+						DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_NVARCHAR >( connection, STR( "NVarcharField" ), true, _config.is );
+					}
+
+					if ( _config.hasSeparateBooleanAndTinyInt )
+					{
+						DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_BIT >( connection, STR( "BooleanField" ), true, _config.is );
 					}
 				}
 
@@ -570,47 +627,50 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				{
 					connection->SelectDatabase( _database );
 					DoFlushTable( connection );
-					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_SINT32 >( connection, STR( "IntegerField" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_SINT16 >( connection, STR( "SmallIntField" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_SINT64 >( connection, STR( "BigIntField" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_SINT16 >( connection, STR( "Int2Field" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_SINT64 >( connection, STR( "Int8Field" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_FLOAT64 >( connection, STR( "RealField" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_FLOAT64 >( connection, STR( "DoubleField" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_FLOAT64 >( connection, STR( "DoublePrecisionField" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_FLOAT32 >( connection, STR( "FloatField" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_FIXED_POINT >( connection, STR( "NumericField" ), DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue( 10, 0 ), true, _is );
-					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_FIXED_POINT >( connection, STR( "DecimalField" ), DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue( 10, 5 ), true, _is );
-					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_DATE >( connection, STR( "DateField" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_DATETIME >( connection, STR( "DateTimeField" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_VARCHAR >( connection, STR( "CharacterField" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_VARCHAR >( connection, STR( "VarcharField" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_TEXT >( connection, STR( "TextField" ), true, _is );
-					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_VARBINARY >( connection, STR( "BlobField" ), true, _is );
+					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_SINT32 >( connection, STR( "IntegerField" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_SINT16 >( connection, STR( "SmallIntField" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_SINT64 >( connection, STR( "BigIntField" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_SINT16 >( connection, STR( "Int2Field" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_SINT64 >( connection, STR( "Int8Field" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_FLOAT64 >( connection, STR( "RealField" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_FLOAT64 >( connection, STR( "DoubleField" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_FLOAT64 >( connection, STR( "DoublePrecisionField" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_FLOAT32 >( connection, STR( "FloatField" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_FIXED_POINT >( connection, STR( "NumericField" ), DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue( 10, 0 ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_FIXED_POINT >( connection, STR( "DecimalField" ), DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue( 10, 5 ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_DATE >( connection, STR( "DateField" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_DATETIME >( connection, STR( "DateTimeField" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_CHAR >( connection, STR( "CharacterField" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_VARCHAR >( connection, STR( "VarcharField" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_TEXT >( connection, STR( "TextField" ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_VARBINARY >( connection, STR( "BlobField" ), true, _config.is );
 
-					if ( _hasUnsignedTiny )
+					if ( _config.hasTinyInt )
 					{
-						DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_UINT8 >( connection, STR( "TinyIntField" ), true, _is );
-					}
-					else
-					{
-						DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_SINT8 >( connection, STR( "TinyIntField" ), true, _is );
-					}
-
-					if ( _hasInt24 )
-					{
-						DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_SINT24 >( connection, STR( "MediumIntField" ), true, _is );
+						if ( _config.hasUnsignedTiny )
+						{
+							DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_UINT8 >( connection, STR( "TinyIntField" ), true, _config.is );
+						}
+						else
+						{
+							DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_SINT8 >( connection, STR( "TinyIntField" ), true, _config.is );
+						}
 					}
 
-					if ( _hasNChar )
+					if ( _config.hasInt24 )
 					{
-						DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_NVARCHAR >( connection, STR( "NcharField" ), true, _is );
-						DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_NVARCHAR >( connection, STR( "NVarcharField" ), true, _is );
+						DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_SINT24 >( connection, STR( "MediumIntField" ), true, _config.is );
 					}
 
-					if ( _hasSeparateBooleanAndTinyInt )
+					if ( _config.hasNChar )
 					{
-						DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_BIT >( connection, STR( "BooleanField" ), true, _is );
+						DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_NCHAR >( connection, STR( "NcharField" ), true, _config.is );
+						DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_NVARCHAR >( connection, STR( "NVarcharField" ), true, _config.is );
+					}
+
+					if ( _config.hasSeparateBooleanAndTinyInt )
+					{
+						DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_BIT >( connection, STR( "BooleanField" ), true, _config.is );
 					}
 				}
 
