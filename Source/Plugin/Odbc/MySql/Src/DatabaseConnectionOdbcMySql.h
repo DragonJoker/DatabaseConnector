@@ -68,6 +68,14 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MYSQL
 		*/
 		virtual void DestroyDatabase( const String & database );
 
+		/** Format a byte array to insert into a request.
+		@param[in] array
+			Value to format.
+		@return
+			Formatted value.
+		*/
+		virtual String WriteBinary( const ByteArray & array ) const;
+
 		/** Format a date into a string to be supported by the DBMS.
 		@param[in] date
 			Date to format.

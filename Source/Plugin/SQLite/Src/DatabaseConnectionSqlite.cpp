@@ -252,6 +252,21 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		return CStrUtils::ToWStr( strReturn );
 	}
 
+	String CDatabaseConnectionSqlite::WriteBinary( const ByteArray & array ) const
+	{
+		StringStream stream;
+		stream.setf( std::ios::hex, std::ios::basefield );
+
+		for ( auto && it = array.begin(); it != array.end(); ++it )
+		{
+			stream.width( 2 );
+			stream.fill( STR( '0' ) );
+			stream << int( *it );
+		}
+
+		return STR( "X'" ) + stream.str() + STR( "'" );
+	}
+
 	String CDatabaseConnectionSqlite::WriteName( const String & text ) const
 	{
 		return STR( "[" ) + text + STR( "]" );

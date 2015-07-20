@@ -1080,17 +1080,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			if ( valSet )
 			{
-				StringStream stream;
-				stream.setf( std::ios::hex, std::ios::basefield );
-
-				for ( value_type::const_iterator it = value.begin(); it != value.end(); ++it )
-				{
-					stream.width( 2 );
-					stream.fill( STR( '0' ) );
-					stream << int( *it );
-				}
-
-				return STR( "X'" ) + stream.str() + STR( "'" );
+				return connection->WriteBinary( value );
 			}
 			else
 			{

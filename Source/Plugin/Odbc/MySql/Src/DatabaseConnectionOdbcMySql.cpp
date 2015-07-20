@@ -353,6 +353,21 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MYSQL
 		DoExecuteUpdate( ODBC_SQL_DROP_DATABASE + database );
 	}
 
+	String CDatabaseConnectionOdbcMySql::WriteBinary( const ByteArray & array ) const
+	{
+		StringStream stream;
+		stream.setf( std::ios::hex, std::ios::basefield );
+
+		for ( auto && it = array.begin(); it != array.end(); ++it )
+		{
+			stream.width( 2 );
+			stream.fill( STR( '0' ) );
+			stream << int( *it );
+		}
+
+		return STR( "X'" ) + stream.str() + STR( "'" );
+	}
+
 	std::string CDatabaseConnectionOdbcMySql::WriteDateS( const CDate & date ) const
 	{
 		std::string strReturn;

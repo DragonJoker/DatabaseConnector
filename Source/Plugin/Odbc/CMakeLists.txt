@@ -1,8 +1,9 @@
 project( DatabasePluginOdbc )
 
-set( DBODBC_VERSION_MAJOR	0 )
-set( DBODBC_VERSION_MINOR	1 )
-set( DBODBC_VERSION_BUILD	0 )
+set( PROJECT_DESC "DatabaseConnector ODBC Plugins Base" )
+set( ${PROJECT_NAME}_VERSION_MAJOR	0 )
+set( ${PROJECT_NAME}_VERSION_MINOR	1 )
+set( ${PROJECT_NAME}_VERSION_BUILD	0 )
 
 # Include directories
 include_directories(
@@ -12,7 +13,7 @@ include_directories(
 )
 
 add_target(
-	DatabasePluginOdbc
+	${PROJECT_NAME}
 	lib
 	"Database"
 	"Database;${ODBC_LIBRARIES};${MinLibraries}"
@@ -21,8 +22,8 @@ add_target(
 	"" "" ""
 )
 
-set_property( TARGET DatabasePluginOdbc PROPERTY FOLDER "Plugin/Odbc" )
-add_target_astyle( DatabasePluginOdbc ".h;.hpp;.inl;.cpp" )
+set_property( TARGET ${PROJECT_NAME} PROPERTY FOLDER "Plugin/Odbc" )
+add_target_astyle( ${PROJECT_NAME} ".h;.hpp;.inl;.cpp" )
 
 add_subdirectory( MsSql )
 add_subdirectory( MySql )

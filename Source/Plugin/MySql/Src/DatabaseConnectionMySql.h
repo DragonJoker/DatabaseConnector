@@ -86,6 +86,14 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		*/
 		DatabaseMySqlExport virtual std::wstring WriteNText( const std::wstring & text ) const;
 
+		/** Format a byte array to insert into a request.
+		@param[in] array
+			Value to format.
+		@return
+			Formatted value.
+		*/
+		DatabaseMySqlExport virtual String WriteBinary( const ByteArray & array ) const;
+
 		/** Format a string to be supported by the DBMS.
 		@param[in] text
 			Text to format.

@@ -1,8 +1,9 @@
 project( DatabasePluginSqlite )
 
-set( DBSQLITE_VERSION_MAJOR	0 )
-set( DBSQLITE_VERSION_MINOR	1 )
-set( DBSQLITE_VERSION_BUILD	0 )
+set( PROJECT_DESC "DatabaseConnector SQLite plug-in" )
+set( ${PROJECT_NAME}_VERSION_MAJOR	0 )
+set( ${PROJECT_NAME}_VERSION_MINOR	1 )
+set( ${PROJECT_NAME}_VERSION_BUILD	0 )
 
 # Include directories
 include_directories(

@@ -146,6 +146,21 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		DoExecuteUpdate( ODBC_SQL_DROP_DATABASE + database );
 	}
 
+	String CDatabaseConnectionOdbcMsSql::WriteBinary( const ByteArray & array ) const
+	{
+		StringStream stream;
+		stream.setf( std::ios::hex, std::ios::basefield );
+
+		for ( auto && it = array.begin(); it != array.end(); ++it )
+		{
+			stream.width( 2 );
+			stream.fill( STR( '0' ) );
+			stream << int( *it );
+		}
+
+		return STR( "X'" ) + stream.str() + STR( "'" );
+	}
+
 	std::string CDatabaseConnectionOdbcMsSql::WriteDateS( const CDate & date ) const
 	{
 		std::string strReturn;

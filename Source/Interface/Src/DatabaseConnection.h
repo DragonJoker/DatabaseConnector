@@ -342,6 +342,14 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport virtual std::wstring WriteNText( const std::wstring & text ) const = 0;
 
+		/** Format a byte array to insert into a request.
+		@param[in] array
+			Value to format.
+		@return
+			Formatted value.
+		*/
+		DatabaseExport virtual String WriteBinary( const ByteArray & array ) const = 0;
+
 		/** Format a string to insert into a request.
 		@param[in] name
 			Value to format.
