@@ -15,9 +15,90 @@
 
 #include "DatabaseException.h"
 #include "DatabaseStringUtils.h"
+#include "DatabaseLogger.h"
+
+#if !defined( NDEBUG )
+#	if !defined( _WIN32 )
+#		include <execinfo.h>
+#		include <stdlib.h>
+#	else
+#		include <Windows.h>
+#		include <Dbghelp.h>
+#	endif
+#endif
 
 BEGIN_NAMESPACE_DATABASE
 {
+	const int NumOfFnCallsToCapture( 20 );
+	const int NumOfFnCallsToSkip( 2 );
+
+#if defined( NDEBUG )
+
+	namespace
+	{
+		static void ShowBacktrace( std::stringstream & stream )
+		{
+		}
+	}
+
+#else
+#	if !defined( _WIN32 )
+
+	namespace
+	{
+		void ShowBacktrace( std::stringstream & stream )
+		{
+			stream << std::endl << "== Call Stack ==" << std::endl;
+
+			// For now we just print out a message on sterr.
+			void * backTrace[NumOfFnCallsToCapture];
+			unsigned int num( ::backtrace( backTrace, NumOfFnCallsToCapture ) );
+			char ** fnStrings( ::backtrace_symbols( backTrace, num ) );
+
+			for ( unsigned i = NumOfFnCallsToSkip; i < num; ++i )
+			{
+				stream << "== " << fnStrings[i] << std::endl;
+			}
+
+			free( fnStrings );
+		}
+	}
+
+#	else
+
+	namespace
+	{
+		void ShowBacktrace( std::stringstream & stream )
+		{
+			const int MaxFnNameLen( 255 );
+
+			void * backTrace[NumOfFnCallsToCapture - NumOfFnCallsToSkip];
+			unsigned int num( ::CaptureStackBackTrace( NumOfFnCallsToSkip, NumOfFnCallsToCapture - NumOfFnCallsToSkip, backTrace, NULL ) );
+
+			// symbol->Name type is char [1] so there is space for \0 already
+			SYMBOL_INFO * symbol( ( SYMBOL_INFO * ) malloc( sizeof( SYMBOL_INFO ) + ( MaxFnNameLen * sizeof( char ) ) ) );
+			symbol->MaxNameLen = MaxFnNameLen;
+			symbol->SizeOfStruct = sizeof( SYMBOL_INFO );
+
+			::HANDLE process( ::GetCurrentProcess() );
+			SymInitialize( process, NULL, TRUE );
+
+			stream << std::endl << "== Call Stack ==" << std::endl;
+
+			// For now we just print out a message on sterr.
+			for ( unsigned int i = 0; i < num; ++i )
+			{
+				SymFromAddr( process, reinterpret_cast< DWORD64 >( backTrace[i] ), 0, symbol );
+				stream << "== " << std::string( symbol->Name, symbol->Name + symbol->NameLen ) << std::endl;
+			}
+
+			free( symbol );
+		}
+	}
+
+#	endif
+#endif
+
 	CExceptionDatabase::CExceptionDatabase( int number, const String & description, const std::string & source, const std::string & file, long line )
 		: _number( number )
 		, _description( description )
@@ -26,7 +107,9 @@ BEGIN_NAMESPACE_DATABASE
 		, _file( CStrUtils::ToString( file ) )
 		, _line( line )
 	{
-		// Empty
+		std::stringstream stream;
+		ShowBacktrace( stream );
+		_callstack = stream.str();
 	}
 
 	CExceptionDatabase::CExceptionDatabase( int number, const String & description, const std::string & source, const String & type, const std::string & file, long line )
@@ -37,7 +120,9 @@ BEGIN_NAMESPACE_DATABASE
 		, _file( CStrUtils::ToString( file ) )
 		, _line( line )
 	{
-		// Empty
+		std::stringstream stream;
+		ShowBacktrace( stream );
+		_callstack = stream.str();
 	}
 
 	const String & CExceptionDatabase::GetFullDescription() const
@@ -55,6 +140,7 @@ BEGIN_NAMESPACE_DATABASE
 				desc << " at " << _file << " ( line " << _line << " )";
 			}
 
+			desc << _callstack;
 			_fullDesc = desc.str();
 			_what = CStrUtils::ToStr( _fullDesc );
 		}

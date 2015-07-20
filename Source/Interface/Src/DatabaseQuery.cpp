@@ -34,24 +34,6 @@ BEGIN_NAMESPACE_DATABASE
 	static const String ERROR_DB_QUERY_ALREADY_ADDED_PARAMETER = STR( "Parameter with name [%1%] already exists." );
 	static const String WARNING_DB_QUERY_NULL_PARAMETER = STR( "Trying to add a null parameter." );
 
-	static const String DB_SQL_SELECT = STR( "SELECT " );
-	static const String DB_SQL_AS = STR( " AS " );
-	static const String DB_SQL_FROM_DUAL = STR( " FROM DUAL;" );
-	static const String DB_SQL_PARAM = STR( "@" );
-	static const String DB_SQL_COMMA = STR( "," );
-	static const String DB_SQL_SET = STR( "SET @" );
-	static const String DB_SQL_NULL = STR( " = NULL;" );
-
-	CDatabaseQuery::SValueUpdater::SValueUpdater( CDatabaseQuery * query )
-		: _query( query )
-	{
-	}
-
-	void CDatabaseQuery::SValueUpdater::Update( DatabaseParameterPtr value )
-	{
-		_query->_mapParamsByPointer[value->GetObjectValue().GetPtrValue()] = value;
-	}
-
 	CDatabaseQuery::CDatabaseQuery( DatabaseConnectionPtr connection, const String & query )
 		: _connection( connection )
 		, _paramsCount( 0 )
@@ -85,14 +67,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		if ( _connection->IsConnected() && _arrayQueries.size() > 0 )
 		{
-			DatabaseParameterPtrArray outParams;
-			String query = DoPreExecute( outParams, result );
-			bReturn = _connection->ExecuteUpdate( query, result );
-
-			if ( bReturn )
-			{
-				DoPostExecute( outParams, result );
-			}
+			bReturn = _connection->ExecuteUpdate( DoPreExecute() );
 		}
 
 		return bReturn;
@@ -104,14 +79,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		if ( _connection->IsConnected() && _arrayQueries.size() > 0 )
 		{
-			DatabaseParameterPtrArray outParams;
-			String query = DoPreExecute( outParams, result );
-			pReturn = _connection->ExecuteSelect( query, result );
-
-			if ( pReturn )
-			{
-				DoPostExecute( outParams, result );
-			}
+			pReturn = _connection->ExecuteSelect( DoPreExecute() );
 		}
 
 		return pReturn;
@@ -123,9 +91,9 @@ BEGIN_NAMESPACE_DATABASE
 		_arrayQueries.clear();
 	}
 
-	DatabaseParameterPtr CDatabaseQuery::CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType )
+	DatabaseParameterPtr CDatabaseQuery::CreateParameter( const String & name, EFieldType fieldType )
 	{
-		DatabaseParameterPtr pReturn = std::make_shared< CDatabaseParameter >( _connection, name, ( unsigned short )_arrayParams.size() + 1, fieldType, parameterType, std::make_unique< SValueUpdater >( this ) );
+		DatabaseParameterPtr pReturn = std::make_shared< CDatabaseParameter >( _connection, name, ( unsigned short )_arrayParams.size() + 1, fieldType, EParameterType_IN, std::make_unique< SDummyValueUpdater >() );
 
 		if ( !DoAddParameter( pReturn ) )
 		{
@@ -135,9 +103,21 @@ BEGIN_NAMESPACE_DATABASE
 		return pReturn;
 	}
 
-	DatabaseParameterPtr CDatabaseQuery::CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType )
+	DatabaseParameterPtr CDatabaseQuery::CreateParameter( const String & name, EFieldType fieldType, uint32_t limits )
 	{
-		DatabaseParameterPtr pReturn = std::make_shared< CDatabaseParameter >( _connection, name, ( unsigned short )_arrayParams.size() + 1, fieldType, limits, parameterType, std::make_unique< SValueUpdater >( this ) );
+		DatabaseParameterPtr pReturn = std::make_shared< CDatabaseParameter >( _connection, name, ( unsigned short )_arrayParams.size() + 1, fieldType, limits, EParameterType_IN, std::make_unique< SDummyValueUpdater >() );
+
+		if ( !DoAddParameter( pReturn ) )
+		{
+			pReturn.reset();
+		}
+
+		return pReturn;
+	}
+
+	DatabaseParameterPtr CDatabaseQuery::CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision )
+	{
+		DatabaseParameterPtr pReturn = std::make_shared< CDatabaseParameter >( _connection, name, ( unsigned short )_arrayParams.size() + 1, fieldType, precision, EParameterType_IN, std::make_unique< SDummyValueUpdater >() );
 
 		if ( !DoAddParameter( pReturn ) )
 		{
@@ -162,7 +142,6 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			StringStream message;
 			message << ERROR_DB_QUERY_INDEX << index;
-			CLogger::LogError( message.str() );
 			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, message.str() );
 		}
 	}
@@ -178,7 +157,6 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			StringStream message;
 			message << ERROR_DB_QUERY_NAME << name;
-			CLogger::LogError( message.str() );
 			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, message.str() );
 		}
 
@@ -241,42 +219,20 @@ BEGIN_NAMESPACE_DATABASE
 		return bReturn;
 	}
 
-	String CDatabaseQuery::DoPreExecute( DatabaseParameterPtrArray & outParams, EErrorType * result )
+	String CDatabaseQuery::DoPreExecute()
 	{
-		assert( _paramsCount == _arrayParams.size() );
+		if ( _paramsCount != _arrayParams.size() )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_QueryError, ERROR_DB_QUERY_INCONSISTENCY );
+		}
 
 		StringStream query;
-		StringArray inOutInitializers;
-		auto && itQueries = _arrayQueries.begin();
-		auto && itParams = _arrayParams.begin();
+		auto itQueries = _arrayQueries.begin();
 
-		inOutInitializers.reserve( _arrayParams.size() );
-		outParams.reserve( _arrayParams.size() );
-
-		while ( itQueries != _arrayQueries.end() && itParams != _arrayParams.end() )
+		for ( auto && parameter : _arrayParams )
 		{
-			query << ( *itQueries );
-			DatabaseParameterPtr parameter = ( *itParams );
-
-			if ( parameter->GetParamType() == EParameterType_IN )
-			{
-				query << parameter->GetObjectValue().GetQueryValue().c_str();
-			}
-			else if ( parameter->GetParamType() == EParameterType_INOUT )
-			{
-				query << DB_SQL_PARAM + parameter->GetName();
-				inOutInitializers.push_back( DB_SQL_SET + parameter->GetName() + STR( " = " ) + parameter->GetObjectValue().GetQueryValue() );
-				outParams.push_back( parameter );
-			}
-			else if ( parameter->GetParamType() == EParameterType_OUT )
-			{
-				query << DB_SQL_PARAM + parameter->GetName();
-				inOutInitializers.push_back( DB_SQL_SET + parameter->GetName() + DB_SQL_NULL );
-				outParams.push_back( parameter );
-			}
-
-			++itQueries;
-			++itParams;
+			query << ( *itQueries++ );
+			query << ( parameter )->GetObjectValue().GetQueryValue().c_str();
 		}
 
 		while ( itQueries != _arrayQueries.end() )
@@ -285,58 +241,7 @@ BEGIN_NAMESPACE_DATABASE
 			++itQueries;
 		}
 
-		for ( auto query : inOutInitializers )
-		{
-			_connection->ExecuteUpdate( query, result );
-		}
-
 		return query.str();
-	}
-
-	void CDatabaseQuery::DoPostExecute( DatabaseParameterPtrArray const & outParams, EErrorType * result )
-	{
-		if ( !outParams.empty() )
-		{
-			String sep;
-			StringStream queryInOutParam;
-			queryInOutParam << DB_SQL_SELECT;
-			DatabaseParameterPtr parameter;
-
-			for ( auto && parameter : outParams )
-			{
-				queryInOutParam << sep << DB_SQL_PARAM << parameter->GetName() << DB_SQL_AS << parameter->GetName();
-				sep = DB_SQL_COMMA;
-			}
-
-			DatabaseResultPtr pReturnFromDual = _connection->ExecuteSelect( queryInOutParam.str(), result );
-
-			if ( pReturnFromDual )
-			{
-				DatabaseRowPtr row = pReturnFromDual->GetFirstRow();
-
-				for ( auto && parameter : outParams )
-				{
-					if ( parameter->GetParamType() == EParameterType_INOUT || parameter->GetParamType() == EParameterType_OUT )
-					{
-						DatabaseFieldPtr field;
-
-						try
-						{
-							field = row->GetField( parameter->GetName() );
-						}
-						catch ( CExceptionDatabase & exc )
-						{
-							CLogger::LogError( exc.GetFullDescription() );
-						}
-
-						if ( field )
-						{
-							parameter->SetValue( field );
-						}
-					}
-				}
-			}
-		}
 	}
 }
 END_NAMESPACE_DATABASE

@@ -23,6 +23,7 @@ BEGIN_NAMESPACE_DATABASE
 	/** Describes a database connection.
 	*/
 	class CDatabaseConnection
+		: public std::enable_shared_from_this< CDatabaseConnection >
 	{
 	public:
 		/** Constructor.
@@ -39,6 +40,32 @@ BEGIN_NAMESPACE_DATABASE
 			*/
 		DatabaseExport virtual ~CDatabaseConnection();
 
+		/** Initialize the connection to the database.
+		@param[out] connectionString
+			Connection string in case of error.
+		@return
+			Error code.
+		*/
+		DatabaseExport EErrorType Reconnect( String & connectionString );
+
+		/** Initialize a named transaction.
+		@param[in] name
+			Transaction name.
+		*/
+		DatabaseExport void BeginTransaction( const String & name );
+
+		/** Validate a named transaction.
+		@param[in] name
+			Transaction name.
+		*/
+		DatabaseExport void Commit( const String & name );
+
+		/** Invalidate a named transaction.
+		@param[in] name
+			Transaction name.
+		*/
+		DatabaseExport void RollBack( const String & name );
+
 		/** Create a statement based on a request.
 		@param[in] query
 			Request text.
@@ -47,7 +74,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Created statement.
 		*/
-		DatabaseExport DatabaseStatementPtr CreateStatement( const String & query, EErrorType * result = NULL );
+		DatabaseExport DatabaseStatementPtr CreateStatement( const String & query );
 
 		/** Create a query based on a request.
 		@param[in] query
@@ -57,7 +84,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Created query.
 		*/
-		DatabaseExport DatabaseQueryPtr CreateQuery( const String & query, EErrorType * result = NULL );
+		DatabaseExport DatabaseQueryPtr CreateQuery( const String & query );
 
 		/** Execute directly a request without result set.
 		@param[in] query
@@ -67,7 +94,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Results.
 		*/
-		DatabaseExport bool ExecuteUpdate( const String & query, EErrorType * result = NULL );
+		DatabaseExport bool ExecuteUpdate( const String & query );
 
 		/** Execute directly a request with a result set.
 		@param[in] query
@@ -77,15 +104,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Results.
 		*/
-		DatabaseExport DatabaseResultPtr ExecuteSelect( const String & query, EErrorType * result = NULL );
-
-		/** Initialize the connection to the database.
-		@param[out] connectionString
-			Connection string in case of error.
-		@return
-			Error code.
-		*/
-		DatabaseExport EErrorType Reconnect( String & connectionString );
+		DatabaseExport DatabaseResultPtr ExecuteSelect( const String & query );
 
 		/** Get the connection status.
 		@return
@@ -283,29 +302,11 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport String WriteStmtDateTime( const CDateTime & dateTime ) const;
 
-		/** Initialize a named transaction.
-		@param[in] name
-			Transaction name.
+		/** Retrieves the precision for given field type.
 		@return
-			Error code, EErrorType_NONE if no problem.
+			The precision.
 		*/
-		DatabaseExport virtual EErrorType BeginTransaction( const String & name ) = 0;
-
-		/** Validate a named transaction.
-		@param[in] name
-			Transaction name.
-		@return
-			Error code, EErrorType_NONE if no problem.
-		*/
-		DatabaseExport virtual EErrorType Commit( const String & name ) = 0;
-
-		/** Invalidate a named transaction.
-		@param[in] name
-			Transaction name.
-		@return
-			Error code, EErrorType_NONE if no problem.
-		*/
-		DatabaseExport virtual EErrorType RollBack( const String & name ) = 0;
+		DatabaseExport virtual uint32_t GetPrecision( EFieldType type ) const = 0;
 
 		/** Creates a database.
 		@param[in] database
@@ -572,6 +573,30 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport virtual EErrorType DoConnect( String & connectionString ) = 0;
 
+		/** Initialize a named transaction.
+		@param[in] name
+			Transaction name.
+		@return
+			Error code, EErrorType_NONE if no problem.
+		*/
+		DatabaseExport virtual bool DoBeginTransaction( const String & name ) = 0;
+
+		/** Validate a named transaction.
+		@param[in] name
+			Transaction name.
+		@return
+			Error code, EErrorType_NONE if no problem.
+		*/
+		DatabaseExport virtual bool DoCommit( const String & name ) = 0;
+
+		/** Invalidate a named transaction.
+		@param[in] name
+			Transaction name.
+		@return
+			Error code, EErrorType_NONE if no problem.
+		*/
+		DatabaseExport virtual bool DoRollBack( const String & name ) = 0;
+
 		/** Create a statement from a request.
 		@param[in]  query
 			Request text.
@@ -580,17 +605,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			The created statement.
 		*/
-		DatabaseExport virtual DatabaseStatementPtr DoCreateStatement( const String & query, EErrorType * result ) = 0;
-
-		/** Create a query from a request.
-		@param[in]  query
-			Request text.
-		@param[out] result
-			Error code if the returned value is NULL.
-		@return
-			The created query.
-		*/
-		DatabaseExport virtual DatabaseQueryPtr DoCreateQuery( const String & query, EErrorType * result ) = 0;
+		DatabaseExport virtual DatabaseStatementPtr DoCreateStatement( const String & query ) = 0;
 
 		/** Execute directly a request without result set.
 		@param[in]  query
@@ -600,7 +615,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			The result.
 		*/
-		DatabaseExport virtual bool DoExecuteUpdate( const String & query, EErrorType * result ) = 0;
+		DatabaseExport virtual bool DoExecuteUpdate( const String & query ) = 0;
 
 		/** Execute directly a request with a result set.
 		@param[in]  query
@@ -610,7 +625,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			The result.
 		*/
-		DatabaseExport virtual DatabaseResultPtr DoExecuteSelect( const String & query, EErrorType * result ) = 0;
+		DatabaseExport virtual DatabaseResultPtr DoExecuteSelect( const String & query ) = 0;
 
 		/** Update the connection status.
 		@param value

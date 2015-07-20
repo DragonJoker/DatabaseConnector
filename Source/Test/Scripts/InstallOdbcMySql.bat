@@ -28,8 +28,8 @@ SET DRIVER_DESCRIPTION=MySQL ODBC 5.3 Unicode Driver
 SET DESCRIPTION=%1
 
 SET PORT=3306
-SET USER=ariaUser
-SET PASSWORD=ariaPwd
+SET USER=test_user
+SET PASSWORD=test_pwd
 SET HKEY=CURRENT_USER
 
 :: ===================================================

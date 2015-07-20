@@ -15,7 +15,7 @@ REM *********************************<+>*************************************
 IF "%1" NEQ "" (
 	SET db=%1
 ) ELSE (
-	SET db=db_test_odbc_mysql
+	SET db=db_test_odbc_mssql
 )
 
 IF "%2" NEQ "" (

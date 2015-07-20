@@ -27,220 +27,6 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		static const size_t DATE_MAX_SIZE = 100;
 
-		template< typename CharOut, typename CharIn > std::basic_string< CharOut > Str( const CharIn * in );
-
-		template<> std::basic_string< char > Str< char, char >( const char * in )
-		{
-			return std::basic_string< char >( in, in + strlen( in ) );
-		}
-
-		template<> std::basic_string< wchar_t > Str< wchar_t, wchar_t >( const wchar_t * in )
-		{
-			return std::basic_string< wchar_t >( in, in + wcslen( in ) );
-		}
-
-		template<> std::basic_string< wchar_t > Str< wchar_t, char >( const char * in )
-		{
-			return CStrUtils::ToWStr( std::basic_string< char >( in, in + strlen( in ) ) );
-		}
-
-		template<> std::basic_string< char > Str< char, wchar_t >( const wchar_t * in )
-		{
-			return CStrUtils::ToStr( std::basic_string< wchar_t >( in, in + wcslen( in ) ) );
-		}
-
-		template< typename CharOut, typename CharIn > std::basic_string< CharOut > Str( const std::basic_string< CharIn > & in );
-
-		template<> std::basic_string< char > Str< char, char >( const std::basic_string< char > & in )
-		{
-			return in;
-		}
-
-		template<> std::basic_string< wchar_t > Str< wchar_t, wchar_t >( const std::basic_string< wchar_t > & in )
-		{
-			return in;
-		}
-
-		template<> std::basic_string< wchar_t > Str< wchar_t, char >( const std::basic_string< char > & in )
-		{
-			return CStrUtils::ToWStr( in );
-		}
-
-		template<> std::basic_string< char > Str< char, wchar_t >( const std::basic_string< wchar_t > & in )
-		{
-			return CStrUtils::ToStr( in );
-		}
-
-		template< typename CharType >
-		int ttoi( const std::basic_string< CharType > & in )
-		{
-			std::basic_istringstream< CharType > stream( in );
-			int l_return = 0;
-			stream >> l_return;
-			return l_return;
-		}
-
-		template< typename CharType >
-		int ttoi( CharType const *& in, size_t count )
-		{
-			int result = ttoi( std::basic_string< CharType >( in, in + count ) );
-			in += count;
-			return result;
-		}
-
-		template< typename Char >
-		std::basic_string< Char > FormatDate( const std::basic_string< Char > & format, int year, EDateMonth month, int yearDay, int monthDay, EDateDay weekDay )
-		{
-			typedef std::basic_string< Char > String;
-			typedef std::basic_stringstream< Char > StringStream;
-			String strReturn( format );
-			String strTmp;
-
-			if ( weekDay != EDateDay_UNDEF )
-			{
-				Replace( strReturn, Str< Char >( "%a" ), Str< Char >( CDate::ShortDay[weekDay] ) );
-				Replace( strReturn, Str< Char >( "%A" ), Str< Char >( CDate::LongDay[weekDay] ) );
-				Replace( strReturn, Str< Char >( "%b" ), Str< Char >( CDate::ShortMonth[weekDay] ) );
-				Replace( strReturn, Str< Char >( "%B" ), Str< Char >( CDate::LongMonth[weekDay] ) );
-				StringStream strTmp2( Str< Char >( CDate::ShortDay[weekDay] ) + Str< Char >( " " ) + Str< Char >( CDate::ShortMonth[month] ) );
-				strTmp2 << " " << year;
-				Replace( strReturn, Str< Char >( "%c" ), strTmp2.str() );
-			}
-
-			Formalize( strTmp, DATE_MAX_SIZE, Str< Char >( "%02i" ).c_str(), monthDay );
-			Replace( strReturn, Str< Char >( "%d" ), strTmp );
-			Formalize( strTmp, DATE_MAX_SIZE, Str< Char >( "%02i" ).c_str(), monthDay );
-			Replace( strReturn, Str< Char >( "%D" ), strTmp );
-			Formalize( strTmp, DATE_MAX_SIZE, Str< Char >( "%03i" ).c_str(), yearDay );
-			Replace( strReturn, Str< Char >( "%J" ), strTmp );
-			Formalize( strTmp, DATE_MAX_SIZE, Str< Char >( "%02i" ).c_str(), month + 1 );
-			Replace( strReturn, Str< Char >( "%m" ), strTmp );
-			Formalize( strTmp, DATE_MAX_SIZE, Str< Char >( "%02i" ).c_str(), month + 1 );
-			Replace( strReturn, Str< Char >( "%M" ), strTmp );
-			Formalize( strTmp, DATE_MAX_SIZE, Str< Char >( "%02i" ).c_str(), weekDay - 1 );
-			Replace( strReturn, Str< Char >( "%w" ), strTmp );
-			Formalize( strTmp, DATE_MAX_SIZE, Str< Char >( "%02i/%02i/%04i" ).c_str(), monthDay, month, year );
-			Replace( strReturn, Str< Char >( "%x" ), strTmp );
-			Formalize( strTmp, DATE_MAX_SIZE, Str< Char >( "%04i" ).c_str(), year );
-			Replace( strReturn, Str< Char >( "%y" ), strTmp.substr( 2, 2 ) );
-			Formalize( strTmp, DATE_MAX_SIZE, Str< Char >( "%04i" ).c_str(), year );
-			Replace( strReturn, Str< Char >( "%Y" ), strTmp );
-			strTmp.clear();
-			Replace( strReturn, Str< Char >( "%%" ), Str< Char >( "%" ) );
-
-			return strReturn;
-		}
-
-		template< typename Char >
-		int FindDateDay( const std::basic_string< Char > & date, const std::basic_string< Char > & format )
-		{
-			typedef std::basic_string< Char > String;
-			int iDay = 0;
-			size_t uiIndex;
-
-			if ( ( uiIndex = format.find( Str< Char >( "%a" ) ) ) != String::npos )
-			{
-				for ( int i = 0 ; i < 7 && iDay == 0 ; i++ )
-				{
-					if ( date.find( Str< Char >( CDate::ShortDay[i] ) ) != String::npos )
-					{
-						iDay = i + 1;
-					}
-				}
-			}
-			else if ( ( uiIndex = format.find( Str< Char >( "%A" ) ) ) != String::npos )
-			{
-				for ( int i = 0 ; i < 7 && iDay == 0 ; i++ )
-				{
-					if ( date.find( Str< Char >( CDate::LongDay[i] ) ) != String::npos )
-					{
-						iDay = i + 1;
-					}
-				}
-			}
-			else if ( ( uiIndex = format.find( Str< Char >( "%c" ) ) ) != String::npos )
-			{
-				for ( int i = 0 ; i < 7 && iDay == 0 ; i++ )
-				{
-					if ( date.find( Str< Char >( CDate::ShortDay[i] ) ) != String::npos )
-					{
-						iDay = i + 1;
-					}
-				}
-			}
-			else if ( ( uiIndex = format.find( Str< Char >( "%d" ) ) ) != String::npos )
-			{
-			}
-			else if ( ( uiIndex = format.find( Str< Char >( "%D" ) ) ) != String::npos )
-			{
-			}
-
-			return iDay;
-		}
-
-		template< typename Char >
-		int FindDateYear( const std::basic_string< Char > & date, const std::basic_string< Char > & format )
-		{
-			typedef std::basic_string< Char > String;
-			int iYear = -1;
-			size_t uiIndex;
-
-			if ( ( uiIndex = format.find( Str< Char >( "%y" ) ) ) != String::npos )
-			{
-				size_t uiNextIndex = uiIndex + 2;
-				size_t uiStartIndex, uiEndIndex;
-
-				if ( uiNextIndex < format.size() )
-				{
-					uiEndIndex = date.find( format[uiIndex + 2] );
-
-					if ( uiEndIndex == String::npos )
-					{
-						uiEndIndex = date.size();
-					}
-				}
-				else
-				{
-					uiEndIndex = date.size();
-				}
-
-				uiStartIndex = uiEndIndex - 4;
-
-				if ( uiStartIndex >= 0 && uiStartIndex < date.size() )
-				{
-					iYear = ttoi( date.substr( uiStartIndex, uiEndIndex - uiStartIndex ) );
-				}
-			}
-			else if ( ( uiIndex = format.find( Str< Char >( "%Y" ) ) ) != String::npos )
-			{
-				size_t uiNextIndex = uiIndex + 2;
-				size_t uiStartIndex, uiEndIndex;
-
-				if ( uiNextIndex < format.size() )
-				{
-					uiEndIndex = date.find( format[uiIndex + 2] );
-
-					if ( uiEndIndex == String::npos )
-					{
-						uiEndIndex = date.size();
-					}
-				}
-				else
-				{
-					uiEndIndex = date.size();
-				}
-
-				uiStartIndex = uiEndIndex - 4;
-
-				if ( uiStartIndex >= 0 && uiStartIndex < date.size() )
-				{
-					iYear = ttoi( date.substr( uiStartIndex, uiEndIndex - uiStartIndex ) );
-				}
-			}
-
-			return iYear;
-		}
-
 		template< typename Char >
 		bool IsDate( const  std::basic_string< Char > & date, const  std::basic_string< Char > & format, int & year, EDateMonth & month, int & monthDay )
 		{
@@ -267,19 +53,19 @@ BEGIN_NAMESPACE_DATABASE
 							switch ( *fc++ )
 							{
 							case 'Y':
-								year = ttoi( dc, 4 );
+								year = stoi( dc, 4 );
 								break;
 
 							case 'd':
-								monthDay = ttoi( dc, 2 );
+								monthDay = stoi( dc, 2 );
 								break;
 
 							case 'm':
-								month = EDateMonth( ttoi( dc, 2 ) - 1 );
+								month = EDateMonth( stoi( dc, 2 ) - 1 );
 								break;
 
 							case 'y':
-								year = ttoi( dc, 2 ) + 1900;
+								year = stoi( dc, 2 ) + 1900;
 								break;
 
 							case '%':
@@ -308,11 +94,11 @@ BEGIN_NAMESPACE_DATABASE
 			{
 				if ( month != EDateMonth_FEBRUARY )
 				{
-					bReturn = monthDay <= CDate::MonthMaxDays[month];
+					bReturn = monthDay <= MonthMaxDays[month];
 				}
 				else
 				{
-					bReturn = monthDay <= ( CDate::MonthMaxDays[month] + IsLeap( year ) );
+					bReturn = monthDay <= ( MonthMaxDays[month] + IsLeap( year ) );
 				}
 			}
 
@@ -320,22 +106,16 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	}
 
-	static const int DATE_MAX_SIZE = 1024;
-
-	String CDate::ShortDay[7] = { STR( "Mon" ), STR( "Tue." ), STR( "Wed." ), STR( "Thu" ), STR( "Fri" ), STR( "Sat" ), STR( "Sun" ) };
-	String CDate::LongDay[7] = { STR( "Monday" ), STR( "Tuesday" ), STR( "Wednesday" ), STR( "Thursday" ), STR( "Friday" ), STR( "Saturday" ), STR( "Sunday" ) };
-	String CDate::ShortMonth[12] = { STR( "Jan" ), STR( "Feb" ), STR( "Mar" ), STR( "Apr" ), STR( "May" ), STR( "Jun" ), STR( "Jul" ), STR( "Aug" ), STR( "Sep" ), STR( "Oct" ), STR( "Nov" ), STR( "Dec" ) };
-	String CDate::LongMonth[12] = { STR( "January" ), STR( "February" ), STR( "March" ), STR( "April" ), STR( "May" ), STR( "June" ), STR( "July" ), STR( "August" ), STR( "September" ), STR( "October" ), STR( "November" ), STR( "December" ) };
-	int CDate::MonthMaxDays[12] = { 31, 28, 31, 30, 31 , 30 , 31 , 31 , 30 , 31 , 30 , 31 };
-	CDateTime CDate::Today = CDateTime::Now();
-
 	CDate::CDate()
-		: _year( -1 )
-		, _month( EDateMonth_UNDEF )
-		, _monthDay( 0 )
+		: _year( 0 )
+		, _month( EDateMonth_JANUARY )
+		, _monthDay( 1 )
 		, _yearDay( 0 )
 		, _weekDay( EDateDay_UNDEF )
 	{
+		DoCheckValidity();
+		DoComputeWeekDay();
+		DoComputeYearDay();
 	}
 
 	CDate::CDate( const CDateTime & dateTime )
@@ -368,12 +148,46 @@ BEGIN_NAMESPACE_DATABASE
 
 	std::string CDate::Format( const std::string & format ) const
 	{
-		return DateUtils::FormatDate( format, _year, _month, _yearDay, _monthDay, _weekDay );
+		std::string result;
+
+		if ( !IsValid() )
+		{
+			std::stringstream stream;
+			stream << "invalid: (" << GetYear() << "-" << ( GetMonth() + 1 ) << "-" << GetMonthDay() << ")";
+			result = stream.str();
+		}
+		else
+		{
+			char buffer[DateUtils::DATE_MAX_SIZE + 1] = { 0 };
+			std::tm tm = ToTm();
+			size_t length = strftime( buffer, DateUtils::DATE_MAX_SIZE, format.c_str(), &tm );
+			assert( length < DateUtils::DATE_MAX_SIZE );
+			result = std::string( buffer, buffer + length );
+		}
+
+		return result;
 	}
 
 	std::wstring CDate::Format( const std::wstring & format ) const
 	{
-		return DateUtils::FormatDate( format, _year, _month, _yearDay, _monthDay, _weekDay );
+		std::wstring result;
+
+		if ( !IsValid() )
+		{
+			std::wstringstream stream;
+			stream << L"invalid: (" << GetYear() << L"-" << ( GetMonth() + 1 ) << L"-" << GetMonthDay() << L")";
+			result = stream.str();
+		}
+		else
+		{
+			wchar_t buffer[DateUtils::DATE_MAX_SIZE + 1] = { 0 };
+			std::tm tm = ToTm();
+			size_t length = wcsftime( buffer, DateUtils::DATE_MAX_SIZE, format.c_str(), &tm );
+			assert( length < DateUtils::DATE_MAX_SIZE );
+			result = std::wstring( buffer, buffer + length );
+		}
+
+		return result;
 	}
 
 	void CDate::SetDate( int year, EDateMonth month, int day )
@@ -444,7 +258,7 @@ BEGIN_NAMESPACE_DATABASE
 		int iMonth = GetMonth();
 		int iYear = GetYear();
 
-		if ( iMonth >= EDateMonth_JANUARY && iMonthDay > 0 && iYear != -1 )
+		if ( iMonth >= EDateMonth_JANUARY && iMonthDay > 0 && iYear >= 0 )
 		{
 			if ( iMonth != EDateMonth_FEBRUARY )
 			{
@@ -699,48 +513,6 @@ BEGIN_NAMESPACE_DATABASE
 		}
 
 		_yearDay += _monthDay;
-	}
-
-	int CDate::DoFindDay( const std::string & date, const std::string & format )
-	{
-		return DateUtils::FindDateDay( date, format );
-	}
-
-	int CDate::DoFindDay( const std::wstring & date, const std::wstring & format )
-	{
-		return DateUtils::FindDateDay( date, format );
-	}
-
-	int CDate::DoFindMonth( const std::string & /*date*/, const std::string & /*format*/ )
-	{
-		DB_EXCEPT( EDatabaseExceptionCodes_Unimplemented, STR( "Not implemented" ) );
-		return -1;
-	}
-
-	int CDate::DoFindMonth( const std::wstring & /*date*/, const std::wstring & /*format*/ )
-	{
-		DB_EXCEPT( EDatabaseExceptionCodes_Unimplemented, STR( "Not implemented" ) );
-		return -1;
-	}
-
-	int CDate::DoFindYear( const std::string & date, const std::string & format )
-	{
-		return DateUtils::FindDateYear( date, format );
-	}
-
-	int CDate::DoFindYear( const std::wstring & date, const std::wstring & format )
-	{
-		return DateUtils::FindDateYear( date, format );
-	}
-
-	bool CDate::DoIsDate( const std::string & date, const std::string & format, int & year, EDateMonth & month, int & monthDay )
-	{
-		return DateUtils::IsDate( date, format, year, month, monthDay );
-	}
-
-	bool CDate::DoIsDate( const std::wstring & date, const std::wstring & format, int & year, EDateMonth & month, int & monthDay )
-	{
-		return DateUtils::IsDate( date, format, year, month, monthDay );
 	}
 
 	bool operator ==( const CDate & lhs, const CDate & rhs )

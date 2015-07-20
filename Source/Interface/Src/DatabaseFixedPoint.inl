@@ -7,7 +7,7 @@
 *
 * @brief CFixedPoint class declaration.
 *
-* @details Describes a fixed point numeric value with precision and scale.
+* @details Describes a fixed point numeric value with decimals and scale.
 *
  ***************************************************************************/
 
@@ -25,12 +25,12 @@ BEGIN_NAMESPACE_DATABASE
 
 		template< typename T > struct SFixedPointOperations;
 
-		using boost::multiprecision::int512_t;
-		using boost::multiprecision::uint512_t;
+		using boost::multiprecision::int256_t;
+		using boost::multiprecision::uint256_t;
 
-		static uint64_t GetDecimalMult( uint8_t precision )
+		static uint64_t GetDecimalMult( uint8_t decimals )
 		{
-			return uint64_t( pow( 10, precision ) );
+			return uint64_t( pow( 10, decimals ) );
 		}
 
 		template<>
@@ -87,7 +87,7 @@ BEGIN_NAMESPACE_DATABASE
 
 				if ( lhs.IsSigned() )
 				{
-					uint512_t mult = ( uint64_t( lhs.GetRawValue() ) * uint64_t( rhr ) ) / GetDecimalMult( lhs.GetPrecision() );
+					uint256_t mult = ( uint64_t( lhs.GetRawValue() ) * uint64_t( rhr ) ) / GetDecimalMult( lhs.GetPrecision() );
 
 					if ( uint64_t( mult ) != mult )
 					{
@@ -98,7 +98,7 @@ BEGIN_NAMESPACE_DATABASE
 				}
 				else
 				{
-					int512_t mult = ( lhs.GetRawValue() * rhr ) / GetDecimalMult( lhs.GetPrecision() );
+					int256_t mult = ( lhs.GetRawValue() * rhr ) / GetDecimalMult( lhs.GetPrecision() );
 					result = int64_t( mult );
 
 					if ( result != mult )
@@ -122,11 +122,11 @@ BEGIN_NAMESPACE_DATABASE
 
 				if ( lhs.IsSigned() )
 				{
-					result = int64_t( int512_t( lhs.GetRawValue() * GetDecimalMult( lhs.GetPrecision() ) ) / rhr );
+					result = int64_t( int256_t( lhs.GetRawValue() * GetDecimalMult( lhs.GetPrecision() ) ) / rhr );
 				}
 				else
 				{
-					result = int64_t( uint512_t( lhs.GetRawValue() * GetDecimalMult( lhs.GetPrecision() ) ) / uint64_t( rhr ) );
+					result = int64_t( uint256_t( lhs.GetRawValue() * GetDecimalMult( lhs.GetPrecision() ) ) / uint64_t( rhr ) );
 				}
 
 				return result;
@@ -187,32 +187,32 @@ private:
 
 	inline int64_t CFixedPoint::ToInt64()const
 	{
-		return _value / GetDecimalMult( _precision );
+		return _value / GetDecimalMult( _decimals );
 	}
 
 	inline uint64_t CFixedPoint::ToUInt64()const
 	{
-		return _value / GetDecimalMult( _precision );
+		return _value / GetDecimalMult( _decimals );
 	}
 
 	inline float CFixedPoint::ToFloat()const
 	{
-		return float( _value ) / GetDecimalMult( _precision );
+		return float( _value ) / GetDecimalMult( _decimals );
 	}
 
 	inline double CFixedPoint::ToDouble()const
 	{
-		return double( _value ) / GetDecimalMult( _precision );
+		return double( _value ) / GetDecimalMult( _decimals );
 	}
 
 	inline long double CFixedPoint::ToLongDouble()const
 	{
-		return ( ( long double )_value ) / GetDecimalMult( _precision );
+		return ( ( long double )_value ) / GetDecimalMult( _decimals );
 	}
 
 	inline uint8_t CFixedPoint::GetPrecision()const
 	{
-		return _precision;
+		return _decimals;
 	}
 
 	inline bool CFixedPoint::IsSigned()const

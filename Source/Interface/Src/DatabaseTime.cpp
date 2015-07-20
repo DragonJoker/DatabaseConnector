@@ -21,75 +21,11 @@
 
 #include <boost/date_time/posix_time/posix_time.hpp>
 
-#if defined( _MSC_VER )
-#   pragma warning( push )
-#   pragma warning( disable:4996 )
-#endif
-
 BEGIN_NAMESPACE_DATABASE
 {
 	namespace TimeUtils
 	{
-		template< typename CharOut, typename CharIn > std::basic_string< CharOut > Str( const CharIn * in );
-
-		template<> std::basic_string< char > Str< char, char >( const char * in )
-		{
-			return in;
-		}
-
-		template<> std::basic_string< wchar_t > Str< wchar_t, wchar_t >( const wchar_t * in )
-		{
-			return in;
-		}
-
-		template<> std::basic_string< wchar_t > Str< wchar_t, char >( const char * in )
-		{
-			return CStrUtils::ToWStr( in );
-		}
-
-		template<> std::basic_string< char > Str< char, wchar_t >( const wchar_t * in )
-		{
-			return CStrUtils::ToStr( in );
-		}
-
-		template< typename CharOut, typename CharIn > std::basic_string< CharOut > Str( const std::basic_string< CharIn > & in );
-
-		template<> std::basic_string< char > Str< char, char >( const std::basic_string< char > & in )
-		{
-			return in;
-		}
-
-		template<> std::basic_string< wchar_t > Str< wchar_t, wchar_t >( const std::basic_string< wchar_t > & in )
-		{
-			return in;
-		}
-
-		template<> std::basic_string< wchar_t > Str< wchar_t, char >( const std::basic_string< char > & in )
-		{
-			return CStrUtils::ToWStr( in );
-		}
-
-		template<> std::basic_string< char > Str< char, wchar_t >( const std::basic_string< wchar_t > & in )
-		{
-			return CStrUtils::ToStr( in );
-		}
-
-		template< typename CharType >
-		int ttoi( const std::basic_string< CharType > & in )
-		{
-			std::basic_istringstream< CharType > stream( in );
-			int l_return = 0;
-			stream >> l_return;
-			return l_return;
-		}
-
-		template< typename CharType >
-		int ttoi( CharType const *& in, size_t count )
-		{
-			int result = ttoi( std::basic_string< CharType >( in, in + count ) );
-			in += count;
-			return result;
-		}
+		static const int TIME_MAX_SIZE = 100;
 
 		template< typename Char >
 		bool IsTime( const std::basic_string< Char > & time, const std::basic_string< Char > & format, int & hours, int & minutes, int & seconds )
@@ -117,15 +53,15 @@ BEGIN_NAMESPACE_DATABASE
 							switch ( *fc++ )
 							{
 							case 'H':
-								hours = ttoi( dc, 2 );
+								hours = stoi( dc, 2 );
 								break;
 
 							case 'M':
-								minutes = ttoi( dc, 2 );
+								minutes = stoi( dc, 2 );
 								break;
 
 							case 'S':
-								seconds = ttoi( dc, 2 );
+								seconds = stoi( dc, 2 );
 								break;
 
 							case '%':
@@ -156,36 +92,7 @@ BEGIN_NAMESPACE_DATABASE
 
 			return bReturn;
 		}
-
-		template< typename Char >
-		bool IsTime( const std::basic_string< Char > & time, CTime & result )
-		{
-			typedef std::basic_string< Char > String;
-			bool bReturn = false;
-
-			if ( !time.empty() )
-			{
-				try
-				{
-					boost::posix_time::ptime t( boost::posix_time::time_from_string( Str< char >( time ) ) );
-
-					if ( !t.is_not_a_date_time() )
-					{
-						std::tm dt = to_tm( t );
-						result.SetTime( dt.tm_hour, dt.tm_min, dt.tm_sec );
-						bReturn = true;
-					}
-				}
-				catch ( ... )
-				{
-				}
-			}
-
-			return bReturn;
-		}
 	}
-
-	static const int DATE_MAX_SIZE = 1024;
 
 	CTime::CTime()
 		:   _time( 0 )
@@ -231,24 +138,22 @@ BEGIN_NAMESPACE_DATABASE
 
 	std::string CTime::Format( const std::string & format ) const
 	{
-		std::string strReturn( format );
 		std::tm tmbuf = { 0 };
 		ToCLibTm( tmbuf );
-		char pBuffer[DATE_MAX_SIZE];
-		strftime( pBuffer, DATE_MAX_SIZE, format.c_str(), &tmbuf );
-		strReturn = pBuffer;
-		return strReturn;
+		char buffer[TimeUtils::TIME_MAX_SIZE];
+		size_t length = strftime( buffer, TimeUtils::TIME_MAX_SIZE, format.c_str(), &tmbuf );
+		assert( length < TimeUtils::TIME_MAX_SIZE );
+		return std::string( buffer, buffer + length );
 	}
 
 	std::wstring CTime::Format( const std::wstring & format ) const
 	{
-		std::wstring strReturn( format );
 		std::tm tmbuf = { 0 };
 		ToCLibTm( tmbuf );
-		wchar_t pBuffer[DATE_MAX_SIZE];
-		wcsftime( pBuffer, DATE_MAX_SIZE, format.c_str(), &tmbuf );
-		strReturn = pBuffer;
-		return strReturn;
+		wchar_t buffer[TimeUtils::TIME_MAX_SIZE];
+		size_t length = wcsftime( buffer, TimeUtils::TIME_MAX_SIZE, format.c_str(), &tmbuf );
+		assert( length < TimeUtils::TIME_MAX_SIZE );
+		return std::wstring( buffer, buffer + length );
 	}
 
 	int CTime::GetHour() const
@@ -345,16 +250,6 @@ BEGIN_NAMESPACE_DATABASE
 		return DoIsTime( time, format, hours, minutes, seconds );
 	}
 
-	bool CTime::IsTime( const std::string & time, CTime & result )
-	{
-		return TimeUtils::IsTime( time, result );
-	}
-
-	bool CTime::IsTime( const std::wstring & time, CTime & result )
-	{
-		return TimeUtils::IsTime( time, result );
-	}
-
 	bool CTime::IsTime( const std::string & time, const std::string & format, CTime & result )
 	{
 		return result.Parse( time, format );
@@ -396,10 +291,5 @@ BEGIN_NAMESPACE_DATABASE
 		stream << time.Format( L"%H:%M:%S" );
 		return stream;
 	}
-
 }
 END_NAMESPACE_DATABASE
-
-#if defined( _MSC_VER )
-#   pragma warning( pop )
-#endif

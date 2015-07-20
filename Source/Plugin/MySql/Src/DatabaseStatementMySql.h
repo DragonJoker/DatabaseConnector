@@ -38,32 +38,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			*/
 		DatabaseMySqlExport virtual ~CDatabaseStatementMySql();
 
-		/** Initialize this statement.
-		@return
-			Error code.
-		*/
-		DatabaseMySqlExport virtual EErrorType Initialize();
-
-		/** Execute this statement.
-		@param[out] result
-			Error code.
-		@return
-			The result.
-		*/
-		DatabaseMySqlExport virtual bool ExecuteUpdate( EErrorType * result = NULL );
-
-		/** Execute this statement.
-		@param[out] result
-			Error code.
-		@return
-			The result.
-		*/
-		DatabaseMySqlExport virtual DatabaseResultPtr ExecuteSelect( EErrorType * result = NULL );
-
-		/** Clean statement.
-		*/
-		DatabaseMySqlExport virtual void Cleanup();
-
 		/** Create a parameter.
 		@param[in] name
 			Parameter name.
@@ -90,14 +64,46 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		*/
 		DatabaseMySqlExport virtual DatabaseParameterPtr CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType );
 
-	private:
-		/** Effectively prepares the statement
-		@remarks
-			Replace '?' delimiters by '@paramName' for out an in/out parameters, in order to be able to retrieve their modified value
-		@param[out] result
-			Receives the error code
+		/** Create a parameter which has limits (strings, etc.).
+		@param[in] name
+			Parameter name.
+		@param[in] fieldType
+			Date type.
+		@param[in] precision
+			Field precision.
+		@param[in] parameterType
+			Parameter type.
+		@return
+			Created parameter.
 		*/
-		void DoPrepareStatement( EErrorType * result );
+		DatabaseMySqlExport virtual DatabaseParameterPtr CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType );
+
+	private:
+		/** Initialize this statement.
+		@return
+			Error code.
+		*/
+		DatabaseMySqlExport virtual EErrorType DoInitialize();
+
+		/** Execute this statement.
+		@param[out] result
+			Error code.
+		@return
+			The result.
+		*/
+		DatabaseMySqlExport virtual bool DoExecuteUpdate( EErrorType * result = NULL );
+
+		/** Execute this statement.
+		@param[out] result
+			Error code.
+		@return
+			The result.
+		*/
+		DatabaseMySqlExport virtual DatabaseResultPtr DoExecuteSelect( EErrorType * result = NULL );
+
+		/** Clean statement.
+		*/
+		DatabaseMySqlExport virtual void DoCleanup();
 
 		/** Pre-execution action
 		@remarks
@@ -127,11 +133,11 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		/// Number of parameters (i.e. number of "?").
 		uint32_t _paramsCount;
 		/// Array of in parameters
-		DatabaseStatementParameterMySqlPtrArray _arrayInParams;
+		DatabaseParameterMySqlPtrArray _arrayInParams;
 		/// The data bindings
 		std::vector< MYSQL_BIND > _bindings;
 		/// Array of out parameters
-		DatabaseStatementParameterMySqlPtrArray _arrayOutParams;
+		DatabaseParameterMySqlPtrArray _arrayOutParams;
 		/// Array of in/out parameter initializer queries
 		std::vector< std::pair< DatabaseStatementPtr, DatabaseParameterPtr > > _inOutInitializers;
 		/// Array of out parameter initializer queries

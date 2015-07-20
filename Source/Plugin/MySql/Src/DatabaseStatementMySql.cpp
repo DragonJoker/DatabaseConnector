@@ -17,7 +17,7 @@
 
 #include "DatabaseConnectionMySql.h"
 #include "DatabaseMySql.h"
-#include "DatabaseStatementParameterMySql.h"
+#include "DatabaseParameterMySql.h"
 #include "ExceptionDatabaseMySql.h"
 
 #include <DatabaseStringUtils.h>
@@ -61,7 +61,55 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		Cleanup();
 	}
 
-	EErrorType CDatabaseStatementMySql::Initialize()
+	DatabaseParameterPtr CDatabaseStatementMySql::CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType )
+	{
+		DatabaseParameterMySqlPtr pReturn = std::make_shared< CDatabaseParameterMySql >( _connectionMySql, name, uint16_t( _arrayInParams.size() + 1 ), fieldType, parameterType, std::make_unique< SValueUpdater >( this ) );
+
+		if ( !DoAddParameter( pReturn ) )
+		{
+			pReturn.reset();
+		}
+		else if ( parameterType == EParameterType_IN )
+		{
+			_arrayInParams.push_back( pReturn );
+		}
+
+		return pReturn;
+	}
+
+	DatabaseParameterPtr CDatabaseStatementMySql::CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType )
+	{
+		DatabaseParameterMySqlPtr pReturn = std::make_shared< CDatabaseParameterMySql >( _connectionMySql, name, uint16_t( _arrayInParams.size() + 1 ), fieldType, limits, parameterType, std::make_unique< SValueUpdater >( this ) );
+
+		if ( !DoAddParameter( pReturn ) )
+		{
+			pReturn.reset();
+		}
+		else if ( parameterType == EParameterType_IN )
+		{
+			_arrayInParams.push_back( pReturn );
+		}
+
+		return pReturn;
+	}
+
+	DatabaseParameterPtr CDatabaseStatementMySql::CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType )
+	{
+		DatabaseParameterMySqlPtr pReturn = std::make_shared< CDatabaseParameterMySql >( _connectionMySql, name, uint16_t( _arrayInParams.size() + 1 ), fieldType, precision, parameterType, std::make_unique< SValueUpdater >( this ) );
+
+		if ( !DoAddParameter( pReturn ) )
+		{
+			pReturn.reset();
+		}
+		else if ( parameterType == EParameterType_IN )
+		{
+			_arrayInParams.push_back( pReturn );
+		}
+
+		return pReturn;
+	}
+
+	EErrorType CDatabaseStatementMySql::DoInitialize()
 	{
 		EErrorType eReturn = EErrorType_ERROR;
 
@@ -89,7 +137,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		while ( itQueries != _arrayQueries.end() && itParams != _arrayParams.end() )
 		{
 			query << ( *itQueries );
-			DatabaseStatementParameterMySqlPtr parameter = std::static_pointer_cast< CDatabaseStatementParameterMySql >( *itParams );
+			DatabaseParameterMySqlPtr parameter = std::static_pointer_cast< CDatabaseParameterMySql >( *itParams );
 
 			if ( parameter->GetParamType() == EParameterType_OUT )
 			{
@@ -152,12 +200,12 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		}
 		else
 		{
-			CLogger::LogError( ERROR_MYSQL_CANT_CREATE_STATEMENT );
-			throw CExceptionDatabase( EDatabaseExceptionCodes_StatementError, ERROR_MYSQL_CANT_CREATE_STATEMENT, __FUNCTION__, __FILE__, __LINE__ );
+			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_MYSQL_CANT_CREATE_STATEMENT );
 		}
 
 		std::string strQuery = CStrUtils::ToStr( _query );
-		MySQLTry( mysql_stmt_prepare( _statement, strQuery.c_str(), uint32_t( strQuery.size() ) ), INFO_MYSQL_STATEMENT_PREPARATION, EDatabaseExceptionCodes_StatementError, _connectionMySql->GetConnection() );
+		MySQLCheck( mysql_stmt_prepare( _statement, strQuery.c_str(), uint32_t( strQuery.size() ) ), INFO_MYSQL_STATEMENT_PREPARATION, EDatabaseExceptionCodes_StatementError, _connectionMySql->GetConnection() );
+		MYSQL_RES * meta = mysql_stmt_param_metadata( _statement );
 		size_t index = 0;
 
 		for ( auto && it : _arrayInParams )
@@ -166,11 +214,11 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			it->SetBinding( &_bindings[index++] );
 		}
 
-		MySQLTry( mysql_stmt_bind_param( _statement, _bindings.data() ), INFO_MYSQL_STATEMENT_PARAMS_BINDING, EDatabaseExceptionCodes_StatementError, _connectionMySql->GetConnection() );
+		MySQLCheck( mysql_stmt_bind_param( _statement, _bindings.data() ), INFO_MYSQL_STATEMENT_PARAMS_BINDING, EDatabaseExceptionCodes_StatementError, _connectionMySql->GetConnection() );
 		return eReturn;
 	}
 
-	bool CDatabaseStatementMySql::ExecuteUpdate( EErrorType * result )
+	bool CDatabaseStatementMySql::DoExecuteUpdate( EErrorType * result )
 	{
 		DoPreExecute( result );
 
@@ -187,7 +235,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		return bReturn;
 	}
 
-	DatabaseResultPtr CDatabaseStatementMySql::ExecuteSelect( EErrorType * result )
+	DatabaseResultPtr CDatabaseStatementMySql::DoExecuteSelect( EErrorType * result )
 	{
 		DoPreExecute( result );
 		EErrorType eResult = EErrorType_NONE;
@@ -202,7 +250,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		return pReturn;
 	}
 
-	void CDatabaseStatementMySql::Cleanup()
+	void CDatabaseStatementMySql::DoCleanup()
 	{
 		if ( _statement )
 		{
@@ -216,38 +264,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		_arrayQueries.clear();
 		_paramsCount = 0;
 		_stmtOutParams.reset();
-	}
-
-	DatabaseParameterPtr CDatabaseStatementMySql::CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType )
-	{
-		DatabaseStatementParameterMySqlPtr pReturn = std::make_shared< CDatabaseStatementParameterMySql >( _connectionMySql, name, uint16_t( _arrayInParams.size() + 1 ), fieldType, parameterType, std::make_unique< SValueUpdater >( this ) );
-
-		if ( !DoAddParameter( pReturn ) )
-		{
-			pReturn.reset();
-		}
-		else if ( parameterType == EParameterType_IN )
-		{
-			_arrayInParams.push_back( pReturn );
-		}
-
-		return pReturn;
-	}
-
-	DatabaseParameterPtr CDatabaseStatementMySql::CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType )
-	{
-		DatabaseStatementParameterMySqlPtr pReturn = std::make_shared< CDatabaseStatementParameterMySql >( _connectionMySql, name, uint16_t( _arrayInParams.size() + 1 ), fieldType, limits, parameterType, std::make_unique< SValueUpdater >( this ) );
-
-		if ( !DoAddParameter( pReturn ) )
-		{
-			pReturn.reset();
-		}
-		else if ( parameterType == EParameterType_IN )
-		{
-			_arrayInParams.push_back( pReturn );
-		}
-
-		return pReturn;
 	}
 
 	void CDatabaseStatementMySql::DoPreExecute( EErrorType * result )
@@ -306,7 +322,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			}
 		}
 
-		MySQLTry( mysql_stmt_reset( _statement ), INFO_MYSQL_STATEMENT_RESET, EDatabaseExceptionCodes_StatementError, _connectionMySql->GetConnection() );
+		MySQLCheck( mysql_stmt_reset( _statement ), INFO_MYSQL_STATEMENT_RESET, EDatabaseExceptionCodes_StatementError, _connectionMySql->GetConnection() );
 	}
 }
 END_NAMESPACE_DATABASE_MYSQL

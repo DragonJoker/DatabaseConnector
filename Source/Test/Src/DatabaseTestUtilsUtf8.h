@@ -25,51 +25,51 @@ BEGIN_NAMESPACE_DATABASE_TEST
 {
 	namespace DatabaseUtilsUtf8
 	{
-		template< class Stmt >
-		inline void CreateParameters( std::shared_ptr< Stmt > stmt )
+		template< class StmtType >
+		inline void CreateParameters( std::shared_ptr< StmtType > stmt )
 		{
-			BOOST_CHECK( stmt->CreateParameter( STR( "IntField" ), EFieldType_INT32, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "IntegerField" ), EFieldType_INT32, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "TinyIntField" ), EFieldType_INT8, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "SmallIntField" ), EFieldType_INT16, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "MediumIntField" ), EFieldType_INT24, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "BigIntField" ), EFieldType_INT64, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "Int2Field" ), EFieldType_INT16, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "Int8Field" ), EFieldType_INT64, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "RealField" ), EFieldType_FLOAT64, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "DoubleField" ), EFieldType_FLOAT64, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "DoublePrecisionField" ), EFieldType_FLOAT64, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "FloatField" ), EFieldType_FLOAT32, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "NumericField" ), EFieldType_FIXED_POINT, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "DecimalField" ), EFieldType_FIXED_POINT, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "BooleanField" ), EFieldType_BIT, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "DateField" ), EFieldType_DATE, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "DateTimeField" ), EFieldType_DATETIME, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "CharacterField" ), EFieldType_VARCHAR, 20, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "VarcharField" ), EFieldType_VARCHAR, 255, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "NcharField" ), EFieldType_NVARCHAR, 55, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "NVarcharField" ), EFieldType_NVARCHAR, 100, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "TextField" ), EFieldType_TEXT, EParameterType_IN ) );
-			BOOST_CHECK( stmt->CreateParameter( STR( "BlobField" ), EFieldType_VARBINARY, EParameterType_IN ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "IntField" ), EFieldType_SINT32 ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "IntegerField" ), EFieldType_SINT32 ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "TinyIntField" ), EFieldType_UINT8 ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "SmallIntField" ), EFieldType_SINT16 ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "MediumIntField" ), EFieldType_SINT24 ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "BigIntField" ), EFieldType_SINT64 ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "Int2Field" ), EFieldType_SINT16 ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "Int8Field" ), EFieldType_SINT64 ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "RealField" ), EFieldType_FLOAT64 ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "DoubleField" ), EFieldType_FLOAT64 ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "DoublePrecisionField" ), EFieldType_FLOAT64 ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "FloatField" ), EFieldType_FLOAT32 ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "NumericField" ), EFieldType_FIXED_POINT, std::make_pair( 10, 0 ) ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "DecimalField" ), EFieldType_FIXED_POINT, std::make_pair( 10, 5 ) ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "BooleanField" ), EFieldType_BIT ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "DateField" ), EFieldType_DATE ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "DateTimeField" ), EFieldType_DATETIME ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "CharacterField" ), EFieldType_VARCHAR, 20 ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "VarcharField" ), EFieldType_VARCHAR, 255 ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "NcharField" ), EFieldType_NVARCHAR, 55 ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "NVarcharField" ), EFieldType_NVARCHAR, 100 ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "TextField" ), EFieldType_TEXT ) );
+			BOOST_CHECK( stmt->CreateParameter( STR( "BlobField" ), EFieldType_VARBINARY ) );
 		}
 
-		template< class Stmt >
-		inline void SetParametersValue( uint32_t & index, int mult, int i, std::shared_ptr< Stmt > stmt )
+		template< class StmtType >
+		inline void SetParametersValue( uint32_t & index, int mult, int i, std::shared_ptr< StmtType > stmt )
 		{
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_INT32 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_INT32 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_INT8 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_INT16 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_INT24 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_INT64 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_INT16 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_INT64 >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_SINT32 >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_SINT32 >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_UINT8 >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_SINT16 >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_SINT24 >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_SINT64 >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_SINT16 >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_SINT64 >::InitialiseValue() );
 			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_FLOAT64 >::InitialiseValue() );
 			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_FLOAT64 >::InitialiseValue() );
 			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_FLOAT64 >::InitialiseValue() );
 			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_FLOAT32 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue() );
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue( 10, 0 ) );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue( 10, 5 ) );
 			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_BIT >::InitialiseValue() );
 			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_DATE >::InitialiseValue() );
 			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_DATETIME >::InitialiseValue() );
@@ -108,13 +108,13 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			CLogger::LogInfo( StringStream() << STR( "BlobField : " ) << row->Get< ByteArray >( index++ ) );
 		}
 
-		template< typename T >
+		template< typename StmtType >
 		void PerfDirectInsertActors( DatabaseConnectionPtr connection, uint32_t testCount )
 		{
 			try
 			{
 				ByteArray blob = { /*0x00, */0x02, 0x04, 0x06, 0x08, 0x10, 0x15, 0x20, 0x25, 0x30, 0x35, 0x40, 0x45, 0x50, 0x50, 0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0xF0, 0xFF };
-				auto && stmtGetCount = DatabaseUtils::CreateStmt< T >( connection, QUERY_GET_COUNT );
+				auto stmtGetCount = DatabaseUtils::CreateStmt< StmtType >( connection, QUERY_GET_COUNT );
 				int64_t count = -1;
 
 				if ( stmtGetCount )
@@ -132,7 +132,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( count )
 				{
-					auto && stmtInsert = DatabaseUtils::CreateStmt< T >( connection, QUERY_INSERT_ELEMENT );
+					auto stmtInsert = DatabaseUtils::CreateStmt< StmtType >( connection, QUERY_INSERT_ELEMENT );
 
 					if ( stmtInsert )
 					{
@@ -158,13 +158,13 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 		}
 
-		template< typename T >
+		template< typename StmtType >
 		void PerfStoredProcedureInsertActors( DatabaseConnectionPtr connection, uint32_t testCount )
 		{
 			try
 			{
 				ByteArray blob = { /*0x00, */0x02, 0x04, 0x06, 0x08, 0x10, 0x15, 0x20, 0x25, 0x30, 0x35, 0x40, 0x45, 0x50, 0x50, 0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0xF0, 0xFF };
-				auto && stmtGetCount = DatabaseUtils::CreateStmt< T >( connection, QUERY_GET_COUNT );
+				auto stmtGetCount = DatabaseUtils::CreateStmt< StmtType >( connection, QUERY_GET_COUNT );
 				int64_t count = -1;
 
 				if ( stmtGetCount )
@@ -182,7 +182,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( count )
 				{
-					std::shared_ptr< T > stmtAddUpdate = DatabaseUtils::CreateStmt< T >( connection, STR( "CALL SpAddUpdateActor(?,?,?,?,?,?,?);" ) );
+					auto stmtAddUpdate = DatabaseUtils::CreateStmt< StmtType >( connection, STR( "CALL SpAddUpdateActor(?,?,?,?,?,?,?);" ) );
 
 					if ( stmtAddUpdate )
 					{

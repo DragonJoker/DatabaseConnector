@@ -55,77 +55,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		Cleanup();
 	}
 
-	EErrorType CDatabaseStatementOdbc::Initialize()
-	{
-		EErrorType errorType;
-		HDBC hParentStmt = _connectionOdbc->GetHdbc();
-		CLogger::LogInfo( INFO_ODBC_PREPARING_STATEMENT + _query );
-
-		errorType = SqlSuccess( SQLAllocHandle( SQL_HANDLE_STMT, hParentStmt, &_statementHandle ), SQL_HANDLE_STMT, hParentStmt, INFO_ODBC_AllocHandle );
-#if defined( WIN32 )
-
-		if ( errorType == EErrorType_NONE )
-		{
-			SqlTry( SQLSetStmtAttr( _statementHandle, SQL_SOPT_SS_DEFER_PREPARE, SQL_DP_OFF, SQL_IS_UINTEGER ), SQL_HANDLE_STMT, _statementHandle, INFO_ODBC_SetStmtAttr );
-		}
-
-#endif
-
-		if ( errorType == EErrorType_NONE )
-		{
-			SqlTry( SQLPrepareA( _statementHandle, ( SqlChar * )_query.c_str(), SQLINTEGER( _query.size() ) ), SQL_HANDLE_STMT, _statementHandle, INFO_ODBC_Prepare );
-		}
-
-		if ( errorType == EErrorType_NONE )
-		{
-			SQLSMALLINT count = 0;
-			SqlTry( SQLNumParams( _statementHandle, &count ), SQL_HANDLE_STMT, _statementHandle, INFO_ODBC_NumParams );
-			CLogger::LogDebug( DEBUG_ODBC_EXPECTED_PARAMETERS + CStrUtils::ToString( count ) );
-		}
-
-		for ( DatabaseParameterPtrArray::iterator it = _arrayParams.begin(); it != _arrayParams.end(); ++it )
-		{
-			std::static_pointer_cast< CDatabaseStatementParameterOdbc >( *it )->Initialize( _statementHandle );
-		}
-
-		return errorType;
-	}
-
-	bool CDatabaseStatementOdbc::ExecuteUpdate( EErrorType * result )
-	{
-		DatabaseResultPtr rs;
-		EErrorType error = DoExecute( rs );
-
-		if ( result )
-		{
-			*result = error;
-		}
-
-		return error == EErrorType_NONE;
-	}
-
-	DatabaseResultPtr CDatabaseStatementOdbc::ExecuteSelect( EErrorType * result )
-	{
-		DatabaseResultPtr rs;
-		EErrorType error = DoExecute( rs );
-
-		if ( result )
-		{
-			*result = error;
-		}
-
-		return rs;
-	}
-
-	void CDatabaseStatementOdbc::Cleanup()
-	{
-		if ( _statementHandle != SQL_NULL_HSTMT )
-		{
-			SQLFreeHandle( SQL_HANDLE_STMT, _statementHandle );
-			_statementHandle = SQL_NULL_HSTMT;
-		}
-	}
-
 	DatabaseParameterPtr CDatabaseStatementOdbc::CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType )
 	{
 		DatabaseParameterPtr pReturn = std::make_shared< CDatabaseStatementParameterOdbc >( std::static_pointer_cast< CDatabaseConnectionOdbc >( _connectionOdbc ), name, ( unsigned short )_arrayParams.size() + 1, fieldType, parameterType, std::make_unique< SValueUpdater >( this ) );
@@ -148,6 +77,89 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		}
 
 		return pReturn;
+	}
+
+	DatabaseParameterPtr CDatabaseStatementOdbc::CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType )
+	{
+		DatabaseParameterPtr pReturn = std::make_shared< CDatabaseStatementParameterOdbc >( std::static_pointer_cast< CDatabaseConnectionOdbc >( _connectionOdbc ), name, ( unsigned short )_arrayParams.size() + 1, fieldType, precision, parameterType, std::make_unique< SValueUpdater >( this ) );
+
+		if ( !DoAddParameter( pReturn ) )
+		{
+			pReturn.reset();
+		}
+
+		return pReturn;
+	}
+
+	EErrorType CDatabaseStatementOdbc::DoInitialize()
+	{
+		EErrorType errorType;
+		HDBC hParentStmt = _connectionOdbc->GetHdbc();
+		CLogger::LogInfo( INFO_ODBC_PREPARING_STATEMENT + _query );
+
+		errorType = SqlSuccess( SQLAllocHandle( SQL_HANDLE_STMT, hParentStmt, &_statementHandle ), SQL_HANDLE_STMT, hParentStmt, INFO_ODBC_AllocHandle );
+#if defined( WIN32 )
+
+		if ( errorType == EErrorType_NONE )
+		{
+			OdbcCheck( SQLSetStmtAttr( _statementHandle, SQL_SOPT_SS_DEFER_PREPARE, SQL_DP_OFF, SQL_IS_UINTEGER ), SQL_HANDLE_STMT, _statementHandle, INFO_ODBC_SetStmtAttr );
+		}
+
+#endif
+
+		if ( errorType == EErrorType_NONE )
+		{
+			OdbcCheck( SQLPrepareA( _statementHandle, ( SqlChar * )_query.c_str(), SQLINTEGER( _query.size() ) ), SQL_HANDLE_STMT, _statementHandle, INFO_ODBC_Prepare );
+		}
+
+		if ( errorType == EErrorType_NONE )
+		{
+			SQLSMALLINT count = 0;
+			OdbcCheck( SQLNumParams( _statementHandle, &count ), SQL_HANDLE_STMT, _statementHandle, INFO_ODBC_NumParams );
+			CLogger::LogDebug( DEBUG_ODBC_EXPECTED_PARAMETERS + CStrUtils::ToString( count ) );
+		}
+
+		for ( DatabaseParameterPtrArray::iterator it = _arrayParams.begin(); it != _arrayParams.end(); ++it )
+		{
+			std::static_pointer_cast< CDatabaseStatementParameterOdbc >( *it )->Initialize( _statementHandle );
+		}
+
+		return errorType;
+	}
+
+	bool CDatabaseStatementOdbc::DoExecuteUpdate( EErrorType * result )
+	{
+		DatabaseResultPtr rs;
+		EErrorType error = DoExecute( rs );
+
+		if ( result )
+		{
+			*result = error;
+		}
+
+		return error == EErrorType_NONE;
+	}
+
+	DatabaseResultPtr CDatabaseStatementOdbc::DoExecuteSelect( EErrorType * result )
+	{
+		DatabaseResultPtr rs;
+		EErrorType error = DoExecute( rs );
+
+		if ( result )
+		{
+			*result = error;
+		}
+
+		return rs;
+	}
+
+	void CDatabaseStatementOdbc::DoCleanup()
+	{
+		if ( _statementHandle != SQL_NULL_HSTMT )
+		{
+			SQLFreeHandle( SQL_HANDLE_STMT, _statementHandle );
+			_statementHandle = SQL_NULL_HSTMT;
+		}
 	}
 
 	EErrorType CDatabaseStatementOdbc::DoPreExecute()
@@ -226,6 +238,11 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 			SqlSuccess( retCode, SQL_HANDLE_STMT, _statementHandle, INFO_ODBC_ParamData );
 		}
+
+		EErrorType errorType = EErrorType_NONE;
+		OdbcCheck( SQLFreeStmt( statementHandle, SQL_CLOSE ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_FreeStmt + STR( " (Close)" ) );
+		OdbcCheck( SQLFreeStmt( statementHandle, SQL_UNBIND ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_FreeStmt + STR( " (Unbind)" ) );
+		OdbcCheck( SQLFreeStmt( statementHandle, SQL_RESET_PARAMS ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_FreeStmt + STR( " (ResetParams)" ) );
 
 #endif
 	}

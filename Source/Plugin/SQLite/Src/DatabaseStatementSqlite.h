@@ -39,32 +39,6 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		*/
 		DatabaseSqliteExport virtual ~CDatabaseStatementSqlite();
 
-		/** Initialize this statement.
-		@return
-			Error code.
-		*/
-		DatabaseSqliteExport virtual EErrorType Initialize();
-
-		/** Execute this statement.
-		@param[out] result
-			Error code.
-		@return
-			The result.
-		*/
-		DatabaseSqliteExport virtual bool ExecuteUpdate( EErrorType * result = NULL );
-
-		/** Execute this statement.
-		@param[out] result
-			Error code.
-		@return
-			The result.
-		*/
-		DatabaseSqliteExport virtual DatabaseResultPtr ExecuteSelect( EErrorType * result = NULL );
-
-		/** Clean statement.
-		*/
-		DatabaseSqliteExport virtual void Cleanup();
-
 		/** Create a parameter.
 		@param[in] name
 			Parameter name.
@@ -91,7 +65,47 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		*/
 		DatabaseSqliteExport virtual DatabaseParameterPtr CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType );
 
+		/** Create a parameter which has limits (strings, etc.).
+		@param[in] name
+			Parameter name.
+		@param[in] fieldType
+			Date type.
+		@param[in] precision
+			Field precision.
+		@param[in] parameterType
+			Parameter type.
+		@return
+			Created parameter.
+		*/
+		DatabaseSqliteExport virtual DatabaseParameterPtr CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType );
+
 	private:
+		/** Initialize this statement.
+		@return
+			Error code.
+		*/
+		DatabaseSqliteExport virtual EErrorType DoInitialize();
+
+		/** Execute this statement.
+		@param[out] result
+			Error code.
+		@return
+			The result.
+		*/
+		DatabaseSqliteExport virtual bool DoExecuteUpdate( EErrorType * result = NULL );
+
+		/** Execute this statement.
+		@param[out] result
+			Error code.
+		@return
+			The result.
+		*/
+		DatabaseSqliteExport virtual DatabaseResultPtr DoExecuteSelect( EErrorType * result = NULL );
+
+		/** Clean statement.
+		*/
+		DatabaseSqliteExport virtual void DoCleanup();
+
 		/** Effectively prepares the statement
 		@remarks
 			Replace '?' delimiters by '@paramName' for out an in/out parameters, in order to be able to retrieve their modified value
@@ -119,7 +133,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		void DoPostExecute( EErrorType * result );
 
 		//! Prepared statement.
-		SQLite::Statement * _statement;
+		sqlite3_stmt * _statement;
 		//! Database connection.
 		DatabaseConnectionSqlitePtr _connectionSqlite;
 		//! Tokenized string (delimiter is "?").

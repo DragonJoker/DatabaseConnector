@@ -17,8 +17,8 @@
 
 #include "DatabaseStatementSqlite.h"
 #include "ExceptionDatabaseSqlite.h"
+#include "DatabaseSqliteHelper.h"
 
-#include <DatabaseQuery.h>
 #include <DatabaseDate.h>
 #include <DatabaseDateTime.h>
 #include <DatabaseDateTimeHelper.h>
@@ -86,6 +86,31 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 	//HH:MM:SS
 	static const unsigned long SQLITE_STMT_TIME_SIZE = 8;
 
+	namespace
+	{
+		sqlite3_stmt * PrepareStatement( const String & query, sqlite3 * connection )
+		{
+			sqlite3_stmt * statement = NULL;
+			int code = sqlite3_prepare_v2( connection, CStrUtils::ToStr( query ).c_str(), int( query.size() ), &statement, NULL );
+
+			while ( code == SQLITE_BUSY || code == SQLITE_LOCKED )
+			{
+				// Tant qu'on n'a pas réussi à compiler la requête parce que la BDD est lockée ou occupée, on retente le coup
+				std::this_thread::sleep_for( std::chrono::milliseconds( 10 ) );
+				code = sqlite3_prepare_v2( connection, CStrUtils::ToStr( query ).c_str(), int( query.size() ), &statement, NULL );
+			}
+
+			if ( !statement )
+			{
+				StringStream stream;
+				stream << ERROR_SQLITE_PREPARATION_ERROR << STR( " - " ) << CStrUtils::ToString( sqlite3_errmsg( connection ) );
+				DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, stream.str() );
+			}
+
+			return statement;
+		}
+	}
+
 	CDatabaseConnectionSqlite::CDatabaseConnectionSqlite( const String & server, const String & userName, const String & password, String & connectionString )
 		:   CDatabaseConnection( server, userName, password )
 		,   _connection( NULL )
@@ -98,96 +123,29 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		DoDisconnect();
 	}
 
-	EErrorType CDatabaseConnectionSqlite::BeginTransaction( const String & name )
+	uint32_t CDatabaseConnectionSqlite::GetPrecision( EFieldType type ) const
 	{
-		EErrorType eReturn = EErrorType_ERROR;
+		uint32_t result = 0;
 
-		if ( !IsConnected() )
+		switch ( type )
 		{
-			CLogger::LogError( ERROR_SQLITE_NOT_CONNECTED );
-			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_SQLITE_NOT_CONNECTED, __FUNCTION__, __FILE__, __LINE__ );
+		case EFieldType_FLOAT32:
+			result = 7;
+			break;
+
+		case EFieldType_FLOAT64:
+			result = 15;
+			break;
 		}
 
-		if ( IsInTransaction() )
-		{
-			CLogger::LogError( ERROR_SQLITE_ALREADY_IN_TRANSACTION );
-			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_SQLITE_ALREADY_IN_TRANSACTION, __FUNCTION__, __FILE__, __LINE__ );
-		}
-
-		if ( name.empty() )
-		{
-			CDatabaseConnection::ExecuteUpdate( SQLITE_SQL_TRANSACTION_BEGIN, &eReturn );
-		}
-		else
-		{
-			CDatabaseConnection::ExecuteUpdate( SQLITE_SQL_NAMED_TRANSACTION_BEGIN + name, &eReturn );
-		}
-
-		return eReturn;
-	}
-
-	EErrorType CDatabaseConnectionSqlite::Commit( const String & name )
-	{
-		EErrorType eReturn = EErrorType_ERROR;
-
-		if ( !IsConnected() )
-		{
-			CLogger::LogError( ERROR_SQLITE_NOT_CONNECTED );
-			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_SQLITE_NOT_CONNECTED, __FUNCTION__, __FILE__, __LINE__ );
-		}
-
-		if ( !IsInTransaction() )
-		{
-			CLogger::LogError( ERROR_SQLITE_NOT_IN_TRANSACTION );
-			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_SQLITE_NOT_IN_TRANSACTION, __FUNCTION__, __FILE__, __LINE__ );
-		}
-
-		if ( name.empty() )
-		{
-			CDatabaseConnection::ExecuteUpdate( SQLITE_SQL_TRANSACTION_COMMIT, &eReturn );
-		}
-		else
-		{
-			CDatabaseConnection::ExecuteUpdate( SQLITE_SQL_NAMED_TRANSACTION_COMMIT + name, &eReturn );
-		}
-
-		return eReturn;
-	}
-
-	EErrorType CDatabaseConnectionSqlite::RollBack( const String & name )
-	{
-		EErrorType eReturn = EErrorType_ERROR;
-
-		if ( !IsConnected() )
-		{
-			CLogger::LogError( ERROR_SQLITE_NOT_CONNECTED );
-			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_SQLITE_NOT_CONNECTED, __FUNCTION__, __FILE__, __LINE__ );
-		}
-
-		if ( !IsInTransaction() )
-		{
-			CLogger::LogError( ERROR_SQLITE_NOT_IN_TRANSACTION );
-			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_SQLITE_NOT_IN_TRANSACTION, __FUNCTION__, __FILE__, __LINE__ );
-		}
-
-		if ( name.empty() )
-		{
-			CDatabaseConnection::ExecuteUpdate( SQLITE_SQL_TRANSACTION_ROLLBACK, &eReturn );
-		}
-		else
-		{
-			CDatabaseConnection::ExecuteUpdate( SQLITE_SQL_NAMED_TRANSACTION_ROLLBACK + name, &eReturn );
-		}
-
-		return eReturn;
+		return result;
 	}
 
 	void CDatabaseConnectionSqlite::CreateDatabase( const String & database )
 	{
 		if ( !IsConnected() )
 		{
-			CLogger::LogError( ERROR_SQLITE_NOT_CONNECTED );
-			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_SQLITE_NOT_CONNECTED, __FUNCTION__, __FILE__, __LINE__ );
+			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_SQLITE_NOT_CONNECTED );
 		}
 
 		String filePath = _server + PATH_SEP + database;
@@ -223,25 +181,15 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 	{
 		if ( !IsConnected() )
 		{
-			CLogger::LogError( ERROR_SQLITE_NOT_CONNECTED );
-			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_SQLITE_NOT_CONNECTED, __FUNCTION__, __FILE__, __LINE__ );
+			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_SQLITE_NOT_CONNECTED );
 		}
 
 		if ( !_database.empty() )
 		{
-			SQLite::Close( _connection );
+			sqlite3_close( _connection );
 		}
 
-		String filePath = _server + PATH_SEP + database;
-		SQLite::eCODE code = SQLite::Open( CStrUtils::ToStr( filePath ).c_str(), &_connection );
-
-		if ( code != SQLite::eCODE_OK )
-		{
-			String error = ERROR_SQLITE_SELECTION + CStrUtils::ToString( SQLite::Errmsg( _connection ) );
-			CLogger::LogError( error );
-			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, error, __FUNCTION__, __FILE__, __LINE__ );
-		}
-
+		SQLiteCheck( sqlite3_open( CStrUtils::ToStr( _server + PATH_SEP + database ).c_str(), &_connection ), StringStream() << ERROR_SQLITE_SELECTION, EDatabaseExceptionCodes_ConnectionError, _connection );
 		_database = database;
 	}
 
@@ -249,8 +197,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 	{
 		if ( !IsConnected() )
 		{
-			CLogger::LogError( ERROR_SQLITE_NOT_CONNECTED );
-			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_SQLITE_NOT_CONNECTED, __FUNCTION__, __FILE__, __LINE__ );
+			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_SQLITE_NOT_CONNECTED );
 		}
 
 		String filePath = _server + PATH_SEP + database;
@@ -262,7 +209,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 			if ( !_database.empty() )
 			{
-				SQLite::Close( _connection );
+				sqlite3_close( _connection );
 			}
 
 			try
@@ -272,8 +219,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			catch ( boost::filesystem::filesystem_error & exc )
 			{
 				String error = ERROR_SQLITE_DESTRUCTION + CStrUtils::ToString( exc.what() );
-				CLogger::LogError( error );
-				throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, error, __FUNCTION__, __FILE__, __LINE__ );
+				DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, error );
 			}
 		}
 	}
@@ -635,26 +581,24 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		return SQLITE_STMT_TIME_SIZE;
 	}
 
-	SQLite::Database * CDatabaseConnectionSqlite::GetConnection() const
+	sqlite3 * CDatabaseConnectionSqlite::GetConnection() const
 	{
 		return _connection;
 	}
 
-	bool CDatabaseConnectionSqlite::ExecuteUpdate( SQLite::Statement * statement )
+	bool CDatabaseConnectionSqlite::ExecuteUpdate( sqlite3_stmt * statement )
 	{
 		return ExecuteSelect( statement ) != nullptr;
 	}
 
-	DatabaseResultPtr CDatabaseConnectionSqlite::ExecuteSelect( SQLite::Statement * statement )
+	DatabaseResultPtr CDatabaseConnectionSqlite::ExecuteSelect( sqlite3_stmt * statement )
 	{
 		DatabaseResultPtr result;
 
 		try
 		{
-			SQLite::eCODE code = SQLite::eCODE_ERROR;
-			DatabaseConnectionPtr connection = shared_from_this();
-			DatabaseFieldInfosPtrArray columns = SqliteGetColumns( statement, connection );
-			result = SqliteExecute( statement, code, columns, connection );
+			DatabaseConnectionSqlitePtr connection = std::static_pointer_cast< CDatabaseConnectionSqlite >( shared_from_this() );
+			result = SqliteFetchResult( statement, SqliteGetColumns( statement, connection ), connection );
 		}
 		catch ( CExceptionDatabase & exc )
 		{
@@ -675,46 +619,69 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		if ( IsConnected() )
 		{
 			DoSetConnected( false );
-			SQLite::Close( _connection );
+			sqlite3_close( _connection );
 		}
 
 		_connection = NULL;
 	}
 
-	bool CDatabaseConnectionSqlite::DoExecuteUpdate( const String & query, EErrorType * result )
+	bool CDatabaseConnectionSqlite::DoBeginTransaction( const String & name )
 	{
-		if ( !IsConnected() )
+		bool result = false;
+
+		if ( name.empty() )
 		{
-			CLogger::LogError( ERROR_SQLITE_NOT_CONNECTED );
-			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_SQLITE_NOT_CONNECTED, __FUNCTION__, __FILE__, __LINE__ );
+			result = CDatabaseConnection::ExecuteUpdate( SQLITE_SQL_TRANSACTION_BEGIN );
+		}
+		else
+		{
+			result = CDatabaseConnection::ExecuteUpdate( SQLITE_SQL_NAMED_TRANSACTION_BEGIN + name );
 		}
 
-		CLogger::LogInfo( STR( "Executing update : " ) + query );
+		return result;
+	}
+
+	bool CDatabaseConnectionSqlite::DoCommit( const String & name )
+	{
+		bool result = false;
+
+		if ( name.empty() )
+		{
+			result = CDatabaseConnection::ExecuteUpdate( SQLITE_SQL_TRANSACTION_COMMIT );
+		}
+		else
+		{
+			result = CDatabaseConnection::ExecuteUpdate( SQLITE_SQL_NAMED_TRANSACTION_COMMIT + name );
+		}
+
+		return result;
+	}
+
+	bool CDatabaseConnectionSqlite::DoRollBack( const String & name )
+	{
+		bool result = false;
+
+		if ( name.empty() )
+		{
+			result = CDatabaseConnection::ExecuteUpdate( SQLITE_SQL_TRANSACTION_ROLLBACK );
+		}
+		else
+		{
+			result = CDatabaseConnection::ExecuteUpdate( SQLITE_SQL_NAMED_TRANSACTION_ROLLBACK + name );
+		}
+
+		return result;
+	}
+
+	bool CDatabaseConnectionSqlite::DoExecuteUpdate( const String & query)
+	{
 		bool ret = false;
 
 		try
 		{
-			SQLite::Statement * statement = NULL;
-			SQLite::eCODE code = SQLite::Prepare( _connection, CStrUtils::ToStr( query ).c_str(), int( query.size() ), &statement, NULL );
-
-			while ( code == SQLite::eCODE_BUSY || code == SQLite::eCODE_LOCKED )
-			{
-				// Tant qu'on n'a pas réussi à compiler la requête parce que la BDD est lockée ou occupée, on retente le coup
-				std::this_thread::sleep_for( std::chrono::milliseconds( 10 ) );
-				code = SQLite::Prepare( _connection, CStrUtils::ToStr( query ).c_str(), int( query.size() ), &statement, NULL );
-			}
-
-			if ( !statement )
-			{
-				StringStream stream;
-				stream << ERROR_SQLITE_PREPARATION_ERROR << STR( " - " ) << CStrUtils::ToString( SQLite::Errmsg( _connection ) );
-				DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, stream.str() );
-			}
-			else
-			{
-				ret = ExecuteUpdate( statement );
-				SQLiteTry( SQLite::Finalize( statement ), INFO_SQLITE_STATEMENT_FINALISATION, EDatabaseExceptionCodes_ConnectionError, _connection );
-			}
+			sqlite3_stmt * statement = PrepareStatement( query, _connection );
+			ret = ExecuteUpdate( statement );
+			SQLiteCheck( sqlite3_finalize( statement ), INFO_SQLITE_STATEMENT_FINALISATION, EDatabaseExceptionCodes_ConnectionError, _connection );
 		}
 		catch ( CExceptionDatabase & exc )
 		{
@@ -730,40 +697,15 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		return ret;
 	}
 
-	DatabaseResultPtr CDatabaseConnectionSqlite::DoExecuteSelect( const String & query, EErrorType * result )
+	DatabaseResultPtr CDatabaseConnectionSqlite::DoExecuteSelect( const String & query)
 	{
-		if ( !IsConnected() )
-		{
-			CLogger::LogError( ERROR_SQLITE_NOT_CONNECTED );
-			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_SQLITE_NOT_CONNECTED, __FUNCTION__, __FILE__, __LINE__ );
-		}
-
-		CLogger::LogInfo( INFO_SQLITE_EXECUTING_SELECT + query );
 		DatabaseResultPtr ret;
 
 		try
 		{
-			SQLite::Statement * statement = NULL;
-			SQLite::eCODE code = SQLite::Prepare( _connection, CStrUtils::ToStr( query ).c_str(), int( query.size() ), &statement, NULL );
-
-			while ( code == SQLite::eCODE_BUSY || code == SQLite::eCODE_LOCKED )
-			{
-				// Tant qu'on n'a pas réussi à compiler la requête parce que la BDD est lockée ou occupée, on retente le coup
-				std::this_thread::sleep_for( std::chrono::milliseconds( 10 ) );
-				code = SQLite::Prepare( _connection, CStrUtils::ToStr( query ).c_str(), int( query.size() ), &statement, NULL );
-			}
-
-			if ( !statement )
-			{
-				StringStream stream;
-				stream << ERROR_SQLITE_PREPARATION_ERROR << STR( " - " ) << CStrUtils::ToString( SQLite::Errmsg( _connection ) );
-				DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, stream.str() );
-			}
-			else
-			{
-				ret = ExecuteSelect( statement );
-				SQLiteTry( SQLite::Finalize( statement ), INFO_SQLITE_STATEMENT_FINALISATION, EDatabaseExceptionCodes_ConnectionError, _connection );
-			}
+			sqlite3_stmt * statement = PrepareStatement( query, _connection );
+			ret = ExecuteSelect( statement );
+			SQLiteCheck( sqlite3_finalize( statement ), INFO_SQLITE_STATEMENT_FINALISATION, EDatabaseExceptionCodes_ConnectionError, _connection );
 		}
 		catch ( CExceptionDatabase & exc )
 		{
@@ -779,48 +721,9 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		return ret;
 	}
 
-	DatabaseStatementPtr CDatabaseConnectionSqlite::DoCreateStatement( const String & request, EErrorType * result )
+	DatabaseStatementPtr CDatabaseConnectionSqlite::DoCreateStatement( const String & query )
 	{
-		DatabaseStatementPtr pReturn;
-		EErrorType eResult = EErrorType_ERROR;
-
-		if ( !IsConnected() )
-		{
-			CLogger::LogError( ERROR_SQLITE_NOT_CONNECTED );
-			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_SQLITE_NOT_CONNECTED, __FUNCTION__, __FILE__, __LINE__ );
-		}
-
-		pReturn = std::make_shared< CDatabaseStatementSqlite >( shared_from_this(), request );
-		eResult = EErrorType_NONE;
-
-		if ( result )
-		{
-			*result = eResult;
-		}
-
-		return pReturn;
-	}
-
-	DatabaseQueryPtr CDatabaseConnectionSqlite::DoCreateQuery( const String & request, EErrorType * result )
-	{
-		DatabaseQueryPtr pReturn;
-		EErrorType eResult = EErrorType_ERROR;
-
-		if ( !IsConnected() )
-		{
-			CLogger::LogError( ERROR_SQLITE_NOT_CONNECTED );
-			throw CExceptionDatabase( EDatabaseExceptionCodes_ConnectionError, ERROR_SQLITE_NOT_CONNECTED, __FUNCTION__, __FILE__, __LINE__ );
-		}
-
-		pReturn = std::make_shared< CDatabaseQuery >( shared_from_this(), request );
-		eResult = EErrorType_NONE;
-
-		if ( result )
-		{
-			*result = eResult;
-		}
-
-		return pReturn;
+		return std::make_shared< CDatabaseStatementSqlite >( std::static_pointer_cast< CDatabaseConnectionSqlite >( shared_from_this() ), query );
 	}
 }
 END_NAMESPACE_DATABASE_SQLITE

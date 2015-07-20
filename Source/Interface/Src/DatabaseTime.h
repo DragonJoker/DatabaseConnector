@@ -187,26 +187,6 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		static bool IsTime( const std::wstring & time, const std::wstring & format, CTime & result );
 
-		/** Check time consistency.
-		@param[in] dateTime
-			String containing date/time.
-		@param[out] result
-			Resulting object.
-		@return
-			true if valid time.
-		*/
-		static bool IsTime( const std::string & dateTime, CTime & result );
-
-		/** Check time consistency.
-		@param[in] dateTime
-			String containing date/time.
-		@param[out] result
-			Resulting object.
-		@return
-			true if valid time.
-		*/
-		static bool IsTime( const std::wstring & dateTime, CTime & result );
-
 	private:
 		/** Check time consistency.
 		@param[in] time

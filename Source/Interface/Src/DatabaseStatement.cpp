@@ -27,7 +27,13 @@ BEGIN_NAMESPACE_DATABASE
 	static const String ERROR_DB_STATEMENT_INDEX = STR( "No statement parameter at index: " );
 	static const String ERROR_DB_STATEMENT_NAME = STR( "No statement parameter named: " );
 	static const String ERROR_DB_STATEMENT_ALREADY_ADDED_PARAMETER = STR( "Parameter with name [%1%] already exists." );
+	static const String ERROR_STATEMENT_INITIALISATION = STR( "Statement initialisation failed: " );
+	static const String ERROR_STATEMENT_EXECUTION = STR( "Statement execution failed: " );
+	static const String ERROR_STATEMENT_CLEANUP = STR( "Statement cleanup failed: " );
+
 	static const String WARNING_DB_STATEMENT_NULL_PARAMETER = STR( "Trying to add a null parameter." );
+
+	static const String INFO_UNKNOWN_ERROR = "Unknown error";
 
 	CDatabaseStatement::SValueUpdater::SValueUpdater( CDatabaseStatement * stmt )
 		: _stmt( stmt )
@@ -51,6 +57,98 @@ BEGIN_NAMESPACE_DATABASE
 		// Empty
 	}
 
+	EErrorType CDatabaseStatement::Initialize()
+	{
+		EErrorType ret = EErrorType_ERROR;
+
+		try
+		{
+			ret = DoInitialize();
+		}
+		catch( CExceptionDatabase & exc )
+		{
+			CLogger::LogError( ERROR_STATEMENT_INITIALISATION + exc.GetFullDescription() );
+		}
+		catch( std::exception & exc )
+		{
+			CLogger::LogError( ERROR_STATEMENT_INITIALISATION + exc.what() );
+		}
+		catch( ... )
+		{
+			CLogger::LogError( ERROR_STATEMENT_INITIALISATION + INFO_UNKNOWN_ERROR );
+		}
+
+		return ret;
+	}
+
+	bool CDatabaseStatement::ExecuteUpdate( EErrorType * result )
+	{
+		bool ret = false;
+
+		try
+		{
+			ret = DoExecuteUpdate( result );
+		}
+		catch( CExceptionDatabase & exc )
+		{
+			CLogger::LogError( ERROR_STATEMENT_EXECUTION + exc.GetFullDescription() );
+		}
+		catch( std::exception & exc )
+		{
+			CLogger::LogError( ERROR_STATEMENT_EXECUTION + exc.what() );
+		}
+		catch( ... )
+		{
+			CLogger::LogError( ERROR_STATEMENT_EXECUTION + INFO_UNKNOWN_ERROR );
+		}
+
+		return ret;
+	}
+
+	DatabaseResultPtr CDatabaseStatement::ExecuteSelect( EErrorType * result )
+	{
+		DatabaseResultPtr ret;
+
+		try
+		{
+			ret = DoExecuteSelect( result );
+		}
+		catch( CExceptionDatabase & exc )
+		{
+			CLogger::LogError( ERROR_STATEMENT_EXECUTION + exc.GetFullDescription() );
+		}
+		catch( std::exception & exc )
+		{
+			CLogger::LogError( ERROR_STATEMENT_EXECUTION + exc.what() );
+		}
+		catch( ... )
+		{
+			CLogger::LogError( ERROR_STATEMENT_EXECUTION + INFO_UNKNOWN_ERROR );
+		}
+
+		return ret;
+	}
+
+	void CDatabaseStatement::Cleanup()
+	{
+		try
+		{
+			DoCleanup();
+		}
+		catch( CExceptionDatabase & exc )
+		{
+			CLogger::LogError( ERROR_STATEMENT_CLEANUP + exc.GetFullDescription() );
+		}
+		catch( std::exception & exc )
+		{
+			CLogger::LogError( ERROR_STATEMENT_CLEANUP + exc.what() );
+		}
+		catch( ... )
+		{
+			CLogger::LogError( ERROR_STATEMENT_CLEANUP + INFO_UNKNOWN_ERROR );
+		}
+	}
+
 	DatabaseParameterPtr CDatabaseStatement::GetParameter( uint32_t index )const
 	{
 		try
@@ -66,7 +164,6 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			StringStream message;
 			message << ERROR_DB_STATEMENT_INDEX << index;
-			CLogger::LogError( message.str() );
 			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, message.str() );
 		}
 	}
@@ -82,7 +179,6 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			StringStream message;
 			message << ERROR_DB_STATEMENT_NAME << name;
-			CLogger::LogError( message.str() );
 			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, message.str() );
 		}
 

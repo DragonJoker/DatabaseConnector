@@ -24,11 +24,16 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		{
 			0,					//!< EFieldType_NULL
 			SQL_C_BIT,			//!< EFieldType_BIT
-			SQL_C_STINYINT,		//!< EFieldType_INT8
-			SQL_C_SSHORT,		//!< EFieldType_INT16
-			SQL_C_SLONG,		//!< EFieldType_INT24
-			SQL_C_SLONG,		//!< EFieldType_INT32
-			SQL_C_SBIGINT,		//!< EFieldType_INT64
+			SQL_C_STINYINT,		//!< EFieldType_SINT8
+			SQL_C_SSHORT,		//!< EFieldType_SINT16
+			SQL_C_SLONG,		//!< EFieldType_SINT24
+			SQL_C_SLONG,		//!< EFieldType_SINT32
+			SQL_C_SBIGINT,		//!< EFieldType_SINT64
+			SQL_C_UTINYINT,		//!< EFieldType_UINT8
+			SQL_C_USHORT,		//!< EFieldType_UINT16
+			SQL_C_ULONG,		//!< EFieldType_UINT24
+			SQL_C_ULONG,		//!< EFieldType_UINT32
+			SQL_C_UBIGINT,		//!< EFieldType_UINT64
 			SQL_C_FLOAT,		//!< EFieldType_FLOAT32
 			SQL_C_DOUBLE,		//!< EFieldType_FLOAT64
 			SQL_C_NUMERIC,		//!< EFieldType_FIXED_POINT
@@ -48,11 +53,16 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		{
 			0,					//!< EFieldType_NULL
 			SQL_BIT,			//!< EFieldType_BOOL
-			SQL_TINYINT,		//!< EFieldType_INT8
-			SQL_SMALLINT,		//!< EFieldType_INT16
-			SQL_INTEGER,		//!< EFieldType_INT24
-			SQL_INTEGER,		//!< EFieldType_INT32
-			SQL_BIGINT,			//!< EFieldType_INT64
+			SQL_TINYINT,		//!< EFieldType_SINT8
+			SQL_SMALLINT,		//!< EFieldType_SINT16
+			SQL_INTEGER,		//!< EFieldType_SINT24
+			SQL_INTEGER,		//!< EFieldType_SINT32
+			SQL_BIGINT,			//!< EFieldType_SINT64
+			SQL_TINYINT,		//!< EFieldType_UINT8
+			SQL_SMALLINT,		//!< EFieldType_UINT16
+			SQL_INTEGER,		//!< EFieldType_UINT24
+			SQL_INTEGER,		//!< EFieldType_UINT32
+			SQL_BIGINT,			//!< EFieldType_UINT64
 			SQL_FLOAT,			//!< EFieldType_FLOAT32
 			SQL_DOUBLE,			//!< EFieldType_FLOAT64
 			SQL_NUMERIC,		//!< EFieldType_FIXED_POINT
@@ -72,11 +82,16 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		{
 			0,	//!< EFieldType_NULL
 			1,	//!< EFieldType_BOOL
-			1,	//!< EFieldType_INT8
-			5,	//!< EFieldType_INT16
-			8,	//!< EFieldType_INT24
-			10,	//!< EFieldType_INT32
-			19,	//!< EFieldType_INT64
+			1,	//!< EFieldType_SINT8
+			5,	//!< EFieldType_SINT16
+			8,	//!< EFieldType_SINT24
+			10,	//!< EFieldType_SINT32
+			19,	//!< EFieldType_SINT64
+			1,	//!< EFieldType_UINT8
+			5,	//!< EFieldType_UINT16
+			8,	//!< EFieldType_UINT24
+			10,	//!< EFieldType_UINT32
+			19,	//!< EFieldType_UINT64
 			15,	//!< EFieldType_FLOAT32
 			15,	//!< EFieldType_FLOAT64
 			15,	//!< EFieldType_FIXED_POINT
@@ -130,7 +145,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	EErrorType COutOdbcBindBase::Initialize()
 	{
 		EErrorType errorType = EErrorType_NONE;
-		SqlTry( SQLDescribeParam( _statement, _index, &_dataType, &_columnSize, &_decimalDigits, &_nullable ), SQL_HANDLE_STMT, _statement, INFO_ODBC_DescribeParam );
+		OdbcCheck( SQLDescribeParam( _statement, _index, &_dataType, &_columnSize, &_decimalDigits, &_nullable ), SQL_HANDLE_STMT, _statement, INFO_ODBC_DescribeParam );
 		return errorType;
 	}
 
@@ -143,14 +158,14 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 		while ( remaining > batch && errorType == EErrorType_NONE )
 		{
-			SqlTry( SQLPutData( _statement, buffer, batch ), SQL_HANDLE_STMT, _statement, INFO_ODBC_PutData );
+			OdbcCheck( SQLPutData( _statement, buffer, batch ), SQL_HANDLE_STMT, _statement, INFO_ODBC_PutData );
 			buffer += batch;
 			remaining -= batch;
 		}
 
 		if ( errorType == EErrorType_NONE && remaining > 0 )
 		{
-			SqlTry( SQLPutData( _statement, buffer, remaining ), SQL_HANDLE_STMT, _statement, INFO_ODBC_PutData );
+			OdbcCheck( SQLPutData( _statement, buffer, remaining ), SQL_HANDLE_STMT, _statement, INFO_ODBC_PutData );
 		}
 
 		return errorType;
@@ -166,14 +181,14 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 		while ( remaining > batch && errorType == EErrorType_NONE )
 		{
-			SqlTry( SQLGetData( _statement, _index, _valueType, buffer, batch, &retrieved ), SQL_HANDLE_STMT, _statement, INFO_ODBC_GetData );
+			OdbcCheck( SQLGetData( _statement, _index, _valueType, buffer, batch, &retrieved ), SQL_HANDLE_STMT, _statement, INFO_ODBC_GetData );
 			buffer += batch;
 			remaining -= batch;
 		}
 
 		if ( errorType == EErrorType_NONE && remaining > 0 )
 		{
-			SqlTry( SQLGetData( _statement, _index, _valueType, buffer, remaining, &retrieved ), SQL_HANDLE_STMT, _statement, INFO_ODBC_GetData );
+			OdbcCheck( SQLGetData( _statement, _index, _valueType, buffer, remaining, &retrieved ), SQL_HANDLE_STMT, _statement, INFO_ODBC_GetData );
 		}
 
 		return errorType;
@@ -197,24 +212,44 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			_binding = MakeOutBind< EFieldType_BIT >( statementHandle, parameter, parameter.GetObjectValue() );
 			break;
 
-		case EFieldType_INT8:
-			_binding = MakeOutBind< EFieldType_INT8 >( statementHandle, parameter, parameter.GetObjectValue() );
+		case EFieldType_SINT8:
+			_binding = MakeOutBind< EFieldType_SINT8 >( statementHandle, parameter, parameter.GetObjectValue() );
 			break;
 
-		case EFieldType_INT16:
-			_binding = MakeOutBind< EFieldType_INT16 >( statementHandle, parameter, parameter.GetObjectValue() );
+		case EFieldType_SINT16:
+			_binding = MakeOutBind< EFieldType_SINT16 >( statementHandle, parameter, parameter.GetObjectValue() );
 			break;
 
-		case EFieldType_INT24:
-			_binding = MakeOutBind< EFieldType_INT24 >( statementHandle, parameter, parameter.GetObjectValue() );
+		case EFieldType_SINT24:
+			_binding = MakeOutBind< EFieldType_SINT24 >( statementHandle, parameter, parameter.GetObjectValue() );
 			break;
 
-		case EFieldType_INT32:
-			_binding = MakeOutBind< EFieldType_INT32 >( statementHandle, parameter, parameter.GetObjectValue() );
+		case EFieldType_SINT32:
+			_binding = MakeOutBind< EFieldType_SINT32 >( statementHandle, parameter, parameter.GetObjectValue() );
 			break;
 
-		case EFieldType_INT64:
-			_binding = MakeOutBind< EFieldType_INT64 >( statementHandle, parameter, parameter.GetObjectValue() );
+		case EFieldType_SINT64:
+			_binding = MakeOutBind< EFieldType_SINT64 >( statementHandle, parameter, parameter.GetObjectValue() );
+			break;
+
+		case EFieldType_UINT8:
+			_binding = MakeOutBind< EFieldType_UINT8 >( statementHandle, parameter, parameter.GetObjectValue() );
+			break;
+
+		case EFieldType_UINT16:
+			_binding = MakeOutBind< EFieldType_UINT16 >( statementHandle, parameter, parameter.GetObjectValue() );
+			break;
+
+		case EFieldType_UINT24:
+			_binding = MakeOutBind< EFieldType_UINT24 >( statementHandle, parameter, parameter.GetObjectValue() );
+			break;
+
+		case EFieldType_UINT32:
+			_binding = MakeOutBind< EFieldType_UINT32 >( statementHandle, parameter, parameter.GetObjectValue() );
+			break;
+
+		case EFieldType_UINT64:
+			_binding = MakeOutBind< EFieldType_UINT64 >( statementHandle, parameter, parameter.GetObjectValue() );
 			break;
 
 		case EFieldType_FLOAT32:
@@ -270,7 +305,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			break;
 
 		default:
-			CLogger::LogError( ERROR_ODBC_PARAMETER_TYPE );
 			DB_EXCEPT( EDatabaseExceptionCodes_ParameterError, ERROR_ODBC_PARAMETER_TYPE );
 			break;
 		}

@@ -36,6 +36,13 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		// Empty
 	}
 
+	CDatabaseStatementParameterOdbc::CDatabaseStatementParameterOdbc( DatabaseConnectionOdbcPtr connection, const String & name, unsigned short index, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
+		: CDatabaseParameter( connection, name, index, fieldType, precision, parameterType, std::move( updater ) )
+		, CDatabaseParameterOdbc()
+	{
+		// Empty
+	}
+
 	CDatabaseStatementParameterOdbc::~CDatabaseStatementParameterOdbc()
 	{
 		// Empty

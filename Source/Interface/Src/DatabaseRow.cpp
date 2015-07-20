@@ -53,7 +53,6 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			StringStream message;
 			message << ERROR_DB_ROW_MISSING_FIELD_NAME << name;
-			CLogger::LogError( message );
 			DB_EXCEPT( EDatabaseExceptionCodes_RowError, message.str() );
 		}
 
@@ -66,7 +65,6 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			StringStream message;
 			message << ERROR_DB_ROW_MISSING_FIELD_INDEX << index;
-			CLogger::LogError( message );
 			DB_EXCEPT( EDatabaseExceptionCodes_RowError, message.str() );
 		}
 

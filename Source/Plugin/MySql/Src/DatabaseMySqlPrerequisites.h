@@ -48,7 +48,7 @@ BEGIN_NAMESPACE_DATABASE
 		class CDatabaseConnectionMySql;
 		class CDatabaseMySql;
 		class CDatabaseStatementMySql;
-		class CDatabaseStatementParameterMySql;
+		class CDatabaseParameterMySql;
 		class CExceptionDatabaseMySql;
 		class CPluginDatabaseMySql;
 		class CFactoryDatabaseMySql;
@@ -57,9 +57,9 @@ BEGIN_NAMESPACE_DATABASE
 		// Pointers
 		typedef std::shared_ptr< CDatabaseConnectionMySql > DatabaseConnectionMySqlPtr;
 		typedef std::shared_ptr< CDatabaseStatementMySql > DatabaseStatementMySqlPtr;
-		typedef std::shared_ptr< CDatabaseStatementParameterMySql > DatabaseStatementParameterMySqlPtr;
+		typedef std::shared_ptr< CDatabaseParameterMySql > DatabaseParameterMySqlPtr;
 
-		typedef std::vector< DatabaseStatementParameterMySqlPtr > DatabaseStatementParameterMySqlPtrArray;
+		typedef std::vector< DatabaseParameterMySqlPtr > DatabaseParameterMySqlPtrArray;
 
 		// Factory constants
 		const String FACTORY_DATABASE_MYSQL = STR( "Factory Database MySql" );
@@ -67,43 +67,6 @@ BEGIN_NAMESPACE_DATABASE
 		// Plugin constants
 		const String DATABASE_MYSQL_TYPE = STR( "Database.MySql" );
 		const String PLUGIN_NAME_DATABASE_MYSQL = STR( "Plugin Database MySql" );
-
-		struct SMySqlBindBase
-		{
-			my_bool _null = 0;
-			my_bool _error = 0;
-			MYSQL_BIND & _bind;
-
-			SMySqlBindBase( MYSQL_BIND & bind )
-				: _bind( bind )
-			{
-				bind.error = &_error;
-				bind.is_null = &_null;
-			}
-		};
-
-		struct SOutMySqlBindBase
-			: public SMySqlBindBase
-		{
-			SOutMySqlBindBase( MYSQL_BIND & bind, enum_field_types type, CDatabaseStatementParameterMySql & parameter );
-
-			virtual void UpdateValue() = 0;
-
-			MYSQL * _connection;
-			MYSQL_STMT * _statement;
-		};
-
-		CDate CDateFromMySqlTime( MYSQL_TIME const & ts );
-		CDateTime CDateTimeFromMySqlTime( MYSQL_TIME const & ts );
-		CTime CTimeFromMySqlTime( MYSQL_TIME const & ts );
-
-		MYSQL_TIME MySqlTimeFromCDate( CDate const & ts );
-		MYSQL_TIME MySqlTimeFromCDateTime( CDateTime const & ts );
-		MYSQL_TIME MySqlTimeFromCTime( CTime const & ts );
-
-		std::string StringFromMySqlString( MYSQL_BIND const & bind, bool truncated );
-		void MySqlSendLongData( CDatabaseValueBase & value, MYSQL_BIND const & bind, MYSQL_STMT * statement, MYSQL * connection );
-		void MySQLTry( int result, TChar const * msg, EDatabaseExceptionCodes code, MYSQL * connection );
 	}
 }
 END_NAMESPACE_DATABASE

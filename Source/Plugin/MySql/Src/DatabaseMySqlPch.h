@@ -23,7 +23,6 @@
 #include <DatabaseConnection.h>
 #include <DatabaseField.h>
 #include <DatabaseParameter.h>
-#include <DatabaseQuery.h>
 #include <DatabaseResult.h>
 #include <DatabaseRow.h>
 #include <DatabaseDate.h>
@@ -41,6 +40,9 @@
 
 #if defined( _WIN32 )
 #	include <Windows.h>
+#	undef min
+#	undef max
+#	undef abs
 #endif
 
 #include <mysql.h>

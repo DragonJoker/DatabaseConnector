@@ -15,11 +15,25 @@
 
 #include "DatabaseConnection.h"
 #include "DatabaseQuery.h"
+#include "DatabaseStringUtils.h"
+#include "DatabaseDate.h"
+#include "DatabaseDateTime.h"
+#include "DatabaseTime.h"
 
 BEGIN_NAMESPACE_DATABASE
 {
 	static const std::string DB_SQL_SNULL = "NULL";
 	static const std::wstring DB_SQL_WNULL = L"NULL";
+
+	static const String ERROR_DB_NOT_CONNECTED = STR( "Not connected" );
+	static const String ERROR_DB_EXECUTION_ERROR = STR( "Query execution error: " );
+	static const String ERROR_DB_NOT_IN_TRANSACTION = STR( "Not in a transaction" );
+	static const String ERROR_DB_ALREADY_IN_TRANSACTION = STR( "Already in a transaction" );
+	static const String ERROR_DB_CANT_BEGIN_TRANSACTION = STR( "Can't begint the transaction" );
+	static const String ERROR_DB_CANT_COMMIT_TRANSACTION = STR( "Can't commit the transaction" );
+	static const String ERROR_DB_CANT_ROLLBACK_TRANSACTION = STR( "Can't rollback the transaction" );
+
+	static const String INFO_DB_EXECUTING_SELECT = STR( "Executing query: " );
 
 	CDatabaseConnection::CDatabaseConnection( const String & server, const String & userName, const String & password )
 		: _connected( false )
@@ -42,24 +56,147 @@ BEGIN_NAMESPACE_DATABASE
 		return DoConnect( connectionString );
 	}
 
-	DatabaseStatementPtr CDatabaseConnection::CreateStatement( const String & query, EErrorType * result )
+	void CDatabaseConnection::BeginTransaction( const String & name )
 	{
-		return DoCreateStatement( query, result );
+		if ( !IsConnected() )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_DB_NOT_CONNECTED );
+		}
+
+		if ( IsInTransaction() )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_DB_ALREADY_IN_TRANSACTION );
+		}
+
+		if ( !DoBeginTransaction( name ) )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_DB_CANT_BEGIN_TRANSACTION );
+		}
+
+		DoSetInTransaction( true );
 	}
 
-	DatabaseQueryPtr CDatabaseConnection::CreateQuery( const String & query, EErrorType * result )
+	void CDatabaseConnection::Commit( const String & name )
 	{
-		return DoCreateQuery( query, result );
+		if ( !IsConnected() )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_DB_NOT_CONNECTED );
+		}
+
+		if ( !IsInTransaction() )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_DB_NOT_IN_TRANSACTION );
+		}
+
+		if ( !DoCommit( name ) )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_DB_CANT_COMMIT_TRANSACTION );
+		}
+
+		DoSetInTransaction( false );
 	}
 
-	bool CDatabaseConnection::ExecuteUpdate( const String & query, EErrorType * result )
+	void CDatabaseConnection::RollBack( const String & name )
 	{
-		return DoExecuteUpdate( query, result );
+		if ( !IsConnected() )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_DB_NOT_CONNECTED );
+		}
+
+		if ( !IsInTransaction() )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_DB_NOT_IN_TRANSACTION );
+		}
+
+		if ( !DoRollBack( name ) )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_DB_CANT_ROLLBACK_TRANSACTION );
+		}
+
+		DoSetInTransaction( false );
 	}
 
-	DatabaseResultPtr CDatabaseConnection::ExecuteSelect( const String & query, EErrorType * result )
+	DatabaseStatementPtr CDatabaseConnection::CreateStatement( const String & query )
 	{
-		return DoExecuteSelect( query, result );
+		if ( !IsConnected() )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_DB_NOT_CONNECTED );
+		}
+
+		return DoCreateStatement( query );
+	}
+
+	DatabaseQueryPtr CDatabaseConnection::CreateQuery( const String & query )
+	{
+		return std::make_shared< CDatabaseQuery >( shared_from_this(), query );
+	}
+
+	bool CDatabaseConnection::ExecuteUpdate( const String & query )
+	{
+		if ( !IsConnected() )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_DB_NOT_CONNECTED );
+		}
+
+		CLogger::LogInfo( INFO_DB_EXECUTING_SELECT + query );
+		bool ret = false;
+
+		try
+		{
+			ret = DoExecuteUpdate( query );
+		}
+		catch ( CExceptionDatabase & exc )
+		{
+			CLogger::LogError( exc.what() );
+		}
+		catch ( std::exception & exc )
+		{
+			StringStream stream;
+			stream << ERROR_DB_EXECUTION_ERROR << STR( " - " ) << exc.what();
+			CLogger::LogError( stream );
+		}
+		catch ( ... )
+		{
+			StringStream stream;
+			stream << ERROR_DB_EXECUTION_ERROR << STR( " - UNKNOWN" );
+			CLogger::LogError( stream );
+		}
+
+		return ret;
+	}
+
+	DatabaseResultPtr CDatabaseConnection::ExecuteSelect( const String & query )
+	{
+		if ( !IsConnected() )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_DB_NOT_CONNECTED );
+		}
+		
+		CLogger::LogInfo( INFO_DB_EXECUTING_SELECT + query );
+		DatabaseResultPtr ret = false;
+
+		try
+		{
+			ret = DoExecuteSelect( query );
+		}
+		catch ( CExceptionDatabase & exc )
+		{
+			CLogger::LogError( exc.what() );
+		}
+		catch ( std::exception & exc )
+		{
+			StringStream stream;
+			stream << ERROR_DB_EXECUTION_ERROR << STR( " - " ) << exc.what();
+			CLogger::LogError( stream );
+		}
+		catch ( ... )
+		{
+			StringStream stream;
+			stream << ERROR_DB_EXECUTION_ERROR << STR( " - UNKNOWN" );
+			CLogger::LogError( stream );
+		}
+
+		return ret;
 	}
 
 	bool CDatabaseConnection::IsConnected() const

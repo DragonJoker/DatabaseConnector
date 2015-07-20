@@ -26,20 +26,6 @@ BEGIN_NAMESPACE_DATABASE
 	class DatabaseExport CDate
 	{
 	public:
-		//! Array of short day names.
-		static String ShortDay[7];
-		//! Array of long day names.
-		static String LongDay[7];
-		//! Array of short month names.
-		static String ShortMonth[12];
-		//! Array of long month names.
-		static String LongMonth[12];
-		//! Array of max number of days per month.
-		static int MonthMaxDays[12];
-		//! Today date/time
-		static CDateTime Today;
-
-	public:
 		/** Default constructor.
 		*/
 		CDate();
@@ -232,98 +218,6 @@ BEGIN_NAMESPACE_DATABASE
 		/** Compute year day.
 		*/
 		void DoComputeYearDay();
-
-		/** Check date consistency.
-		@param[in] date
-		    String containing date.
-		@param[in] format
-		    Format of date in string.
-		@param[in] year
-		    Year.
-		@param[in] month
-		    Month.
-		@param[in] monthDay
-		    Day.
-		@return
-		    true if valid date.
-		*/
-		static bool DoIsDate( const std::string & date, const std::string & format, int & year, EDateMonth & month, int & monthDay );
-
-		/** Find day.
-		@param[in] date
-		    Date.
-		@param[in] format
-		    Format.
-		@return
-		    Day.
-		*/
-		static int DoFindDay( const std::string & date, const std::string & format );
-
-		/** Find month.
-		@param[in] date
-		    Date.
-		@param[in] format
-		    Format.
-		@return
-		    Month.
-		*/
-		static int DoFindMonth( const std::string & date, const std::string & format );
-
-		/** Find year.
-		@param[in] date
-		    Date.
-		@param[in] format
-		    Format.
-		@return
-		    Year.
-		*/
-		static int DoFindYear( const std::string & date, const std::string & format );
-
-		/** Check date consistency.
-		@param[in] date
-		    String containing date.
-		@param[in] format
-		    Format of date in string.
-		@param[in] year
-		    Year.
-		@param[in] month
-		    Month.
-		@param[in] monthDay
-		    Day.
-		@return
-		    true if valid date.
-		*/
-		static bool DoIsDate( const std::wstring & date, const std::wstring & format, int & year, EDateMonth & month, int & monthDay );
-
-		/** Find day.
-		@param[in] date
-		    Date.
-		@param[in] format
-		    Format.
-		@return
-		    Day.
-		*/
-		static int DoFindDay( const std::wstring & date, const std::wstring & format );
-
-		/** Find month.
-		@param[in] date
-		    Date.
-		@param[in] format
-		    Format.
-		@return
-		    Month.
-		*/
-		static int DoFindMonth( const std::wstring & date, const std::wstring & format );
-
-		/** Find year.
-		@param[in] date
-		    Date.
-		@param[in] format
-		    Format.
-		@return
-		    Year.
-		*/
-		static int DoFindYear( const std::wstring & date, const std::wstring & format );
 
 		friend DatabaseExport bool operator ==( const CDate & lhs, const CDate & rhs );
 

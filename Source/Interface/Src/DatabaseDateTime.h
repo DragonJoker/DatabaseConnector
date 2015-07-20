@@ -226,26 +226,6 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		static bool IsDateTime( const std::wstring & dateTime, const std::wstring & format, CDateTime & result );
 
-		/** Check date/time consistency.
-		@param[in] dateTime
-			String containing date/time.
-		@param[out] result
-			Resulting object.
-		@return
-			true if valid time.
-		*/
-		static bool IsDateTime( const std::string & dateTime, CDateTime & result );
-
-		/** Check date/time consistency.
-		@param[in] dateTime
-			String containing date/time.
-		@param[out] result
-			Resulting object.
-		@return
-			true if valid time.
-		*/
-		static bool IsDateTime( const std::wstring & dateTime, CDateTime & result );
-
 		/** Get number of days in a month.
 		@param[in] month
 			Month.

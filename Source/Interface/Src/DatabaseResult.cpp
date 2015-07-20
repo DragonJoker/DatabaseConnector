@@ -46,16 +46,6 @@ BEGIN_NAMESPACE_DATABASE
 		_arrayFieldInfos.clear();
 	}
 
-	void CDatabaseResult::AddField( const String & name, EFieldType type, uint32_t limits )
-	{
-		_arrayFieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( _connection, name, type, limits ) );
-	}
-
-	void CDatabaseResult::AddField( const String & name, const String & type, int length )
-	{
-		_arrayFieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( _connection, name, type, length ) );
-	}
-
 	void CDatabaseResult::AddRow( DatabaseRowPtr row )
 	{
 		_listRows.push_back( row );
@@ -98,7 +88,6 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			StringStream message;
 			message << ERROR_DB_NO_FIELD << CStrUtils::ToString( index );
-			CLogger::LogError( message );
 			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, message.str() );
 		}
 
