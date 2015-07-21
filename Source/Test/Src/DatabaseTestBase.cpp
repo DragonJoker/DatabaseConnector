@@ -19,6 +19,12 @@
  *		Begin, begin, close conn.
  *	Stored procedures
  *	Multithread tests:
+ *		One insert, one insert
+ *		One insert, one select
+ *		One insert, one update
+ *		One update, one select
+ *		One update, one update
+ *		One select, one select
  *		One transacting insert, one insert
  *		One transacting insert, one update
  *		One transacting insert, one select
@@ -196,6 +202,34 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		//testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseStoredProcedure< 0 >, this ) ) );
 		//testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseStoredProcedure< 1 >, this ) ) );
 
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadInsertAndInsert< CDatabaseQuery, CDatabaseQuery >, this, STR( "Query" ), STR( "Query" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadInsertAndUpdate< CDatabaseQuery, CDatabaseQuery >, this, STR( "Query" ), STR( "Query" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadInsertAndSelect< CDatabaseQuery, CDatabaseQuery >, this, STR( "Query" ), STR( "Query" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadUpdateAndUpdate< CDatabaseQuery, CDatabaseQuery >, this, STR( "Query" ), STR( "Query" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadUpdateAndSelect< CDatabaseQuery, CDatabaseQuery >, this, STR( "Query" ), STR( "Query" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadSelectAndSelect< CDatabaseQuery, CDatabaseQuery >, this, STR( "Query" ), STR( "Query" ) ) ) );
+
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadInsertAndInsert< CDatabaseQuery, CDatabaseStatement >, this, STR( "Query" ), STR( "Statement" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadInsertAndUpdate< CDatabaseQuery, CDatabaseStatement >, this, STR( "Query" ), STR( "Statement" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadInsertAndSelect< CDatabaseQuery, CDatabaseStatement >, this, STR( "Query" ), STR( "Statement" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadUpdateAndUpdate< CDatabaseQuery, CDatabaseStatement >, this, STR( "Query" ), STR( "Statement" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadUpdateAndSelect< CDatabaseQuery, CDatabaseStatement >, this, STR( "Query" ), STR( "Statement" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadSelectAndSelect< CDatabaseQuery, CDatabaseStatement >, this, STR( "Query" ), STR( "Statement" ) ) ) );
+
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadInsertAndInsert< CDatabaseStatement, CDatabaseQuery >, this, STR( "Statement" ), STR( "Query" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadInsertAndUpdate< CDatabaseStatement, CDatabaseQuery >, this, STR( "Statement" ), STR( "Query" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadInsertAndSelect< CDatabaseStatement, CDatabaseQuery >, this, STR( "Statement" ), STR( "Query" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadUpdateAndUpdate< CDatabaseStatement, CDatabaseQuery >, this, STR( "Statement" ), STR( "Query" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadUpdateAndSelect< CDatabaseStatement, CDatabaseQuery >, this, STR( "Statement" ), STR( "Query" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadSelectAndSelect< CDatabaseStatement, CDatabaseQuery >, this, STR( "Statement" ), STR( "Query" ) ) ) );
+
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadInsertAndInsert< CDatabaseStatement, CDatabaseStatement >, this, STR( "Statement" ), STR( "Statement" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadInsertAndUpdate< CDatabaseStatement, CDatabaseStatement >, this, STR( "Statement" ), STR( "Statement" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadInsertAndSelect< CDatabaseStatement, CDatabaseStatement >, this, STR( "Statement" ), STR( "Statement" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadUpdateAndUpdate< CDatabaseStatement, CDatabaseStatement >, this, STR( "Statement" ), STR( "Statement" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadUpdateAndSelect< CDatabaseStatement, CDatabaseStatement >, this, STR( "Statement" ), STR( "Statement" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadSelectAndSelect< CDatabaseStatement, CDatabaseStatement >, this, STR( "Statement" ), STR( "Statement" ) ) ) );
+
 		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DestroyDatabase, this ) ) );
 
 		//!@remarks Return the TS instance.
@@ -206,12 +240,12 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	{
 		auto const guard = make_block_guard( [this]()
 		{
-			CLogger::LogInfo( StringStream() << "**** Start " + _type + "_TestCase_CreateDatabase ****" );
+			CLogger::LogInfo( StringStream() << "**** Start " << _type << "_TestCase_CreateDatabase ****" );
 			DoLoadPlugins();
 		}, [this]()
 		{
 			UnloadPlugins();
-			CLogger::LogInfo( StringStream() << "**** End " + _type + "_TestCase_CreateDatabase ****" );
+			CLogger::LogInfo( StringStream() << "**** End " << _type << "_TestCase_CreateDatabase ****" );
 		} );
 		std::unique_ptr< CDatabase > database( InstantiateDatabase( _type ) );
 
@@ -238,12 +272,12 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	{
 		auto const guard = make_block_guard( [this]()
 		{
-			CLogger::LogInfo( StringStream() << "**** Start " + _type + "_TestCase_DestroyDatabase ****" );
+			CLogger::LogInfo( StringStream() << "**** Start " << _type << "_TestCase_DestroyDatabase ****" );
 			DoLoadPlugins();
 		}, [this]()
 		{
 			UnloadPlugins();
-			CLogger::LogInfo( StringStream() << "**** End " + _type + "_TestCase_DestroyDatabase ****" );
+			CLogger::LogInfo( StringStream() << "**** End " << _type << "_TestCase_DestroyDatabase ****" );
 		} );
 		std::unique_ptr< CDatabase > database( InstantiateDatabase( _type ) );
 
