@@ -93,6 +93,36 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template< typename StmtType >
 		void TestCase_DatabaseStoredProcedure( const String & name );
 
+		/** Multithread test: one insert, one insert
+		*/
+		template< typename StmtTypeA, typename StmtTypeB >
+		void TestCase_MultithreadInsertAndInsert( const String & nameA, const String & nameB );
+
+		/** Multithread test: one insert, one update
+		*/
+		template< typename StmtTypeA, typename StmtTypeB >
+		void TestCase_MultithreadInsertAndUpdate( const String & nameA, const String & nameB );
+
+		/** Multithread test: one insert, one select
+		*/
+		template< typename StmtTypeA, typename StmtTypeB >
+		void TestCase_MultithreadInsertAndSelect( const String & nameA, const String & nameB );
+
+		/** Multithread test: one update, one update
+		*/
+		template< typename StmtTypeA, typename StmtTypeB >
+		void TestCase_MultithreadUpdateAndUpdate( const String & nameA, const String & nameB );
+
+		/** Multithread test: one update, one select
+		*/
+		template< typename StmtTypeA, typename StmtTypeB >
+		void TestCase_MultithreadUpdateAndSelect( const String & nameA, const String & nameB );
+
+		/** Multithread test: one select, one select
+		*/
+		template< typename StmtTypeA, typename StmtTypeB >
+		void TestCase_MultithreadSelectAndSelect( const String & nameA, const String & nameB );
+
 #if defined( PERF_TEST )
 		/** Performance test
 		*/
