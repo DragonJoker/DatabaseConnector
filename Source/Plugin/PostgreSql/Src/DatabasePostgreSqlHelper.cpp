@@ -37,10 +37,6 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 	static const TChar * ERROR_POSTGRESQL_DRIVER = STR( "PostgreSQL Driver error : " );
 	static const TChar * ERROR_POSTGRESQL_UNKNOWN = STR( "Unknown error encountered while executing query" );
 
-	static const String POSTGRE_FORMAT_DATE = STR( "%Y-%m-%d" );
-	static const String POSTGRE_FORMAT_DATETIME = STR( "%Y-%m-%d %H:%M:%S" );
-	static const String POSTGRE_FORMAT_TIME = STR( "%H:%M:%S" );
-
 	//************************************************************************************************
 	
 	SInPostgreSqlBindBase::SInPostgreSqlBindBase( int index, PGresult * result )
@@ -62,7 +58,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		, _connection( std::static_pointer_cast< CDatabaseConnectionPostgreSql >( parameter.GetConnection() )->GetConnection() )
 		, _valueBase( parameter.GetObjectValue() )
 	{
-		_bind.format = 1;
+		_bind.format = 0;
 	}
 
 	void SOutPostgreSqlBindBase::UpdateValue()
@@ -1080,7 +1076,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			break;
 
 		case EFieldType_SINT8:
-			result = EOid_CHAR;
+			result = EOid_INT2;
 			break;
 
 		case EFieldType_SINT16:
@@ -1096,7 +1092,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			break;
 
 		case EFieldType_UINT8:
-			result = EOid_CHAR;
+			result = EOid_INT2;
 			break;
 
 		case EFieldType_UINT16:

@@ -42,7 +42,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 	static const TChar * INFO_POSTGRESQL_STATEMENT_DESCRIBE = STR( "Statement describe" );
 	static const TChar * INFO_POSTGRESQL_STATEMENT_EXECUTION = STR( "Statement execution" );
 
-	static const String POSTGRESQL_SQL_DELIM = STR( "?" );
+	static const String POSTGRESQL_SQL_DELIM = STR( "$" );
 	static const String POSTGRESQL_SQL_PARAM = STR( "@" );
 	static const String POSTGRESQL_SQL_SET = STR( "SET @" );
 	static const String POSTGRESQL_SQL_NULL = STR( " = NULL;" );
@@ -127,6 +127,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		_arrayLengths.resize( _arrayParams.size() );
 		_arrayFormats.resize( _arrayParams.size() );
 		_arrayOids.reserve( _arrayParams.size() );
+		size_t index = 1;
 
 		while ( itQueries != _arrayQueries.end() && itParams != _arrayParams.end() )
 		{
@@ -136,7 +137,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			PGbind bind = { _arrayValues[i], _arrayLengths[i], _arrayFormats[i] };
 			_bindings.push_back( bind );
 			_arrayOids.push_back( GetOidFromFieldType( parameter->GetType() ) );
-			query << POSTGRESQL_SQL_DELIM;
+			query << POSTGRESQL_SQL_DELIM << index++;
 
 			if ( parameter->GetParamType() != EParameterType_IN )
 			{
@@ -164,7 +165,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		result = PQdescribePrepared( _connectionPostgreSql->GetConnection(), _statement.c_str() );
 		PostgreSQLCheck( result, INFO_POSTGRESQL_STATEMENT_DESCRIBE, EDatabaseExceptionCodes_StatementError, _connectionPostgreSql->GetConnection() );
 		int count = PQnparams ( result );
-		size_t index = 0;
+		index = 0;
 
 		for ( auto && parameter : arrayParams )
 		{
@@ -172,6 +173,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			parameter->SetBinding( &_bindings[index++] );
 		}
 
+		eReturn = EErrorType_NONE;
 		return eReturn;
 	}
 

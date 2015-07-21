@@ -22,6 +22,10 @@
 
 BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 {
+	static const String POSTGRE_FORMAT_DATE = STR( "%Y-%m-%d" );
+	static const String POSTGRE_FORMAT_DATETIME = STR( "%Y-%m-%d %H:%M:%S" );
+	static const String POSTGRE_FORMAT_TIME = STR( "%H:%M:%S" );
+
 	/** The structure holding the base PostgreSQL parameters binding
 	*/
 	struct PGbind

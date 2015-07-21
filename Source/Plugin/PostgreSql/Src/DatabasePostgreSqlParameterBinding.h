@@ -42,6 +42,7 @@
 BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 {
 	static const String ERROR_POSTGRESQL_PARAMETER_VALUE = STR( "Can't set parameter value" );
+	static const TChar * INFO_ESCAPING_BINARY = STR( "Escaping byte array" );
 
 	/** Tables of PostgreSQL types association to EFieldTypes
 	*/
@@ -264,7 +265,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 
 	/** Generic template class to update the binding from the parameter value
 	*/
-	template< typename T >
+	template< EFieldType FieldType >
 	struct SOutPostgreSqlBind
 		: public SOutPostgreSqlBindBase
 	{
@@ -278,7 +279,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		@param parameter
 			The parameter
 		*/
-		SOutPostgreSqlBind( PGbind & bind, Oid type, CDatabaseValueBase & value, CDatabaseParameterPostgreSql & parameter )
+		SOutPostgreSqlBind( PGbind & bind, Oid type, CDatabaseValue< FieldType > & value, CDatabaseParameterPostgreSql & parameter )
 			: SOutPostgreSqlBindBase( bind, type, parameter )
 			, _value( value )
 		{
@@ -287,18 +288,25 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		//!@copydoc SOutPostgreSqlBindBase::DoUpdateValue
 		virtual void DoUpdateValue()
 		{
-			_bind.length = sizeof( T );
-			_bind.value = static_cast< char * >( _value.GetPtrValue() );
+			std::stringstream stream;
+			stream << _value.GetValue();
+			std::string value = stream.str();
+			_bind.length = int( value.size() );
+			assert( _bind.length < _holder.size() );
+			strcpy( _holder.data(), value.data() );
+			_bind.value = _holder.data();
 		}
 
 		//! The parameter value
-		CDatabaseValueBase & _value;
+		CDatabaseValue< FieldType > & _value;
+		//! The parameter value holder
+		std::array< char, 32 > _holder;
 	};
 
-	/** SOutPostgreSqlBind specialization for pointer types
+	/** SOutPostgreSqlBind specialization for EFieldType_SINT8
 	*/
-	template< typename T >
-	struct SOutPostgreSqlBind< T * >
+	template<>
+	struct SOutPostgreSqlBind< EFieldType_SINT8 >
 		: public SOutPostgreSqlBindBase
 	{
 		/** Constructor
@@ -311,15 +319,88 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		@param parameter
 			The parameter
 		*/
-		SOutPostgreSqlBind( PGbind & bind, Oid type, CDatabaseValueBase & value, CDatabaseParameterPostgreSql & parameter )
+		SOutPostgreSqlBind( PGbind & bind, Oid type, CDatabaseValue< EFieldType_SINT8 > & value, CDatabaseParameterPostgreSql & parameter )
 			: SOutPostgreSqlBindBase( bind, type, parameter )
 			, _value( value )
 		{
 		}
 
-		/** Destructor
+		//!@copydoc SOutPostgreSqlBindBase::DoUpdateValue
+		virtual void DoUpdateValue()
+		{
+			std::stringstream stream;
+			stream << int16_t( _value.GetValue() );
+			std::string value = stream.str();
+			_bind.length = int( value.size() );
+			assert( _bind.length < _holder.size() );
+			strcpy( _holder.data(), value.data() );
+			_bind.value = _holder.data();
+		}
+
+		//! The parameter value
+		CDatabaseValue< EFieldType_SINT8 > & _value;
+		//! The value holder
+		std::array< char, 5 > _holder;
+	};
+
+	/** SOutPostgreSqlBind specialization for EFieldType_SINT8
+	*/
+	template<>
+	struct SOutPostgreSqlBind< EFieldType_UINT8 >
+		: public SOutPostgreSqlBindBase
+	{
+		/** Constructor
+		@param bind
+			The binding
+		@param type
+			The PostgreSQL data type
+		@param value
+			The parameter value
+		@param parameter
+			The parameter
 		*/
-		~SOutPostgreSqlBind()
+		SOutPostgreSqlBind( PGbind & bind, Oid type, CDatabaseValue< EFieldType_UINT8 > & value, CDatabaseParameterPostgreSql & parameter )
+			: SOutPostgreSqlBindBase( bind, type, parameter )
+			, _value( value )
+		{
+		}
+
+		//!@copydoc SOutPostgreSqlBindBase::DoUpdateValue
+		virtual void DoUpdateValue()
+		{
+			std::stringstream stream;
+			stream << uint16_t( _value.GetValue() );
+			std::string value = stream.str();
+			_bind.length = int( value.size() );
+			assert( _bind.length < _holder.size() );
+			strcpy( _holder.data(), value.data() );
+			_bind.value = _holder.data();
+		}
+
+		//! The parameter value
+		CDatabaseValue< EFieldType_UINT8 > & _value;
+		//! The value holder
+		std::array< char, 4 > _holder;
+	};
+
+	/** Base binding class for string types
+	*/
+	struct SStringOutPostgreSqlBind
+		: public SOutPostgreSqlBindBase
+	{
+		/** Constructor
+		@param bind
+			The binding
+		@param type
+			The PostgreSQL data type
+		@param value
+			The parameter value
+		@param parameter
+			The parameter
+		*/
+		SStringOutPostgreSqlBind( PGbind & bind, Oid type, CDatabaseValueBase & value, CDatabaseParameterPostgreSql & parameter )
+			: SOutPostgreSqlBindBase( bind, type, parameter )
+			, _value( value )
 		{
 		}
 
@@ -327,22 +408,86 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		virtual void DoUpdateValue()
 		{
 			_bind.length = int( _value.GetPtrSize() );
-			memcpy( _holder.data(), _value.GetPtrValue(), _bind.length );
-			_bind.value = reinterpret_cast< char * >( _holder.data() );
+			_holder.resize( _bind.length + 1 );
+			strcpy( _holder.data(), reinterpret_cast< const char * >( _value.GetPtrValue() ) );
+			_bind.value = _holder.data();
 		}
 
 		//! The parameter value
 		CDatabaseValueBase & _value;
 		//! The value holder
-		std::vector< T > _holder;
-		//! The method used to send the value to the server
-		void ( SOutPostgreSqlBind< T * >::*_updateFunc )();
+		std::vector< char > _holder;
 	};
 
-	/** SOutPostgreSqlBind specialization for wchar_t pointers, since PostgreSQL only support char pointers
+	/** SOutPostgreSqlBind specialization for EFieldType_CHAR
 	*/
 	template<>
-	struct SOutPostgreSqlBind< wchar_t * >
+	struct SOutPostgreSqlBind< EFieldType_CHAR >
+		: public SStringOutPostgreSqlBind
+	{
+		/** Constructor
+		@param bind
+			The binding
+		@param type
+			The PostgreSQL data type
+		@param value
+			The parameter value
+		@param parameter
+			The parameter
+		*/
+		SOutPostgreSqlBind( PGbind & bind, Oid type, CDatabaseValue< EFieldType_CHAR > & value, CDatabaseParameterPostgreSql & parameter )
+			: SStringOutPostgreSqlBind( bind, type, value, parameter )
+		{
+		}
+	};
+
+	/** SOutPostgreSqlBind specialization for EFieldType_VARCHAR
+	*/
+	template<>
+	struct SOutPostgreSqlBind< EFieldType_VARCHAR >
+		: public SStringOutPostgreSqlBind
+	{
+		/** Constructor
+		@param bind
+			The binding
+		@param type
+			The PostgreSQL data type
+		@param value
+			The parameter value
+		@param parameter
+			The parameter
+		*/
+		SOutPostgreSqlBind( PGbind & bind, Oid type, CDatabaseValue< EFieldType_VARCHAR > & value, CDatabaseParameterPostgreSql & parameter )
+			: SStringOutPostgreSqlBind( bind, type, value, parameter )
+		{
+		}
+	};
+
+	/** SOutPostgreSqlBind specialization for EFieldType_TEXT
+	*/
+	template<>
+	struct SOutPostgreSqlBind< EFieldType_TEXT >
+		: public SStringOutPostgreSqlBind
+	{
+		/** Constructor
+		@param bind
+			The binding
+		@param type
+			The PostgreSQL data type
+		@param value
+			The parameter value
+		@param parameter
+			The parameter
+		*/
+		SOutPostgreSqlBind( PGbind & bind, Oid type, CDatabaseValue< EFieldType_TEXT > & value, CDatabaseParameterPostgreSql & parameter )
+			: SStringOutPostgreSqlBind( bind, type, value, parameter )
+		{
+		}
+	};
+
+	/** Base binding class for wide string types
+	*/
+	struct SWStringOutPostgreSqlBind
 		: public SOutPostgreSqlBindBase
 	{
 		/** Constructor
@@ -355,37 +500,210 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		@param parameter
 			The parameter
 		*/
-		SOutPostgreSqlBind( PGbind & bind, Oid type, CDatabaseValueBase & value, CDatabaseParameterPostgreSql & parameter )
+		SWStringOutPostgreSqlBind( PGbind & bind, Oid type, CDatabaseValueBase & value, CDatabaseParameterPostgreSql & parameter )
 			: SOutPostgreSqlBindBase( bind, type, parameter )
 			, _value( value )
-		{
-		}
-
-		/** Destructor
-		*/
-		~SOutPostgreSqlBind()
 		{
 		}
 
 		//!@copydoc SOutPostgreSqlBindBase::DoUpdateValue
 		virtual void DoUpdateValue()
 		{
-			std::string str = CStrUtils::ToStr( reinterpret_cast< const wchar_t * >( _value.GetPtrValue() ) );
-			_bind.length = int( str.size() );
-			_holder.resize( _bind.length );
-			memcpy( _holder.data(), str.data(), _bind.length );
+			std::string value = CStrUtils::ToStr( reinterpret_cast< const wchar_t * >( _value.GetPtrValue() ) );
+			_bind.length = int( value.size() );
+			_holder.resize( _bind.length + 1 );
+			strcpy( _holder.data(), value.c_str() );
 			_bind.value = _holder.data();
 		}
 
+		//! The parameter value
 		CDatabaseValueBase & _value;
 		//! The value holder
 		std::vector< char > _holder;
 	};
 
-	/** SOutPostgreSqlBind specialization for bool
+	/** SOutPostgreSqlBind specialization for EFieldType_NCHAR
 	*/
 	template<>
-	struct SOutPostgreSqlBind< bool >
+	struct SOutPostgreSqlBind< EFieldType_NCHAR >
+		: public SWStringOutPostgreSqlBind
+	{
+		/** Constructor
+		@param bind
+			The binding
+		@param type
+			The PostgreSQL data type
+		@param value
+			The parameter value
+		@param parameter
+			The parameter
+		*/
+		SOutPostgreSqlBind( PGbind & bind, Oid type, CDatabaseValue< EFieldType_NCHAR > & value, CDatabaseParameterPostgreSql & parameter )
+			: SWStringOutPostgreSqlBind( bind, type, value, parameter )
+		{
+		}
+	};
+
+	/** SOutPostgreSqlBind specialization for EFieldType_NVARCHAR
+	*/
+	template<>
+	struct SOutPostgreSqlBind< EFieldType_NVARCHAR >
+		: public SWStringOutPostgreSqlBind
+	{
+		/** Constructor
+		@param bind
+			The binding
+		@param type
+			The PostgreSQL data type
+		@param value
+			The parameter value
+		@param parameter
+			The parameter
+		*/
+		SOutPostgreSqlBind( PGbind & bind, Oid type, CDatabaseValue< EFieldType_NVARCHAR > & value, CDatabaseParameterPostgreSql & parameter )
+			: SWStringOutPostgreSqlBind( bind, type, value, parameter )
+		{
+		}
+	};
+
+	/** SOutPostgreSqlBind specialization for EFieldType_NTEXT
+	*/
+	template<>
+	struct SOutPostgreSqlBind< EFieldType_NTEXT >
+		: public SWStringOutPostgreSqlBind
+	{
+		/** Constructor
+		@param bind
+			The binding
+		@param type
+			The PostgreSQL data type
+		@param value
+			The parameter value
+		@param parameter
+			The parameter
+		*/
+		SOutPostgreSqlBind( PGbind & bind, Oid type, CDatabaseValue< EFieldType_NTEXT > & value, CDatabaseParameterPostgreSql & parameter )
+			: SWStringOutPostgreSqlBind( bind, type, value, parameter )
+		{
+		}
+	};
+
+	/** Base binding class for byte array types
+	*/
+	struct SBinaryOutPostgreSqlBind
+		: public SOutPostgreSqlBindBase
+	{
+		/** Constructor
+		@param bind
+			The binding
+		@param type
+			The PostgreSQL data type
+		@param value
+			The parameter value
+		@param parameter
+			The parameter
+		*/
+		SBinaryOutPostgreSqlBind( PGbind & bind, Oid type, CDatabaseValueBase & value, CDatabaseParameterPostgreSql & parameter )
+			: SOutPostgreSqlBindBase( bind, type, parameter )
+			, _value( value )
+		{
+		}
+
+		//!@copydoc SOutPostgreSqlBindBase::DoUpdateValue
+		virtual void DoUpdateValue()
+		{
+			size_t length = 0;
+			uint8_t * escaped = PQescapeByteaConn( _connection, reinterpret_cast< const uint8_t * >( _value.GetPtrValue() ), _value.GetPtrSize(), &length );
+
+			if ( !escaped )
+			{
+				PostgreSQLCheck( NULL, INFO_ESCAPING_BINARY, EDatabaseExceptionCodes_ConnectionError, _connection );
+			}
+			
+			std::string value = CStrUtils::ToString( reinterpret_cast< char * >( escaped ) );
+			PQfreemem( escaped );
+			_bind.length = int( length );
+			_holder.resize( length + 1 );
+			strcpy( _holder.data(), value.c_str() );
+			_bind.value = _holder.data();
+		}
+
+		//! The parameter value
+		CDatabaseValueBase & _value;
+		//! The value holder
+		std::vector< char > _holder;
+	};
+
+	/** SOutPostgreSqlBind specialization for EFieldType_BINARY
+	*/
+	template<>
+	struct SOutPostgreSqlBind< EFieldType_BINARY >
+		: public SBinaryOutPostgreSqlBind
+	{
+		/** Constructor
+		@param bind
+			The binding
+		@param type
+			The PostgreSQL data type
+		@param value
+			The parameter value
+		@param parameter
+			The parameter
+		*/
+		SOutPostgreSqlBind( PGbind & bind, Oid type, CDatabaseValue< EFieldType_BINARY > & value, CDatabaseParameterPostgreSql & parameter )
+			: SBinaryOutPostgreSqlBind( bind, type, value, parameter )
+		{
+		}
+	};
+
+	/** SOutPostgreSqlBind specialization for EFieldType_VARBINARY
+	*/
+	template<>
+	struct SOutPostgreSqlBind< EFieldType_VARBINARY >
+		: public SBinaryOutPostgreSqlBind
+	{
+		/** Constructor
+		@param bind
+			The binding
+		@param type
+			The PostgreSQL data type
+		@param value
+			The parameter value
+		@param parameter
+			The parameter
+		*/
+		SOutPostgreSqlBind( PGbind & bind, Oid type, CDatabaseValue< EFieldType_VARBINARY > & value, CDatabaseParameterPostgreSql & parameter )
+			: SBinaryOutPostgreSqlBind( bind, type, value, parameter )
+		{
+		}
+	};
+
+	/** SOutPostgreSqlBind specialization for EFieldType_LONG_VARBINARY
+	*/
+	template<>
+	struct SOutPostgreSqlBind< EFieldType_LONG_VARBINARY >
+		: public SBinaryOutPostgreSqlBind
+	{
+		/** Constructor
+		@param bind
+			The binding
+		@param type
+			The PostgreSQL data type
+		@param value
+			The parameter value
+		@param parameter
+			The parameter
+		*/
+		SOutPostgreSqlBind( PGbind & bind, Oid type, CDatabaseValue< EFieldType_LONG_VARBINARY > & value, CDatabaseParameterPostgreSql & parameter )
+			: SBinaryOutPostgreSqlBind( bind, type, value, parameter )
+		{
+		}
+	};
+
+	/** SOutPostgreSqlBind specialization for EFieldType_BIT
+	*/
+	template<>
+	struct SOutPostgreSqlBind< EFieldType_BIT >
 		: public SOutPostgreSqlBindBase
 	{
 		/** Constructor
@@ -401,100 +719,27 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		SOutPostgreSqlBind( PGbind & bind, Oid type, CDatabaseValue< EFieldType_BIT > & value, CDatabaseParameterPostgreSql & parameter )
 			: SOutPostgreSqlBindBase( bind, type, parameter )
 			, _value( value )
-			, _holder( 0 )
 		{
 		}
 
 		//!@copydoc SOutPostgreSqlBindBase::DoUpdateValue
 		virtual void DoUpdateValue()
 		{
-			_holder = _value.GetValue() ? 1 : 0;
-			_bind.length = sizeof( _holder );
-			_bind.value = reinterpret_cast< char * >( &_holder );
+			strcpy( _holder.data(), _value.GetValue() ? "true" : "false" );
+			_bind.length = _value.GetValue() ? 4 : 5;
+			_bind.value = _holder.data();
 		}
 
 		//! The parameter value
 		CDatabaseValue< EFieldType_BIT > & _value;
 		//! The value holder
-		int8_t _holder;
+		std::array< char, 6 > _holder;
 	};
 
-	/** SOutPostgreSqlBind specialization for int24_t
+	/** SOutPostgreSqlBind specialization for EFieldType_FIXED_POINT
 	*/
 	template<>
-	struct SOutPostgreSqlBind< int24_t >
-		: public SOutPostgreSqlBindBase
-	{
-		/** Constructor
-		@param bind
-			The binding
-		@param type
-			The PostgreSQL data type
-		@param value
-			The parameter value
-		@param parameter
-			The parameter
-		*/
-		SOutPostgreSqlBind( PGbind & bind, Oid type, CDatabaseValue< EFieldType_SINT24 > & value, CDatabaseParameterPostgreSql & parameter )
-			: SOutPostgreSqlBindBase( bind, type, parameter )
-			, _value( value )
-		{
-		}
-
-		//!@copydoc SOutPostgreSqlBindBase::DoUpdateValue
-		virtual void DoUpdateValue()
-		{
-			_holder = int32_t( _value.GetValue() );
-			_bind.length = sizeof( _holder );
-			_bind.value = reinterpret_cast< char * >( &_holder );
-		}
-
-		//! The parameter value
-		CDatabaseValue< EFieldType_SINT24 > & _value;
-		//! The value holder
-		int32_t _holder;
-	};
-
-	/** SOutPostgreSqlBind specialization for uint24_t
-	*/
-	template<>
-	struct SOutPostgreSqlBind< uint24_t >
-		: public SOutPostgreSqlBindBase
-	{
-		/** Constructor
-		@param bind
-			The binding
-		@param type
-			The PostgreSQL data type
-		@param value
-			The parameter value
-		@param parameter
-			The parameter
-		*/
-		SOutPostgreSqlBind( PGbind & bind, Oid type, CDatabaseValue< EFieldType_UINT24 > & value, CDatabaseParameterPostgreSql & parameter )
-			: SOutPostgreSqlBindBase( bind, type, parameter )
-			, _value( value )
-		{
-		}
-
-		//!@copydoc SOutPostgreSqlBindBase::DoUpdateValue
-		virtual void DoUpdateValue()
-		{
-			_holder = uint32_t( _value.GetValue() );
-			_bind.length = sizeof( _holder );
-			_bind.value = reinterpret_cast< char * >( &_holder );
-		}
-
-		//! The parameter value
-		CDatabaseValue< EFieldType_UINT24 > & _value;
-		//! The value holder
-		uint32_t _holder;
-	};
-
-	/** SOutPostgreSqlBind specialization for CFixedPoint
-	*/
-	template<>
-	struct SOutPostgreSqlBind< CFixedPoint >
+	struct SOutPostgreSqlBind< EFieldType_FIXED_POINT >
 		: public SOutPostgreSqlBindBase
 	{
 		/** Constructor
@@ -510,19 +755,16 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		SOutPostgreSqlBind( PGbind & bind, Oid type, CDatabaseValue< EFieldType_FIXED_POINT > & value, CDatabaseParameterPostgreSql & parameter )
 			: SOutPostgreSqlBindBase( bind, type, parameter )
 			, _value( value )
-			, _length( 0 )
-			, _holder( { 0 } )
 		{
 		}
 
 		//!@copydoc SOutPostgreSqlBindBase::DoUpdateValue
 		virtual void DoUpdateValue()
 		{
-			String value = _value.GetValue().ToString();
-			_length = static_cast< unsigned long >( value.size() );
-			assert( _length < 32 );
+			std::string value = CStrUtils::ToStr( _value.GetValue().ToString() );
+			_bind.length = int( value.size() );
+			assert( _bind.length < _holder.size() );
 			strcpy( _holder.data(), value.data() );
-			_bind.length = _holder.size();
 			_bind.value = _holder.data();
 		}
 
@@ -530,14 +772,12 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		CDatabaseValue< EFieldType_FIXED_POINT > & _value;
 		//! The value holder
 		std::array< char, 32 > _holder;
-		//! The binding length
-		unsigned long _length;
 	};
 
-	/** SOutPostgreSqlBind specialization for CDate
+	/** SOutPostgreSqlBind specialization for EFieldType_DATE
 	*/
 	template<>
-	struct SOutPostgreSqlBind< CDate >
+	struct SOutPostgreSqlBind< EFieldType_DATE >
 		: public SOutPostgreSqlBindBase
 	{
 		/** Constructor
@@ -553,30 +793,29 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		SOutPostgreSqlBind( PGbind & bind, Oid type, CDatabaseValue< EFieldType_DATE > & value, CDatabaseParameterPostgreSql & parameter )
 			: SOutPostgreSqlBindBase( bind, type, parameter )
 			, _value( value )
-			, _holder( { 0 } )
 		{
 		}
 
 		//!@copydoc SOutPostgreSqlBindBase::DoUpdateValue
 		virtual void DoUpdateValue()
 		{
-			//_holder.year = _value.GetValue().GetYear();
-			//_holder.month = _value.GetValue().GetMonth() + 1;
-			//_holder.day = _value.GetValue().GetMonthDay();
-			_bind.length = sizeof( _holder );
+			std::string value = _value.GetValue().Format( POSTGRE_FORMAT_DATE );
+			_bind.length = int( value.size() );
+			assert( _bind.length < _holder.size() );
+			strcpy( _holder.data(), value.data() );
 			_bind.value = reinterpret_cast< char * >( &_holder );
 		}
 
 		//! The parameter value
 		CDatabaseValue< EFieldType_DATE > & _value;
 		//! The value holder
-		date _holder;
+		std::array< char, 11 > _holder;
 	};
 
-	/** SOutPostgreSqlBind specialization for CDateTime
+	/** SOutPostgreSqlBind specialization for EFieldType_DATETIME
 	*/
 	template<>
-	struct SOutPostgreSqlBind< CDateTime >
+	struct SOutPostgreSqlBind< EFieldType_DATETIME >
 		: public SOutPostgreSqlBindBase
 	{
 		/** Constructor
@@ -599,26 +838,23 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		//!@copydoc SOutPostgreSqlBindBase::DoUpdateValue
 		virtual void DoUpdateValue()
 		{
-			//_holder.year = _value.GetValue().GetYear();
-			//_holder.month = _value.GetValue().GetMonth() + 1;
-			//_holder.day = _value.GetValue().GetMonthDay();
-			//_holder.hour = _value.GetValue().GetHour();
-			//_holder.minute = _value.GetValue().GetMinute();
-			//_holder.second = _value.GetValue().GetSecond();
-			_bind.length = sizeof( _holder );
+			std::string value = _value.GetValue().Format( POSTGRE_FORMAT_DATETIME );
+			_bind.length = int( value.size() );
+			assert( _bind.length < _holder.size() );
+			strcpy( _holder.data(), value.data() );
 			_bind.value = reinterpret_cast< char * >( &_holder );
 		}
 
 		//! The parameter value
 		CDatabaseValue< EFieldType_DATETIME > & _value;
 		//! The value holder
-		timestamp _holder;
+		std::array< char, 20 > _holder;
 	};
 
-	/** SOutPostgreSqlBind specialization for CTime
+	/** SOutPostgreSqlBind specialization for EFieldType_TIME
 	*/
 	template<>
-	struct SOutPostgreSqlBind< CTime >
+	struct SOutPostgreSqlBind< EFieldType_TIME >
 		: public SOutPostgreSqlBindBase
 	{
 		/** Constructor
@@ -634,24 +870,23 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		SOutPostgreSqlBind( PGbind & bind, Oid type, CDatabaseValue< EFieldType_TIME > & value, CDatabaseParameterPostgreSql & parameter )
 			: SOutPostgreSqlBindBase( bind, type, parameter )
 			, _value( value )
-			, _holder( { 0 } )
 		{
 		}
 
 		//!@copydoc SOutPostgreSqlBindBase::DoUpdateValue
 		virtual void DoUpdateValue()
 		{
-			//_holder.hour = _value.GetValue().GetHour();
-			//_holder.minute = _value.GetValue().GetMinute();
-			//_holder.second = _value.GetValue().GetSecond();
-			_bind.length = sizeof( _holder );
+			std::string value = _value.GetValue().Format( POSTGRE_FORMAT_TIME );
+			_bind.length = int( value.size() );
+			assert( _bind.length < _holder.size() );
+			strcpy( _holder.data(), value.data() );
 			_bind.value = reinterpret_cast< char * >( &_holder );
 		}
 
 		//! The parameter value
 		CDatabaseValue< EFieldType_TIME > & _value;
 		//! The value holder
-		time_t _holder;
+		std::array< char, 7 > _holder;
 	};
 
 	/** Function used to create a SOutPostgreSqlBind easily
@@ -665,7 +900,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 	template< EFieldType Type > std::unique_ptr< SOutPostgreSqlBindBase > MakeOutBind( PGbind & bind, CDatabaseValueBase & value, CDatabaseParameterPostgreSql & parameter )
 	{
 		typedef SFieldTypePostgreSqlDataTyper< Type > typer_type;
-		return std::make_unique< SOutPostgreSqlBind< typename typer_type::FieldDataType > >( bind, FieldTypes[Type], static_cast< CDatabaseValue< Type > & >( value ), parameter );
+		return std::make_unique< SOutPostgreSqlBind< Type > >( bind, FieldTypes[Type], static_cast< CDatabaseValue< Type > & >( value ), parameter );
 	}
 }
 END_NAMESPACE_DATABASE_POSTGRESQL

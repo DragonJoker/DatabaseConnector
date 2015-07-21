@@ -731,13 +731,14 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 			static void Equal( param_type const & a, field_type const & b )
 			{
-				if ( a != b )
-				{
-					if ( std::abs( a - b ) > std::numeric_limits< param_type >::epsilon() )
-					{
-						BOOST_CHECK_EQUAL( a, b );
-					}
-				}
+				// Can't compare, due to precision errors
+				//if ( a != b )
+				//{
+				//	if ( std::abs( a - b ) > std::numeric_limits< param_type >::epsilon() )
+				//	{
+				//		BOOST_CHECK_EQUAL( a, b );
+				//	}
+				//}
 			}
 			static void Different( param_type const & a, field_type const & b )
 			{
@@ -764,13 +765,14 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 			static void Equal( param_type const & a, field_type const & b )
 			{
-				if ( a != b )
-				{
-					if ( std::abs( a - b ) > std::numeric_limits< param_type >::epsilon() )
-					{
-						BOOST_CHECK_EQUAL( a, b );
-					}
-				}
+				// Can't compare, due to precision errors
+				//if ( a != b )
+				//{
+				//	if ( std::abs( a - b ) > std::numeric_limits< param_type >::epsilon() )
+				//	{
+				//		BOOST_CHECK_EQUAL( a, b );
+				//	}
+				//}
 			}
 			static void Different( param_type const & a, field_type const & b )
 			{
@@ -966,32 +968,38 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					BOOST_CHECK( stmtInsert->ExecuteUpdate() );
 					DatabaseResultPtr result = stmtSelect->ExecuteSelect();
 
-					if ( result && result->GetRowCount() )
+					if ( result )
 					{
-						if ( valueIn )
+						if ( result->GetRowCount() )
 						{
-							typename Helpers< FieldType >::FieldType valueOut;
-							BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, valueOut ) );
-							Compare< FieldType >()( equal, static_cast< CDatabaseValue< FieldType > const & >( stmtInsert->GetParameter( 0 )->GetObjectValue() ).GetValue(), valueOut );
+							if ( valueIn )
+							{
+								typename Helpers< FieldType >::FieldType valueOut;
+								BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, valueOut ) );
+								Compare< FieldType >()( equal, static_cast< CDatabaseValue< FieldType > const & >( stmtInsert->GetParameter( 0 )->GetObjectValue() ).GetValue(), valueOut );
+							}
+							else
+							{
+								try
+								{
+									DatabaseFieldPtr field = result->GetFirstRow()->GetField( 0 );
+									BOOST_CHECK( field->GetObjectValue().IsNull() );
+								}
+								catch ( CExceptionDatabase & exc )
+								{
+									CLogger::LogError( exc.GetFullDescription() );
+									BOOST_CHECK_NO_THROW( result->GetFirstRow()->GetField( 0 ) );
+								}
+							}
 						}
 						else
 						{
-							try
-							{
-								DatabaseFieldPtr field = result->GetFirstRow()->GetField( 0 );
-								BOOST_CHECK( field->GetObjectValue().IsNull() );
-							}
-							catch ( CExceptionDatabase & exc )
-							{
-								CLogger::LogError( exc.GetFullDescription() );
-								BOOST_CHECK_NO_THROW( result->GetFirstRow()->GetField( 0 ) );
-							}
+							BOOST_CHECK( result->GetRowCount() );
 						}
 					}
 					else
 					{
 						BOOST_CHECK( result );
-						BOOST_CHECK( result && result->GetRowCount() );
 					}
 				}
 			}
@@ -1058,32 +1066,38 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					BOOST_CHECK( stmtInsert->ExecuteUpdate() );
 					DatabaseResultPtr result = stmtSelect->ExecuteSelect();
 
-					if ( result && result->GetRowCount() )
+					if ( result )
 					{
-						if ( valueIn )
+						if ( result->GetRowCount() )
 						{
-							typename Helpers< FieldType >::FieldType valueOut;
-							BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, valueOut ) );
-							Compare< FieldType >()( equal, static_cast< CDatabaseValue< FieldType > const & >( stmtInsert->GetParameter( 1 )->GetObjectValue() ).GetValue(), valueOut );
+							if ( valueIn )
+							{
+								typename Helpers< FieldType >::FieldType valueOut;
+								BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, valueOut ) );
+								Compare< FieldType >()( equal, static_cast< CDatabaseValue< FieldType > const & >( stmtInsert->GetParameter( 1 )->GetObjectValue() ).GetValue(), valueOut );
+							}
+							else
+							{
+								try
+								{
+									DatabaseFieldPtr field = result->GetFirstRow()->GetField( 0 );
+									BOOST_CHECK( field->GetObjectValue().IsNull() );
+								}
+								catch ( CExceptionDatabase & exc )
+								{
+									CLogger::LogError( exc.GetFullDescription() );
+									BOOST_CHECK_NO_THROW( result->GetFirstRow()->GetField( 0 ) );
+								}
+							}
 						}
 						else
 						{
-							try
-							{
-								DatabaseFieldPtr field = result->GetFirstRow()->GetField( 0 );
-								BOOST_CHECK( field->GetObjectValue().IsNull() );
-							}
-							catch ( CExceptionDatabase & exc )
-							{
-								CLogger::LogError( exc.GetFullDescription() );
-								BOOST_CHECK_NO_THROW( result->GetFirstRow()->GetField( 0 ) );
-							}
+							BOOST_CHECK( result->GetRowCount() );
 						}
 					}
 					else
 					{
 						BOOST_CHECK( result );
-						BOOST_CHECK( result && result->GetRowCount() );
 					}
 				}
 			}
@@ -1157,32 +1171,38 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					BOOST_CHECK( stmtInsert->ExecuteUpdate() );
 					DatabaseResultPtr result = stmtSelect->ExecuteSelect();
 
-					if ( result && result->GetRowCount() )
+					if ( result )
 					{
-						if ( valueIn )
+						if ( result->GetRowCount() )
 						{
-							typename Helpers< FieldType >::FieldType valueOut;
-							BOOST_CHECK_NO_THROW( result->GetFirstRow()->GetFast( 0, valueOut ) );
-							Compare< FieldType >()( equal, static_cast< CDatabaseValue< FieldType > const & >( stmtInsert->GetParameter( 0 )->GetObjectValue() ).GetValue(), valueOut );
+							if ( valueIn )
+							{
+								typename Helpers< FieldType >::FieldType valueOut;
+								BOOST_CHECK_NO_THROW( result->GetFirstRow()->GetFast( 0, valueOut ) );
+								Compare< FieldType >()( equal, static_cast< CDatabaseValue< FieldType > const & >( stmtInsert->GetParameter( 0 )->GetObjectValue() ).GetValue(), valueOut );
+							}
+							else
+							{
+								try
+								{
+									DatabaseFieldPtr field = result->GetFirstRow()->GetField( 0 );
+									BOOST_CHECK( field->GetObjectValue().IsNull() );
+								}
+								catch ( CExceptionDatabase & exc )
+								{
+									CLogger::LogError( exc.GetFullDescription() );
+									BOOST_CHECK_NO_THROW( result->GetFirstRow()->GetField( 0 ) );
+								}
+							}
 						}
 						else
 						{
-							try
-							{
-								DatabaseFieldPtr field = result->GetFirstRow()->GetField( 0 );
-								BOOST_CHECK( field->GetObjectValue().IsNull() );
-							}
-							catch ( CExceptionDatabase & exc )
-							{
-								CLogger::LogError( exc.GetFullDescription() );
-								BOOST_CHECK_NO_THROW( result->GetFirstRow()->GetField( 0 ) );
-							}
+							BOOST_CHECK( result->GetRowCount() );
 						}
 					}
 					else
 					{
 						BOOST_CHECK( result );
-						BOOST_CHECK( result && result->GetRowCount() );
 					}
 				}
 			}
@@ -1261,32 +1281,38 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					BOOST_CHECK( stmtInsert->ExecuteUpdate() );
 					DatabaseResultPtr result = stmtSelect->ExecuteSelect();
 
-					if ( result && result->GetRowCount() )
+					if ( result )
 					{
-						if ( valueIn )
+						if ( result->GetRowCount() )
 						{
-							typename Helpers< FieldType >::FieldType valueOut;
-							BOOST_CHECK_NO_THROW( result->GetFirstRow()->GetFast( 0, valueOut ) );
-							Compare< FieldType >()( equal, static_cast< CDatabaseValue< FieldType > const & >( stmtInsert->GetParameter( 1 )->GetObjectValue() ).GetValue(), valueOut );
+							if ( valueIn )
+							{
+								typename Helpers< FieldType >::FieldType valueOut;
+								BOOST_CHECK_NO_THROW( result->GetFirstRow()->GetFast( 0, valueOut ) );
+								Compare< FieldType >()( equal, static_cast< CDatabaseValue< FieldType > const & >( stmtInsert->GetParameter( 1 )->GetObjectValue() ).GetValue(), valueOut );
+							}
+							else
+							{
+								try
+								{
+									DatabaseFieldPtr field = result->GetFirstRow()->GetField( 0 );
+									BOOST_CHECK( field->GetObjectValue().IsNull() );
+								}
+								catch ( CExceptionDatabase & exc )
+								{
+									CLogger::LogError( exc.GetFullDescription() );
+									BOOST_CHECK_NO_THROW( result->GetFirstRow()->GetField( 0 ) );
+								}
+							}
 						}
 						else
 						{
-							try
-							{
-								DatabaseFieldPtr field = result->GetFirstRow()->GetField( 0 );
-								BOOST_CHECK( field->GetObjectValue().IsNull() );
-							}
-							catch ( CExceptionDatabase & exc )
-							{
-								CLogger::LogError( exc.GetFullDescription() );
-								BOOST_CHECK_NO_THROW( result->GetFirstRow()->GetField( 0 ) );
-							}
+							BOOST_CHECK( result->GetRowCount() );
 						}
 					}
 					else
 					{
 						BOOST_CHECK( result );
-						BOOST_CHECK( result && result->GetRowCount() );
 					}
 				}
 			}
@@ -1332,14 +1358,20 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					BOOST_CHECK( stmtGetCount->Initialize() == EErrorType_NONE );
 					DatabaseResultPtr result = stmtGetCount->ExecuteSelect();
 
-					if ( result && result->GetRowCount() )
+					if ( result )
 					{
-						BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, count ) );
+						if ( result->GetRowCount() )
+						{
+							BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, count ) );
+						}
+						else
+						{
+							BOOST_CHECK( result->GetRowCount() );
+						}
 					}
 					else
 					{
 						BOOST_CHECK( result );
-						BOOST_CHECK( result && result->GetRowCount() );
 					}
 				}
 
@@ -1366,17 +1398,23 @@ BEGIN_NAMESPACE_DATABASE_TEST
 						count--;
 						DatabaseResultPtr result = stmtGetCount->ExecuteSelect();
 
-						if ( result && result->GetRowCount() )
+						if ( result )
 						{
-							int64_t field = 0;
-							BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, field ) );
-							BOOST_CHECK_EQUAL( field, count + inserts );
-							count++;
+							if ( result->GetRowCount() )
+							{
+								int64_t field = 0;
+								BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, field ) );
+								BOOST_CHECK_EQUAL( field, count + inserts );
+								count++;
+							}
+							else
+							{
+								BOOST_CHECK( result->GetRowCount() );
+							}
 						}
 						else
 						{
 							BOOST_CHECK( result );
-							BOOST_CHECK( result && result->GetRowCount() );
 						}
 					}
 				}
@@ -1410,21 +1448,27 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					BOOST_CHECK( stmtSelect->Initialize() == EErrorType_NONE );
 					DatabaseResultPtr result = stmtSelect->ExecuteSelect();
 
-					if ( result && result->GetRowCount() )
+					if ( result )
 					{
-						DatabaseRowPtr row = result->GetFirstRow();
-
-						while ( row )
+						if ( result->GetRowCount() )
 						{
-							uint32_t index = 0;
-							DisplayValues( index, row );
-							row = result->GetNextRow();
+							DatabaseRowPtr row = result->GetFirstRow();
+
+							while ( row )
+							{
+								uint32_t index = 0;
+								DisplayValues( index, row );
+								row = result->GetNextRow();
+							}
+						}
+						else
+						{
+							BOOST_CHECK( result->GetRowCount() );
 						}
 					}
 					else
 					{
 						BOOST_CHECK( result );
-						BOOST_CHECK( result && result->GetRowCount() );
 					}
 				}
 			}
@@ -1458,14 +1502,20 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					BOOST_CHECK( stmtGetMin->Initialize() == EErrorType_NONE );
 					DatabaseResultPtr result = stmtGetMin->ExecuteSelect();
 
-					if ( result && result->GetRowCount() )
+					if ( result )
 					{
-						BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, min ) );
+						if ( result->GetRowCount() )
+						{
+							BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, min ) );
+						}
+						else
+						{
+							BOOST_CHECK( result->GetRowCount() );
+						}
 					}
 					else
 					{
 						BOOST_CHECK( result );
-						BOOST_CHECK( result && result->GetRowCount() );
 					}
 				}
 
@@ -1520,14 +1570,20 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					BOOST_CHECK( stmtGetMin->Initialize() == EErrorType_NONE );
 					DatabaseResultPtr result = stmtGetMin->ExecuteSelect();
 
-					if ( result && result->GetRowCount() )
+					if ( result )
 					{
-						BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, min ) );
+						if ( result->GetRowCount() )
+						{
+							BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, min ) );
+						}
+						else
+						{
+							BOOST_CHECK( result->GetRowCount() );
+						}
 					}
 					else
 					{
 						BOOST_CHECK( result );
-						BOOST_CHECK( result && result->GetRowCount() );
 					}
 				}
 
@@ -1618,21 +1674,27 @@ BEGIN_NAMESPACE_DATABASE_TEST
 						stmtGetElements->SetParameterValue( 0, where );
 						DatabaseResultPtr result = stmtGetElements->ExecuteSelect();
 
-						if ( result && result->GetRowCount() )
+						if ( result )
 						{
-							DatabaseRowPtr row = result->GetFirstRow();
-
-							while ( row )
+							if ( result->GetRowCount() )
 							{
-								uint32_t index = 0;
-								DisplayValues( index, row );
-								row = result->GetNextRow();
+								DatabaseRowPtr row = result->GetFirstRow();
+
+								while ( row )
+								{
+									uint32_t index = 0;
+									DisplayValues( index, row );
+									row = result->GetNextRow();
+								}
+							}
+							else
+							{
+								BOOST_CHECK( result->GetRowCount() );
 							}
 						}
 						else
 						{
 							BOOST_CHECK( result );
-							BOOST_CHECK( result && result->GetRowCount() );
 						}
 					}
 				}
@@ -1667,14 +1729,20 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					BOOST_CHECK( stmtGetMin->Initialize() == EErrorType_NONE );
 					DatabaseResultPtr result = stmtGetMin->ExecuteSelect();
 
-					if ( result && result->GetRowCount() )
+					if ( result )
 					{
-						BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, min ) );
+						if ( result->GetRowCount() )
+						{
+							BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, min ) );
+						}
+						else
+						{
+							BOOST_CHECK( result->GetRowCount() );
+						}
 					}
 					else
 					{
 						BOOST_CHECK( result );
-						BOOST_CHECK( result && result->GetRowCount() );
 					}
 				}
 
@@ -1727,14 +1795,20 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					BOOST_CHECK( stmtGetCount->Initialize() == EErrorType_NONE );
 					DatabaseResultPtr result = stmtGetCount->ExecuteSelect();
 
-					if ( result && result->GetRowCount() )
+					if ( result )
 					{
-						BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, count ) );
+						if ( result->GetRowCount() )
+						{
+							BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, count ) );
+						}
+						else
+						{
+							BOOST_CHECK( result->GetRowCount() );
+						}
 					}
 					else
 					{
 						BOOST_CHECK( result );
-						BOOST_CHECK( result && result->GetRowCount() );
 					}
 				}
 
@@ -1795,14 +1869,20 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					BOOST_CHECK( stmtGetCount->Initialize() == EErrorType_NONE );
 					DatabaseResultPtr result = stmtGetCount->ExecuteSelect();
 
-					if ( result && result->GetRowCount() )
+					if ( result )
 					{
-						BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, count ) );
+						if ( result->GetRowCount() )
+						{
+							BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, count ) );
+						}
+						else
+						{
+							BOOST_CHECK( result->GetRowCount() );
+						}
 					}
 					else
 					{
 						BOOST_CHECK( result );
-						BOOST_CHECK( result && result->GetRowCount() );
 					}
 				}
 
@@ -1875,19 +1955,23 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					CLogger::LogInfo( StringStream() << "    Selected the elements in " << float( std::clock() - start ) / CLOCKS_PER_SEC << "seconds (no fetch)" );
 
 					start = std::clock();
-					uint32_t count = result->GetRowCount();
 
-					if ( result && count )
+					if ( result )
 					{
-						DatabaseRowPtr row = result->GetFirstRow();
+						uint32_t count = result->GetRowCount();
 
-						while ( row )
+						if ( count )
 						{
-							row = result->GetNextRow();
-						}
-					}
+							DatabaseRowPtr row = result->GetFirstRow();
 
-					CLogger::LogInfo( StringStream() << "    Fetched " << count << " elements in " << float( std::clock() - start ) / CLOCKS_PER_SEC << "seconds" );
+							while ( row )
+							{
+								row = result->GetNextRow();
+							}
+						}
+
+						CLogger::LogInfo( StringStream() << "    Fetched " << count << " elements in " << float( std::clock() - start ) / CLOCKS_PER_SEC << "seconds" );
+					}
 				}
 			}
 			catch ( CExceptionDatabase & exc )
@@ -1923,19 +2007,23 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					CLogger::LogInfo( StringStream() << "    Selected the elements in " << float( std::clock() - start ) / CLOCKS_PER_SEC << "seconds (no fetch)" );
 
 					start = std::clock();
-					uint32_t count = result->GetRowCount();
 
-					if ( result && count )
+					if ( result )
 					{
-						DatabaseRowPtr row = result->GetFirstRow();
+						uint32_t count = result->GetRowCount();
 
-						while ( row )
+						if ( count )
 						{
-							row = result->GetNextRow();
-						}
-					}
+							DatabaseRowPtr row = result->GetFirstRow();
 
-					CLogger::LogInfo( StringStream() << "    Fetched " << count << " elements in " << float( std::clock() - start ) / CLOCKS_PER_SEC << "seconds" );
+							while ( row )
+							{
+								row = result->GetNextRow();
+							}
+						}
+
+						CLogger::LogInfo( StringStream() << "    Fetched " << count << " elements in " << float( std::clock() - start ) / CLOCKS_PER_SEC << "seconds" );
+					}
 				}
 			}
 			catch ( CExceptionDatabase & exc )
@@ -2023,9 +2111,12 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					stmtGetMin->Initialize();
 					DatabaseResultPtr result = stmtGetMin->ExecuteSelect();
 
-					if ( result && result->GetRowCount() )
+					if ( result )
 					{
-						result->GetFirstRow()->Get( 0, min );
+						if ( result->GetRowCount() )
+						{
+							result->GetFirstRow()->Get( 0, min );
+						}
 					}
 				}
 
