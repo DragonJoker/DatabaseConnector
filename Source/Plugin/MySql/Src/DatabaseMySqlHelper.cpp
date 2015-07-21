@@ -230,6 +230,24 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			}
 		};
 
+		/** SInMySqlBind specialisation for EFieldType_CHAR
+		*/
+		template<>
+		struct SInMySqlBind< EFieldType_CHAR >
+			: public SCharBufferInMySqlBind
+		{
+			/** Constructor
+			@param[in] bind
+				The MySQL bind
+			@param[in] length
+				The buffer length
+			*/
+			SInMySqlBind( MYSQL_BIND & bind, uint32_t length )
+				: SCharBufferInMySqlBind( bind, length + 1 )
+			{
+			}
+		};
+
 		/** SInMySqlBind specialisation for EFieldType_VARCHAR
 		*/
 		template<>
@@ -307,6 +325,24 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				}
 
 				return CStrUtils::ToWStr( result );
+			}
+		};
+
+		/** SInMySqlBind specialisation for EFieldType_NCHAR
+		*/
+		template<>
+		struct SInMySqlBind< EFieldType_NCHAR >
+			: public SWCharBufferInMySqlBind
+		{
+			/** Constructor
+			@param[in] bind
+				The MySQL bind
+			@param[in] length
+				The buffer length
+			*/
+			SInMySqlBind( MYSQL_BIND & bind, uint32_t length )
+				: SWCharBufferInMySqlBind( bind, length + 1 )
+			{
 			}
 		};
 
@@ -740,6 +776,11 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				bind.is_unsigned = false;
 				break;
 
+			case EFieldType_CHAR:
+				result = std::make_unique< SInMySqlBind< EFieldType_CHAR > >( bind, length );
+				bind.is_unsigned = false;
+				break;
+
 			case EFieldType_VARCHAR:
 				result = std::make_unique< SInMySqlBind< EFieldType_VARCHAR > >( bind, length );
 				bind.is_unsigned = false;
@@ -747,6 +788,21 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 			case EFieldType_TEXT:
 				result = std::make_unique< SInMySqlBind< EFieldType_TEXT > >( bind, length );
+				bind.is_unsigned = false;
+				break;
+
+			case EFieldType_NCHAR:
+				result = std::make_unique< SInMySqlBind< EFieldType_NCHAR > >( bind, length );
+				bind.is_unsigned = false;
+				break;
+
+			case EFieldType_NVARCHAR:
+				result = std::make_unique< SInMySqlBind< EFieldType_NVARCHAR > >( bind, length );
+				bind.is_unsigned = false;
+				break;
+
+			case EFieldType_NTEXT:
+				result = std::make_unique< SInMySqlBind< EFieldType_NTEXT > >( bind, length );
 				bind.is_unsigned = false;
 				break;
 
@@ -829,12 +885,20 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				static_cast< CDatabaseValue< EFieldType_FIXED_POINT > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< EFieldType_FIXED_POINT > const & >( bind ).GetValue() );
 				break;
 
+			case EFieldType_CHAR:
+				static_cast< CDatabaseValue< EFieldType_CHAR > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< EFieldType_CHAR > const & >( bind ).GetValue( result != 0 ).c_str() );
+				break;
+
 			case EFieldType_VARCHAR:
 				static_cast< CDatabaseValue< EFieldType_VARCHAR > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< EFieldType_VARCHAR > const & >( bind ).GetValue( result != 0 ).c_str() );
 				break;
 
 			case EFieldType_TEXT:
 				static_cast< CDatabaseValue< EFieldType_TEXT > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< EFieldType_TEXT > const & >( bind ).GetValue( result != 0 ) );
+				break;
+
+			case EFieldType_NCHAR:
+				static_cast< CDatabaseValue< EFieldType_NCHAR > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< EFieldType_NCHAR > const & >( bind ).GetValue( result != 0 ).c_str() );
 				break;
 
 			case EFieldType_NVARCHAR:

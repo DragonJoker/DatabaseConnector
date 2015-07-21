@@ -24,8 +24,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 	static const String DATABASE_ODBC_MYSQL_TYPE = STR( "Database.Odbc.MySql" );
 
+	static STestConfig g_config = { false, false, STR( "=" ), true, true, false };
+
 	CDatabaseOdbcMySqlTest::CDatabaseOdbcMySqlTest()
-		: CDatabaseTest( DATABASE_ODBC_MYSQL_TYPE, DB_SERVER, DB_DATABASE, DB_USER, DB_PASS, false, false, STR( "=" ), true, false )
+		: CDatabaseTest( DATABASE_ODBC_MYSQL_TYPE, DB_SERVER, DB_DATABASE, DB_USER, DB_PASS, g_config )
 	{
 		_createTable += STR( "CREATE TABLE Test" );
 		_createTable += STR( "(	IDTest INTEGER PRIMARY KEY AUTO_INCREMENT\n" );
@@ -61,7 +63,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 	void CDatabaseOdbcMySqlTest::DoLoadPlugins()
 	{
-		LoadPlugins( InitializeSingletons(), false, false, true, false );
+		LoadPlugins( InitializeSingletons(), false, false, true, false, false );
 	}
 
 	void CDatabaseOdbcMySqlTest::TestCase_CreateDatabase()

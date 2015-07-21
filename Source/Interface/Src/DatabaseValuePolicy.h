@@ -167,6 +167,14 @@ BEGIN_NAMESPACE_DATABASE
 		typedef CTime value_type;
 	};
 
+	/** SFieldTypeDataTyper specialization for EFieldType_CHAR
+	*/
+	template<> struct SFieldTypeDataTyper< EFieldType_CHAR >
+	{
+		static const size_t size = 0;
+		typedef std::string value_type;
+	};
+
 	/** SFieldTypeDataTyper specialization for EFieldType_VARCHAR
 	*/
 	template<> struct SFieldTypeDataTyper< EFieldType_VARCHAR >
@@ -181,6 +189,14 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		static const size_t size = 0;
 		typedef std::string value_type;
+	};
+
+	/** SFieldTypeDataTyper specialization for EFieldType_NCHAR
+	*/
+	template<> struct SFieldTypeDataTyper< EFieldType_NCHAR >
+	{
+		static const size_t size = 0;
+		typedef std::wstring value_type;
 	};
 
 	/** SFieldTypeDataTyper specialization for EFieldType_NVARCHAR
@@ -892,6 +908,14 @@ BEGIN_NAMESPACE_DATABASE
 
 	/** SDatabaseValuePolicy specialization for EFieldType_VARCHAR type
 	*/
+	template<> struct SDatabaseValuePolicy< EFieldType_CHAR >
+		: public CTextDatabaseValuePolicy
+	{
+		typedef CTextDatabaseValuePolicy::value_type value_type;
+	};
+
+	/** SDatabaseValuePolicy specialization for EFieldType_VARCHAR type
+	*/
 	template<> struct SDatabaseValuePolicy< EFieldType_VARCHAR >
 		: public CTextDatabaseValuePolicy
 	{
@@ -977,6 +1001,14 @@ BEGIN_NAMESPACE_DATABASE
 				return NULL_VALUE;
 			}
 		}
+	};
+
+	/** SDatabaseValuePolicy specialization for EFieldType_NCHAR type
+	*/
+	template<> struct SDatabaseValuePolicy< EFieldType_NCHAR >
+		: public SNTextDatabaseValuePolicy
+	{
+		typedef SNTextDatabaseValuePolicy::value_type value_type;
 	};
 
 	/** SDatabaseValuePolicy specialization for EFieldType_NVARCHAR type

@@ -29,8 +29,10 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		SQLITE_FLOAT,    //!< EFieldType_FLOAT32
 		SQLITE_FLOAT,    //!< EFieldType_FLOAT64
 		SQLITE_FLOAT,    //!< EFieldType_FIXED_POINT
+		SQLITE3_TEXT,    //!< EFieldType_CHAR
 		SQLITE3_TEXT,    //!< EFieldType_VARCHAR
 		SQLITE3_TEXT,    //!< EFieldType_TEXT
+		SQLITE3_TEXT,    //!< EFieldType_NCHAR
 		SQLITE3_TEXT,    //!< EFieldType_NVARCHAR
 		SQLITE3_TEXT,    //!< EFieldType_NTEXT
 		SQLITE_INTEGER,  //!< EFieldType_DATE

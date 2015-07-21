@@ -175,6 +175,22 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		}
 
 		template<>
+		DatabaseFieldPtr GetValue< EFieldType_CHAR >( sqlite3_stmt * statement, int i, DatabaseFieldInfosPtr infos )
+		{
+			DatabaseFieldPtr field;
+			const char * value = reinterpret_cast< const char * >( sqlite3_column_text( statement, i ) );
+			int iSize = sqlite3_column_bytes( statement, i );
+			field = std::make_shared< CDatabaseField >( infos );
+
+			if ( value && iSize != 0 )
+			{
+				static_cast< CDatabaseValue< EFieldType_CHAR > & >( field->GetObjectValue() ).SetValue( value );
+			}
+
+			return field;
+		}
+
+		template<>
 		DatabaseFieldPtr GetValue< EFieldType_VARCHAR >( sqlite3_stmt * statement, int i, DatabaseFieldInfosPtr infos )
 		{
 			DatabaseFieldPtr field;
@@ -201,6 +217,54 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			if ( value && iSize != 0 )
 			{
 				static_cast< CDatabaseValue< EFieldType_TEXT > & >( field->GetObjectValue() ).SetValue( value );
+			}
+
+			return field;
+		}
+
+		template<>
+		DatabaseFieldPtr GetValue< EFieldType_NCHAR >( sqlite3_stmt * statement, int i, DatabaseFieldInfosPtr infos )
+		{
+			DatabaseFieldPtr field;
+			const wchar_t * value = reinterpret_cast< const wchar_t * >( sqlite3_column_text16( statement, i ) );
+			int iSize = sqlite3_column_bytes16( statement, i );
+			field = std::make_shared< CDatabaseField >( infos );
+
+			if ( value && iSize != 0 )
+			{
+				static_cast< CDatabaseValue< EFieldType_NCHAR > & >( field->GetObjectValue() ).SetValue( value );
+			}
+
+			return field;
+		}
+
+		template<>
+		DatabaseFieldPtr GetValue< EFieldType_NVARCHAR >( sqlite3_stmt * statement, int i, DatabaseFieldInfosPtr infos )
+		{
+			DatabaseFieldPtr field;
+			const wchar_t * value = reinterpret_cast< const wchar_t * >( sqlite3_column_text16( statement, i ) );
+			int iSize = sqlite3_column_bytes16( statement, i );
+			field = std::make_shared< CDatabaseField >( infos );
+
+			if ( value && iSize != 0 )
+			{
+				static_cast< CDatabaseValue< EFieldType_NVARCHAR > & >( field->GetObjectValue() ).SetValue( value );
+			}
+
+			return field;
+		}
+
+		template<>
+		DatabaseFieldPtr GetValue< EFieldType_NTEXT >( sqlite3_stmt * statement, int i, DatabaseFieldInfosPtr infos )
+		{
+			DatabaseFieldPtr field;
+			const wchar_t * value = reinterpret_cast< const wchar_t * >( sqlite3_column_text16( statement, i ) );
+			int iSize = sqlite3_column_bytes16( statement, i );
+			field = std::make_shared< CDatabaseField >( infos );
+
+			if ( value && iSize != 0 )
+			{
+				static_cast< CDatabaseValue< EFieldType_NTEXT > & >( field->GetObjectValue() ).SetValue( value );
 			}
 
 			return field;
@@ -249,38 +313,6 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			if ( value && iSize != 0 )
 			{
 				static_cast< CDatabaseValue< EFieldType_TIME > & >( field->GetObjectValue() ).SetValue( infos->GetConnection()->ParseTime( value ) );
-			}
-
-			return field;
-		}
-
-		template<>
-		DatabaseFieldPtr GetValue< EFieldType_NVARCHAR >( sqlite3_stmt * statement, int i, DatabaseFieldInfosPtr infos )
-		{
-			DatabaseFieldPtr field;
-			const wchar_t * value = reinterpret_cast< const wchar_t * >( sqlite3_column_text16( statement, i ) );
-			int iSize = sqlite3_column_bytes16( statement, i );
-			field = std::make_shared< CDatabaseField >( infos );
-
-			if ( value && iSize != 0 )
-			{
-				static_cast< CDatabaseValue< EFieldType_NVARCHAR > & >( field->GetObjectValue() ).SetValue( value );
-			}
-
-			return field;
-		}
-
-		template<>
-		DatabaseFieldPtr GetValue< EFieldType_NTEXT >( sqlite3_stmt * statement, int i, DatabaseFieldInfosPtr infos )
-		{
-			DatabaseFieldPtr field;
-			const wchar_t * value = reinterpret_cast< const wchar_t * >( sqlite3_column_text16( statement, i ) );
-			int iSize = sqlite3_column_bytes16( statement, i );
-			field = std::make_shared< CDatabaseField >( infos );
-
-			if ( value && iSize != 0 )
-			{
-				static_cast< CDatabaseValue< EFieldType_NTEXT > & >( field->GetObjectValue() ).SetValue( value );
 			}
 
 			return field;
@@ -481,14 +513,21 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 			DatabaseFieldInfosPtr infos;
 
-			if ( type.find( "NCHAR" ) != std::string::npos
-					|| type.find( "NVARCHAR" ) != std::string::npos )
+			if ( type.find( "NCHAR" ) != std::string::npos )
+			{
+				infos = std::make_shared< CDatabaseFieldInfos >( connection, columnName, EFieldType_NCHAR, RetrieveLimits( type ) );
+			}
+			else if ( type.find( "NVARCHAR" ) != std::string::npos )
 			{
 				infos = std::make_shared< CDatabaseFieldInfos >( connection, columnName, EFieldType_NVARCHAR, RetrieveLimits( type ) );
 			}
-			else if ( type.find( "CHAR" ) != std::string::npos )
+			else if ( type.find( "VARCHAR" ) != std::string::npos )
 			{
 				infos = std::make_shared< CDatabaseFieldInfos >( connection, columnName, EFieldType_VARCHAR, RetrieveLimits( type ) );
+			}
+			else if ( type.find( "CHAR" ) != std::string::npos )
+			{
+				infos = std::make_shared< CDatabaseFieldInfos >( connection, columnName, EFieldType_CHAR, RetrieveLimits( type ) );
 			}
 			else if ( type.find( "NTEXT" ) != std::string::npos )
 			{
@@ -618,14 +657,21 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 					infos = std::make_shared< CDatabaseFieldInfos >( connection, columnName, EFieldType_SINT32 );
 				}
 			}
-			else if ( upperType.find( "NCHAR" ) != String::npos
-					  || upperType.find( "NVARCHAR" ) != String::npos )
+			else if ( upperType.find( "NCHAR" ) != String::npos )
+			{
+				infos = std::make_shared< CDatabaseFieldInfos >( connection, columnName, EFieldType_NCHAR, RetrieveLimits( upperType ) );
+			}
+			else if ( upperType.find( "NVARCHAR" ) != String::npos )
 			{
 				infos = std::make_shared< CDatabaseFieldInfos >( connection, columnName, EFieldType_NVARCHAR, RetrieveLimits( upperType ) );
 			}
-			else if ( upperType.find( "CHAR" ) != String::npos )
+			else if ( upperType.find( "VARCHAR" ) != String::npos )
 			{
 				infos = std::make_shared< CDatabaseFieldInfos >( connection, columnName, EFieldType_VARCHAR, RetrieveLimits( upperType ) );
+			}
+			else if ( upperType.find( "CHAR" ) != String::npos )
+			{
+				infos = std::make_shared< CDatabaseFieldInfos >( connection, columnName, EFieldType_CHAR, RetrieveLimits( upperType ) );
 			}
 			else if ( upperType.find( "NTEXT" ) != String::npos )
 			{
@@ -775,12 +821,20 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			field = GetValue< EFieldType_FIXED_POINT >( statement, index, infos );
 			break;
 
+		case EFieldType_CHAR:
+			field = GetValue< EFieldType_CHAR >( statement, index, infos );
+			break;
+
 		case EFieldType_VARCHAR:
 			field = GetValue< EFieldType_VARCHAR >( statement, index, infos );
 			break;
 
 		case EFieldType_TEXT:
 			field = GetValue< EFieldType_TEXT >( statement, index, infos );
+			break;
+
+		case EFieldType_NCHAR:
+			field = GetValue< EFieldType_NCHAR >( statement, index, infos );
 			break;
 
 		case EFieldType_NVARCHAR:

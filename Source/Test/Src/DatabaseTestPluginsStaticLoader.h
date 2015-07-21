@@ -104,6 +104,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		std::unique_ptr< CPluginConfigBase > _odbcMySql;
 		//! The ODBC MSSQL plugin
 		std::unique_ptr< CPluginConfigBase > _odbcMsSql;
+		//! The PostgreSQL plugin
+		std::unique_ptr< CPluginConfigBase > _postgreSql;
 	};
 
 	/** Class used to load pluginsm dynamically or statically

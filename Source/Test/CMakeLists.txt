@@ -58,6 +58,7 @@ include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/../Plugin/Odbc/Src )
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/../Plugin/Odbc/MySql/Src )
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/../Plugin/Odbc/MsSql/Src )
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/../Plugin/Sqlite/Src )
+include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/../Plugin/PostgreSql/Src )
 
 find_package( Boost COMPONENTS unit_test_framework )
 
@@ -97,6 +98,10 @@ if( Boost_UNIT_TEST_FRAMEWORK_FOUND )
 	if( ${BUILD_SQLite_PLUGIN} )
 		add_dependencies( ${PROJECT_NAME} DatabasePluginSqlite )
 		set( ADDITIONAL_FLAGS ${ADDITIONAL_FLAGS} TESTING_PLUGIN_SQLITE )
+	endif()
+	if( ${BUILD_PostgreSql_PLUGIN} )
+		add_dependencies( ${PROJECT_NAME} DatabasePluginPostgreSql )
+		set( ADDITIONAL_FLAGS ${ADDITIONAL_FLAGS} TESTING_PLUGIN_POSTGRE )
 	endif()
 
 	set( ADDITIONAL_FLAGS ${ADDITIONAL_FLAGS} BOOST_TEST_DYN_LINK )

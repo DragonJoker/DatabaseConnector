@@ -24,8 +24,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 	static const String DATABASE_ODBC_MSSQL_TYPE = STR( "Database.Odbc.MsSql" );
 
+	static STestConfig g_config = { true, false, STR( "=" ), false, true, true };
+
 	CDatabaseOdbcMsSqlTest::CDatabaseOdbcMsSqlTest()
-		: CDatabaseTest( DATABASE_ODBC_MSSQL_TYPE, DB_SERVER, DB_DATABASE, DB_USER, DB_PASS, true, false, STR( "=" ), false, true )
+		: CDatabaseTest( DATABASE_ODBC_MSSQL_TYPE, DB_SERVER, DB_DATABASE, DB_USER, DB_PASS, g_config )
 	{
 		_createTable += STR( "CREATE TABLE Test" );
 		_createTable += STR( "(	IDTest INTEGER NOT NULL IDENTITY( 1, 1 ) PRIMARY KEY\n" );
@@ -61,7 +63,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 	void CDatabaseOdbcMsSqlTest::DoLoadPlugins()
 	{
-		LoadPlugins( InitializeSingletons(), false, false, false, true );
+		LoadPlugins( InitializeSingletons(), false, false, false, true, false );
 	}
 
 	void CDatabaseOdbcMsSqlTest::TestCase_CreateDatabase()

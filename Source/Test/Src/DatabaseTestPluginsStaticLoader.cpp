@@ -118,6 +118,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		_config._sqlite = std::move( config._sqlite );
 		_config._odbcMySql = std::move( config._odbcMySql );
 		_config._odbcMsSql = std::move( config._odbcMsSql );
+		_config._postgreSql = std::move( config._postgreSql );
 		OnLoad();
 	}
 
@@ -132,6 +133,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		_config._sqlite->Load();
 		_config._odbcMySql->Load();
 		_config._odbcMsSql->Load();
+		_config._postgreSql->Load();
 	}
 
 	void CTestPluginsLoader::OnUnload()
@@ -140,6 +142,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		_config._sqlite->Unload();
 		_config._odbcMySql->Unload();
 		_config._odbcMsSql->Unload();
+		_config._postgreSql->Unload();
 	}
 }
 END_NAMESPACE_DATABASE_TEST

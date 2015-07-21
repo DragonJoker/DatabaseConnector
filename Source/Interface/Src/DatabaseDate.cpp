@@ -107,7 +107,7 @@ BEGIN_NAMESPACE_DATABASE
 	}
 
 	CDate::CDate()
-		: _year( 0 )
+		: _year( 1 )
 		, _month( EDateMonth_JANUARY )
 		, _monthDay( 1 )
 		, _yearDay( 0 )

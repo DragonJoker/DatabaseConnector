@@ -120,12 +120,20 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			_binding = MakeSqliteBind< EFieldType_FIXED_POINT >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
 			break;
 
+		case EFieldType_CHAR:
+			_binding = MakeSqliteBind< EFieldType_CHAR >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
+			break;
+
 		case EFieldType_VARCHAR:
 			_binding = MakeSqliteBind< EFieldType_VARCHAR >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
 			break;
 
 		case EFieldType_TEXT:
 			_binding = MakeSqliteBind< EFieldType_TEXT >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
+			break;
+
+		case EFieldType_NCHAR:
+			_binding = MakeSqliteBind< EFieldType_NCHAR >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
 			break;
 
 		case EFieldType_NVARCHAR:

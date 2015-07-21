@@ -210,12 +210,20 @@ BEGIN_NAMESPACE_DATABASE
 			DoSetValue( static_cast< CDatabaseValue< EFieldType_FIXED_POINT > const & >( value ).GetValue() );
 			break;
 
+		case EFieldType_CHAR:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_CHAR > const & >( value ).GetValue() );
+			break;
+
 		case EFieldType_VARCHAR:
 			DoSetValue( static_cast< CDatabaseValue< EFieldType_VARCHAR > const & >( value ).GetValue() );
 			break;
 
 		case EFieldType_TEXT:
 			DoSetValue( static_cast< CDatabaseValue< EFieldType_TEXT > const & >( value ).GetValue() );
+			break;
+
+		case EFieldType_NCHAR:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_NCHAR > const & >( value ).GetValue() );
 			break;
 
 		case EFieldType_NVARCHAR:

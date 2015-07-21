@@ -52,8 +52,10 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		MYSQL_TYPE_FLOAT,		// EFieldType_FLOAT32,
 		MYSQL_TYPE_DOUBLE,		// EFieldType_FLOAT64,
 		MYSQL_TYPE_NEWDECIMAL,	// EFieldType_FIXED_POINT,
+		MYSQL_TYPE_VARCHAR,		// EFieldType_CHAR,
 		MYSQL_TYPE_VARCHAR,		// EFieldType_VARCHAR,
 		MYSQL_TYPE_STRING,		// EFieldType_TEXT,
+		MYSQL_TYPE_VARCHAR,		// EFieldType_NCHAR,
 		MYSQL_TYPE_VARCHAR,		// EFieldType_NVARCHAR,
 		MYSQL_TYPE_STRING,		// EFieldType_NTEXT,
 		MYSQL_TYPE_DATE,		// EFieldType_DATE,
@@ -187,6 +189,13 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		typedef CTime FieldDataType;
 	};
 
+	/** Specialization for EFieldType_CHAR
+	*/
+	template<> struct SFieldTypeMySqlDataTyper< EFieldType_CHAR >
+	{
+		typedef char * FieldDataType;
+	};
+
 	/** Specialization for EFieldType_VARCHAR
 	*/
 	template<> struct SFieldTypeMySqlDataTyper< EFieldType_VARCHAR >
@@ -199,6 +208,13 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	template<> struct SFieldTypeMySqlDataTyper< EFieldType_TEXT >
 	{
 		typedef char * FieldDataType;
+	};
+
+	/** Specialization for EFieldType_NCHAR
+	*/
+	template<> struct SFieldTypeMySqlDataTyper< EFieldType_NCHAR >
+	{
+		typedef wchar_t * FieldDataType;
 	};
 
 	/** Specialization for EFieldType_NVARCHAR

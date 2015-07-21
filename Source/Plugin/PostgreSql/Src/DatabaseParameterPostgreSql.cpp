@@ -1,68 +1,63 @@
 /************************************************************************//**
-* @file DatabaseStatementParameterMySql.cpp
+* @file DatabaseStatementParameterPostgreSql.cpp
 * @author Sylvain Doremus
 * @version 1.0
 * @date 3/20/2014 2:47:39 PM
 *
 *
-* @brief CDatabaseParameterMySql class declaration.
+* @brief CDatabaseParameterPostgreSql class declaration.
 *
 * @details Describes a statement parameter for MYSQL database.
 *
 ***************************************************************************/
 
-#include "DatabaseMySqlPch.h"
+#include "DatabasePostgreSqlPch.h"
 
-#include "DatabaseParameterMySql.h"
+#include "DatabaseParameterPostgreSql.h"
 
-#include "DatabaseConnectionMySql.h"
-#include "DatabaseMySqlParameterBinding.h"
+#include "DatabaseConnectionPostgreSql.h"
+#include "DatabasePostgreSqlParameterBinding.h"
 
 #include <DatabaseException.h>
 #include <DatabaseLogger.h>
 #include <DatabaseStringUtils.h>
 
-BEGIN_NAMESPACE_DATABASE_MYSQL
+BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 {
-	static const String ERROR_MYSQL_PARAMETER_TYPE = STR( "Undefined parameter type when trying to set its binding." );
+	static const String ERROR_POSTGRESQL_PARAMETER_TYPE = STR( "Undefined parameter type when trying to set its binding." );
 
-	CDatabaseParameterMySql::CDatabaseParameterMySql( DatabaseConnectionMySqlPtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
+	CDatabaseParameterPostgreSql::CDatabaseParameterPostgreSql( DatabaseConnectionPostgreSqlPtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
 		: CDatabaseParameter( connection, name, index, fieldType, parameterType, std::move( updater ) )
-		, _statement( NULL )
+		, _statement()
 	{
 	}
 
-	CDatabaseParameterMySql::CDatabaseParameterMySql( DatabaseConnectionMySqlPtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
+	CDatabaseParameterPostgreSql::CDatabaseParameterPostgreSql( DatabaseConnectionPostgreSqlPtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
 		: CDatabaseParameter( connection, name, index, fieldType, limits, parameterType, std::move( updater ) )
-		, _statement( NULL )
+		, _statement()
 	{
 	}
 
-	CDatabaseParameterMySql::CDatabaseParameterMySql( DatabaseConnectionMySqlPtr connection, const String & name, unsigned short index, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
+	CDatabaseParameterPostgreSql::CDatabaseParameterPostgreSql( DatabaseConnectionPostgreSqlPtr connection, const String & name, unsigned short index, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
 		: CDatabaseParameter( connection, name, index, fieldType, precision, parameterType, std::move( updater ) )
-		, _statement( NULL )
+		, _statement()
 	{
 	}
 
-	CDatabaseParameterMySql::~CDatabaseParameterMySql()
+	CDatabaseParameterPostgreSql::~CDatabaseParameterPostgreSql()
 	{
-		_statement = NULL;
+		_statement;
 	}
 
-	void CDatabaseParameterMySql::SetNull()
+	void CDatabaseParameterPostgreSql::SetNull()
 	{
-		if ( _binding )
-		{
-			_binding->_null = true;
-		}
-
 		CDatabaseParameter::SetNull();
+		_binding->UpdateValue();
 	}
 
-	void CDatabaseParameterMySql::SetBinding( MYSQL_BIND * bind )
+	void CDatabaseParameterPostgreSql::SetBinding( PGbind * bind )
 	{
-		bind->length = const_cast< unsigned long * >( &GetObjectValue().GetPtrSize() );
-		bind->param_number = GetIndex() - 1;
+		bind->length = *const_cast< unsigned long * >( &GetObjectValue().GetPtrSize() );
 
 		switch ( GetType() )
 		{
@@ -171,9 +166,9 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			break;
 
 		default:
-			DB_EXCEPT( EDatabaseExceptionCodes_ParameterError, ERROR_MYSQL_PARAMETER_TYPE );
+			DB_EXCEPT( EDatabaseExceptionCodes_ParameterError, ERROR_POSTGRESQL_PARAMETER_TYPE );
 			break;
 		}
 	}
 }
-END_NAMESPACE_DATABASE_MYSQL
+END_NAMESPACE_DATABASE_POSTGRESQL
