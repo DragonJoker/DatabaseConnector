@@ -34,7 +34,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param connection
 			The database connection
 		*/
-		DatabaseExport CDatabaseValueBase( DatabaseConnectionPtr connection );
+		DatabaseExport CDatabaseValueBase( DatabaseConnectionSPtr connection );
 
 		/** Destructor.
 		*/
@@ -96,6 +96,9 @@ BEGIN_NAMESPACE_DATABASE
 		/** Set parameter value to NULL.
 		*/
 		DatabaseExport virtual void DoSetNull() = 0;
+		/** Set parameter value to NULL.
+		*/
+		inline DatabaseConnectionSPtr DoGetConnection();
 
 	protected:
 		//! Value size
@@ -103,7 +106,7 @@ BEGIN_NAMESPACE_DATABASE
 		//! Value is NULL or not.
 		bool _isNull;
 		//! The database connection
-		DatabaseConnectionPtr _connection;
+		DatabaseConnectionWPtr _connection;
 	};
 }
 END_NAMESPACE_DATABASE

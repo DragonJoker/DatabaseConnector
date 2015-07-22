@@ -40,12 +40,12 @@ BEGIN_NAMESPACE_DATABASE
 	{
 	}
 
-	void CDatabaseStatement::SValueUpdater::Update( DatabaseParameterPtr value )
+	void CDatabaseStatement::SValueUpdater::Update( const CDatabaseParameter & value )
 	{
-		_stmt->_mapParamsByPointer[value->GetObjectValue().GetPtrValue()] = value;
+		_stmt->_mapParamsByPointer[value.GetObjectValue().GetPtrValue()] = &value;
 	}
 
-	CDatabaseStatement::CDatabaseStatement( DatabaseConnectionPtr connection, const String & query )
+	CDatabaseStatement::CDatabaseStatement( DatabaseConnectionSPtr connection, const String & query )
 		: _connection( connection )
 		, _query( query )
 	{
@@ -105,9 +105,9 @@ BEGIN_NAMESPACE_DATABASE
 		return ret;
 	}
 
-	DatabaseResultPtr CDatabaseStatement::ExecuteSelect( EErrorType * result )
+	DatabaseResultSPtr CDatabaseStatement::ExecuteSelect( EErrorType * result )
 	{
-		DatabaseResultPtr ret;
+		DatabaseResultSPtr ret;
 
 		try
 		{
@@ -149,7 +149,7 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	}
 
-	DatabaseParameterPtr CDatabaseStatement::GetParameter( uint32_t index )const
+	DatabaseParameterSPtr CDatabaseStatement::GetParameter( uint32_t index )const
 	{
 		try
 		{
@@ -168,9 +168,9 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	}
 
-	DatabaseParameterPtr CDatabaseStatement::GetParameter( const String & name )const
+	DatabaseParameterSPtr CDatabaseStatement::GetParameter( const String & name )const
 	{
-		auto && it = std::find_if( _arrayParams.begin(), _arrayParams.end(), [&name]( DatabaseParameterPtr parameter )
+		auto && it = std::find_if( _arrayParams.begin(), _arrayParams.end(), [&name]( DatabaseParameterSPtr parameter )
 		{
 			return parameter->GetName() == name;
 		} );
@@ -200,23 +200,23 @@ BEGIN_NAMESPACE_DATABASE
 		GetParameter( name )->SetNull();
 	}
 
-	void CDatabaseStatement::SetParameterValue( uint32_t index, DatabaseParameterPtr parameter )
+	void CDatabaseStatement::SetParameterValue( uint32_t index, const CDatabaseParameter & parameter )
 	{
 		GetParameter( index )->SetValue( parameter );
 	}
 
-	void CDatabaseStatement::SetParameterValue( const String & name, DatabaseParameterPtr parameter )
+	void CDatabaseStatement::SetParameterValue( const String & name, const CDatabaseParameter & parameter )
 	{
 		GetParameter( name )->SetValue( parameter );
 	}
 
-	bool CDatabaseStatement::DoAddParameter( DatabaseParameterPtr parameter )
+	bool CDatabaseStatement::DoAddParameter( DatabaseParameterSPtr parameter )
 	{
 		bool bReturn = false;
 
 		if ( parameter )
 		{
-			auto it = std::find_if( _arrayParams.begin(), _arrayParams.end(), [&parameter]( DatabaseParameterPtr param )
+			auto it = std::find_if( _arrayParams.begin(), _arrayParams.end(), [&parameter]( DatabaseParameterSPtr param )
 			{
 				return param->GetName() == parameter->GetName();
 			} );

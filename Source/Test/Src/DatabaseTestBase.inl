@@ -47,7 +47,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		typedef typename helper_type::ParamType param_type;
 
 		template< typename Function >
-		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, String const & is, param_type valueIn = helper_type::InitialiseValue() )
+		void operator()( Function function, DatabaseConnectionSPtr connection, String const & name, String const & is, param_type valueIn = helper_type::InitialiseValue() )
 		{
 			param_type value = param_type();
 
@@ -77,7 +77,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		typedef helper_type::ParamType param_type;
 
 		template< typename Function >
-		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, String const & is, param_type valueIn = helper_type::InitialiseValue() )
+		void operator()( Function function, DatabaseConnectionSPtr connection, String const & name, String const & is, param_type valueIn = helper_type::InitialiseValue() )
 		{
 			param_type value = param_type();
 
@@ -107,7 +107,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		typedef helper_type::ParamType param_type;
 
 		template< typename Function >
-		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, String const & is, param_type valueIn = helper_type::InitialiseValue() )
+		void operator()( Function function, DatabaseConnectionSPtr connection, String const & name, String const & is, param_type valueIn = helper_type::InitialiseValue() )
 		{
 			param_type value = param_type();
 
@@ -137,7 +137,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		typedef helper_type::ParamType param_type;
 
 		template< typename Function >
-		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, String const & is, param_type valueIn = helper_type::InitialiseValue() )
+		void operator()( Function function, DatabaseConnectionSPtr connection, String const & name, String const & is, param_type valueIn = helper_type::InitialiseValue() )
 		{
 			param_type value = param_type();
 
@@ -161,7 +161,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		typedef helper_type::ParamType param_type;
 
 		template< typename Function >
-		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, String const & is, param_type valueIn = helper_type::InitialiseValue() )
+		void operator()( Function function, DatabaseConnectionSPtr connection, String const & name, String const & is, param_type valueIn = helper_type::InitialiseValue() )
 		{
 			param_type value = param_type();
 
@@ -185,7 +185,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		typedef helper_type::ParamType param_type;
 
 		template< typename Function >
-		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, String const & is, param_type valueIn = helper_type::InitialiseValue() )
+		void operator()( Function function, DatabaseConnectionSPtr connection, String const & name, String const & is, param_type valueIn = helper_type::InitialiseValue() )
 		{
 			param_type value = param_type();
 
@@ -209,7 +209,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		typedef helper_type::ParamType param_type;
 
 		template< typename Function >
-		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, String const & is, param_type valueIn = helper_type::InitialiseValue( Precision, Decimals ) )
+		void operator()( Function function, DatabaseConnectionSPtr connection, String const & name, String const & is, param_type valueIn = helper_type::InitialiseValue( Precision, Decimals ) )
 		{
 			typedef DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::ParamType param_type;
 			param_type value = param_type();
@@ -244,7 +244,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		typedef helper_type::ParamType param_type;
 
 		template< typename Function >
-		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, String const & is, param_type valueIn = helper_type::InitialiseValue( Size ) )
+		void operator()( Function function, DatabaseConnectionSPtr connection, String const & name, String const & is, param_type valueIn = helper_type::InitialiseValue( Size ) )
 		{
 			typedef DatabaseUtils::Helpers< EFieldType_CHAR >::ParamType param_type;
 			param_type value = param_type();
@@ -271,7 +271,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		typedef helper_type::ParamType param_type;
 
 		template< typename Function >
-		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, String const & is, param_type valueIn = helper_type::InitialiseValue() )
+		void operator()( Function function, DatabaseConnectionSPtr connection, String const & name, String const & is, param_type valueIn = helper_type::InitialiseValue() )
 		{
 			typedef DatabaseUtils::Helpers< EFieldType_VARCHAR >::ParamType param_type;
 			param_type value = param_type();
@@ -298,7 +298,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		typedef helper_type::ParamType param_type;
 
 		template< typename Function >
-		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, String const & is, param_type valueIn = helper_type::InitialiseValue() )
+		void operator()( Function function, DatabaseConnectionSPtr connection, String const & name, String const & is, param_type valueIn = helper_type::InitialiseValue() )
 		{
 			typedef DatabaseUtils::Helpers< EFieldType_NCHAR >::ParamType param_type;
 			param_type value = param_type();
@@ -325,7 +325,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		typedef helper_type::ParamType param_type;
 
 		template< typename Function >
-		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, String const & is, param_type valueIn = helper_type::InitialiseValue() )
+		void operator()( Function function, DatabaseConnectionSPtr connection, String const & name, String const & is, param_type valueIn = helper_type::InitialiseValue() )
 		{
 			typedef DatabaseUtils::Helpers< EFieldType_NVARCHAR >::ParamType param_type;
 			param_type value = param_type();
@@ -352,7 +352,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		typedef helper_type::ParamType param_type;
 
 		template< typename Function >
-		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, String const & is, param_type valueIn = helper_type::InitialiseValue() )
+		void operator()( Function function, DatabaseConnectionSPtr connection, String const & name, String const & is, param_type valueIn = helper_type::InitialiseValue() )
 		{
 			typedef DatabaseUtils::Helpers< EFieldType_TEXT >::ParamType param_type;
 			param_type value = param_type();
@@ -379,7 +379,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		typedef helper_type::ParamType param_type;
 
 		template< typename Function >
-		void operator()( Function function, DatabaseConnectionPtr connection, String const & name, String const & is, param_type valueIn = helper_type::InitialiseValue() )
+		void operator()( Function function, DatabaseConnectionSPtr connection, String const & name, String const & is, param_type valueIn = helper_type::InitialiseValue() )
 		{
 			typedef DatabaseUtils::Helpers< EFieldType_VARBINARY >::ParamType param_type;
 			param_type value = param_type();
@@ -413,7 +413,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		if ( database )
 		{
-			DatabaseConnectionPtr connection = CreateConnection( *database, _server, _user, _password );
+			DatabaseConnectionSPtr connection = CreateConnection( *database, _server, _user, _password );
 
 			if ( connection )
 			{
@@ -478,7 +478,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		if ( database )
 		{
-			DatabaseConnectionPtr connection = CreateConnection( *database, _server, _user, _password );
+			DatabaseConnectionSPtr connection = CreateConnection( *database, _server, _user, _password );
 
 			if ( connection )
 			{
@@ -543,7 +543,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		if ( database )
 		{
-			DatabaseConnectionPtr connection = CreateConnection( *database, _server, _user, _password );
+			DatabaseConnectionSPtr connection = CreateConnection( *database, _server, _user, _password );
 
 			if ( connection )
 			{
@@ -619,7 +619,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		if ( database )
 		{
-			DatabaseConnectionPtr connection = CreateConnection( *database, _server, _user, _password );
+			DatabaseConnectionSPtr connection = CreateConnection( *database, _server, _user, _password );
 
 			if ( connection )
 			{
@@ -695,7 +695,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		if ( database )
 		{
-			DatabaseConnectionPtr connection = CreateConnection( *database, _server, _user, _password );
+			DatabaseConnectionSPtr connection = CreateConnection( *database, _server, _user, _password );
 
 			if ( connection )
 			{
@@ -736,7 +736,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		if ( database )
 		{
-			DatabaseConnectionPtr connection = CreateConnection( *database, _server, _user, _password );
+			DatabaseConnectionSPtr connection = CreateConnection( *database, _server, _user, _password );
 
 			if ( connection )
 			{
@@ -779,7 +779,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		if ( database )
 		{
-			DatabaseConnectionPtr connection = CreateConnection( *database, _server, _user, _password );
+			DatabaseConnectionSPtr connection = CreateConnection( *database, _server, _user, _password );
 
 			if ( connection )
 			{

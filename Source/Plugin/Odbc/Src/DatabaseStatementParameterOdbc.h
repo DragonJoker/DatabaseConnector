@@ -42,7 +42,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		@param[in] updater
 			The parent updater
 		*/
-		CDatabaseStatementParameterOdbc( DatabaseConnectionOdbcPtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
+		CDatabaseStatementParameterOdbc( DatabaseConnectionOdbcSPtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
 
 		/** Constructor.
 		@param[in] connection
@@ -60,7 +60,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		@param[in] updater
 			The parent updater
 		*/
-		CDatabaseStatementParameterOdbc( DatabaseConnectionOdbcPtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
+		CDatabaseStatementParameterOdbc( DatabaseConnectionOdbcSPtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
 
 		/** Constructor.
 		@param[in] connection
@@ -78,7 +78,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		@param[in] updater
 			The parent updater
 		*/
-		CDatabaseStatementParameterOdbc( DatabaseConnectionOdbcPtr connection, const String & name, unsigned short index, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
+		CDatabaseStatementParameterOdbc( DatabaseConnectionOdbcSPtr connection, const String & name, unsigned short index, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
 
 		/** Destructor.
 		*/

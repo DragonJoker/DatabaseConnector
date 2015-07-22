@@ -29,18 +29,18 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 		/** Default constructor.
 		*/
-		DatabaseSqliteExport CDatabaseSqlite();
+		CDatabaseSqlite();
 
 		/** Destructor.
 		*/
-		DatabaseSqliteExport virtual ~CDatabaseSqlite();
+		virtual ~CDatabaseSqlite();
 
 		//!@copydoc CObject::GetType
-		DatabaseSqliteExport virtual const String & GetType()const;
+		virtual const String & GetType()const;
 
 		/** Creator function
 		*/
-		DatabaseSqliteExport static CDatabase * Create();
+		static CDatabase * Create();
 
 	protected:
 		/** Create a connection to the database.
@@ -49,7 +49,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			Database connection.
 		*/
-		DatabaseSqliteExport virtual DatabaseConnectionPtr DoCreateConnection( String & connectionString ) const;
+		virtual DatabaseConnectionSPtr DoCreateConnection( String & connectionString ) const;
 	};
 }
 END_NAMESPACE_DATABASE_SQLITE

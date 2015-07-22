@@ -266,7 +266,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param connection
 			The connection used to format the value
 		*/
-		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
+		bool Set( const value_type & in, value_type & out, unsigned long & size, const CDatabaseConnection & connection )
 		{
 			out = in;
 			size = sizeof( value_type );
@@ -301,7 +301,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param result
 			Receives the insertable value
 		*/
-		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
+		String ToQueryValue( const value_type & value, bool valSet, const CDatabaseConnection & connection )const
 		{
 			if ( valSet )
 			{
@@ -339,7 +339,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param connection
 			The connection used to format the value
 		*/
-		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
+		bool Set( const value_type & in, value_type & out, unsigned long & size, const CDatabaseConnection & connection )
 		{
 			out = in;
 			size = sizeof( value_type );
@@ -374,7 +374,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param result
 			Receives the insertable value
 		*/
-		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
+		String ToQueryValue( const value_type & value, bool valSet, const CDatabaseConnection & connection )const
 		{
 			if ( valSet )
 			{
@@ -412,7 +412,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param connection
 			The connection used to format the value
 		*/
-		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
+		bool Set( const value_type & in, value_type & out, unsigned long & size, const CDatabaseConnection & connection )
 		{
 			out = in;
 			size = sizeof( value_type );
@@ -447,7 +447,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param result
 			Receives the insertable value
 		*/
-		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
+		String ToQueryValue( const value_type & value, bool valSet, const CDatabaseConnection & connection )const
 		{
 			if ( valSet )
 			{
@@ -486,7 +486,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param connection
 			The connection used to format the value
 		*/
-		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
+		bool Set( const value_type & in, value_type & out, unsigned long & size, const CDatabaseConnection & connection )
 		{
 			out = in;
 			size = sizeof( value_type );
@@ -521,7 +521,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param result
 			Receives the insertable value
 		*/
-		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
+		String ToQueryValue( const value_type & value, bool valSet, const CDatabaseConnection & connection )const
 		{
 			if ( valSet )
 			{
@@ -560,7 +560,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param connection
 			The connection used to format the value
 		*/
-		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
+		bool Set( const value_type & in, value_type & out, unsigned long & size, const CDatabaseConnection & connection )
 		{
 			out = in;
 			size = sizeof( value_type );
@@ -595,7 +595,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param result
 			Receives the insertable value
 		*/
-		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
+		String ToQueryValue( const value_type & value, bool valSet, const CDatabaseConnection & connection )const
 		{
 			if ( valSet )
 			{
@@ -633,7 +633,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param connection
 			The connection used to format the value
 		*/
-		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
+		bool Set( const value_type & in, value_type & out, unsigned long & size, const CDatabaseConnection & connection )
 		{
 			out = in;
 			size = sizeof( value_type );
@@ -668,12 +668,12 @@ BEGIN_NAMESPACE_DATABASE
 		@param result
 			Receives the insertable value
 		*/
-		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
+		String ToQueryValue( const value_type & value, bool valSet, const CDatabaseConnection & connection )const
 		{
 			if ( valSet )
 			{
 				StringStream stream;
-				stream.precision( connection->GetPrecision( EFieldType_FLOAT32 ) );
+				stream.precision( connection.GetPrecision( EFieldType_FLOAT32 ) );
 				stream << value;
 				return stream.str();
 			}
@@ -709,7 +709,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param connection
 			The connection used to format the value
 		*/
-		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
+		bool Set( const value_type & in, value_type & out, unsigned long & size, const CDatabaseConnection & connection )
 		{
 			out = in;
 			size = sizeof( value_type );
@@ -744,12 +744,12 @@ BEGIN_NAMESPACE_DATABASE
 		@param result
 			Receives the insertable value
 		*/
-		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
+		String ToQueryValue( const value_type & value, bool valSet, const CDatabaseConnection & connection )const
 		{
 			if ( valSet )
 			{
 				StringStream stream;
-				stream.precision( connection->GetPrecision( EFieldType_FLOAT64 ) );
+				stream.precision( connection.GetPrecision( EFieldType_FLOAT64 ) );
 				stream << value;
 				return stream.str();
 			}
@@ -785,7 +785,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param connection
 			The connection used to format the value
 		*/
-		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
+		bool Set( const value_type & in, value_type & out, unsigned long & size, const CDatabaseConnection & connection )
 		{
 			out = in;
 			size = sizeof( value_type );
@@ -820,11 +820,11 @@ BEGIN_NAMESPACE_DATABASE
 		@param result
 			Receives the insertable value
 		*/
-		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
+		String ToQueryValue( const value_type & value, bool valSet, const CDatabaseConnection & connection )const
 		{
 			if ( valSet )
 			{
-				return connection->WriteBool( value );
+				return connection.WriteBool( value );
 			}
 			else
 			{
@@ -858,7 +858,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param connection
 			The connection used to format the value
 		*/
-		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
+		bool Set( const value_type & in, value_type & out, unsigned long & size, const CDatabaseConnection & connection )
 		{
 			out = in;
 			size = ( unsigned long )( in.size() );
@@ -893,11 +893,11 @@ BEGIN_NAMESPACE_DATABASE
 		@param result
 			Receives the insertable value
 		*/
-		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
+		String ToQueryValue( const value_type & value, bool valSet, const CDatabaseConnection & connection )const
 		{
 			if ( valSet )
 			{
-				return CStrUtils::ToString( connection->WriteText( value ) );
+				return CStrUtils::ToString( connection.WriteText( value ) );
 			}
 			else
 			{
@@ -955,7 +955,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param connection
 			The connection used to format the value
 		*/
-		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
+		bool Set( const value_type & in, value_type & out, unsigned long & size, const CDatabaseConnection & connection )
 		{
 			out = in;
 			size = ( unsigned long )( in.size() ) * sizeof( wchar_t );
@@ -990,11 +990,11 @@ BEGIN_NAMESPACE_DATABASE
 		@param result
 			Receives the insertable value
 		*/
-		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
+		String ToQueryValue( const value_type & value, bool valSet, const CDatabaseConnection & connection )const
 		{
 			if ( valSet )
 			{
-				return CStrUtils::ToString( connection->WriteNText( value ) );
+				return CStrUtils::ToString( connection.WriteNText( value ) );
 			}
 			else
 			{
@@ -1052,7 +1052,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param connection
 			The connection used to format the value
 		*/
-		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
+		bool Set( const value_type & in, value_type & out, unsigned long & size, const CDatabaseConnection & connection )
 		{
 			out.clear();
 
@@ -1108,11 +1108,11 @@ BEGIN_NAMESPACE_DATABASE
 		@param result
 			Receives the insertable value
 		*/
-		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
+		String ToQueryValue( const value_type & value, bool valSet, const CDatabaseConnection & connection )const
 		{
 			if ( valSet )
 			{
-				return connection->WriteBinary( value );
+				return connection.WriteBinary( value );
 			}
 			else
 			{
@@ -1170,11 +1170,11 @@ BEGIN_NAMESPACE_DATABASE
 		@param connection
 			The connection used to format the value
 		*/
-		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
+		bool Set( const value_type & in, value_type & out, unsigned long & size, const CDatabaseConnection & connection )
 		{
 			out = in;
-			size = ( unsigned long )( connection->GetStmtDateSize() );
-			_value = connection->WriteStmtDateS( out );
+			size = ( unsigned long )( connection.GetStmtDateSize() );
+			_value = connection.WriteStmtDateS( out );
 			return true;
 		}
 
@@ -1220,11 +1220,11 @@ BEGIN_NAMESPACE_DATABASE
 		@param result
 			Receives the insertable value
 		*/
-		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
+		String ToQueryValue( const value_type & value, bool valSet, const CDatabaseConnection & connection )const
 		{
 			if ( valSet )
 			{
-				return CStrUtils::ToString( connection->WriteDate( value ) );
+				return CStrUtils::ToString( connection.WriteDate( value ) );
 			}
 			else
 			{
@@ -1260,11 +1260,11 @@ BEGIN_NAMESPACE_DATABASE
 		@param connection
 			The connection used to format the value
 		*/
-		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
+		bool Set( const value_type & in, value_type & out, unsigned long & size, const CDatabaseConnection & connection )
 		{
 			out = in;
-			size = ( unsigned long )( connection->GetStmtTimeSize() );
-			_value = connection->WriteStmtTime( out );
+			size = ( unsigned long )( connection.GetStmtTimeSize() );
+			_value = connection.WriteStmtTime( out );
 			return true;
 		}
 
@@ -1310,11 +1310,11 @@ BEGIN_NAMESPACE_DATABASE
 		@param result
 			Receives the insertable value
 		*/
-		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
+		String ToQueryValue( const value_type & value, bool valSet, const CDatabaseConnection & connection )const
 		{
 			if ( valSet )
 			{
-				return CStrUtils::ToString( connection->WriteTime( value ) );
+				return CStrUtils::ToString( connection.WriteTime( value ) );
 			}
 			else
 			{
@@ -1350,11 +1350,11 @@ BEGIN_NAMESPACE_DATABASE
 		@param connection
 			The connection used to format the value
 		*/
-		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
+		bool Set( const value_type & in, value_type & out, unsigned long & size, const CDatabaseConnection & connection )
 		{
 			out = in;
-			size = ( unsigned long )( connection->GetStmtDateTimeSize() );
-			_value = connection->WriteStmtDateTime( out );
+			size = ( unsigned long )( connection.GetStmtDateTimeSize() );
+			_value = connection.WriteStmtDateTime( out );
 			return true;
 		}
 
@@ -1400,11 +1400,11 @@ BEGIN_NAMESPACE_DATABASE
 		@param result
 			Receives the insertable value
 		*/
-		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
+		String ToQueryValue( const value_type & value, bool valSet, const CDatabaseConnection & connection )const
 		{
 			if ( valSet )
 			{
-				return CStrUtils::ToString( connection->WriteDateTime( value ) );
+				return CStrUtils::ToString( connection.WriteDateTime( value ) );
 			}
 			else
 			{
@@ -1440,7 +1440,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param connection
 			The connection used to format the value
 		*/
-		bool Set( const value_type & in, value_type & out, unsigned long & size, DatabaseConnectionPtr connection )
+		bool Set( const value_type & in, value_type & out, unsigned long & size, const CDatabaseConnection & connection )
 		{
 			out = in;
 			size = out.GetPrecision();
@@ -1475,7 +1475,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param result
 			Receives the insertable value
 		*/
-		String ToQueryValue( const value_type & value, bool valSet, DatabaseConnectionPtr connection )const
+		String ToQueryValue( const value_type & value, bool valSet, const CDatabaseConnection & connection )const
 		{
 			if ( valSet )
 			{

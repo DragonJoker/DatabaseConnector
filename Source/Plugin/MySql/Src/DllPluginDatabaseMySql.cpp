@@ -17,6 +17,20 @@
 
 #include <DatabasePluginManager.h>
 
+#if defined( _WIN32 ) && !defined ( __MINGW32__ ) && !defined ( STATIC_LIB )
+#	ifdef DatabasePluginMySql_EXPORTS
+#		define DatabaseMySqlExport __declspec ( dllexport )
+#	else
+#		if defined ( __MINGW32__ )
+#			define DatabaseMySqlExport
+#		else
+#			define DatabaseMySqlExport __declspec ( dllimport )
+#		endif
+#	endif
+#else
+#    define DatabaseMySqlExport
+#endif
+
 BEGIN_NAMESPACE_DATABASE_MYSQL
 {
 	CPluginDatabaseMySql * plugin = NULL;

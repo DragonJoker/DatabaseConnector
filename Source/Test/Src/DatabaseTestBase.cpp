@@ -193,7 +193,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		if ( database )
 		{
-			DatabaseConnectionPtr connection = CreateConnection( *database, _server, _user, _password );
+			DatabaseConnectionSPtr connection = CreateConnection( *database, _server, _user, _password );
 
 			if ( connection )
 			{
@@ -224,7 +224,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 			if ( database )
 			{
-				DatabaseConnectionPtr connection = CreateConnection( *database, _server, _user, _password );
+				DatabaseConnectionSPtr connection = CreateConnection( *database, _server, _user, _password );
 
 				if ( connection )
 				{
@@ -242,7 +242,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		CLogger::LogInfo( StringStream() << "**** End TestCase_DestroyDatabase ****" );
 	}
 
-	void CDatabaseTest::DoFlushTable( DatabaseConnectionPtr connection )
+	void CDatabaseTest::DoFlushTable( DatabaseConnectionSPtr connection )
 	{
 		connection->ExecuteUpdate( STR( "DELETE FROM Test" ) );
 	}

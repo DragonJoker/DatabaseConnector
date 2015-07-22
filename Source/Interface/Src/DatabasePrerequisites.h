@@ -115,27 +115,27 @@ namespace Database
 	class CProgramConsole;
 
 	// Pointers
-	typedef std::shared_ptr< CDatabase > DatabasePtr;
-	typedef std::shared_ptr< CDatabaseConnection > DatabaseConnectionPtr;
-	typedef std::shared_ptr< CDatabaseField > DatabaseFieldPtr;
-	typedef std::shared_ptr< CDatabaseFieldInfos > DatabaseFieldInfosPtr;
-	typedef std::unique_ptr< CDatabaseValueBase > DatabaseValueBasePtr;
-	typedef std::shared_ptr< CDatabaseParameter > DatabaseParameterPtr;
-	typedef std::shared_ptr< CDatabaseQuery > DatabaseQueryPtr;
-	typedef std::shared_ptr< CDatabaseResult > DatabaseResultPtr;
-	typedef std::shared_ptr< CDatabaseRow > DatabaseRowPtr;
-	typedef std::shared_ptr< CDatabaseStatement > DatabaseStatementPtr;
+	DECLARE_SMART_PTR( Database );
+	DECLARE_SMART_PTR( DatabaseConnection );
+	DECLARE_SMART_PTR( DatabaseField );
+	DECLARE_SMART_PTR( DatabaseFieldInfos );
+	DECLARE_SMART_PTR( DatabaseValueBase );
+	DECLARE_SMART_PTR( DatabaseParameter );
+	DECLARE_SMART_PTR( DatabaseQuery );
+	DECLARE_SMART_PTR( DatabaseResult );
+	DECLARE_SMART_PTR( DatabaseRow );
+	DECLARE_SMART_PTR( DatabaseStatement );
 
 	// Containers
 	typedef std::vector< String > StringArray;
 	typedef std::vector< uint8_t > ByteArray;
-	typedef std::vector< DatabaseFieldPtr > DatabaseFieldPtrArray;
-	typedef std::map< String, DatabaseFieldPtr > DatabaseFieldPtrStrMap;
-	typedef std::list< DatabaseRowPtr > DatabaseRowPtrList;
-	typedef std::vector< DatabaseFieldInfosPtr > DatabaseFieldInfosPtrArray;
-	typedef std::vector< DatabaseParameterPtr > DatabaseParameterPtrArray;
-	typedef std::map< String, DatabaseParameterPtr > DatabaseParameterPtrStrMap;
-	typedef std::map< std::thread::id, DatabaseConnectionPtr > DatabaseConnectionPtrIdMap;
+	typedef std::vector< DatabaseFieldSPtr > DatabaseFieldPtrArray;
+	typedef std::map< String, DatabaseFieldWPtr > DatabaseFieldPtrStrMap;
+	typedef std::list< DatabaseRowSPtr > DatabaseRowPtrList;
+	typedef std::vector< DatabaseFieldInfosSPtr > DatabaseFieldInfosPtrArray;
+	typedef std::vector< DatabaseParameterSPtr > DatabaseParameterPtrArray;
+	typedef std::map< String, DatabaseParameterWPtr > DatabaseParameterPtrStrMap;
+	typedef std::map< std::thread::id, DatabaseConnectionSPtr > DatabaseConnectionPtrIdMap;
 	typedef std::deque< std::unique_ptr< SMessageBase > > MessageQueue;
 
 	// Factory type constants

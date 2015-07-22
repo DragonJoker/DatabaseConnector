@@ -28,24 +28,24 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 	public:
 		/** Default constructor.
 		*/
-		DatabaseSqliteExport CPluginDatabaseSqlite();
+		CPluginDatabaseSqlite();
 
 		/** Destructor.
 		*/
-		DatabaseSqliteExport virtual ~CPluginDatabaseSqlite();
+		virtual ~CPluginDatabaseSqlite();
 
 		//!@copydoc Database::CPlugin::GetName
-		DatabaseSqliteExport virtual const String GetName() const;
+		virtual const String GetName() const;
 
 		//!@copydoc Database::CPlugin::Initialize
-		DatabaseSqliteExport virtual void Initialize();
+		virtual void Initialize();
 
 		//!@copydoc Database::CPlugin::Shutdown
-		DatabaseSqliteExport virtual void Shutdown();
+		virtual void Shutdown();
 
 	protected:
 		//!@copydoc Database::CParameterListInterface::AddBaseParameters
-		DatabaseSqliteExport virtual void AddBaseParameters();
+		virtual void AddBaseParameters();
 	};
 }
 END_NAMESPACE_DATABASE_SQLITE

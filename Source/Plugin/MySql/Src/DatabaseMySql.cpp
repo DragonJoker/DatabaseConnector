@@ -50,14 +50,9 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		return new CDatabaseMySql;
 	}
 
-	DatabaseConnectionPtr CDatabaseMySql::DoCreateConnection( String & connectionString ) const
+	DatabaseConnectionSPtr CDatabaseMySql::DoCreateConnection( String & connectionString ) const
 	{
-		DatabaseConnectionPtr pReturn;
-
-		// std::make_shared limited to 5 parameters with VS2012
-		pReturn = std::make_shared< CDatabaseConnectionMySql >( _server, _userName, _password, connectionString );
-
-		return pReturn;
+		return std::make_shared< CDatabaseConnectionMySql >( _server, _userName, _password, connectionString );
 	}
 }
 END_NAMESPACE_DATABASE_MYSQL

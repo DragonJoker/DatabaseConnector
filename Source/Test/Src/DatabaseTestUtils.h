@@ -108,10 +108,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	namespace DatabaseUtils
 	{
 		template< typename StmtType >
-		std::shared_ptr< StmtType > CreateStmt( DatabaseConnectionPtr connection, const String & query );
+		std::shared_ptr< StmtType > CreateStmt( DatabaseConnectionSPtr connection, const String & query );
 
 		template<>
-		inline std::shared_ptr< CDatabaseStatement > CreateStmt< CDatabaseStatement >( DatabaseConnectionPtr connection, const String & query )
+		inline std::shared_ptr< CDatabaseStatement > CreateStmt< CDatabaseStatement >( DatabaseConnectionSPtr connection, const String & query )
 		{
 			std::shared_ptr< CDatabaseStatement > result;
 
@@ -128,7 +128,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template<>
-		inline std::shared_ptr< CDatabaseQuery > CreateStmt< CDatabaseQuery >( DatabaseConnectionPtr connection, const String & query )
+		inline std::shared_ptr< CDatabaseQuery > CreateStmt< CDatabaseQuery >( DatabaseConnectionSPtr connection, const String & query )
 		{
 			std::shared_ptr< CDatabaseQuery > result;
 
@@ -488,7 +488,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			{
 				return std::string( "\n\
 				template< class StmtType, typename Type >\n\
-				inline void InsertAndRetrieve( DatabaseConnectionPtr connection, const String & name )\n\
+				inline void InsertAndRetrieve( DatabaseConnectionSPtr connection, const String & name )\n\
 				{\n\
 					try\n\
 					{\n\
@@ -615,7 +615,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			stmt->SetParameterValue( index++, Helpers< EFieldType_VARBINARY >::InitialiseValue() );
 		}
 
-		inline void DisplayValues( uint32_t & index, DatabaseRowPtr row )
+		inline void DisplayValues( uint32_t & index, DatabaseRowSPtr row )
 		{
 			CLogger::LogInfo( StringStream() << STR( "IntField : " ) << row->Get< int32_t >( index++ ) );
 			CLogger::LogInfo( StringStream() << STR( "IntegerField : " ) << row->Get< int32_t >( index++ ) );
@@ -927,7 +927,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		};
 
 		template< class StmtType, EFieldType FieldType >
-		inline void InsertAndRetrieve( DatabaseConnectionPtr connection, const String & name, typename Helpers< FieldType >::ParamType const * valueIn, bool equal, String const & is )
+		inline void InsertAndRetrieve( DatabaseConnectionSPtr connection, const String & name, typename Helpers< FieldType >::ParamType const * valueIn, bool equal, String const & is )
 		{
 			try
 			{
@@ -966,7 +966,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					}
 
 					BOOST_CHECK( stmtInsert->ExecuteUpdate() );
-					DatabaseResultPtr result = stmtSelect->ExecuteSelect();
+					DatabaseResultSPtr result = stmtSelect->ExecuteSelect();
 
 					if ( result )
 					{
@@ -982,7 +982,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 							{
 								try
 								{
-									DatabaseFieldPtr field = result->GetFirstRow()->GetField( 0 );
+									DatabaseFieldSPtr field = result->GetFirstRow()->GetField( 0 );
 									BOOST_CHECK( field->GetObjectValue().IsNull() );
 								}
 								catch ( CExceptionDatabase & exc )
@@ -1020,7 +1020,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< class StmtType, EFieldType FieldType >
-		inline void InsertAndRetrieveOtherIndex( DatabaseConnectionPtr connection, const String & name, typename Helpers< FieldType >::ParamType const * valueIn, bool equal, String const & is )
+		inline void InsertAndRetrieveOtherIndex( DatabaseConnectionSPtr connection, const String & name, typename Helpers< FieldType >::ParamType const * valueIn, bool equal, String const & is )
 		{
 			try
 			{
@@ -1064,7 +1064,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					}
 
 					BOOST_CHECK( stmtInsert->ExecuteUpdate() );
-					DatabaseResultPtr result = stmtSelect->ExecuteSelect();
+					DatabaseResultSPtr result = stmtSelect->ExecuteSelect();
 
 					if ( result )
 					{
@@ -1080,7 +1080,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 							{
 								try
 								{
-									DatabaseFieldPtr field = result->GetFirstRow()->GetField( 0 );
+									DatabaseFieldSPtr field = result->GetFirstRow()->GetField( 0 );
 									BOOST_CHECK( field->GetObjectValue().IsNull() );
 								}
 								catch ( CExceptionDatabase & exc )
@@ -1118,19 +1118,19 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< class StmtType, EFieldType FieldType >
-		inline void InsertAndRetrieveOtherIndex( DatabaseConnectionPtr connection, const String & name, typename Helpers< FieldType >::ParamType const & valueIn, bool equal, String const & is )
+		inline void InsertAndRetrieveOtherIndex( DatabaseConnectionSPtr connection, const String & name, typename Helpers< FieldType >::ParamType const & valueIn, bool equal, String const & is )
 		{
 			InsertAndRetrieveOtherIndex< StmtType, FieldType >( connection, name, &valueIn, equal, is );
 		}
 
 		template< class StmtType, EFieldType FieldType >
-		inline void InsertAndRetrieveOtherIndex( DatabaseConnectionPtr connection, const String & name, bool equal, String const & is )
+		inline void InsertAndRetrieveOtherIndex( DatabaseConnectionSPtr connection, const String & name, bool equal, String const & is )
 		{
 			InsertAndRetrieveOtherIndex< StmtType, FieldType >( connection, name, Helpers< FieldType >::InitialiseValue(), equal, is );
 		}
 
 		template< class StmtType, EFieldType FieldType >
-		inline void InsertAndRetrieveFast( DatabaseConnectionPtr connection, const String & name, typename Helpers< FieldType >::ParamType const * valueIn, bool equal, String const & is )
+		inline void InsertAndRetrieveFast( DatabaseConnectionSPtr connection, const String & name, typename Helpers< FieldType >::ParamType const * valueIn, bool equal, String const & is )
 		{
 			try
 			{
@@ -1169,7 +1169,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					}
 
 					BOOST_CHECK( stmtInsert->ExecuteUpdate() );
-					DatabaseResultPtr result = stmtSelect->ExecuteSelect();
+					DatabaseResultSPtr result = stmtSelect->ExecuteSelect();
 
 					if ( result )
 					{
@@ -1185,7 +1185,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 							{
 								try
 								{
-									DatabaseFieldPtr field = result->GetFirstRow()->GetField( 0 );
+									DatabaseFieldSPtr field = result->GetFirstRow()->GetField( 0 );
 									BOOST_CHECK( field->GetObjectValue().IsNull() );
 								}
 								catch ( CExceptionDatabase & exc )
@@ -1223,19 +1223,19 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< class StmtType, EFieldType FieldType >
-		inline void InsertAndRetrieveFast( DatabaseConnectionPtr connection, const String & name, typename Helpers< FieldType >::ParamType const & valueIn, bool equal, String const & is )
+		inline void InsertAndRetrieveFast( DatabaseConnectionSPtr connection, const String & name, typename Helpers< FieldType >::ParamType const & valueIn, bool equal, String const & is )
 		{
 			InsertAndRetrieveFast< StmtType, FieldType >( connection, name, &valueIn, equal, is );
 		}
 
 		template< class StmtType, EFieldType FieldType >
-		inline void InsertAndRetrieveFast( DatabaseConnectionPtr connection, const String & name, bool equal, String const & is )
+		inline void InsertAndRetrieveFast( DatabaseConnectionSPtr connection, const String & name, bool equal, String const & is )
 		{
 			InsertAndRetrieveFast< StmtType, FieldType >( connection, name, Helpers< FieldType >::InitialiseValue(), equal, is );
 		}
 
 		template< class StmtType, EFieldType FieldType >
-		inline void InsertAndRetrieveFastOtherIndex( DatabaseConnectionPtr connection, const String & name, typename Helpers< FieldType >::ParamType const * valueIn, bool equal, String const & is )
+		inline void InsertAndRetrieveFastOtherIndex( DatabaseConnectionSPtr connection, const String & name, typename Helpers< FieldType >::ParamType const * valueIn, bool equal, String const & is )
 		{
 			try
 			{
@@ -1279,7 +1279,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					}
 
 					BOOST_CHECK( stmtInsert->ExecuteUpdate() );
-					DatabaseResultPtr result = stmtSelect->ExecuteSelect();
+					DatabaseResultSPtr result = stmtSelect->ExecuteSelect();
 
 					if ( result )
 					{
@@ -1295,7 +1295,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 							{
 								try
 								{
-									DatabaseFieldPtr field = result->GetFirstRow()->GetField( 0 );
+									DatabaseFieldSPtr field = result->GetFirstRow()->GetField( 0 );
 									BOOST_CHECK( field->GetObjectValue().IsNull() );
 								}
 								catch ( CExceptionDatabase & exc )
@@ -1333,19 +1333,19 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< class StmtType, EFieldType FieldType >
-		inline void InsertAndRetrieveFastOtherIndex( DatabaseConnectionPtr connection, const String & name, typename Helpers< FieldType >::ParamType const & valueIn, bool equal, String const & is )
+		inline void InsertAndRetrieveFastOtherIndex( DatabaseConnectionSPtr connection, const String & name, typename Helpers< FieldType >::ParamType const & valueIn, bool equal, String const & is )
 		{
 			InsertAndRetrieveFastOtherIndex< StmtType, FieldType >( connection, name, &valueIn, equal, is );
 		}
 
 		template< class StmtType, EFieldType FieldType >
-		inline void InsertAndRetrieveFastOtherIndex( DatabaseConnectionPtr connection, const String & name, bool equal, String const & is )
+		inline void InsertAndRetrieveFastOtherIndex( DatabaseConnectionSPtr connection, const String & name, bool equal, String const & is )
 		{
 			InsertAndRetrieveFastOtherIndex< StmtType, FieldType >( connection, name, Helpers< FieldType >::InitialiseValue(), equal, is );
 		}
 
 		template< typename StmtType >
-		inline void TestDirectInsert( DatabaseConnectionPtr connection )
+		inline void TestDirectInsert( DatabaseConnectionSPtr connection )
 		{
 			try
 			{
@@ -1356,7 +1356,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				if ( stmtGetCount )
 				{
 					BOOST_CHECK( stmtGetCount->Initialize() == EErrorType_NONE );
-					DatabaseResultPtr result = stmtGetCount->ExecuteSelect();
+					DatabaseResultSPtr result = stmtGetCount->ExecuteSelect();
 
 					if ( result )
 					{
@@ -1396,7 +1396,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 						}
 
 						count--;
-						DatabaseResultPtr result = stmtGetCount->ExecuteSelect();
+						DatabaseResultSPtr result = stmtGetCount->ExecuteSelect();
 
 						if ( result )
 						{
@@ -1436,7 +1436,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< typename StmtType >
-		inline void TestDirectSelect( DatabaseConnectionPtr connection )
+		inline void TestDirectSelect( DatabaseConnectionSPtr connection )
 		{
 			try
 			{
@@ -1446,13 +1446,13 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				if ( stmtSelect )
 				{
 					BOOST_CHECK( stmtSelect->Initialize() == EErrorType_NONE );
-					DatabaseResultPtr result = stmtSelect->ExecuteSelect();
+					DatabaseResultSPtr result = stmtSelect->ExecuteSelect();
 
 					if ( result )
 					{
 						if ( result->GetRowCount() )
 						{
-							DatabaseRowPtr row = result->GetFirstRow();
+							DatabaseRowSPtr row = result->GetFirstRow();
 
 							while ( row )
 							{
@@ -1489,7 +1489,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< typename StmtType >
-		inline void TestDirectUpdate( DatabaseConnectionPtr connection )
+		inline void TestDirectUpdate( DatabaseConnectionSPtr connection )
 		{
 			try
 			{
@@ -1500,7 +1500,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				if ( stmtGetMin )
 				{
 					BOOST_CHECK( stmtGetMin->Initialize() == EErrorType_NONE );
-					DatabaseResultPtr result = stmtGetMin->ExecuteSelect();
+					DatabaseResultSPtr result = stmtGetMin->ExecuteSelect();
 
 					if ( result )
 					{
@@ -1557,7 +1557,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< typename StmtType >
-		inline void TestDirectDelete( DatabaseConnectionPtr connection )
+		inline void TestDirectDelete( DatabaseConnectionSPtr connection )
 		{
 			try
 			{
@@ -1568,7 +1568,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				if ( stmtGetMin )
 				{
 					BOOST_CHECK( stmtGetMin->Initialize() == EErrorType_NONE );
-					DatabaseResultPtr result = stmtGetMin->ExecuteSelect();
+					DatabaseResultSPtr result = stmtGetMin->ExecuteSelect();
 
 					if ( result )
 					{
@@ -1623,7 +1623,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< typename StmtType >
-		inline void TestStoredNoParamNoReturn( DatabaseConnectionPtr connection )
+		inline void TestStoredNoParamNoReturn( DatabaseConnectionSPtr connection )
 		{
 			try
 			{
@@ -1657,7 +1657,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< typename StmtType >
-		inline void TestStoredNoParamReturn( DatabaseConnectionPtr connection, const String & where )
+		inline void TestStoredNoParamReturn( DatabaseConnectionSPtr connection, const String & where )
 		{
 			try
 			{
@@ -1672,13 +1672,13 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					for ( int i = 0; i < 2; i++ )
 					{
 						stmtGetElements->SetParameterValue( 0, where );
-						DatabaseResultPtr result = stmtGetElements->ExecuteSelect();
+						DatabaseResultSPtr result = stmtGetElements->ExecuteSelect();
 
 						if ( result )
 						{
 							if ( result->GetRowCount() )
 							{
-								DatabaseRowPtr row = result->GetFirstRow();
+								DatabaseRowSPtr row = result->GetFirstRow();
 
 								while ( row )
 								{
@@ -1716,7 +1716,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< typename StmtType >
-		inline void TestStoredInParamNoReturn( DatabaseConnectionPtr connection )
+		inline void TestStoredInParamNoReturn( DatabaseConnectionSPtr connection )
 		{
 			try
 			{
@@ -1727,7 +1727,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				if ( stmtGetMin )
 				{
 					BOOST_CHECK( stmtGetMin->Initialize() == EErrorType_NONE );
-					DatabaseResultPtr result = stmtGetMin->ExecuteSelect();
+					DatabaseResultSPtr result = stmtGetMin->ExecuteSelect();
 
 					if ( result )
 					{
@@ -1782,7 +1782,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< typename StmtType >
-		inline void TestStoredInOutParamNoReturn( DatabaseConnectionPtr connection )
+		inline void TestStoredInOutParamNoReturn( DatabaseConnectionSPtr connection )
 		{
 			try
 			{
@@ -1793,7 +1793,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				if ( stmtGetCount )
 				{
 					BOOST_CHECK( stmtGetCount->Initialize() == EErrorType_NONE );
-					DatabaseResultPtr result = stmtGetCount->ExecuteSelect();
+					DatabaseResultSPtr result = stmtGetCount->ExecuteSelect();
 
 					if ( result )
 					{
@@ -1856,7 +1856,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< typename StmtType >
-		inline void TestStoredInOutDtParamNoReturn( DatabaseConnectionPtr connection )
+		inline void TestStoredInOutDtParamNoReturn( DatabaseConnectionSPtr connection )
 		{
 			try
 			{
@@ -1867,7 +1867,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				if ( stmtGetCount )
 				{
 					BOOST_CHECK( stmtGetCount->Initialize() == EErrorType_NONE );
-					DatabaseResultPtr result = stmtGetCount->ExecuteSelect();
+					DatabaseResultSPtr result = stmtGetCount->ExecuteSelect();
 
 					if ( result )
 					{
@@ -1932,7 +1932,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< typename StmtType >
-		inline void PerfDirectSelectActors( DatabaseConnectionPtr connection, uint32_t testCount, const String & whereClause )
+		inline void PerfDirectSelectActors( DatabaseConnectionSPtr connection, uint32_t testCount, const String & whereClause )
 		{
 			try
 			{
@@ -1951,7 +1951,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				{
 					stmtGetActors->Initialize();
 					std::clock_t start = std::clock();
-					DatabaseResultPtr result = stmtGetActors->ExecuteSelect();
+					DatabaseResultSPtr result = stmtGetActors->ExecuteSelect();
 					CLogger::LogInfo( StringStream() << "    Selected the elements in " << float( std::clock() - start ) / CLOCKS_PER_SEC << "seconds (no fetch)" );
 
 					start = std::clock();
@@ -1962,7 +1962,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 						if ( count )
 						{
-							DatabaseRowPtr row = result->GetFirstRow();
+							DatabaseRowSPtr row = result->GetFirstRow();
 
 							while ( row )
 							{
@@ -1991,7 +1991,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< typename StmtType >
-		inline void PerfStoredProcedureSelectActors( DatabaseConnectionPtr connection, uint32_t testCount, const String & whereClause )
+		inline void PerfStoredProcedureSelectActors( DatabaseConnectionSPtr connection, uint32_t testCount, const String & whereClause )
 		{
 			try
 			{
@@ -2003,7 +2003,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					stmtGetActors->Initialize();
 					std::clock_t start = std::clock();
 					stmtGetActors->SetParameterValue( 0, whereClause );
-					DatabaseResultPtr result = stmtGetActors->ExecuteSelect();
+					DatabaseResultSPtr result = stmtGetActors->ExecuteSelect();
 					CLogger::LogInfo( StringStream() << "    Selected the elements in " << float( std::clock() - start ) / CLOCKS_PER_SEC << "seconds (no fetch)" );
 
 					start = std::clock();
@@ -2014,7 +2014,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 						if ( count )
 						{
-							DatabaseRowPtr row = result->GetFirstRow();
+							DatabaseRowSPtr row = result->GetFirstRow();
 
 							while ( row )
 							{
@@ -2043,7 +2043,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< typename StmtType >
-		inline void PerfDirectDeleteActors( DatabaseConnectionPtr connection, uint32_t testCount )
+		inline void PerfDirectDeleteActors( DatabaseConnectionSPtr connection, uint32_t testCount )
 		{
 			try
 			{
@@ -2053,7 +2053,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				if ( stmtGetMin )
 				{
 					stmtGetMin->Initialize();
-					DatabaseResultPtr result = stmtGetMin->ExecuteSelect();
+					DatabaseResultSPtr result = stmtGetMin->ExecuteSelect();
 
 					if ( result && result->GetRowCount() )
 					{
@@ -2099,7 +2099,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< typename StmtType >
-		inline void PerfStoredProcedureDeleteActors( DatabaseConnectionPtr connection, uint32_t testCount )
+		inline void PerfStoredProcedureDeleteActors( DatabaseConnectionSPtr connection, uint32_t testCount )
 		{
 			try
 			{
@@ -2109,7 +2109,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				if ( stmtGetMin )
 				{
 					stmtGetMin->Initialize();
-					DatabaseResultPtr result = stmtGetMin->ExecuteSelect();
+					DatabaseResultSPtr result = stmtGetMin->ExecuteSelect();
 
 					if ( result )
 					{

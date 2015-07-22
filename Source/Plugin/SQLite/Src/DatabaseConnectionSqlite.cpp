@@ -606,14 +606,13 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		return ExecuteSelect( statement ) != nullptr;
 	}
 
-	DatabaseResultPtr CDatabaseConnectionSqlite::ExecuteSelect( sqlite3_stmt * statement )
+	DatabaseResultSPtr CDatabaseConnectionSqlite::ExecuteSelect( sqlite3_stmt * statement )
 	{
-		DatabaseResultPtr result;
+		DatabaseResultSPtr result;
 
 		try
 		{
-			DatabaseConnectionSqlitePtr connection = std::static_pointer_cast< CDatabaseConnectionSqlite >( shared_from_this() );
-			result = SqliteFetchResult( statement, SqliteGetColumns( statement, connection ), connection );
+			result = SqliteFetchResult( statement, SqliteGetColumns( statement ), std::static_pointer_cast< CDatabaseConnectionSqlite >( shared_from_this() ) );
 		}
 		catch ( CExceptionDatabase & exc )
 		{
@@ -712,9 +711,9 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		return ret;
 	}
 
-	DatabaseResultPtr CDatabaseConnectionSqlite::DoExecuteSelect( const String & query)
+	DatabaseResultSPtr CDatabaseConnectionSqlite::DoExecuteSelect( const String & query)
 	{
-		DatabaseResultPtr ret;
+		DatabaseResultSPtr ret;
 
 		try
 		{
@@ -736,7 +735,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		return ret;
 	}
 
-	DatabaseStatementPtr CDatabaseConnectionSqlite::DoCreateStatement( const String & query )
+	DatabaseStatementSPtr CDatabaseConnectionSqlite::DoCreateStatement( const String & query )
 	{
 		return std::make_shared< CDatabaseStatementSqlite >( std::static_pointer_cast< CDatabaseConnectionSqlite >( shared_from_this() ), query );
 	}

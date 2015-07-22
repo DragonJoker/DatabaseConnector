@@ -33,11 +33,11 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		@param[in] query
 			Request text.
 		*/
-		DatabasePostgreSqlExport CDatabaseStatementPostgreSql( DatabaseConnectionPostgreSqlPtr connection, const String & query );
+		CDatabaseStatementPostgreSql( DatabaseConnectionPostgreSqlSPtr connection, const String & query );
 
 		/** Destructor.
 			*/
-		DatabasePostgreSqlExport virtual ~CDatabaseStatementPostgreSql();
+		virtual ~CDatabaseStatementPostgreSql();
 
 		/** Create a parameter.
 		@param[in] name
@@ -49,7 +49,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		@return
 			Created parameter.
 		*/
-		DatabasePostgreSqlExport virtual DatabaseParameterPtr CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType );
+		virtual DatabaseParameterSPtr CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType );
 
 		/** Create a parameter which has limits (strings, etc.).
 		@param[in] name
@@ -63,7 +63,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		@return
 			Created parameter.
 		*/
-		DatabasePostgreSqlExport virtual DatabaseParameterPtr CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType );
+		virtual DatabaseParameterSPtr CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType );
 
 		/** Create a parameter which has limits (strings, etc.).
 		@param[in] name
@@ -77,14 +77,14 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		@return
 			Created parameter.
 		*/
-		DatabasePostgreSqlExport virtual DatabaseParameterPtr CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType );
+		virtual DatabaseParameterSPtr CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType );
 
 	private:
 		/** Initialize this statement.
 		@return
 			Error code.
 		*/
-		DatabasePostgreSqlExport virtual EErrorType DoInitialize();
+		virtual EErrorType DoInitialize();
 
 		/** Execute this statement.
 		@param[out] result
@@ -92,7 +92,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		@return
 			The result.
 		*/
-		DatabasePostgreSqlExport virtual bool DoExecuteUpdate( EErrorType * result = NULL );
+		virtual bool DoExecuteUpdate( EErrorType * result = NULL );
 
 		/** Execute this statement.
 		@param[out] result
@@ -100,17 +100,26 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		@return
 			The result.
 		*/
-		DatabasePostgreSqlExport virtual DatabaseResultPtr DoExecuteSelect( EErrorType * result = NULL );
+		virtual DatabaseResultSPtr DoExecuteSelect( EErrorType * result = NULL );
 
 		/** Clean statement.
 		*/
-		DatabasePostgreSqlExport virtual void DoCleanup();
+		virtual void DoCleanup();
+
+		/** Retrieves the PostgreSQL connection
+		@return
+			The connection.
+		*/
+		inline DatabaseConnectionPostgreSqlSPtr DoGetPostgreSqlConnection()const
+		{
+		return _connectionPostgreSql.lock();
+		}
 
 	private:
 		/// Prepared statement.
 		std::string _statement;
 		/// Database connection.
-		DatabaseConnectionPostgreSqlPtr _connectionPostgreSql;
+		DatabaseConnectionPostgreSqlWPtr _connectionPostgreSql;
 		/// Tokenized string (delimiter is "?").
 		StringArray _arrayQueries;
 		/// Number of parameters (i.e. number of "?").

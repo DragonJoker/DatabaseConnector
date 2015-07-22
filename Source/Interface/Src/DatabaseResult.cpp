@@ -26,16 +26,14 @@ BEGIN_NAMESPACE_DATABASE
 {
 	static const String ERROR_DB_NO_FIELD = STR( "No field at index: " );
 
-	CDatabaseResult::CDatabaseResult( DatabaseConnectionPtr connection )
-		: _connection( connection )
-		, _rowCount( 0 )
+	CDatabaseResult::CDatabaseResult()
+		: _rowCount( 0 )
 	{
 		// Empty
 	}
 
-	CDatabaseResult::CDatabaseResult( DatabaseConnectionPtr connection, const DatabaseFieldInfosPtrArray & arrayFieldInfos )
-		: _connection( connection )
-		, _rowCount( 0 )
+	CDatabaseResult::CDatabaseResult( const DatabaseFieldInfosPtrArray & arrayFieldInfos )
+		: _rowCount( 0 )
 		, _arrayFieldInfos( arrayFieldInfos )
 	{
 	}
@@ -46,7 +44,7 @@ BEGIN_NAMESPACE_DATABASE
 		_arrayFieldInfos.clear();
 	}
 
-	void CDatabaseResult::AddRow( DatabaseRowPtr row )
+	void CDatabaseResult::AddRow( DatabaseRowSPtr row )
 	{
 		_listRows.push_back( row );
 		_iterator = _listRows.begin();
@@ -58,9 +56,9 @@ BEGIN_NAMESPACE_DATABASE
 		return _rowCount;
 	}
 
-	DatabaseRowPtr CDatabaseResult::GetNextRow()
+	DatabaseRowSPtr CDatabaseResult::GetNextRow()
 	{
-		DatabaseRowPtr pReturn;
+		DatabaseRowSPtr pReturn;
 
 		if ( _iterator != _listRows.end() )
 		{
@@ -71,7 +69,7 @@ BEGIN_NAMESPACE_DATABASE
 		return pReturn;
 	}
 
-	DatabaseRowPtr CDatabaseResult::GetFirstRow()
+	DatabaseRowSPtr CDatabaseResult::GetFirstRow()
 	{
 		_iterator = _listRows.begin();
 		return GetNextRow();
@@ -82,7 +80,7 @@ BEGIN_NAMESPACE_DATABASE
 		return ( uint32_t )_arrayFieldInfos.size();
 	}
 
-	DatabaseFieldInfosPtr CDatabaseResult::GetFieldInfos( uint32_t index ) const
+	DatabaseFieldInfosSPtr CDatabaseResult::GetFieldInfos( uint32_t index ) const
 	{
 		if ( index >= _arrayFieldInfos.size() )
 		{

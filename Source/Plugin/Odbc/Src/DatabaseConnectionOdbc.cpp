@@ -54,7 +54,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 			if ( errorType == EErrorType_NONE )
 			{
-				SQLRETURN code = SQLExecDirectA( statement, const_cast< SqlChar * >( reinterpret_cast< const SqlChar * >( query.c_str() ) ), query.size() );
+				SQLRETURN code = SQLExecDirectA( statement, const_cast< SqlChar * >( reinterpret_cast< const SqlChar * >( query.c_str() ) ), SQLINTEGER( query.size() ) );
 				errorType = SqlSuccess( code, SQL_HANDLE_STMT, statement, INFO_ODBC_ExecDirect );
 
 				if ( code == SQL_NEED_DATA )
@@ -178,13 +178,13 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 	bool CDatabaseConnectionOdbc::DoExecuteUpdate( const String & query)
 	{
-		DatabaseResultPtr ret;
+		DatabaseResultSPtr ret;
 		return SqlExecute( shared_from_this(), InitialiseStatement( query, _connectionHandle ), &FinaliseStatement, ret ) == EErrorType_NONE;
 	}
 
-	DatabaseResultPtr CDatabaseConnectionOdbc::DoExecuteSelect( const String & query)
+	DatabaseResultSPtr CDatabaseConnectionOdbc::DoExecuteSelect( const String & query)
 	{
-		DatabaseResultPtr ret;
+		DatabaseResultSPtr ret;
 		SqlExecute( shared_from_this(), InitialiseStatement( query, _connectionHandle ), &FinaliseStatement, ret );
 		return ret;
 	}

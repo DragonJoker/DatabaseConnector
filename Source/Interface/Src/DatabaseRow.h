@@ -27,10 +27,8 @@ BEGIN_NAMESPACE_DATABASE
 
 	public:
 		/** Constructor.
-		@param[in] connection
-			Database connection.
 		*/
-		DatabaseExport CDatabaseRow( DatabaseConnectionPtr connection );
+		DatabaseExport CDatabaseRow();
 
 		/** Destructor.
 			*/
@@ -40,7 +38,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] field
 			New field.
 			*/
-		DatabaseExport void AddField( DatabaseFieldPtr field );
+		DatabaseExport void AddField( DatabaseFieldSPtr field );
 
 		/** Get field by name.
 		@param[in] name
@@ -48,7 +46,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Field.
 		*/
-		DatabaseExport DatabaseFieldPtr GetField( const String & name );
+		DatabaseExport DatabaseFieldSPtr GetField( const String & name );
 
 		/** Get field by index.
 		@param[in] index
@@ -56,7 +54,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Field.
 		*/
-		DatabaseExport DatabaseFieldPtr GetField( uint32_t index );
+		DatabaseExport DatabaseFieldSPtr GetField( uint32_t index );
 
 		/** Get value
 		@param[in] index
@@ -163,8 +161,6 @@ BEGIN_NAMESPACE_DATABASE
 	protected:
 		//! Array of fields.
 		DatabaseFieldPtrArray _arrayFields;
-		//! Database connection.
-		DatabaseConnectionPtr _connection;
 	};
 }
 END_NAMESPACE_DATABASE

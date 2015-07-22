@@ -17,7 +17,7 @@
 
 BEGIN_NAMESPACE_DATABASE
 {
-	CDatabaseValueBase::CDatabaseValueBase( DatabaseConnectionPtr connection )
+	CDatabaseValueBase::CDatabaseValueBase( DatabaseConnectionSPtr connection )
 		: _connection( connection )
 		, _valueSize( 0 )
 	{

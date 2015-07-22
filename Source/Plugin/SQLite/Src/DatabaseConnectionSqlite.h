@@ -38,35 +38,35 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@param[out] connectionString
 			Created connection string.
 		*/
-		DatabaseSqliteExport CDatabaseConnectionSqlite( const String & server, const String & userName, const String & password, String & connectionString );
+		CDatabaseConnectionSqlite( const String & server, const String & userName, const String & password, String & connectionString );
 
 		/** Destructor.
 		*/
-		DatabaseSqliteExport virtual ~CDatabaseConnectionSqlite();
+		virtual ~CDatabaseConnectionSqlite();
 
 		/** Retrieves the precision for given field type.
 		@return
 			The precision.
 		*/
-		DatabaseSqliteExport virtual uint32_t GetPrecision( EFieldType type ) const;
+		virtual uint32_t GetPrecision( EFieldType type ) const;
 
 		/** Creates a database.
 		@param[in] database
 			Database identifier (name or DSN (ODBC)).
 		*/
-		DatabaseSqliteExport virtual void CreateDatabase( const String & database );
+		virtual void CreateDatabase( const String & database );
 
 		/** Selects a database.
 		@param[in] database
 			Database identifier (name or DSN (ODBC)).
 		*/
-		DatabaseSqliteExport virtual void SelectDatabase( const String & database );
+		virtual void SelectDatabase( const String & database );
 
 		/** Destroys a database.
 		@param[in] database
 			Database identifier (name or DSN (ODBC)).
 		*/
-		DatabaseSqliteExport virtual void DestroyDatabase( const String & database );
+		virtual void DestroyDatabase( const String & database );
 
 		/** Format a string to be supported by the DBMS.
 		@param[in] text
@@ -74,7 +74,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			The formatted text.
 		*/
-		DatabaseSqliteExport virtual std::string WriteText( const std::string & text ) const;
+		virtual std::string WriteText( const std::string & text ) const;
 
 		/** Format a string to be supported by the DBMS.
 		@param[in] text
@@ -82,7 +82,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			The formatted text.
 		*/
-		DatabaseSqliteExport virtual std::wstring WriteNText( const std::wstring & text ) const;
+		virtual std::wstring WriteNText( const std::wstring & text ) const;
 
 		/** Format a byte array to insert into a request.
 		@param[in] array
@@ -90,7 +90,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			Formatted value.
 		*/
-		DatabaseSqliteExport virtual String WriteBinary( const ByteArray & array ) const;
+		virtual String WriteBinary( const ByteArray & array ) const;
 
 		/** Format a string to be supported by the DBMS.
 		@param[in] text
@@ -98,7 +98,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			The formatted text.
 		*/
-		DatabaseSqliteExport virtual String WriteName( const String & text ) const;
+		virtual String WriteName( const String & text ) const;
 
 		/** Format a date into a string to be supported by the DBMS.
 		@param[in] date
@@ -106,7 +106,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			The formatted date.
 		*/
-		DatabaseSqliteExport virtual std::string WriteDateS( const CDate & date ) const;
+		virtual std::string WriteDateS( const CDate & date ) const;
 
 		/** Format a date into a string for a statement to be supported by the DBMS.
 		@param[in] date
@@ -114,7 +114,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			The formatted date.
 		*/
-		DatabaseSqliteExport virtual std::string WriteStmtDateS( const CDate & date ) const;
+		virtual std::string WriteStmtDateS( const CDate & date ) const;
 
 		/** Format a time into a string to be supported by the DBMS.
 		@param[in] time
@@ -122,7 +122,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			The formatted time.
 		*/
-		DatabaseSqliteExport virtual std::string WriteTimeS( const CTime & time ) const;
+		virtual std::string WriteTimeS( const CTime & time ) const;
 
 		/** Format a time into a string for a statement to be supported by the DBMS.
 		@param[in] time
@@ -130,7 +130,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			The formatted time.
 		*/
-		DatabaseSqliteExport virtual std::string WriteStmtTimeS( const CTime & time ) const;
+		virtual std::string WriteStmtTimeS( const CTime & time ) const;
 
 		/** Format a date/time into a string to be supported by the DBMS.
 		@param[in] dateTime
@@ -138,7 +138,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			The formatted date/time.
 		*/
-		DatabaseSqliteExport virtual std::string WriteDateTimeS( const CDateTime & dateTime ) const;
+		virtual std::string WriteDateTimeS( const CDateTime & dateTime ) const;
 
 		/** Format a date/time to insert into a request.
 		@param[in] date
@@ -146,7 +146,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			Formatted value.
 		*/
-		DatabaseSqliteExport virtual std::string WriteDateTimeS( const CDate & date ) const;
+		virtual std::string WriteDateTimeS( const CDate & date ) const;
 
 		/** Format a date/time to insert into a request.
 		@param[in] time
@@ -154,7 +154,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			Formatted value.
 		*/
-		DatabaseSqliteExport virtual std::string WriteDateTimeS( const CTime & time ) const;
+		virtual std::string WriteDateTimeS( const CTime & time ) const;
 
 		/** Format a date/time into a string for a statement to be supported by the DBMS.
 		@param[in] dateTime
@@ -162,7 +162,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			The formatted date/time.
 		*/
-		DatabaseSqliteExport virtual std::string WriteStmtDateTimeS( const CDateTime & dateTime ) const;
+		virtual std::string WriteStmtDateTimeS( const CDateTime & dateTime ) const;
 
 		/** Format a date into a string to be supported by the DBMS.
 		@param[in] date
@@ -170,7 +170,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			The formatted date.
 		*/
-		DatabaseSqliteExport virtual std::wstring WriteDateW( const CDate & date ) const;
+		virtual std::wstring WriteDateW( const CDate & date ) const;
 
 		/** Format a date into a string for a statement to be supported by the DBMS.
 		@param[in] date
@@ -178,7 +178,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			The formatted date.
 		*/
-		DatabaseSqliteExport virtual std::wstring WriteStmtDateW( const CDate & date ) const;
+		virtual std::wstring WriteStmtDateW( const CDate & date ) const;
 
 		/** Format a time into a string to be supported by the DBMS.
 		@param[in] time
@@ -186,7 +186,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			The formatted time.
 		*/
-		DatabaseSqliteExport virtual std::wstring WriteTimeW( const CTime & time ) const;
+		virtual std::wstring WriteTimeW( const CTime & time ) const;
 
 		/** Format a time into a string for a statement to be supported by the DBMS.
 		@param[in] time
@@ -194,7 +194,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			The formatted time.
 		*/
-		DatabaseSqliteExport virtual std::wstring WriteStmtTimeW( const CTime & time ) const;
+		virtual std::wstring WriteStmtTimeW( const CTime & time ) const;
 
 		/** Format a date/time into a string to be supported by the DBMS.
 		@param[in] dateTime
@@ -202,7 +202,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			The formatted date/time.
 		*/
-		DatabaseSqliteExport virtual std::wstring WriteDateTimeW( const CDateTime & dateTime ) const;
+		virtual std::wstring WriteDateTimeW( const CDateTime & dateTime ) const;
 
 		/** Format a date/time to insert into a request.
 		@param[in] date
@@ -210,7 +210,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			Formatted value.
 		*/
-		DatabaseSqliteExport virtual std::wstring WriteDateTimeW( const CDate & date ) const;
+		virtual std::wstring WriteDateTimeW( const CDate & date ) const;
 
 		/** Format a date/time to insert into a request.
 		@param[in] time
@@ -218,7 +218,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			Formatted value.
 		*/
-		DatabaseSqliteExport virtual std::wstring WriteDateTimeW( const CTime & time ) const;
+		virtual std::wstring WriteDateTimeW( const CTime & time ) const;
 
 		/** Format a date/time into a string for a statement to be supported by the DBMS.
 		@param[in] dateTime
@@ -226,7 +226,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			The formatted date/time.
 		*/
-		DatabaseSqliteExport virtual std::wstring WriteStmtDateTimeW( const CDateTime & dateTime ) const;
+		virtual std::wstring WriteStmtDateTimeW( const CDateTime & dateTime ) const;
 
 		/** Format a boolean into a string to be supported by the DBMS.
 		@param[in] value
@@ -234,7 +234,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			The formatted boolean.
 		*/
-		DatabaseSqliteExport virtual String WriteBool( bool value ) const;
+		virtual String WriteBool( bool value ) const;
 
 		/** Format a string representing a boolean into a string to be supported by the DBMS.
 		@param[in] value
@@ -242,7 +242,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			The formatted boolean.
 		*/
-		DatabaseSqliteExport virtual String WriteBool( const String & value ) const;
+		virtual String WriteBool( const String & value ) const;
 
 		/** Convert a string from the database to a date.
 		@param[in] date
@@ -250,7 +250,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			Created date with the string.
 		*/
-		DatabaseSqliteExport virtual CDate ParseDate( const std::string & date ) const;
+		virtual CDate ParseDate( const std::string & date ) const;
 
 		/** Convert a string from the database to a time.
 		@param[in] time
@@ -258,7 +258,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			Created time with the string.
 		*/
-		DatabaseSqliteExport virtual CTime ParseTime( const std::string & time ) const;
+		virtual CTime ParseTime( const std::string & time ) const;
 
 		/** Convert a string from the database to a date/time.
 		@param[in] dateTime
@@ -266,7 +266,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			Created date/time with the string.
 		*/
-		DatabaseSqliteExport virtual CDateTime ParseDateTime( const std::string & dateTime ) const;
+		virtual CDateTime ParseDateTime( const std::string & dateTime ) const;
 
 		/** Convert a string from the database to a date.
 		@param[in] date
@@ -274,7 +274,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			Created date with the string.
 		*/
-		DatabaseSqliteExport virtual CDate ParseDate( const std::wstring & date ) const;
+		virtual CDate ParseDate( const std::wstring & date ) const;
 
 		/** Convert a string from the database to a time.
 		@param[in] time
@@ -282,7 +282,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			Created time with the string.
 		*/
-		DatabaseSqliteExport virtual CTime ParseTime( const std::wstring & time ) const;
+		virtual CTime ParseTime( const std::wstring & time ) const;
 
 		/** Convert a string from the database to a date/time.
 		@param[in] dateTime
@@ -290,31 +290,31 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			Created date/time with the string.
 		*/
-		DatabaseSqliteExport virtual CDateTime ParseDateTime( const std::wstring & dateTime ) const;
+		virtual CDateTime ParseDateTime( const std::wstring & dateTime ) const;
 
 		/** Get the connection handle.
 		@return
 			The connection handle.
 		*/
-		DatabaseSqliteExport sqlite3 * GetConnection() const;
+		sqlite3 * GetConnection() const;
 
 		/** Retrieves the statement date type size
 		@return
 			The size
 		*/
-		DatabaseSqliteExport virtual unsigned long GetStmtDateSize()const;
+		virtual unsigned long GetStmtDateSize()const;
 
 		/** Retrieves the statement date/time type size
 		@return
 			The size
 		*/
-		DatabaseSqliteExport virtual unsigned long GetStmtDateTimeSize()const;
+		virtual unsigned long GetStmtDateTimeSize()const;
 
 		/** Retrieves the statement time type size
 		@return
 			The size
 		*/
-		DatabaseSqliteExport virtual unsigned long GetStmtTimeSize()const;
+		virtual unsigned long GetStmtTimeSize()const;
 
 		/** Executes a statement and retrieves the result set if needed
 		@param statement
@@ -330,7 +330,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			The result
 		*/
-		DatabaseResultPtr ExecuteSelect( sqlite3_stmt * statement );
+		DatabaseResultSPtr ExecuteSelect( sqlite3_stmt * statement );
 
 	protected:
 		/** Connect to the database.
@@ -339,11 +339,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			Error code, EErrorType_NONE if no problem.
 		*/
-		DatabaseSqliteExport virtual EErrorType DoConnect( String & connectionString );
+		virtual EErrorType DoConnect( String & connectionString );
 
 		/** Disconnect from the database.
 		*/
-		DatabaseSqliteExport virtual void DoDisconnect();
+		virtual void DoDisconnect();
 
 		/** Initialize a named transaction.
 		@param[in] name
@@ -351,7 +351,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			Error code, EErrorType_NONE if no problem.
 		*/
-		DatabaseSqliteExport virtual bool DoBeginTransaction( const String & name );
+		virtual bool DoBeginTransaction( const String & name );
 
 		/** Validate a named transaction.
 		@param[in] name
@@ -359,7 +359,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			Error code, EErrorType_NONE if no problem.
 		*/
-		DatabaseSqliteExport virtual bool DoCommit( const String & name );
+		virtual bool DoCommit( const String & name );
 
 		/** Invalidate a named transaction.
 		@param[in] name
@@ -367,7 +367,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			Error code, EErrorType_NONE if no problem.
 		*/
-		DatabaseSqliteExport virtual bool DoRollBack( const String & name );
+		virtual bool DoRollBack( const String & name );
 
 		/** Execute directly a request.
 		@param[in]  query
@@ -377,7 +377,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			The result.
 		*/
-		DatabaseSqliteExport virtual bool DoExecuteUpdate( const String & query);
+		virtual bool DoExecuteUpdate( const String & query);
 
 		/** Execute directly a request.
 		@param[in]  query
@@ -387,7 +387,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			The result.
 		*/
-		DatabaseSqliteExport virtual DatabaseResultPtr DoExecuteSelect( const String & query);
+		virtual DatabaseResultSPtr DoExecuteSelect( const String & query);
 
 		/** Create a statement from a request.
 		@param[in]  query
@@ -397,7 +397,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			The created statement.
 		*/
-		DatabaseSqliteExport virtual DatabaseStatementPtr DoCreateStatement( const String & query);
+		virtual DatabaseStatementSPtr DoCreateStatement( const String & query);
 
 	protected:
 		//! The connection

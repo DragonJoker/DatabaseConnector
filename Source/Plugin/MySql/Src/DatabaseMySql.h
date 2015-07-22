@@ -30,18 +30,18 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	public:
 		/** Default constructor.
 		*/
-		DatabaseMySqlExport CDatabaseMySql();
+		CDatabaseMySql();
 
 		/** Destructor.
 		*/
-		DatabaseMySqlExport virtual ~CDatabaseMySql();
+		virtual ~CDatabaseMySql();
 
 		///@copydoc Database::CDatabase::GetType
-		DatabaseMySqlExport virtual const String & GetType()const;
+		virtual const String & GetType()const;
 
 		/** Creator function
 		*/
-		DatabaseMySqlExport static CDatabase * Create();
+		static CDatabase * Create();
 
 	protected:
 		/** Create a connection to the database.
@@ -50,7 +50,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		@return
 			Database connection.
 		*/
-		DatabaseMySqlExport virtual DatabaseConnectionPtr DoCreateConnection( String & connectionString ) const;
+		virtual DatabaseConnectionSPtr DoCreateConnection( String & connectionString ) const;
 	};
 }
 END_NAMESPACE_DATABASE_MYSQL

@@ -208,12 +208,12 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		return static_cast< CDatabase * >( CFactoryManager::Instance().CreateInstance( type ) );
 	}
 
-	DatabaseConnectionPtr CreateConnection( CDatabase & database, const String & server, const String & user, const String & pwd )
+	DatabaseConnectionSPtr CreateConnection( CDatabase & database, const String & server, const String & user, const String & pwd )
 	{
 		String connectionResult;
 		database.Initialize( server, user, pwd );
 		database.CreateConnection( connectionResult );
-		DatabaseConnectionPtr  result = database.RetrieveConnection();
+		DatabaseConnectionSPtr  result = database.RetrieveConnection();
 		return result;
 	}
 }

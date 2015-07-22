@@ -25,8 +25,8 @@
 
 BEGIN_NAMESPACE_DATABASE
 {
-	CDatabaseField::CDatabaseField( DatabaseFieldInfosPtr infos )
-		: CDatabaseValuedObject( infos->GetConnection() )
+	CDatabaseField::CDatabaseField( DatabaseConnectionSPtr connection, DatabaseFieldInfosSPtr infos )
+		: CDatabaseValuedObject( connection )
 		, _infos( infos )
 	{
 		DoCreateValue();
@@ -38,22 +38,22 @@ BEGIN_NAMESPACE_DATABASE
 
 	EFieldType CDatabaseField::GetType() const
 	{
-		return _infos->GetType();
+		return DoGetInfos()->GetType();
 	}
 
 	const String & CDatabaseField::GetName() const
 	{
-		return _infos->GetName();
+		return DoGetInfos()->GetName();
 	}
 
 	const uint32_t & CDatabaseField::GetLimits() const
 	{
-		return _infos->GetLimits();
+		return DoGetInfos()->GetLimits();
 	}
 
 	const std::pair< uint32_t, uint32_t > & CDatabaseField::GetPrecision() const
 	{
-		return _infos->GetPrecision();
+		return DoGetInfos()->GetPrecision();
 	}
 }
 END_NAMESPACE_DATABASE

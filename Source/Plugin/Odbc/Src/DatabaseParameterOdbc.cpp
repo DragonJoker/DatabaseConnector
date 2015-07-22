@@ -177,7 +177,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		return errorType;
 	}
 
-	EErrorType COutOdbcBindBase::GetData()
+	EErrorType COutOdbcBindBase::GetData()const
 	{
 		uint8_t * buffer = static_cast< uint8_t * >( _value.GetPtrValue() );
 		long remaining = _value.GetPtrSize();

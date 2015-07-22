@@ -1070,7 +1070,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		The parameter value
 	*/
 	template< EFieldType Type >
-	std::unique_ptr< SSqliteBindingBase > MakeSqliteBind( sqlite3_stmt * statement, DatabaseConnectionPtr connection, uint16_t index, CDatabaseValueBase const & value )
+	std::unique_ptr< SSqliteBindingBase > MakeSqliteBind( sqlite3_stmt * statement, DatabaseConnectionSPtr connection, uint16_t index, CDatabaseValueBase const & value )
 	{
 		return std::make_unique< SSqliteBinding< Type > >( statement, std::static_pointer_cast< CDatabaseConnectionSqlite >( connection )->GetConnection(), index, static_cast< CDatabaseValue< Type > const & >( value ) );
 	}

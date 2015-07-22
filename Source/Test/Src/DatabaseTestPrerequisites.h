@@ -53,7 +53,7 @@ BEGIN_NAMESPACE_DATABASE
 		void LoadPlugins( const String & path, bool mySql, bool sqlite, bool odbcMySql, bool odbcMsSql, bool postgreSql );
 		void UnloadPlugins();
 		CDatabase * InstantiateDatabase( const String & type );
-		DatabaseConnectionPtr CreateConnection( CDatabase & database, const String & server, const String & user, const String & pwd );
+		DatabaseConnectionSPtr CreateConnection( CDatabase & database, const String & server, const String & user, const String & pwd );
 
 		extern String const QUERY_DROP_TABLE;
 		extern String const QUERY_SELECT_MIN;

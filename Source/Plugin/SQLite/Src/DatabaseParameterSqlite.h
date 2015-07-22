@@ -36,17 +36,17 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@param[in] parameterType
 			Parameter type.
 		*/
-		DatabaseSqliteExport CDatabaseParameterSqlite( EFieldType fieldType );
+		CDatabaseParameterSqlite( EFieldType fieldType );
 
 		/** Destructor.
 		*/
-		DatabaseSqliteExport virtual ~CDatabaseParameterSqlite();
+		virtual ~CDatabaseParameterSqlite();
 
 		/** Retrieve the data type
 		@return
 			The type
 		*/
-		DatabaseSqliteExport const int & GetDataType()const;
+		const int & GetDataType()const;
 
 	protected:
 		//! The SQLite data type

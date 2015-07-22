@@ -33,11 +33,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@param[in] query
 			Request text.
 		*/
-		DatabaseSqliteExport CDatabaseStatementSqlite( DatabaseConnectionSqlitePtr connection, const String & query );
+		CDatabaseStatementSqlite( DatabaseConnectionSqliteSPtr connection, const String & query );
 
 		/** Destructor.
 		*/
-		DatabaseSqliteExport virtual ~CDatabaseStatementSqlite();
+		virtual ~CDatabaseStatementSqlite();
 
 		/** Create a parameter.
 		@param[in] name
@@ -49,7 +49,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			Created parameter.
 		*/
-		DatabaseSqliteExport virtual DatabaseParameterPtr CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType );
+		virtual DatabaseParameterSPtr CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType );
 
 		/** Create a parameter which has limits (strings, etc.).
 		@param[in] name
@@ -63,7 +63,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			Created parameter.
 		*/
-		DatabaseSqliteExport virtual DatabaseParameterPtr CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType );
+		virtual DatabaseParameterSPtr CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType );
 
 		/** Create a parameter which has limits (strings, etc.).
 		@param[in] name
@@ -77,14 +77,14 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			Created parameter.
 		*/
-		DatabaseSqliteExport virtual DatabaseParameterPtr CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType );
+		virtual DatabaseParameterSPtr CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType );
 
 	private:
 		/** Initialize this statement.
 		@return
 			Error code.
 		*/
-		DatabaseSqliteExport virtual EErrorType DoInitialize();
+		virtual EErrorType DoInitialize();
 
 		/** Execute this statement.
 		@param[out] result
@@ -92,7 +92,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			The result.
 		*/
-		DatabaseSqliteExport virtual bool DoExecuteUpdate( EErrorType * result = NULL );
+		virtual bool DoExecuteUpdate( EErrorType * result = NULL );
 
 		/** Execute this statement.
 		@param[out] result
@@ -100,11 +100,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			The result.
 		*/
-		DatabaseSqliteExport virtual DatabaseResultPtr DoExecuteSelect( EErrorType * result = NULL );
+		virtual DatabaseResultSPtr DoExecuteSelect( EErrorType * result = NULL );
 
 		/** Clean statement.
 		*/
-		DatabaseSqliteExport virtual void DoCleanup();
+		virtual void DoCleanup();
 
 		/** Effectively prepares the statement
 		@remarks
@@ -132,10 +132,20 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		*/
 		void DoPostExecute( EErrorType * result );
 
+		/** Retrieves the SQLite connection
+		@return
+			The connection.
+		*/
+		inline DatabaseConnectionSqliteSPtr DoGetSqliteConnection()const
+		{
+			return _connectionSqlite.lock();
+		}
+
+	private:
 		//! Prepared statement.
 		sqlite3_stmt * _statement;
 		//! Database connection.
-		DatabaseConnectionSqlitePtr _connectionSqlite;
+		DatabaseConnectionSqliteWPtr _connectionSqlite;
 		//! Tokenized string (delimiter is "?").
 		StringArray _arrayQueries;
 		//! Number of parameters (i.e. number of "?").
@@ -145,11 +155,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		//! Array of out parameters
 		DatabaseParameterPtrArray _arrayOutParams;
 		//! Array of in/out parameter initializer queries
-		std::vector< std::pair< DatabaseStatementPtr, DatabaseParameterPtr > > _inOutInitializers;
+		std::vector< std::pair< DatabaseStatementSPtr, DatabaseParameterWPtr > > _inOutInitializers;
 		//! Array of out parameter initializer queries
-		std::vector< DatabaseStatementPtr > _outInitializers;
+		std::vector< DatabaseStatementSPtr > _outInitializers;
 		//! The statement used to execute the out parameters retrieval query
-		DatabaseStatementPtr _stmtOutParams;
+		DatabaseStatementSPtr _stmtOutParams;
 	};
 }
 END_NAMESPACE_DATABASE_SQLITE

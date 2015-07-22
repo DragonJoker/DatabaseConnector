@@ -28,24 +28,24 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MYSQL
 	public:
 		/** Default constructor.
 		*/
-		DatabaseOdbcMySqlExport CPluginDatabaseOdbcMySql();
+		CPluginDatabaseOdbcMySql();
 
 		/** Destructor.
 		*/
-		DatabaseOdbcMySqlExport virtual ~CPluginDatabaseOdbcMySql();
+		virtual ~CPluginDatabaseOdbcMySql();
 
 		//!@copydoc Database::CPlugin::GetName
-		DatabaseOdbcMySqlExport virtual const String GetName() const;
+		virtual const String GetName() const;
 
 		//!@copydoc Database::CPlugin::Initialize
-		DatabaseOdbcMySqlExport virtual void Initialize();
+		virtual void Initialize();
 
 		//!@copydoc Database::CPlugin::Shutdown
-		DatabaseOdbcMySqlExport virtual void Shutdown();
+		virtual void Shutdown();
 
 	protected:
 		//!@copydoc Database::CParameterListInterface::AddBaseParameters
-		DatabaseOdbcMySqlExport virtual void AddBaseParameters();
+		virtual void AddBaseParameters();
 	};
 }
 END_NAMESPACE_DATABASE_ODBC_MYSQL

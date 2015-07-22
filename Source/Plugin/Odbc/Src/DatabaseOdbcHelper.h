@@ -80,7 +80,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	@return
 		the result.
 	*/
-	EErrorType SqlExecute( DatabaseConnectionPtr connection, SQLHSTMT statementHandle, FuncResultSetFullyFetched onFullyfetched, DatabaseResultPtr & pReturn );
+	EErrorType SqlExecute( DatabaseConnectionSPtr connection, SQLHSTMT statementHandle, FuncResultSetFullyFetched onFullyfetched, DatabaseResultSPtr & pReturn );
 }
 END_NAMESPACE_DATABASE_ODBC
 

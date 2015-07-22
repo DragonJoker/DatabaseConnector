@@ -37,7 +37,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] query
 			Request text.
 		*/
-		DatabaseExport CDatabaseStatement( DatabaseConnectionPtr connection, const String & query );
+		DatabaseExport CDatabaseStatement( DatabaseConnectionSPtr connection, const String & query );
 
 		/** Destructor.
 		*/
@@ -65,7 +65,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Results.
 		*/
-		DatabaseExport DatabaseResultPtr ExecuteSelect( EErrorType * result = NULL );
+		DatabaseExport DatabaseResultSPtr ExecuteSelect( EErrorType * result = NULL );
 
 		/** Clean query.
 		*/
@@ -81,7 +81,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Created statement parameter.
 		*/
-		DatabaseExport virtual DatabaseParameterPtr CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType = EParameterType_IN ) = 0;
+		DatabaseExport virtual DatabaseParameterSPtr CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType = EParameterType_IN ) = 0;
 
 		/** Create a query parameter for variable-sized parameter (with limits)
 		@param[in] name
@@ -93,7 +93,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Created query parameter.
 		*/
-		DatabaseExport virtual DatabaseParameterPtr CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType = EParameterType_IN ) = 0;
+		DatabaseExport virtual DatabaseParameterSPtr CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType = EParameterType_IN ) = 0;
 
 		/** Create a statement parameter for variable-sized parameter (with limits)
 		@param[in] name
@@ -107,19 +107,19 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Created statement parameter.
 		*/
-		DatabaseExport virtual DatabaseParameterPtr CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType = EParameterType_IN ) = 0;
+		DatabaseExport virtual DatabaseParameterSPtr CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType = EParameterType_IN ) = 0;
 
 		/** Retrieves a parameter, by index
 		@param[in] index
 			Parameter index.
 		*/
-		DatabaseExport DatabaseParameterPtr GetParameter( uint32_t index )const;
+		DatabaseExport DatabaseParameterSPtr GetParameter( uint32_t index )const;
 
 		/** Retrieves a parameter, by name
 		@param[in] name
 			Parameter name.
 		*/
-		DatabaseExport DatabaseParameterPtr GetParameter( const String & name )const;
+		DatabaseExport DatabaseParameterSPtr GetParameter( const String & name )const;
 
 		/** Get parameter type.
 		@param[in] index
@@ -147,7 +147,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] parameter
 			The parameter.
 		*/
-		DatabaseExport void SetParameterValue( uint32_t index, DatabaseParameterPtr parameter );
+		DatabaseExport void SetParameterValue( uint32_t index, const CDatabaseParameter & parameter );
 
 		/** Set parameter value from another parameter.
 		@param[in] name
@@ -155,7 +155,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] parameter
 			The parameter.
 		*/
-		DatabaseExport void SetParameterValue( const String & name, DatabaseParameterPtr parameter );
+		DatabaseExport void SetParameterValue( const String & name, const CDatabaseParameter & parameter );
 
 		/** Set parameter value.
 		@param[in] index
@@ -228,7 +228,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			true if addition succeeds, false otherwise.
 		*/
-		DatabaseExport bool DoAddParameter( DatabaseParameterPtr parameter );
+		DatabaseExport bool DoAddParameter( DatabaseParameterSPtr parameter );
 
 		/** Initialize query.
 		@remarks
@@ -252,7 +252,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Results.
 		*/
-		DatabaseExport virtual DatabaseResultPtr DoExecuteSelect( EErrorType * result = NULL ) = 0;
+		DatabaseExport virtual DatabaseResultSPtr DoExecuteSelect( EErrorType * result = NULL ) = 0;
 
 		/** Clean query.
 		*/
@@ -262,11 +262,11 @@ BEGIN_NAMESPACE_DATABASE
 		//! Array of parameters (addition order).
 		DatabaseParameterPtrArray _arrayParams;
 		//! Map of parameters by pointers.
-		std::map< void *, DatabaseParameterPtr > _mapParamsByPointer;
+		std::map< const void *, CDatabaseParameter const * > _mapParamsByPointer;
 		//! Request text.
 		String _query;
 		//! Database connection.
-		DatabaseConnectionPtr _connection;
+		DatabaseConnectionWPtr _connection;
 
 		/** Inform parent statement from the value changes
 		*/
@@ -280,7 +280,7 @@ BEGIN_NAMESPACE_DATABASE
 			DatabaseExport SValueUpdater( CDatabaseStatement * stmt );
 
 			//!@copydoc CDatabaseParameter::SValueUpdater
-			DatabaseExport virtual void Update( DatabaseParameterPtr value );
+			DatabaseExport virtual void Update( const CDatabaseParameter & value );
 
 			//! The parent statement
 			CDatabaseStatement * _stmt;

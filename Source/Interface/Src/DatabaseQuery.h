@@ -37,7 +37,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] query
 			Request text.
 		*/
-		DatabaseExport CDatabaseQuery( DatabaseConnectionPtr connection, const String & query );
+		DatabaseExport CDatabaseQuery( DatabaseConnectionSPtr connection, const String & query );
 
 		/** Destructor.
 		*/
@@ -65,7 +65,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Results.
 		*/
-		DatabaseExport DatabaseResultPtr ExecuteSelect( EErrorType * result = NULL );
+		DatabaseExport DatabaseResultSPtr ExecuteSelect( EErrorType * result = NULL );
 
 		/** Clean query.
 		*/
@@ -79,7 +79,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Created query parameter.
 		*/
-		DatabaseExport DatabaseParameterPtr CreateParameter( const String & name, EFieldType fieldType );
+		DatabaseExport DatabaseParameterSPtr CreateParameter( const String & name, EFieldType fieldType );
 
 		/** Create a query parameter for variable-sized parameter (with limits)
 		@param[in] name
@@ -91,7 +91,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Created query parameter.
 		*/
-		DatabaseExport DatabaseParameterPtr CreateParameter( const String & name, EFieldType fieldType, uint32_t limits );
+		DatabaseExport DatabaseParameterSPtr CreateParameter( const String & name, EFieldType fieldType, uint32_t limits );
 
 		/** Create a query parameter for variable-sized parameter (with limits)
 		@param[in] name
@@ -103,19 +103,19 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Created query parameter.
 		*/
-		DatabaseExport DatabaseParameterPtr CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision );
+		DatabaseExport DatabaseParameterSPtr CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision );
 
 		/** Retrieves a parameter, by index
 		@param[in] index
 			Parameter index.
 		*/
-		DatabaseExport DatabaseParameterPtr GetParameter( uint32_t index )const;
+		DatabaseExport DatabaseParameterSPtr GetParameter( uint32_t index )const;
 
 		/** Retrieves a parameter, by name
 		@param[in] name
 			Parameter name.
 		*/
-		DatabaseExport DatabaseParameterPtr GetParameter( const String & name )const;
+		DatabaseExport DatabaseParameterSPtr GetParameter( const String & name )const;
 
 		/** Get parameter type.
 		@param[in] index
@@ -143,7 +143,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] parameter
 			The parameter.
 		*/
-		DatabaseExport void SetParameterValue( uint32_t index, DatabaseParameterPtr parameter );
+		DatabaseExport void SetParameterValue( uint32_t index, const CDatabaseParameter & parameter );
 
 		/** Set parameter value from another parameter.
 		@param[in] name
@@ -151,7 +151,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] parameter
 			The parameter.
 		*/
-		DatabaseExport void SetParameterValue( const String & name, DatabaseParameterPtr parameter );
+		DatabaseExport void SetParameterValue( const String & name, const CDatabaseParameter & parameter );
 
 		/** Set parameter value.
 		@param[in] index
@@ -224,7 +224,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			true if addition succeeds, false otherwise.
 		*/
-		DatabaseExport bool DoAddParameter( DatabaseParameterPtr parameter );
+		DatabaseExport bool DoAddParameter( DatabaseParameterSPtr parameter );
 
 		/** Pre-execution action
 		@remarks
@@ -240,7 +240,16 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Results.
 		*/
-		DatabaseExport DatabaseResultPtr DoExecute( EErrorType * result = NULL );
+		DatabaseExport DatabaseResultSPtr DoExecute( EErrorType * result = NULL );
+
+		/** Retrieves the connection
+		@return
+			The connection.
+		*/
+		inline DatabaseConnectionSPtr DoGetConnection()
+		{
+			return _connection.lock();
+		}
 
 	protected:
 		//! Array of parameters (addition order).
@@ -250,7 +259,7 @@ BEGIN_NAMESPACE_DATABASE
 		//! Tokenized string (delimiter is "?").
 		StringArray _arrayQueries;
 		//! Database connection.
-		DatabaseConnectionPtr _connection;
+		DatabaseConnectionWPtr _connection;
 		//! Number of parameters (i.e. number of "?").
 		uint32_t _paramsCount;
 
@@ -264,7 +273,7 @@ BEGIN_NAMESPACE_DATABASE
 			DatabaseExport SDummyValueUpdater(){}
 
 			//!@copydoc CDatabaseParameter::SValueUpdater
-			DatabaseExport virtual void Update( DatabaseParameterPtr value ){}
+			DatabaseExport virtual void Update( const CDatabaseParameter & value ){}
 		};
 	};
 }

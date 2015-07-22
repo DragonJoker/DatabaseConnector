@@ -28,18 +28,18 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 	public:
 		/** Default constructor.
 		*/
-		DatabasePostgreSqlExport CDatabasePostgreSql();
+		CDatabasePostgreSql();
 
 		/** Destructor.
 		*/
-		DatabasePostgreSqlExport virtual ~CDatabasePostgreSql();
+		virtual ~CDatabasePostgreSql();
 
 		///@copydoc Database::CDatabase::GetType
-		DatabasePostgreSqlExport virtual const String & GetType()const;
+		virtual const String & GetType()const;
 
 		/** Creator function
 		*/
-		DatabasePostgreSqlExport static CDatabase * Create();
+		static CDatabase * Create();
 
 	protected:
 		/** Create a connection to the database.
@@ -48,7 +48,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		@return
 			Database connection.
 		*/
-		DatabasePostgreSqlExport virtual DatabaseConnectionPtr DoCreateConnection( String & connectionString ) const;
+		virtual DatabaseConnectionSPtr DoCreateConnection( String & connectionString ) const;
 	};
 }
 END_NAMESPACE_DATABASE_POSTGRESQL

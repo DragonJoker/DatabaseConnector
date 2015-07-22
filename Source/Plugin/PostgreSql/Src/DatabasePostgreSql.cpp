@@ -39,14 +39,9 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		return new CDatabasePostgreSql;
 	}
 
-	DatabaseConnectionPtr CDatabasePostgreSql::DoCreateConnection( String & connectionString ) const
+	DatabaseConnectionSPtr CDatabasePostgreSql::DoCreateConnection( String & connectionString ) const
 	{
-		DatabaseConnectionPtr pReturn;
-
-		// std::make_shared limited to 5 parameters with VS2012
-		pReturn = std::make_shared< CDatabaseConnectionPostgreSql >( _server, _userName, _password, connectionString );
-
-		return pReturn;
+		return std::make_shared< CDatabaseConnectionPostgreSql >( _server, _userName, _password, connectionString );
 	}
 }
 END_NAMESPACE_DATABASE_POSTGRESQL

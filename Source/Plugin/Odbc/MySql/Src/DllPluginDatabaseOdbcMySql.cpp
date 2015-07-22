@@ -17,6 +17,20 @@
 
 #include <DatabasePluginManager.h>
 
+#if defined( _WIN32 ) && !defined ( __MINGW32__ ) && !defined ( STATIC_LIB )
+#	ifdef DatabasePluginOdbcMySql_EXPORTS
+#	    define DatabaseOdbcMySqlExport __declspec ( dllexport )
+#	else
+#		if defined ( __MINGW32__ )
+#			define DatabaseOdbcMySqlExport
+#		else
+#			define DatabaseOdbcMySqlExport __declspec ( dllimport )
+#		endif
+#	endif
+#else
+#    define DatabaseOdbcMySqlExport
+#endif
+
 BEGIN_NAMESPACE_DATABASE_ODBC_MYSQL
 {
 	CPluginDatabaseOdbcMySql * plugin = NULL;

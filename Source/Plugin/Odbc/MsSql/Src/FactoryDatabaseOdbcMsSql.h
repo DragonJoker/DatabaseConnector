@@ -29,11 +29,11 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 	public:
 		/** Default constructor.
 		*/
-		DatabaseOdbcMsSqlExport CFactoryDatabaseOdbcMsSql();
+		CFactoryDatabaseOdbcMsSql();
 
 		/** Destructor.
 		*/
-		DatabaseOdbcMsSqlExport virtual ~CFactoryDatabaseOdbcMsSql();
+		virtual ~CFactoryDatabaseOdbcMsSql();
 
 		/** Get the type of the factory.
 		@returns
@@ -47,11 +47,11 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 	protected:
 		/** Register creation functions to create new ODBC database objects.
 		*/
-		DatabaseOdbcMsSqlExport void RegisterServices();
+		void RegisterServices();
 
 		/** Registred the ODBC database object types that the factory can create.
 		*/
-		DatabaseOdbcMsSqlExport void RegisterObjectTypes();
+		void RegisterObjectTypes();
 	};
 }
 END_NAMESPACE_DATABASE_ODBC_MSSQL

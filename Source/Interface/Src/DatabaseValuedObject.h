@@ -29,7 +29,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param connection
 			The database connection.
 		*/
-		DatabaseExport CDatabaseValuedObject( DatabaseConnectionPtr connection );
+		DatabaseExport CDatabaseValuedObject( DatabaseConnectionSPtr connection );
 
 		/** Destructor.
 		*/
@@ -51,7 +51,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Field value.
 		*/
-		inline DatabaseConnectionPtr GetConnection()const;
+		inline DatabaseConnectionSPtr GetConnection()const;
 
 		/** Get field type.
 		@return
@@ -646,9 +646,9 @@ BEGIN_NAMESPACE_DATABASE
 
 	private:
 		//! The value.
-		mutable DatabaseValueBasePtr _value;
+		mutable DatabaseValueBaseSPtr _value;
 		//! Database connection.
-		std::weak_ptr< CDatabaseConnection > _connection;
+		DatabaseConnectionWPtr _connection;
 	};
 }
 END_NAMESPACE_DATABASE

@@ -95,11 +95,11 @@
 #	error "Yet unsupported compiler"
 #endif
 
-#define DECLARE_SMART_PTR( class_name )		typedef std::shared_ptr<	class_name			>	class_name##SPtr;	\
-											typedef std::weak_ptr<		class_name			>	class_name##WPtr;	\
-											typedef std::unique_ptr<	class_name			>	class_name##UPtr;	\
-											typedef std::auto_ptr<		class_name			>	class_name##APtr;	\
-											typedef class_name *								class_name##RPtr
+#define DECLARE_SMART_PTR( class_name )		typedef std::shared_ptr<	C##class_name		>	class_name##SPtr;	\
+											typedef std::weak_ptr<		C##class_name		>	class_name##WPtr;	\
+											typedef std::unique_ptr<	C##class_name		>	class_name##UPtr;	\
+											typedef std::auto_ptr<		C##class_name		>	class_name##APtr;	\
+											typedef C##class_name *								class_name##RPtr
 
 #define DECLARE_MAP( key, value, name )		typedef std::map<			key,		value	>	name##Map;			\
 											typedef name##Map::iterator							name##MapIt;		\

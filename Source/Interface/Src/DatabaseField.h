@@ -31,10 +31,12 @@ BEGIN_NAMESPACE_DATABASE
 	{
 	public:
 		/** Constructor.
+		@param[in] connection
+			The database connection.
 		@param[in] infos
 			Field informations.
-			*/
-		DatabaseExport CDatabaseField( DatabaseFieldInfosPtr infos );
+		*/
+		DatabaseExport CDatabaseField( DatabaseConnectionSPtr connection, DatabaseFieldInfosSPtr infos );
 
 		/** Destructor.
 		*/
@@ -121,8 +123,14 @@ BEGIN_NAMESPACE_DATABASE
 		template< typename T > inline void GetValueOptFast( CDatabaseNullable< T > & value ) const;
 
 	protected:
+		/** Retrieves the infos
+		@return
+			The infos
+		*/
+		inline DatabaseFieldInfosSPtr DoGetInfos()const;
+
 		//! Field information.
-		DatabaseFieldInfosPtr _infos;
+		DatabaseFieldInfosWPtr _infos;
 	};
 }
 END_NAMESPACE_DATABASE

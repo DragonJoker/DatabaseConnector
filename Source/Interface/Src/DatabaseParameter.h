@@ -37,7 +37,7 @@ BEGIN_NAMESPACE_DATABASE
 			@param parameter
 				The parameter
 			*/
-			DatabaseExport virtual void Update( DatabaseParameterPtr parameter ) = 0;
+			DatabaseExport virtual void Update( const CDatabaseParameter & parameter ) = 0;
 		};
 
 	public:
@@ -55,7 +55,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] updater
 			The parent updater
 		*/
-		DatabaseExport CDatabaseParameter( DatabaseConnectionPtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
+		DatabaseExport CDatabaseParameter( DatabaseConnectionSPtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
 
 		/** Constructor.
 		@param[in] connection
@@ -73,7 +73,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] updater
 			The parent updater
 		*/
-		DatabaseExport CDatabaseParameter( DatabaseConnectionPtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
+		DatabaseExport CDatabaseParameter( DatabaseConnectionSPtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
 
 		/** Constructor.
 		@param[in] connection
@@ -91,7 +91,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] updater
 			The parent updater
 		*/
-		DatabaseExport CDatabaseParameter( DatabaseConnectionPtr connection, const String & name, unsigned short index, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
+		DatabaseExport CDatabaseParameter( DatabaseConnectionSPtr connection, const String & name, unsigned short index, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
 
 		/** Desctructor.
 		*/
@@ -149,7 +149,7 @@ BEGIN_NAMESPACE_DATABASE
 		@remarks
 			If field type is different than the value type, the value is ignored.
 		*/
-		DatabaseExport void SetValue( DatabaseFieldPtr field );
+		DatabaseExport void SetValue( const CDatabaseField & field );
 
 		/** Set parameter value from another parameter.
 		@param[in] field
@@ -157,7 +157,7 @@ BEGIN_NAMESPACE_DATABASE
 		@remarks
 			If field type is different than the value type, the value is ignored.
 		*/
-		DatabaseExport void SetValue( DatabaseParameterPtr field );
+		DatabaseExport void SetValue( const CDatabaseParameter & field );
 
 		/** Set parameter value from another value.
 		@param[in] type
@@ -178,7 +178,7 @@ BEGIN_NAMESPACE_DATABASE
 		template< typename T > inline void SetValue( const T & value )
 		{
 			DoSetValue( value );
-			_updater->Update( shared_from_this() );
+			_updater->Update( *this );
 		}
 
 		/** Set parameter value.
@@ -192,7 +192,7 @@ BEGIN_NAMESPACE_DATABASE
 		template< typename T > inline void SetValueFast( const T & value )
 		{
 			DoSetValueFast( value );
-			_updater->Update( shared_from_this() );
+			_updater->Update( *this );
 		}
 
 		/** Get parameter value.

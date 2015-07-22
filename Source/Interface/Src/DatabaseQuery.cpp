@@ -34,7 +34,7 @@ BEGIN_NAMESPACE_DATABASE
 	static const String ERROR_DB_QUERY_ALREADY_ADDED_PARAMETER = STR( "Parameter with name [%1%] already exists." );
 	static const String WARNING_DB_QUERY_NULL_PARAMETER = STR( "Trying to add a null parameter." );
 
-	CDatabaseQuery::CDatabaseQuery( DatabaseConnectionPtr connection, const String & query )
+	CDatabaseQuery::CDatabaseQuery( DatabaseConnectionSPtr connection, const String & query )
 		: _connection( connection )
 		, _paramsCount( 0 )
 		, _query( query )
@@ -64,22 +64,24 @@ BEGIN_NAMESPACE_DATABASE
 	bool CDatabaseQuery::ExecuteUpdate( EErrorType * result )
 	{
 		bool bReturn = false;
+		DatabaseConnectionSPtr connection = DoGetConnection();
 
-		if ( _connection->IsConnected() && _arrayQueries.size() > 0 )
+		if ( connection && connection->IsConnected() && _arrayQueries.size() > 0 )
 		{
-			bReturn = _connection->ExecuteUpdate( DoPreExecute() );
+			bReturn = connection->ExecuteUpdate( DoPreExecute() );
 		}
 
 		return bReturn;
 	}
 
-	DatabaseResultPtr CDatabaseQuery::ExecuteSelect( EErrorType * result )
+	DatabaseResultSPtr CDatabaseQuery::ExecuteSelect( EErrorType * result )
 	{
-		DatabaseResultPtr pReturn;
+		DatabaseResultSPtr pReturn;
+		DatabaseConnectionSPtr connection = DoGetConnection();
 
-		if ( _connection->IsConnected() && _arrayQueries.size() > 0 )
+		if ( connection && connection->IsConnected() && _arrayQueries.size() > 0 )
 		{
-			pReturn = _connection->ExecuteSelect( DoPreExecute() );
+			pReturn = connection->ExecuteSelect( DoPreExecute() );
 		}
 
 		return pReturn;
@@ -91,9 +93,9 @@ BEGIN_NAMESPACE_DATABASE
 		_arrayQueries.clear();
 	}
 
-	DatabaseParameterPtr CDatabaseQuery::CreateParameter( const String & name, EFieldType fieldType )
+	DatabaseParameterSPtr CDatabaseQuery::CreateParameter( const String & name, EFieldType fieldType )
 	{
-		DatabaseParameterPtr pReturn = std::make_shared< CDatabaseParameter >( _connection, name, ( unsigned short )_arrayParams.size() + 1, fieldType, EParameterType_IN, std::make_unique< SDummyValueUpdater >() );
+		DatabaseParameterSPtr pReturn = std::make_shared< CDatabaseParameter >( DoGetConnection(), name, ( unsigned short )_arrayParams.size() + 1, fieldType, EParameterType_IN, std::make_unique< SDummyValueUpdater >() );
 
 		if ( !DoAddParameter( pReturn ) )
 		{
@@ -103,9 +105,9 @@ BEGIN_NAMESPACE_DATABASE
 		return pReturn;
 	}
 
-	DatabaseParameterPtr CDatabaseQuery::CreateParameter( const String & name, EFieldType fieldType, uint32_t limits )
+	DatabaseParameterSPtr CDatabaseQuery::CreateParameter( const String & name, EFieldType fieldType, uint32_t limits )
 	{
-		DatabaseParameterPtr pReturn = std::make_shared< CDatabaseParameter >( _connection, name, ( unsigned short )_arrayParams.size() + 1, fieldType, limits, EParameterType_IN, std::make_unique< SDummyValueUpdater >() );
+		DatabaseParameterSPtr pReturn = std::make_shared< CDatabaseParameter >( DoGetConnection(), name, ( unsigned short )_arrayParams.size() + 1, fieldType, limits, EParameterType_IN, std::make_unique< SDummyValueUpdater >() );
 
 		if ( !DoAddParameter( pReturn ) )
 		{
@@ -115,9 +117,9 @@ BEGIN_NAMESPACE_DATABASE
 		return pReturn;
 	}
 
-	DatabaseParameterPtr CDatabaseQuery::CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision )
+	DatabaseParameterSPtr CDatabaseQuery::CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision )
 	{
-		DatabaseParameterPtr pReturn = std::make_shared< CDatabaseParameter >( _connection, name, ( unsigned short )_arrayParams.size() + 1, fieldType, precision, EParameterType_IN, std::make_unique< SDummyValueUpdater >() );
+		DatabaseParameterSPtr pReturn = std::make_shared< CDatabaseParameter >( DoGetConnection(), name, ( unsigned short )_arrayParams.size() + 1, fieldType, precision, EParameterType_IN, std::make_unique< SDummyValueUpdater >() );
 
 		if ( !DoAddParameter( pReturn ) )
 		{
@@ -127,7 +129,7 @@ BEGIN_NAMESPACE_DATABASE
 		return pReturn;
 	}
 
-	DatabaseParameterPtr CDatabaseQuery::GetParameter( uint32_t index )const
+	DatabaseParameterSPtr CDatabaseQuery::GetParameter( uint32_t index )const
 	{
 		try
 		{
@@ -146,9 +148,9 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	}
 
-	DatabaseParameterPtr CDatabaseQuery::GetParameter( const String & name )const
+	DatabaseParameterSPtr CDatabaseQuery::GetParameter( const String & name )const
 	{
-		auto it = std::find_if( _arrayParams.begin(), _arrayParams.end(), [&name]( DatabaseParameterPtr parameter )
+		auto it = std::find_if( _arrayParams.begin(), _arrayParams.end(), [&name]( DatabaseParameterSPtr parameter )
 		{
 			return parameter->GetName() == name;
 		} );
@@ -178,23 +180,23 @@ BEGIN_NAMESPACE_DATABASE
 		GetParameter( name )->SetNull();
 	}
 
-	void CDatabaseQuery::SetParameterValue( uint32_t index, DatabaseParameterPtr parameter )
+	void CDatabaseQuery::SetParameterValue( uint32_t index, const CDatabaseParameter & parameter )
 	{
 		GetParameter( index )->SetValue( parameter );
 	}
 
-	void CDatabaseQuery::SetParameterValue( const String & name, DatabaseParameterPtr parameter )
+	void CDatabaseQuery::SetParameterValue( const String & name, const CDatabaseParameter & parameter )
 	{
 		GetParameter( name )->SetValue( parameter );
 	}
 
-	bool CDatabaseQuery::DoAddParameter( DatabaseParameterPtr parameter )
+	bool CDatabaseQuery::DoAddParameter( DatabaseParameterSPtr parameter )
 	{
 		bool bReturn = false;
 
 		if ( parameter )
 		{
-			auto it = std::find_if( _arrayParams.begin(), _arrayParams.end(), [&parameter]( DatabaseParameterPtr param )
+			auto it = std::find_if( _arrayParams.begin(), _arrayParams.end(), [&parameter]( DatabaseParameterSPtr param )
 			{
 				return param->GetName() == parameter->GetName();
 			} );

@@ -22,7 +22,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MYSQL
 {
 	/** Describes an ODBC database.
 	*/
-	class DatabaseOdbcMySqlExport CDatabaseOdbcMySql
+	class CDatabaseOdbcMySql
 		: public CDatabase
 	{
 	public:
@@ -48,7 +48,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MYSQL
 		@return
 			Database connection.
 		*/
-		virtual DatabaseConnectionPtr DoCreateConnection( String & connectionString ) const;
+		virtual DatabaseConnectionSPtr DoCreateConnection( String & connectionString ) const;
 
 	private:
 		//! SQL environment handle.

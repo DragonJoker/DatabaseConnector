@@ -16,20 +16,6 @@
 
 #include <DatabasePrerequisites.h>
 
-#if defined( _WIN32 ) && !defined ( __MINGW32__ ) && !defined ( STATIC_LIB )
-#	ifdef DatabasePluginMySql_EXPORTS
-#		define DatabaseMySqlExport __declspec ( dllexport )
-#	else
-#		if defined ( __MINGW32__ )
-#			define DatabaseMySqlExport
-#		else
-#			define DatabaseMySqlExport __declspec ( dllimport )
-#		endif
-#	endif
-#else
-#    define DatabaseMySqlExport
-#endif
-
 #define BEGIN_NAMESPACE_DATABASE_MYSQL BEGIN_NAMESPACE_DATABASE { namespace MySql
 #define NAMESPACE_DATABASE_MYSQL NAMESPACE_DATABASE::MySql
 #define END_NAMESPACE_DATABASE_MYSQL } END_NAMESPACE_DATABASE
@@ -51,11 +37,11 @@ BEGIN_NAMESPACE_DATABASE
 		struct SOutMySqlBindBase;
 
 		// Pointers
-		typedef std::shared_ptr< CDatabaseConnectionMySql > DatabaseConnectionMySqlPtr;
-		typedef std::shared_ptr< CDatabaseStatementMySql > DatabaseStatementMySqlPtr;
-		typedef std::shared_ptr< CDatabaseParameterMySql > DatabaseParameterMySqlPtr;
+		DECLARE_SMART_PTR( DatabaseConnectionMySql );
+		DECLARE_SMART_PTR( DatabaseStatementMySql );
+		DECLARE_SMART_PTR( DatabaseParameterMySql );
 
-		typedef std::vector< DatabaseParameterMySqlPtr > DatabaseParameterMySqlPtrArray;
+		typedef std::vector< DatabaseParameterMySqlWPtr > DatabaseParameterMySqlPtrArray;
 
 		// Factory constants
 		const String FACTORY_DATABASE_MYSQL = STR( "Factory Database MySql" );

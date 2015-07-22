@@ -55,7 +55,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Found connection.
 		*/
-		DatabaseExport DatabaseConnectionPtr RetrieveConnection();
+		DatabaseExport DatabaseConnectionSPtr RetrieveConnection();
 
 		/** Remove connection.
 		*/
@@ -68,17 +68,16 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Database connection.
 		*/
-		DatabaseExport virtual DatabaseConnectionPtr DoCreateConnection( String & connectionString ) const = 0;
+		DatabaseExport virtual DatabaseConnectionSPtr DoCreateConnection( String & connectionString ) const = 0;
 
 	private:
 		/** Get connection.
 		@return
 			Database connection.
 		*/
-		DatabaseConnectionPtr DoGetConnection() const;
+		DatabaseConnectionSPtr DoGetConnection() const;
 
 	protected:
-		typedef std::map< unsigned long, DatabaseConnectionPtr > DatabaseConnectionPtrDwordMap;
 		//! Mutex.
 		mutable std::recursive_mutex _mutex;
 		//! Map of connections (multiple threads).

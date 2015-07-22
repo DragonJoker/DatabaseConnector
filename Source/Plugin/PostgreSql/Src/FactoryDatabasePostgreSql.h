@@ -29,11 +29,11 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 	public:
 		/** Default constructor.
 		*/
-		DatabasePostgreSqlExport CFactoryDatabasePostgreSql();
+		CFactoryDatabasePostgreSql();
 
 		/** Destructor.
 		*/
-		DatabasePostgreSqlExport virtual ~CFactoryDatabasePostgreSql();
+		virtual ~CFactoryDatabasePostgreSql();
 
 		/** Get the type of the factory.
 		@returns
@@ -47,11 +47,11 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 	protected:
 		/** Register creation functions to create new MYSQL database objects.
 		*/
-		DatabasePostgreSqlExport void RegisterServices();
+		void RegisterServices();
 
 		/** Registred the MYSQL database object types that the factory can create.
 		*/
-		DatabasePostgreSqlExport void RegisterObjectTypes();
+		void RegisterObjectTypes();
 	};
 }
 END_NAMESPACE_DATABASE_POSTGRESQL

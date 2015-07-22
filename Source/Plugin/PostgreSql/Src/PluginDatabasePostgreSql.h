@@ -28,24 +28,24 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 	public:
 		/** Default constructor.
 		*/
-		DatabasePostgreSqlExport CPluginDatabasePostgreSql();
+		CPluginDatabasePostgreSql();
 
 		/** Destructor.
 		*/
-		DatabasePostgreSqlExport virtual ~CPluginDatabasePostgreSql();
+		virtual ~CPluginDatabasePostgreSql();
 
 		///@copydoc Database::CPlugin::GetName
-		DatabasePostgreSqlExport virtual const String GetName() const;
+		virtual const String GetName() const;
 
 		///@copydoc Database::CPlugin::Initialize
-		DatabasePostgreSqlExport virtual void Initialize();
+		virtual void Initialize();
 
 		///@copydoc Database::CPlugin::Shutdown
-		DatabasePostgreSqlExport virtual void Shutdown();
+		virtual void Shutdown();
 
 	protected:
 		///@copydoc Database::CParameterListInterface::AddBaseParameters
-		DatabasePostgreSqlExport virtual void AddBaseParameters();
+		virtual void AddBaseParameters();
 	};
 
 } END_NAMESPACE_DATABASE_POSTGRESQL

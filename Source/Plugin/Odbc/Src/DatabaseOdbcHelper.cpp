@@ -699,7 +699,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			return result;
 		}
 
-		DatabaseFieldInfosPtrArray InitializeColumns( SQLSMALLINT columnCount, DatabaseConnectionPtr connection, std::vector< std::unique_ptr< CInOdbcBindBase > > & columns, SQLHSTMT stmt )
+		DatabaseFieldInfosPtrArray InitializeColumns( SQLSMALLINT columnCount, std::vector< std::unique_ptr< CInOdbcBindBase > > & columns, SQLHSTMT stmt )
 		{
 			static const SQLSMALLINT BUFFER_SIZE = 255;
 			EErrorType errorType = EErrorType_NONE;
@@ -710,8 +710,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				TCHAR buffer[BUFFER_SIZE] = { 0 };
 				SQLSMALLINT stringLength = 0;
 				SQLLEN numericAttribute = 0;
-				DatabaseFieldInfosPtr infos;
-				std::unique_ptr< CInOdbcBindBase > bind;
 
 				// Retrieve the column name
 				OdbcCheck( SQLColAttribute( stmt, i, SQL_DESC_LABEL, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_LABEL );
@@ -758,13 +756,16 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				numericAttribute = 0;
 				OdbcCheck( SQLColAttribute( stmt, i, SQL_DESC_TYPE_NAME, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_TYPE_NAME );
 				String typeName = CStrUtils::ToString( buffer );
+				
+				DatabaseFieldInfosSPtr infos;
+				std::unique_ptr< CInOdbcBindBase > bind;
 
 				if ( conciseType == SQL_NTS || conciseType == SQL_TINYINT || conciseType == SQL_CHAR || conciseType == SQL_VARCHAR )
 				{
 					if ( errorType == EErrorType_NONE )
 					{
 						std::pair< uint32_t, uint32_t > limprec( precision, scale );
-						infos = std::make_shared< CDatabaseFieldInfos >( connection, name, GetFieldTypeFromTypeName( typeName, limprec ), std::make_pair( precision, scale ) );
+						infos = std::make_shared< CDatabaseFieldInfos >( name, GetFieldTypeFromTypeName( typeName, limprec ), std::make_pair( precision, scale ) );
 						bind = GetBindFromFieldType( infos->GetType(), limits, precision, scale );
 					}
 				}
@@ -772,7 +773,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				{
 					EFieldType type = GetFieldTypeFromConciseType( conciseType, limits );
 					bind = GetBindFromFieldType( type, limits, precision, scale );
-					infos = std::make_shared< CDatabaseFieldInfos >( connection, name, type, std::make_pair( precision, scale ) );
+					infos = std::make_shared< CDatabaseFieldInfos >( name, type, std::make_pair( precision, scale ) );
 				}
 
 				columns.push_back( std::move( bind ) );
@@ -895,7 +896,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			}
 		}
 
-		EErrorType FetchResultSet( DatabaseConnectionPtr connection, DatabaseResultPtr results, std::vector< std::unique_ptr< CInOdbcBindBase > > & bindings, SQLHSTMT statementHandle )
+		EErrorType FetchResultSet( DatabaseConnectionSPtr connection, DatabaseResultSPtr results, std::vector< std::unique_ptr< CInOdbcBindBase > > & bindings, SQLHSTMT statementHandle )
 		{
 			EErrorType errorType = EErrorType_NONE;
 			SQLRETURN res;
@@ -928,17 +929,17 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 					while ( errorType == EErrorType_NONE && res != SQL_NO_DATA )
 					{
-						DatabaseRowPtr row = std::make_shared< CDatabaseRow >( connection );
+						DatabaseRowSPtr row = std::make_shared< CDatabaseRow >();
 						uint32_t index = 0;
 
 						for ( auto && bind : bindings )
 						{
 							bool isNull = bind->_strLenOrInd == SQL_NULL_DATA;
-							DatabaseFieldPtr field;
+							DatabaseFieldSPtr field;
 
 							try
 							{
-								field = std::make_shared< CDatabaseField >( results->GetFieldInfos( index++ ) );
+								field = std::make_shared< CDatabaseField >( connection, results->GetFieldInfos( index++ ) );
 
 								if ( !isNull )
 								{
@@ -1204,7 +1205,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		return fieldType;
 	}
 
-	EErrorType SqlExecute( DatabaseConnectionPtr connection, SQLHSTMT statementHandle, FuncResultSetFullyFetched onFullyfetched, DatabaseResultPtr & pReturn )
+	EErrorType SqlExecute( DatabaseConnectionSPtr connection, SQLHSTMT statementHandle, FuncResultSetFullyFetched onFullyfetched, DatabaseResultSPtr & pReturn )
 	{
 		SQLRETURN res = SQL_SUCCESS;
 		EErrorType errorType = EErrorType_NONE;
@@ -1217,8 +1218,8 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			if ( numColumns )
 			{
 				std::vector< std::unique_ptr< CInOdbcBindBase > > arrayColumnData;
-				DatabaseFieldInfosPtrArray columns = InitializeColumns( numColumns, connection, arrayColumnData, statementHandle );
-				pReturn = std::make_shared< CDatabaseResult >( connection, columns );
+				DatabaseFieldInfosPtrArray columns = InitializeColumns( numColumns, arrayColumnData, statementHandle );
+				pReturn = std::make_shared< CDatabaseResult >( columns );
 				FetchResultSet( connection, pReturn, arrayColumnData, statementHandle );
 			}
 
