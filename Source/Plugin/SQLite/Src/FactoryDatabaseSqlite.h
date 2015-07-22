@@ -29,11 +29,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 	public:
 		/** Default constructor.
 		*/
-		DatabaseSqliteExport CFactoryDatabaseSqlite();
+		CFactoryDatabaseSqlite();
 
 		/** Destructor.
 		*/
-		DatabaseSqliteExport virtual ~CFactoryDatabaseSqlite();
+		virtual ~CFactoryDatabaseSqlite();
 
 		/** Get the type of the factory.
 		@returns
@@ -47,11 +47,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 	protected:
 		/** Register creation functions to create new SQLite database objects.
 		*/
-		DatabaseSqliteExport void RegisterServices();
+		void RegisterServices();
 
 		/** Registers the SQLite database object types that the factory can create.
 		*/
-		DatabaseSqliteExport void RegisterObjectTypes();
+		void RegisterObjectTypes();
 	};
 }
 END_NAMESPACE_DATABASE_SQLITE

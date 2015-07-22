@@ -116,7 +116,7 @@ BEGIN_NAMESPACE_DATABASE
 		DoSetInTransaction( false );
 	}
 
-	DatabaseStatementPtr CDatabaseConnection::CreateStatement( const String & query )
+	DatabaseStatementSPtr CDatabaseConnection::CreateStatement( const String & query )
 	{
 		if ( !IsConnected() )
 		{
@@ -126,7 +126,7 @@ BEGIN_NAMESPACE_DATABASE
 		return DoCreateStatement( query );
 	}
 
-	DatabaseQueryPtr CDatabaseConnection::CreateQuery( const String & query )
+	DatabaseQuerySPtr CDatabaseConnection::CreateQuery( const String & query )
 	{
 		return std::make_shared< CDatabaseQuery >( shared_from_this(), query );
 	}
@@ -167,7 +167,7 @@ BEGIN_NAMESPACE_DATABASE
 		return ret;
 	}
 
-	DatabaseResultPtr CDatabaseConnection::ExecuteSelect( const String & query )
+	DatabaseResultSPtr CDatabaseConnection::ExecuteSelect( const String & query )
 	{
 		if ( !IsConnected() )
 		{
@@ -175,7 +175,7 @@ BEGIN_NAMESPACE_DATABASE
 		}
 		
 		CLogger::LogInfo( INFO_DB_EXECUTING_SELECT + query );
-		DatabaseResultPtr ret = false;
+		DatabaseResultSPtr ret;
 
 		try
 		{

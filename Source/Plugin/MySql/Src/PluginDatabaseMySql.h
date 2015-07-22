@@ -28,24 +28,24 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	public:
 		/** Default constructor.
 		*/
-		DatabaseMySqlExport CPluginDatabaseMySql();
+		CPluginDatabaseMySql();
 
 		/** Destructor.
 		*/
-		DatabaseMySqlExport virtual ~CPluginDatabaseMySql();
+		virtual ~CPluginDatabaseMySql();
 
 		///@copydoc Database::CPlugin::GetName
-		DatabaseMySqlExport virtual const String GetName() const;
+		virtual const String GetName() const;
 
 		///@copydoc Database::CPlugin::Initialize
-		DatabaseMySqlExport virtual void Initialize();
+		virtual void Initialize();
 
 		///@copydoc Database::CPlugin::Shutdown
-		DatabaseMySqlExport virtual void Shutdown();
+		virtual void Shutdown();
 
 	protected:
 		///@copydoc Database::CParameterListInterface::AddBaseParameters
-		DatabaseMySqlExport virtual void AddBaseParameters();
+		virtual void AddBaseParameters();
 	};
 
 } END_NAMESPACE_DATABASE_MYSQL

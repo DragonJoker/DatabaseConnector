@@ -22,7 +22,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 {
 	/** Describes a connection to a database via an ODBC driver.
 	*/
-	class DatabaseOdbcMsSqlExport CDatabaseConnectionOdbcMsSql
+	class CDatabaseConnectionOdbcMsSql
 		: public CDatabaseConnectionOdbc
 	{
 	public:
@@ -287,7 +287,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		@return
 			The created statement.
 		*/
-		virtual DatabaseStatementPtr DoCreateStatement( const String & query);
+		virtual DatabaseStatementSPtr DoCreateStatement( const String & query);
 	};
 }
 END_NAMESPACE_DATABASE_ODBC_MSSQL

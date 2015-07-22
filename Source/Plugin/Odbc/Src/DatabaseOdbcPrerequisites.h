@@ -53,11 +53,11 @@ BEGIN_NAMESPACE_DATABASE
 		class CFactoryDatabaseOdbc;
 
 		// Pointers
-		typedef std::shared_ptr< CDatabaseConnectionOdbc >            DatabaseConnectionOdbcPtr;
-		typedef std::shared_ptr< CDatabaseStatementOdbc >             DatabaseStatementOdbcPtr;
-		typedef std::shared_ptr< CDatabaseQueryOdbc >                 DatabaseQueryOdbcPtr;
-		typedef std::shared_ptr< CDatabaseStatementParameterOdbc >    DatabaseStatementParameterOdbcPtr;
-		typedef std::shared_ptr< CDatabaseQueryParameterOdbc >        DatabaseQueryParameterOdbcPtr;
+		DECLARE_SMART_PTR( DatabaseConnectionOdbc );
+		DECLARE_SMART_PTR( DatabaseStatementOdbc );
+		DECLARE_SMART_PTR( DatabaseQueryOdbc );
+		DECLARE_SMART_PTR( DatabaseStatementParameterOdbc );
+		DECLARE_SMART_PTR( DatabaseQueryParameterOdbc );
 
 		// Plugin constants
 		const String DATABASE_ODBC_TYPE = STR( "Database.Odbc" );
@@ -65,10 +65,10 @@ BEGIN_NAMESPACE_DATABASE
 
 		// Unicode and SQL types
 		typedef SQLCHAR SqlChar;
-		static const int SQL_C_XCHAR        = SQL_C_CHAR;
-		static const int SQL_XCHAR          = SQL_CHAR;
-		static const int SQL_XVARCHAR       = SQL_VARCHAR;
-		static const int SQL_XLONGVARCHAR   = SQL_LONGVARCHAR;
+		static const int SQL_C_XCHAR = SQL_C_CHAR;
+		static const int SQL_XCHAR = SQL_CHAR;
+		static const int SQL_XVARCHAR = SQL_VARCHAR;
+		static const int SQL_XLONGVARCHAR = SQL_LONGVARCHAR;
 
 		// SQL execution
 #define OdbcCheck( func, handle_type, handle, text )\

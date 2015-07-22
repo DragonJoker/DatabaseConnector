@@ -27,7 +27,7 @@ BEGIN_NAMESPACE_DATABASE
 	static const String ERROR_DB_FIELD_GETVALUE_TYPE = STR( "Type error while getting value from the object: " );
 	static const String ERROR_DB_FIELD_SETVALUE_TYPE = STR( "Type error while setting value of the object: " );
 
-	CDatabaseValuedObject::CDatabaseValuedObject( DatabaseConnectionPtr connection )
+	CDatabaseValuedObject::CDatabaseValuedObject( DatabaseConnectionSPtr connection )
 		: _connection( connection )
 	{
 	}

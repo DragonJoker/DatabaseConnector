@@ -16,24 +16,6 @@
 
 #include <DatabasePrerequisites.h>
 
-#if defined( _WIN32 ) && !defined ( __MINGW32__ ) && !defined ( STATIC_LIB )
-#	ifdef DatabasePluginSqlite_EXPORTS
-#	    define DatabaseSqliteExport __declspec ( dllexport )
-#	else
-#		if defined ( __MINGW32__ )
-#			define DatabaseSqliteExport
-#		else
-#			define DatabaseSqliteExport __declspec ( dllimport )
-#		endif
-#	endif
-#else
-#    define DatabaseSqliteExport
-#endif
-
-#if defined( STATIC_LIB )
-#	define CPPCONN_PUBLIC_FUNC
-#endif
-
 #define BEGIN_NAMESPACE_DATABASE_SQLITE BEGIN_NAMESPACE_DATABASE { namespace Sqlite
 #define NAMESPACE_DATABASE_SQLITE NAMESPACE_DATABASE::Sqlite
 #define END_NAMESPACE_DATABASE_SQLITE } END_NAMESPACE_DATABASE
@@ -56,9 +38,9 @@ BEGIN_NAMESPACE_DATABASE
 		struct SSqliteBindingBase;
 
 		// Pointers
-		typedef std::shared_ptr< CDatabaseConnectionSqlite > DatabaseConnectionSqlitePtr;
-		typedef std::shared_ptr< CDatabaseStatementSqlite > DatabaseStatementSqlitePtr;
-		typedef std::shared_ptr< CDatabaseStatementParameterSqlite > DatabaseStatementParameterSqlitePtr;
+		DECLARE_SMART_PTR( DatabaseConnectionSqlite );
+		DECLARE_SMART_PTR( DatabaseStatementSqlite );
+		DECLARE_SMART_PTR( DatabaseStatementParameterSqlite );
 
 		// Factory constants
 		const String FACTORY_DATABASE_SQLITE = STR( "Factory Database SQLite" );

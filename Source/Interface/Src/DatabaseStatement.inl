@@ -18,29 +18,25 @@ BEGIN_NAMESPACE_DATABASE
 	template< typename T >
 	void CDatabaseStatement::SetParameterValue( uint32_t index, const T & value )
 	{
-		DatabaseParameterPtr parameter = GetParameter( index );
-		parameter->SetValue( value );
+		GetParameter( index )->SetValue( value );
 	}
 
 	template< typename T >
 	void CDatabaseStatement::SetParameterValue( const String & name, const T & value )
 	{
-		DatabaseParameterPtr parameter = GetParameter( name );
-		parameter->SetValue( value );
+		GetParameter( index )->SetValue( value );
 	}
 
 	template< typename T >
 	void CDatabaseStatement::SetParameterValueFast( uint32_t index, const T & value )
 	{
-		DatabaseParameterPtr parameter = GetParameter( index );
-		parameter->SetValueFast( value );
+		GetParameter( index )->SetValueFast( value );
 	}
 
 	template< typename T >
 	void CDatabaseStatement::SetParameterValueFast( const String & name, const T & value )
 	{
-		DatabaseParameterPtr parameter = GetParameter( name );
-		parameter->SetValueFast( value );
+		GetParameter( index )->SetValueFast( value );
 	}
 
 	template <typename T>

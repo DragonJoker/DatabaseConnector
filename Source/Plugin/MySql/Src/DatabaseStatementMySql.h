@@ -32,11 +32,11 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		@param[in] query
 			Request text.
 		*/
-		DatabaseMySqlExport CDatabaseStatementMySql( DatabaseConnectionMySqlPtr connection, const String & query );
+		CDatabaseStatementMySql( DatabaseConnectionMySqlSPtr connection, const String & query );
 
 		/** Destructor.
 			*/
-		DatabaseMySqlExport virtual ~CDatabaseStatementMySql();
+		virtual ~CDatabaseStatementMySql();
 
 		/** Create a parameter.
 		@param[in] name
@@ -48,7 +48,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		@return
 			Created parameter.
 		*/
-		DatabaseMySqlExport virtual DatabaseParameterPtr CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType );
+		virtual DatabaseParameterSPtr CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType );
 
 		/** Create a parameter which has limits (strings, etc.).
 		@param[in] name
@@ -62,7 +62,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		@return
 			Created parameter.
 		*/
-		DatabaseMySqlExport virtual DatabaseParameterPtr CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType );
+		virtual DatabaseParameterSPtr CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType );
 
 		/** Create a parameter which has limits (strings, etc.).
 		@param[in] name
@@ -76,14 +76,14 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		@return
 			Created parameter.
 		*/
-		DatabaseMySqlExport virtual DatabaseParameterPtr CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType );
+		virtual DatabaseParameterSPtr CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType );
 
 	private:
 		/** Initialize this statement.
 		@return
 			Error code.
 		*/
-		DatabaseMySqlExport virtual EErrorType DoInitialize();
+		virtual EErrorType DoInitialize();
 
 		/** Execute this statement.
 		@param[out] result
@@ -91,7 +91,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		@return
 			The result.
 		*/
-		DatabaseMySqlExport virtual bool DoExecuteUpdate( EErrorType * result = NULL );
+		virtual bool DoExecuteUpdate( EErrorType * result = NULL );
 
 		/** Execute this statement.
 		@param[out] result
@@ -99,11 +99,11 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		@return
 			The result.
 		*/
-		DatabaseMySqlExport virtual DatabaseResultPtr DoExecuteSelect( EErrorType * result = NULL );
+		virtual DatabaseResultSPtr DoExecuteSelect( EErrorType * result = NULL );
 
 		/** Clean statement.
 		*/
-		DatabaseMySqlExport virtual void DoCleanup();
+		virtual void DoCleanup();
 
 		/** Pre-execution action
 		@remarks
@@ -123,11 +123,20 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		*/
 		void DoPostExecute( EErrorType * result );
 
+		/** Retrieves the MySQL connection
+		@return
+			The connection.
+		*/
+		inline DatabaseConnectionMySqlSPtr DoGetMySqlConnection()const
+		{
+			return _connectionMySql.lock();
+		}
+
 	private:
 		/// Prepared statement.
 		MYSQL_STMT * _statement;
 		/// Database connection.
-		DatabaseConnectionMySqlPtr _connectionMySql;
+		DatabaseConnectionMySqlWPtr _connectionMySql;
 		/// Tokenized string (delimiter is "?").
 		StringArray _arrayQueries;
 		/// Number of parameters (i.e. number of "?").
@@ -139,11 +148,11 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		/// Array of out parameters
 		DatabaseParameterMySqlPtrArray _arrayOutParams;
 		/// Array of in/out parameter initializer queries
-		std::vector< std::pair< DatabaseStatementPtr, DatabaseParameterPtr > > _inOutInitializers;
+		std::vector< std::pair< DatabaseStatementSPtr, DatabaseParameterWPtr > > _inOutInitializers;
 		/// Array of out parameter initializer queries
-		std::vector< DatabaseStatementPtr > _outInitializers;
+		std::vector< DatabaseStatementSPtr > _outInitializers;
 		/// The statement used to execute the out parameters retrieval query
-		DatabaseStatementPtr _stmtOutParams;
+		DatabaseStatementSPtr _stmtOutParams;
 	};
 }
 END_NAMESPACE_DATABASE_MYSQL

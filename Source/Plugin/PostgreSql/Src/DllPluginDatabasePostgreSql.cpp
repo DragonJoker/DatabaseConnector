@@ -17,6 +17,20 @@
 
 #include <DatabasePluginManager.h>
 
+#if defined( _WIN32 ) && !defined ( __MINGW32__ ) && !defined ( STATIC_LIB )
+#	ifdef DatabasePluginPostgreSql_EXPORTS
+#		define DatabasePostgreSqlExport __declspec ( dllexport )
+#	else
+#		if defined ( __MINGW32__ )
+#			define DatabasePostgreSqlExport
+#		else
+#			define DatabasePostgreSqlExport __declspec ( dllimport )
+#		endif
+#	endif
+#else
+#    define DatabasePostgreSqlExport
+#endif
+
 BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 {
 	CPluginDatabasePostgreSql * plugin = NULL;

@@ -705,7 +705,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MYSQL
 		return result;
 	}
 
-	DatabaseStatementPtr CDatabaseConnectionOdbcMySql::DoCreateStatement( const String & query )
+	DatabaseStatementSPtr CDatabaseConnectionOdbcMySql::DoCreateStatement( const String & query )
 	{
 		return std::make_shared< CDatabaseStatementOdbc >( std::static_pointer_cast< CDatabaseConnectionOdbc >( shared_from_this() ), query );
 	}

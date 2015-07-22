@@ -54,9 +54,9 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	}
 
-	DatabaseConnectionPtr CDatabase::RetrieveConnection()
+	DatabaseConnectionSPtr CDatabase::RetrieveConnection()
 	{
-		DatabaseConnectionPtr pReturn = DoGetConnection();
+		DatabaseConnectionSPtr pReturn = DoGetConnection();
 
 		if ( ! pReturn )
 		{
@@ -80,12 +80,12 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	}
 
-	DatabaseConnectionPtr CDatabase::DoGetConnection() const
+	DatabaseConnectionSPtr CDatabase::DoGetConnection() const
 	{
 		std::unique_lock< std::recursive_mutex > lock( _mutex );
 		std::thread::id threadId = std::this_thread::get_id();
 		auto && it = _mapConnections.find( threadId );
-		DatabaseConnectionPtr pReturn;
+		DatabaseConnectionSPtr pReturn;
 
 		if ( it != _mapConnections.end() )
 		{

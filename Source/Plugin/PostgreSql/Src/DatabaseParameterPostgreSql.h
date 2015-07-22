@@ -44,7 +44,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		@param[in] updater
 			The parent updater
 		*/
-		DatabasePostgreSqlExport CDatabaseParameterPostgreSql( DatabaseConnectionPostgreSqlPtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
+		CDatabaseParameterPostgreSql( DatabaseConnectionPostgreSqlSPtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
 
 		/** Constructor.
 		@param[in] connection
@@ -62,7 +62,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		@param[in] updater
 			The parent updater
 		*/
-		DatabasePostgreSqlExport CDatabaseParameterPostgreSql( DatabaseConnectionPostgreSqlPtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
+		CDatabaseParameterPostgreSql( DatabaseConnectionPostgreSqlSPtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
 
 		/** Constructor.
 		@param[in] connection
@@ -80,14 +80,14 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		@param[in] updater
 			The parent updater
 		*/
-		DatabasePostgreSqlExport CDatabaseParameterPostgreSql( DatabaseConnectionPostgreSqlPtr connection, const String & name, unsigned short index, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
+		CDatabaseParameterPostgreSql( DatabaseConnectionPostgreSqlSPtr connection, const String & name, unsigned short index, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
 
 		/** Destructor.
 		*/
-		DatabasePostgreSqlExport virtual ~CDatabaseParameterPostgreSql();
+		virtual ~CDatabaseParameterPostgreSql();
 
 		//!@copydoc Database::CDatabaseParameter::SetNull
-		DatabasePostgreSqlExport virtual void SetNull();
+		virtual void SetNull();
 
 		/** Defines the data binding
 		@param[out] param
@@ -97,7 +97,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		@param[out[ format
 			The field that will receive the value format (text=0, binary=1)
 		*/
-		DatabasePostgreSqlExport void SetBinding( PGbind * bind );
+		void SetBinding( PGbind * bind );
 
 		/** Retrieves the data binding
 		@return
@@ -176,241 +176,241 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
-		DatabasePostgreSqlExport virtual void DoSetValue( const bool & value )
+		virtual void DoSetValue( const bool & value )
 		{
 			DoSetAndUpdateValue( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
-		DatabasePostgreSqlExport virtual void DoSetValue( const int8_t & value )
+		virtual void DoSetValue( const int8_t & value )
 		{
 			DoSetAndUpdateValue( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
-		DatabasePostgreSqlExport virtual void DoSetValue( const uint8_t & value )
+		virtual void DoSetValue( const uint8_t & value )
 		{
 			DoSetAndUpdateValue( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
-		DatabasePostgreSqlExport virtual void DoSetValue( const int16_t & value )
+		virtual void DoSetValue( const int16_t & value )
 		{
 			DoSetAndUpdateValue( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
-		DatabasePostgreSqlExport virtual void DoSetValue( const uint16_t & value )
+		virtual void DoSetValue( const uint16_t & value )
 		{
 			DoSetAndUpdateValue( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
-		DatabasePostgreSqlExport virtual void DoSetValue( const int24_t & value )
+		virtual void DoSetValue( const int24_t & value )
 		{
 			DoSetAndUpdateValue( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
-		DatabasePostgreSqlExport virtual void DoSetValue( const uint24_t & value )
+		virtual void DoSetValue( const uint24_t & value )
 		{
 			DoSetAndUpdateValue( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
-		DatabasePostgreSqlExport virtual void DoSetValue( const int32_t & value )
+		virtual void DoSetValue( const int32_t & value )
 		{
 			DoSetAndUpdateValue( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
-		DatabasePostgreSqlExport virtual void DoSetValue( const uint32_t & value )
+		virtual void DoSetValue( const uint32_t & value )
 		{
 			DoSetAndUpdateValue( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
-		DatabasePostgreSqlExport virtual void DoSetValue( const int64_t & value )
+		virtual void DoSetValue( const int64_t & value )
 		{
 			DoSetAndUpdateValue( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
-		DatabasePostgreSqlExport virtual void DoSetValue( const uint64_t & value )
+		virtual void DoSetValue( const uint64_t & value )
 		{
 			DoSetAndUpdateValue( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
-		DatabasePostgreSqlExport virtual void DoSetValue( const float & value )
+		virtual void DoSetValue( const float & value )
 		{
 			DoSetAndUpdateValue( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
-		DatabasePostgreSqlExport virtual void DoSetValue( const double & value )
+		virtual void DoSetValue( const double & value )
 		{
 			DoSetAndUpdateValue( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
-		DatabasePostgreSqlExport virtual void DoSetValue( const CFixedPoint & value )
+		virtual void DoSetValue( const CFixedPoint & value )
 		{
 			DoSetAndUpdateValue( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
-		DatabasePostgreSqlExport virtual void DoSetValue( const std::string & value )
+		virtual void DoSetValue( const std::string & value )
 		{
 			DoSetAndUpdateValue( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
-		DatabasePostgreSqlExport virtual void DoSetValue( const std::wstring & value )
+		virtual void DoSetValue( const std::wstring & value )
 		{
 			DoSetAndUpdateValue( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
-		DatabasePostgreSqlExport virtual void DoSetValue( const CDateTime & value )
+		virtual void DoSetValue( const CDateTime & value )
 		{
 			DoSetAndUpdateValue( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
-		DatabasePostgreSqlExport virtual void DoSetValue( const CDate & value )
+		virtual void DoSetValue( const CDate & value )
 		{
 			DoSetAndUpdateValue( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
-		DatabasePostgreSqlExport virtual void DoSetValue( const CTime & value )
+		virtual void DoSetValue( const CTime & value )
 		{
 			DoSetAndUpdateValue( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
-		DatabasePostgreSqlExport virtual void DoSetValue( const ByteArray & value )
+		virtual void DoSetValue( const ByteArray & value )
 		{
 			DoSetAndUpdateValue( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
-		DatabasePostgreSqlExport virtual void DoSetValueFast( const bool & value )
+		virtual void DoSetValueFast( const bool & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
-		DatabasePostgreSqlExport virtual void DoSetValueFast( const int8_t & value )
+		virtual void DoSetValueFast( const int8_t & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
-		DatabasePostgreSqlExport virtual void DoSetValueFast( const uint8_t & value )
+		virtual void DoSetValueFast( const uint8_t & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
-		DatabasePostgreSqlExport virtual void DoSetValueFast( const int16_t & value )
+		virtual void DoSetValueFast( const int16_t & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
-		DatabasePostgreSqlExport virtual void DoSetValueFast( const uint16_t & value )
+		virtual void DoSetValueFast( const uint16_t & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
-		DatabasePostgreSqlExport virtual void DoSetValueFast( const int24_t & value )
+		virtual void DoSetValueFast( const int24_t & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
-		DatabasePostgreSqlExport virtual void DoSetValueFast( const uint24_t & value )
+		virtual void DoSetValueFast( const uint24_t & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
-		DatabasePostgreSqlExport virtual void DoSetValueFast( const int32_t & value )
+		virtual void DoSetValueFast( const int32_t & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
-		DatabasePostgreSqlExport virtual void DoSetValueFast( const uint32_t & value )
+		virtual void DoSetValueFast( const uint32_t & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
-		DatabasePostgreSqlExport virtual void DoSetValueFast( const int64_t & value )
+		virtual void DoSetValueFast( const int64_t & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
-		DatabasePostgreSqlExport virtual void DoSetValueFast( const uint64_t & value )
+		virtual void DoSetValueFast( const uint64_t & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
-		DatabasePostgreSqlExport virtual void DoSetValueFast( const float & value )
+		virtual void DoSetValueFast( const float & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
-		DatabasePostgreSqlExport virtual void DoSetValueFast( const double & value )
+		virtual void DoSetValueFast( const double & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
-		DatabasePostgreSqlExport virtual void DoSetValueFast( const CFixedPoint & value )
+		virtual void DoSetValueFast( const CFixedPoint & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
-		DatabasePostgreSqlExport virtual void DoSetValueFast( const std::string & value )
+		virtual void DoSetValueFast( const std::string & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
-		DatabasePostgreSqlExport virtual void DoSetValueFast( const std::wstring & value )
+		virtual void DoSetValueFast( const std::wstring & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
-		DatabasePostgreSqlExport virtual void DoSetValueFast( const CDate & value )
+		virtual void DoSetValueFast( const CDate & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
-		DatabasePostgreSqlExport virtual void DoSetValueFast( const CDateTime & value )
+		virtual void DoSetValueFast( const CDateTime & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
-		DatabasePostgreSqlExport virtual void DoSetValueFast( const CTime & value )
+		virtual void DoSetValueFast( const CTime & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
-		DatabasePostgreSqlExport virtual void DoSetValueFast( const ByteArray & value )
+		virtual void DoSetValueFast( const ByteArray & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}

@@ -25,7 +25,7 @@ BEGIN_NAMESPACE_DATABASE
 		return *_value;
 	}
 
-	inline DatabaseConnectionPtr CDatabaseValuedObject::GetConnection() const
+	inline DatabaseConnectionSPtr CDatabaseValuedObject::GetConnection() const
 	{
 		return _connection.lock();
 	}

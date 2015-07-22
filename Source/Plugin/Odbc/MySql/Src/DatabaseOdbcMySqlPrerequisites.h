@@ -16,20 +16,6 @@
 
 #include <DatabaseOdbcPrerequisites.h>
 
-#if defined( _WIN32 ) && !defined ( __MINGW32__ ) && !defined ( STATIC_LIB )
-#	ifdef DatabasePluginOdbcMySql_EXPORTS
-#	    define DatabaseOdbcMySqlExport __declspec ( dllexport )
-#	else
-#		if defined ( __MINGW32__ )
-#			define DatabaseOdbcMySqlExport
-#		else
-#			define DatabaseOdbcMySqlExport __declspec ( dllimport )
-#		endif
-#	endif
-#else
-#    define DatabaseOdbcMySqlExport
-#endif
-
 #if defined( _WIN32 )
 #	include <windows.h>
 #	undef min
@@ -54,9 +40,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		class CDatabaseConnectionOdbcMySql;
 		class CPluginDatabaseOdbcMySql;
 		class CFactoryDatabaseOdbcMySql;
-
-		// Pointers
-		typedef std::shared_ptr< CDatabaseConnectionOdbcMySql > DatabaseConnectionOdbcMySqlPtr;
 
 		// Factory constants
 		const String FACTORY_DATABASE_ODBC_MYSQL = STR( "Factory Database Odbc MySql" );

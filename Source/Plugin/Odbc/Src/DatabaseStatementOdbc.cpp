@@ -29,6 +29,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 {
 	static const String ERROR_ODBC_MISSING_INITIALIZATION = STR( "Method Initialize must be called before calling method CreateParameter" );
 	static const String ERROR_ODBC_STATEMENT_UNKNOWN_POINTER = STR( "The pointer given by SQLParamData is unknown to the statement" );
+	static const String ERROR_ODBC_LOST_CONNECTION = STR( "The statement has lost his connection" );
 
 	static const String INFO_ODBC_PREPARING_STATEMENT = STR( "Preparing statement for query: " );
 	static const String INFO_ODBC_EXECUTE_STATEMENT = STR( "Execute statement for query: " );
@@ -43,7 +44,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 	static const String DEBUG_ODBC_EXPECTED_PARAMETERS = STR( "Expected parameters : " );
 
-	CDatabaseStatementOdbc::CDatabaseStatementOdbc( DatabaseConnectionOdbcPtr connection, const String & query )
+	CDatabaseStatementOdbc::CDatabaseStatementOdbc( DatabaseConnectionOdbcSPtr connection, const String & query )
 		:   CDatabaseStatement( connection, query )
 		,   _statementHandle( SQL_NULL_HSTMT )
 		,   _connectionOdbc( connection )
@@ -55,9 +56,16 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		Cleanup();
 	}
 
-	DatabaseParameterPtr CDatabaseStatementOdbc::CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType )
+	DatabaseParameterSPtr CDatabaseStatementOdbc::CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType )
 	{
-		DatabaseParameterPtr pReturn = std::make_shared< CDatabaseStatementParameterOdbc >( std::static_pointer_cast< CDatabaseConnectionOdbc >( _connectionOdbc ), name, ( unsigned short )_arrayParams.size() + 1, fieldType, parameterType, std::make_unique< SValueUpdater >( this ) );
+		DatabaseConnectionOdbcSPtr connection = DoGetConnectionOdbc();
+
+		if ( !connection )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_ODBC_LOST_CONNECTION );
+		}
+
+		DatabaseParameterSPtr pReturn = std::make_shared< CDatabaseStatementParameterOdbc >( connection, name, ( unsigned short )_arrayParams.size() + 1, fieldType, parameterType, std::make_unique< SValueUpdater >( this ) );
 
 		if ( !DoAddParameter( pReturn ) )
 		{
@@ -67,9 +75,16 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		return pReturn;
 	}
 
-	DatabaseParameterPtr CDatabaseStatementOdbc::CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType )
+	DatabaseParameterSPtr CDatabaseStatementOdbc::CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType )
 	{
-		DatabaseParameterPtr pReturn = std::make_shared< CDatabaseStatementParameterOdbc >( std::static_pointer_cast< CDatabaseConnectionOdbc >( _connectionOdbc ), name, ( unsigned short )_arrayParams.size() + 1, fieldType, limits, parameterType, std::make_unique< SValueUpdater >( this ) );
+		DatabaseConnectionOdbcSPtr connection = DoGetConnectionOdbc();
+
+		if ( !connection )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_ODBC_LOST_CONNECTION );
+		}
+
+		DatabaseParameterSPtr pReturn = std::make_shared< CDatabaseStatementParameterOdbc >( connection, name, ( unsigned short )_arrayParams.size() + 1, fieldType, limits, parameterType, std::make_unique< SValueUpdater >( this ) );
 
 		if ( !DoAddParameter( pReturn ) )
 		{
@@ -79,9 +94,16 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		return pReturn;
 	}
 
-	DatabaseParameterPtr CDatabaseStatementOdbc::CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType )
+	DatabaseParameterSPtr CDatabaseStatementOdbc::CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType )
 	{
-		DatabaseParameterPtr pReturn = std::make_shared< CDatabaseStatementParameterOdbc >( std::static_pointer_cast< CDatabaseConnectionOdbc >( _connectionOdbc ), name, ( unsigned short )_arrayParams.size() + 1, fieldType, precision, parameterType, std::make_unique< SValueUpdater >( this ) );
+		DatabaseConnectionOdbcSPtr connection = DoGetConnectionOdbc();
+
+		if ( !connection )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_ODBC_LOST_CONNECTION );
+		}
+
+		DatabaseParameterSPtr pReturn = std::make_shared< CDatabaseStatementParameterOdbc >( connection, name, ( unsigned short )_arrayParams.size() + 1, fieldType, precision, parameterType, std::make_unique< SValueUpdater >( this ) );
 
 		if ( !DoAddParameter( pReturn ) )
 		{
@@ -93,8 +115,15 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 	EErrorType CDatabaseStatementOdbc::DoInitialize()
 	{
+		DatabaseConnectionOdbcSPtr connection = DoGetConnectionOdbc();
+
+		if ( !connection )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_ODBC_LOST_CONNECTION );
+		}
+
 		EErrorType errorType;
-		HDBC hParentStmt = _connectionOdbc->GetHdbc();
+		HDBC hParentStmt = connection->GetHdbc();
 		CLogger::LogInfo( INFO_ODBC_PREPARING_STATEMENT + _query );
 
 		errorType = SqlSuccess( SQLAllocHandle( SQL_HANDLE_STMT, hParentStmt, &_statementHandle ), SQL_HANDLE_STMT, hParentStmt, INFO_ODBC_AllocHandle );
@@ -129,7 +158,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 	bool CDatabaseStatementOdbc::DoExecuteUpdate( EErrorType * result )
 	{
-		DatabaseResultPtr rs;
+		DatabaseResultSPtr rs;
 		EErrorType error = DoExecute( rs );
 
 		if ( result )
@@ -140,9 +169,9 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		return error == EErrorType_NONE;
 	}
 
-	DatabaseResultPtr CDatabaseStatementOdbc::DoExecuteSelect( EErrorType * result )
+	DatabaseResultSPtr CDatabaseStatementOdbc::DoExecuteSelect( EErrorType * result )
 	{
-		DatabaseResultPtr rs;
+		DatabaseResultSPtr rs;
 		EErrorType error = DoExecute( rs );
 
 		if ( result )
@@ -173,7 +202,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			if ( retCode == SQL_NEED_DATA )
 			{
 				SQLPOINTER pAddress;
-				std::map< void *, DatabaseParameterPtr >::iterator it;
+				std::map< const void *, CDatabaseParameter const * >::iterator it;
 
 				while ( ( retCode = SQLParamData( _statementHandle, &pAddress ) == SQL_NEED_DATA ) && eResult == EErrorType_NONE )
 				{
@@ -181,7 +210,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 					if ( it != _mapParamsByPointer.end() )
 					{
-						eResult = std::static_pointer_cast< CDatabaseStatementParameterOdbc >( it->second )->GetBinding().PutData();
+						eResult = static_cast< CDatabaseStatementParameterOdbc const * >( it->second )->GetBinding().PutData();
 					}
 					else
 					{
@@ -196,14 +225,21 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		return eResult;
 	}
 
-	EErrorType CDatabaseStatementOdbc::DoExecute( DatabaseResultPtr & result )
+	EErrorType CDatabaseStatementOdbc::DoExecute( DatabaseResultSPtr & result )
 	{
-		DatabaseResultPtr pReturn;
+		DatabaseConnectionOdbcSPtr connection = DoGetConnectionOdbc();
+
+		if ( !connection )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_ODBC_LOST_CONNECTION );
+		}
+
+		DatabaseResultSPtr pReturn;
 		EErrorType eResult = DoPreExecute();
 
 		if ( eResult == EErrorType_NONE )
 		{
-			eResult = SqlExecute( _connection, _statementHandle, std::bind( &CDatabaseStatementOdbc::OnResultSetFullyFetched, this, std::placeholders::_1, std::placeholders::_2 ), result );
+			eResult = SqlExecute( connection, _statementHandle, std::bind( &CDatabaseStatementOdbc::OnResultSetFullyFetched, this, std::placeholders::_1, std::placeholders::_2 ), result );
 		}
 
 		return eResult;
@@ -220,7 +256,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			EErrorType eResult = EErrorType_NONE;
 			SQLPOINTER pAddress = NULL;
 			SQLRETURN retCode = 0;
-			std::map< void *, DatabaseParameterPtr >::iterator it;
+			std::map< const void *, CDatabaseParameter const * >::iterator it;
 
 			while ( ( retCode = SQLParamData( _statementHandle, &pAddress ) == SQL_PARAM_DATA_AVAILABLE ) && eResult == EErrorType_NONE )
 			{
@@ -228,7 +264,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 				if ( it != _mapParamsByPointer.end() )
 				{
-					eResult = std::static_pointer_cast< CDatabaseStatementParameterOdbc >( it->second )->GetBinding().GetData();
+					eResult = static_cast< CDatabaseStatementParameterOdbc const * >( it->second )->GetBinding().GetData();
 				}
 				else
 				{

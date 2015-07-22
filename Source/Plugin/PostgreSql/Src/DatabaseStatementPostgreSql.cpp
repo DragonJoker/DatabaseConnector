@@ -32,8 +32,8 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 {
 	static const String ERROR_POSTGRESQL_MISSING_INITIALIZATION = STR( "Method Initialize must be called before calling method CreateParameter" );
 	static const String ERROR_POSTGRESQL_CANT_CREATE_STATEMENT = STR( "Couldn't create the statement" );
-	static const String ERROR_POSTGRESQL_EXECUTION_ERROR = STR( "Couldn't execute the statement : " );
-	static const String ERROR_POSTGRESQL_QUERY_INCONSISTENCY_ERROR = STR( "Number of parameters doesn't match the sizes of parameter containers." );
+	static const String ERROR_POSTGRESQL_LOST_CONNECTION = STR( "The statement has lost his connection" );
+
 	static const String INFO_POSTGRESQL_PREPARING_STATEMENT = STR( "Preparing statement for query: " );
 	static const String INFO_POSTGRESQL_BIND_PARAMETER_NAME = STR( "BindParameter : " );
 	static const String INFO_POSTGRESQL_BIND_PARAMETER_VALUE = STR( ", Value : " );
@@ -50,7 +50,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 	static const String POSTGRESQL_SQL_AS = STR( " AS " );
 	static const String POSTGRESQL_SQL_COMMA = STR( "," );
 
-	CDatabaseStatementPostgreSql::CDatabaseStatementPostgreSql( DatabaseConnectionPostgreSqlPtr connection, const String & query )
+	CDatabaseStatementPostgreSql::CDatabaseStatementPostgreSql( DatabaseConnectionPostgreSqlSPtr connection, const String & query )
 		: CDatabaseStatement( connection, query )
 		, _statement( boost::uuids::to_string( boost::uuids::random_generator()() ) )
 		, _connectionPostgreSql( connection )
@@ -63,9 +63,16 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		Cleanup();
 	}
 
-	DatabaseParameterPtr CDatabaseStatementPostgreSql::CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType )
+	DatabaseParameterSPtr CDatabaseStatementPostgreSql::CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType )
 	{
-		DatabaseParameterPostgreSqlPtr pReturn = std::make_shared< CDatabaseParameterPostgreSql >( _connectionPostgreSql, name, uint16_t( _arrayParams.size() + 1 ), fieldType, parameterType, std::make_unique< SValueUpdater >( this ) );
+		DatabaseConnectionPostgreSqlSPtr connection = DoGetPostgreSqlConnection();
+
+		if ( !connection )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_POSTGRESQL_LOST_CONNECTION );
+		}
+
+		DatabaseParameterPostgreSqlSPtr pReturn = std::make_shared< CDatabaseParameterPostgreSql >( connection, name, uint16_t( _arrayParams.size() + 1 ), fieldType, parameterType, std::make_unique< SValueUpdater >( this ) );
 
 		if ( !DoAddParameter( pReturn ) )
 		{
@@ -75,9 +82,16 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		return pReturn;
 	}
 
-	DatabaseParameterPtr CDatabaseStatementPostgreSql::CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType )
+	DatabaseParameterSPtr CDatabaseStatementPostgreSql::CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType )
 	{
-		DatabaseParameterPostgreSqlPtr pReturn = std::make_shared< CDatabaseParameterPostgreSql >( _connectionPostgreSql, name, uint16_t( _arrayParams.size() + 1 ), fieldType, limits, parameterType, std::make_unique< SValueUpdater >( this ) );
+		DatabaseConnectionPostgreSqlSPtr connection = DoGetPostgreSqlConnection();
+
+		if ( !connection )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_POSTGRESQL_LOST_CONNECTION );
+		}
+
+		DatabaseParameterPostgreSqlSPtr pReturn = std::make_shared< CDatabaseParameterPostgreSql >( connection, name, uint16_t( _arrayParams.size() + 1 ), fieldType, limits, parameterType, std::make_unique< SValueUpdater >( this ) );
 
 		if ( !DoAddParameter( pReturn ) )
 		{
@@ -87,9 +101,16 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		return pReturn;
 	}
 
-	DatabaseParameterPtr CDatabaseStatementPostgreSql::CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType )
+	DatabaseParameterSPtr CDatabaseStatementPostgreSql::CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType )
 	{
-		DatabaseParameterPostgreSqlPtr pReturn = std::make_shared< CDatabaseParameterPostgreSql >( _connectionPostgreSql, name, uint16_t( _arrayParams.size() + 1 ), fieldType, precision, parameterType, std::make_unique< SValueUpdater >( this ) );
+		DatabaseConnectionPostgreSqlSPtr connection = DoGetPostgreSqlConnection();
+
+		if ( !connection )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_POSTGRESQL_LOST_CONNECTION );
+		}
+
+		DatabaseParameterPostgreSqlSPtr pReturn = std::make_shared< CDatabaseParameterPostgreSql >( connection, name, uint16_t( _arrayParams.size() + 1 ), fieldType, precision, parameterType, std::make_unique< SValueUpdater >( this ) );
 
 		if ( !DoAddParameter( pReturn ) )
 		{
@@ -101,6 +122,13 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 
 	EErrorType CDatabaseStatementPostgreSql::DoInitialize()
 	{
+		DatabaseConnectionPostgreSqlSPtr connection = DoGetPostgreSqlConnection();
+
+		if ( !connection )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_POSTGRESQL_LOST_CONNECTION );
+		}
+
 		EErrorType eReturn = EErrorType_ERROR;
 
 		if ( !_query.empty() )
@@ -118,7 +146,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		auto && itParams = _arrayParams.begin();
 
 		_arrayOutParams.clear();
-		std::vector< DatabaseParameterPostgreSqlPtr > arrayParams;
+		std::vector< DatabaseParameterPostgreSqlSPtr > arrayParams;
 
 		arrayParams.reserve( _arrayParams.size() );
 		_arrayOutParams.reserve( _arrayParams.size() );
@@ -132,7 +160,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		while ( itQueries != _arrayQueries.end() && itParams != _arrayParams.end() )
 		{
 			query << ( *itQueries );
-			DatabaseParameterPostgreSqlPtr parameter = std::static_pointer_cast< CDatabaseParameterPostgreSql >( *itParams );
+			DatabaseParameterPostgreSqlSPtr parameter = std::static_pointer_cast< CDatabaseParameterPostgreSql >( *itParams );
 			arrayParams.push_back( parameter );
 			PGbind bind = { _arrayValues[i], _arrayLengths[i], _arrayFormats[i] };
 			_bindings.push_back( bind );
@@ -158,12 +186,12 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		_query = query.str();
 
 		std::string strQuery = CStrUtils::ToStr( _query );
-		PGresult * result = PQprepare( _connectionPostgreSql->GetConnection(), _statement.c_str(), strQuery.c_str(), int( _arrayParams.size() ), _arrayOids.data() );
-		PostgreSQLCheck( result, INFO_POSTGRESQL_STATEMENT_PREPARATION, EDatabaseExceptionCodes_StatementError, _connectionPostgreSql->GetConnection() );
+		PGresult * result = PQprepare( connection->GetConnection(), _statement.c_str(), strQuery.c_str(), int( _arrayParams.size() ), _arrayOids.data() );
+		PostgreSQLCheck( result, INFO_POSTGRESQL_STATEMENT_PREPARATION, EDatabaseExceptionCodes_StatementError, connection->GetConnection() );
 		PQclear( result );
 
-		result = PQdescribePrepared( _connectionPostgreSql->GetConnection(), _statement.c_str() );
-		PostgreSQLCheck( result, INFO_POSTGRESQL_STATEMENT_DESCRIBE, EDatabaseExceptionCodes_StatementError, _connectionPostgreSql->GetConnection() );
+		result = PQdescribePrepared( connection->GetConnection(), _statement.c_str() );
+		PostgreSQLCheck( result, INFO_POSTGRESQL_STATEMENT_DESCRIBE, EDatabaseExceptionCodes_StatementError, connection->GetConnection() );
 		int count = PQnparams ( result );
 		index = 0;
 
@@ -179,9 +207,16 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 
 	bool CDatabaseStatementPostgreSql::DoExecuteUpdate( EErrorType * result )
 	{
+		DatabaseConnectionPostgreSqlSPtr connection = DoGetPostgreSqlConnection();
+
+		if ( !connection )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_POSTGRESQL_LOST_CONNECTION );
+		}
+
 		EErrorType eResult = EErrorType_NONE;
-		PGresult * pgresult = PQexecPrepared( _connectionPostgreSql->GetConnection(), _statement.c_str(), int( _arrayParams.size() ), _arrayValues.data(), _arrayLengths.data(), _arrayFormats.data(), 0 );
-		PostgreSQLCheck( pgresult, INFO_POSTGRESQL_STATEMENT_EXECUTION, EDatabaseExceptionCodes_StatementError, _connectionPostgreSql->GetConnection() );
+		PGresult * pgresult = PQexecPrepared( connection->GetConnection(), _statement.c_str(), int( _arrayParams.size() ), _arrayValues.data(), _arrayLengths.data(), _arrayFormats.data(), 0 );
+		PostgreSQLCheck( pgresult, INFO_POSTGRESQL_STATEMENT_EXECUTION, EDatabaseExceptionCodes_StatementError, connection->GetConnection() );
 
 		if ( result )
 		{
@@ -191,15 +226,22 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		return true;
 	}
 
-	DatabaseResultPtr CDatabaseStatementPostgreSql::DoExecuteSelect( EErrorType * result )
+	DatabaseResultSPtr CDatabaseStatementPostgreSql::DoExecuteSelect( EErrorType * result )
 	{
-		DatabaseResultPtr pReturn;
+		DatabaseConnectionPostgreSqlSPtr connection = DoGetPostgreSqlConnection();
+
+		if ( !connection )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_POSTGRESQL_LOST_CONNECTION );
+		}
+
+		DatabaseResultSPtr pReturn;
 		EErrorType eResult = EErrorType_NONE;
-		PGresult * pgresult = PQexecPrepared( _connectionPostgreSql->GetConnection(), _statement.c_str(), int( _arrayParams.size() ), _arrayValues.data(), _arrayLengths.data(), _arrayFormats.data(), 0 );
-		PostgreSQLCheck( pgresult, INFO_POSTGRESQL_STATEMENT_EXECUTION, EDatabaseExceptionCodes_StatementError, _connectionPostgreSql->GetConnection() );
+		PGresult * pgresult = PQexecPrepared( connection->GetConnection(), _statement.c_str(), int( _arrayParams.size() ), _arrayValues.data(), _arrayLengths.data(), _arrayFormats.data(), 0 );
+		PostgreSQLCheck( pgresult, INFO_POSTGRESQL_STATEMENT_EXECUTION, EDatabaseExceptionCodes_StatementError, connection->GetConnection() );
 
 		std::vector< std::unique_ptr< SInPostgreSqlBindBase > > binds;
-		pReturn = PostgreSqlFetchResult( pgresult, PostgreSqlGetColumns( pgresult, _connectionPostgreSql, binds ), _connectionPostgreSql, binds );
+		pReturn = PostgreSqlFetchResult( pgresult, PostgreSqlGetColumns( pgresult, binds ), connection, binds );
 
 		if ( result )
 		{

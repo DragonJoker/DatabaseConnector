@@ -91,5 +91,10 @@ BEGIN_NAMESPACE_DATABASE
 			value = val;
 		}
 	}
+
+	inline DatabaseFieldInfosSPtr CDatabaseField::DoGetInfos()const
+	{
+		return _infos.lock();
+	}
 }
 END_NAMESPACE_DATABASE

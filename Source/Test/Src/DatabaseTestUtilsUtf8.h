@@ -81,7 +81,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_VARBINARY >::InitialiseValue() );
 		}
 
-		inline void DisplayValues( uint32_t & index, DatabaseRowPtr row )
+		inline void DisplayValues( uint32_t & index, DatabaseRowSPtr row )
 		{
 			CLogger::LogInfo( StringStream() << STR( "IntField : " ) << row->Get< int32_t >( index++ ) );
 			CLogger::LogInfo( StringStream() << STR( "IntegerField : " ) << row->Get< int32_t >( index++ ) );
@@ -109,7 +109,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< typename StmtType >
-		void PerfDirectInsertActors( DatabaseConnectionPtr connection, uint32_t testCount )
+		void PerfDirectInsertActors( DatabaseConnectionSPtr connection, uint32_t testCount )
 		{
 			try
 			{
@@ -120,7 +120,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				if ( stmtGetCount )
 				{
 					stmtGetCount->Initialize();
-					DatabaseResultPtr result = stmtGetCount->ExecuteSelect();
+					DatabaseResultSPtr result = stmtGetCount->ExecuteSelect();
 
 					if ( result && result->GetRowCount() )
 					{
@@ -159,7 +159,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< typename StmtType >
-		void PerfStoredProcedureInsertActors( DatabaseConnectionPtr connection, uint32_t testCount )
+		void PerfStoredProcedureInsertActors( DatabaseConnectionSPtr connection, uint32_t testCount )
 		{
 			try
 			{
@@ -170,7 +170,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				if ( stmtGetCount )
 				{
 					stmtGetCount->Initialize();
-					DatabaseResultPtr result = stmtGetCount->ExecuteSelect();
+					DatabaseResultSPtr result = stmtGetCount->ExecuteSelect();
 
 					if ( result && result->GetRowCount() )
 					{

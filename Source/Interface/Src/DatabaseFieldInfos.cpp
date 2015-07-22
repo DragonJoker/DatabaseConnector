@@ -48,20 +48,18 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	}
 
-	CDatabaseFieldInfos::CDatabaseFieldInfos( DatabaseConnectionPtr connection, const String & name, EFieldType type, uint32_t limprec )
+	CDatabaseFieldInfos::CDatabaseFieldInfos( const String & name, EFieldType type, uint32_t limprec )
 		: _name( name )
 		, _type( type )
 		, _precision( std::make_pair( limprec, 0 ) )
-		, _connection( connection )
 	{
 		// Empty
 	}
 
-	CDatabaseFieldInfos::CDatabaseFieldInfos( DatabaseConnectionPtr connection, const String & name, EFieldType type, std::pair< uint32_t, uint32_t > precision )
+	CDatabaseFieldInfos::CDatabaseFieldInfos( const String & name, EFieldType type, std::pair< uint32_t, uint32_t > precision )
 		: _name( name )
 		, _type( type )
 		, _precision( precision )
-		, _connection( connection )
 	{
 		// Empty
 	}
@@ -94,11 +92,6 @@ BEGIN_NAMESPACE_DATABASE
 	const std::pair< uint32_t, uint32_t > & CDatabaseFieldInfos::GetPrecision() const
 	{
 		return _precision;
-	}
-
-	DatabaseConnectionPtr CDatabaseFieldInfos::GetConnection() const
-	{
-		return _connection;
 	}
 }
 END_NAMESPACE_DATABASE

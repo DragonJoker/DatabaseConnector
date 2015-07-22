@@ -769,7 +769,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			return ret;
 		}
 
-		void SetFieldValue( DatabaseFieldInfosPtr infos, DatabaseFieldPtr field, SInPostgreSqlBindBase const & bind, int row )
+		void SetFieldValue( DatabaseFieldInfosSPtr infos, DatabaseFieldSPtr field, SInPostgreSqlBindBase const & bind, int row )
 		{
 			if ( !bind.IsNull( row ) )
 			{
@@ -888,7 +888,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 
 	//************************************************************************************************
 
-	DatabaseFieldInfosPtrArray PostgreSqlGetColumns( PGresult * result, DatabaseConnectionPostgreSqlPtr connection, std::vector< std::unique_ptr< SInPostgreSqlBindBase > > & binds )
+	DatabaseFieldInfosPtrArray PostgreSqlGetColumns( PGresult * result, std::vector< std::unique_ptr< SInPostgreSqlBindBase > > & binds )
 	{
 		DatabaseFieldInfosPtrArray arrayReturn;
 		int columnCount = PQnfields( result );
@@ -901,7 +901,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			Oid oid = PQftype( result, index );
 			int size = PQfsize( result, index );
 			EFieldType type = GetFieldTypeFromOid( oid );
-			arrayReturn.push_back( std::make_shared< CDatabaseFieldInfos >( connection, CStrUtils::ToString( name ), type, size ) );
+			arrayReturn.push_back( std::make_shared< CDatabaseFieldInfos >( CStrUtils::ToString( name ), type, size ) );
 			bind = std::move( GetInBind( type, index, result ) );
 			++index;
 		}
@@ -909,24 +909,24 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		return arrayReturn;
 	}
 
-	DatabaseResultPtr PostgreSqlFetchResult( PGresult * result, DatabaseFieldInfosPtrArray const & columns, DatabaseConnectionPostgreSqlPtr connection, std::vector< std::unique_ptr< SInPostgreSqlBindBase > > const & binds )
+	DatabaseResultSPtr PostgreSqlFetchResult( PGresult * result, DatabaseFieldInfosPtrArray const & columns, DatabaseConnectionPostgreSqlSPtr connection, std::vector< std::unique_ptr< SInPostgreSqlBindBase > > const & binds )
 	{
-		DatabaseResultPtr pReturn;
+		DatabaseResultSPtr pReturn;
 
 		try
 		{
-			pReturn = std::make_unique< CDatabaseResult >( connection, columns );
+			pReturn = std::make_unique< CDatabaseResult >( columns );
 			int iNbColumns = int( columns.size() );
 			int rowCount = PQntuples( result );
 
 			for ( int i = 0; i < rowCount; ++i )
 			{
-				DatabaseRowPtr pRow = std::make_shared< CDatabaseRow >( connection );
+				DatabaseRowSPtr pRow = std::make_shared< CDatabaseRow >();
 				int index = 0;
 
 				for ( auto && bind : binds )
 				{
-					DatabaseFieldInfosPtr infos;
+					DatabaseFieldInfosSPtr infos;
 
 					try
 					{
@@ -937,7 +937,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 						throw;
 					}
 
-					DatabaseFieldPtr field = std::make_shared< CDatabaseField >( infos );
+					DatabaseFieldSPtr field = std::make_shared< CDatabaseField >( connection, infos );
 					SetFieldValue( infos, field, *bind, i );
 					pRow->AddField( field );
 				}

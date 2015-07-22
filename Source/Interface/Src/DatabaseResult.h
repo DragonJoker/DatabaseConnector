@@ -26,18 +26,14 @@ BEGIN_NAMESPACE_DATABASE
 	{
 	public:
 		/** Constructor.
-		@param[in] connection
-			Database connection.
 		*/
-		DatabaseExport CDatabaseResult( DatabaseConnectionPtr connection );
+		DatabaseExport CDatabaseResult();
 
 		/** Constructor.
-		@param[in] connection
-			Database connection.
 		@param[in] arrayFieldInfos
 			Array of field informations for the future results.
 		*/
-		DatabaseExport CDatabaseResult( DatabaseConnectionPtr connection, const DatabaseFieldInfosPtrArray & arrayFieldInfos );
+		DatabaseExport CDatabaseResult( const DatabaseFieldInfosPtrArray & arrayFieldInfos );
 
 		/** Destructor.
 			*/
@@ -53,13 +49,13 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Field informations.
 		*/
-		DatabaseExport DatabaseFieldInfosPtr GetFieldInfos( uint32_t index ) const;
+		DatabaseExport DatabaseFieldInfosSPtr GetFieldInfos( uint32_t index ) const;
 
 		/** Add a new row (result) to the result set.
 		@param[in] row
 			New row (result).
 			*/
-		DatabaseExport virtual void AddRow( DatabaseRowPtr row );
+		DatabaseExport virtual void AddRow( DatabaseRowSPtr row );
 
 		/** Get number of rows (results).
 		@return
@@ -71,13 +67,13 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			First row or NULL if no rows (another request than SELECT).
 		*/
-		DatabaseExport virtual DatabaseRowPtr GetFirstRow();
+		DatabaseExport virtual DatabaseRowSPtr GetFirstRow();
 
 		/** Get next row (result).
 		@return
 			Next row or NULL if no more rows (results).
 		*/
-		DatabaseExport virtual DatabaseRowPtr GetNextRow();
+		DatabaseExport virtual DatabaseRowSPtr GetNextRow();
 
 	protected:
 		//! List of resulting rows.
@@ -88,8 +84,6 @@ BEGIN_NAMESPACE_DATABASE
 		uint32_t _rowCount;
 		//! Current row iterator.
 		DatabaseRowPtrList::iterator _iterator;
-		//! Database connection.
-		DatabaseConnectionPtr _connection;
 	};
 }
 END_NAMESPACE_DATABASE

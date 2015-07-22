@@ -26,19 +26,19 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 {
 	static const String ERROR_MYSQL_PARAMETER_TYPE = STR( "Undefined parameter type when trying to set its binding." );
 
-	CDatabaseParameterMySql::CDatabaseParameterMySql( DatabaseConnectionMySqlPtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
+	CDatabaseParameterMySql::CDatabaseParameterMySql( DatabaseConnectionMySqlSPtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
 		: CDatabaseParameter( connection, name, index, fieldType, parameterType, std::move( updater ) )
 		, _statement( NULL )
 	{
 	}
 
-	CDatabaseParameterMySql::CDatabaseParameterMySql( DatabaseConnectionMySqlPtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
+	CDatabaseParameterMySql::CDatabaseParameterMySql( DatabaseConnectionMySqlSPtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
 		: CDatabaseParameter( connection, name, index, fieldType, limits, parameterType, std::move( updater ) )
 		, _statement( NULL )
 	{
 	}
 
-	CDatabaseParameterMySql::CDatabaseParameterMySql( DatabaseConnectionMySqlPtr connection, const String & name, unsigned short index, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
+	CDatabaseParameterMySql::CDatabaseParameterMySql( DatabaseConnectionMySqlSPtr connection, const String & name, unsigned short index, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
 		: CDatabaseParameter( connection, name, index, fieldType, precision, parameterType, std::move( updater ) )
 		, _statement( NULL )
 	{

@@ -21,6 +21,11 @@ BEGIN_NAMESPACE_DATABASE
 	//! The minimal date, time and date/time size. Needed because ODBC writes at least 16 bytes of data if the parameter is out or in/out
 	static const size_t MIN_DATE_TIME_SIZE = 16;
 
+	DatabaseConnectionSPtr CDatabaseValueBase::DoGetConnection()
+	{
+	return _connection.lock();
+	}
+
 	/** Describes a value, used in fields and parameters.
 	*/
 	template< EFieldType FieldType, typename ValuePolicy >
@@ -34,7 +39,7 @@ BEGIN_NAMESPACE_DATABASE
 	public:
 		/** Default constructor.
 		*/
-		CDatabaseValue( DatabaseConnectionPtr connection )
+		CDatabaseValue( DatabaseConnectionSPtr connection )
 			: CDatabaseValueBase( connection )
 			, _tValue( value_type() )
 		{
@@ -64,7 +69,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline void SetValue( const value_type & tValue )
 		{
-			SetNull( !ValuePolicy::Set( tValue, _tValue, _valueSize, _connection ) );
+			SetNull( !ValuePolicy::Set( tValue, _tValue, _valueSize, *DoGetConnection() ) );
 		}
 
 		/** Get the value.
@@ -73,7 +78,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline String GetQueryValue()
 		{
-			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), _connection );
+			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), *DoGetConnection() );
 		}
 
 		/** Get a pointer to the value.
@@ -137,7 +142,7 @@ BEGIN_NAMESPACE_DATABASE
 	public:
 		/** Default constructor.
 		*/
-		CDatabaseValue( DatabaseConnectionPtr connection )
+		CDatabaseValue( DatabaseConnectionSPtr connection )
 			: CDatabaseValueBase( connection )
 			, _tValue( value_type() )
 		{
@@ -171,7 +176,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline void SetValue( const value_type & tValue )
 		{
-			SetNull( !ValuePolicy::Set( tValue, _tValue, _valueSize, _connection ) );
+			SetNull( !ValuePolicy::Set( tValue, _tValue, _valueSize, *DoGetConnection() ) );
 		}
 
 		/** Set value.
@@ -211,7 +216,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline String GetQueryValue()
 		{
-			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), _connection );
+			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), *DoGetConnection() );
 		}
 
 		/** Get a pointer to the value.
@@ -275,7 +280,7 @@ BEGIN_NAMESPACE_DATABASE
 	public:
 		/** Default constructor.
 		*/
-		CDatabaseValue( DatabaseConnectionPtr connection )
+		CDatabaseValue( DatabaseConnectionSPtr connection )
 			: CDatabaseValueBase( connection )
 			, _tValue( value_type() )
 		{
@@ -308,7 +313,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline void SetValue( const value_type & tValue )
 		{
-			SetNull( !ValuePolicy::Set( tValue, _tValue, _valueSize, _connection ) );
+			SetNull( !ValuePolicy::Set( tValue, _tValue, _valueSize, *DoGetConnection() ) );
 		}
 
 		/** Set value.
@@ -335,7 +340,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline String GetQueryValue()
 		{
-			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), _connection );
+			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), *DoGetConnection() );
 		}
 
 		/** Get a pointer to the value.
@@ -399,7 +404,7 @@ BEGIN_NAMESPACE_DATABASE
 	public:
 		/** Default constructor.
 		*/
-		CDatabaseValue( DatabaseConnectionPtr connection )
+		CDatabaseValue( DatabaseConnectionSPtr connection )
 			: CDatabaseValueBase( connection )
 			, _tValue( value_type() )
 		{
@@ -432,7 +437,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline void SetValue( const value_type & tValue )
 		{
-			SetNull( !ValuePolicy::Set( tValue, _tValue, _valueSize, _connection ) );
+			SetNull( !ValuePolicy::Set( tValue, _tValue, _valueSize, *DoGetConnection() ) );
 		}
 
 		/** Set value.
@@ -459,7 +464,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline String GetQueryValue()
 		{
-			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), _connection );
+			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), *DoGetConnection() );
 		}
 
 		/** Get a pointer to the value.
@@ -523,7 +528,7 @@ BEGIN_NAMESPACE_DATABASE
 	public:
 		/** Default constructor.
 		*/
-		CDatabaseValue( DatabaseConnectionPtr connection )
+		CDatabaseValue( DatabaseConnectionSPtr connection )
 			: CDatabaseValueBase( connection )
 			, _tValue( value_type() )
 		{
@@ -557,7 +562,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline void SetValue( const value_type & tValue )
 		{
-			SetNull( !ValuePolicy::Set( tValue, _tValue, _valueSize, _connection ) );
+			SetNull( !ValuePolicy::Set( tValue, _tValue, _valueSize, *DoGetConnection() ) );
 		}
 
 		/** Set value.
@@ -597,7 +602,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline String GetQueryValue()
 		{
-			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), _connection );
+			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), *DoGetConnection() );
 		}
 
 		/** Get a pointer to the value.
@@ -661,7 +666,7 @@ BEGIN_NAMESPACE_DATABASE
 	public:
 		/** Default constructor.
 		*/
-		CDatabaseValue( DatabaseConnectionPtr connection )
+		CDatabaseValue( DatabaseConnectionSPtr connection )
 			: CDatabaseValueBase( connection )
 			, _tValue( value_type() )
 		{
@@ -694,7 +699,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline void SetValue( const value_type & tValue )
 		{
-			SetNull( !ValuePolicy::Set( tValue, _tValue, _valueSize, _connection ) );
+			SetNull( !ValuePolicy::Set( tValue, _tValue, _valueSize, *DoGetConnection() ) );
 		}
 
 		/** Set value.
@@ -721,7 +726,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline String GetQueryValue()
 		{
-			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), _connection );
+			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), *DoGetConnection() );
 		}
 
 		/** Get a pointer to the value.
@@ -785,7 +790,7 @@ BEGIN_NAMESPACE_DATABASE
 	public:
 		/** Default constructor.
 		*/
-		CDatabaseValue( DatabaseConnectionPtr connection )
+		CDatabaseValue( DatabaseConnectionSPtr connection )
 			: CDatabaseValueBase( connection )
 			, _tValue( value_type() )
 		{
@@ -818,7 +823,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline void SetValue( const value_type & tValue )
 		{
-			SetNull( !ValuePolicy::Set( tValue, _tValue, _valueSize, _connection ) );
+			SetNull( !ValuePolicy::Set( tValue, _tValue, _valueSize, *DoGetConnection() ) );
 		}
 
 		/** Set value.
@@ -845,7 +850,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline String GetQueryValue()
 		{
-			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), _connection );
+			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), *DoGetConnection() );
 		}
 
 		/** Get a pointer to the value.
@@ -909,7 +914,7 @@ BEGIN_NAMESPACE_DATABASE
 	public:
 		/** Default constructor.
 		*/
-		CDatabaseValue( DatabaseConnectionPtr connection )
+		CDatabaseValue( DatabaseConnectionSPtr connection )
 			: CDatabaseValueBase( connection )
 			, _tValue( value_type() )
 		{
@@ -942,7 +947,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline void SetValue( const value_type & tValue )
 		{
-			SetNull( !ValuePolicy::Set( tValue, _tValue, _valueSize, _connection ) );
+			SetNull( !ValuePolicy::Set( tValue, _tValue, _valueSize, *DoGetConnection() ) );
 		}
 
 		/** Set value.
@@ -969,7 +974,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline String GetQueryValue()
 		{
-			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), _connection );
+			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), *DoGetConnection() );
 		}
 
 		/** Get a pointer to the value.
@@ -1033,7 +1038,7 @@ BEGIN_NAMESPACE_DATABASE
 	public:
 		/** Default constructor.
 		*/
-		CDatabaseValue( DatabaseConnectionPtr connection )
+		CDatabaseValue( DatabaseConnectionSPtr connection )
 			: CDatabaseValueBase( connection )
 			, _tValue( value_type() )
 		{
@@ -1066,7 +1071,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline void SetValue( const value_type & tValue )
 		{
-			SetNull( !ValuePolicy::Set( tValue, _tValue, _valueSize, _connection ) );
+			SetNull( !ValuePolicy::Set( tValue, _tValue, _valueSize, *DoGetConnection() ) );
 		}
 
 		/** Set value.
@@ -1093,7 +1098,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline String GetQueryValue()
 		{
-			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), _connection );
+			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), *DoGetConnection() );
 		}
 
 		/** Get a pointer to the value.
@@ -1157,7 +1162,7 @@ BEGIN_NAMESPACE_DATABASE
 	public:
 		/** Default constructor.
 		*/
-		CDatabaseValue( DatabaseConnectionPtr connection )
+		CDatabaseValue( DatabaseConnectionSPtr connection )
 			: CDatabaseValueBase( connection )
 			, _tValue( value_type( 0 ) )
 		{
@@ -1190,7 +1195,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline void SetValue( const value_type & tValue )
 		{
-			SetNull( !ValuePolicy::Set( tValue, _tValue, _valueSize, _connection ) );
+			SetNull( !ValuePolicy::Set( tValue, _tValue, _valueSize, *DoGetConnection() ) );
 		}
 
 		/** Set value.
@@ -1217,7 +1222,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline String GetQueryValue()
 		{
-			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), _connection );
+			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), *DoGetConnection() );
 		}
 
 		/** Get a pointer to the value.

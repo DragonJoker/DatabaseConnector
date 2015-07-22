@@ -16,20 +16,6 @@
 
 #include <DatabaseOdbcPrerequisites.h>
 
-#if defined( _WIN32 ) && !defined ( __MINGW32__ ) && !defined ( STATIC_LIB )
-#	ifdef DatabasePluginOdbcMsSql_EXPORTS
-#	    define DatabaseOdbcMsSqlExport __declspec ( dllexport )
-#	else
-#		if defined ( __MINGW32__ )
-#			define DatabaseOdbcMsSqlExport
-#		else
-#			define DatabaseOdbcMsSqlExport __declspec ( dllimport )
-#		endif
-#	endif
-#else
-#    define DatabaseOdbcMsSqlExport
-#endif
-
 #define BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL BEGIN_NAMESPACE_DATABASE_ODBC { namespace MsSql
 #define NAMESPACE_DATABASE_ODBC_MSSQL NAMESPACE_DATABASE_ODBC::MsSql
 #define END_NAMESPACE_DATABASE_ODBC_MSSQL } END_NAMESPACE_DATABASE_ODBC
@@ -45,9 +31,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		class CDatabaseConnectionOdbcMsSql;
 		class CPluginDatabaseOdbcMsSql;
 		class CFactoryDatabaseOdbcMsSql;
-
-		// Pointers
-		typedef std::shared_ptr< CDatabaseConnectionOdbcMsSql >            DatabaseConnectionOdbcMsSqlPtr;
 
 		// Factory constants
 		const String FACTORY_DATABASE_ODBC_MSSQL = STR( "Factory Database Odbc MsSql" );

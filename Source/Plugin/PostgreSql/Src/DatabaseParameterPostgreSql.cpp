@@ -26,19 +26,19 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 {
 	static const String ERROR_POSTGRESQL_PARAMETER_TYPE = STR( "Undefined parameter type when trying to set its binding." );
 
-	CDatabaseParameterPostgreSql::CDatabaseParameterPostgreSql( DatabaseConnectionPostgreSqlPtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
+	CDatabaseParameterPostgreSql::CDatabaseParameterPostgreSql( DatabaseConnectionPostgreSqlSPtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
 		: CDatabaseParameter( connection, name, index, fieldType, parameterType, std::move( updater ) )
 		, _statement()
 	{
 	}
 
-	CDatabaseParameterPostgreSql::CDatabaseParameterPostgreSql( DatabaseConnectionPostgreSqlPtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
+	CDatabaseParameterPostgreSql::CDatabaseParameterPostgreSql( DatabaseConnectionPostgreSqlSPtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
 		: CDatabaseParameter( connection, name, index, fieldType, limits, parameterType, std::move( updater ) )
 		, _statement()
 	{
 	}
 
-	CDatabaseParameterPostgreSql::CDatabaseParameterPostgreSql( DatabaseConnectionPostgreSqlPtr connection, const String & name, unsigned short index, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
+	CDatabaseParameterPostgreSql::CDatabaseParameterPostgreSql( DatabaseConnectionPostgreSqlSPtr connection, const String & name, unsigned short index, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
 		: CDatabaseParameter( connection, name, index, fieldType, precision, parameterType, std::move( updater ) )
 		, _statement()
 	{

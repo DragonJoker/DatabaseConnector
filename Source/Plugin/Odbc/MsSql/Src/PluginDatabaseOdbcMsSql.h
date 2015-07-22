@@ -28,24 +28,24 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 	public:
 		/** Default constructor.
 		*/
-		DatabaseOdbcMsSqlExport CPluginDatabaseOdbcMsSql();
+		CPluginDatabaseOdbcMsSql();
 
 		/** Destructor.
 		*/
-		DatabaseOdbcMsSqlExport virtual ~CPluginDatabaseOdbcMsSql();
+		virtual ~CPluginDatabaseOdbcMsSql();
 
 		//!@copydoc Database::CPlugin::GetName
-		DatabaseOdbcMsSqlExport virtual const String GetName() const;
+		virtual const String GetName() const;
 
 		//!@copydoc Database::CPlugin::Initialize
-		DatabaseOdbcMsSqlExport virtual void Initialize();
+		virtual void Initialize();
 
 		//!@copydoc Database::CPlugin::Shutdown
-		DatabaseOdbcMsSqlExport virtual void Shutdown();
+		virtual void Shutdown();
 
 	protected:
 		//!@copydoc Database::CParameterListInterface::AddBaseParameters
-		DatabaseOdbcMsSqlExport virtual void AddBaseParameters();
+		virtual void AddBaseParameters();
 	};
 
 } END_NAMESPACE_DATABASE_ODBC_MSSQL

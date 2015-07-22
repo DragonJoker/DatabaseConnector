@@ -74,7 +74,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Created statement.
 		*/
-		DatabaseExport DatabaseStatementPtr CreateStatement( const String & query );
+		DatabaseExport DatabaseStatementSPtr CreateStatement( const String & query );
 
 		/** Create a query based on a request.
 		@param[in] query
@@ -84,7 +84,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Created query.
 		*/
-		DatabaseExport DatabaseQueryPtr CreateQuery( const String & query );
+		DatabaseExport DatabaseQuerySPtr CreateQuery( const String & query );
 
 		/** Execute directly a request without result set.
 		@param[in] query
@@ -104,7 +104,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Results.
 		*/
-		DatabaseExport DatabaseResultPtr ExecuteSelect( const String & query );
+		DatabaseExport DatabaseResultSPtr ExecuteSelect( const String & query );
 
 		/** Get the connection status.
 		@return
@@ -613,7 +613,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			The created statement.
 		*/
-		DatabaseExport virtual DatabaseStatementPtr DoCreateStatement( const String & query ) = 0;
+		DatabaseExport virtual DatabaseStatementSPtr DoCreateStatement( const String & query ) = 0;
 
 		/** Execute directly a request without result set.
 		@param[in]  query
@@ -633,7 +633,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			The result.
 		*/
-		DatabaseExport virtual DatabaseResultPtr DoExecuteSelect( const String & query ) = 0;
+		DatabaseExport virtual DatabaseResultSPtr DoExecuteSelect( const String & query ) = 0;
 
 		/** Update the connection status.
 		@param value

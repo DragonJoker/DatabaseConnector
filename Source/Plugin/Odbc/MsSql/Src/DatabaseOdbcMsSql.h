@@ -22,7 +22,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 {
 	/** Describes an ODBC database.
 	*/
-	class DatabaseOdbcMsSqlExport CDatabaseOdbcMsSql
+	class CDatabaseOdbcMsSql
 		: public CDatabase
 	{
 	public:
@@ -48,7 +48,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		@return
 			Database connection.
 		*/
-		virtual DatabaseConnectionPtr DoCreateConnection( String & connectionString ) const;
+		virtual DatabaseConnectionSPtr DoCreateConnection( String & connectionString ) const;
 
 	private:
 		//! SQL environment handle.

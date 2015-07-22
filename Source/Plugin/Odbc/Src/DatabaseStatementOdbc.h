@@ -32,7 +32,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		@param[in] query
 			Request text.
 		*/
-		CDatabaseStatementOdbc( DatabaseConnectionOdbcPtr connection, const String & query );
+		CDatabaseStatementOdbc( DatabaseConnectionOdbcSPtr connection, const String & query );
 
 		/** Destructor.
 			*/
@@ -48,7 +48,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		@return
 			Created parameter.
 		*/
-		virtual DatabaseParameterPtr CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType );
+		virtual DatabaseParameterSPtr CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType );
 
 		/** Create a parameter which has limits (strings, etc.).
 		@param[in] name
@@ -62,7 +62,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		@return
 			Created parameter.
 		*/
-		virtual DatabaseParameterPtr CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType );
+		virtual DatabaseParameterSPtr CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType );
 
 		/** Create a parameter which has limits (strings, etc.).
 		@param[in] name
@@ -76,7 +76,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		@return
 			Created parameter.
 		*/
-		virtual DatabaseParameterPtr CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType );
+		virtual DatabaseParameterSPtr CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType );
 
 	private:
 		/** Initialize this statement.
@@ -101,7 +101,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		@return
 			The result.
 		*/
-		virtual DatabaseResultPtr DoExecuteSelect( EErrorType * result = NULL );
+		virtual DatabaseResultSPtr DoExecuteSelect( EErrorType * result = NULL );
 
 		/** Clean statement.
 		*/
@@ -119,7 +119,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		@return
 			The error code.
 		*/
-		virtual EErrorType DoExecute( DatabaseResultPtr & ret );
+		virtual EErrorType DoExecute( DatabaseResultSPtr & ret );
 
 		/** Function called when the result set is fully fetched (to retrieve out parameters values)
 		@param statementHandle
@@ -129,11 +129,22 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		*/
 		void OnResultSetFullyFetched( HSTMT statementHandle, SQLRETURN info );
 
+		/** Function called when the result set is fully fetched (to retrieve out parameters values)
+		@param statementHandle
+			The statement fetched
+		@info
+			The execution result
+		*/
+		inline DatabaseConnectionOdbcSPtr DoGetConnectionOdbc()
+		{
+			return _connectionOdbc.lock();
+		}
+
 	private:
 		//! Statement handle.
 		SQLHSTMT _statementHandle;
 		//! Database connection.
-		DatabaseConnectionOdbcPtr _connectionOdbc;
+		DatabaseConnectionOdbcWPtr _connectionOdbc;
 	};
 }
 END_NAMESPACE_DATABASE_ODBC

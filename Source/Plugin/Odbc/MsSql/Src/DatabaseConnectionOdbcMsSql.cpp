@@ -504,7 +504,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		return eReturn;
 	}
 
-	DatabaseStatementPtr CDatabaseConnectionOdbcMsSql::DoCreateStatement( const String & query )
+	DatabaseStatementSPtr CDatabaseConnectionOdbcMsSql::DoCreateStatement( const String & query )
 	{
 		return std::make_shared< CDatabaseStatementOdbc >( std::static_pointer_cast< CDatabaseConnectionOdbc >( shared_from_this() ), query );
 	}

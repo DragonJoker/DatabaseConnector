@@ -71,7 +71,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		@return
 			The error code
 		*/
-		virtual EErrorType GetData();
+		virtual EErrorType GetData()const;
 
 		//! The parameter index
 		SQLUSMALLINT _index;
@@ -370,7 +370,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			EErrorType errorType = EErrorType_NONE;
 			StringStream message;
 			message << INFO_ODBC_BIND_PARAMETER_NAME << _name << STR( ", " ) << INFO_ODBC_BIND_PARAMETER_VALUE << STR( "[" ) << _value.GetValue().ToString() << STR( "]" );
-			SQLUINTEGER columnSize = _columnSize;
+			auto columnSize = _columnSize;
 
 			if ( _value.IsNull() )
 			{
@@ -532,7 +532,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			EErrorType errorType = EErrorType_NONE;
 			StringStream message;
 			message << INFO_ODBC_BIND_PARAMETER_NAME << _name << STR( ", " ) << INFO_ODBC_BIND_PARAMETER_VALUE << STR( "[" ) << _value.GetValue() << STR( "]" );
-			SQLUINTEGER columnSize = _columnSize;
+			auto columnSize = _columnSize;
 
 			CDateTime const & date = _value.GetValue();
 			_holder.year = date.GetYear();
@@ -591,7 +591,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			EErrorType errorType = EErrorType_NONE;
 			StringStream message;
 			message << INFO_ODBC_BIND_PARAMETER_NAME << _name << STR( ", " ) << INFO_ODBC_BIND_PARAMETER_VALUE << STR( "[" ) << _value.GetValue() << STR( "]" );
-			SQLUINTEGER columnSize = _columnSize;
+			auto columnSize = _columnSize;
 
 			if ( _value.IsNull() )
 			{
@@ -640,7 +640,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			EErrorType errorType = EErrorType_NONE;
 			StringStream message;
 			message << INFO_ODBC_BIND_PARAMETER_NAME << _name << STR( ", " ) << INFO_ODBC_BIND_PARAMETER_VALUE << STR( "[" ) << _value.GetPtrValue() << STR( "]" );
-			SQLUINTEGER columnSize = _columnSize;
+			auto columnSize = _columnSize;
 
 			if ( _value.IsNull() )
 			{
@@ -689,7 +689,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			EErrorType errorType = EErrorType_NONE;
 			StringStream message;
 			message << INFO_ODBC_BIND_PARAMETER_NAME << _name << STR( ", " ) << INFO_ODBC_BIND_PARAMETER_VALUE << STR( "[" ) << _value.GetValue() << STR( "]" );
-			SQLUINTEGER columnSize = _columnSize;
+			auto columnSize = _columnSize;
 
 			if ( _value.IsNull() )
 			{
@@ -738,7 +738,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			EErrorType errorType = EErrorType_NONE;
 			StringStream message;
 			message << INFO_ODBC_BIND_PARAMETER_NAME << _name << STR( ", " ) << INFO_ODBC_BIND_PARAMETER_VALUE << STR( "[" ) << _value.GetPtrValue() << STR( "]" );
-			SQLUINTEGER columnSize = _columnSize;
+			auto columnSize = _columnSize;
 
 			if ( _value.IsNull() )
 			{
@@ -789,7 +789,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			EErrorType errorType = EErrorType_NONE;
 			StringStream message;
 			message << INFO_ODBC_BIND_PARAMETER_NAME << _name << STR( ", " ) << INFO_ODBC_BIND_PARAMETER_VALUE << STR( "[" ) << _value.GetValue() << STR( "]" );
-			SQLUINTEGER columnSize = _columnSize;
+			auto columnSize = _columnSize;
 
 			if ( _value.IsNull() )
 			{
@@ -848,7 +848,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			EErrorType errorType = EErrorType_NONE;
 			StringStream message;
 			message << INFO_ODBC_BIND_PARAMETER_NAME << _name << STR( ", " ) << INFO_ODBC_BIND_PARAMETER_VALUE << STR( "[" ) << _value.GetPtrValue() << STR( "]" );
-			SQLUINTEGER columnSize = _columnSize;
+			auto columnSize = _columnSize;
 
 			if ( _value.IsNull() )
 			{
@@ -907,7 +907,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			EErrorType errorType = EErrorType_NONE;
 			StringStream message;
 			message << INFO_ODBC_BIND_PARAMETER_NAME << _name << STR( ", " ) << INFO_ODBC_BIND_PARAMETER_VALUE << STR( "[" ) << _value.GetValue() << STR( "]" );
-			SQLUINTEGER columnSize = _columnSize;
+			auto columnSize = _columnSize;
 
 			if ( _value.IsNull() || _value.GetPtrSize() == 0 )
 			{
@@ -958,7 +958,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			EErrorType errorType = EErrorType_NONE;
 			StringStream message;
 			message << INFO_ODBC_BIND_PARAMETER_NAME << _name << STR( ", " ) << INFO_ODBC_BIND_PARAMETER_VALUE << STR( "[" ) << _value.GetValue() << STR( "]" );
-			SQLUINTEGER columnSize = _columnSize;
+			auto columnSize = _columnSize;
 
 			if ( _value.IsNull() || _value.GetPtrSize() == 0 )
 			{
@@ -1009,7 +1009,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			EErrorType errorType = EErrorType_NONE;
 			StringStream message;
 			message << INFO_ODBC_BIND_PARAMETER_NAME << _name << STR( ", " ) << INFO_ODBC_BIND_PARAMETER_VALUE << STR( "[" ) << _value.GetValue() << STR( "]" );
-			SQLUINTEGER columnSize = _columnSize;
+			auto columnSize = _columnSize;
 
 			if ( _value.IsNull() || _value.GetPtrSize() == 0 )
 			{

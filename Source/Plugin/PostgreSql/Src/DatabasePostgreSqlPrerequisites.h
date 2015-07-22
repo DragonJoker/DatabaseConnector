@@ -16,20 +16,6 @@
 
 #include <DatabasePrerequisites.h>
 
-#if defined( _WIN32 ) && !defined ( __MINGW32__ ) && !defined ( STATIC_LIB )
-#	ifdef DatabasePluginPostgreSql_EXPORTS
-#		define DatabasePostgreSqlExport __declspec ( dllexport )
-#	else
-#		if defined ( __MINGW32__ )
-#			define DatabasePostgreSqlExport
-#		else
-#			define DatabasePostgreSqlExport __declspec ( dllimport )
-#		endif
-#	endif
-#else
-#    define DatabasePostgreSqlExport
-#endif
-
 #define BEGIN_NAMESPACE_DATABASE_POSTGRESQL BEGIN_NAMESPACE_DATABASE { namespace PostgreSql
 #define NAMESPACE_DATABASE_POSTGRESQL NAMESPACE_DATABASE::PostgreSql
 #define END_NAMESPACE_DATABASE_POSTGRESQL } END_NAMESPACE_DATABASE
@@ -51,11 +37,11 @@ BEGIN_NAMESPACE_DATABASE
 		struct SOutPostgreSqlBindBase;
 
 		// Pointers
-		typedef std::shared_ptr< CDatabaseConnectionPostgreSql > DatabaseConnectionPostgreSqlPtr;
-		typedef std::shared_ptr< CDatabaseStatementPostgreSql > DatabaseStatementPostgreSqlPtr;
-		typedef std::shared_ptr< CDatabaseParameterPostgreSql > DatabaseParameterPostgreSqlPtr;
+		DECLARE_SMART_PTR( DatabaseConnectionPostgreSql );
+		DECLARE_SMART_PTR( DatabaseStatementPostgreSql );
+		DECLARE_SMART_PTR( DatabaseParameterPostgreSql );
 
-		typedef std::vector< DatabaseParameterPostgreSqlPtr > DatabaseParameterPostgreSqlPtrArray;
+		typedef std::vector< DatabaseParameterPostgreSqlWPtr > DatabaseParameterPostgreSqlPtrArray;
 
 		// Factory constants
 		const String FACTORY_DATABASE_POSTGRESQL = STR( "Factory Database PostgreSql" );

@@ -23,8 +23,7 @@ BEGIN_NAMESPACE_DATABASE
 	static const String ERROR_DB_ROW_MISSING_FIELD_NAME = STR( "Row misses field named: " );
 	static const String ERROR_DB_ROW_MISSING_FIELD_INDEX = STR( "Row misses field at index: " );
 
-	CDatabaseRow::CDatabaseRow( DatabaseConnectionPtr connection )
-		: _connection( connection )
+	CDatabaseRow::CDatabaseRow()
 	{
 		// Empty
 	}
@@ -34,7 +33,7 @@ BEGIN_NAMESPACE_DATABASE
 		_arrayFields.clear();
 	}
 
-	void CDatabaseRow::AddField( DatabaseFieldPtr field )
+	void CDatabaseRow::AddField( DatabaseFieldSPtr field )
 	{
 		if ( field )
 		{
@@ -42,9 +41,9 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	}
 
-	DatabaseFieldPtr CDatabaseRow::GetField( const String & name )
+	DatabaseFieldSPtr CDatabaseRow::GetField( const String & name )
 	{
-		auto && it = std::find_if( _arrayFields.begin(), _arrayFields.end(), [&name]( DatabaseFieldPtr parameter )
+		auto && it = std::find_if( _arrayFields.begin(), _arrayFields.end(), [&name]( DatabaseFieldSPtr parameter )
 		{
 			return parameter->GetName() == name;
 		} );
@@ -59,7 +58,7 @@ BEGIN_NAMESPACE_DATABASE
 		return *it;
 	}
 
-	DatabaseFieldPtr CDatabaseRow::GetField( uint32_t index )
+	DatabaseFieldSPtr CDatabaseRow::GetField( uint32_t index )
 	{
 		if ( index >= _arrayFields.size() )
 		{

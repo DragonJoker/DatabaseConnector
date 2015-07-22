@@ -116,7 +116,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		/** Flushes the Test table content
 		*/
-		void DoFlushTable( DatabaseConnectionPtr connection );
+		void DoFlushTable( DatabaseConnectionSPtr connection );
 
 	protected:
 		String _createTable;

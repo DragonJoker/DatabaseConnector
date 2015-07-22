@@ -141,7 +141,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		@return
 			The result.
 		*/
-		virtual DatabaseResultPtr DoExecuteSelect( const String & query);
+		virtual DatabaseResultSPtr DoExecuteSelect( const String & query);
 
 	protected:
 		//! Connection identifier.

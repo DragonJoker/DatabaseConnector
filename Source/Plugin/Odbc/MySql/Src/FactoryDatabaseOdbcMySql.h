@@ -29,11 +29,11 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MYSQL
 	public:
 		/** Default constructor.
 		*/
-		DatabaseOdbcMySqlExport CFactoryDatabaseOdbcMySql();
+		CFactoryDatabaseOdbcMySql();
 
 		/** Destructor.
 		*/
-		DatabaseOdbcMySqlExport virtual ~CFactoryDatabaseOdbcMySql();
+		virtual ~CFactoryDatabaseOdbcMySql();
 
 		/** Get the type of the factory.
 		@returns
@@ -47,11 +47,11 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MYSQL
 	protected:
 		/** Register creation functions to create new ODBC database objects.
 		*/
-		DatabaseOdbcMySqlExport void RegisterServices();
+		void RegisterServices();
 
 		/** Registred the ODBC database object types that the factory can create.
 		*/
-		DatabaseOdbcMySqlExport void RegisterObjectTypes();
+		void RegisterObjectTypes();
 	};
 }
 END_NAMESPACE_DATABASE_ODBC_MYSQL

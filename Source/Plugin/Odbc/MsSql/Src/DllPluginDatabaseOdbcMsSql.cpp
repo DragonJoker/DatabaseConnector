@@ -17,6 +17,20 @@
 
 #include <DatabasePluginManager.h>
 
+#if defined( _WIN32 ) && !defined ( __MINGW32__ ) && !defined ( STATIC_LIB )
+#	ifdef DatabasePluginOdbcMsSql_EXPORTS
+#	    define DatabaseOdbcMsSqlExport __declspec ( dllexport )
+#	else
+#		if defined ( __MINGW32__ )
+#			define DatabaseOdbcMsSqlExport
+#		else
+#			define DatabaseOdbcMsSqlExport __declspec ( dllimport )
+#		endif
+#	endif
+#else
+#    define DatabaseOdbcMsSqlExport
+#endif
+
 BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 {
 	CPluginDatabaseOdbcMsSql * plugin = NULL;

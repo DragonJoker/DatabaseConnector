@@ -569,9 +569,9 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		return result;
 	}
 
-	DatabaseResultPtr CDatabaseConnectionMySql::ExecuteSelect( MYSQL_STMT * statement )
+	DatabaseResultSPtr CDatabaseConnectionMySql::ExecuteSelect( MYSQL_STMT * statement )
 	{
-		DatabaseResultPtr result;
+		DatabaseResultSPtr result;
 
 		try
 		{
@@ -755,31 +755,30 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		return ExecuteUpdate( _statement );
 	}
 
-	DatabaseResultPtr CDatabaseConnectionMySql::DoExecuteSelect( const String & query )
+	DatabaseResultSPtr CDatabaseConnectionMySql::DoExecuteSelect( const String & query )
 	{
 		std::string strQuery = CStrUtils::ToStr( query );
 		MySQLCheck( mysql_stmt_prepare( _statement, strQuery.c_str(), uint32_t( strQuery.size() ) ), INFO_MYSQL_STATEMENT_PREPARATION, EDatabaseExceptionCodes_StatementError, _connection );
 		return ExecuteSelect( _statement );
 	}
 
-	DatabaseStatementPtr CDatabaseConnectionMySql::DoCreateStatement( const String & request )
+	DatabaseStatementSPtr CDatabaseConnectionMySql::DoCreateStatement( const String & request )
 	{
 		return std::make_shared< CDatabaseStatementMySql >( std::static_pointer_cast< CDatabaseConnectionMySql >( shared_from_this() ), request );
 	}
 
-	DatabaseResultPtr CDatabaseConnectionMySql::DoRetrieveResults( MYSQL_STMT * statement )
+	DatabaseResultSPtr CDatabaseConnectionMySql::DoRetrieveResults( MYSQL_STMT * statement )
 	{
-		DatabaseResultPtr pResult;
+		DatabaseResultSPtr pResult;
 
 		try
 		{
 			if ( statement )
 			{
-				DatabaseConnectionMySqlPtr connection = std::static_pointer_cast< CDatabaseConnectionMySql >( shared_from_this() );
+				DatabaseConnectionMySqlSPtr connection = std::static_pointer_cast< CDatabaseConnectionMySql >( shared_from_this() );
 				std::vector< MYSQL_BIND > binds;
 				std::vector< std::unique_ptr< SInMySqlBindBase > > inbinds;
-				DatabaseFieldInfosPtrArray columns = MySqlGetColumns( statement, connection, inbinds, binds );
-				pResult = MySqlFetchResult( statement, columns, connection, inbinds, binds );
+				pResult = MySqlFetchResult( statement, MySqlGetColumns( statement, connection, inbinds, binds ), connection, inbinds, binds );
 			}
 		}
 		catch ( CExceptionDatabase & exc )

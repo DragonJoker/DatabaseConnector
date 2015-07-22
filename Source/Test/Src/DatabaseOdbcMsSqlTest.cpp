@@ -85,7 +85,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 			if ( database )
 			{
-				DatabaseConnectionPtr connection = CreateConnection( *database, _server, _user, _password );
+				DatabaseConnectionSPtr connection = CreateConnection( *database, _server, _user, _password );
 
 				if ( connection && connection->IsConnected() )
 				{
@@ -116,7 +116,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 			if ( database )
 			{
-				DatabaseConnectionPtr connection = CreateConnection( *database, _server, _user, _password );
+				DatabaseConnectionSPtr connection = CreateConnection( *database, _server, _user, _password );
 
 				try
 				{

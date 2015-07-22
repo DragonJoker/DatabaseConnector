@@ -60,9 +60,9 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		return new CDatabaseOdbcMsSql;
 	}
 
-	DatabaseConnectionPtr CDatabaseOdbcMsSql::DoCreateConnection( String & connectionString ) const
+	DatabaseConnectionSPtr CDatabaseOdbcMsSql::DoCreateConnection( String & connectionString ) const
 	{
-		DatabaseConnectionPtr pReturn;
+		DatabaseConnectionSPtr pReturn;
 
 		if ( _sqlEnvironmentHandle != SQL_NULL_HENV )
 		{

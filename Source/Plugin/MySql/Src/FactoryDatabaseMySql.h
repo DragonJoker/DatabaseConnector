@@ -29,11 +29,11 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	public:
 		/** Default constructor.
 		*/
-		DatabaseMySqlExport CFactoryDatabaseMySql();
+		CFactoryDatabaseMySql();
 
 		/** Destructor.
 		*/
-		DatabaseMySqlExport virtual ~CFactoryDatabaseMySql();
+		virtual ~CFactoryDatabaseMySql();
 
 		/** Get the type of the factory.
 		@returns
@@ -47,11 +47,11 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	protected:
 		/** Register creation functions to create new MYSQL database objects.
 		*/
-		DatabaseMySqlExport void RegisterServices();
+		void RegisterServices();
 
 		/** Registred the MYSQL database object types that the factory can create.
 		*/
-		DatabaseMySqlExport void RegisterObjectTypes();
+		void RegisterObjectTypes();
 	};
 }
 END_NAMESPACE_DATABASE_MYSQL

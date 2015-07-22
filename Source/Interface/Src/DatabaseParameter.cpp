@@ -51,7 +51,7 @@ BEGIN_NAMESPACE_DATABASE
 		return false;
 	}
 
-	CDatabaseParameter::CDatabaseParameter( DatabaseConnectionPtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
+	CDatabaseParameter::CDatabaseParameter( DatabaseConnectionSPtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
 		: CDatabaseValuedObject( connection )
 		, _name( name )
 		, _fieldType( fieldType )
@@ -63,7 +63,7 @@ BEGIN_NAMESPACE_DATABASE
 		DoCreateValue();
 	}
 
-	CDatabaseParameter::CDatabaseParameter( DatabaseConnectionPtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
+	CDatabaseParameter::CDatabaseParameter( DatabaseConnectionSPtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
 		: CDatabaseValuedObject( connection )
 		, _name( name )
 		, _fieldType( fieldType )
@@ -75,7 +75,7 @@ BEGIN_NAMESPACE_DATABASE
 		DoCreateValue();
 	}
 
-	CDatabaseParameter::CDatabaseParameter( DatabaseConnectionPtr connection, const String & name, unsigned short index, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
+	CDatabaseParameter::CDatabaseParameter( DatabaseConnectionSPtr connection, const String & name, unsigned short index, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
 		: CDatabaseValuedObject( connection )
 		, _name( name )
 		, _fieldType( fieldType )
@@ -120,7 +120,7 @@ BEGIN_NAMESPACE_DATABASE
 	void CDatabaseParameter::SetNull()
 	{
 		GetObjectValue().SetNull();
-		_updater->Update( shared_from_this() );
+		_updater->Update( *this );
 	}
 
 	const EParameterType & CDatabaseParameter::GetParamType() const
@@ -128,26 +128,26 @@ BEGIN_NAMESPACE_DATABASE
 		return _parameterType;
 	}
 
-	void CDatabaseParameter::SetValue( DatabaseFieldPtr field )
+	void CDatabaseParameter::SetValue( const CDatabaseField & field )
 	{
-		if ( !AreTypesCompatible( GetType(), field->GetType() ) )
+		if ( !AreTypesCompatible( GetType(), field.GetType() ) )
 		{
 			String errMsg = ERROR_DB_INCOMPATIBLE_TYPES + this->GetName();
 			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, errMsg );
 		}
 
-		SetValue( field->GetType(), field->GetObjectValue() );
+		SetValue( field.GetType(), field.GetObjectValue() );
 	}
 
-	void CDatabaseParameter::SetValue( DatabaseParameterPtr parameter )
+	void CDatabaseParameter::SetValue( const CDatabaseParameter & parameter )
 	{
-		if ( !AreTypesCompatible( GetType(), parameter->GetType() ) )
+		if ( !AreTypesCompatible( GetType(), parameter.GetType() ) )
 		{
 			String errMsg = ERROR_DB_INCOMPATIBLE_TYPES + this->GetName();
 			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, errMsg );
 		}
 
-		SetValue( parameter->GetType(), parameter->GetObjectValue() );
+		SetValue( parameter.GetType(), parameter.GetObjectValue() );
 	}
 
 	void CDatabaseParameter::SetValue( EFieldType type, CDatabaseValueBase const & value )
@@ -263,7 +263,7 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 		}
 
-		_updater->Update( shared_from_this() );
+		_updater->Update( *this );
 	}
 }
 END_NAMESPACE_DATABASE
