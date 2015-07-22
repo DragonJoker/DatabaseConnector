@@ -768,6 +768,88 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 	}
 
+	template< typename Action1, typename Action2 >
+	void CDatabaseTest::MultithreadActions( Action1 action1, Action2 action2 )
+	{
+		std::unique_ptr< CDatabase > database( InstantiateDatabase( _type ) );
+
+		if ( database )
+		{
+#if defined( NDEBUG )
+			int count = 200;
+#else
+			int count = 20;
+#endif
+			CDatabase & db = *database;
+			String const & dbname = _database;
+			db.Initialize( _server, _user, _password );
+
+			std::atomic_bool thread1;
+			std::atomic_bool thread2;
+
+			thread1 = false;
+			thread2 = false;
+
+			std::thread threads[2] =
+			{
+				std::thread( [&count, &db, &dbname, &action1, &thread1]()
+				{
+					DatabaseConnectionPtr connection = db.RetrieveConnection();
+					std::random_device generator;
+
+					if ( connection )
+					{
+						if ( connection->IsConnected() )
+						{
+							connection->SelectDatabase( dbname );
+
+							for ( int i = 0; i < count; ++i )
+							{
+								action1( generator, connection );
+							}
+
+							thread1 = true;
+						}
+
+						connection.reset();
+						db.RemoveConnection();
+					}
+				} ),
+				std::thread( [&count, &db, &dbname, &action2, &thread2]()
+				{
+					DatabaseConnectionPtr connection = db.RetrieveConnection();
+					std::random_device generator;
+
+					if ( connection )
+					{
+						if ( connection->IsConnected() )
+						{
+							connection->SelectDatabase( dbname );
+
+							for ( int i = 0; i < count; ++i )
+							{
+								action2( generator, connection );
+							}
+
+							thread2 = true;
+						}
+
+						connection.reset();
+						db.RemoveConnection();
+					}
+				} )
+			};
+
+			while ( !thread1 || !thread2 )
+			{
+				std::this_thread::sleep_for( std::chrono::milliseconds( 10 ) );
+			}
+					
+			threads[0].join();
+			threads[1].join();
+		}
+	}
+
 	template< typename StmtTypeA, typename StmtTypeB >
 	void CDatabaseTest::TestCase_MultithreadInsertAndInsert( const String & nameA, const String & nameB )
 	{
@@ -775,28 +857,12 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		{
 			CLogger::LogInfo( StringStream() << "**** Start TestCase_Multithread" << nameA << "InsertAnd" << nameB << "Insert ****" );
 			DoLoadPlugins();
-		}, [&name]()
+		}, [&nameA, &nameB]()
 		{
 			UnloadPlugins();
 			CLogger::LogInfo( StringStream() << "**** End TestCase_Multithread" << nameA << "InsertAnd" << nameB << "Insert ****" );
 		} );
-		std::unique_ptr< CDatabase > database( InstantiateDatabase( _type ) );
-
-		if ( database )
-		{
-			DatabaseConnectionPtr connection = CreateConnection( *database, _server, _user, _password );
-
-			if ( connection )
-			{
-				if ( connection->IsConnected() )
-				{
-					connection->SelectDatabase( _database );
-					DoFlushTable( connection );
-				}
-
-				database->RemoveConnection();
-			}
-		}
+		MultithreadActions( &DatabaseUtils::InsertElement< StmtTypeA >, &DatabaseUtils::InsertElement< StmtTypeB > );
 	}
 
 	template< typename StmtTypeA, typename StmtTypeB >
@@ -806,27 +872,12 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		{
 			CLogger::LogInfo( StringStream() << "**** Start TestCase_Multithread" << nameA << "InsertAnd" << nameB << "Update ****" );
 			DoLoadPlugins();
-		}, [&name]()
+		}, [&nameA, &nameB]()
 		{
 			UnloadPlugins();
 			CLogger::LogInfo( StringStream() << "**** End TestCase_Multithread" << nameA << "InsertAnd" << nameB << "Update ****" );
 		} );
-		std::unique_ptr< CDatabase > database( InstantiateDatabase( _type ) );
-
-		if ( database )
-		{
-			DatabaseConnectionPtr connection = CreateConnection( *database, _server, _user, _password );
-
-			if ( connection )
-			{
-				if ( connection->IsConnected() )
-				{
-					connection->SelectDatabase( _database );
-				}
-
-				database->RemoveConnection();
-			}
-		}
+		MultithreadActions( &DatabaseUtils::InsertElement< StmtTypeA >, &DatabaseUtils::UpdateElement< StmtTypeB > );
 	}
 
 	template< typename StmtTypeA, typename StmtTypeB >
@@ -836,27 +887,27 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		{
 			CLogger::LogInfo( StringStream() << "**** Start TestCase_Multithread" << nameA << "InsertAnd" << nameB << "Select ****" );
 			DoLoadPlugins();
-		}, [&name]()
+		}, [&nameA, &nameB]()
 		{
 			UnloadPlugins();
 			CLogger::LogInfo( StringStream() << "**** End TestCase_Multithread" << nameA << "InsertAnd" << nameB << "Select ****" );
 		} );
-		std::unique_ptr< CDatabase > database( InstantiateDatabase( _type ) );
+		MultithreadActions( &DatabaseUtils::InsertElement< StmtTypeA >, &DatabaseUtils::SelectElement< StmtTypeB > );
+	}
 
-		if ( database )
+	template< typename StmtTypeA, typename StmtTypeB >
+	void CDatabaseTest::TestCase_MultithreadInsertAndDelete( const String & nameA, const String & nameB )
+	{
+		auto const guard = make_block_guard( [&nameA, &nameB, this]()
 		{
-			DatabaseConnectionPtr connection = CreateConnection( *database, _server, _user, _password );
-
-			if ( connection )
-			{
-				if ( connection->IsConnected() )
-				{
-					connection->SelectDatabase( _database );
-				}
-
-				database->RemoveConnection();
-			}
-		}
+			CLogger::LogInfo( StringStream() << "**** Start TestCase_Multithread" << nameA << "InsertAnd" << nameB << "Delete ****" );
+			DoLoadPlugins();
+		}, [&nameA, &nameB]()
+		{
+			UnloadPlugins();
+			CLogger::LogInfo( StringStream() << "**** End TestCase_Multithread" << nameA << "InsertAnd" << nameB << "Delete ****" );
+		} );
+		MultithreadActions( &DatabaseUtils::InsertElement< StmtTypeA >, &DatabaseUtils::DeleteElement< StmtTypeB > );
 	}
 
 	template< typename StmtTypeA, typename StmtTypeB >
@@ -866,27 +917,12 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		{
 			CLogger::LogInfo( StringStream() << "**** Start TestCase_Multithread" << nameA << "UpdateAnd" << nameB << "Update ****" );
 			DoLoadPlugins();
-		}, [&name]()
+		}, [&nameA, &nameB]()
 		{
 			UnloadPlugins();
 			CLogger::LogInfo( StringStream() << "**** End TestCase_Multithread" << nameA << "UpdateAnd" << nameB << "Update ****" );
 		} );
-		std::unique_ptr< CDatabase > database( InstantiateDatabase( _type ) );
-
-		if ( database )
-		{
-			DatabaseConnectionPtr connection = CreateConnection( *database, _server, _user, _password );
-
-			if ( connection )
-			{
-				if ( connection->IsConnected() )
-				{
-					connection->SelectDatabase( _database );
-				}
-
-				database->RemoveConnection();
-			}
-		}
+		MultithreadActions( &DatabaseUtils::UpdateElement< StmtTypeA >, &DatabaseUtils::UpdateElement< StmtTypeB > );
 	}
 
 	template< typename StmtTypeA, typename StmtTypeB >
@@ -896,27 +932,27 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		{
 			CLogger::LogInfo( StringStream() << "**** Start TestCase_Multithread" << nameA << "UpdateAnd" << nameB << "Select ****" );
 			DoLoadPlugins();
-		}, [&name]()
+		}, [&nameA, &nameB]()
 		{
 			UnloadPlugins();
 			CLogger::LogInfo( StringStream() << "**** End TestCase_Multithread" << nameA << "UpdateAnd" << nameB << "Select ****" );
 		} );
-		std::unique_ptr< CDatabase > database( InstantiateDatabase( _type ) );
+		MultithreadActions( &DatabaseUtils::UpdateElement< StmtTypeA >, &DatabaseUtils::SelectElement< StmtTypeB > );
+	}
 
-		if ( database )
+	template< typename StmtTypeA, typename StmtTypeB >
+	void CDatabaseTest::TestCase_MultithreadUpdateAndDelete( const String & nameA, const String & nameB )
+	{
+		auto const guard = make_block_guard( [&nameA, &nameB, this]()
 		{
-			DatabaseConnectionPtr connection = CreateConnection( *database, _server, _user, _password );
-
-			if ( connection )
-			{
-				if ( connection->IsConnected() )
-				{
-					connection->SelectDatabase( _database );
-				}
-
-				database->RemoveConnection();
-			}
-		}
+			CLogger::LogInfo( StringStream() << "**** Start TestCase_Multithread" << nameA << "UpdateAnd" << nameB << "Delete ****" );
+			DoLoadPlugins();
+		}, [&nameA, &nameB]()
+		{
+			UnloadPlugins();
+			CLogger::LogInfo( StringStream() << "**** End TestCase_Multithread" << nameA << "UpdateAnd" << nameB << "Delete ****" );
+		} );
+		MultithreadActions( &DatabaseUtils::UpdateElement< StmtTypeA >, &DatabaseUtils::DeleteElement< StmtTypeB > );
 	}
 
 	template< typename StmtTypeA, typename StmtTypeB >
@@ -926,27 +962,27 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		{
 			CLogger::LogInfo( StringStream() << "**** Start TestCase_Multithread" << nameA << "SelectAnd" << nameB << "Select ****" );
 			DoLoadPlugins();
-		}, [&name]()
+		}, [&nameA, &nameB]()
 		{
 			UnloadPlugins();
 			CLogger::LogInfo( StringStream() << "**** End TestCase_Multithread" << nameA << "SelectAnd" << nameB << "Select ****" );
 		} );
-		std::unique_ptr< CDatabase > database( InstantiateDatabase( _type ) );
+		MultithreadActions( &DatabaseUtils::SelectElement< StmtTypeA >, &DatabaseUtils::SelectElement< StmtTypeB > );
+	}
 
-		if ( database )
+	template< typename StmtTypeA, typename StmtTypeB >
+	void CDatabaseTest::TestCase_MultithreadSelectAndDelete( const String & nameA, const String & nameB )
+	{
+		auto const guard = make_block_guard( [&nameA, &nameB, this]()
 		{
-			DatabaseConnectionPtr connection = CreateConnection( *database, _server, _user, _password );
-
-			if ( connection )
-			{
-				if ( connection->IsConnected() )
-				{
-					connection->SelectDatabase( _database );
-				}
-
-				database->RemoveConnection();
-			}
-		}
+			CLogger::LogInfo( StringStream() << "**** Start TestCase_Multithread" << nameA << "SelectAnd" << nameB << "Delete ****" );
+			DoLoadPlugins();
+		}, [&nameA, &nameB]()
+		{
+			UnloadPlugins();
+			CLogger::LogInfo( StringStream() << "**** End TestCase_Multithread" << nameA << "SelectAnd" << nameB << "Delete ****" );
+		} );
+		MultithreadActions( &DatabaseUtils::SelectElement< StmtTypeA >, &DatabaseUtils::DeleteElement< StmtTypeB > );
 	}
 
 #if defined( PERF_TEST )

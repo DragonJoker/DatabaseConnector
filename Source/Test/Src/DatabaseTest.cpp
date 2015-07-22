@@ -129,13 +129,13 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		//!@remarks Create the TS' sequences
 #if defined( TESTING_PLUGIN_SQLITE )
-		//TS_List.push_back( g_databaseSqliteTest->Init_Test_Suite() );
+		TS_List.push_back( g_databaseSqliteTest->Init_Test_Suite() );
 #endif
 #if defined( TESTING_PLUGIN_MYSQL )
 		TS_List.push_back( g_databaseMySqlTest->Init_Test_Suite() );
 #endif
 #if defined( TESTING_PLUGIN_POSTGRE )
-		//TS_List.push_back( g_databasePostgreSqlTest->Init_Test_Suite() );
+		TS_List.push_back( g_databasePostgreSqlTest->Init_Test_Suite() );
 #endif
 #if defined( TESTING_PLUGIN_ODBC )
 		//TS_List.push_back( g_databaseOdbcMySqlTest->Init_Test_Suite() );
