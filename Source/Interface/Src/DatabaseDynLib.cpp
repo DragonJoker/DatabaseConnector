@@ -123,7 +123,7 @@ BEGIN_NAMESPACE_DATABASE
 	void * CDynLib::GetSymbol( const String & strName ) const throw()
 	{
 		//!@remarks GetProcAddress doesn't have unicode version. Always use ANSI string.
-		return ( void * )DYNLIB_GETSYM( _handle, CStrUtils::ToStr( strName ).c_str() );
+		return ( void * )DYNLIB_GETSYM( _handle, StringUtils::ToStr( strName ).c_str() );
 	}
 
 	String CDynLib::DynlibError()
@@ -152,7 +152,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		result = sErrorDescription;
 #	elif defined( __linux__ )
-		result = CStrUtils::ToString( dlerror() );
+		result = StringUtils::ToString( dlerror() );
 #	endif
 		return result;
 	}

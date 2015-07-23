@@ -90,7 +90,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		if ( index == String::npos )
 		{
-			_value = CStrUtils::ToLongLong( value ) * GetDecimalMult( _decimals );
+			_value = std::stoll( value ) * GetDecimalMult( _decimals );
 		}
 		else if ( value.size() - ( index + 1 ) < _decimals )
 		{
@@ -98,11 +98,11 @@ BEGIN_NAMESPACE_DATABASE
 			adjusted.width( index + decimals );
 			adjusted.fill( '0' );
 			adjusted << std::left << String( value.substr( 0, index ) + value.substr( index + 1 ) );
-			_value = CStrUtils::ToLongLong( adjusted.str() );
+			_value = std::stoll( adjusted.str() );
 		}
 		else
 		{
-			_value = CStrUtils::ToLongLong( value.substr( 0, index ) + value.substr( index + 1, _decimals ) );
+			_value = std::stoll( value.substr( 0, index ) + value.substr( index + 1, _decimals ) );
 		}
 
 		DoAdjustValue( precision );
@@ -118,11 +118,11 @@ BEGIN_NAMESPACE_DATABASE
 
 		if ( IsSigned() )
 		{
-			result = CStrUtils::ToString( _value );
+			result = StringUtils::ToString( _value );
 		}
 		else
 		{
-			result = CStrUtils::ToString( _value );
+			result = StringUtils::ToString( _value );
 		}
 
 		if ( _value && _decimals )
@@ -210,13 +210,13 @@ BEGIN_NAMESPACE_DATABASE
 
 	std::ostream & operator <<( std::ostream & stream, const CFixedPoint & value )
 	{
-		stream << "[" << int16_t( value.GetPrecision() ) << "] " << CStrUtils::ToStr( value.ToString() );
+		stream << "[" << int16_t( value.GetPrecision() ) << "] " << StringUtils::ToStr( value.ToString() );
 		return stream;
 	}
 
 	std::wostream & operator <<( std::wostream & stream, const CFixedPoint & value )
 	{
-		stream << L"[" << int16_t( value.GetPrecision() ) << L"] " << CStrUtils::ToWStr( value.ToString() );
+		stream << L"[" << int16_t( value.GetPrecision() ) << L"] " << StringUtils::ToWStr( value.ToString() );
 		return stream;
 	}
 }

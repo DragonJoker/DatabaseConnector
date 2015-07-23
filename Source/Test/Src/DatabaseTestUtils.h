@@ -317,36 +317,36 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template<> struct Helpers< EFieldType_DATE >
 		{
 			static const uint32_t Limit = -1;
-			typedef CDate ParamType;
+			typedef DateType ParamType;
 			typedef ParamType FieldType;
 
 			static ParamType InitialiseValue()
 			{
-				return CDate::Now();
+				return boost::gregorian::day_clock::local_day();
 			}
 		};
 
 		template<> struct Helpers< EFieldType_DATETIME >
 		{
 			static const uint32_t Limit = -1;
-			typedef CDateTime ParamType;
+			typedef DateTimeType ParamType;
 			typedef ParamType FieldType;
 
 			static ParamType InitialiseValue()
 			{
-				return CDateTime::Now();
+				return boost::posix_time::second_clock::local_time();
 			}
 		};
 
 		template<> struct Helpers< EFieldType_TIME >
 		{
 			static const uint32_t Limit = -1;
-			typedef CTime ParamType;
+			typedef TimeType ParamType;
 			typedef ParamType FieldType;
 
 			static ParamType InitialiseValue()
 			{
-				return CTime::Now();
+				return boost::posix_time::second_clock::local_time().time_of_day();
 			}
 		};
 
@@ -632,8 +632,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			CLogger::LogInfo( StringStream() << STR( "NumericField : " ) << row->Get< CFixedPoint >( index++ ).ToString() );
 			CLogger::LogInfo( StringStream() << STR( "DecimalField : " ) << row->Get< CFixedPoint >( index++ ).ToString() );
 			CLogger::LogInfo( StringStream() << STR( "BooleanField : " ) << row->Get< bool >( index++ ) );
-			CLogger::LogInfo( StringStream() << STR( "DateField : " ) << row->Get< CDate >( index++ ) );
-			CLogger::LogInfo( StringStream() << STR( "DateTimeField : " ) << row->Get< CDateTime >( index++ ) );
+			CLogger::LogInfo( StringStream() << STR( "DateField : " ) << row->Get< DateType >( index++ ) );
+			CLogger::LogInfo( StringStream() << STR( "DateTimeField : " ) << row->Get< DateTimeType >( index++ ) );
 			CLogger::LogInfo( StringStream() << STR( "CharacterField : " ) << row->Get< std::string >( index++ ) );
 			CLogger::LogInfo( StringStream() << STR( "VarcharField : " ) << row->Get< std::string >( index++ ) );
 			CLogger::LogInfo( std::wstringstream() << L"NcharField : " << row->Get< std::wstring >( index++ ) );
@@ -853,11 +853,11 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 			static void Equal( param_type const & a, field_type const & b )
 			{
-				BOOST_CHECK_EQUAL( CStrUtils::ToStr( a ), CStrUtils::ToStr( b ) );
+				BOOST_CHECK_EQUAL( StringUtils::ToStr( a ), StringUtils::ToStr( b ) );
 			}
 			static void Different( param_type const & a, field_type const & b )
 			{
-				BOOST_CHECK_NE( CStrUtils::ToStr( a ), CStrUtils::ToStr( b ) );
+				BOOST_CHECK_NE( StringUtils::ToStr( a ), StringUtils::ToStr( b ) );
 			}
 			void operator()( bool equal, param_type const & a, field_type const & b )
 			{
@@ -880,11 +880,11 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 			static void Equal( param_type const & a, field_type const & b )
 			{
-				BOOST_CHECK_EQUAL( CStrUtils::ToStr( a ), CStrUtils::ToStr( b ) );
+				BOOST_CHECK_EQUAL( StringUtils::ToStr( a ), StringUtils::ToStr( b ) );
 			}
 			static void Different( param_type const & a, field_type const & b )
 			{
-				BOOST_CHECK_NE( CStrUtils::ToStr( a ), CStrUtils::ToStr( b ) );
+				BOOST_CHECK_NE( StringUtils::ToStr( a ), StringUtils::ToStr( b ) );
 			}
 			void operator()( bool equal, param_type const & a, field_type const & b )
 			{

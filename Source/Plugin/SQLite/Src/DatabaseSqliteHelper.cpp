@@ -36,14 +36,14 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 				if ( dotIndex == String::npos )
 				{
 					String limit = type.substr( index + 1, type.find( STR( ")" ) ) - index );
-					result.first = CStrUtils::ToInt( CStrUtils::Trim( limit ) );
+					result.first = std::stoi( StringUtils::Trim( limit ) );
 				}
 				else
 				{
 					String limit1 = type.substr( index + 1, dotIndex - index );
-					result.first = CStrUtils::ToInt( CStrUtils::Trim( limit1 ) );
+					result.first = std::stoi( StringUtils::Trim( limit1 ) );
 					String limit2 = type.substr( dotIndex + 1, type.find( STR( ")" ) ) - dotIndex );
-					result.second = CStrUtils::ToInt( CStrUtils::Trim( limit2 ) );
+					result.second = std::stoi( StringUtils::Trim( limit2 ) );
 				}
 			}
 
@@ -550,7 +550,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		DatabaseFieldInfosSPtr GetNullFieldInfos( const std::string & type, const String & columnName, const std::string & lowerName )
 		{
 			DatabaseFieldInfosSPtr infos;
-			std::string upperType = CStrUtils::UpperCase( type );
+			std::string upperType = StringUtils::UpperCase( type );
 			size_t index;
 
 			if ( upperType == "DATETIME" )
@@ -712,23 +712,23 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 				switch ( sqlite3_column_type( statement, i ) )
 				{
 				case SQLITE_INTEGER:
-					arrayReturn.push_back( GetIntegerFieldInfos( type, CStrUtils::ToString( pszName ), CStrUtils::LowerCase( pszName ) ) );
+					arrayReturn.push_back( GetIntegerFieldInfos( type, StringUtils::ToString( pszName ), StringUtils::LowerCase( pszName ) ) );
 					break;
 
 				case SQLITE_FLOAT:
-					arrayReturn.push_back( GetFloatFieldInfos( type, CStrUtils::ToString( pszName ), CStrUtils::LowerCase( pszName ) ) );
+					arrayReturn.push_back( GetFloatFieldInfos( type, StringUtils::ToString( pszName ), StringUtils::LowerCase( pszName ) ) );
 					break;
 
 				case SQLITE_TEXT:
-					arrayReturn.push_back( GetStringFieldInfos( type, CStrUtils::ToString( pszName ), CStrUtils::LowerCase( pszName ) ) );
+					arrayReturn.push_back( GetStringFieldInfos( type, StringUtils::ToString( pszName ), StringUtils::LowerCase( pszName ) ) );
 					break;
 
 				case SQLITE_BLOB:
-					arrayReturn.push_back( GetBlobFieldInfos( type, CStrUtils::ToString( pszName ), CStrUtils::LowerCase( pszName ) ) );
+					arrayReturn.push_back( GetBlobFieldInfos( type, StringUtils::ToString( pszName ), StringUtils::LowerCase( pszName ) ) );
 					break;
 
 				case SQLITE_NULL:
-					arrayReturn.push_back( GetNullFieldInfos( type, CStrUtils::ToString( pszName ), CStrUtils::LowerCase( pszName ) ) );
+					arrayReturn.push_back( GetNullFieldInfos( type, StringUtils::ToString( pszName ), StringUtils::LowerCase( pszName ) ) );
 					break;
 
 				default:
@@ -910,7 +910,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		if ( code != SQLITE_OK )
 		{
 			StringStream error;
-			error << STR( "Error : " ) << msg << STR( " - " ) << CStrUtils::ToString( sqlite3_errmsg( database ) );
+			error << STR( "Error : " ) << msg << STR( " - " ) << StringUtils::ToString( sqlite3_errmsg( database ) );
 			DB_EXCEPT( exc, error.str() );
 		}
 

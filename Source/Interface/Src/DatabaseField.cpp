@@ -21,7 +21,6 @@
 #include "DatabaseFieldInfos.h"
 #include "DatabaseValue.h"
 #include "DatabaseException.h"
-#include "EDateMonth.h"
 
 BEGIN_NAMESPACE_DATABASE
 {

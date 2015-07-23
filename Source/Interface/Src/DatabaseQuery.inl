@@ -24,7 +24,7 @@ BEGIN_NAMESPACE_DATABASE
 	template< typename T >
 	void CDatabaseQuery::SetParameterValue( const String & name, const T & value )
 	{
-		GetParameter( index )->SetValue( value );
+		GetParameter( name )->SetValue( value );
 	}
 
 	template< typename T >
@@ -36,7 +36,7 @@ BEGIN_NAMESPACE_DATABASE
 	template< typename T >
 	void CDatabaseQuery::SetParameterValueFast( const String & name, const T & value )
 	{
-		GetParameter( index )->SetValueFast( value );
+		GetParameter( name )->SetValueFast( value );
 	}
 
 	template <typename T>

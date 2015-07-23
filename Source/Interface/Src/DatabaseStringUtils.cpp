@@ -12,510 +12,504 @@
 #include "DatabasePch.h"
 
 #include "DatabaseStringUtils.h"
+#include "DatabaseException.h"
 
 BEGIN_NAMESPACE_DATABASE
 {
-	namespace
+	namespace StringUtils
 	{
-		template< typename InChar, typename OutChar > struct str_converter;
+		namespace detail
+		{
+			static const String ERROR_DB_FORMALIZE = STR( "Error while formatting: " );
+
+			template< typename InChar, typename OutChar > struct str_converter;
 #if !defined( __GNUG__ )
-		template< typename InChar, typename OutChar > struct str_converter
-		{
-			void operator()( std::basic_string< InChar > const & p_strIn, std::basic_string< OutChar > & p_strOut, std::locale const & p_locale = std::locale() )
+			template< typename InChar, typename OutChar > struct str_converter
 			{
-				if ( !p_strIn.empty() )
+				void operator()( std::basic_string< InChar > const & p_strIn, std::basic_string< OutChar > & p_strOut, std::locale const & p_locale = std::locale() )
 				{
-					typedef typename std::codecvt< OutChar, InChar, std::mbstate_t > facet_type;
-					typedef typename facet_type::result result_type;
+					if ( !p_strIn.empty() )
+					{
+						typedef typename std::codecvt< OutChar, InChar, std::mbstate_t > facet_type;
+						typedef typename facet_type::result result_type;
 
-					std::mbstate_t l_state = std::mbstate_t();
-					result_type l_result;
-					std::vector< OutChar > l_buffer( p_strIn.size() + 1 );
-					InChar const * l_pEndIn = NULL;
-					OutChar * l_pEndOut = NULL;
+						std::mbstate_t l_state = std::mbstate_t();
+						result_type l_result;
+						std::vector< OutChar > l_buffer( p_strIn.size() + 1 );
+						InChar const * l_pEndIn = NULL;
+						OutChar * l_pEndOut = NULL;
 
-					l_result = std::use_facet< facet_type >( p_locale ).in( l_state,
-					p_strIn.data(), p_strIn.data() + p_strIn.size(), l_pEndIn,
-					&l_buffer.front(), &l_buffer.front() + p_strIn.size(), l_pEndOut
-																		  );
+						l_result = std::use_facet< facet_type >( p_locale ).in( l_state,
+						p_strIn.data(), p_strIn.data() + p_strIn.size(), l_pEndIn,
+						&l_buffer.front(), &l_buffer.front() + p_strIn.size(), l_pEndOut
+																			  );
 
-					p_strOut = std::basic_string< OutChar >( &l_buffer.front(), l_pEndOut );
+						p_strOut = std::basic_string< OutChar >( &l_buffer.front(), l_pEndOut );
+					}
+					else
+					{
+						p_strOut.clear();
+					}
 				}
-				else
-				{
-					p_strOut.clear();
-				}
-			}
-		};
+			};
 #else
-		template<> struct str_converter< char, wchar_t >
-		{
-			void operator()( std::basic_string< char > const & p_strIn, std::basic_string< wchar_t > & p_strOut, std::locale const & p_locale = std::locale() )
+			template<> struct str_converter< char, wchar_t >
 			{
-				if ( !p_strIn.empty() )
+				void operator()( std::basic_string< char > const & p_strIn, std::basic_string< wchar_t > & p_strOut, std::locale const & p_locale = std::locale() )
 				{
-					const std::size_t l_size = p_strIn.size();
-					p_strOut.resize( l_size, L'#' );
-					std::use_facet< std::ctype< wchar_t > >( p_locale ).widen( p_strIn.data(), p_strIn.data() + p_strIn.size(), &p_strOut[0] );
-//				    mbstowcs( &p_strOut[0], p_strIn.c_str(), l_size );
+					if ( !p_strIn.empty() )
+					{
+						const std::size_t l_size = p_strIn.size();
+						p_strOut.resize( l_size, L'#' );
+						std::use_facet< std::ctype< wchar_t > >( p_locale ).widen( p_strIn.data(), p_strIn.data() + p_strIn.size(), &p_strOut[0] );
+						//mbstowcs( &p_strOut[0], p_strIn.c_str(), l_size );
+					}
+					else
+					{
+						p_strOut.clear();
+					}
 				}
-				else
-				{
-					p_strOut.clear();
-				}
-			}
-		};
-		template<> struct str_converter< wchar_t, char >
-		{
-			void operator()( std::basic_string< wchar_t > const & p_strIn, std::basic_string< char > & p_strOut, std::locale const & p_locale = std::locale() )
+			};
+			template<> struct str_converter< wchar_t, char >
 			{
-				if ( !p_strIn.empty() )
+				void operator()( std::basic_string< wchar_t > const & p_strIn, std::basic_string< char > & p_strOut, std::locale const & p_locale = std::locale() )
 				{
-					const std::size_t l_size = p_strIn.size();
-					p_strOut.resize( l_size, '#' );
-					std::use_facet< std::ctype< wchar_t > >( p_locale ).narrow( p_strIn.data(), p_strIn.data() + p_strIn.size(), '#', &p_strOut[0] );
-//				    wcstombs( &p_strOut[0], p_strIn.c_str(), l_size );
+					if ( !p_strIn.empty() )
+					{
+						const std::size_t l_size = p_strIn.size();
+						p_strOut.resize( l_size, '#' );
+						std::use_facet< std::ctype< wchar_t > >( p_locale ).narrow( p_strIn.data(), p_strIn.data() + p_strIn.size(), '#', &p_strOut[0] );
+						//wcstombs( &p_strOut[0], p_strIn.c_str(), l_size );
+					}
+					else
+					{
+						p_strOut.clear();
+					}
 				}
-				else
-				{
-					p_strOut.clear();
-				}
-			}
-		};
+			};
 #endif
-		template< typename InChar >
-		struct str_converter< InChar, InChar >
-		{
-			void operator()( std::basic_string< InChar > const & p_strIn, std::basic_string< InChar > & p_strOut, std::locale const & )
+			template< typename InChar >
+			struct str_converter< InChar, InChar >
 			{
-				p_strOut = p_strIn;
-			}
-		};
-	}
-
-	//*************************************************************************************************
-
-	bool CStrUtils::IsInteger( String const & p_strToTest, std::locale const & DB_PARAM_UNUSED( p_locale ) )
-	{
-		bool l_bReturn = true;
-
-		if ( !p_strToTest.empty() )
-		{
-			l_bReturn = ( p_strToTest[0] >= '0' && p_strToTest[0] <= '9' ) || p_strToTest[0] == '-';
-
-			for ( std::size_t i = 1; i < p_strToTest.size() && l_bReturn; i++ )
-			{
-				l_bReturn = p_strToTest[i] >= '0' && p_strToTest[i] <= '9';
-			}
-		}
-
-		return l_bReturn;
-	}
-
-	bool CStrUtils::IsFloating( String const & p_strToTest, std::locale const & DB_PARAM_UNUSED( p_locale ) )
-	{
-		bool l_bReturn = false;
-		StringArray	l_arrayParts;
-		String l_strText( p_strToTest );
-		std::size_t	l_nSize;
-
-		Replace( l_strText, STR( "," ), STR( "." ) );
-		l_arrayParts = Split( l_strText, STR( "." ) );
-		l_nSize = l_arrayParts.size();
-
-		if ( l_nSize > 0 && l_nSize < 3 )
-		{
-			l_bReturn = IsInteger( l_arrayParts[0] );
-
-			if ( l_bReturn && l_nSize > 1 )
-			{
-				l_bReturn = IsInteger( l_arrayParts[1] );
-			}
-		}
-
-		return l_bReturn;
-	}
-
-	bool CStrUtils::IsUpperCase( std::string const & p_strToTest )
-	{
-		return p_strToTest == UpperCase( p_strToTest );
-	}
-
-	bool CStrUtils::IsLowerCase( std::string const & p_strToTest )
-	{
-		return p_strToTest == LowerCase( p_strToTest );
-	}
-
-	bool CStrUtils::IsUpperCase( std::wstring const & p_strToTest )
-	{
-		return p_strToTest == UpperCase( p_strToTest );
-	}
-
-	bool CStrUtils::IsLowerCase( std::wstring const & p_strToTest )
-	{
-		return p_strToTest == LowerCase( p_strToTest );
-	}
-
-	short CStrUtils::ToShort( String const & p_strToTest, std::locale const & p_locale )
-	{
-		short l_sReturn = 0;
-
-		if ( ! p_strToTest.empty() )
-		{
-			Parse( p_strToTest, p_locale, l_sReturn );
-		}
-
-		return l_sReturn;
-	}
-
-	int CStrUtils::ToInt( String const & p_strToTest, std::locale const & p_locale )
-	{
-		int l_iReturn = 0;
-
-		if ( ! p_strToTest.empty() )
-		{
-			Parse( p_strToTest, p_locale, l_iReturn );
-		}
-
-		return l_iReturn;
-	}
-
-	long CStrUtils::ToLong( String const & p_strToTest, std::locale const & p_locale )
-	{
-		long l_lReturn = 0;
-
-		if ( ! p_strToTest.empty() )
-		{
-			Parse( p_strToTest, p_locale, l_lReturn );
-		}
-
-		return l_lReturn;
-	}
-
-	long long CStrUtils::ToLongLong( String const & p_strToTest, std::locale const & p_locale )
-	{
-		long long l_llReturn = 0;
-
-		if ( ! p_strToTest.empty() )
-		{
-			Parse( p_strToTest, p_locale, l_llReturn );
-		}
-
-		return l_llReturn;
-	}
-
-	float CStrUtils::ToFloat( String const & p_strToTest, std::locale const & p_locale )
-	{
-		float l_fReturn = 0;
-
-		if ( ! p_strToTest.empty() )
-		{
-			Parse( p_strToTest, p_locale, l_fReturn );
-		}
-
-		return l_fReturn;
-	}
-
-	double CStrUtils::ToDouble( String const & p_strToTest, std::locale const & p_locale )
-	{
-		double l_dReturn = 0;
-
-		if ( ! p_strToTest.empty() )
-		{
-			Parse( p_strToTest, p_locale, l_dReturn );
-		}
-
-		return l_dReturn;
-	}
-
-	long double CStrUtils::ToLongDouble( String const & p_strToTest, std::locale const & p_locale )
-	{
-		long double l_ldReturn = 0;
-
-		if ( !p_strToTest.empty() )
-		{
-			Parse( p_strToTest, p_locale, l_ldReturn );
-		}
-
-		return l_ldReturn;
-	}
-
-	std::string CStrUtils::UpperCase( std::string const & p_str )
-	{
-		std::string l_strReturn;
-		std::locale loc;
-
-		for ( std::size_t i = 0; i < p_str.size(); i++ )
-		{
-			l_strReturn += std::toupper( p_str[i], loc );
-		}
-
-		return l_strReturn;
-	}
-
-	std::string CStrUtils::LowerCase( std::string const & p_str )
-	{
-		std::string l_strReturn;
-		std::locale loc;
-
-		for ( std::size_t i = 0; i < p_str.size(); i++ )
-		{
-			l_strReturn += std::tolower( p_str[i], loc );
-		}
-
-		return l_strReturn;
-	}
-
-	std::wstring CStrUtils::UpperCase( std::wstring const & p_str )
-	{
-		std::wstring l_strReturn;
-		std::locale loc;
-
-		for ( std::size_t i = 0; i < p_str.size(); i++ )
-		{
-			l_strReturn += std::toupper( p_str[i], loc );
-		}
-
-		return l_strReturn;
-	}
-
-	std::wstring CStrUtils::LowerCase( std::wstring const & p_str )
-	{
-		std::wstring l_strReturn;
-		std::locale loc;
-
-		for ( std::size_t i = 0; i < p_str.size(); i++ )
-		{
-			l_strReturn += std::tolower( p_str[i], loc );
-		}
-
-		return l_strReturn;
-	}
-
-	std::string & CStrUtils::ToUpperCase( std::string & p_str )
-	{
-		p_str = UpperCase( p_str );
-		return p_str;
-	}
-
-	std::string & CStrUtils::ToLowerCase( std::string & p_str )
-	{
-		p_str = LowerCase( p_str );
-		return p_str;
-	}
-
-	std::wstring & CStrUtils::ToUpperCase( std::wstring & p_str )
-	{
-		p_str = UpperCase( p_str );
-		return p_str;
-	}
-
-	std::wstring & CStrUtils::ToLowerCase( std::wstring & p_str )
-	{
-		p_str = LowerCase( p_str );
-		return p_str;
-	}
-
-	StringArray CStrUtils::Split( String const & p_str, String const & p_delims, uint32_t p_maxSplits, bool p_bKeepVoid )
-	{
-		StringArray	l_arrayReturn;
-
-		if ( ! p_str.empty() && ! p_delims.empty() && p_maxSplits > 0 )
-		{
-			l_arrayReturn.reserve( p_maxSplits + 1 );
-			std::size_t l_numSplits = 0;
-			std::size_t	l_pos = 0;
-			std::size_t	l_start = 0;
-
-			do
-			{
-				l_pos = p_str.find_first_of( p_delims, l_start );
-
-				if ( l_pos == l_start )
+				void operator()( std::basic_string< InChar > const & p_strIn, std::basic_string< InChar > & p_strOut, std::locale const & )
 				{
-					l_start = l_pos + 1;
-
-					if ( p_bKeepVoid )
-					{
-						l_arrayReturn.push_back( STR( "" ) );
-					}
+					p_strOut = p_strIn;
 				}
-				else if ( l_pos == std::string::npos || l_numSplits == p_maxSplits )
+			};
+
+			template< typename CharType >
+			std::basic_string< CharType > & str_replace( std::basic_string< CharType > & p_str, std::basic_string< CharType > const & p_find, std::basic_string< CharType > const & p_replaced )
+			{
+				typedef std::basic_string< CharType > string_t;
+				string_t l_return;
+				std::size_t	l_currentPos = 0;
+				std::size_t	l_pos = 0;
+
+				while ( ( l_pos = p_str.find( p_find, l_currentPos ) ) != string_t::npos )
 				{
-					l_arrayReturn.push_back( p_str.substr( l_start ) );
-					return l_arrayReturn;
-				}
-				else
-				{
-					l_arrayReturn.push_back( p_str.substr( l_start, l_pos - l_start ) );
-					l_start = l_pos + 1;
+					l_return.append( p_str.substr( l_currentPos, l_pos - l_currentPos ) );
+					l_return.append( p_replaced );
+					l_currentPos = l_pos + p_find.size();
 				}
 
-				l_start = p_str.find_first_not_of( p_delims, l_start );
-				++ l_numSplits;
-			}
-			while ( l_pos != std::string::npos );
-		}
-
-		return l_arrayReturn;
-	}
-
-	String & CStrUtils::Trim( String & p_str, bool p_bLeft, bool p_bRight )
-	{
-		if ( p_str.size() > 0 )
-		{
-			std::size_t l_uiIndex;
-
-			if ( p_bLeft )
-			{
-				l_uiIndex = p_str.find_first_not_of( STR( ' ' ) );
-
-				if ( l_uiIndex > 0 )
+				if ( l_currentPos != p_str.size() )
 				{
-					if ( l_uiIndex != String::npos )
-					{
-						p_str = p_str.substr( l_uiIndex, String::npos );
-					}
-					else
-					{
-						p_str.clear();
-					}
+					l_return.append( p_str.substr( l_currentPos, l_pos - l_currentPos ) );
 				}
 
-				l_uiIndex = p_str.find_first_not_of( STR( '\t' ) );
-
-				if ( l_uiIndex > 0 )
-				{
-					if ( l_uiIndex != String::npos )
-					{
-						p_str = p_str.substr( l_uiIndex, String::npos );
-					}
-					else
-					{
-						p_str.clear();
-					}
-				}
+				p_str = l_return;
+				return p_str;
 			}
 
-			if ( p_bRight && p_str.size() > 0 )
+			template< typename CharType >
+			std::vector< std::basic_string< CharType > > str_split( std::basic_string< CharType > const & p_str, std::basic_string< CharType > const & p_delims, uint32_t p_maxSplits, bool p_bKeepVoid )
 			{
-				l_uiIndex = p_str.find_last_not_of( STR( ' ' ) );
+				typedef std::basic_string< CharType > string_t;
+				std::vector< string_t > l_arrayReturn;
 
-				if ( l_uiIndex < p_str.size() - 1 )
+				if ( ! p_str.empty() && ! p_delims.empty() && p_maxSplits > 0 )
 				{
-					if ( l_uiIndex != String::npos )
+					l_arrayReturn.reserve( p_maxSplits + 1 );
+					std::size_t l_numSplits = 0;
+					std::size_t	l_pos = 0;
+					std::size_t	l_start = 0;
+
+					do
 					{
-						p_str = p_str.substr( 0, l_uiIndex + 1 );
+						l_pos = p_str.find_first_of( p_delims, l_start );
+
+						if ( l_pos == l_start )
+						{
+							l_start = l_pos + 1;
+
+							if ( p_bKeepVoid )
+							{
+								l_arrayReturn.push_back( string_t() );
+							}
+						}
+						else if ( l_pos == string_t::npos || l_numSplits == p_maxSplits )
+						{
+							l_arrayReturn.push_back( p_str.substr( l_start ) );
+							return l_arrayReturn;
+						}
+						else
+						{
+							l_arrayReturn.push_back( p_str.substr( l_start, l_pos - l_start ) );
+							l_start = l_pos + 1;
+						}
+
+						l_start = p_str.find_first_not_of( p_delims, l_start );
+						++ l_numSplits;
 					}
-					else
-					{
-						p_str.clear();
-					}
+					while ( l_pos != string_t::npos );
 				}
+
+				return l_arrayReturn;
+			}
+
+			template< typename CharType >
+			std::basic_string< CharType > & str_trim( std::basic_string< CharType > & p_str, bool p_bLeft, bool p_bRight )
+			{
+				typedef std::basic_string< CharType > string_t;
 
 				if ( p_str.size() > 0 )
 				{
-					l_uiIndex = p_str.find_last_not_of( STR( '\t' ) );
+					if ( p_bLeft )
+					{
+						std::size_t l_uiIndex = p_str.find_first_not_of( ' ' );
 
-					if ( l_uiIndex != String::npos )
-					{
-						p_str = p_str.substr( 0, l_uiIndex + 1 );
+						if ( l_uiIndex > 0 )
+						{
+							if ( l_uiIndex != string_t::npos )
+							{
+								p_str = p_str.substr( l_uiIndex, string_t::npos );
+							}
+							else
+							{
+								p_str.clear();
+							}
+						}
+
+						l_uiIndex = p_str.find_first_not_of( '\t' );
+
+						if ( l_uiIndex > 0 )
+						{
+							if ( l_uiIndex != string_t::npos )
+							{
+								p_str = p_str.substr( l_uiIndex, string_t::npos );
+							}
+							else
+							{
+								p_str.clear();
+							}
+						}
 					}
-					else
+
+					if ( p_bRight && p_str.size() > 0 )
 					{
-						p_str.clear();
+						std::size_t l_uiIndex = p_str.find_last_not_of( ' ' );
+
+						if ( l_uiIndex < p_str.size() - 1 )
+						{
+							if ( l_uiIndex != string_t::npos )
+							{
+								p_str = p_str.substr( 0, l_uiIndex + 1 );
+							}
+							else
+							{
+								p_str.clear();
+							}
+						}
+
+						if ( p_str.size() > 0 )
+						{
+							l_uiIndex = p_str.find_last_not_of( '\t' );
+
+							if ( l_uiIndex != string_t::npos )
+							{
+								p_str = p_str.substr( 0, l_uiIndex + 1 );
+							}
+							else
+							{
+								p_str.clear();
+							}
+						}
 					}
+				}
+
+				return p_str;
+			}
+
+			template< typename CharType >
+			std::basic_string< CharType > str_upper( std::basic_string< CharType > const & p_str )
+			{
+				typedef std::basic_string< CharType > string_t;
+				string_t l_strReturn;
+				std::locale loc;
+
+				for ( std::size_t i = 0; i < p_str.size(); i++ )
+				{
+					l_strReturn += std::toupper( p_str[i], loc );
+				}
+
+				return l_strReturn;
+			}
+
+			template< typename CharType >
+			std::basic_string< CharType > str_lower( std::basic_string< CharType > const & p_str )
+			{
+				typedef std::basic_string< CharType > string_t;
+				string_t l_strReturn;
+				std::locale loc;
+
+				for ( std::size_t i = 0; i < p_str.size(); i++ )
+				{
+					l_strReturn += std::tolower( p_str[i], loc );
+				}
+
+				return l_strReturn;
+			}
+		
+			template< typename CharType > size_t str_vprintf( CharType * out, size_t max, const CharType * format, va_list vaList );
+
+			template<>
+			size_t str_vprintf< char >( char * out, size_t max, const char * format, va_list vaList )
+			{
+				return vsnprintf( out, max, format, vaList );
+			}
+
+			template<>
+			size_t str_vprintf< wchar_t >( wchar_t * out, size_t max, const wchar_t * format, va_list vaList )
+			{
+				return vswprintf( out, max, format, vaList );
+			}
+
+			template< typename CharType >
+			void str_formalize( std::basic_string< CharType > & formattedString, int maxSize, const CharType * format, va_list vaList )
+			{
+				std::vector< CharType > strText( maxSize, 0 );
+
+				try
+				{
+
+					if ( format != NULL )
+					{
+						str_vprintf( strText.data(), maxSize, format, vaList );
+						formattedString = strText.data();
+					}
+				}
+				catch ( ... )
+				{
+					StringStream message;
+					message << ERROR_DB_FORMALIZE << formattedString.c_str();
+					DB_EXCEPT( EDatabaseExceptionCodes_DateTimeError, message.str() );
 				}
 			}
 		}
 
-		return p_str;
-	}
+		//*************************************************************************************************
 
-	String & CStrUtils::Replace( String & p_str, TChar p_find, TChar p_replaced )
-	{
-		TChar l_szFind[2] = { p_find, STR( '\0' ) };
-		TChar l_szReplaced[2] = { p_replaced, STR( '\0' ) };
-		return Replace( p_str, l_szFind, l_szReplaced );
-	}
-
-	String & CStrUtils::Replace( String & p_str, String const & p_find, TChar p_replaced )
-	{
-		TChar l_szReplaced[2] = { p_replaced, STR( '\0' ) };
-		return Replace( p_str, p_find, l_szReplaced );
-	}
-
-	String & CStrUtils::Replace( String & p_str, TChar p_find, String const & p_replaced )
-	{
-		TChar l_szFind[2] = { p_find, STR( '\0' ) };
-		return Replace( p_str, l_szFind, p_replaced );
-	}
-
-	String & CStrUtils::Replace( String & p_str, String const & p_find, String const & p_replaced )
-	{
-		String l_temp;
-		String l_return;
-		std::size_t	l_currentPos = 0;
-		std::size_t	l_pos = 0;
-
-		while ( ( l_pos = p_str.find( p_find, l_currentPos ) ) != String::npos )
+		bool IsUpperCase( std::string const & p_strToTest )
 		{
-			l_return.append( p_str.substr( l_currentPos, l_pos - l_currentPos ) );
-			l_return.append( p_replaced );
-			l_currentPos = l_pos + p_find.size();
+			return p_strToTest == detail::str_upper( p_strToTest );
 		}
 
-		if ( l_currentPos != p_str.size() )
+		bool IsLowerCase( std::string const & p_strToTest )
 		{
-			l_return.append( p_str.substr( l_currentPos, l_pos - l_currentPos ) );
+			return p_strToTest == detail::str_lower( p_strToTest );
 		}
 
-		p_str = l_return;
-		return p_str;
-	}
+		bool IsUpperCase( std::wstring const & p_strToTest )
+		{
+			return p_strToTest == detail::str_upper( p_strToTest );
+		}
 
-	std::string CStrUtils::ToStr( std::wstring const & p_str )
-	{
-		std::string l_strReturn;
-		std::wostringstream l_wstream;
-		str_converter< wchar_t, char >()( p_str, l_strReturn, l_wstream.getloc() );
-		return l_strReturn;
-	}
+		bool IsLowerCase( std::wstring const & p_strToTest )
+		{
+			return p_strToTest == detail::str_lower( p_strToTest );
+		}
 
-	std::wstring CStrUtils::ToWStr( std::string const & p_str )
-	{
-		std::wstring l_strReturn;
-		std::wostringstream l_wstream;
-		str_converter< char, wchar_t >()( p_str, l_strReturn, l_wstream.getloc() );
-		return l_strReturn;
-	}
+		std::string UpperCase( std::string const & p_str )
+		{
+			return detail::str_upper( p_str );
+		}
 
-	String CStrUtils::ToString( std::string const & p_strString )
-	{
-		String l_strReturn;
-		std::wostringstream l_wstream;
-		str_converter< char, TChar >()( p_strString, l_strReturn, l_wstream.getloc() );
-		return l_strReturn;
-	}
+		std::string LowerCase( std::string const & p_str )
+		{
+			return detail::str_lower( p_str );
+		}
 
-	String CStrUtils::ToString( std::wstring const & p_strString )
-	{
-		String l_strReturn;
-		std::wostringstream l_wstream;
-		str_converter< wchar_t, TChar >()( p_strString, l_strReturn, l_wstream.getloc() );
-		return l_strReturn;
-	}
+		std::wstring UpperCase( std::wstring const & p_str )
+		{
+			return detail::str_upper( p_str );
+		}
 
-	String CStrUtils::ToString( char p_char )
-	{
-		char l_szTmp[2] = { p_char, '\0' };
-		return ToString( l_szTmp );
-	}
+		std::wstring LowerCase( std::wstring const & p_str )
+		{
+			return detail::str_lower( p_str );
+		}
 
-	String CStrUtils::ToString( wchar_t p_wchar )
-	{
-		wchar_t l_wszTmp[2] = { p_wchar, L'\0' };
-		return ToString( l_wszTmp );
+		std::string & ToUpperCase( std::string & p_str )
+		{
+			p_str = detail::str_upper( p_str );
+			return p_str;
+		}
+
+		std::string & ToLowerCase( std::string & p_str )
+		{
+			p_str = detail::str_lower( p_str );
+			return p_str;
+		}
+
+		std::wstring & ToUpperCase( std::wstring & p_str )
+		{
+			p_str = detail::str_upper( p_str );
+			return p_str;
+		}
+
+		std::wstring & ToLowerCase( std::wstring & p_str )
+		{
+			p_str = detail::str_lower( p_str );
+			return p_str;
+		}
+
+		std::vector< std::string > Split( std::string const & p_str, std::string const & p_delims, uint32_t p_maxSplits, bool p_bKeepVoid )
+		{
+			return detail::str_split( p_str, p_delims, p_maxSplits, p_bKeepVoid );
+		}
+
+		std::vector< std::wstring > Split( std::wstring const & p_str, std::wstring const & p_delims, uint32_t p_maxSplits, bool p_bKeepVoid )
+		{
+			return detail::str_split( p_str, p_delims, p_maxSplits, p_bKeepVoid );
+		}
+
+		std::string & Trim( std::string & p_str, bool p_bLeft, bool p_bRight )
+		{
+			return detail::str_trim( p_str, p_bLeft, p_bRight );
+		}
+
+		std::wstring & Trim( std::wstring & p_str, bool p_bLeft, bool p_bRight )
+		{
+			return detail::str_trim( p_str, p_bLeft, p_bRight );
+		}
+
+		std::string & Replace( std::string & p_str, char p_find, char p_replaced )
+		{
+			char l_szFind[2] = { p_find, STR( '\0' ) };
+			char l_szReplaced[2] = { p_replaced, STR( '\0' ) };
+			return detail::str_replace( p_str, std::string( l_szFind ), std::string( l_szReplaced ) );
+		}
+
+		std::string & Replace( std::string & p_str, std::string const & p_find, char p_replaced )
+		{
+			char l_szReplaced[2] = { p_replaced, STR( '\0' ) };
+			return detail::str_replace( p_str, p_find, std::string( l_szReplaced ) );
+		}
+
+		std::string & Replace( std::string & p_str, char p_find, std::string const & p_replaced )
+		{
+			char l_szFind[2] = { p_find, STR( '\0' ) };
+			return detail::str_replace( p_str, std::string( l_szFind ), p_replaced );
+		}
+
+		std::string & Replace( std::string & p_str, std::string const & p_find, std::string const & p_replaced )
+		{
+			return detail::str_replace( p_str, p_find, p_replaced );
+		}
+
+		std::wstring & Replace( std::wstring & p_str, wchar_t p_find, wchar_t p_replaced )
+		{
+			wchar_t l_szFind[2] = { p_find, STR( '\0' ) };
+			wchar_t l_szReplaced[2] = { p_replaced, STR( '\0' ) };
+			return detail::str_replace( p_str, std::wstring( l_szFind ), std::wstring( l_szReplaced ) );
+		}
+
+		std::wstring & Replace( std::wstring & p_str, std::wstring const & p_find, wchar_t p_replaced )
+		{
+			wchar_t l_szReplaced[2] = { p_replaced, STR( '\0' ) };
+			return detail::str_replace( p_str, p_find, std::wstring( l_szReplaced ) );
+		}
+
+		std::wstring & Replace( std::wstring & p_str, wchar_t p_find, std::wstring const & p_replaced )
+		{
+			wchar_t l_szFind[2] = { p_find, STR( '\0' ) };
+			return detail::str_replace( p_str, std::wstring( l_szFind ), p_replaced );
+		}
+
+		std::wstring & Replace( std::wstring & p_str, std::wstring const & p_find, std::wstring const & p_replaced )
+		{
+			return detail::str_replace( p_str, p_find, p_replaced );
+		}
+
+		std::string ToStr( std::wstring const & p_str )
+		{
+			std::string l_strReturn;
+			std::wostringstream l_wstream;
+			detail::str_converter< wchar_t, char >()( p_str, l_strReturn, l_wstream.getloc() );
+			return l_strReturn;
+		}
+
+		std::wstring ToWStr( std::string const & p_str )
+		{
+			std::wstring l_strReturn;
+			std::wostringstream l_wstream;
+			detail::str_converter< char, wchar_t >()( p_str, l_strReturn, l_wstream.getloc() );
+			return l_strReturn;
+		}
+
+		String ToString( std::string const & p_strString )
+		{
+			String l_strReturn;
+			std::wostringstream l_wstream;
+			detail::str_converter< char, TChar >()( p_strString, l_strReturn, l_wstream.getloc() );
+			return l_strReturn;
+		}
+
+		String ToString( std::wstring const & p_strString )
+		{
+			String l_strReturn;
+			std::wostringstream l_wstream;
+			detail::str_converter< wchar_t, TChar >()( p_strString, l_strReturn, l_wstream.getloc() );
+			return l_strReturn;
+		}
+
+		String ToString( char p_char )
+		{
+			char l_szTmp[2] = { p_char, '\0' };
+			return ToString( l_szTmp );
+		}
+
+		String ToString( wchar_t p_wchar )
+		{
+			wchar_t l_wszTmp[2] = { p_wchar, L'\0' };
+			return ToString( l_wszTmp );
+		}
+
+		void Formalize( std::string & formattedString, int maxSize, const char * format, ... )
+		{
+			formattedString.clear();
+
+			if ( format )
+			{
+				va_list vaList;
+				va_start( vaList, format );
+				detail::str_formalize( formattedString,maxSize, format, vaList );
+				va_end( vaList );
+			}
+		}
+
+		void Formalize( std::wstring & formattedString, int maxSize, const wchar_t * format, ... )
+		{
+			formattedString.clear();
+
+			if ( format )
+			{
+				va_list vaList;
+				va_start( vaList, format );
+				detail::str_formalize( formattedString,maxSize, format, vaList );
+				va_end( vaList );
+			}
+		}
 	}
 
 	std::ostream & operator << ( std::ostream & stream, NAMESPACE_DATABASE::ByteArray const & vector )
@@ -550,13 +544,13 @@ BEGIN_NAMESPACE_DATABASE
 
 	std::ostream & operator <<( std::ostream & stream, std::wstring const & string )
 	{
-		stream << NAMESPACE_DATABASE::CStrUtils::ToStr( string );
+		stream << NAMESPACE_DATABASE::StringUtils::ToStr( string );
 		return stream;
 	}
 
 	std::ostream & operator <<( std::ostream & stream, wchar_t const * string )
 	{
-		stream << NAMESPACE_DATABASE::CStrUtils::ToStr( string );
+		stream << NAMESPACE_DATABASE::StringUtils::ToStr( string );
 		return stream;
 	}
 }

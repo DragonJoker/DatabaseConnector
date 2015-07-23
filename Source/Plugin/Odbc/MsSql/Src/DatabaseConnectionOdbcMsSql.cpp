@@ -38,23 +38,23 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 	static const String INFO_ODBC_AllocHandle = STR( "SQLAllocHandle" );
 	static const String INFO_ODBC_DriverConnect = STR( "SQLDriverConnect" );
 
-	static const std::string ODBC_FORMAT_SDATE = "CAST( '%04i-%02i-%02i' AS DATE)";
-	static const std::string ODBC_FORMAT_STIME = "CAST( '%02i:%02i%:02i' AS TIME)";
-	static const std::string ODBC_FORMAT_SDATETIME = "CAST('%04i-%02i-%02i %02i:%02i:%02i' as DATETIME)";
-	static const std::string ODBC_FORMAT_SDATETIME_DATE = "CAST('%04i-%02i-%02i 00:00:00' as DATETIME)";
-	static const std::string ODBC_FORMAT_SDATETIME_TIME = "CAST('0000-00-00 %02i:%02i:%02i' as DATETIME)";
-	static const std::string ODBC_FORMAT_STMT_SDATE = "{-d %04i-%02i-%02i}";
-	static const std::string ODBC_FORMAT_STMT_STIME = "{-t %02i:%02i:%02i}";
-	static const std::string ODBC_FORMAT_STMT_SDATETIME = "{-ts %04i-%02i-%02i %02i:%02i:%02i}";
+	static const std::string ODBC_FORMAT_SDATE = "CAST('%Y-%m-%d' AS DATE)";
+	static const std::string ODBC_FORMAT_STIME = "CAST('%H:%M:%S' AS TIME)";
+	static const std::string ODBC_FORMAT_SDATETIME = "CAST('%Y-%m-%d %H:%M:%S' AS TIMESTAMP)";
+	static const std::string ODBC_FORMAT_SDATETIME_DATE = "CAST('%Y-%m-%d 00:00:00' AS TIMESTAMP)";
+	static const std::string ODBC_FORMAT_SDATETIME_TIME = "CAST('0000-00-00 %H:%M:%S' AS TIMESTAMP)";
+	static const std::string ODBC_FORMAT_STMT_SDATE = "{-d %Y-%m-%d}";
+	static const std::string ODBC_FORMAT_STMT_STIME = "{-t %H:%M:%S}";
+	static const std::string ODBC_FORMAT_STMT_SDATETIME = "{-ts %Y-%m-%d %H:%M:%S}";
 
-	static const std::wstring ODBC_FORMAT_WDATE = L"CAST( '%04i-%02i-%02i' AS DATE)";
-	static const std::wstring ODBC_FORMAT_WTIME = L"CAST( '%02i:%02i%:02i' AS TIME)";
-	static const std::wstring ODBC_FORMAT_WDATETIME = L"CAST('%04i-%02i-%02i %02i:%02i:%02i' as DATETIME)";
-	static const std::wstring ODBC_FORMAT_WDATETIME_DATE = L"CAST('%04i-%02i-%02i 00:00:00' as DATETIME)";
-	static const std::wstring ODBC_FORMAT_WDATETIME_TIME = L"CAST('0000-00-00 %02i:%02i:%02i' as DATETIME)";
-	static const std::wstring ODBC_FORMAT_STMT_WDATE = L"{-d %04i-%02i-%02i}";
-	static const std::wstring ODBC_FORMAT_STMT_WTIME = L"{-t %02i:%02i:%02i}";
-	static const std::wstring ODBC_FORMAT_STMT_WDATETIME = L"{-ts %04i-%02i-%02i %02i:%02i:%02i}";
+	static const std::wstring ODBC_FORMAT_WDATE = L"CAST('%Y-%m-%d' AS DATE)";
+	static const std::wstring ODBC_FORMAT_WTIME = L"CAST('%H:%M:%S' AS TIME)";
+	static const std::wstring ODBC_FORMAT_WDATETIME = L"CAST('%Y-%m-%d %H:%M:%S' AS TIMESTAMP)";
+	static const std::wstring ODBC_FORMAT_WDATETIME_DATE = L"CAST('%Y-%m-%d 00:00:00' AS TIMESTAMP)";
+	static const std::wstring ODBC_FORMAT_WDATETIME_TIME = L"CAST('0000-00-00 %H:%M:%S' AS TIMESTAMP)";
+	static const std::wstring ODBC_FORMAT_STMT_WDATE = L"{-d %Y-%m-%d}";
+	static const std::wstring ODBC_FORMAT_STMT_WTIME = L"{-t %H:%M:%S}";
+	static const std::wstring ODBC_FORMAT_STMT_WDATETIME = L"{-ts %Y-%m-%d %H:%M:%S}";
 
 	static const std::string ODBC_SQL_SNULL = "NULL";
 	static const std::wstring ODBC_SQL_WNULL = L"NULL";
@@ -161,13 +161,13 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		return STR( "X'" ) + stream.str() + STR( "'" );
 	}
 
-	std::string CDatabaseConnectionOdbcMsSql::WriteDateS( const CDate & date ) const
+	std::string CDatabaseConnectionOdbcMsSql::WriteDateS( const DateType & date ) const
 	{
 		std::string strReturn;
 
-		if ( date.IsValid() )
+		if ( Date::IsValid( date ) )
 		{
-			Formalize( strReturn, 1024, ODBC_FORMAT_SDATE.c_str(), date.GetYear(), date.GetMonth() + 1, date.GetMonthDay() );
+			strReturn = Date::Format( date, ODBC_FORMAT_SDATE );
 		}
 		else
 		{
@@ -177,13 +177,13 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		return strReturn;
 	}
 
-	std::string CDatabaseConnectionOdbcMsSql::WriteTimeS( const CTime & time ) const
+	std::string CDatabaseConnectionOdbcMsSql::WriteTimeS( const TimeType & time ) const
 	{
 		std::string strReturn;
 
-		if ( time.IsValid() )
+		if ( Time::IsValid( time ) )
 		{
-			Formalize( strReturn, 1024, ODBC_FORMAT_STIME.c_str(), time.GetHour(), time.GetMinute(), time.GetSecond() );
+			strReturn = Time::Format( time, ODBC_FORMAT_STIME );
 		}
 		else
 		{
@@ -193,36 +193,13 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		return strReturn;
 	}
 
-	std::string CDatabaseConnectionOdbcMsSql::WriteDateTimeS( const CDateTime & dateTime ) const
+	std::string CDatabaseConnectionOdbcMsSql::WriteDateTimeS( const DateTimeType & dateTime ) const
 	{
 		std::string strReturn;
 
-		if ( dateTime.GetYear() <= 0 )
+		if ( DateTime::IsValid( dateTime ) )
 		{
-			strReturn += ODBC_SQL_SNULL;
-		}
-		else
-		{
-			Formalize( strReturn, 1024, ODBC_FORMAT_SDATETIME.c_str(), dateTime.GetYear(), dateTime.GetMonth() + 1, dateTime.GetMonthDay(), dateTime.GetHour(), dateTime.GetMinute(), dateTime.GetSecond() );
-		}
-
-		return strReturn;
-	}
-
-	std::string CDatabaseConnectionOdbcMsSql::WriteDateTimeS( const CDate & date ) const
-	{
-		std::string strReturn;
-
-		if ( date.IsValid() )
-		{
-			if ( date.GetYear() <= 0 )
-			{
-				strReturn += ODBC_SQL_SNULL;
-			}
-			else
-			{
-				Formalize( strReturn, 1024, ODBC_FORMAT_SDATETIME_DATE.c_str(), date.GetYear(), date.GetMonth(), date.GetMonthDay() );
-			}
+			strReturn = DateTime::Format( dateTime, ODBC_FORMAT_SDATETIME );
 		}
 		else
 		{
@@ -232,13 +209,13 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		return strReturn;
 	}
 
-	std::string CDatabaseConnectionOdbcMsSql::WriteDateTimeS( const CTime & time ) const
+	std::string CDatabaseConnectionOdbcMsSql::WriteDateTimeS( const DateType & date ) const
 	{
 		std::string strReturn;
 
-		if ( time.IsValid() )
+		if ( Date::IsValid( date ) )
 		{
-			Formalize( strReturn, 1024, ODBC_FORMAT_SDATETIME_TIME.c_str(), time.GetHour(), time.GetMinute(), time.GetSecond() );
+			strReturn = Date::Format( date, ODBC_FORMAT_SDATETIME_DATE );
 		}
 		else
 		{
@@ -248,13 +225,13 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		return strReturn;
 	}
 
-	std::string CDatabaseConnectionOdbcMsSql::WriteStmtDateS( const CDate & date ) const
+	std::string CDatabaseConnectionOdbcMsSql::WriteDateTimeS( const TimeType & time ) const
 	{
 		std::string strReturn;
 
-		if ( date.IsValid() )
+		if ( Time::IsValid( time ) )
 		{
-			Formalize( strReturn, 1024, ODBC_FORMAT_STMT_SDATE.c_str(), date.GetYear(), date.GetMonth(), date.GetMonthDay() );
+			strReturn = Time::Format( time, ODBC_FORMAT_SDATETIME_TIME );
 		}
 		else
 		{
@@ -264,13 +241,13 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		return strReturn;
 	}
 
-	std::string CDatabaseConnectionOdbcMsSql::WriteStmtTimeS( const CTime & time ) const
+	std::string CDatabaseConnectionOdbcMsSql::WriteStmtDateS( const DateType & date ) const
 	{
 		std::string strReturn;
 
-		if ( time.IsValid() )
+		if ( Date::IsValid( date ) )
 		{
-			Formalize( strReturn, 1024, ODBC_FORMAT_STMT_STIME.c_str(), time.GetHour(), time.GetMinute(), time.GetSecond() );
+			strReturn = Date::Format( date, ODBC_FORMAT_STMT_SDATE );
 		}
 		else
 		{
@@ -280,13 +257,13 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		return strReturn;
 	}
 
-	std::string CDatabaseConnectionOdbcMsSql::WriteStmtDateTimeS( const CDateTime & dateTime ) const
+	std::string CDatabaseConnectionOdbcMsSql::WriteStmtTimeS( const TimeType & time ) const
 	{
 		std::string strReturn;
 
-		if ( dateTime.GetYear() > 0 )
+		if ( Time::IsValid( time ) )
 		{
-			Formalize( strReturn, 1024, ODBC_FORMAT_STMT_SDATETIME.c_str(), dateTime.GetYear(), dateTime.GetMonth(), dateTime.GetMonthDay(), dateTime.GetHour(), dateTime.GetMinute(), dateTime.GetSecond() );
+			strReturn = Time::Format( time, ODBC_FORMAT_STMT_STIME );
 		}
 		else
 		{
@@ -296,13 +273,29 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		return strReturn;
 	}
 
-	std::wstring CDatabaseConnectionOdbcMsSql::WriteDateW( const CDate & date ) const
+	std::string CDatabaseConnectionOdbcMsSql::WriteStmtDateTimeS( const DateTimeType & dateTime ) const
+	{
+		std::string strReturn;
+
+		if ( DateTime::IsValid( dateTime ) )
+		{
+			strReturn = DateTime::Format( dateTime, ODBC_FORMAT_STMT_SDATETIME );
+		}
+		else
+		{
+			strReturn += ODBC_SQL_SNULL;
+		}
+
+		return strReturn;
+	}
+
+	std::wstring CDatabaseConnectionOdbcMsSql::WriteDateW( const DateType & date ) const
 	{
 		std::wstring strReturn;
 
-		if ( date.IsValid() )
+		if ( Date::IsValid( date ) )
 		{
-			Formalize( strReturn, 1024, ODBC_FORMAT_WDATE.c_str(), date.GetYear(), date.GetMonth(), date.GetMonthDay() );
+			strReturn = Date::Format( date, ODBC_FORMAT_WDATE );
 		}
 		else
 		{
@@ -312,13 +305,13 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		return strReturn;
 	}
 
-	std::wstring CDatabaseConnectionOdbcMsSql::WriteTimeW( const CTime & time ) const
+	std::wstring CDatabaseConnectionOdbcMsSql::WriteTimeW( const TimeType & time ) const
 	{
 		std::wstring strReturn;
 
-		if ( time.IsValid() )
+		if ( Time::IsValid( time ) )
 		{
-			Formalize( strReturn, 1024, ODBC_FORMAT_WTIME.c_str(), time.GetHour(), time.GetMinute(), time.GetSecond() );
+			strReturn = Time::Format( time, ODBC_FORMAT_WTIME );
 		}
 		else
 		{
@@ -328,36 +321,13 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		return strReturn;
 	}
 
-	std::wstring CDatabaseConnectionOdbcMsSql::WriteDateTimeW( const CDateTime & dateTime ) const
+	std::wstring CDatabaseConnectionOdbcMsSql::WriteDateTimeW( const DateTimeType & dateTime ) const
 	{
 		std::wstring strReturn;
 
-		if ( dateTime.GetYear() <= 0 )
+		if ( DateTime::IsValid( dateTime ) )
 		{
-			strReturn += ODBC_SQL_WNULL;
-		}
-		else
-		{
-			Formalize( strReturn, 1024, ODBC_FORMAT_WDATETIME.c_str(), dateTime.GetYear(), dateTime.GetMonth(), dateTime.GetMonthDay(), dateTime.GetHour(), dateTime.GetMinute(), dateTime.GetSecond() );
-		}
-
-		return strReturn;
-	}
-
-	std::wstring CDatabaseConnectionOdbcMsSql::WriteDateTimeW( const CDate & date ) const
-	{
-		std::wstring strReturn;
-
-		if ( date.IsValid() )
-		{
-			if ( date.GetYear() <= 0 )
-			{
-				strReturn += ODBC_SQL_WNULL;
-			}
-			else
-			{
-				Formalize( strReturn, 1024, ODBC_FORMAT_WDATETIME_DATE.c_str(), date.GetYear(), date.GetMonth(), date.GetMonthDay() );
-			}
+			strReturn = DateTime::Format( dateTime, ODBC_FORMAT_WDATETIME );
 		}
 		else
 		{
@@ -367,13 +337,13 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		return strReturn;
 	}
 
-	std::wstring CDatabaseConnectionOdbcMsSql::WriteDateTimeW( const CTime & time ) const
+	std::wstring CDatabaseConnectionOdbcMsSql::WriteDateTimeW( const DateType & date ) const
 	{
 		std::wstring strReturn;
 
-		if ( time.IsValid() )
+		if ( Date::IsValid( date ) )
 		{
-			Formalize( strReturn, 1024, ODBC_FORMAT_WDATETIME_TIME.c_str(), time.GetHour(), time.GetMinute(), time.GetSecond() );
+			strReturn = Date::Format( date, ODBC_FORMAT_WDATETIME_DATE );
 		}
 		else
 		{
@@ -383,13 +353,13 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		return strReturn;
 	}
 
-	std::wstring CDatabaseConnectionOdbcMsSql::WriteStmtDateW( const CDate & date ) const
+	std::wstring CDatabaseConnectionOdbcMsSql::WriteDateTimeW( const TimeType & time ) const
 	{
 		std::wstring strReturn;
 
-		if ( date.IsValid() )
+		if ( Time::IsValid( time ) )
 		{
-			Formalize( strReturn, 1024, ODBC_FORMAT_STMT_WDATE.c_str(), date.GetYear(), date.GetMonth(), date.GetMonthDay() );
+			strReturn = Time::Format( time, ODBC_FORMAT_WDATETIME_TIME );
 		}
 		else
 		{
@@ -399,13 +369,13 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		return strReturn;
 	}
 
-	std::wstring CDatabaseConnectionOdbcMsSql::WriteStmtTimeW( const CTime & time ) const
+	std::wstring CDatabaseConnectionOdbcMsSql::WriteStmtDateW( const DateType & date ) const
 	{
 		std::wstring strReturn;
 
-		if ( time.IsValid() )
+		if ( Date::IsValid( date ) )
 		{
-			Formalize( strReturn, 1024, ODBC_FORMAT_STMT_WTIME.c_str(), time.GetHour(), time.GetMinute(), time.GetSecond() );
+			strReturn = Date::Format( date, ODBC_FORMAT_STMT_WDATE );
 		}
 		else
 		{
@@ -415,13 +385,13 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		return strReturn;
 	}
 
-	std::wstring CDatabaseConnectionOdbcMsSql::WriteStmtDateTimeW( const CDateTime & dateTime ) const
+	std::wstring CDatabaseConnectionOdbcMsSql::WriteStmtTimeW( const TimeType & time ) const
 	{
 		std::wstring strReturn;
 
-		if ( dateTime.GetYear() > 0 )
+		if ( Time::IsValid( time ) )
 		{
-			Formalize( strReturn, 1024, ODBC_FORMAT_STMT_WDATETIME.c_str(), dateTime.GetYear(), dateTime.GetMonth(), dateTime.GetMonthDay(), dateTime.GetHour(), dateTime.GetMinute(), dateTime.GetSecond() );
+			strReturn = Time::Format( time, ODBC_FORMAT_STMT_WTIME );
 		}
 		else
 		{
@@ -431,45 +401,61 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		return strReturn;
 	}
 
-	CDate CDatabaseConnectionOdbcMsSql::ParseDate( const std::string & date ) const
+	std::wstring CDatabaseConnectionOdbcMsSql::WriteStmtDateTimeW( const DateTimeType & dateTime ) const
 	{
-		CDate dateObj;
-		CDate::IsDate( date, ODBC_FORMAT_STMT_SDATE, dateObj );
+		std::wstring strReturn;
+
+		if ( DateTime::IsValid( dateTime ) )
+		{
+			strReturn = DateTime::Format( dateTime, ODBC_FORMAT_STMT_WDATETIME );
+		}
+		else
+		{
+			strReturn += ODBC_SQL_WNULL;
+		}
+
+		return strReturn;
+	}
+
+	DateType CDatabaseConnectionOdbcMsSql::ParseDate( const std::string & date ) const
+	{
+		DateType dateObj;
+		Date::IsDate( date, ODBC_FORMAT_STMT_SDATE, dateObj );
 		return dateObj;
 	}
 
-	CTime CDatabaseConnectionOdbcMsSql::ParseTime( const std::string & time ) const
+	TimeType CDatabaseConnectionOdbcMsSql::ParseTime( const std::string & time ) const
 	{
-		CTime timeObj;
-		CTime::IsTime( time, ODBC_FORMAT_STMT_STIME, timeObj );
+		TimeType timeObj;
+		Time::IsTime( time, ODBC_FORMAT_STMT_STIME, timeObj );
 		return timeObj;
 	}
 
-	CDateTime CDatabaseConnectionOdbcMsSql::ParseDateTime( const std::string & dateTime ) const
+	DateTimeType CDatabaseConnectionOdbcMsSql::ParseDateTime( const std::string & dateTime ) const
 	{
-		CDateTime dateTimeObj;
-		CDateTime::IsDateTime( dateTime, ODBC_FORMAT_STMT_SDATETIME, dateTimeObj );
+		DateTimeType dateTimeObj;
+		DateTime::IsDateTime( dateTime, ODBC_FORMAT_STMT_SDATETIME, dateTimeObj );
 		return dateTimeObj;
 	}
 
-	CDate CDatabaseConnectionOdbcMsSql::ParseDate( const std::wstring & date ) const
+	DateType CDatabaseConnectionOdbcMsSql::ParseDate( const std::wstring & date ) const
 	{
-		CDate dateObj;
-		CDate::IsDate( date, ODBC_FORMAT_STMT_WDATE, dateObj );
+		DateType dateObj;
+		Date::IsDate( date, ODBC_FORMAT_STMT_WDATE, dateObj );
 		return dateObj;
 	}
 
-	CTime CDatabaseConnectionOdbcMsSql::ParseTime( const std::wstring & time ) const
+	TimeType CDatabaseConnectionOdbcMsSql::ParseTime( const std::wstring & time ) const
 	{
-		CTime timeObj;
-		CTime::IsTime( time, ODBC_FORMAT_STMT_WTIME, timeObj );
+		TimeType timeObj;
+		Time::IsTime( time, ODBC_FORMAT_STMT_WTIME, timeObj );
 		return timeObj;
 	}
 
-	CDateTime CDatabaseConnectionOdbcMsSql::ParseDateTime( const std::wstring & dateTime ) const
+	DateTimeType CDatabaseConnectionOdbcMsSql::ParseDateTime( const std::wstring & dateTime ) const
 	{
-		CDateTime dateTimeObj;
-		CDateTime::IsDateTime( dateTime, ODBC_FORMAT_STMT_WDATETIME, dateTimeObj );
+		DateTimeType dateTimeObj;
+		DateTime::IsDateTime( dateTime, ODBC_FORMAT_STMT_WDATETIME, dateTimeObj );
 		return dateTimeObj;
 	}
 

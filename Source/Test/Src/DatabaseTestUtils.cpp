@@ -57,11 +57,11 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			// Command path
 			StringStream commandStream;
 			commandStream << path << PATH_SEP << script;
-			std::string commandString = CStrUtils::ToStr( commandStream.str() );
+			std::string commandString = StringUtils::ToStr( commandStream.str() );
 
 			// Execute
 			spawn_pid_t processId = INVALID_PROCESS_ID;
-			String processPath = CStrUtils::ToString( commandString );
+			String processPath = StringUtils::ToString( commandString );
 
 			if ( !FileExists( processPath ) )
 			{
@@ -123,7 +123,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 			for ( auto && argument : arguments )
 			{
-				strargs.push_back( CStrUtils::ToStr( argument ) );
+				strargs.push_back( StringUtils::ToStr( argument ) );
 			}
 
 			std::vector< const char * > args;

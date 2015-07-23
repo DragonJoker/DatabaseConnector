@@ -128,7 +128,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 
 	std::wstring CDatabaseConnectionPostgreSql::WriteNText( const std::wstring & text ) const
 	{
-		std::string result( CStrUtils::ToStr( text ) );
+		std::string result( StringUtils::ToStr( text ) );
 
 		if ( result != POSTGRESQL_SQL_SNULL )
 		{
@@ -145,7 +145,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			}
 		}
 
-		return CStrUtils::ToWStr( result );
+		return StringUtils::ToWStr( result );
 	}
 
 	String CDatabaseConnectionPostgreSql::WriteBinary( const ByteArray & text ) const
@@ -156,7 +156,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 
 		if ( escaped )
 		{
-			result = STR( "'" ) + CStrUtils::ToString( reinterpret_cast< char * >( escaped ) ) + STR( "'" );
+			result = STR( "'" ) + StringUtils::ToString( reinterpret_cast< char * >( escaped ) ) + STR( "'" );
 			PQfreemem( escaped );
 		}
 		else
@@ -189,13 +189,13 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		return result;
 	}
 
-	std::string CDatabaseConnectionPostgreSql::WriteDateS( const CDate & date ) const
+	std::string CDatabaseConnectionPostgreSql::WriteDateS( const DateType & date ) const
 	{
 		std::string strReturn;
 
-		if ( date.IsValid() )
+		if ( Date::IsValid( date ) )
 		{
-			strReturn = date.Format( POSTGRESQL_FORMAT_SDATE );
+			strReturn = Date::Format( date, POSTGRESQL_FORMAT_SDATE );
 		}
 		else
 		{
@@ -205,13 +205,13 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		return strReturn;
 	}
 
-	std::string CDatabaseConnectionPostgreSql::WriteTimeS( const CTime & time ) const
+	std::string CDatabaseConnectionPostgreSql::WriteTimeS( const TimeType & time ) const
 	{
 		std::string strReturn;
 
-		if ( time.IsValid() )
+		if ( Time::IsValid( time ) )
 		{
-			strReturn = time.Format( POSTGRESQL_FORMAT_STIME );
+			strReturn = Time::Format( time, POSTGRESQL_FORMAT_STIME );
 		}
 		else
 		{
@@ -221,61 +221,13 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		return strReturn;
 	}
 
-	std::string CDatabaseConnectionPostgreSql::WriteDateTimeS( const CDateTime & dateTime ) const
+	std::string CDatabaseConnectionPostgreSql::WriteDateTimeS( const DateTimeType & dateTime ) const
 	{
 		std::string strReturn;
 
-		if ( dateTime.GetYear() <= 0 )
+		if ( DateTime::IsValid( dateTime ) )
 		{
-			strReturn += POSTGRESQL_SQL_SNULL;
-		}
-		else
-		{
-			strReturn = dateTime.Format( POSTGRESQL_FORMAT_SDATETIME );
-		}
-
-		return strReturn;
-	}
-
-	std::string CDatabaseConnectionPostgreSql::WriteDateTimeS( const CDate & date ) const
-	{
-		std::string strReturn;
-
-		if ( !date.IsValid() || date.GetYear() <= 0 )
-		{
-			strReturn += POSTGRESQL_SQL_SNULL;
-		}
-		else
-		{
-			strReturn = date.Format( POSTGRESQL_FORMAT_SDATETIME_DATE );
-		}
-
-		return strReturn;
-	}
-
-	std::string CDatabaseConnectionPostgreSql::WriteDateTimeS( const CTime & time ) const
-	{
-		std::string strReturn;
-
-		if ( !time.IsValid() )
-		{
-			strReturn += POSTGRESQL_SQL_SNULL;
-		}
-		else
-		{
-			strReturn = time.Format( POSTGRESQL_FORMAT_SDATETIME_TIME );
-		}
-
-		return strReturn;
-	}
-
-	std::string CDatabaseConnectionPostgreSql::WriteStmtDateS( const CDate & date ) const
-	{
-		std::string strReturn;
-
-		if ( date.IsValid() )
-		{
-			strReturn = date.Format( POSTGRESQL_FORMAT_STMT_SDATE );
+			strReturn = DateTime::Format( dateTime, POSTGRESQL_FORMAT_SDATETIME );
 		}
 		else
 		{
@@ -285,13 +237,13 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		return strReturn;
 	}
 
-	std::string CDatabaseConnectionPostgreSql::WriteStmtTimeS( const CTime & time ) const
+	std::string CDatabaseConnectionPostgreSql::WriteDateTimeS( const DateType & date ) const
 	{
 		std::string strReturn;
 
-		if ( time.IsValid() )
+		if ( Date::IsValid( date ) )
 		{
-			strReturn = time.Format( POSTGRESQL_FORMAT_STMT_STIME );
+			strReturn = Date::Format( date, POSTGRESQL_FORMAT_SDATETIME_DATE );
 		}
 		else
 		{
@@ -301,13 +253,13 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		return strReturn;
 	}
 
-	std::string CDatabaseConnectionPostgreSql::WriteStmtDateTimeS( const CDateTime & dateTime ) const
+	std::string CDatabaseConnectionPostgreSql::WriteDateTimeS( const TimeType & time ) const
 	{
 		std::string strReturn;
 
-		if ( dateTime.GetYear() > 0 )
+		if ( Time::IsValid( time ) )
 		{
-			strReturn = dateTime.Format( POSTGRESQL_FORMAT_STMT_SDATETIME );
+			strReturn = Time::Format( time, POSTGRESQL_FORMAT_SDATETIME_TIME );
 		}
 		else
 		{
@@ -317,13 +269,61 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		return strReturn;
 	}
 
-	std::wstring CDatabaseConnectionPostgreSql::WriteDateW( const CDate & date ) const
+	std::string CDatabaseConnectionPostgreSql::WriteStmtDateS( const DateType & date ) const
+	{
+		std::string strReturn;
+
+		if ( Date::IsValid( date ) )
+		{
+			strReturn = Date::Format( date, POSTGRESQL_FORMAT_STMT_SDATE );
+		}
+		else
+		{
+			strReturn += POSTGRESQL_SQL_SNULL;
+		}
+
+		return strReturn;
+	}
+
+	std::string CDatabaseConnectionPostgreSql::WriteStmtTimeS( const TimeType & time ) const
+	{
+		std::string strReturn;
+
+		if ( Time::IsValid( time ) )
+		{
+			strReturn = Time::Format( time, POSTGRESQL_FORMAT_STMT_STIME );
+		}
+		else
+		{
+			strReturn += POSTGRESQL_SQL_SNULL;
+		}
+
+		return strReturn;
+	}
+
+	std::string CDatabaseConnectionPostgreSql::WriteStmtDateTimeS( const DateTimeType & dateTime ) const
+	{
+		std::string strReturn;
+
+		if ( DateTime::IsValid( dateTime ) )
+		{
+			strReturn = DateTime::Format( dateTime, POSTGRESQL_FORMAT_STMT_SDATETIME );
+		}
+		else
+		{
+			strReturn += POSTGRESQL_SQL_SNULL;
+		}
+
+		return strReturn;
+	}
+
+	std::wstring CDatabaseConnectionPostgreSql::WriteDateW( const DateType & date ) const
 	{
 		std::wstring strReturn;
 
-		if ( date.IsValid() )
+		if ( Date::IsValid( date ) )
 		{
-			strReturn = date.Format( POSTGRESQL_FORMAT_WDATE );
+			strReturn = Date::Format( date, POSTGRESQL_FORMAT_WDATE );
 		}
 		else
 		{
@@ -333,13 +333,13 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		return strReturn;
 	}
 
-	std::wstring CDatabaseConnectionPostgreSql::WriteTimeW( const CTime & time ) const
+	std::wstring CDatabaseConnectionPostgreSql::WriteTimeW( const TimeType & time ) const
 	{
 		std::wstring strReturn;
 
-		if ( time.IsValid() )
+		if ( Time::IsValid( time ) )
 		{
-			strReturn = time.Format( POSTGRESQL_FORMAT_WTIME );
+			strReturn = Time::Format( time, POSTGRESQL_FORMAT_WTIME );
 		}
 		else
 		{
@@ -349,61 +349,13 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		return strReturn;
 	}
 
-	std::wstring CDatabaseConnectionPostgreSql::WriteDateTimeW( const CDateTime & dateTime ) const
+	std::wstring CDatabaseConnectionPostgreSql::WriteDateTimeW( const DateTimeType & dateTime ) const
 	{
 		std::wstring strReturn;
 
-		if ( dateTime.GetYear() <= 0 )
+		if ( DateTime::IsValid( dateTime ) )
 		{
-			strReturn += POSTGRESQL_SQL_WNULL;
-		}
-		else
-		{
-			strReturn = dateTime.Format( POSTGRESQL_FORMAT_WDATETIME );
-		}
-
-		return strReturn;
-	}
-
-	std::wstring CDatabaseConnectionPostgreSql::WriteDateTimeW( const CDate & date ) const
-	{
-		std::wstring strReturn;
-
-		if ( !date.IsValid() || date.GetYear() <= 0 )
-		{
-			strReturn += POSTGRESQL_SQL_WNULL;
-		}
-		else
-		{
-			strReturn = date.Format( POSTGRESQL_FORMAT_WDATETIME_DATE );
-		}
-
-		return strReturn;
-	}
-
-	std::wstring CDatabaseConnectionPostgreSql::WriteDateTimeW( const CTime & time ) const
-	{
-		std::wstring strReturn;
-
-		if ( !time.IsValid() )
-		{
-			strReturn += POSTGRESQL_SQL_WNULL;
-		}
-		else
-		{
-			strReturn = time.Format( POSTGRESQL_FORMAT_WDATETIME_TIME );
-		}
-
-		return strReturn;
-	}
-
-	std::wstring CDatabaseConnectionPostgreSql::WriteStmtDateW( const CDate & date ) const
-	{
-		std::wstring strReturn;
-
-		if ( date.IsValid() )
-		{
-			strReturn = date.Format( POSTGRESQL_FORMAT_STMT_WDATE );
+			strReturn = DateTime::Format( dateTime, POSTGRESQL_FORMAT_WDATETIME );
 		}
 		else
 		{
@@ -413,13 +365,13 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		return strReturn;
 	}
 
-	std::wstring CDatabaseConnectionPostgreSql::WriteStmtTimeW( const CTime & time ) const
+	std::wstring CDatabaseConnectionPostgreSql::WriteDateTimeW( const DateType & date ) const
 	{
 		std::wstring strReturn;
 
-		if ( time.IsValid() )
+		if ( Date::IsValid( date ) )
 		{
-			strReturn = time.Format( POSTGRESQL_FORMAT_STMT_WTIME );
+			strReturn = Date::Format( date, POSTGRESQL_FORMAT_WDATETIME_DATE );
 		}
 		else
 		{
@@ -429,13 +381,61 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		return strReturn;
 	}
 
-	std::wstring CDatabaseConnectionPostgreSql::WriteStmtDateTimeW( const CDateTime & dateTime ) const
+	std::wstring CDatabaseConnectionPostgreSql::WriteDateTimeW( const TimeType & time ) const
 	{
 		std::wstring strReturn;
 
-		if ( dateTime.GetYear() > 0 )
+		if ( Time::IsValid( time ) )
 		{
-			strReturn = dateTime.Format( POSTGRESQL_FORMAT_STMT_WDATETIME );
+			strReturn = Time::Format( time, POSTGRESQL_FORMAT_WDATETIME_TIME );
+		}
+		else
+		{
+			strReturn += POSTGRESQL_SQL_WNULL;
+		}
+
+		return strReturn;
+	}
+
+	std::wstring CDatabaseConnectionPostgreSql::WriteStmtDateW( const DateType & date ) const
+	{
+		std::wstring strReturn;
+
+		if ( Date::IsValid( date ) )
+		{
+			strReturn = Date::Format( date, POSTGRESQL_FORMAT_STMT_WDATE );
+		}
+		else
+		{
+			strReturn += POSTGRESQL_SQL_WNULL;
+		}
+
+		return strReturn;
+	}
+
+	std::wstring CDatabaseConnectionPostgreSql::WriteStmtTimeW( const TimeType & time ) const
+	{
+		std::wstring strReturn;
+
+		if ( Time::IsValid( time ) )
+		{
+			strReturn = Time::Format( time, POSTGRESQL_FORMAT_STMT_WTIME );
+		}
+		else
+		{
+			strReturn += POSTGRESQL_SQL_WNULL;
+		}
+
+		return strReturn;
+	}
+
+	std::wstring CDatabaseConnectionPostgreSql::WriteStmtDateTimeW( const DateTimeType & dateTime ) const
+	{
+		std::wstring strReturn;
+
+		if ( DateTime::IsValid( dateTime ) )
+		{
+			strReturn = DateTime::Format( dateTime, POSTGRESQL_FORMAT_STMT_WDATETIME );
 		}
 		else
 		{
@@ -452,87 +452,87 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 
 	String CDatabaseConnectionPostgreSql::WriteBool( const String & value ) const
 	{
-		const String lowerCaseValue = CStrUtils::LowerCase( value );
+		const String lowerCaseValue = StringUtils::LowerCase( value );
 		return ( lowerCaseValue == STR( "x" ) || lowerCaseValue == STR( "oui" ) || lowerCaseValue == STR( "yes" ) || lowerCaseValue == STR( "y" ) || value == STR( "1" ) ? STR( "1" ) : STR( "0" ) );
 	}
 
-	CDate CDatabaseConnectionPostgreSql::ParseDate( const std::string & date ) const
+	DateType CDatabaseConnectionPostgreSql::ParseDate( const std::string & date ) const
 	{
-		CDate dateObj;
+		DateType dateObj;
 
-		if ( !CDate::IsDate( date, POSTGRESQL_FORMAT_SDATE, dateObj )
-		&& !CDate::IsDate( date, POSTGRESQL_FORMAT_STMT_SDATE, dateObj ) )
+		if ( !Date::IsDate( date, POSTGRESQL_FORMAT_SDATE, dateObj )
+		&& !Date::IsDate( date, POSTGRESQL_FORMAT_STMT_SDATE, dateObj ) )
 		{
-			dateObj = CDate( 0, EDateMonth_UNDEF, 0 );
+			// date is already invalid
 		}
 
 		return dateObj;
 	}
 
-	CTime CDatabaseConnectionPostgreSql::ParseTime( const std::string & time ) const
+	TimeType CDatabaseConnectionPostgreSql::ParseTime( const std::string & time ) const
 	{
-		CTime timeObj;
+		TimeType timeObj;
 
-		if ( !CTime::IsTime( time, POSTGRESQL_FORMAT_STIME, timeObj )
-		&& !CTime::IsTime( time, POSTGRESQL_FORMAT_STMT_STIME, timeObj ) )
+		if ( !Time::IsTime( time, POSTGRESQL_FORMAT_STIME, timeObj )
+		&& !Time::IsTime( time, POSTGRESQL_FORMAT_STMT_STIME, timeObj ) )
 		{
-			timeObj = CTime();
+			timeObj = TimeType();
 		}
 
 		return timeObj;
 	}
 
-	CDateTime CDatabaseConnectionPostgreSql::ParseDateTime( const std::string & dateTime ) const
+	DateTimeType CDatabaseConnectionPostgreSql::ParseDateTime( const std::string & dateTime ) const
 	{
-		CDateTime dateTimeObj;
+		DateTimeType dateTimeObj;
 
-		if ( !CDateTime::IsDateTime( dateTime, POSTGRESQL_FORMAT_SDATETIME, dateTimeObj )
-		&& !CDateTime::IsDateTime( dateTime, POSTGRESQL_FORMAT_STMT_SDATETIME, dateTimeObj )
-		&& !CDateTime::IsDateTime( dateTime, POSTGRESQL_FORMAT_SDATE, dateTimeObj )
-		&& !CDateTime::IsDateTime( dateTime, POSTGRESQL_FORMAT_STMT_SDATE, dateTimeObj ) )
+		if ( !DateTime::IsDateTime( dateTime, POSTGRESQL_FORMAT_SDATETIME, dateTimeObj )
+		&& !DateTime::IsDateTime( dateTime, POSTGRESQL_FORMAT_STMT_SDATETIME, dateTimeObj )
+		&& !DateTime::IsDateTime( dateTime, POSTGRESQL_FORMAT_SDATE, dateTimeObj )
+		&& !DateTime::IsDateTime( dateTime, POSTGRESQL_FORMAT_STMT_SDATE, dateTimeObj ) )
 		{
-			dateTimeObj = CDateTime();
+			dateTimeObj = DateTimeType();
 		}
 
 		return dateTimeObj;
 	}
 
-	CDate CDatabaseConnectionPostgreSql::ParseDate( const std::wstring & date ) const
+	DateType CDatabaseConnectionPostgreSql::ParseDate( const std::wstring & date ) const
 	{
-		CDate dateObj;
+		DateType dateObj;
 
-		if ( !CDate::IsDate( date, POSTGRESQL_FORMAT_WDATE, dateObj )
-		&& !CDate::IsDate( date, POSTGRESQL_FORMAT_STMT_WDATE, dateObj ) )
+		if ( !Date::IsDate( date, POSTGRESQL_FORMAT_WDATE, dateObj )
+		&& !Date::IsDate( date, POSTGRESQL_FORMAT_STMT_WDATE, dateObj ) )
 		{
-			dateObj = CDate( 0, EDateMonth_UNDEF, 0 );
+			// date is already invalid
 		}
 
 		return dateObj;
 	}
 
-	CTime CDatabaseConnectionPostgreSql::ParseTime( const std::wstring & time ) const
+	TimeType CDatabaseConnectionPostgreSql::ParseTime( const std::wstring & time ) const
 	{
-		CTime timeObj;
+		TimeType timeObj;
 
-		if ( !CTime::IsTime( time, POSTGRESQL_FORMAT_WTIME, timeObj )
-		&& !CTime::IsTime( time, POSTGRESQL_FORMAT_STMT_WTIME, timeObj ) )
+		if ( !Time::IsTime( time, POSTGRESQL_FORMAT_WTIME, timeObj )
+		&& !Time::IsTime( time, POSTGRESQL_FORMAT_STMT_WTIME, timeObj ) )
 		{
-			timeObj = CTime();
+			timeObj = TimeType();
 		}
 
 		return timeObj;
 	}
 
-	CDateTime CDatabaseConnectionPostgreSql::ParseDateTime( const std::wstring & dateTime ) const
+	DateTimeType CDatabaseConnectionPostgreSql::ParseDateTime( const std::wstring & dateTime ) const
 	{
-		CDateTime dateTimeObj;
+		DateTimeType dateTimeObj;
 
-		if ( !CDateTime::IsDateTime( dateTime, POSTGRESQL_FORMAT_WDATETIME, dateTimeObj )
-		&& !CDateTime::IsDateTime( dateTime, POSTGRESQL_FORMAT_STMT_WDATETIME, dateTimeObj )
-		&& !CDateTime::IsDateTime( dateTime, POSTGRESQL_FORMAT_WDATE, dateTimeObj )
-		&& !CDateTime::IsDateTime( dateTime, POSTGRESQL_FORMAT_STMT_WDATE, dateTimeObj ) )
+		if ( !DateTime::IsDateTime( dateTime, POSTGRESQL_FORMAT_WDATETIME, dateTimeObj )
+		&& !DateTime::IsDateTime( dateTime, POSTGRESQL_FORMAT_STMT_WDATETIME, dateTimeObj )
+		&& !DateTime::IsDateTime( dateTime, POSTGRESQL_FORMAT_WDATE, dateTimeObj )
+		&& !DateTime::IsDateTime( dateTime, POSTGRESQL_FORMAT_STMT_WDATE, dateTimeObj ) )
 		{
-			dateTimeObj = CDateTime();
+			dateTimeObj = DateTimeType();
 		}
 
 		return dateTimeObj;
@@ -660,7 +660,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			}
 
 			PQconninfoFree( info );
-			connectionString = CStrUtils::ToStr( stream.str() );
+			connectionString = StringUtils::ToStr( stream.str() );
 
 			ret = true;
 		}
@@ -732,7 +732,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 
 	bool CDatabaseConnectionPostgreSql::DoExecuteUpdate( const String & query )
 	{
-		std::string strQuery = CStrUtils::ToStr( query );
+		std::string strQuery = StringUtils::ToStr( query );
 		PGresult * result = PQexec( _connection, strQuery.c_str() );
 		PostgreSQLCheck( result, INFO_POSTGRESQL_QUERY_EXECUTION, EDatabaseExceptionCodes_StatementError, _connection );
 		PQclear( result );
@@ -741,7 +741,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 
 	DatabaseResultSPtr CDatabaseConnectionPostgreSql::DoExecuteSelect( const String & query )
 	{
-		std::string strQuery = CStrUtils::ToStr( query );
+		std::string strQuery = StringUtils::ToStr( query );
 		PGresult * result = PQexec( _connection, strQuery.c_str() );
 		PostgreSQLCheck( result, INFO_POSTGRESQL_QUERY_EXECUTION, EDatabaseExceptionCodes_StatementError, _connection );
 

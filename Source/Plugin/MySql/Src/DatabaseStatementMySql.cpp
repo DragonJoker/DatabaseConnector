@@ -144,7 +144,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		if ( !_query.empty() )
 		{
 			_paramsCount = uint32_t( std::count( _query.begin(), _query.end(), STR( '?' ) ) );
-			_arrayQueries = CStrUtils::Split( _query, STR( "?" ), _paramsCount + 1 );
+			_arrayQueries = StringUtils::Split( _query, STR( "?" ), _paramsCount + 1 );
 		}
 
 		CLogger::LogInfo( INFO_MYSQL_PREPARING_STATEMENT + _query );
@@ -231,7 +231,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_MYSQL_CANT_CREATE_STATEMENT );
 		}
 
-		std::string strQuery = CStrUtils::ToStr( _query );
+		std::string strQuery = StringUtils::ToStr( _query );
 		MySQLCheck( mysql_stmt_prepare( _statement, strQuery.c_str(), uint32_t( strQuery.size() ) ), INFO_MYSQL_STATEMENT_PREPARATION, EDatabaseExceptionCodes_StatementError, connection->GetConnection() );
 		MYSQL_RES * meta = mysql_stmt_param_metadata( _statement );
 		size_t index = 0;

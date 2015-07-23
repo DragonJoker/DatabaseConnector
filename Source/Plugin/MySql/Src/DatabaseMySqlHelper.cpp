@@ -324,7 +324,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 					result.assign( value, value + *_bind.length );
 				}
 
-				return CStrUtils::ToWStr( result );
+				return StringUtils::ToWStr( result );
 			}
 		};
 
@@ -542,10 +542,10 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			@return
 				The value
 			*/
-			CDate GetValue()const
+			DateType GetValue()const
 			{
 				assert( _value.time_type == MYSQL_TIMESTAMP_DATE );
-				return CDate( _value.year, EDateMonth( _value.month - 1 ), _value.day );
+				return DateType( _value.year, _value.month, _value.day );
 			}
 		};
 
@@ -568,10 +568,10 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			@return
 				The value
 			*/
-			CDateTime GetValue()const
+			DateTimeType GetValue()const
 			{
 				assert( _value.time_type == MYSQL_TIMESTAMP_DATETIME );
-				return CDateTime( CDate( _value.year, EDateMonth( _value.month - 1 ), _value.day ), CTime( _value.hour, _value.minute, _value.second ) );
+				return DateTimeType( DateType( _value.year, _value.month, _value.day ), TimeType( _value.hour, _value.minute, _value.second ) );
 			}
 		};
 
@@ -590,10 +590,10 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			@return
 				The value
 			*/
-			CTime GetValue()const
+			TimeType GetValue()const
 			{
 				assert( _value.time_type == MYSQL_TIMESTAMP_TIME );
-				return CTime( _value.hour, _value.minute, _value.second );
+				return TimeType( _value.hour, _value.minute, _value.second );
 			}
 		};
 
@@ -960,7 +960,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			bind = { 0 };
 			MYSQL_FIELD * field = mysql_fetch_field( data );
 			EFieldType type = GetFieldType( field->type, field->charsetnr, field->length );
-			arrayReturn.push_back( std::make_shared< CDatabaseFieldInfos >( CStrUtils::ToString( field->name ), type, field->length ) );
+			arrayReturn.push_back( std::make_shared< CDatabaseFieldInfos >( StringUtils::ToString( field->name ), type, field->length ) );
 			inbinds.emplace_back( GetInBind( type, field->type, bind, field->length, field->decimals, std::max( field->length, field->max_length ) ) );
 		}
 

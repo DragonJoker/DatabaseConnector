@@ -142,7 +142,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		if ( !_query.empty() )
 		{
 			_paramsCount = uint32_t( std::count( _query.begin(), _query.end(), STR( '?' ) ) );
-			_arrayQueries = CStrUtils::Split( _query, STR( "?" ), _paramsCount + 1 );
+			_arrayQueries = StringUtils::Split( _query, STR( "?" ), _paramsCount + 1 );
 		}
 
 		CLogger::LogInfo( STR( "Preparing statement for query : " ) + _query );
@@ -216,7 +216,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		}
 
 		sqlite3 * sqlite = connection->GetConnection();
-		std::string query2 = CStrUtils::ToStr( _query );
+		std::string query2 = StringUtils::ToStr( _query );
 		SQLiteCheck( sqlite3_prepare_v2( sqlite, query2.c_str(), int( query2.size() ), &_statement, NULL ), INFO_SQLITE_STATEMENT_PREPARATION, EDatabaseExceptionCodes_StatementError, sqlite );
 
 		if ( !_statement )

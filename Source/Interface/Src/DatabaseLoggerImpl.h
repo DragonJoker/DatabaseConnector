@@ -70,7 +70,7 @@ BEGIN_NAMESPACE_DATABASE
 		//@copydoc Database::SMessageBase::GetMessage
 		virtual String GetMessage()
 		{
-			return CStrUtils::ToString( m_message );
+			return StringUtils::ToString( m_message );
 		}
 
 		//! The message text

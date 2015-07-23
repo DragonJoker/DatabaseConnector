@@ -216,9 +216,9 @@ BEGIN_NAMESPACE_DATABASE
 	std::string CDatabaseConnection::WriteDate( const std::string & date, const std::string & format ) const
 	{
 		std::string strReturn;
-		CDate dateObj;
+		DateType dateObj;
 
-		if ( CDate::IsDate( date, format, dateObj ) )
+		if ( Date::IsDate( date, format, dateObj ) )
 		{
 			strReturn = WriteDateS( dateObj );
 		}
@@ -233,9 +233,9 @@ BEGIN_NAMESPACE_DATABASE
 	std::string CDatabaseConnection::WriteTime( const std::string & time, const std::string & format ) const
 	{
 		std::string strReturn;
-		CTime timeObj;
+		TimeType timeObj;
 
-		if ( CTime::IsTime( time, format, timeObj ) )
+		if ( Time::IsTime( time, format, timeObj ) )
 		{
 			strReturn = WriteTimeS( timeObj );
 		}
@@ -250,9 +250,9 @@ BEGIN_NAMESPACE_DATABASE
 	std::string CDatabaseConnection::WriteDateTime( const std::string & dateTime, const std::string & format ) const
 	{
 		std::string strReturn;
-		CDateTime dateTimeObj;
+		DateTimeType dateTimeObj;
 
-		if ( CDateTime::IsDateTime( dateTime, format, dateTimeObj ) )
+		if ( DateTime::IsDateTime( dateTime, format, dateTimeObj ) )
 		{
 			strReturn = WriteDateTimeS( dateTimeObj );
 		}
@@ -267,9 +267,9 @@ BEGIN_NAMESPACE_DATABASE
 	std::string CDatabaseConnection::WriteStmtDate( const std::string & date, const std::string & format ) const
 	{
 		std::string strReturn;
-		CDate dateObj;
+		DateType dateObj;
 
-		if ( CDate::IsDate( date, format, dateObj ) )
+		if ( Date::IsDate( date, format, dateObj ) )
 		{
 			strReturn = WriteStmtDateS( dateObj );
 		}
@@ -284,9 +284,9 @@ BEGIN_NAMESPACE_DATABASE
 	std::string CDatabaseConnection::WriteStmtTime( const std::string & time, const std::string & format ) const
 	{
 		std::string strReturn;
-		CTime timeObj;
+		TimeType timeObj;
 
-		if ( CTime::IsTime( time, format, timeObj ) )
+		if ( Time::IsTime( time, format, timeObj ) )
 		{
 			strReturn = WriteStmtTimeS( timeObj );
 		}
@@ -301,9 +301,9 @@ BEGIN_NAMESPACE_DATABASE
 	std::string CDatabaseConnection::WriteStmtDateTime( const std::string & dateTime, const std::string & format ) const
 	{
 		std::string strReturn;
-		CDateTime dateTimeObj;
+		DateTimeType dateTimeObj;
 
-		if ( CDateTime::IsDateTime( dateTime, format, dateTimeObj ) )
+		if ( DateTime::IsDateTime( dateTime, format, dateTimeObj ) )
 		{
 			strReturn = WriteStmtDateTimeS( dateTimeObj );
 		}
@@ -318,9 +318,9 @@ BEGIN_NAMESPACE_DATABASE
 	std::wstring CDatabaseConnection::WriteDate( const std::wstring & date, const std::wstring & format ) const
 	{
 		std::wstring strReturn;
-		CDate dateObj;
+		DateType dateObj;
 
-		if ( CDate::IsDate( date, format, dateObj ) )
+		if ( Date::IsDate( date, format, dateObj ) )
 		{
 			strReturn = WriteDateW( dateObj );
 		}
@@ -335,9 +335,9 @@ BEGIN_NAMESPACE_DATABASE
 	std::wstring CDatabaseConnection::WriteTime( const std::wstring & time, const std::wstring & format ) const
 	{
 		std::wstring strReturn;
-		CTime timeObj;
+		TimeType timeObj;
 
-		if ( CTime::IsTime( time, format, timeObj ) )
+		if ( Time::IsTime( time, format, timeObj ) )
 		{
 			strReturn = WriteTimeW( timeObj );
 		}
@@ -352,9 +352,9 @@ BEGIN_NAMESPACE_DATABASE
 	std::wstring CDatabaseConnection::WriteDateTime( const std::wstring & dateTime, const std::wstring & format ) const
 	{
 		std::wstring strReturn;
-		CDateTime dateTimeObj;
+		DateTimeType dateTimeObj;
 
-		if ( CDateTime::IsDateTime( dateTime, format, dateTimeObj ) )
+		if ( DateTime::IsDateTime( dateTime, format, dateTimeObj ) )
 		{
 			strReturn = WriteDateTimeW( dateTimeObj );
 		}
@@ -369,9 +369,9 @@ BEGIN_NAMESPACE_DATABASE
 	std::wstring CDatabaseConnection::WriteStmtDate( const std::wstring & date, const std::wstring & format ) const
 	{
 		std::wstring strReturn;
-		CDate dateObj;
+		DateType dateObj;
 
-		if ( CDate::IsDate( date, format, dateObj ) )
+		if ( Date::IsDate( date, format, dateObj ) )
 		{
 			strReturn = WriteStmtDateW( dateObj );
 		}
@@ -386,9 +386,9 @@ BEGIN_NAMESPACE_DATABASE
 	std::wstring CDatabaseConnection::WriteStmtTime( const std::wstring & time, const std::wstring & format ) const
 	{
 		std::wstring strReturn;
-		CTime timeObj;
+		TimeType timeObj;
 
-		if ( CTime::IsTime( time, format, timeObj ) )
+		if ( Time::IsTime( time, format, timeObj ) )
 		{
 			strReturn = WriteStmtTimeW( timeObj );
 		}
@@ -403,9 +403,9 @@ BEGIN_NAMESPACE_DATABASE
 	std::wstring CDatabaseConnection::WriteStmtDateTime( const std::wstring & dateTime, const std::wstring & format ) const
 	{
 		std::wstring strReturn;
-		CDateTime dateTimeObj;
+		DateTimeType dateTimeObj;
 
-		if ( CDateTime::IsDateTime( dateTime, format, dateTimeObj ) )
+		if ( DateTime::IsDateTime( dateTime, format, dateTimeObj ) )
 		{
 			strReturn = WriteStmtDateTimeW( dateTimeObj );
 		}
@@ -417,42 +417,42 @@ BEGIN_NAMESPACE_DATABASE
 		return strReturn;
 	}
 
-	String CDatabaseConnection::WriteDate( const CDate & date ) const
+	String CDatabaseConnection::WriteDate( const DateType & date ) const
 	{
 		return WriteDateS( date );
 	}
 
-	String CDatabaseConnection::WriteStmtDate( const CDate & date ) const
+	String CDatabaseConnection::WriteStmtDate( const DateType & date ) const
 	{
 		return WriteStmtDateS( date );
 	}
 
-	String CDatabaseConnection::WriteTime( const CTime & time ) const
+	String CDatabaseConnection::WriteTime( const TimeType & time ) const
 	{
 		return WriteTimeS( time );
 	}
 
-	String CDatabaseConnection::WriteStmtTime( const CTime & time ) const
+	String CDatabaseConnection::WriteStmtTime( const TimeType & time ) const
 	{
 		return WriteStmtTimeS( time );
 	}
 
-	String CDatabaseConnection::WriteDateTime( const CDateTime & dateTime ) const
+	String CDatabaseConnection::WriteDateTime( const DateTimeType & dateTime ) const
 	{
 		return WriteDateTimeS( dateTime );
 	}
 
-	String CDatabaseConnection::WriteDateTime( const CDate & date ) const
+	String CDatabaseConnection::WriteDateTime( const DateType & date ) const
 	{
 		return WriteDateTimeS( date );
 	}
 
-	String CDatabaseConnection::WriteDateTime( const CTime & time ) const
+	String CDatabaseConnection::WriteDateTime( const TimeType & time ) const
 	{
 		return WriteDateTimeS( time );
 	}
 
-	String CDatabaseConnection::WriteStmtDateTime( const CDateTime & dateTime ) const
+	String CDatabaseConnection::WriteStmtDateTime( const DateTimeType & dateTime ) const
 	{
 		return WriteStmtDateTimeS( dateTime );
 	}

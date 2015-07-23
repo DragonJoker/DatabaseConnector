@@ -134,7 +134,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		if ( !_query.empty() )
 		{
 			_paramsCount = uint32_t( std::count( _query.begin(), _query.end(), STR( '?' ) ) );
-			_arrayQueries = CStrUtils::Split( _query, STR( "?" ), _paramsCount + 1 );
+			_arrayQueries = StringUtils::Split( _query, STR( "?" ), _paramsCount + 1 );
 		}
 
 		CLogger::LogInfo( INFO_POSTGRESQL_PREPARING_STATEMENT + _query );
@@ -185,7 +185,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 
 		_query = query.str();
 
-		std::string strQuery = CStrUtils::ToStr( _query );
+		std::string strQuery = StringUtils::ToStr( _query );
 		PGresult * result = PQprepare( connection->GetConnection(), _statement.c_str(), strQuery.c_str(), int( _arrayParams.size() ), _arrayOids.data() );
 		PostgreSQLCheck( result, INFO_POSTGRESQL_STATEMENT_PREPARATION, EDatabaseExceptionCodes_StatementError, connection->GetConnection() );
 		PQclear( result );

@@ -264,7 +264,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 			double GetValue()const
 			{
-				return CStrUtils::ToDouble( _value );
+				return std::stod( _value );
 			}
 		};
 
@@ -293,7 +293,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 			int32_t GetValue()const
 			{
-				return CStrUtils::ToInt( _value );
+				return std::stoi( _value );
 			}
 		};
 
@@ -383,21 +383,20 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			return ByteArray( bind.GetValue(), bind.GetValue() + bind._strLenOrInd );
 		}
 
-		CDate CDateFromOdbcDate( SQL_DATE_STRUCT const & ts )
+		DateType DateFromOdbcDate( SQL_DATE_STRUCT const & ts )
 		{
-			return CDate( ts.year, EDateMonth( ts.month - 1 ), ts.day );
+			return DateType( ts.year, ts.month, ts.day );
 		}
 
-		CDateTime CDateTimeFromOdbcTimestamp( SQL_TIMESTAMP_STRUCT const & ts )
+		DateTimeType DateTimeFromOdbcTimestamp( SQL_TIMESTAMP_STRUCT const & ts )
 		{
-			CDateTime dateTime;
-			dateTime.SetDateTime( ts.year, EDateMonth( ts.month - 1 ), ts.day, ts.hour, ts.minute, ts.second );
+			DateTimeType dateTime( DateType( ts.year, ts.month, ts.day ), TimeType( ts.hour, ts.minute, ts.second ) );
 			return dateTime;
 		}
 
-		CTime CTimeFromOdbcTime( SQL_TIME_STRUCT const & ts )
+		TimeType TimeFromOdbcTime( SQL_TIME_STRUCT const & ts )
 		{
-			return CTime( ts.hour, ts.minute, ts.second );
+			return TimeType( ts.hour, ts.minute, ts.second );
 		}
 
 		std::unique_ptr< CInOdbcBindBase > GetBindFromFieldType( EFieldType type, uint32_t limits, uint32_t precision, uint32_t scale )
@@ -508,14 +507,14 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				if ( dotIndex == String::npos )
 				{
 					String limit = type.substr( index + 1, type.find( STR( ")" ) ) - index );
-					result.first = CStrUtils::ToInt( CStrUtils::Trim( limit ) );
+					result.first = std::stoi( StringUtils::Trim( limit ) );
 				}
 				else
 				{
 					String limit1 = type.substr( index + 1, dotIndex - index );
-					result.first = CStrUtils::ToInt( CStrUtils::Trim( limit1 ) );
+					result.first = std::stoi( StringUtils::Trim( limit1 ) );
 					String limit2 = type.substr( dotIndex + 1, type.find( STR( ")" ) ) - dotIndex );
-					result.second = CStrUtils::ToInt( CStrUtils::Trim( limit2 ) );
+					result.second = std::stoi( StringUtils::Trim( limit2 ) );
 				}
 			}
 
@@ -524,7 +523,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 		EFieldType GetFieldTypeFromTypeName( const String & type, std::pair< uint32_t, uint32_t > & limprec )
 		{
-			String strTypel = CStrUtils::UpperCase( type );
+			String strTypel = StringUtils::UpperCase( type );
 			size_t index;
 			EFieldType result;
 
@@ -713,7 +712,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 				// Retrieve the column name
 				OdbcCheck( SQLColAttribute( stmt, i, SQL_DESC_LABEL, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_LABEL );
-				String name = CStrUtils::ToString( buffer );
+				String name = StringUtils::ToString( buffer );
 
 				// Its length
 				std::memset( buffer, 0, BUFFER_SIZE );
@@ -755,7 +754,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				stringLength = 0;
 				numericAttribute = 0;
 				OdbcCheck( SQLColAttribute( stmt, i, SQL_DESC_TYPE_NAME, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_TYPE_NAME );
-				String typeName = CStrUtils::ToString( buffer );
+				String typeName = StringUtils::ToString( buffer );
 				
 				DatabaseFieldInfosSPtr infos;
 				std::unique_ptr< CInOdbcBindBase > bind;
@@ -868,15 +867,15 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				break;
 
 			case EFieldType_DATE:
-				static_cast< CDatabaseValue< EFieldType_DATE > & >( value ).SetValue( CDateFromOdbcDate( static_cast< CInOdbcBind< DATE_STRUCT > const & >( bind ).GetValue() ) );
+				static_cast< CDatabaseValue< EFieldType_DATE > & >( value ).SetValue( DateFromOdbcDate( static_cast< CInOdbcBind< DATE_STRUCT > const & >( bind ).GetValue() ) );
 				break;
 
 			case EFieldType_DATETIME:
-				static_cast< CDatabaseValue< EFieldType_DATETIME > & >( value ).SetValue( CDateTimeFromOdbcTimestamp( static_cast< CInOdbcBind< TIMESTAMP_STRUCT > const & >( bind ).GetValue() ) );
+				static_cast< CDatabaseValue< EFieldType_DATETIME > & >( value ).SetValue( DateTimeFromOdbcTimestamp( static_cast< CInOdbcBind< TIMESTAMP_STRUCT > const & >( bind ).GetValue() ) );
 				break;
 
 			case EFieldType_TIME:
-				static_cast< CDatabaseValue< EFieldType_TIME > & >( value ).SetValue( CTimeFromOdbcTime( static_cast< CInOdbcBind< TIME_STRUCT > const & >( bind ).GetValue() ) );
+				static_cast< CDatabaseValue< EFieldType_TIME > & >( value ).SetValue( TimeFromOdbcTime( static_cast< CInOdbcBind< TIME_STRUCT > const & >( bind ).GetValue() ) );
 				break;
 
 			case EFieldType_BINARY:

@@ -77,6 +77,9 @@ namespace Database
 	typedef std::basic_string< TChar > String;
 	typedef std::basic_stringstream< TChar > StringStream;
 	typedef boost::basic_format< TChar > Format;
+	typedef boost::gregorian::date DateType;
+	typedef boost::posix_time::time_duration TimeType;
+	typedef boost::posix_time::ptime DateTimeType;
 
 	// Pre-declare classes
 	// Allows use of pointers in header files without including individual .h
@@ -99,15 +102,13 @@ namespace Database
 	class CDatabaseResult;
 	class CDatabaseRow;
 	class CDatabaseStatement;
-	class CDate;
-	class CDateTime;
 	class CDateTimeSpan;
-	class CTime;
 	class CFixedPoint;
 	class CExceptionDatabase;
 	class CFactoryDatabase;
 	class CPluginDatabase;
 	template< typename T > class CDatabaseNullable;
+
 
 	struct SMessageBase;
 	class CLogger;

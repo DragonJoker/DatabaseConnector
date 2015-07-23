@@ -145,10 +145,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			{
 				CLogger::LogInfo( StringStream() << "  NULL" );
 				function( connection, name, NULL, true, is );
+				CLogger::LogInfo( StringStream() << "  Default" );
+				function( connection, name, &value, true, is );
 			}
 
-			CLogger::LogInfo( StringStream() << "  Default" );
-			function( connection, name, &value, true, is );
 			CLogger::LogInfo( StringStream() << "  Given" );
 			function( connection, name, &valueIn, true, is );
 		}
@@ -169,10 +169,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			{
 				CLogger::LogInfo( StringStream() << "  NULL" );
 				function( connection, name, NULL, true, is );
+				CLogger::LogInfo( StringStream() << "  Default" );
+				function( connection, name, &value, true, is );
 			}
 
-			CLogger::LogInfo( StringStream() << "  Default" );
-			function( connection, name, &value, true, is );
 			CLogger::LogInfo( StringStream() << "  Given" );
 			function( connection, name, &valueIn, true, is );
 		}

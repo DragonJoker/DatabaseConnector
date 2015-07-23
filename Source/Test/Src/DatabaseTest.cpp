@@ -14,6 +14,7 @@
 #include "DatabaseTestPch.h"
 
 #include "DatabaseTest.h"
+#include "DatabaseInterfaceTest.h"
 #include "DatabaseMySqlTest.h"
 #include "DatabaseSqliteTest.h"
 #include "DatabasePostgreSqlTest.h"
@@ -25,6 +26,7 @@
 
 NAMESPACE_DATABASE::String g_path;
 
+std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseInterfaceTest > g_databaseInterfaceTest; //!<A pointer to the CDatabaseInterfaceTest class.
 std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseMySqlTest > g_databaseMySqlTest; //!<A pointer to the CDatabaseMySqlTest class.
 std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseSqliteTest > g_databaseSqliteTest; //!<A pointer to the CDatabasePluginSqlite class.
 std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabasePostgreSqlTest > g_databasePostgreSqlTest; //!<A pointer to the CDatabasePostgreSqlTest class.
@@ -34,9 +36,9 @@ std::unique_ptr< NAMESPACE_DATABASE_TEST::CTestPluginsLoader > g_pluginsLoader;
 
 void Startup( char * arg )
 {
-	g_path = NAMESPACE_DATABASE::CStrUtils::ToString( arg );
-	NAMESPACE_DATABASE::CStrUtils::Replace( g_path, STR( '\\' ), NAMESPACE_DATABASE::PATH_SEP );
-	NAMESPACE_DATABASE::CStrUtils::Replace( g_path, STR( '/' ), NAMESPACE_DATABASE::PATH_SEP );
+	g_path = NAMESPACE_DATABASE::StringUtils::ToString( arg );
+	NAMESPACE_DATABASE::StringUtils::Replace( g_path, STR( '\\' ), NAMESPACE_DATABASE::PATH_SEP );
+	NAMESPACE_DATABASE::StringUtils::Replace( g_path, STR( '/' ), NAMESPACE_DATABASE::PATH_SEP );
 	g_path = g_path.substr( 0, g_path.rfind( NAMESPACE_DATABASE::PATH_SEP ) + 1 );
 	srand( uint32_t( time( NULL ) ) );
 
@@ -48,6 +50,7 @@ void Startup( char * arg )
 #endif
 	NAMESPACE_DATABASE::CLogger::SetFileName( g_path + STR( "DatabaseTest.log" ) );
 
+	g_databaseInterfaceTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseInterfaceTest >();
 	g_databaseMySqlTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseMySqlTest >();
 	g_databaseSqliteTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseSqliteTest >();
 	g_databasePostgreSqlTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabasePostgreSqlTest >();
@@ -59,6 +62,7 @@ void Startup( char * arg )
 void Shutdown()
 {
 	g_pluginsLoader.reset();
+	g_databaseInterfaceTest.reset();
 	g_databaseMySqlTest.reset();
 	g_databaseSqliteTest.reset();
 	g_databasePostgreSqlTest.reset();
@@ -128,14 +132,15 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		TS_List.clear();
 
 		//!@remarks Create the TS' sequences
+		//TS_List.push_back( g_databaseInterfaceTest->Init_Test_Suite() );
 #if defined( TESTING_PLUGIN_SQLITE )
-		//TS_List.push_back( g_databaseSqliteTest->Init_Test_Suite() );
+		TS_List.push_back( g_databaseSqliteTest->Init_Test_Suite() );
 #endif
 #if defined( TESTING_PLUGIN_MYSQL )
 		//TS_List.push_back( g_databaseMySqlTest->Init_Test_Suite() );
 #endif
 #if defined( TESTING_PLUGIN_POSTGRE )
-		TS_List.push_back( g_databasePostgreSqlTest->Init_Test_Suite() );
+		//TS_List.push_back( g_databasePostgreSqlTest->Init_Test_Suite() );
 #endif
 #if defined( TESTING_PLUGIN_ODBC )
 		//TS_List.push_back( g_databaseOdbcMySqlTest->Init_Test_Suite() );

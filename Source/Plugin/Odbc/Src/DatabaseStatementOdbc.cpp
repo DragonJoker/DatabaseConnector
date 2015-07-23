@@ -145,7 +145,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		{
 			SQLSMALLINT count = 0;
 			OdbcCheck( SQLNumParams( _statementHandle, &count ), SQL_HANDLE_STMT, _statementHandle, INFO_ODBC_NumParams );
-			CLogger::LogDebug( DEBUG_ODBC_EXPECTED_PARAMETERS + CStrUtils::ToString( count ) );
+			CLogger::LogDebug( DEBUG_ODBC_EXPECTED_PARAMETERS + StringUtils::ToString( count ) );
 		}
 
 		for ( DatabaseParameterPtrArray::iterator it = _arrayParams.begin(); it != _arrayParams.end(); ++it )

@@ -301,7 +301,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			*/
 			std::wstring GetValue( int row )const
 			{
-				return CStrUtils::ToWStr( PQgetvalue( _result, row, _index ) );
+				return StringUtils::ToWStr( PQgetvalue( _result, row, _index ) );
 			}
 		};
 
@@ -505,11 +505,11 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			@return
 				The value
 			*/
-			CDate GetValue( int row )const
+			DateType GetValue( int row )const
 			{
 				char * value = PQgetvalue( _result, row, _index );
-				CDate date;
-				CDate::IsDate( value, POSTGRE_FORMAT_DATE, date );
+				DateType date;
+				Date::IsDate( value, POSTGRE_FORMAT_DATE, date );
 				return date;
 			}
 		};
@@ -533,11 +533,11 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			@return
 				The value
 			*/
-			CDateTime GetValue( int row )const
+			DateTimeType GetValue( int row )const
 			{
 				char * value = PQgetvalue( _result, row, _index );
-				CDateTime date;
-				CDateTime::IsDateTime( value, POSTGRE_FORMAT_DATETIME, date );
+				DateTimeType date;
+				DateTime::IsDateTime( value, POSTGRE_FORMAT_DATETIME, date );
 				return date;
 			}
 		};
@@ -557,11 +557,11 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			@return
 				The value
 			*/
-			CTime GetValue( int row )const
+			TimeType GetValue( int row )const
 			{
 				char * value = PQgetvalue( _result, row, _index );
-				CTime date;
-				CTime::IsTime( value, POSTGRE_FORMAT_TIME, date );
+				TimeType date;
+				Time::IsTime( value, POSTGRE_FORMAT_TIME, date );
 				return date;
 			}
 		};
@@ -901,7 +901,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			Oid oid = PQftype( result, index );
 			int size = PQfsize( result, index );
 			EFieldType type = GetFieldTypeFromOid( oid );
-			arrayReturn.push_back( std::make_shared< CDatabaseFieldInfos >( CStrUtils::ToString( name ), type, size ) );
+			arrayReturn.push_back( std::make_shared< CDatabaseFieldInfos >( StringUtils::ToString( name ), type, size ) );
 			bind = std::move( GetInBind( type, index, result ) );
 			++index;
 		}
@@ -1034,7 +1034,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		{
 			StringStream error;
 			error << STR( "Failure: " ) << msg << std::endl;
-			String postgresql = CStrUtils::ToString( PQerrorMessage( connection ) );
+			String postgresql = StringUtils::ToString( PQerrorMessage( connection ) );
 			error << postgresql;
 			PQclear( result );
 			DB_EXCEPT( code, error.str() );
@@ -1046,7 +1046,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		{
 			StringStream error;
 			error << msg << std::endl;
-			String postgresql = CStrUtils::ToString( PQerrorMessage( connection ) );
+			String postgresql = StringUtils::ToString( PQerrorMessage( connection ) );
 			error << STR( "(" ) << GetStatusName( status ) << STR( ") " ) << postgresql;
 
 			if ( status == PGRES_NONFATAL_ERROR )

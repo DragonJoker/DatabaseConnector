@@ -85,7 +85,7 @@ BEGIN_NAMESPACE_DATABASE
 		if ( index >= _arrayFieldInfos.size() )
 		{
 			StringStream message;
-			message << ERROR_DB_NO_FIELD << CStrUtils::ToString( index );
+			message << ERROR_DB_NO_FIELD << StringUtils::ToString( index );
 			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, message.str() );
 		}
 

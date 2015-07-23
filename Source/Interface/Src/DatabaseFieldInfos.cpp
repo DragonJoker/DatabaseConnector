@@ -33,14 +33,14 @@ BEGIN_NAMESPACE_DATABASE
 				if ( dotIndex == String::npos )
 				{
 					String limit = type.substr( index + 1, type.find( STR( ")" ) ) - index );
-					result.first = CStrUtils::ToInt( CStrUtils::Trim( limit ) );
+					result.first = std::stoi( StringUtils::Trim( limit ) );
 				}
 				else
 				{
 					String limit1 = type.substr( index + 1, dotIndex - index );
-					result.first = CStrUtils::ToInt( CStrUtils::Trim( limit1 ) );
+					result.first = std::stoi( StringUtils::Trim( limit1 ) );
 					String limit2 = type.substr( dotIndex + 1, type.find( STR( ")" ) ) - dotIndex );
-					result.second = CStrUtils::ToInt( CStrUtils::Trim( limit2 ) );
+					result.second = std::stoi( StringUtils::Trim( limit2 ) );
 				}
 			}
 

@@ -241,19 +241,19 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
-		virtual void DoSetValue( const CDateTime & value )
+		virtual void DoSetValue( const DateTimeType & value )
 		{
 			DoSetAndUpdateValue( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
-		virtual void DoSetValue( const CDate & value )
+		virtual void DoSetValue( const DateType & value )
 		{
 			DoSetAndUpdateValue( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
-		virtual void DoSetValue( const CTime & value )
+		virtual void DoSetValue( const TimeType & value )
 		{
 			DoSetAndUpdateValue( value );
 		}
@@ -361,19 +361,19 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
-		virtual void DoSetValueFast( const CDate & value )
+		virtual void DoSetValueFast( const DateType & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
-		virtual void DoSetValueFast( const CDateTime & value )
+		virtual void DoSetValueFast( const DateTimeType & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
-		virtual void DoSetValueFast( const CTime & value )
+		virtual void DoSetValueFast( const TimeType & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}

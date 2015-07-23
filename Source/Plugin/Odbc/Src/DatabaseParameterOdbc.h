@@ -378,7 +378,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			}
 			else
 			{
-				std::string value = CStrUtils::ToStr( _value.GetValue().ToString() );
+				std::string value = StringUtils::ToStr( _value.GetValue().ToString() );
 				strcpy( _holder, value.c_str() );
 				_columnLenOrInd = value.size();
 				columnSize = value.size();
@@ -423,10 +423,10 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			StringStream message;
 			message << INFO_ODBC_BIND_PARAMETER_NAME << _name << STR( ", " ) << INFO_ODBC_BIND_PARAMETER_VALUE << STR( "[" ) << _value.GetValue() << STR( "]" );
 
-			CDate const & date = _value.GetValue();
-			_holder.year = date.GetYear();
-			_holder.month = int( date.GetMonth() ) + 1;
-			_holder.day = date.GetMonthDay();
+			DateType const & date = _value.GetValue();
+			_holder.year = date.year();
+			_holder.month = date.month();
+			_holder.day = date.day();
 
 			if ( _value.IsNull() || _value.GetPtrSize() == 0 )
 			{
@@ -478,10 +478,10 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			StringStream message;
 			message << INFO_ODBC_BIND_PARAMETER_NAME << _name << STR( ", " ) << INFO_ODBC_BIND_PARAMETER_VALUE << STR( "[" ) << _value.GetValue() << STR( "]" );
 
-			CTime const & date = _value.GetValue();
-			_holder.hour = date.GetHour();
-			_holder.minute = date.GetMinute();
-			_holder.second = date.GetSecond();
+			TimeType const & date = _value.GetValue();
+			_holder.hour = date.hours();
+			_holder.minute = date.minutes();
+			_holder.second = date.seconds();
 
 			if ( _value.IsNull() || _value.GetPtrSize() == 0 )
 			{
@@ -534,13 +534,13 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			message << INFO_ODBC_BIND_PARAMETER_NAME << _name << STR( ", " ) << INFO_ODBC_BIND_PARAMETER_VALUE << STR( "[" ) << _value.GetValue() << STR( "]" );
 			auto columnSize = _columnSize;
 
-			CDateTime const & date = _value.GetValue();
-			_holder.year = date.GetYear();
-			_holder.month = int( date.GetMonth() ) + 1;
-			_holder.day = date.GetMonthDay();
-			_holder.hour = date.GetHour();
-			_holder.minute = date.GetMinute();
-			_holder.second = date.GetSecond();
+			DateTimeType const & date = _value.GetValue();
+			_holder.year = date.date().year();
+			_holder.month = date.date().month();
+			_holder.day = date.date().day();
+			_holder.hour = date.time_of_day().hours();
+			_holder.minute = date.time_of_day().minutes();
+			_holder.second = date.time_of_day().seconds();
 
 			if ( _value.IsNull() || _value.GetPtrSize() == 0 )
 			{

@@ -30,6 +30,10 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 	static const String INFO_SQLITE_SET_PARAMETER_VALUE = STR( "Set parameter value: " );
 	static const String INFO_SQLITE_SET_PARAMETER_NULL = STR( "Set parameter NULL" );
 
+	static const std::string SQLITE_FORMAT_STMT_SDATE = "%Y-%m-%d";
+	static const std::string SQLITE_FORMAT_STMT_STIME = "%H:%M:%S";
+	static const std::string SQLITE_FORMAT_STMT_SDATETIME = "%Y-%m-%d %H:%M:%S";
+
 	/** Generic template class to set the parameter value
 	*/
 	template< EFieldType Type >
@@ -856,7 +860,8 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			}
 			else
 			{
-				SQLiteCheck( sqlite3_bind_text( _statement, _index, ( const char * )_value.GetPtrValue(), _value.GetPtrSize(), SQLITE_STATIC ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+				std::string value = Date::Format( _value.GetValue(), SQLITE_FORMAT_STMT_SDATE );
+				SQLiteCheck( sqlite3_bind_text( _statement, _index, value.c_str(), int( value.size() ), SQLITE_STATIC ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
 			}
 		}
 
@@ -895,7 +900,8 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			}
 			else
 			{
-				SQLiteCheck( sqlite3_bind_text( _statement, _index, ( const char * )_value.GetPtrValue(), _value.GetPtrSize(), SQLITE_STATIC ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+				std::string value = DateTime::Format( _value.GetValue(), SQLITE_FORMAT_STMT_SDATETIME );
+				SQLiteCheck( sqlite3_bind_text( _statement, _index, value.c_str(), int( value.size() ), SQLITE_STATIC ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
 			}
 		}
 
@@ -934,7 +940,8 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			}
 			else
 			{
-				SQLiteCheck( sqlite3_bind_text( _statement, _index, ( const char * )_value.GetPtrValue(), _value.GetPtrSize(), SQLITE_STATIC ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+				std::string value = Time::Format( _value.GetValue(), SQLITE_FORMAT_STMT_STIME );
+				SQLiteCheck( sqlite3_bind_text( _statement, _index, value.c_str(), int( value.size() ), SQLITE_STATIC ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
 			}
 		}
 

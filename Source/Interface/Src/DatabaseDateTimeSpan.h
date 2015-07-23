@@ -58,7 +58,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Date/time
 		*/
-		friend CDateTime operator +( const CDateTime & dateTime, const CDateTimeSpan & dateTimeSpan );
+		friend DateTimeType operator +( const DateTimeType & dateTime, const CDateTimeSpan & dateTimeSpan );
 
 		/** Substract a span to a date/time
 		@param dateTime
@@ -68,7 +68,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Date/time
 		*/
-		friend CDateTime operator -( const CDateTime & dateTime, const CDateTimeSpan & dateTimeSpan );
+		friend DateTimeType operator -( const DateTimeType & dateTime, const CDateTimeSpan & dateTimeSpan );
 
 	protected:
 		//!< Difference (in days).

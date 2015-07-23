@@ -25,6 +25,8 @@
 #include "DatabaseFixedPoint.h"
 #include "DatabaseInt24.h"
 
+#include <boost/date_time/gregorian/gregorian.hpp>
+
 BEGIN_NAMESPACE_DATABASE
 {
 	/** Structure used to retrieve the data type from the field type
@@ -148,7 +150,7 @@ BEGIN_NAMESPACE_DATABASE
 	template<> struct SFieldTypeDataTyper< EFieldType_DATE >
 	{
 		static const size_t size = 0;
-		typedef CDate value_type;
+		typedef DateType value_type;
 	};
 
 	/** SFieldTypeDataTyper specialization for EFieldType_DATETIME
@@ -156,7 +158,7 @@ BEGIN_NAMESPACE_DATABASE
 	template<> struct SFieldTypeDataTyper< EFieldType_DATETIME >
 	{
 		static const size_t size = 0;
-		typedef CDateTime value_type;
+		typedef DateTimeType value_type;
 	};
 
 	/** SFieldTypeDataTyper specialization for EFieldType_TIME
@@ -164,7 +166,7 @@ BEGIN_NAMESPACE_DATABASE
 	template<> struct SFieldTypeDataTyper< EFieldType_TIME >
 	{
 		static const size_t size = 0;
-		typedef CTime value_type;
+		typedef TimeType value_type;
 	};
 
 	/** SFieldTypeDataTyper specialization for EFieldType_CHAR
@@ -305,7 +307,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			if ( valSet )
 			{
-				return CStrUtils::ToString( value );
+				return StringUtils::ToString( value );
 			}
 			else
 			{
@@ -378,7 +380,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			if ( valSet )
 			{
-				return CStrUtils::ToString( int16_t( value ) );
+				return StringUtils::ToString( int16_t( value ) );
 			}
 			else
 			{
@@ -451,7 +453,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			if ( valSet )
 			{
-				return CStrUtils::ToString( uint16_t( value ) );
+				return StringUtils::ToString( uint16_t( value ) );
 			}
 			else
 			{
@@ -525,7 +527,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			if ( valSet )
 			{
-				return CStrUtils::ToString( int32_t( value ) );
+				return StringUtils::ToString( int32_t( value ) );
 			}
 			else
 			{
@@ -599,7 +601,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			if ( valSet )
 			{
-				return CStrUtils::ToString( int32_t( value ) );
+				return StringUtils::ToString( int32_t( value ) );
 			}
 			else
 			{
@@ -897,7 +899,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			if ( valSet )
 			{
-				return CStrUtils::ToString( connection.WriteText( value ) );
+				return StringUtils::ToString( connection.WriteText( value ) );
 			}
 			else
 			{
@@ -994,7 +996,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			if ( valSet )
 			{
-				return CStrUtils::ToString( connection.WriteNText( value ) );
+				return StringUtils::ToString( connection.WriteNText( value ) );
 			}
 			else
 			{
@@ -1174,7 +1176,6 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			out = in;
 			size = ( unsigned long )( connection.GetStmtDateSize() );
-			_value = connection.WriteStmtDateS( out );
 			return true;
 		}
 
@@ -1224,7 +1225,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			if ( valSet )
 			{
-				return CStrUtils::ToString( connection.WriteDate( value ) );
+				return StringUtils::ToString( connection.WriteDate( value ) );
 			}
 			else
 			{
@@ -1264,7 +1265,6 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			out = in;
 			size = ( unsigned long )( connection.GetStmtTimeSize() );
-			_value = connection.WriteStmtTime( out );
 			return true;
 		}
 
@@ -1314,7 +1314,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			if ( valSet )
 			{
-				return CStrUtils::ToString( connection.WriteTime( value ) );
+				return StringUtils::ToString( connection.WriteTime( value ) );
 			}
 			else
 			{
@@ -1354,7 +1354,6 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			out = in;
 			size = ( unsigned long )( connection.GetStmtDateTimeSize() );
-			_value = connection.WriteStmtDateTime( out );
 			return true;
 		}
 
@@ -1404,7 +1403,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			if ( valSet )
 			{
-				return CStrUtils::ToString( connection.WriteDateTime( value ) );
+				return StringUtils::ToString( connection.WriteDateTime( value ) );
 			}
 			else
 			{

@@ -91,19 +91,19 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		sqlite3_stmt * PrepareStatement( const String & query, sqlite3 * connection )
 		{
 			sqlite3_stmt * statement = NULL;
-			int code = sqlite3_prepare_v2( connection, CStrUtils::ToStr( query ).c_str(), int( query.size() ), &statement, NULL );
+			int code = sqlite3_prepare_v2( connection, StringUtils::ToStr( query ).c_str(), int( query.size() ), &statement, NULL );
 
 			while ( code == SQLITE_BUSY || code == SQLITE_LOCKED )
 			{
 				// Tant qu'on n'a pas réussi à compiler la requête parce que la BDD est lockée ou occupée, on retente le coup
 				std::this_thread::sleep_for( std::chrono::milliseconds( 10 ) );
-				code = sqlite3_prepare_v2( connection, CStrUtils::ToStr( query ).c_str(), int( query.size() ), &statement, NULL );
+				code = sqlite3_prepare_v2( connection, StringUtils::ToStr( query ).c_str(), int( query.size() ), &statement, NULL );
 			}
 
 			if ( !statement )
 			{
 				StringStream stream;
-				stream << ERROR_SQLITE_PREPARATION_ERROR << STR( " - " ) << CStrUtils::ToString( sqlite3_errmsg( connection ) );
+				stream << ERROR_SQLITE_PREPARATION_ERROR << STR( " - " ) << StringUtils::ToString( sqlite3_errmsg( connection ) );
 				DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, stream.str() );
 			}
 
@@ -151,8 +151,8 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		String filePath = _server + PATH_SEP + database;
 		String serverPath = filePath;
 
-		CStrUtils::Replace( serverPath, STR( "\\" ), PATH_SEP );
-		CStrUtils::Replace( serverPath, STR( "/" ), PATH_SEP );
+		StringUtils::Replace( serverPath, STR( "\\" ), PATH_SEP );
+		StringUtils::Replace( serverPath, STR( "/" ), PATH_SEP );
 		serverPath = serverPath.substr( 0, serverPath.find_last_of( PATH_SEP ) + 1 );
 
 		if ( !FileExists( filePath ) )
@@ -164,9 +164,9 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 			FILE * file;
 #if defined( _MSC_VER )
-			fopen_s( &file, CStrUtils::ToStr( filePath ).c_str(), "w" );
+			fopen_s( &file, StringUtils::ToStr( filePath ).c_str(), "w" );
 #else
-			file = fopen( CStrUtils::ToStr( filePath ).c_str(), "w" );
+			file = fopen( StringUtils::ToStr( filePath ).c_str(), "w" );
 #endif
 
 			if ( file )
@@ -189,7 +189,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			sqlite3_close( _connection );
 		}
 
-		SQLiteCheck( sqlite3_open( CStrUtils::ToStr( _server + PATH_SEP + database ).c_str(), &_connection ), StringStream() << ERROR_SQLITE_SELECTION, EDatabaseExceptionCodes_ConnectionError, _connection );
+		SQLiteCheck( sqlite3_open( StringUtils::ToStr( _server + PATH_SEP + database ).c_str(), &_connection ), StringStream() << ERROR_SQLITE_SELECTION, EDatabaseExceptionCodes_ConnectionError, _connection );
 		_database = database;
 	}
 
@@ -204,8 +204,8 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 		if ( FileExists( filePath ) )
 		{
-			CStrUtils::Replace( filePath, STR( "\\" ), PATH_SEP );
-			CStrUtils::Replace( filePath, STR( "/" ), PATH_SEP );
+			StringUtils::Replace( filePath, STR( "\\" ), PATH_SEP );
+			StringUtils::Replace( filePath, STR( "/" ), PATH_SEP );
 
 			if ( !_database.empty() )
 			{
@@ -218,7 +218,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			}
 			catch ( boost::filesystem::filesystem_error & exc )
 			{
-				String error = ERROR_SQLITE_DESTRUCTION + CStrUtils::ToString( exc.what() );
+				String error = ERROR_SQLITE_DESTRUCTION + StringUtils::ToString( exc.what() );
 				DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, error );
 			}
 		}
@@ -230,8 +230,8 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 		if ( strReturn != SQLITE_SQL_SNULL )
 		{
-			Replace( strReturn, "'", "''" );
-			Replace( strReturn, "\\", "\\\\" );
+			StringUtils::Replace( strReturn, "'", "''" );
+			StringUtils::Replace( strReturn, "\\", "\\\\" );
 			strReturn = "'" + strReturn + "'";
 		}
 
@@ -240,16 +240,16 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 	std::wstring CDatabaseConnectionSqlite::WriteNText( const std::wstring & text ) const
 	{
-		String strReturn( CStrUtils::ToString( text ) );
+		String strReturn( StringUtils::ToString( text ) );
 
 		if ( strReturn != SQLITE_SQL_SNULL )
 		{
-			Replace( strReturn, STR( "'" ), STR( "''" ) );
-			Replace( strReturn, STR( "\\" ), STR( "\\\\" ) );
+			StringUtils::Replace( strReturn, STR( "'" ), STR( "''" ) );
+			StringUtils::Replace( strReturn, STR( "\\" ), STR( "\\\\" ) );
 			strReturn = STR( "'" ) + strReturn + STR( "'" );
 		}
 
-		return CStrUtils::ToWStr( strReturn );
+		return StringUtils::ToWStr( strReturn );
 	}
 
 	String CDatabaseConnectionSqlite::WriteBinary( const ByteArray & array ) const
@@ -272,13 +272,29 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		return STR( "[" ) + text + STR( "]" );
 	}
 
-	std::string CDatabaseConnectionSqlite::WriteDateS( const CDate & date ) const
+	std::string CDatabaseConnectionSqlite::WriteDateS( const DateType & date ) const
 	{
 		std::string strReturn;
 
-		if ( date.IsValid() )
+		if ( Date::IsValid( date ) )
 		{
-			Formalize( strReturn, 1024, SQLITE_FORMAT_SDATE.c_str(), date.GetYear(), date.GetMonth() + 1, date.GetMonthDay() );
+			strReturn = Date::Print( date, SQLITE_FORMAT_SDATE );
+		}
+		else
+		{
+			strReturn += SQLITE_SQL_SNULL;
+		}
+
+		return strReturn;
+	}
+
+	std::string CDatabaseConnectionSqlite::WriteTimeS( const TimeType & time ) const
+	{
+		std::string strReturn;
+
+		if ( Time::IsValid( time ) )
+		{
+			strReturn = Time::Print( time, SQLITE_FORMAT_STIME );
 		}
 		else
 		{
@@ -288,13 +304,13 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		return strReturn;
 	}
 
-	std::string CDatabaseConnectionSqlite::WriteTimeS( const CTime & time ) const
+	std::string CDatabaseConnectionSqlite::WriteDateTimeS( const DateTimeType & dateTime ) const
 	{
 		std::string strReturn;
 
-		if ( time.IsValid() )
+		if ( DateTime::IsValid( dateTime ) )
 		{
-			Formalize( strReturn, 1024, SQLITE_FORMAT_STIME.c_str(), time.GetHour(), time.GetMinute(), time.GetSecond() );
+			strReturn = DateTime::Print( dateTime, SQLITE_FORMAT_SDATETIME );
 		}
 		else
 		{
@@ -304,109 +320,109 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		return strReturn;
 	}
 
-	std::string CDatabaseConnectionSqlite::WriteDateTimeS( const CDateTime & dateTime ) const
+	std::string CDatabaseConnectionSqlite::WriteDateTimeS( const DateType & date ) const
 	{
 		std::string strReturn;
 
-		if ( dateTime.GetYear() <= 0 )
+		if ( Date::IsValid( date ) )
 		{
-			strReturn = SQLITE_SQL_SNULL;
+			strReturn = Date::Print( date, SQLITE_FORMAT_SDATETIME_DATE );
 		}
 		else
 		{
-			Formalize( strReturn, 1024, SQLITE_FORMAT_SDATETIME.c_str(), dateTime.GetYear(), dateTime.GetMonth() + 1, dateTime.GetMonthDay(), dateTime.GetHour(), dateTime.GetMinute(), dateTime.GetSecond() );
+			strReturn += SQLITE_SQL_SNULL;
 		}
 
 		return strReturn;
 	}
 
-	std::string CDatabaseConnectionSqlite::WriteDateTimeS( const CDate & date ) const
+	std::string CDatabaseConnectionSqlite::WriteDateTimeS( const TimeType & time ) const
 	{
 		std::string strReturn;
 
-		if ( !date.IsValid() || date.GetYear() <= 0 )
+		if ( Time::IsValid( time ) )
 		{
-			strReturn = SQLITE_SQL_SNULL;
+			strReturn = Time::Print( time, SQLITE_FORMAT_SDATETIME_TIME );
 		}
 		else
 		{
-			Formalize( strReturn, 1024, SQLITE_FORMAT_SDATETIME_DATE.c_str(), date.GetYear(), date.GetMonth() + 1, date.GetMonthDay() );
+			strReturn = SQLITE_SQL_SNULL;
 		}
 
 		return strReturn;
 	}
 
-	std::string CDatabaseConnectionSqlite::WriteDateTimeS( const CTime & time ) const
+	std::string CDatabaseConnectionSqlite::WriteStmtDateS( const DateType & date ) const
 	{
 		std::string strReturn;
 
-		if ( !time.IsValid() )
+		if ( Date::IsValid( date ) )
 		{
-			strReturn = SQLITE_SQL_SNULL;
+			strReturn = Date::Format( date, SQLITE_FORMAT_STMT_SDATE );
 		}
 		else
 		{
-			Formalize( strReturn, 1024, SQLITE_FORMAT_SDATETIME_TIME.c_str(), time.GetHour(), time.GetMinute(), time.GetSecond() );
+			strReturn += SQLITE_SQL_SNULL;
 		}
 
 		return strReturn;
 	}
 
-	std::string CDatabaseConnectionSqlite::WriteStmtDateS( const CDate & date ) const
+	std::string CDatabaseConnectionSqlite::WriteStmtTimeS( const TimeType & time ) const
 	{
 		std::string strReturn;
 
-		if ( !date.IsValid() )
+		if ( Time::IsValid( time ) )
 		{
-			strReturn = SQLITE_SQL_SNULL;
+			strReturn = Time::Format( time, SQLITE_FORMAT_STMT_STIME );
 		}
 		else
 		{
-			strReturn = date.Format( SQLITE_FORMAT_STMT_SDATE );
+			strReturn = SQLITE_SQL_SNULL;
 		}
 
 		return strReturn;
 	}
 
-	std::string CDatabaseConnectionSqlite::WriteStmtTimeS( const CTime & time ) const
+	std::string CDatabaseConnectionSqlite::WriteStmtDateTimeS( const DateTimeType & dateTime ) const
 	{
 		std::string strReturn;
 
-		if ( !time.IsValid() )
+		if ( DateTime::IsValid( dateTime ) )
+		{
+			strReturn = DateTime::Format( dateTime, SQLITE_FORMAT_STMT_SDATETIME );
+		}
+		else
 		{
 			strReturn = SQLITE_SQL_SNULL;
 		}
-		else
-		{
-			strReturn = time.Format( SQLITE_FORMAT_STMT_STIME );
-		}
 
 		return strReturn;
 	}
 
-	std::string CDatabaseConnectionSqlite::WriteStmtDateTimeS( const CDateTime & dateTime ) const
-	{
-		std::string strReturn;
-
-		if ( !dateTime.IsValid() )
-		{
-			strReturn = SQLITE_SQL_SNULL;
-		}
-		else
-		{
-			strReturn = dateTime.Format( SQLITE_FORMAT_STMT_SDATETIME );
-		}
-
-		return strReturn;
-	}
-
-	std::wstring CDatabaseConnectionSqlite::WriteDateW( const CDate & date ) const
+	std::wstring CDatabaseConnectionSqlite::WriteDateW( const DateType & date ) const
 	{
 		std::wstring strReturn;
 
-		if ( date.IsValid() )
+		if ( Date::IsValid( date ) )
 		{
-			Formalize( strReturn, 1024, SQLITE_FORMAT_WDATE.c_str(), date.GetYear(), date.GetMonth() + 1, date.GetMonthDay() );
+			strReturn = Date::Print( date, SQLITE_FORMAT_WDATE );
+		}
+		else
+		{
+			strReturn += SQLITE_SQL_WNULL;
+		}
+
+		return strReturn;
+	}
+
+	std::wstring CDatabaseConnectionSqlite::WriteTimeW( const TimeType & time ) const
+	{
+		std::wstring strReturn;
+
+		if ( Time::IsValid( time ) )
+		{
+			strReturn = Time::Print( time, SQLITE_FORMAT_WTIME );
 		}
 		else
 		{
@@ -416,13 +432,13 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		return strReturn;
 	}
 
-	std::wstring CDatabaseConnectionSqlite::WriteTimeW( const CTime & time ) const
+	std::wstring CDatabaseConnectionSqlite::WriteDateTimeW( const DateTimeType & dateTime ) const
 	{
 		std::wstring strReturn;
 
-		if ( time.IsValid() )
+		if ( DateTime::IsValid( dateTime ) )
 		{
-			Formalize( strReturn, 1024, SQLITE_FORMAT_WTIME.c_str(), time.GetHour(), time.GetMinute(), time.GetSecond() );
+			strReturn = DateTime::Print( dateTime, SQLITE_FORMAT_WDATETIME );
 		}
 		else
 		{
@@ -432,97 +448,81 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		return strReturn;
 	}
 
-	std::wstring CDatabaseConnectionSqlite::WriteDateTimeW( const CDateTime & dateTime ) const
+	std::wstring CDatabaseConnectionSqlite::WriteDateTimeW( const DateType & date ) const
 	{
 		std::wstring strReturn;
 
-		if ( dateTime.GetYear() <= 0 )
+		if ( Date::IsValid( date ) )
 		{
-			strReturn = SQLITE_SQL_WNULL;
+			strReturn = Date::Print( date, SQLITE_FORMAT_WDATETIME_DATE );
 		}
 		else
 		{
-			Formalize( strReturn, 1024, SQLITE_FORMAT_WDATETIME.c_str(), dateTime.GetYear(), dateTime.GetMonth() + 1, dateTime.GetMonthDay(), dateTime.GetHour(), dateTime.GetMinute(), dateTime.GetSecond() );
+			strReturn += SQLITE_SQL_WNULL;
 		}
 
 		return strReturn;
 	}
 
-	std::wstring CDatabaseConnectionSqlite::WriteDateTimeW( const CDate & date ) const
+	std::wstring CDatabaseConnectionSqlite::WriteDateTimeW( const TimeType & time ) const
 	{
 		std::wstring strReturn;
 
-		if ( !date.IsValid() || date.GetYear() <= 0 )
+		if ( Time::IsValid( time ) )
 		{
-			strReturn = SQLITE_SQL_WNULL;
+			strReturn = Time::Print( time, SQLITE_FORMAT_WDATETIME_TIME );
 		}
 		else
 		{
-			Formalize( strReturn, 1024, SQLITE_FORMAT_WDATETIME_DATE.c_str(), date.GetYear(), date.GetMonth() + 1, date.GetMonthDay() );
+			strReturn = SQLITE_SQL_WNULL;
 		}
 
 		return strReturn;
 	}
 
-	std::wstring CDatabaseConnectionSqlite::WriteDateTimeW( const CTime & time ) const
+	std::wstring CDatabaseConnectionSqlite::WriteStmtDateW( const DateType & date ) const
 	{
 		std::wstring strReturn;
 
-		if ( !time.IsValid() )
+		if ( Date::IsValid( date ) )
 		{
-			strReturn = SQLITE_SQL_WNULL;
+			strReturn = Date::Format( date, SQLITE_FORMAT_STMT_WDATE );
 		}
 		else
 		{
-			Formalize( strReturn, 1024, SQLITE_FORMAT_WDATETIME_TIME.c_str(), time.GetHour(), time.GetMinute(), time.GetSecond() );
+			strReturn += SQLITE_SQL_WNULL;
 		}
 
 		return strReturn;
 	}
 
-	std::wstring CDatabaseConnectionSqlite::WriteStmtDateW( const CDate & date ) const
+	std::wstring CDatabaseConnectionSqlite::WriteStmtTimeW( const TimeType & time ) const
 	{
 		std::wstring strReturn;
 
-		if ( !date.IsValid() )
+		if ( Time::IsValid( time ) )
 		{
-			strReturn = SQLITE_SQL_WNULL;
+			strReturn = Time::Format( time, SQLITE_FORMAT_STMT_WTIME );
 		}
 		else
 		{
-			strReturn = date.Format( SQLITE_FORMAT_STMT_WDATE );
+			strReturn = SQLITE_SQL_WNULL;
 		}
 
 		return strReturn;
 	}
 
-	std::wstring CDatabaseConnectionSqlite::WriteStmtTimeW( const CTime & time ) const
+	std::wstring CDatabaseConnectionSqlite::WriteStmtDateTimeW( const DateTimeType & dateTime ) const
 	{
 		std::wstring strReturn;
 
-		if ( !time.IsValid() )
+		if ( DateTime::IsValid( dateTime ) )
 		{
-			strReturn = SQLITE_SQL_WNULL;
+			strReturn = DateTime::Format( dateTime, SQLITE_FORMAT_STMT_WDATETIME );
 		}
 		else
 		{
-			strReturn = time.Format( SQLITE_FORMAT_STMT_WTIME );
-		}
-
-		return strReturn;
-	}
-
-	std::wstring CDatabaseConnectionSqlite::WriteStmtDateTimeW( const CDateTime & dateTime ) const
-	{
-		std::wstring strReturn;
-
-		if ( !dateTime.IsValid() )
-		{
 			strReturn = SQLITE_SQL_WNULL;
-		}
-		else
-		{
-			strReturn = dateTime.Format( SQLITE_FORMAT_STMT_WDATETIME );
 		}
 
 		return strReturn;
@@ -535,49 +535,49 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 	String CDatabaseConnectionSqlite::WriteBool( const String & value ) const
 	{
-		const String lowerCaseValue = CStrUtils::LowerCase( value );
+		const String lowerCaseValue = StringUtils::LowerCase( value );
 		return ( lowerCaseValue == STR( "x" ) || lowerCaseValue == STR( "oui" ) || lowerCaseValue == STR( "yes" ) || lowerCaseValue == STR( "y" ) || value == STR( "1" ) ? STR( "1" ) : STR( "0" ) );
 	}
 
-	CDate CDatabaseConnectionSqlite::ParseDate( const std::string & date ) const
+	DateType CDatabaseConnectionSqlite::ParseDate( const std::string & date ) const
 	{
-		CDate dateObj;
-		CDate::IsDate( date, SQLITE_FORMAT_STMT_SDATE, dateObj );
+		DateType dateObj;
+		Date::IsDate( date, SQLITE_FORMAT_STMT_SDATE, dateObj );
 		return dateObj;
 	}
 
-	CTime CDatabaseConnectionSqlite::ParseTime( const std::string & time ) const
+	TimeType CDatabaseConnectionSqlite::ParseTime( const std::string & time ) const
 	{
-		CTime timeObj;
-		CTime::IsTime( time, SQLITE_FORMAT_STMT_STIME, timeObj );
+		TimeType timeObj;
+		Time::IsTime( time, SQLITE_FORMAT_STMT_STIME, timeObj );
 		return timeObj;
 	}
 
-	CDateTime CDatabaseConnectionSqlite::ParseDateTime( const std::string & dateTime ) const
+	DateTimeType CDatabaseConnectionSqlite::ParseDateTime( const std::string & dateTime ) const
 	{
-		CDateTime dateTimeObj;
-		CDateTime::IsDateTime( dateTime, SQLITE_FORMAT_STMT_SDATETIME, dateTimeObj );
+		DateTimeType dateTimeObj;
+		DateTime::IsDateTime( dateTime, SQLITE_FORMAT_STMT_SDATETIME, dateTimeObj );
 		return dateTimeObj;
 	}
 
-	CDate CDatabaseConnectionSqlite::ParseDate( const std::wstring & date ) const
+	DateType CDatabaseConnectionSqlite::ParseDate( const std::wstring & date ) const
 	{
-		CDate dateObj;
-		CDate::IsDate( date, SQLITE_FORMAT_STMT_WDATE, dateObj );
+		DateType dateObj;
+		Date::IsDate( date, SQLITE_FORMAT_STMT_WDATE, dateObj );
 		return dateObj;
 	}
 
-	CTime CDatabaseConnectionSqlite::ParseTime( const std::wstring & time ) const
+	TimeType CDatabaseConnectionSqlite::ParseTime( const std::wstring & time ) const
 	{
-		CTime timeObj;
-		CTime::IsTime( time, SQLITE_FORMAT_STMT_WTIME, timeObj );
+		TimeType timeObj;
+		Time::IsTime( time, SQLITE_FORMAT_STMT_WTIME, timeObj );
 		return timeObj;
 	}
 
-	CDateTime CDatabaseConnectionSqlite::ParseDateTime( const std::wstring & dateTime ) const
+	DateTimeType CDatabaseConnectionSqlite::ParseDateTime( const std::wstring & dateTime ) const
 	{
-		CDateTime dateTimeObj;
-		CDateTime::IsDateTime( dateTime, SQLITE_FORMAT_STMT_WDATETIME, dateTimeObj );
+		DateTimeType dateTimeObj;
+		DateTime::IsDateTime( dateTime, SQLITE_FORMAT_STMT_WDATETIME, dateTimeObj );
 		return dateTimeObj;
 	}
 

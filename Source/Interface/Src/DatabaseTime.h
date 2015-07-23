@@ -5,9 +5,7 @@
 * @date 3/20/2014 2:47:39 PM
 *
 *
-* @brief CTime class declaration.
-*
-* @details Describes a time.
+* @brief Time helper functions
 *
 ***************************************************************************/
 
@@ -18,130 +16,52 @@
 
 BEGIN_NAMESPACE_DATABASE
 {
-	/** Describes a time.
-	*/
-	class DatabaseExport CTime
+	namespace Time
 	{
-	public:
-		/** Default constructor.
-		*/
-		CTime();
-
-		/** Constructor.
-		@param time
-			Time.
-		*/
-		CTime( const std::tm & time );
-
-		/** Constructor.
-		@param dateTime
-			Date/time.
-		*/
-		explicit CTime( const CDateTime & dateTime );
-
-		/** Constructor.
-		@param hours
-			Hours.
-		@param minutes
-			Minutes.
-		@param seconds
-			Seconds.
-		*/
-		CTime( int hours, int minutes, int seconds );
-
-		/** Convert to a std::tm
-		@param[out] time
-			std::tm filled with current CTime data.
-		*/
-		void ToCLibTm( std::tm & time ) const;
-
-		/** Get time from a std::tm
-		@param[in] time
-			std::tm to "copy".
-		*/
-		void FromCLibTm( const std::tm & time );
 
 		/** Get time formatted according to the format mask.
+		@remarks
+			Uses strftime
 		@param[in] format
 			Time format.
 		@return
 			Formatted string.
 		*/
-		std::string Format( const std::string & format ) const;
+		DatabaseExport std::string Format( const TimeType & time, const std::string & format );
 
 		/** Get time formatted according to the format mask.
+		@remarks
+			Uses wcsftime
 		@param[in] format
 			Time format.
 		@return
 			Formatted string.
 		*/
-		std::wstring Format( const std::wstring & format ) const;
+		DatabaseExport std::wstring Format( const TimeType & time, const std::wstring & format );
 
-		/** Set values.
-		@param[in] hours
-			Hours.
-		@param[in] minutes
-			Minutes.
-		@param[in] seconds
-			Seconds.
-		*/
-		void SetTime( int hours, int minutes, int seconds );
-
-		/** Get hour.
-		@return
-			Hour.
-		*/
-		int GetHour() const;
-
-		/** Get minute.
-		@return
-			Minute.
-		*/
-		int GetMinute() const;
-
-		/** Get second.
-		@return
-			Second.
-		*/
-		int GetSecond() const;
-
-		/** Set time.
+		/** Get time formatted according to the format mask.
+		@remarks
+			Uses vsnprintf, the time, in hours, minutes, then seconds order
 		@param[in] time
-			String containing time.
+		    Time time.
 		@param[in] format
-			Format of time in string.
+		    Time format.
 		@return
-			true if success.
+		    Formatted string.
 		*/
-		bool Parse( const std::string & time, const std::string & format );
+		DatabaseExport std::string Print( const TimeType & time, const std::string & format );
 
-		/** Set time.
+		/** Get time formatted according to the format mask.
+		@remarks
+			Uses vsnprintf, the time, in hours, minutes, then seconds order
 		@param[in] time
-			String containing time.
+		    Time time.
 		@param[in] format
-			Format of time in string.
+		    Time format.
 		@return
-			true if success.
+		    Formatted string.
 		*/
-		bool Parse( const std::wstring & time, const std::wstring & format );
-
-		/** Check time consistency.
-		@return
-			true if valid time.
-		*/
-		bool IsValid() const;
-
-		/** Convert this object to a std::tm.
-		@return
-			Converted date/time.
-		*/
-		std::tm ToTm() const;
-
-		/** Get system current date/time.
-		@return
-			System current date/time.
-		*/
-		static CTime Now();
+		DatabaseExport std::wstring Print( const TimeType & time, const std::wstring & format );
 
 		/** Check time consistency.
 		@param[in] time
@@ -151,7 +71,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			true if valid time.
 		*/
-		static bool IsTime( const std::string & time, const std::string & format );
+		DatabaseExport bool IsTime( const std::string & time, const std::string & format );
 
 		/** Check time consistency.
 		@param[in] time
@@ -161,7 +81,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			true if valid time.
 		*/
-		static bool IsTime( const std::wstring & time, const std::wstring & format );
+		DatabaseExport bool IsTime( const std::wstring & time, const std::wstring & format );
 
 		/** Check time consistency.
 		@param[in] time
@@ -173,7 +93,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			true if valid time.
 		*/
-		static bool IsTime( const std::string & time, const std::string & format, CTime & result );
+		DatabaseExport bool IsTime( const std::string & time, const std::string & format, TimeType & result );
 
 		/** Check time consistency.
 		@param[in] time
@@ -185,88 +105,16 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			true if valid time.
 		*/
-		static bool IsTime( const std::wstring & time, const std::wstring & format, CTime & result );
+		DatabaseExport bool IsTime( const std::wstring & time, const std::wstring & format, TimeType & result );
 
-	private:
-		/** Check time consistency.
+		/** Tells if the given time is valid or not
 		@param[in] time
-			String containing time.
-		@param[in] format
-			Format of time in string.
-		@param[in] hours
-			Hours.
-		@param[in] minutes
-			Minutes.
-		@param[in] seconds
-			Seconds.
+			The time to test
 		@return
-			true if valid time.
+			The validity
 		*/
-		static bool DoIsTime( const std::string & time, const std::string & format, int & hours, int & minutes, int & seconds );
-
-		/** Check time consistency.
-		@param[in] time
-			String containing time.
-		@param[in] format
-			Format of time in string.
-		@param[in] hours
-			Hours.
-		@param[in] minutes
-			Minutes.
-		@param[in] seconds
-			Seconds.
-		@return
-			true if valid time.
-		*/
-		static bool DoIsTime( const std::wstring & time, const std::wstring & format, int & hours, int & minutes, int & seconds );
-
-		friend DatabaseExport bool operator ==( const CTime & lhs, const CTime & rhs );
-
-	protected:
-		//! Time value.
-		time_t _time;
+		DatabaseExport bool IsValid( const TimeType & time );
 	};
-
-	/** Check equality of two times.
-	@param lhs
-		Left-hand side time.
-	@param rhs
-		Right-hand side time.
-	@return
-		true if objects are equal.
-	*/
-	DatabaseExport bool operator ==( const CTime & lhs, const CTime & rhs );
-
-	/** Check inequality of two times.
-	@param lhs
-		Left-hand side time.
-	@param rhs
-		Right-hand side time.
-	@return
-		true if objects are different.
-	*/
-	DatabaseExport bool operator !=( const CTime & lhs, const CTime & rhs );
-
-	/** Stream operator
-	@param stream
-		The stream.
-	@param time
-		The time.
-	@return
-		The stream.
-	*/
-	DatabaseExport std::ostream & operator <<( std::ostream & stream, const CTime & time );
-
-	/** Stream operator
-	@param stream
-		The stream.
-	@param time
-		The time.
-	@return
-		The stream.
-	*/
-	DatabaseExport std::wostream & operator <<( std::wostream & stream, const CTime & time );
-
 }
 END_NAMESPACE_DATABASE
 

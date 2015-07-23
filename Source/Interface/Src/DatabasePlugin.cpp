@@ -79,7 +79,7 @@ BEGIN_NAMESPACE_DATABASE
 
 	std::string ToUtf8( const std::wstring & src, const std::wstring & charset )
 	{
-		return ToUtf8( CStrUtils::ToStr( src ), CStrUtils::ToStr( charset ) );
+		return ToUtf8( StringUtils::ToStr( src ), StringUtils::ToStr( charset ) );
 	}
 
 #if defined( _MSC_VER)
@@ -99,7 +99,7 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		bool result = false;
 		struct stat buffer;
-		std::string strname = CStrUtils::ToStr( name );
+		std::string strname = StringUtils::ToStr( name );
 
 		if ( stat( strname.c_str(), &buffer ) == 0 )
 		{
@@ -126,9 +126,9 @@ BEGIN_NAMESPACE_DATABASE
 			if ( bReturn )
 			{
 #if defined( _MSC_VER )
-				bReturn = _mkdir( CStrUtils::ToStr( pathFolder ).c_str() ) == 0;
+				bReturn = _mkdir( StringUtils::ToStr( pathFolder ).c_str() ) == 0;
 #else
-				bReturn = mkdir( CStrUtils::ToStr( pathFolder ).c_str(), 777 ) == 0;
+				bReturn = mkdir( StringUtils::ToStr( pathFolder ).c_str(), 777 ) == 0;
 #endif
 			}
 		}
@@ -140,7 +140,7 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		try
 		{
-			return boost::filesystem::exists( CStrUtils::ToStr( p_filename ).c_str() ) && boost::filesystem::is_directory( CStrUtils::ToStr( p_filename ).c_str() );
+			return boost::filesystem::exists( StringUtils::ToStr( p_filename ).c_str() ) && boost::filesystem::is_directory( StringUtils::ToStr( p_filename ).c_str() );
 		}
 		catch ( std::exception & )
 		{

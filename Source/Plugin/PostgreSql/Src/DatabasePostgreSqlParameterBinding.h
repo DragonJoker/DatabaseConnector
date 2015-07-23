@@ -183,21 +183,21 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 	*/
 	template<> struct SFieldTypePostgreSqlDataTyper< EFieldType_DATE >
 	{
-		typedef CDate FieldDataType;
+		typedef DateType FieldDataType;
 	};
 
 	/** Specialization for EFieldType_DATETIME
 	*/
 	template<> struct SFieldTypePostgreSqlDataTyper< EFieldType_DATETIME >
 	{
-		typedef CDateTime FieldDataType;
+		typedef DateTimeType FieldDataType;
 	};
 
 	/** Specialization for EFieldType_TIME
 	*/
 	template<> struct SFieldTypePostgreSqlDataTyper< EFieldType_TIME >
 	{
-		typedef CTime FieldDataType;
+		typedef TimeType FieldDataType;
 	};
 
 	/** Specialization for EFieldType_CHAR
@@ -509,7 +509,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		//!@copydoc SOutPostgreSqlBindBase::DoUpdateValue
 		virtual void DoUpdateValue()
 		{
-			std::string value = CStrUtils::ToStr( reinterpret_cast< const wchar_t * >( _value.GetPtrValue() ) );
+			std::string value = StringUtils::ToStr( reinterpret_cast< const wchar_t * >( _value.GetPtrValue() ) );
 			_bind.length = int( value.size() );
 			_holder.resize( _bind.length + 1 );
 			strcpy( _holder.data(), value.c_str() );
@@ -620,7 +620,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 				PostgreSQLCheck( NULL, INFO_ESCAPING_BINARY, EDatabaseExceptionCodes_ConnectionError, _connection );
 			}
 			
-			std::string value = CStrUtils::ToString( reinterpret_cast< char * >( escaped ) );
+			std::string value = StringUtils::ToString( reinterpret_cast< char * >( escaped ) );
 			PQfreemem( escaped );
 			_bind.length = int( length );
 			_holder.resize( length + 1 );
@@ -761,7 +761,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		//!@copydoc SOutPostgreSqlBindBase::DoUpdateValue
 		virtual void DoUpdateValue()
 		{
-			std::string value = CStrUtils::ToStr( _value.GetValue().ToString() );
+			std::string value = StringUtils::ToStr( _value.GetValue().ToString() );
 			_bind.length = int( value.size() );
 			assert( _bind.length < _holder.size() );
 			strcpy( _holder.data(), value.data() );
@@ -799,7 +799,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		//!@copydoc SOutPostgreSqlBindBase::DoUpdateValue
 		virtual void DoUpdateValue()
 		{
-			std::string value = _value.GetValue().Format( POSTGRE_FORMAT_DATE );
+			std::string value = Date::Format( _value.GetValue(), POSTGRE_FORMAT_DATE );
 			_bind.length = int( value.size() );
 			assert( _bind.length < _holder.size() );
 			strcpy( _holder.data(), value.data() );
@@ -838,7 +838,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		//!@copydoc SOutPostgreSqlBindBase::DoUpdateValue
 		virtual void DoUpdateValue()
 		{
-			std::string value = _value.GetValue().Format( POSTGRE_FORMAT_DATETIME );
+			std::string value = DateTime::Format( _value.GetValue(), POSTGRE_FORMAT_DATETIME );
 			_bind.length = int( value.size() );
 			assert( _bind.length < _holder.size() );
 			strcpy( _holder.data(), value.data() );
@@ -876,7 +876,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		//!@copydoc SOutPostgreSqlBindBase::DoUpdateValue
 		virtual void DoUpdateValue()
 		{
-			std::string value = _value.GetValue().Format( POSTGRE_FORMAT_TIME );
+			std::string value = Time::Format( _value.GetValue(), POSTGRE_FORMAT_TIME );
 			_bind.length = int( value.size() );
 			assert( _bind.length < _holder.size() );
 			strcpy( _holder.data(), value.data() );

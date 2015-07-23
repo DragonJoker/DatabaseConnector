@@ -102,9 +102,9 @@ BEGIN_NAMESPACE_DATABASE
 	CExceptionDatabase::CExceptionDatabase( int number, const String & description, const std::string & source, const std::string & file, long line )
 		: _number( number )
 		, _description( description )
-		, _source( CStrUtils::ToString( source ) )
+		, _source( StringUtils::ToString( source ) )
 		, _typeName( STR( "CExceptionDatabase" ) )
-		, _file( CStrUtils::ToString( file ) )
+		, _file( StringUtils::ToString( file ) )
 		, _line( line )
 	{
 		std::stringstream stream;
@@ -115,9 +115,9 @@ BEGIN_NAMESPACE_DATABASE
 	CExceptionDatabase::CExceptionDatabase( int number, const String & description, const std::string & source, const String & type, const std::string & file, long line )
 		: _number( number )
 		, _description( description )
-		, _source( CStrUtils::ToString( source ) )
+		, _source( StringUtils::ToString( source ) )
 		, _typeName( type )
-		, _file( CStrUtils::ToString( file ) )
+		, _file( StringUtils::ToString( file ) )
 		, _line( line )
 	{
 		std::stringstream stream;
@@ -142,7 +142,7 @@ BEGIN_NAMESPACE_DATABASE
 
 			desc << _callstack;
 			_fullDesc = desc.str();
-			_what = CStrUtils::ToStr( _fullDesc );
+			_what = StringUtils::ToStr( _fullDesc );
 		}
 
 		return _fullDesc;

@@ -82,7 +82,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		@return
 			The formatted date.
 		*/
-		virtual std::string WriteDateS( const CDate & date ) const;
+		virtual std::string WriteDateS( const DateType & date ) const;
 
 		/** Format a date into a string for a statement to be supported by the DBMS.
 		@param[in] date
@@ -90,7 +90,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		@return
 			The formatted date.
 		*/
-		virtual std::string WriteStmtDateS( const CDate & date ) const;
+		virtual std::string WriteStmtDateS( const DateType & date ) const;
 
 		/** Format a time into a string to be supported by the DBMS.
 		@param[in] time
@@ -98,7 +98,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		@return
 			The formatted time.
 		*/
-		virtual std::string WriteTimeS( const CTime & time ) const;
+		virtual std::string WriteTimeS( const TimeType & time ) const;
 
 		/** Format a time into a string for a statement to be supported by the DBMS.
 		@param[in] time
@@ -106,7 +106,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		@return
 			The formatted time.
 		*/
-		virtual std::string WriteStmtTimeS( const CTime & time ) const;
+		virtual std::string WriteStmtTimeS( const TimeType & time ) const;
 
 		/** Format a date/time into a string to be supported by the DBMS.
 		@param[in] dateTime
@@ -114,7 +114,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		@return
 			The formatted date/time.
 		*/
-		virtual std::string WriteDateTimeS( const CDateTime & dateTime ) const;
+		virtual std::string WriteDateTimeS( const DateTimeType & dateTime ) const;
 
 		/** Format a date/time to insert into a request.
 		@param[in] date
@@ -122,7 +122,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		@return
 			Formatted value.
 		*/
-		virtual std::string WriteDateTimeS( const CDate & date ) const;
+		virtual std::string WriteDateTimeS( const DateType & date ) const;
 
 		/** Format a date/time to insert into a request.
 		@param[in] time
@@ -130,7 +130,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		@return
 			Formatted value.
 		*/
-		virtual std::string WriteDateTimeS( const CTime & time ) const;
+		virtual std::string WriteDateTimeS( const TimeType & time ) const;
 
 		/** Format a date/time into a string for a statement to be supported by the DBMS.
 		@param[in] dateTime
@@ -138,7 +138,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		@return
 			The formatted date/time.
 		*/
-		virtual std::string WriteStmtDateTimeS( const CDateTime & dateTime ) const;
+		virtual std::string WriteStmtDateTimeS( const DateTimeType & dateTime ) const;
 
 		/** Format a date into a string to be supported by the DBMS.
 		@param[in] date
@@ -146,7 +146,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		@return
 			The formatted date.
 		*/
-		virtual std::wstring WriteDateW( const CDate & date ) const;
+		virtual std::wstring WriteDateW( const DateType & date ) const;
 
 		/** Format a date into a string for a statement to be supported by the DBMS.
 		@param[in] date
@@ -154,7 +154,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		@return
 			The formatted date.
 		*/
-		virtual std::wstring WriteStmtDateW( const CDate & date ) const;
+		virtual std::wstring WriteStmtDateW( const DateType & date ) const;
 
 		/** Format a time into a string to be supported by the DBMS.
 		@param[in] time
@@ -162,7 +162,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		@return
 			The formatted time.
 		*/
-		virtual std::wstring WriteTimeW( const CTime & time ) const;
+		virtual std::wstring WriteTimeW( const TimeType & time ) const;
 
 		/** Format a time into a string for a statement to be supported by the DBMS.
 		@param[in] time
@@ -170,7 +170,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		@return
 			The formatted time.
 		*/
-		virtual std::wstring WriteStmtTimeW( const CTime & time ) const;
+		virtual std::wstring WriteStmtTimeW( const TimeType & time ) const;
 
 		/** Format a date/time into a string to be supported by the DBMS.
 		@param[in] dateTime
@@ -178,7 +178,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		@return
 			The formatted date/time.
 		*/
-		virtual std::wstring WriteDateTimeW( const CDateTime & dateTime ) const;
+		virtual std::wstring WriteDateTimeW( const DateTimeType & dateTime ) const;
 
 		/** Format a date/time to insert into a request.
 		@param[in] date
@@ -186,7 +186,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		@return
 			Formatted value.
 		*/
-		virtual std::wstring WriteDateTimeW( const CDate & date ) const;
+		virtual std::wstring WriteDateTimeW( const DateType & date ) const;
 
 		/** Format a date/time to insert into a request.
 		@param[in] time
@@ -194,7 +194,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		@return
 			Formatted value.
 		*/
-		virtual std::wstring WriteDateTimeW( const CTime & time ) const;
+		virtual std::wstring WriteDateTimeW( const TimeType & time ) const;
 
 		/** Format a date/time into a string for a statement to be supported by the DBMS.
 		@param[in] dateTime
@@ -202,7 +202,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		@return
 			The formatted date/time.
 		*/
-		virtual std::wstring WriteStmtDateTimeW( const CDateTime & dateTime ) const;
+		virtual std::wstring WriteStmtDateTimeW( const DateTimeType & dateTime ) const;
 
 		/** Convert a string from the database to a date.
 		@param[in] date
@@ -210,7 +210,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		@return
 			Created date with the string.
 		*/
-		virtual CDate ParseDate( const std::string & date ) const;
+		virtual DateType ParseDate( const std::string & date ) const;
 
 		/** Convert a string from the database to a time.
 		@param[in] time
@@ -218,7 +218,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		@return
 			Created time with the string.
 		*/
-		virtual CTime ParseTime( const std::string & time ) const;
+		virtual TimeType ParseTime( const std::string & time ) const;
 
 		/** Convert a string from the database to a date/time.
 		@param[in] dateTime
@@ -226,7 +226,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		@return
 			Created date/time with the string.
 		*/
-		virtual CDateTime ParseDateTime( const std::string & dateTime ) const;
+		virtual DateTimeType ParseDateTime( const std::string & dateTime ) const;
 
 		/** Convert a string from the database to a date.
 		@param[in] date
@@ -234,7 +234,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		@return
 			Created date with the string.
 		*/
-		virtual CDate ParseDate( const std::wstring & date ) const;
+		virtual DateType ParseDate( const std::wstring & date ) const;
 
 		/** Convert a string from the database to a time.
 		@param[in] time
@@ -242,7 +242,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		@return
 			Created time with the string.
 		*/
-		virtual CTime ParseTime( const std::wstring & time ) const;
+		virtual TimeType ParseTime( const std::wstring & time ) const;
 
 		/** Convert a string from the database to a date/time.
 		@param[in] dateTime
@@ -250,7 +250,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		@return
 			Created date/time with the string.
 		*/
-		virtual CDateTime ParseDateTime( const std::wstring & dateTime ) const;
+		virtual DateTimeType ParseDateTime( const std::wstring & dateTime ) const;
 
 		/** Retrieves the statement date type size
 		@return
