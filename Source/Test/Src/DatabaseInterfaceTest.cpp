@@ -13,6 +13,15 @@
 
 #include "DatabaseInterfaceTest.h"
 
+namespace std
+{
+	inline ostream& operator <<( ostream & out, const wstring & value )
+	{
+		 out << NAMESPACE_DATABASE::StringUtils::ToStr( value );
+		 return out;
+	}
+}
+
 BEGIN_NAMESPACE_DATABASE_TEST
 {
 	CDatabaseInterfaceTest::CDatabaseInterfaceTest()
@@ -54,20 +63,220 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 	void CDatabaseInterfaceTest::TestCase_DatabaseDate()
 	{
-		//CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseDate ****" );
+		CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseDate ****" );
+		std::string sformat = "%d/%m/%Y";
+		std::wstring wformat = L"%d/%m/%Y";
+		std::string sprint = "%04i/%02i/%02i";
+		std::wstring wprint = L"%04i/%02i/%02i";
 
+		CLogger::LogInfo( StringStream() << "  Format - Normal case" );
+		{
+			DateType date( 2015, 10, 7 );
+			BOOST_CHECK_EQUAL( Date::Format( date, sformat ), "07/10/2015" );
+			BOOST_CHECK_EQUAL( Date::Format( date, wformat ), L"07/10/2015" );
+		}
+		CLogger::LogInfo( StringStream() << "  Format - Invalid date" );
+		{
+			DateType date;
+			BOOST_CHECK_THROW( Date::Format( date, sformat ), std::out_of_range );
+			BOOST_CHECK_THROW( Date::Format( date, wformat ), std::out_of_range );
+		}
 
+		CLogger::LogInfo( StringStream() << "  Print - Normal case" );
+		{
+			DateType date( 2015, 10, 7 );
+			BOOST_CHECK_EQUAL( Date::Print( date, sprint ), "2015/10/07" );
+			BOOST_CHECK_EQUAL( Date::Print( date, wprint ), L"2015/10/07" );
+		}
+		CLogger::LogInfo( StringStream() << "  Print - Invalid date" );
+		{
+			DateType date;
+			BOOST_CHECK_THROW( Date::Print( date, sprint ), std::out_of_range );
+			BOOST_CHECK_THROW( Date::Print( date, wprint ), std::out_of_range );
+		}
 
-		//CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseDate ****" );
+		CLogger::LogInfo( StringStream() << "  IsDate - Normal case" );
+		{
+			BOOST_CHECK( Date::IsDate( "10/07/2015", sformat ) );
+			BOOST_CHECK( Date::IsDate( L"10/07/2015", wformat ) );
+		}
+		CLogger::LogInfo( StringStream() << "  IsDate - Invalid format" );
+		{
+			BOOST_CHECK( !Date::IsDate( "2015/10/07", sformat ) );
+			BOOST_CHECK( !Date::IsDate( L"2015/10/07", wformat ) );
+		}
+		CLogger::LogInfo( StringStream() << "  IsDate - Invalid day" );
+		{
+			BOOST_CHECK( !Date::IsDate( "53/10/2015", sformat ) );
+			BOOST_CHECK( !Date::IsDate( L"53/10/2015", wformat ) );
+		}
+		CLogger::LogInfo( StringStream() << "  IsDate - Invalid month" );
+		{
+			BOOST_CHECK( !Date::IsDate( "07/24/2015", sformat ) );
+			BOOST_CHECK( !Date::IsDate( L"07/24/2015", wformat ) );
+		}
+		CLogger::LogInfo( StringStream() << "  IsDate - Invalid year" );
+		{
+			BOOST_CHECK( !Date::IsDate( "01/10/0000", sformat ) );
+			BOOST_CHECK( !Date::IsDate( L"01/10/0000", wformat ) );
+		}
+
+		CLogger::LogInfo( StringStream() << "  IsDate (date) - Normal case" );
+		{
+			DateType date;
+			BOOST_CHECK( Date::IsDate( "10/07/2015", sformat, date ) && !date.is_not_a_date() );
+			BOOST_CHECK( Date::IsDate( L"10/07/2015", wformat, date ) && !date.is_not_a_date() );
+		}
+		CLogger::LogInfo( StringStream() << "  IsDate (date) - Invalid format" );
+		{
+			DateType date;
+			BOOST_CHECK( !Date::IsDate( "2015/10/07", sformat, date ) && date.is_not_a_date() );
+			BOOST_CHECK( !Date::IsDate( L"2015/10/07", wformat, date ) && date.is_not_a_date() );
+		}
+		CLogger::LogInfo( StringStream() << "  IsDate (date) - Invalid day" );
+		{
+			DateType date;
+			BOOST_CHECK( !Date::IsDate( "53/10/2015", sformat, date ) && date.is_not_a_date() );
+			BOOST_CHECK( !Date::IsDate( L"53/10/2015", wformat, date ) && date.is_not_a_date() );
+		}
+		CLogger::LogInfo( StringStream() << "  IsDate (date) - Invalid month" );
+		{
+			DateType date;
+			BOOST_CHECK( !Date::IsDate( "07/24/2015", sformat, date ) && date.is_not_a_date() );
+			BOOST_CHECK( !Date::IsDate( L"07/24/2015", wformat, date ) && date.is_not_a_date() );
+		}
+		CLogger::LogInfo( StringStream() << "  IsDate (date) - Invalid year" );
+		{
+			DateType date;
+			BOOST_CHECK( !Date::IsDate( "01/10/0000", sformat, date ) && date.is_not_a_date() );
+			BOOST_CHECK( !Date::IsDate( L"01/10/0000", wformat, date ) && date.is_not_a_date() );
+		}
+
+		CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseDate ****" );
 	}
 
 	void CDatabaseInterfaceTest::TestCase_DatabaseDateTime()
 	{
-		//CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseDateTime ****" );
+		CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseDateTime ****" );
+		std::string sformat = "%d/%m/%Y %H:%M:%S";
+		std::wstring wformat = L"%d/%m/%Y %H:%M:%S";
+		std::string sprint = "%04i/%02i/%02i %02i:%02i:%02i";
+		std::wstring wprint = L"%04i/%02i/%02i %02i:%02i:%02i";
 
+		CLogger::LogInfo( StringStream() << "  Format - Normal case" );
+		{
+			DateTimeType date( DateType( 2015, 10, 7 ), TimeType( 10, 8, 2 ) );
+			BOOST_CHECK_EQUAL( DateTime::Format( date, sformat ), "07/10/2015 10:08:02" );
+			BOOST_CHECK_EQUAL( DateTime::Format( date, wformat ), L"07/10/2015 10:08:02" );
+		}
+		CLogger::LogInfo( StringStream() << "  Format - Invalid date" );
+		{
+			DateTimeType date( DateType(), TimeType( 10, 8, 2 ) );
+			BOOST_CHECK_THROW( DateTime::Format( date, sformat ), std::out_of_range );
+			BOOST_CHECK_THROW( DateTime::Format( date, wformat ), std::out_of_range );
+		}
+		CLogger::LogInfo( StringStream() << "  Format - Invalid time" );
+		{
+			DateTimeType date( DateType( 2015, 10, 7 ), TimeType( -1, -1, -1 ) );
+			BOOST_CHECK_THROW( DateTime::Format( date, sformat ), std::out_of_range );
+			BOOST_CHECK_THROW( DateTime::Format( date, wformat ), std::out_of_range );
+		}
 
+		CLogger::LogInfo( StringStream() << "  Print - Normal case" );
+		{
+			DateTimeType date( DateType( 2015, 10, 7 ), TimeType( 10, 8, 2 ) );
+			BOOST_CHECK_EQUAL( DateTime::Print( date, sprint ), "2015/10/07 10:08:02" );
+			BOOST_CHECK_EQUAL( DateTime::Print( date, wprint ), L"2015/10/07 10:08:02" );
+		}
+		CLogger::LogInfo( StringStream() << "  Print - Invalid date" );
+		{
+			DateTimeType date( DateType(), TimeType( 10, 8, 2 ) );
+			BOOST_CHECK_THROW( DateTime::Print( date, sprint ), std::out_of_range );
+			BOOST_CHECK_THROW( DateTime::Print( date, wprint ), std::out_of_range );
+		}
+		CLogger::LogInfo( StringStream() << "  Print - Invalid time" );
+		{
+			DateTimeType date( DateType( 2015, 10, 7 ), TimeType( -1, -1, -1 ) );
+			BOOST_CHECK_THROW( DateTime::Print( date, sprint ), std::out_of_range );
+			BOOST_CHECK_THROW( DateTime::Print( date, wprint ), std::out_of_range );
+		}
 
-		//CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseDateTime ****" );
+		CLogger::LogInfo( StringStream() << "  IsDateTime - Normal case" );
+		{
+			BOOST_CHECK( DateTime::IsDateTime( "10/07/2015", sformat ) );
+			BOOST_CHECK( DateTime::IsDateTime( L"10/07/2015", wformat ) );
+		}
+		CLogger::LogInfo( StringStream() << "  IsDateTime - Invalid format" );
+		{
+			BOOST_CHECK( !DateTime::IsDateTime( "2015/10/07", sformat ) );
+			BOOST_CHECK( !DateTime::IsDateTime( L"2015/10/07", wformat ) );
+		}
+		CLogger::LogInfo( StringStream() << "  IsDateTime - Invalid day" );
+		{
+			BOOST_CHECK( !DateTime::IsDateTime( "53/10/2015", sformat ) );
+			BOOST_CHECK( !DateTime::IsDateTime( L"53/10/2015", wformat ) );
+		}
+		CLogger::LogInfo( StringStream() << "  IsDateTime - Invalid month" );
+		{
+			BOOST_CHECK( !DateTime::IsDateTime( "07/24/2015", sformat ) );
+			BOOST_CHECK( !DateTime::IsDateTime( L"07/24/2015", wformat ) );
+		}
+		CLogger::LogInfo( StringStream() << "  IsDateTime - Invalid year" );
+		{
+			BOOST_CHECK( !DateTime::IsDateTime( "01/10/0000", sformat ) );
+			BOOST_CHECK( !DateTime::IsDateTime( L"01/10/0000", wformat ) );
+		}
+
+		CLogger::LogInfo( StringStream() << "  IsDateTime (dateTime) - Normal case" );
+		{
+			DateTimeType dateTime;
+			BOOST_CHECK( DateTime::IsDateTime( "10/07/2015 01:01:01", sformat, dateTime ) && !dateTime.date().is_not_a_date() );
+			BOOST_CHECK( DateTime::IsDateTime( L"10/07/2015 01:01:01", wformat, dateTime ) && !dateTime.date().is_not_a_date() );
+		}
+		CLogger::LogInfo( StringStream() << "  IsDateTime (dateTime) - Invalid format" );
+		{
+			DateTimeType dateTime;
+			BOOST_CHECK( !DateTime::IsDateTime( "2015/10/07 01:01:01", sformat, dateTime ) && dateTime.date().is_not_a_date() );
+			BOOST_CHECK( !DateTime::IsDateTime( L"2015/10/07 01:01:01", wformat, dateTime ) && dateTime.date().is_not_a_date() );
+		}
+		CLogger::LogInfo( StringStream() << "  IsDateTime (dateTime) - Invalid day" );
+		{
+			DateTimeType dateTime;
+			BOOST_CHECK( !DateTime::IsDateTime( "53/10/2015 01:01:01", sformat, dateTime ) && dateTime.date().is_not_a_date() );
+			BOOST_CHECK( !DateTime::IsDateTime( L"53/10/2015 01:01:01", wformat, dateTime ) && dateTime.date().is_not_a_date() );
+		}
+		CLogger::LogInfo( StringStream() << "  IsDateTime (dateTime) - Invalid month" );
+		{
+			DateTimeType dateTime;
+			BOOST_CHECK( !DateTime::IsDateTime( "07/24/2015 01:01:01", sformat, dateTime ) && dateTime.date().is_not_a_date() );
+			BOOST_CHECK( !DateTime::IsDateTime( L"07/24/2015 01:01:01", wformat, dateTime ) && dateTime.date().is_not_a_date() );
+		}
+		CLogger::LogInfo( StringStream() << "  IsDateTime (dateTime) - Invalid year" );
+		{
+			DateTimeType dateTime;
+			BOOST_CHECK( !DateTime::IsDateTime( "01/10/0000 01:01:01", sformat, dateTime ) && dateTime.date().is_not_a_date() );
+			BOOST_CHECK( !DateTime::IsDateTime( L"01/10/0000 01:01:01", wformat, dateTime ) && dateTime.date().is_not_a_date() );
+		}
+		CLogger::LogInfo( StringStream() << "  IsDateTime (dateTime) - Invalid hour" );
+		{
+			DateTimeType dateTime;
+			BOOST_CHECK( !DateTime::IsDateTime( "10/07/2015 27:01:01", sformat, dateTime ) && dateTime.date().is_not_a_date() );
+			BOOST_CHECK( !DateTime::IsDateTime( L"10/07/2015 27:01:01", wformat, dateTime ) && dateTime.date().is_not_a_date() );
+		}
+		CLogger::LogInfo( StringStream() << "  IsDateTime (dateTime) - Invalid minute" );
+		{
+			DateTimeType dateTime;
+			BOOST_CHECK( !DateTime::IsDateTime( "10/07/2015 01:73:01", sformat, dateTime ) && dateTime.date().is_not_a_date() );
+			BOOST_CHECK( !DateTime::IsDateTime( L"10/07/2015 01:73:01", wformat, dateTime ) && dateTime.date().is_not_a_date() );
+		}
+		CLogger::LogInfo( StringStream() << "  IsDateTime (dateTime) - Invalid second" );
+		{
+			DateTimeType dateTime;
+			BOOST_CHECK( !DateTime::IsDateTime( "10/07/2015 01:01:73", sformat, dateTime ) && dateTime.date().is_not_a_date() );
+			BOOST_CHECK( !DateTime::IsDateTime( L"10/07/2015 01:01:73", wformat, dateTime ) && dateTime.date().is_not_a_date() );
+		}
+
+		CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseDateTime ****" );
 	}
 
 	void CDatabaseInterfaceTest::TestCase_DatabaseTime()

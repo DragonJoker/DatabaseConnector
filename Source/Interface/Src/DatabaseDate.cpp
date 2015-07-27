@@ -94,6 +94,16 @@ BEGIN_NAMESPACE_DATABASE
 
 				if ( bReturn )
 				{
+					bReturn = year >= boost::gregorian::date( boost::gregorian::min_date_time ).year() && year <= boost::gregorian::date( boost::gregorian::max_date_time ).year();
+				}
+
+				if ( bReturn )
+				{
+					bReturn = month >= boost::gregorian::Jan && month <= boost::gregorian::Dec;
+				}
+
+				if ( bReturn )
+				{
 					if ( month != boost::gregorian::Feb )
 					{
 						bReturn = monthDay <= MonthMaxDays[month];
