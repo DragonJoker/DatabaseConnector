@@ -44,7 +44,6 @@
 #include <boost/format.hpp>
 
 #include "DatabaseMacros.h"
-#include "EFieldType.h"
 
 #if defined( _WIN32 )
 #   ifdef Database_EXPORTS
@@ -59,6 +58,7 @@
 #else
 #   define DatabaseExport
 #endif
+#include "EFieldType.h"
 
 /** Database namespace
 */
@@ -81,14 +81,26 @@ namespace Database
 	typedef boost::posix_time::time_duration TimeType;
 	typedef boost::posix_time::ptime DateTimeType;
 
-	// Pre-declare classes
-	// Allows use of pointers in header files without including individual .h
-	// so decreases dependencies between files
+	// "Basic" Types
 	class int24_t;
 	class uint24_t;
+	class CFixedPoint;
+	template< typename T > class CDatabaseNullable;
+
+	// Logging related classes
+	struct SMessageBase;
+	class CLogger;
+	class CLoggerImpl;
+	class CProgramConsole;
+
+	// Plugin related stuff
 	class CDynLib;
 	class CDynLibManager;
 	class CPluginManager;
+	class CFactoryDatabase;
+	class CPluginDatabase;
+
+	// 
 	class CDatabase;
 	class CDatabaseConnection;
 	class CDatabaseField;
@@ -102,18 +114,7 @@ namespace Database
 	class CDatabaseResult;
 	class CDatabaseRow;
 	class CDatabaseStatement;
-	class CDateTimeSpan;
-	class CFixedPoint;
-	class CExceptionDatabase;
-	class CFactoryDatabase;
-	class CPluginDatabase;
-	template< typename T > class CDatabaseNullable;
-
-
-	struct SMessageBase;
-	class CLogger;
-	class CLoggerImpl;
-	class CProgramConsole;
+	class CDatabaseException;
 
 	// Pointers
 	DECLARE_SMART_PTR( Database );
@@ -142,62 +143,6 @@ namespace Database
 	// Factory type constants
 	const String FACTORY_DATABASE_TYPE = STR( "Factory database" );
 
-	/** Converts a string in a given charset into an UTF-8 string
-	@param src
-		The original string
-	@param charset
-		The original string charset
-	*/
-	DatabaseExport std::string ToUtf8( const std::string & src, const std::string & charset );
-
-	/** Converts a string in a given charset into an UTF-8 string
-	@param src
-		The original string
-	@param charset
-		The original string charset
-	*/
-	DatabaseExport std::string ToUtf8( const std::wstring & src, const std::wstring & charset );
-
-	/** Checks if the two given field types are compatible
-	@param typeA, typeB
-		The field types
-	@return
-		True if typeA and typeB are compatible
-	*/
-	DatabaseExport bool AreTypesCompatible( EFieldType typeA, EFieldType typeB );
-
-	/** Opens a file
-	*\param[out] p_pFile
-		Receives the file descriptor
-	*\param[in] p_pszPath
-		The file path
-	*\param[in] p_pszMode
-		The opening mode
-	*\return
-		true on success
-	*/
-	DatabaseExport bool FOpen( FILE *& p_pFile, char const * p_pszPath, char const * p_pszMode );
-
-	/** Checks the file existence
-	@param name
-		The file name
-	@return true if the file exists
-	*/
-	DatabaseExport bool FileExists( const String & name );
-
-	/** Checks the folder existence
-	@param name
-		The folder name
-	@return true if the folder exists
-	*/
-	DatabaseExport bool FolderExists( String const & p_filename );
-
-	/** Creates a folder
-	@param name
-		The folder name
-	@return true if the folder was correctly created
-	*/
-	DatabaseExport bool CreateFolder( String const & pathFolder );
 }
 #if !DB_HAS_MAKE_UNIQUE
 namespace std
@@ -210,42 +155,42 @@ namespace std
 	template< class T, typename Arg1 >
 	unique_ptr< T > make_unique( Arg1 && arg1 )
 	{
-		return unique_ptr< T >( new T( arg1 ) );
+		return unique_ptr< T >( new T( std::move( arg1 ) ) );
 	}
 	template< class T, typename Arg1, typename Arg2 >
 	unique_ptr< T > make_unique( Arg1 && arg1, Arg2 && arg2 )
 	{
-		return unique_ptr< T >( new T( arg1, arg2 ) );
+		return unique_ptr< T >( new T( std::move( arg1 ), std::move( arg2 ) ) );
 	}
 	template< class T, typename Arg1, typename Arg2, typename Arg3 >
 	unique_ptr< T > make_unique( Arg1 && arg1, Arg2 && arg2, Arg3 && arg3 )
 	{
-		return unique_ptr< T >( new T( arg1, arg2, arg3 ) );
+		return unique_ptr< T >( new T( std::move( arg1 ), std::move( arg2 ), std::move( arg3 ) ) );
 	}
 	template< class T, typename Arg1, typename Arg2, typename Arg3, typename Arg4 >
 	unique_ptr< T > make_unique( Arg1 && arg1, Arg2 && arg2, Arg3 && arg3, Arg4 && arg4 )
 	{
-		return unique_ptr< T >( new T( arg1, arg2, arg3, arg4 ) );
+		return unique_ptr< T >( new T( std::move( arg1 ), std::move( arg2 ), std::move( arg3 ), std::move( arg4 ) ) );
 	}
 	template< class T, typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5 >
 	unique_ptr< T > make_unique( Arg1 && arg1, Arg2 && arg2, Arg3 && arg3, Arg4 && arg4, Arg5 && arg5 )
 	{
-		return unique_ptr< T >( new T( arg1, arg2, arg3, arg4, arg5 ) );
+		return unique_ptr< T >( new T( std::move( arg1 ), std::move( arg2 ), std::move( arg3 ), std::move( arg4 ), std::move( arg5 ) ) );
 	}
 	template< class T, typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5, typename Arg6 >
 	unique_ptr< T > make_unique( Arg1 && arg1, Arg2 && arg2, Arg3 && arg3, Arg4 && arg4, Arg5 && arg5, Arg6 && arg6 )
 	{
-		return unique_ptr< T >( new T( arg1, arg2, arg3, arg4, arg5, arg6 ) );
+		return unique_ptr< T >( new T( std::move( arg1 ), std::move( arg2 ), std::move( arg3 ), std::move( arg4 ), std::move( arg5 ), std::move( arg6 ) ) );
 	}
 	template< class T, typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5, typename Arg6, typename Arg7 >
 	unique_ptr< T > make_unique( Arg1 && arg1, Arg2 && arg2, Arg3 && arg3, Arg4 && arg4, Arg5 && arg5, Arg6 && arg6, Arg7 && arg7 )
 	{
-		return unique_ptr< T >( new T( arg1, arg2, arg3, arg4, arg5, arg6, arg7 ) );
+		return unique_ptr< T >( new T( std::move( arg1 ), std::move( arg2 ), std::move( arg3 ), std::move( arg4 ), std::move( arg5 ), std::move( arg6 ), std::move( arg7 ) ) );
 	}
 	template< class T, typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5, typename Arg6, typename Arg7, typename Arg8 >
 	unique_ptr< T > make_unique( Arg1 && arg1, Arg2 && arg2, Arg3 && arg3, Arg4 && arg4, Arg5 && arg5, Arg6 && arg6, Arg7 && arg7, Arg8 && arg8 )
 	{
-		return unique_ptr< T >( new T( arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8 ) );
+		return unique_ptr< T >( new T( std::move( arg1 ), std::move( arg2 ), std::move( arg3 ), std::move( arg4 ), std::move( arg5 ), std::move( arg6 ), std::move( arg7 ), std::move( arg8 ) ) );
 	}
 }
 #endif

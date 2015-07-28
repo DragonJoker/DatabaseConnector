@@ -19,6 +19,7 @@
 
 #include <DatabaseQuery.h>
 #include <DatabaseResult.h>
+#include <DatabaseFileUtils.h>
 
 #if defined( _WIN32 )
 #   include <windows.h>
@@ -63,7 +64,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			spawn_pid_t processId = INVALID_PROCESS_ID;
 			String processPath = StringUtils::ToString( commandString );
 
-			if ( !FileExists( processPath ) )
+			if ( !FileUtils::FileExists( processPath ) )
 			{
 				StringStream ss;
 				ss << ERROR_UNABLE_TO_SPAWN_PROCESS << STR( "File does not exist\n" );

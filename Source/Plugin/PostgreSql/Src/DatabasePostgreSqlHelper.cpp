@@ -932,7 +932,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 					{
 						infos = pReturn->GetFieldInfos( index++ );
 					}
-					catch ( CExceptionDatabase & )
+					catch ( CDatabaseException & )
 					{
 						throw;
 					}
@@ -947,14 +947,14 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 
 			PQclear( result );
 		}
-		catch ( const CExceptionDatabase & e )
+		catch ( const CDatabaseException & e )
 		{
 			PQclear( result );
 			StringStream message;
 			message << ERROR_POSTGRESQL_DRIVER << STR( " - " )
 					<< e.what();
 			CLogger::LogError( message );
-			POSTGRESQL_EXCEPT( EDatabasePostgreSqlExceptionCodes_GenericError, message.str() );
+			POSTGRESQL_EXCEPT( EDatabaseExceptionCodes_GenericError, message.str() );
 		}
 		catch ( const std::exception & e )
 		{
@@ -963,7 +963,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			message << ERROR_POSTGRESQL_DRIVER << STR( " - " )
 					<< e.what();
 			CLogger::LogError( message );
-			POSTGRESQL_EXCEPT( EDatabasePostgreSqlExceptionCodes_GenericError, message.str() );
+			POSTGRESQL_EXCEPT( EDatabaseExceptionCodes_GenericError, message.str() );
 		}
 		catch ( ... )
 		{
@@ -972,7 +972,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			message << ERROR_POSTGRESQL_DRIVER << STR( " - " )
 					<< ERROR_POSTGRESQL_UNKNOWN;
 			CLogger::LogError( message );
-			POSTGRESQL_EXCEPT( EDatabasePostgreSqlExceptionCodes_UnknownError, message.str() );
+			POSTGRESQL_EXCEPT( EDatabaseExceptionCodes_UnknownError, message.str() );
 		}
 
 		return pReturn;

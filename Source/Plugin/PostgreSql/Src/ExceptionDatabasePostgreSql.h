@@ -5,7 +5,7 @@
 * @date 3/18/2014 2:47:39 PM
 *
 *
-* @brief CExceptionDatabasePostgreSql class declaration and definition.
+* @brief CDatabaseExceptionPostgreSql class declaration and definition.
 *
 * @details Should be thrown when a problem occured in the MYSQL database plugin.
 *
@@ -20,22 +20,10 @@
 
 BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 {
-	/** Static definitions of MYSQL database error codes.
-	*/
-	enum EDatabasePostgreSqlExceptionCodes
-	{
-		EDatabasePostgreSqlExceptionCodes_GenericError = 0,
-		EDatabasePostgreSqlExceptionCodes_UnknownError,
-		EDatabasePostgreSqlExceptionCodes_StatementError,
-		EDatabasePostgreSqlExceptionCodes_QueryError,
-
-		EDatabasePostgreSqlExceptionCodes_LastCode ///< Represent the maximum number of exception code. Must be always the last.
-	};
-
 	/** Should be thrown when a problem occured in the MYSQL database plugin.
 	*/
-	class CExceptionDatabasePostgreSql
-		: public CExceptionDatabase
+	class CDatabaseExceptionPostgreSql
+		: public CDatabaseException
 	{
 	public:
 		/** Create a exception for the MYSQL database.
@@ -50,14 +38,14 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		@param line
 			Source file line number.
 		*/
-		CExceptionDatabasePostgreSql( int number, const String & description, const std::string & source, const std::string & file, long line )
-			: CExceptionDatabase( number, description, source, STR( "CExceptionDatabasePostgreSql" ), file, line )
+		CDatabaseExceptionPostgreSql( int number, const String & description, const std::string & source, const std::string & file, long line )
+			: CDatabaseException( STR( "CDatabaseExceptionPostgreSql" ), number, description, source, file, line )
 		{
 			// Empty
 		}
 	};
 
-#	define POSTGRESQL_EXCEPT( number, description ) throw CExceptionDatabasePostgreSql( number, description, __FUNCTION__, __FILE__, __LINE__ )
+#	define POSTGRESQL_EXCEPT( number, description ) throw CDatabaseExceptionPostgreSql( number, description, __FUNCTION__, __FILE__, __LINE__ )
 }
 END_NAMESPACE_DATABASE_POSTGRESQL
 

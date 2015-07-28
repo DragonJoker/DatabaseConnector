@@ -19,6 +19,7 @@
 #include "DatabaseLogger.h"
 #include "DatabaseStringUtils.h"
 #include "DatabaseDateTime.h"
+#include "DatabaseFileUtils.h"
 
 BEGIN_NAMESPACE_DATABASE
 {
@@ -65,7 +66,7 @@ BEGIN_NAMESPACE_DATABASE
 		}
 
 		FILE * file;
-		FOpen( file, StringUtils::ToStr( logFilePath ).c_str(), "w" );
+		FileUtils::FOpen( file, StringUtils::ToStr( logFilePath ).c_str(), "w" );
 
 		if ( file )
 		{
@@ -104,7 +105,7 @@ BEGIN_NAMESPACE_DATABASE
 
 					if ( l_it == opened.end() )
 					{
-						Database::FOpen( file, StringUtils::ToStr( _logFilePath[message->m_type] ).c_str(), "a" );
+						FileUtils::FOpen( file, StringUtils::ToStr( _logFilePath[message->m_type] ).c_str(), "a" );
 
 						if ( file )
 						{

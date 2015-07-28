@@ -39,6 +39,11 @@ BEGIN_NAMESPACE_DATABASE
 	template< typename CharType >
 	int stoi( CharType const *& in, size_t count )
 	{
+		if ( *in == '-' )
+		{
+			++count;
+		}
+
 		int result = std::stoi( std::basic_string< CharType >( in, in + count ) );
 		in += count;
 		return result;

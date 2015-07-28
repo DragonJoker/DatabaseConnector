@@ -65,10 +65,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		*/
 		void TestCase_DatabaseTime();
 
-		/** Test the basic CDatabaseDateTimeSpan functions
-		*/
-		void TestCase_DatabaseDateTimeSpan();
-
 		/** Test the basic CDatabaseFixedPoint functions
 		*/
 		void TestCase_DatabaseFixedPoint();
@@ -76,6 +72,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		/** Test the basic CDatabaseInt24 functions
 		*/
 		void TestCase_DatabaseInt24();
+
+		/** Test the basic CDatabaseUInt24 functions
+		*/
+		void TestCase_DatabaseUInt24();
 
 		/** Test the basic CDatabaseNullable functions
 		*/

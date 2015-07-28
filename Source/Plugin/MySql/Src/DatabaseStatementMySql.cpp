@@ -355,7 +355,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 						{
 							field = row->GetField( parameter->GetName() );
 						}
-						catch ( CExceptionDatabase & exc )
+						catch ( CDatabaseException & exc )
 						{
 							CLogger::LogError( exc.GetFullDescription() );
 						}

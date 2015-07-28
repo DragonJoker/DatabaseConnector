@@ -29,7 +29,7 @@ BEGIN_NAMESPACE_DATABASE
 			static const size_t DATE_TIME_MAX_SIZE = 100;
 
 			template< typename Char >
-			bool IsDateTime( const  std::basic_string< Char > & date, const  std::basic_string< Char > & format, int & year, int & month, int & monthDay, int & hour, int & min, int & sec )
+			bool IsDateTime( const  std::basic_string< Char > & date, const  std::basic_string< Char > & format, int & year, int & month, int & monthDay, int & hours, int & minutes, int & seconds )
 			{
 				typedef std::basic_string< Char > String;
 				bool bReturn = !format.empty();
@@ -37,9 +37,9 @@ BEGIN_NAMESPACE_DATABASE
 				monthDay = 0;
 				month = 0;
 				year = -1;
-				hour = 0;
-				min = 0;
-				sec = 0;
+				hours = 0;
+				minutes = 0;
+				seconds = 0;
 
 				if ( bReturn )
 				{
@@ -57,15 +57,15 @@ BEGIN_NAMESPACE_DATABASE
 								switch ( *fc++ )
 								{
 								case 'H':
-									hour = stoi( dc, 2 );
+									hours = stoi( dc, 2 );
 									break;
 
 								case 'M':
-									min = stoi( dc, 2 );
+									minutes = stoi( dc, 2 );
 									break;
 
 								case 'S':
-									sec = stoi( dc, 2 );
+									seconds = stoi( dc, 2 );
 									break;
 
 								case 'Y':
@@ -107,6 +107,16 @@ BEGIN_NAMESPACE_DATABASE
 
 				if ( bReturn )
 				{
+					bReturn = year >= boost::gregorian::date( boost::gregorian::min_date_time ).year() && year <= boost::gregorian::date( boost::gregorian::max_date_time ).year();
+				}
+
+				if ( bReturn )
+				{
+					bReturn = month >= boost::gregorian::Jan && month <= boost::gregorian::Dec;
+				}
+
+				if ( bReturn )
+				{
 					if ( month != boost::gregorian::Feb )
 					{
 						bReturn = monthDay <= MonthMaxDays[month];
@@ -115,6 +125,11 @@ BEGIN_NAMESPACE_DATABASE
 					{
 						bReturn = monthDay <= ( MonthMaxDays[month] + IsLeap( year ) );
 					}
+				}
+
+				if ( bReturn )
+				{
+					bReturn = hours >= 0 && hours <= 23 && minutes >= 0 && minutes <= 59 && seconds >= 0 && seconds <= 59;
 				}
 
 				return bReturn;
@@ -204,6 +219,10 @@ BEGIN_NAMESPACE_DATABASE
 			{
 				result = DateTimeType( DateType( iYear, iMonth, iMonthDay ), TimeType( hour, min, sec ) );
 			}
+			else
+			{
+				result = DateTimeType( boost::posix_time::not_a_date_time );
+			}
 
 			return bReturn;
 		}
@@ -222,6 +241,10 @@ BEGIN_NAMESPACE_DATABASE
 			if ( bReturn )
 			{
 				result = DateTimeType( DateType( iYear, iMonth, iMonthDay ), TimeType( hour, min, sec ) );
+			}
+			else
+			{
+				result = DateTimeType( boost::posix_time::not_a_date_time );
 			}
 
 			return bReturn;

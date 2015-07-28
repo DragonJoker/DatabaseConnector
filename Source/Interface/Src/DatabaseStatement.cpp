@@ -65,7 +65,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			ret = DoInitialize();
 		}
-		catch( CExceptionDatabase & exc )
+		catch( CDatabaseException & exc )
 		{
 			CLogger::LogError( ERROR_STATEMENT_INITIALISATION + exc.GetFullDescription() );
 		}
@@ -89,7 +89,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			ret = DoExecuteUpdate( result );
 		}
-		catch( CExceptionDatabase & exc )
+		catch( CDatabaseException & exc )
 		{
 			CLogger::LogError( ERROR_STATEMENT_EXECUTION + exc.GetFullDescription() );
 		}
@@ -113,7 +113,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			ret = DoExecuteSelect( result );
 		}
-		catch( CExceptionDatabase & exc )
+		catch( CDatabaseException & exc )
 		{
 			CLogger::LogError( ERROR_STATEMENT_EXECUTION + exc.GetFullDescription() );
 		}
@@ -135,7 +135,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			DoCleanup();
 		}
-		catch( CExceptionDatabase & exc )
+		catch( CDatabaseException & exc )
 		{
 			CLogger::LogError( ERROR_STATEMENT_CLEANUP + exc.GetFullDescription() );
 		}
@@ -155,7 +155,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			return _arrayParams[index];
 		}
-		catch ( CExceptionDatabase & exc )
+		catch ( CDatabaseException & exc )
 		{
 			CLogger::LogError( exc.GetFullDescription() );
 			throw;

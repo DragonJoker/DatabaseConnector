@@ -14,6 +14,8 @@
 #ifndef ___DATABASE_FIELD_TYPE_H___
 #define ___DATABASE_FIELD_TYPE_H___
 
+#include "DatabasePrerequisites.h"
+
 BEGIN_NAMESPACE_DATABASE
 {
 	/** Enumeration of supported field types.
@@ -49,6 +51,14 @@ BEGIN_NAMESPACE_DATABASE
 		EFieldType_LONG_VARBINARY,
 		EFieldType_COUNT
 	}	EFieldType;
+
+	/** Checks if the two given field types are compatible
+	@param typeA, typeB
+		The field types
+	@return
+		True if typeA and typeB are compatible
+	*/
+	DatabaseExport bool AreTypesCompatible( EFieldType typeA, EFieldType typeB );
 }
 END_NAMESPACE_DATABASE
 

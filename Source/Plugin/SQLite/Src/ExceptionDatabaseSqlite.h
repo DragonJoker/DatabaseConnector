@@ -5,7 +5,7 @@
 * @date 3/18/2014 2:47:39 PM
 *
 *
-* @brief CExceptionDatabaseSqlite class declaration and definition.
+* @brief CDatabaseExceptionSqlite class declaration and definition.
 *
 * @details Should be thrown when a problem occured in the SQLite database plugin.
 *
@@ -20,22 +20,10 @@
 
 BEGIN_NAMESPACE_DATABASE_SQLITE
 {
-	/** Static definitions of SQLite database error codes.
-	*/
-	enum EDatabaseSqliteExceptionCodes
-	{
-		EDatabaseSqliteExceptionCodes_GenericError = 0,
-		EDatabaseSqliteExceptionCodes_UnknownError,
-		EDatabaseSqliteExceptionCodes_StatementError,
-		EDatabaseSqliteExceptionCodes_QueryError,
-
-		EDatabaseSqliteExceptionCodes_LastCode //!< Represent the maximum number of exception code. Must be always the last.
-	};
-
 	/** Should be thrown when a problem occured in the SQLite database plugin.
 	*/
-	class CExceptionDatabaseSqlite
-		: public CExceptionDatabase
+	class CDatabaseExceptionSqlite
+		: public CDatabaseException
 	{
 	public:
 		/** Create a exception for the SQLite database.
@@ -50,14 +38,14 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@param line
 			Source file line number.
 		*/
-		CExceptionDatabaseSqlite( int number, const String & description, const std::string & source, const std::string & file, long line )
-			: CExceptionDatabase( number, description, source, STR( "CExceptionDatabaseSqlite" ), file, line )
+		CDatabaseExceptionSqlite( int number, const String & description, const std::string & source, const std::string & file, long line )
+			: CDatabaseException( STR( "CDatabaseExceptionSqlite" ), number, description, source, file, line )
 		{
 			// Empty
 		}
 	};
 
-#define SQLITE_EXCEPT( code, message ) throw CExceptionDatabaseSqlite( code, message, __FUNCTION__, __FILE__, __LINE__ )
+#define SQLITE_EXCEPT( code, message ) throw CDatabaseExceptionSqlite( code, message, __FUNCTION__, __FILE__, __LINE__ )
 }
 END_NAMESPACE_DATABASE_SQLITE
 

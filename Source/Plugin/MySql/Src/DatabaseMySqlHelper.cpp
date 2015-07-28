@@ -994,7 +994,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 						{
 							infos = pReturn->GetFieldInfos( index++ );
 						}
-						catch ( CExceptionDatabase & )
+						catch ( CDatabaseException & )
 						{
 							throw;
 						}
@@ -1034,13 +1034,13 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				//}
 			}
 		}
-		catch ( const CExceptionDatabase & e )
+		catch ( const CDatabaseException & e )
 		{
 			StringStream message;
 			message << ERROR_MYSQL_DRIVER << STR( " - " )
 					<< e.what();
 			CLogger::LogError( message );
-			MYSQL_EXCEPT( EDatabaseMySqlExceptionCodes_GenericError, message.str() );
+			MYSQL_EXCEPT( EDatabaseExceptionCodes_GenericError, message.str() );
 		}
 		catch ( const std::exception & e )
 		{
@@ -1048,7 +1048,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			message << ERROR_MYSQL_DRIVER << STR( " - " )
 					<< e.what();
 			CLogger::LogError( message );
-			MYSQL_EXCEPT( EDatabaseMySqlExceptionCodes_GenericError, message.str() );
+			MYSQL_EXCEPT( EDatabaseExceptionCodes_GenericError, message.str() );
 		}
 		catch ( ... )
 		{
@@ -1056,7 +1056,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			message << ERROR_MYSQL_DRIVER << STR( " - " )
 					<< ERROR_MYSQL_UNKNOWN;
 			CLogger::LogError( message );
-			MYSQL_EXCEPT( EDatabaseMySqlExceptionCodes_UnknownError, message.str() );
+			MYSQL_EXCEPT( EDatabaseExceptionCodes_UnknownError, message.str() );
 		}
 
 		return pReturn;

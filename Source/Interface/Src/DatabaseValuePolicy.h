@@ -1442,7 +1442,7 @@ BEGIN_NAMESPACE_DATABASE
 		bool Set( const value_type & in, value_type & out, unsigned long & size, const CDatabaseConnection & connection )
 		{
 			out = in;
-			size = out.GetPrecision();
+			size = out.GetDecimals();
 			return true;
 		}
 

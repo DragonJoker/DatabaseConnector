@@ -54,7 +54,7 @@ BEGIN_NAMESPACE_DATABASE
 				lib->Load();
 				_libList.insert( std::make_pair( lib->GetName(), lib ) );
 			}
-			catch ( CExceptionDatabase & )
+			catch ( CDatabaseException & )
 			{
 				delete lib;
 				throw;

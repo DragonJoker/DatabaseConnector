@@ -889,7 +889,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 						{
 							infos = pReturn->GetFieldInfos( i );
 						}
-						catch ( CExceptionDatabase & )
+						catch ( CDatabaseException & )
 						{
 							throw;
 						}

@@ -5,7 +5,7 @@
 * @date 3/20/2014 2:47:39 PM
 *
 *
-* @brief String functions class
+* @brief String helper functions
 *
 ***************************************************************************/
 
@@ -13,6 +13,8 @@
 
 #include "DatabaseStringUtils.h"
 #include "DatabaseException.h"
+
+#include <boost/locale.hpp>
 
 BEGIN_NAMESPACE_DATABASE
 {
@@ -509,6 +511,17 @@ BEGIN_NAMESPACE_DATABASE
 				detail::str_formalize( formattedString,maxSize, format, vaList );
 				va_end( vaList );
 			}
+		}
+
+		std::string ToUtf8( const std::string & src, const std::string & charset )
+		{
+			std::wstring strUtf = boost::locale::conv::to_utf< wchar_t >( src, charset );
+			return boost::locale::conv::from_utf( strUtf, "UTF-8" );
+		}
+
+		std::string ToUtf8( const std::wstring & src, const std::wstring & charset )
+		{
+			return ToUtf8( StringUtils::ToStr( src ), StringUtils::ToStr( charset ) );
 		}
 	}
 

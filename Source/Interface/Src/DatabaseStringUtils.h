@@ -5,7 +5,7 @@
 * @date 3/20/2014 2:47:39 PM
 *
 *
-* @brief String functions class
+* @brief String helper functions
 *
 ***************************************************************************/
 
@@ -367,6 +367,22 @@ BEGIN_NAMESPACE_DATABASE
 			Format to use.
 		*/
 		DatabaseExport void Formalize( std::wstring & formattedString, int maxSize, const wchar_t * format, ... );
+
+		/** Converts a string in a given charset into an UTF-8 string
+		@param src
+			The original string
+		@param charset
+			The original string charset
+		*/
+		DatabaseExport std::string ToUtf8( const std::string & src, const std::string & charset );
+
+		/** Converts a string in a given charset into an UTF-8 string
+		@param src
+			The original string
+		@param charset
+			The original string charset
+		*/
+		DatabaseExport std::string ToUtf8( const std::wstring & src, const std::wstring & charset );
 	}
 
 	/** An empty String

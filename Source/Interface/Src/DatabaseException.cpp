@@ -99,11 +99,11 @@ BEGIN_NAMESPACE_DATABASE
 #	endif
 #endif
 
-	CExceptionDatabase::CExceptionDatabase( int number, const String & description, const std::string & source, const std::string & file, long line )
+	CDatabaseException::CDatabaseException( int number, const String & description, const std::string & source, const std::string & file, long line )
 		: _number( number )
 		, _description( description )
 		, _source( StringUtils::ToString( source ) )
-		, _typeName( STR( "CExceptionDatabase" ) )
+		, _typeName( STR( "CDatabaseException" ) )
 		, _file( StringUtils::ToString( file ) )
 		, _line( line )
 	{
@@ -112,7 +112,7 @@ BEGIN_NAMESPACE_DATABASE
 		_callstack = stream.str();
 	}
 
-	CExceptionDatabase::CExceptionDatabase( int number, const String & description, const std::string & source, const String & type, const std::string & file, long line )
+	CDatabaseException::CDatabaseException( const String & type, int number, const String & description, const std::string & source, const std::string & file, long line )
 		: _number( number )
 		, _description( description )
 		, _source( StringUtils::ToString( source ) )
@@ -125,19 +125,40 @@ BEGIN_NAMESPACE_DATABASE
 		_callstack = stream.str();
 	}
 
-	const String & CExceptionDatabase::GetFullDescription() const
+	const String & CDatabaseException::GetNumberName() const throw()
+	{
+		static String NumberNames[EDatabaseExceptionCodes_LastCode] =
+		{
+			STR( "Generic" ),
+			STR( "Connection" ),
+			STR( "Unknown" ),
+			STR( "DateTime" ),
+			STR( "Field" ),
+			STR( "Query" ),
+			STR( "Parameter" ),
+			STR( "Row" ),
+			STR( "Statement" ),
+			STR( "Unimplemented" ),
+			STR( "DuplicateItem" ),
+			STR( "NullPointer" ),
+			STR( "ItemNotFound" ),
+			STR( "Internal" ),
+			STR( "Arithmetic" ),
+		};
+
+		return NumberNames[_number];
+	}
+
+	const String & CDatabaseException::GetFullDescription() const
 	{
 		if ( _fullDesc.empty() )
 		{
 			StringStream desc;
-
-			desc <<  "DATABASE EXCEPTION ( " << "number" << ":" << _typeName << " ) : "
-			<< _description
-			<< " in " << _source;
+			desc <<  STR( "DATABASE EXCEPTION [name: " ) << _typeName << STR( ", type: " ) << GetNumberName() << STR( "(" ) << _number << STR( ")]: " ) << _description << STR( " in " ) << _source;
 
 			if ( _line > 0 )
 			{
-				desc << " at " << _file << " ( line " << _line << " )";
+				desc << STR( ", file " ) << _file << STR( " (line " ) << _line << STR( ")" );
 			}
 
 			desc << _callstack;
@@ -148,7 +169,7 @@ BEGIN_NAMESPACE_DATABASE
 		return _fullDesc;
 	}
 
-	const char * CExceptionDatabase::what()const throw()
+	const char * CDatabaseException::what()const throw()
 	{
 		GetFullDescription();
 		return _what.c_str();

@@ -20,91 +20,229 @@ BEGIN_NAMESPACE_DATABASE
 	namespace
 	{
 		static const String ERROR_DB_DIVIDE_BY_ZERO = STR( "Division by zero" );
-		static const String ERROR_DB_INTEGER_OVERFLOW = STR( "Integer underflow" );
+		static const String ERROR_DB_PRECISION_OVERFLOW = STR( "Precision overflow" );
+		static const String ERROR_DB_INTEGER_OVERFLOW = STR( "Integer overflow" );
 		static const String ERROR_DB_INTEGER_UNDERFLOW = STR( "Integer underflow" );
 
-		template< typename T > struct SFixedPointOperations;
+		template< typename T > class SFixedPointOperations;
 
 		using boost::multiprecision::int256_t;
 		using boost::multiprecision::uint256_t;
 
-		static uint64_t GetDecimalMult( uint8_t decimals )
+		static double GetDecimalMult( uint8_t decimals )
 		{
-			return uint64_t( pow( 10, decimals ) );
+			return double( pow( 10, decimals ) );
 		}
 
-		template<>
-		struct SFixedPointOperations< CFixedPoint >
+		template< typename T, typename Enable = void > struct ValuePrecision;
+
+		template< typename T >
+		struct ValuePrecision< T, typename std::enable_if< std::is_signed< T >::value >::type >
 		{
+			static int8_t Get( T value )
+			{
+				int8_t precision = 0;
+				value = abs( value );
+
+				while ( value >= 1 )
+				{
+					++precision;
+					value /= 10;
+				}
+
+				return precision;
+			}
+		};
+
+		template< typename T >
+		struct ValuePrecision< T, typename std::enable_if< std::is_unsigned< T >::value >::type >
+		{
+			static int8_t Get( T value )
+			{
+				int8_t precision = 0;
+
+				while ( value >= 1 )
+				{
+					++precision;
+					value /= 10;
+				}
+
+				return precision;
+			}
+		};
+
+		template<>
+		struct ValuePrecision< int256_t, void >
+		{
+			static int8_t Get( int256_t value )
+			{
+				int8_t precision = 0;
+				value = abs( value );
+
+				while ( value >= 1 )
+				{
+					++precision;
+					value /= 10;
+				}
+
+				return precision;
+			}
+		};
+
+		template<>
+		struct ValuePrecision< uint256_t, void >
+		{
+			static int8_t Get( uint256_t value )
+			{
+				int8_t precision = 0;
+
+				while ( value >= 1 )
+				{
+					++precision;
+					value /= 10;
+				}
+
+				return precision;
+			}
+		};
+
+		template<>
+		class SFixedPointOperations< CFixedPoint >
+		{
+		public:
 			static int64_t Add( CFixedPoint const & lhs, CFixedPoint const & rhs )
 			{
-				int64_t rhr = AdjustPrecision( lhs, rhs );
-
-				if ( lhs.IsSigned() )
-				{
-					if ( std::numeric_limits< int64_t >::max() - rhr >= lhs.GetRawValue() )
-					{
-						DB_EXCEPT( EDatabaseExceptionCodes_InternalError, ERROR_DB_INTEGER_OVERFLOW );
-					}
-				}
-				else
-				{
-					if ( std::numeric_limits< uint64_t >::max() - uint64_t( rhr ) >= uint64_t( lhs.GetRawValue() ) )
-					{
-						DB_EXCEPT( EDatabaseExceptionCodes_InternalError, ERROR_DB_INTEGER_OVERFLOW );
-					}
-				}
-
-				return lhs.GetRawValue() + rhr;
-			}
-
-			static int64_t Subtract( CFixedPoint const & lhs, CFixedPoint const & rhs )
-			{
-				int64_t rhr = AdjustPrecision( lhs, rhs );
-
-				if ( lhs.IsSigned() )
-				{
-					if ( std::numeric_limits< int64_t >::lowest() + rhr <= lhs.GetRawValue() )
-					{
-						DB_EXCEPT( EDatabaseExceptionCodes_InternalError, ERROR_DB_INTEGER_UNDERFLOW );
-					}
-				}
-				else
-				{
-					if ( std::numeric_limits< uint64_t >::lowest() + uint64_t( rhr ) <= uint64_t( lhs.GetRawValue() ) )
-					{
-						DB_EXCEPT( EDatabaseExceptionCodes_InternalError, ERROR_DB_INTEGER_UNDERFLOW );
-					}
-				}
-
-				return lhs.GetRawValue() - rhr;
-			}
-
-			static int64_t Multiply( CFixedPoint const & lhs, CFixedPoint const & rhs )
-			{
-				int64_t rhr = AdjustPrecision( lhs, rhs );
+				int256_t lhr = DoExpandValue( lhs, rhs );
+				int256_t rhr = DoExpandValue( rhs, lhs );
 				int64_t result;
 
 				if ( lhs.IsSigned() )
 				{
-					uint256_t mult = ( uint64_t( lhs.GetRawValue() ) * uint64_t( rhr ) ) / GetDecimalMult( lhs.GetPrecision() );
+					int256_t add = lhr + rhr;
 
-					if ( uint64_t( mult ) != mult )
+					if ( rhs.GetDecimals() > lhs.GetDecimals() )
 					{
-						DB_EXCEPT( EDatabaseExceptionCodes_InternalError, ERROR_DB_INTEGER_OVERFLOW );
+						if ( ValuePrecision< int256_t >::Get( add ) - ( rhs.GetDecimals() - lhs.GetDecimals() ) > lhs.GetPrecision() )
+						{
+							DB_EXCEPT( EDatabaseExceptionCodes_ArithmeticError, ERROR_DB_PRECISION_OVERFLOW );
+						}
+					}
+					else if ( ValuePrecision< int256_t >::Get( add ) > lhs.GetPrecision() )
+					{
+						DB_EXCEPT( EDatabaseExceptionCodes_ArithmeticError, ERROR_DB_PRECISION_OVERFLOW );
 					}
 
-					result = int64_t( mult );
+					result = DoShrinkValue( add, lhs, rhs );
 				}
 				else
 				{
-					int256_t mult = ( lhs.GetRawValue() * rhr ) / GetDecimalMult( lhs.GetPrecision() );
-					result = int64_t( mult );
+					uint256_t add = uint256_t( lhr ) + uint256_t( rhr );
 
-					if ( result != mult )
+					if ( rhs.GetDecimals() > lhs.GetDecimals() )
 					{
-						DB_EXCEPT( EDatabaseExceptionCodes_InternalError, ERROR_DB_INTEGER_OVERFLOW );
+						if ( ValuePrecision< uint256_t >::Get( add ) - ( rhs.GetDecimals() - lhs.GetDecimals() ) > lhs.GetPrecision() )
+						{
+							DB_EXCEPT( EDatabaseExceptionCodes_ArithmeticError, ERROR_DB_PRECISION_OVERFLOW );
+						}
 					}
+					else if ( ValuePrecision< uint256_t >::Get( add ) > lhs.GetPrecision() )
+					{
+						DB_EXCEPT( EDatabaseExceptionCodes_ArithmeticError, ERROR_DB_PRECISION_OVERFLOW );
+					}
+
+					result = DoShrinkValue( add, lhs, rhs );
+				}
+
+				return result;
+			}
+
+			static int64_t Subtract( CFixedPoint const & lhs, CFixedPoint const & rhs )
+			{
+				int256_t lhr = DoExpandValue( lhs, rhs );
+				int256_t rhr = DoExpandValue( rhs, lhs );
+				int64_t result;
+
+				if ( lhs.IsSigned() )
+				{
+					int256_t sub = lhr - rhr;
+
+					if ( rhs.GetDecimals() > lhs.GetDecimals() )
+					{
+						if ( ValuePrecision< int256_t >::Get( sub ) - ( rhs.GetDecimals() - lhs.GetDecimals() ) > lhs.GetPrecision() )
+						{
+							DB_EXCEPT( EDatabaseExceptionCodes_ArithmeticError, ERROR_DB_PRECISION_OVERFLOW );
+						}
+					}
+					else if ( ValuePrecision< int256_t >::Get( sub ) > lhs.GetPrecision() )
+					{
+						DB_EXCEPT( EDatabaseExceptionCodes_ArithmeticError, ERROR_DB_PRECISION_OVERFLOW );
+					}
+
+					result = DoShrinkValue( sub, lhs, rhs );
+				}
+				else
+				{
+					uint256_t sub = uint256_t( lhr ) - uint256_t( rhr );
+
+					if ( rhs.GetDecimals() > lhs.GetDecimals() )
+					{
+						if ( ValuePrecision< uint256_t >::Get( sub ) - ( rhs.GetDecimals() - lhs.GetDecimals() ) > lhs.GetPrecision() )
+						{
+							DB_EXCEPT( EDatabaseExceptionCodes_ArithmeticError, ERROR_DB_PRECISION_OVERFLOW );
+						}
+					}
+					else if ( ValuePrecision< uint256_t >::Get( sub ) > lhs.GetPrecision() )
+					{
+						DB_EXCEPT( EDatabaseExceptionCodes_ArithmeticError, ERROR_DB_PRECISION_OVERFLOW );
+					}
+
+					result = DoShrinkValue( sub, lhs, rhs );
+				}
+
+				return result;
+			}
+
+			static int64_t Multiply( CFixedPoint const & lhs, CFixedPoint const & rhs )
+			{
+				int256_t lhr = DoExpandValue( lhs, rhs );
+				int256_t rhr = DoExpandValue( rhs, lhs );
+				int64_t result;
+
+				if ( lhs.IsSigned() )
+				{
+					int256_t mul = ( lhs.GetRawValue() * rhr ) / int256_t( GetDecimalMult( lhs.GetDecimals() ) );
+
+					if ( rhs.GetDecimals() > lhs.GetDecimals() )
+					{
+						if ( ValuePrecision< int256_t >::Get( mul ) - ( rhs.GetDecimals() - lhs.GetDecimals() ) > lhs.GetPrecision() )
+						{
+							DB_EXCEPT( EDatabaseExceptionCodes_ArithmeticError, ERROR_DB_PRECISION_OVERFLOW );
+						}
+					}
+					else if ( ValuePrecision< int256_t >::Get( mul ) > lhs.GetPrecision() )
+					{
+						DB_EXCEPT( EDatabaseExceptionCodes_ArithmeticError, ERROR_DB_PRECISION_OVERFLOW );
+					}
+
+					result = DoShrinkValue( mul, lhs, rhs );
+				}
+				else
+				{
+					uint256_t mul = ( uint64_t( lhs.GetRawValue() ) * uint256_t( rhr ) ) / uint256_t( GetDecimalMult( lhs.GetDecimals() ) );
+
+					if ( rhs.GetDecimals() > lhs.GetDecimals() )
+					{
+						if ( ValuePrecision< uint256_t >::Get( mul ) - ( rhs.GetDecimals() - lhs.GetDecimals() ) > lhs.GetPrecision() )
+						{
+							DB_EXCEPT( EDatabaseExceptionCodes_ArithmeticError, ERROR_DB_PRECISION_OVERFLOW );
+						}
+					}
+					else if ( ValuePrecision< uint256_t >::Get( mul ) > lhs.GetPrecision() )
+					{
+						DB_EXCEPT( EDatabaseExceptionCodes_ArithmeticError, ERROR_DB_PRECISION_OVERFLOW );
+					}
+
+					result = DoShrinkValue( mul, lhs, rhs );
 				}
 
 				return result;
@@ -112,41 +250,73 @@ BEGIN_NAMESPACE_DATABASE
 
 			static int64_t Divide( CFixedPoint const & lhs, CFixedPoint const & rhs )
 			{
-				int64_t rhr = AdjustPrecision( lhs, rhs );
-				int64_t result;
+				int256_t lhr = DoExpandValue( lhs, rhs );
+				int256_t rhr = DoExpandValue( rhs, lhs );
 
-				if ( rhs.ToInt64() == 0 )
+				if ( rhr == 0 )
 				{
-					DB_EXCEPT( EDatabaseExceptionCodes_InternalError, ERROR_DB_DIVIDE_BY_ZERO );
+					DB_EXCEPT( EDatabaseExceptionCodes_ArithmeticError, ERROR_DB_DIVIDE_BY_ZERO );
 				}
 
 				if ( lhs.IsSigned() )
 				{
-					result = int64_t( int256_t( lhs.GetRawValue() * GetDecimalMult( lhs.GetPrecision() ) ) / rhr );
+					lhr = int256_t( lhr * int256_t( GetDecimalMult( lhs.GetDecimals() ) ) ) / rhr;
 				}
 				else
 				{
-					result = int64_t( uint256_t( lhs.GetRawValue() * GetDecimalMult( lhs.GetPrecision() ) ) / uint64_t( rhr ) );
+					lhr = uint256_t( lhr * uint256_t( GetDecimalMult( lhs.GetDecimals() ) ) ) / uint256_t( rhr );
+				}
+
+				return DoShrinkValue( lhr, lhs, rhs );
+			}
+
+		private:
+			static int256_t DoExpandValue( CFixedPoint const & lhs, CFixedPoint const & rhs )
+			{
+				int256_t result = lhs.GetRawValue();
+
+				if ( rhs.GetDecimals() > lhs.GetDecimals() )
+				{
+					result *= int256_t( GetDecimalMult( rhs.GetDecimals() - lhs.GetDecimals() ) );
 				}
 
 				return result;
 			}
 
-private:
-			static int64_t AdjustPrecision( CFixedPoint const & lhs, CFixedPoint const & rhs )
+			static int64_t DoShrinkValue( int256_t value, CFixedPoint const & lhs, CFixedPoint const & rhs )
 			{
-				int64_t rhr = rhs.GetRawValue();
+				int64_t result;
 
-				if ( lhs.GetPrecision() < rhs.GetPrecision() )
+				if ( rhs.GetDecimals() > lhs.GetDecimals() )
 				{
-					rhr /= GetDecimalMult( lhs.GetPrecision() * rhs.GetPrecision() );
-				}
-				else if ( lhs.GetPrecision() > rhs.GetPrecision() )
-				{
-					rhr *= GetDecimalMult( rhs.GetPrecision() - lhs.GetPrecision() );
+					value /= int256_t( GetDecimalMult( rhs.GetDecimals() - lhs.GetDecimals() ) );
 				}
 
-				return rhr;
+				result = int64_t( value );
+
+				if ( result != value )
+				{
+					DB_EXCEPT( EDatabaseExceptionCodes_ArithmeticError, ERROR_DB_INTEGER_OVERFLOW );
+				}
+
+				return result;
+			}
+
+			static int64_t DoShrinkValue( uint256_t value, CFixedPoint const & lhs, CFixedPoint const & rhs )
+			{
+				if ( rhs.GetDecimals() > lhs.GetDecimals() )
+				{
+					value /= uint256_t( GetDecimalMult( rhs.GetDecimals() - lhs.GetDecimals() ) );
+				}
+
+				uint64_t tmp = uint64_t( value );
+
+				if ( tmp != value )
+				{
+					DB_EXCEPT( EDatabaseExceptionCodes_ArithmeticError, ERROR_DB_INTEGER_OVERFLOW );
+				}
+
+				return int64_t( tmp );
 			}
 		};
 
@@ -187,32 +357,32 @@ private:
 
 	inline int64_t CFixedPoint::ToInt64()const
 	{
-		return _value / GetDecimalMult( _decimals );
+		return int64_t( _value / int256_t( GetDecimalMult( _decimals ) ) );
 	}
 
 	inline uint64_t CFixedPoint::ToUInt64()const
 	{
-		return _value / GetDecimalMult( _decimals );
+		return uint64_t( ToInt64() );
 	}
 
 	inline float CFixedPoint::ToFloat()const
 	{
-		return float( _value ) / GetDecimalMult( _decimals );
+		return float( ToDouble() );
 	}
 
 	inline double CFixedPoint::ToDouble()const
 	{
-		return double( _value ) / GetDecimalMult( _decimals );
+		return _value / GetDecimalMult( _decimals );
 	}
 
-	inline long double CFixedPoint::ToLongDouble()const
+	inline uint8_t CFixedPoint::GetDecimals()const
 	{
-		return ( ( long double )_value ) / GetDecimalMult( _decimals );
+		return _decimals;
 	}
 
 	inline uint8_t CFixedPoint::GetPrecision()const
 	{
-		return _decimals;
+		return _precision;
 	}
 
 	inline bool CFixedPoint::IsSigned()const
@@ -251,6 +421,16 @@ private:
 	{
 		_value = SFixedPointOperations< T >::Subtract( *this, rhs );
 		return *this;
+	}
+
+	inline int8_t CFixedPoint::GetMinPrecision()
+	{
+		return int8_t( 0 );
+	}
+
+	inline int8_t CFixedPoint::GetMaxPrecision()
+	{
+		return int8_t( 20 );
 	}
 
 	template< typename T >

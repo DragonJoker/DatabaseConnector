@@ -664,7 +664,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 
 			ret = true;
 		}
-		catch ( CExceptionDatabase & exc )
+		catch ( CDatabaseException & exc )
 		{
 			CLogger::LogError( StringStream() << ERROR_POSTGRESQL_CONNECTION << STR( " - " ) << exc.GetFullDescription() );
 		}

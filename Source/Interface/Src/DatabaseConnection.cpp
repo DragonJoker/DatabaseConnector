@@ -145,7 +145,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			ret = DoExecuteUpdate( query );
 		}
-		catch ( CExceptionDatabase & exc )
+		catch ( CDatabaseException & exc )
 		{
 			StringStream stream;
 			stream << ERROR_DB_EXECUTION_ERROR << exc.GetFullDescription();
@@ -181,7 +181,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			ret = DoExecuteSelect( query );
 		}
-		catch ( CExceptionDatabase & exc )
+		catch ( CDatabaseException & exc )
 		{
 			StringStream stream;
 			stream << ERROR_DB_EXECUTION_ERROR << exc.GetFullDescription();

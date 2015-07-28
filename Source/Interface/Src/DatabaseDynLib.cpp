@@ -14,8 +14,10 @@
 #include "DatabasePch.h"
 
 #include "DatabaseDynLib.h"
+
 #include "DatabaseStringUtils.h"
 #include "DatabaseException.h"
+#include "DatabaseFileUtils.h"
 
 #include <sys/stat.h>
 
@@ -59,12 +61,12 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			bool result = false;
 
-			if ( FileExists( name ) )
+			if ( FileUtils::FileExists( name ) )
 			{
 				result = true;
 				file = name;
 			}
-			else if ( FileExists( name + extension ) )
+			else if ( FileUtils::FileExists( name + extension ) )
 			{
 				result = true;
 				file = name + extension;

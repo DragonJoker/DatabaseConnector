@@ -87,16 +87,6 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport CFixedPoint( double value, uint8_t precision, uint8_t decimals );
 
-		/** Constructor from double
-		@param[in] value
-			The value
-		@param[in] precision
-			The precision (total digits count)
-		@param[in] decimals
-			The decimals (digits afet decimals separator)
-		*/
-		DatabaseExport CFixedPoint( long double value, uint8_t precision, uint8_t decimals );
-
 		/** Constructor from String
 		@param[in] value
 			The value
@@ -116,18 +106,6 @@ BEGIN_NAMESPACE_DATABASE
 			The value as a string
 		*/
 		DatabaseExport String ToString()const;
-
-		/** Retrieves the value decimals
-		*/
-		DatabaseExport int64_t GetDecimals()const;
-
-		/** Retrieves the value decimals, in given precision
-		@remarks
-			Will add zeros or remove decimals, to obtain the wanted precision
-		@param precision
-			The precision
-		*/
-		DatabaseExport int64_t GetDecimals( uint8_t precision )const;
 
 		/** Retrieves the value as a signed 32 bits integer
 		*/
@@ -153,15 +131,17 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline double ToDouble()const;
 
-		/** Retrieves the value as a long double precision floating point
-		*/
-		inline long double ToLongDouble()const;
-
 		/** Retrieves the precision
 		@return
 			The precision
 		*/
 		inline uint8_t GetPrecision()const;
+
+		/** Retrieves the decimals
+		@return
+			The decimals
+		*/
+		inline uint8_t GetDecimals()const;
 
 		/** Tells if the value is signed
 		@return
@@ -201,20 +181,48 @@ BEGIN_NAMESPACE_DATABASE
 		template< typename T >
 		inline CFixedPoint & operator -=( const T & rhs );
 
-	private:
-		/** Adjusts the value to the decimals, checks the precision
-		@param precision
-			The wanted precision, throws an exception if the value is over 10 ^ precision
+		/** Retrieves the minimum supported precision
+		@return
+			The value
 		*/
-		void DoAdjustValue( uint8_t precision );
+		static inline int8_t GetMinPrecision();
+
+		/** Retrieves the maximum supported precision
+		@return
+			The value
+		*/
+		static inline int8_t GetMaxPrecision();
 
 	private:
+		/** Adjusts the value to the decimals, checks the precision
+		@remarks
+			Throws an exception if the value is over 10 ^ precision
+		*/
+		void DoAdjustValue();
+
+		/** Retrieves the value decimals
+		*/
+		int64_t DoGetValueDecimals()const;
+
+		/** Retrieves the value decimals, in given precision
+		@remarks
+			Will add zeros or remove decimals, to obtain the wanted precision
+		@param precision
+			The precision
+		*/
+		int64_t DoGetValueDecimals( uint8_t precision )const;
+
+	private:
+		//! The value precision (total digits count)
+		uint8_t _precision;
 		//! The value decimals (digits after decimals separator)
 		uint8_t _decimals;
 		//! The raw value
 		int64_t _value;
 		//! Tells if the value is signed or not
 		bool _signed;
+
+		friend DatabaseExport bool operator ==( const CFixedPoint &, const CFixedPoint & );
 	};
 
 	/** Multiplication operator

@@ -5,7 +5,7 @@
 * @date 3/18/2014 2:47:39 PM
 *
 *
-* @brief CExceptionDatabase class declaration and definition.
+* @brief CDatabaseException class declaration and definition.
 *
 * @details Should be thrown when a problem occured in the database interface.
 *
@@ -36,13 +36,14 @@ BEGIN_NAMESPACE_DATABASE
 		EDatabaseExceptionCodes_NullPointer,
 		EDatabaseExceptionCodes_ItemNotFound,
 		EDatabaseExceptionCodes_InternalError,
+		EDatabaseExceptionCodes_ArithmeticError,
 
 		EDatabaseExceptionCodes_LastCode //!< Represent the maximum number of exception code. Must be always the last.
 	};
 
 	/** Should be thrown when a problem occured in the database interface.
 	*/
-	class CExceptionDatabase
+	class CDatabaseException
 		: public std::exception
 	{
 	public:
@@ -58,7 +59,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param line
 			Source file line number.
 		*/
-		DatabaseExport CExceptionDatabase( int number, const String & description, const std::string & source, const std::string & file, long line );
+		DatabaseExport CDatabaseException( int number, const String & description, const std::string & source, const std::string & file, long line );
 
 		/** Create a exception for the database.
 		@param number
@@ -74,7 +75,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param line
 			Source file line number.
 		*/
-		DatabaseExport CExceptionDatabase( int number, const String & description, const std::string & source, const String & type, const std::string & file, long line );
+		DatabaseExport CDatabaseException( const String & type, int number, const String & description, const std::string & source, const std::string & file, long line );
 
 		/** Get the error code.
 		@return
@@ -85,30 +86,48 @@ BEGIN_NAMESPACE_DATABASE
 			return _number;
 		}
 
+		/** Get the error code.
+		@return
+			Return the error code.
+		*/
+		DatabaseExport virtual const String & GetNumberName() const throw();
+
 		/** Get the source function.
 		@return
 			Return the error source function.
 		*/
-		DatabaseExport virtual const String & GetSource() const { return _source; }
+		DatabaseExport virtual const String & GetSource() const
+		{
+			return _source;
+		}
 
 		/** Get the source file name.
 		@return
 			Return error source file name.
 		*/
-		DatabaseExport virtual const String & GetFile() const { return _file; }
+		DatabaseExport virtual const String & GetFile() const
+		{
+			return _file;
+		}
 
 		/** Get the line number.
 		@return
 			Return error line number.
 		*/
-		DatabaseExport virtual long GetLine() const { return _line; }
+		DatabaseExport virtual long GetLine() const
+		{
+			return _line;
+		}
 
 		/** Return a string with only the 'description' field of this exception.
 			@remarks
 				Use GetFullDescriptionton to get a full description of the error including
 				line number, error number and what function threw the exception.
 		*/
-		DatabaseExport virtual const String & GetDescription() const { return _description; }
+		DatabaseExport virtual const String & GetDescription() const
+		{
+			return _description;
+		}
 
 		/** Return a string with the full description of this error.
 			@remarks
@@ -142,7 +161,7 @@ BEGIN_NAMESPACE_DATABASE
 		std::string _callstack;
 	};
 
-#	define DB_EXCEPT( number, description ) throw CExceptionDatabase( number, description, __FUNCTION__, __FILE__, __LINE__ )
+#	define DB_EXCEPT( number, description ) throw CDatabaseException( number, description, __FUNCTION__, __FILE__, __LINE__ )
 }
 END_NAMESPACE_DATABASE
 

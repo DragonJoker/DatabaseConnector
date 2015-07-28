@@ -84,9 +84,9 @@ BEGIN_NAMESPACE_DATABASE
 					}
 				}
 
-				if ( hours >= 0 && hours <= 23 && minutes >= 0 && minutes <= 59 && seconds >= 0 && seconds <= 59 )
+				if ( bReturn )
 				{
-					bReturn = true;
+					bReturn = hours >= 0 && hours <= 23 && minutes >= 0 && minutes <= 59 && seconds >= 0 && seconds <= 59;
 				}
 
 				return bReturn;
@@ -95,6 +95,30 @@ BEGIN_NAMESPACE_DATABASE
 
 		std::string Format( const TimeType & time, const std::string & format )
 		{
+			if ( time.is_not_a_date_time() )
+			{
+				throw std::out_of_range( "Time::Format - Not a date time" );
+			}
+
+			int hours = time.hours();
+			int minutes = time.minutes();
+			int seconds = time.seconds();
+
+			if ( hours < 0 || hours > 23 )
+			{
+				throw std::out_of_range( "Time::Format - Invalid hours value" );
+			}
+
+			if ( minutes < 0 || minutes > 59 )
+			{
+				throw std::out_of_range( "Time::Format - Invalid minutes value" );
+			}
+
+			if ( seconds < 0 || seconds > 59 )
+			{
+				throw std::out_of_range( "Time::Format - Invalid seconds value" );
+			}
+
 			std::tm tmbuf = boost::posix_time::to_tm( time );
 			char buffer[Utils::TIME_MAX_SIZE];
 			size_t length = strftime( buffer, Utils::TIME_MAX_SIZE, format.c_str(), &tmbuf );
@@ -104,6 +128,30 @@ BEGIN_NAMESPACE_DATABASE
 
 		std::wstring Format( const TimeType & time, const std::wstring & format )
 		{
+			if ( time.is_not_a_date_time() )
+			{
+				throw std::out_of_range( "Time::Format - Not a date time" );
+			}
+
+			int hours = time.hours();
+			int minutes = time.minutes();
+			int seconds = time.seconds();
+
+			if ( hours < 0 || hours > 23 )
+			{
+				throw std::out_of_range( "Time::Format - Invalid hours value" );
+			}
+
+			if ( minutes < 0 || minutes > 59 )
+			{
+				throw std::out_of_range( "Time::Format - Invalid minutes value" );
+			}
+
+			if ( seconds < 0 || seconds > 59 )
+			{
+				throw std::out_of_range( "Time::Format - Invalid seconds value" );
+			}
+
 			std::tm tmbuf = boost::posix_time::to_tm( time );
 			wchar_t buffer[Utils::TIME_MAX_SIZE];
 			size_t length = wcsftime( buffer, Utils::TIME_MAX_SIZE, format.c_str(), &tmbuf );
@@ -113,9 +161,30 @@ BEGIN_NAMESPACE_DATABASE
 
 		std::string Print( const TimeType & time, const std::string & format )
 		{
+			if ( time.is_not_a_date_time() )
+			{
+				throw std::out_of_range( "Time::Print - Not a date time" );
+			}
+
 			int hours = time.hours();
 			int minutes = time.minutes();
 			int seconds = time.seconds();
+
+			if ( hours < 0 || hours > 23 )
+			{
+				throw std::out_of_range( "Time::Print - Invalid hours value" );
+			}
+
+			if ( minutes < 0 || minutes > 59 )
+			{
+				throw std::out_of_range( "Time::Print - Invalid minutes value" );
+			}
+
+			if ( seconds < 0 || seconds > 59 )
+			{
+				throw std::out_of_range( "Time::Print - Invalid seconds value" );
+			}
+
 			std::string result;
 			StringUtils::Formalize( result, 1024, format.c_str(), hours, minutes, seconds );
 			return result;
@@ -123,9 +192,30 @@ BEGIN_NAMESPACE_DATABASE
 
 		std::wstring Print( const TimeType & time, const std::wstring & format )
 		{
+			if ( time.is_not_a_date_time() )
+			{
+				throw std::out_of_range( "Time::Print - Not a date time" );
+			}
+
 			int hours = time.hours();
 			int minutes = time.minutes();
 			int seconds = time.seconds();
+
+			if ( hours < 0 || hours > 23 )
+			{
+				throw std::out_of_range( "Time::Print - Invalid hours value" );
+			}
+
+			if ( minutes < 0 || minutes > 59 )
+			{
+				throw std::out_of_range( "Time::Print - Invalid minutes value" );
+			}
+
+			if ( seconds < 0 || seconds > 59 )
+			{
+				throw std::out_of_range( "Time::Print - Invalid seconds value" );
+			}
+
 			std::wstring result;
 			StringUtils::Formalize( result, 1024, format.c_str(), hours, minutes, seconds );
 			return result;
@@ -161,6 +251,10 @@ BEGIN_NAMESPACE_DATABASE
 			{
 				result = TimeType( hours, minutes, seconds );
 			}
+			else
+			{
+				result = TimeType( boost::posix_time::not_a_date_time );
+			}
 
 			return bReturn;
 		}
@@ -176,6 +270,10 @@ BEGIN_NAMESPACE_DATABASE
 			if ( bReturn )
 			{
 				result = TimeType( hours, minutes, seconds );
+			}
+			else
+			{
+				result = TimeType( boost::posix_time::not_a_date_time );
 			}
 
 			return bReturn;

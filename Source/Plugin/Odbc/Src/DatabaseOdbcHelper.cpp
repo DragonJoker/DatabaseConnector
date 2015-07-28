@@ -945,12 +945,12 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 									SetFieldValue( field->GetType(), field->GetObjectValue(), *bind );
 								}
 							}
-							catch ( const CExceptionDatabase & e )
+							catch ( const CDatabaseException & e )
 							{
 								StringStream message;
 								message << ERROR_ODBC_DRIVER << std::endl;
 								message << e.what();
-								ODBC_EXCEPT( EDatabaseOdbcExceptionCodes_GenericError, message.str() );
+								ODBC_EXCEPT( EDatabaseExceptionCodes_GenericError, message.str() );
 							}
 
 							row->AddField( field );
@@ -974,14 +974,14 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 					StringStream message;
 					message << ERROR_ODBC_DRIVER << std::endl;
 					message << e.what();
-					ODBC_EXCEPT( EDatabaseOdbcExceptionCodes_GenericError, message.str() );
+					ODBC_EXCEPT( EDatabaseExceptionCodes_GenericError, message.str() );
 				}
 				catch ( ... )
 				{
 					StringStream message;
 					message << ERROR_ODBC_DRIVER << std::endl;
 					message << ERROR_ODBC_UNKNOWN;
-					ODBC_EXCEPT( EDatabaseOdbcExceptionCodes_UnknownError, message.str() );
+					ODBC_EXCEPT( EDatabaseExceptionCodes_UnknownError, message.str() );
 				}
 			}
 

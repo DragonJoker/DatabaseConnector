@@ -135,7 +135,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			return _arrayParams[index];
 		}
-		catch ( CExceptionDatabase & exc )
+		catch ( CDatabaseException & exc )
 		{
 			CLogger::LogError( exc.GetFullDescription() );
 			throw;

@@ -985,7 +985,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 									DatabaseFieldSPtr field = result->GetFirstRow()->GetField( 0 );
 									BOOST_CHECK( field->GetObjectValue().IsNull() );
 								}
-								catch ( CExceptionDatabase & exc )
+								catch ( CDatabaseException & exc )
 								{
 									CLogger::LogError( exc.GetFullDescription() );
 									BOOST_CHECK_NO_THROW( result->GetFirstRow()->GetField( 0 ) );
@@ -1003,7 +1003,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					}
 				}
 			}
-			catch ( CExceptionDatabase & exc )
+			catch ( CDatabaseException & exc )
 			{
 				CLogger::LogError( exc.GetFullDescription() );
 				BOOST_CHECK( false );
@@ -1083,7 +1083,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 									DatabaseFieldSPtr field = result->GetFirstRow()->GetField( 0 );
 									BOOST_CHECK( field->GetObjectValue().IsNull() );
 								}
-								catch ( CExceptionDatabase & exc )
+								catch ( CDatabaseException & exc )
 								{
 									CLogger::LogError( exc.GetFullDescription() );
 									BOOST_CHECK_NO_THROW( result->GetFirstRow()->GetField( 0 ) );
@@ -1101,7 +1101,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					}
 				}
 			}
-			catch ( CExceptionDatabase & exc )
+			catch ( CDatabaseException & exc )
 			{
 				CLogger::LogError( exc.GetFullDescription() );
 				BOOST_CHECK( false );
@@ -1188,7 +1188,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 									DatabaseFieldSPtr field = result->GetFirstRow()->GetField( 0 );
 									BOOST_CHECK( field->GetObjectValue().IsNull() );
 								}
-								catch ( CExceptionDatabase & exc )
+								catch ( CDatabaseException & exc )
 								{
 									CLogger::LogError( exc.GetFullDescription() );
 									BOOST_CHECK_NO_THROW( result->GetFirstRow()->GetField( 0 ) );
@@ -1206,7 +1206,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					}
 				}
 			}
-			catch ( CExceptionDatabase & exc )
+			catch ( CDatabaseException & exc )
 			{
 				CLogger::LogError( exc.GetFullDescription() );
 				BOOST_CHECK( false );
@@ -1298,7 +1298,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 									DatabaseFieldSPtr field = result->GetFirstRow()->GetField( 0 );
 									BOOST_CHECK( field->GetObjectValue().IsNull() );
 								}
-								catch ( CExceptionDatabase & exc )
+								catch ( CDatabaseException & exc )
 								{
 									CLogger::LogError( exc.GetFullDescription() );
 									BOOST_CHECK_NO_THROW( result->GetFirstRow()->GetField( 0 ) );
@@ -1316,7 +1316,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					}
 				}
 			}
-			catch ( CExceptionDatabase & exc )
+			catch ( CDatabaseException & exc )
 			{
 				CLogger::LogError( exc.GetFullDescription() );
 				BOOST_CHECK( false );
@@ -1419,7 +1419,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					}
 				}
 			}
-			catch ( CExceptionDatabase & exc )
+			catch ( CDatabaseException & exc )
 			{
 				CLogger::LogError( exc.GetFullDescription() );
 				BOOST_CHECK( false );
@@ -1472,7 +1472,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					}
 				}
 			}
-			catch ( CExceptionDatabase & exc )
+			catch ( CDatabaseException & exc )
 			{
 				CLogger::LogError( exc.GetFullDescription() );
 				BOOST_CHECK( false );
@@ -1540,7 +1540,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					}
 				}
 			}
-			catch ( CExceptionDatabase & exc )
+			catch ( CDatabaseException & exc )
 			{
 				CLogger::LogError( exc.GetFullDescription() );
 				BOOST_CHECK( false );
@@ -1606,7 +1606,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					}
 				}
 			}
-			catch ( CExceptionDatabase & exc )
+			catch ( CDatabaseException & exc )
 			{
 				CLogger::LogError( exc.GetFullDescription() );
 				BOOST_CHECK( false );
@@ -1640,7 +1640,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					}
 				}
 			}
-			catch ( CExceptionDatabase & exc )
+			catch ( CDatabaseException & exc )
 			{
 				CLogger::LogError( exc.GetFullDescription() );
 				BOOST_CHECK( false );
@@ -1699,7 +1699,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					}
 				}
 			}
-			catch ( CExceptionDatabase & exc )
+			catch ( CDatabaseException & exc )
 			{
 				CLogger::LogError( exc.GetFullDescription() );
 				BOOST_CHECK( false );
@@ -1765,7 +1765,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					}
 				}
 			}
-			catch ( CExceptionDatabase & exc )
+			catch ( CDatabaseException & exc )
 			{
 				CLogger::LogError( exc.GetFullDescription() );
 				BOOST_CHECK( false );
@@ -1839,7 +1839,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					}
 				}
 			}
-			catch ( CExceptionDatabase & exc )
+			catch ( CDatabaseException & exc )
 			{
 				CLogger::LogError( exc.GetFullDescription() );
 				BOOST_CHECK( false );
@@ -1915,7 +1915,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					}
 				}
 			}
-			catch ( CExceptionDatabase & exc )
+			catch ( CDatabaseException & exc )
 			{
 				CLogger::LogError( exc.GetFullDescription() );
 				BOOST_CHECK( false );
@@ -1974,7 +1974,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					}
 				}
 			}
-			catch ( CExceptionDatabase & exc )
+			catch ( CDatabaseException & exc )
 			{
 				CLogger::LogError( exc.GetFullDescription() );
 				BOOST_CHECK( false );
@@ -2026,7 +2026,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					}
 				}
 			}
-			catch ( CExceptionDatabase & exc )
+			catch ( CDatabaseException & exc )
 			{
 				CLogger::LogError( exc.GetFullDescription() );
 				BOOST_CHECK( false );
@@ -2082,7 +2082,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					}
 				}
 			}
-			catch ( CExceptionDatabase & exc )
+			catch ( CDatabaseException & exc )
 			{
 				CLogger::LogError( exc.GetFullDescription() );
 				BOOST_CHECK( false );
@@ -2141,7 +2141,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					}
 				}
 			}
-			catch ( CExceptionDatabase & exc )
+			catch ( CDatabaseException & exc )
 			{
 				CLogger::LogError( exc.GetFullDescription() );
 				BOOST_CHECK( false );

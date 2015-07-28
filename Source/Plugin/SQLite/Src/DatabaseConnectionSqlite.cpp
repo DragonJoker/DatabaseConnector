@@ -24,6 +24,7 @@
 #include <DatabaseDateTimeHelper.h>
 #include <DatabaseTime.h>
 
+#include <DatabaseFileUtils.h>
 #include <DatabaseStringUtils.h>
 #include <DatabaseLogger.h>
 
@@ -155,19 +156,15 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		StringUtils::Replace( serverPath, STR( "/" ), PATH_SEP );
 		serverPath = serverPath.substr( 0, serverPath.find_last_of( PATH_SEP ) + 1 );
 
-		if ( !FileExists( filePath ) )
+		if ( !FileUtils::FileExists( filePath ) )
 		{
-			if ( !FolderExists( serverPath ) )
+			if ( !FileUtils::FolderExists( serverPath ) )
 			{
-				CreateFolder( serverPath );
+				FileUtils::CreateFolder( serverPath );
 			}
 
 			FILE * file;
-#if defined( _MSC_VER )
-			fopen_s( &file, StringUtils::ToStr( filePath ).c_str(), "w" );
-#else
-			file = fopen( StringUtils::ToStr( filePath ).c_str(), "w" );
-#endif
+			FileUtils::FOpen( file, StringUtils::ToStr( filePath ).c_str(), "w" );
 
 			if ( file )
 			{
@@ -202,7 +199,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 		String filePath = _server + PATH_SEP + database;
 
-		if ( FileExists( filePath ) )
+		if ( FileUtils::FileExists( filePath ) )
 		{
 			StringUtils::Replace( filePath, STR( "\\" ), PATH_SEP );
 			StringUtils::Replace( filePath, STR( "/" ), PATH_SEP );
@@ -614,7 +611,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		{
 			result = SqliteFetchResult( statement, SqliteGetColumns( statement ), std::static_pointer_cast< CDatabaseConnectionSqlite >( shared_from_this() ) );
 		}
-		catch ( CExceptionDatabase & exc )
+		catch ( CDatabaseException & exc )
 		{
 			CLogger::LogError( std::string( exc.what() ) );
 		}
@@ -697,7 +694,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			ret = ExecuteUpdate( statement );
 			SQLiteCheck( sqlite3_finalize( statement ), INFO_SQLITE_STATEMENT_FINALISATION, EDatabaseExceptionCodes_ConnectionError, _connection );
 		}
-		catch ( CExceptionDatabase & exc )
+		catch ( CDatabaseException & exc )
 		{
 			CLogger::LogError( exc.what() );
 		}
@@ -721,7 +718,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			ret = ExecuteSelect( statement );
 			SQLiteCheck( sqlite3_finalize( statement ), INFO_SQLITE_STATEMENT_FINALISATION, EDatabaseExceptionCodes_ConnectionError, _connection );
 		}
-		catch ( CExceptionDatabase & exc )
+		catch ( CDatabaseException & exc )
 		{
 			CLogger::LogError( exc.what() );
 		}

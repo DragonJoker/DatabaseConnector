@@ -553,7 +553,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			uint64_t affected = mysql_stmt_affected_rows( statement );
 			result = true;
 		}
-		catch ( CExceptionDatabase & exc )
+		catch ( CDatabaseException & exc )
 		{
 			StringStream stream;
 			stream << ERROR_MYSQL_EXECUTION << STR( " - " ) << exc.GetFullDescription();
@@ -579,7 +579,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			MySQLCheck( mysql_stmt_execute( statement ), INFO_MYSQL_STATEMENT_EXECUTION, EDatabaseExceptionCodes_StatementError, _connection );
 			result = DoRetrieveResults( statement );
 		}
-		catch ( CExceptionDatabase & exc )
+		catch ( CDatabaseException & exc )
 		{
 			StringStream stream;
 			stream << ERROR_MYSQL_EXECUTION << STR( " - " ) << exc.GetFullDescription();
@@ -683,7 +683,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 			DoSetConnected( true );
 		}
-		catch ( CExceptionDatabase & exc )
+		catch ( CDatabaseException & exc )
 		{
 			CLogger::LogError( StringStream() << ERROR_MYSQL_CONNECTION << STR( " - " ) << exc.GetFullDescription() );
 			ret = EErrorType_ERROR;
@@ -781,7 +781,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				pResult = MySqlFetchResult( statement, MySqlGetColumns( statement, connection, inbinds, binds ), connection, inbinds, binds );
 			}
 		}
-		catch ( CExceptionDatabase & exc )
+		catch ( CDatabaseException & exc )
 		{
 			StringStream stream;
 			stream << ERROR_MYSQL_EXECUTION << exc.GetFullDescription();
