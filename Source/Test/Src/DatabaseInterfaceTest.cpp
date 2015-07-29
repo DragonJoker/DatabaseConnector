@@ -1014,7 +1014,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	{
 		CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseNullable ****" );
 
-
+		CDatabaseNullable< int32_t > value;
+		CLogger::LogInfo( StringStream() << "  Unset" );
+		BOOST_CHECK( !value );
+		BOOST_CHECK_THROW( *value, CDatabaseException );
+		CLogger::LogInfo( StringStream() << "  Set to value" );
+		value = 42;
+		BOOST_CHECK( (bool)value );
+		BOOST_CHECK_EQUAL( *value, 42 );
+		CLogger::LogInfo( StringStream() << "  Set to None" );
+		value = None;
+		BOOST_CHECK( !value );
+		BOOST_CHECK_THROW( *value, CDatabaseException );
 
 		CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseNullable ****" );
 	}
@@ -1023,99 +1034,251 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	{
 		CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseStringUtils ****" );
 
+		CLogger::LogInfo( StringStream() << "  IsUpperCase/IsLowerCase" );
+		BOOST_CHECK( !StringUtils::IsUpperCase( "NoTuPpErCaSe" ) );
+		BOOST_CHECK( StringUtils::IsUpperCase( "UPPERCASE" ) );
+		BOOST_CHECK( !StringUtils::IsLowerCase( "NoTlOwErCaSe" ) );
+		BOOST_CHECK( StringUtils::IsLowerCase( "lowercase" ) );
+		BOOST_CHECK( !StringUtils::IsUpperCase( L"NoTuPpErCaSe" ) );
+		BOOST_CHECK( StringUtils::IsUpperCase( L"UPPERCASE" ) );
+		BOOST_CHECK( !StringUtils::IsLowerCase( L"NoTlOwErCaSe" ) );
+		BOOST_CHECK( StringUtils::IsLowerCase( L"lowercase" ) );
 
+		CLogger::LogInfo( StringStream() << "  UpperCase/LowerCase" );
+		BOOST_CHECK_EQUAL( StringUtils::UpperCase( "NoTuPpErCaSe" ), "NOTUPPERCASE" );
+		BOOST_CHECK_EQUAL( StringUtils::UpperCase( "UPPERCASE" ), "UPPERCASE" );
+		BOOST_CHECK_EQUAL( StringUtils::LowerCase( "NoTlOwErCaSe" ), "notlowercase" );
+		BOOST_CHECK_EQUAL( StringUtils::LowerCase( "lowercase" ), "lowercase" );
+		BOOST_CHECK_EQUAL( StringUtils::UpperCase( L"NoTuPpErCaSe" ), L"NOTUPPERCASE" );
+		BOOST_CHECK_EQUAL( StringUtils::UpperCase( L"UPPERCASE" ), L"UPPERCASE" );
+		BOOST_CHECK_EQUAL( StringUtils::LowerCase( L"NoTlOwErCaSe" ), L"notlowercase" );
+		BOOST_CHECK_EQUAL( StringUtils::LowerCase( L"lowercase" ), L"lowercase" );
+
+		CLogger::LogInfo( StringStream() << "  ToUpperCase/ToLowerCase" );
+		std::string snotupper = "NoTuPpErCaSe";
+		std::string supper = "UPPERCASE";
+		std::string snotlower = "NoTlOwErCaSe";
+		std::string slower = "lowercase";
+		BOOST_CHECK_EQUAL( StringUtils::ToUpperCase( snotupper ), "NOTUPPERCASE" );
+		BOOST_CHECK_EQUAL( StringUtils::ToUpperCase( supper ), "UPPERCASE" );
+		BOOST_CHECK_EQUAL( StringUtils::ToLowerCase( snotlower ), "notlowercase" );
+		BOOST_CHECK_EQUAL( StringUtils::ToLowerCase( slower ), "lowercase" );
+		BOOST_CHECK_EQUAL( snotupper, "NOTUPPERCASE" );
+		BOOST_CHECK_EQUAL( supper, "UPPERCASE" );
+		BOOST_CHECK_EQUAL( snotlower, "notlowercase" );
+		BOOST_CHECK_EQUAL( slower, "lowercase" );
+
+		std::wstring wnotupper = L"NoTuPpErCaSe";
+		std::wstring wupper = L"UPPERCASE";
+		std::wstring wnotlower = L"NoTlOwErCaSe";
+		std::wstring wlower = L"lowercase";
+		BOOST_CHECK_EQUAL( StringUtils::ToUpperCase( wnotupper ), L"NOTUPPERCASE" );
+		BOOST_CHECK_EQUAL( StringUtils::ToUpperCase( wupper ), L"UPPERCASE" );
+		BOOST_CHECK_EQUAL( StringUtils::ToLowerCase( wnotlower ), L"notlowercase" );
+		BOOST_CHECK_EQUAL( StringUtils::ToLowerCase( wlower ), L"lowercase" );
+		BOOST_CHECK_EQUAL( wnotupper, L"NOTUPPERCASE" );
+		BOOST_CHECK_EQUAL( wupper, L"UPPERCASE" );
+		BOOST_CHECK_EQUAL( wnotlower, L"notlowercase" );
+		BOOST_CHECK_EQUAL( wlower, L"lowercase" );
+
+		CLogger::LogInfo( StringStream() << "  ToWStr/ToStr/ToString/ToUtf8" );
+		std::wstring ws = L"ÂÄÊËÎÏÔÖÛÜ";
+		std::string s = "ÂÄÊËÎÏÔÖÛÜ";
+		std::string utf8 = "Ã‚Ã„ÃŠÃ‹ÃŽÃÃ”Ã–Ã›Ãœ";
+		BOOST_CHECK_EQUAL( ws, StringUtils::ToWStr( s ) );
+		BOOST_CHECK_EQUAL( ws, StringUtils::ToWStr( ws ) );
+		BOOST_CHECK_EQUAL( s, StringUtils::ToStr( ws ) );
+		BOOST_CHECK_EQUAL( s, StringUtils::ToStr( s ) );
+		BOOST_CHECK_EQUAL( StringUtils::ToString( ws ), s );
+		BOOST_CHECK_EQUAL( StringUtils::ToString( s ), s );
+		BOOST_CHECK_EQUAL( StringUtils::ToUtf8( s, "Windows-1252" ), utf8 );
+		BOOST_CHECK_EQUAL( StringUtils::ToUtf8( ws, L"Windows-1252" ), utf8 );
+
+		CLogger::LogInfo( StringStream() << "  Split" );
+		std::string stosplit = "dsfs,gsdg,,sdfh,sdh,dshgh,dfh,dsfh,dsfhsdfhsd,fhsdfh,dfhdsh";
+		auto ssplitted = StringUtils::Split( stosplit, ",", 1, false );
+		BOOST_CHECK_EQUAL( ssplitted.size(), 2 );
+		BOOST_CHECK_EQUAL( ssplitted[0], "dsfs" );
+		BOOST_CHECK_EQUAL( ssplitted[1], "gsdg,,sdfh,sdh,dshgh,dfh,dsfh,dsfhsdfhsd,fhsdfh,dfhdsh" );
+		uint32_t scount = uint32_t( std::count( stosplit.begin(), stosplit.end(), ',' ) );
+		BOOST_CHECK_NO_THROW( ssplitted = StringUtils::Split( stosplit, ",", scount, false ) );
+		BOOST_CHECK_EQUAL( ssplitted.size(), scount );
+		BOOST_CHECK_NO_THROW( ssplitted = StringUtils::Split( stosplit, ",", scount, true ) );
+		BOOST_CHECK_EQUAL( ssplitted.size(), scount + 1 );
+		std::wstring wtosplit = L"dsfs,gsdg,,sdfh,sdh,dshgh,dfh,dsfh,dsfhsdfhsd,fhsdfh,dfhdsh";
+		auto wsplitted = StringUtils::Split( wtosplit, L",", 1, false );
+		BOOST_CHECK_EQUAL( wsplitted.size(), 2 );
+		BOOST_CHECK_EQUAL( wsplitted[0], L"dsfs" );
+		BOOST_CHECK_EQUAL( wsplitted[1], L"gsdg,,sdfh,sdh,dshgh,dfh,dsfh,dsfhsdfhsd,fhsdfh,dfhdsh" );
+		uint32_t wcount = uint32_t( std::count( wtosplit.begin(), wtosplit.end(), L',' ) );
+		BOOST_CHECK_NO_THROW( wsplitted = StringUtils::Split( wtosplit, L",", wcount, false ) );
+		BOOST_CHECK_EQUAL( wsplitted.size(), wcount );
+		BOOST_CHECK_NO_THROW( wsplitted = StringUtils::Split( wtosplit, L",", wcount, true ) );
+		BOOST_CHECK_EQUAL( wsplitted.size(), wcount + 1 );
+
+		CLogger::LogInfo( StringStream() << "  Trim" );
+		std::string stotrim = "AA";
+		BOOST_CHECK_EQUAL( StringUtils::Trim( stotrim ), "AA" );
+		BOOST_CHECK_EQUAL( stotrim, "AA" );
+		stotrim = "AA ";
+		BOOST_CHECK_EQUAL( StringUtils::Trim( stotrim ), "AA" );
+		BOOST_CHECK_EQUAL( stotrim, "AA" );
+		stotrim = " AA";
+		BOOST_CHECK_EQUAL( StringUtils::Trim( stotrim ), "AA" );
+		BOOST_CHECK_EQUAL( stotrim, "AA" );
+		stotrim = " AA ";
+		BOOST_CHECK_EQUAL( StringUtils::Trim( stotrim, false ), " AA" );
+		BOOST_CHECK_EQUAL( stotrim, " AA" );
+		stotrim = " AA ";
+		BOOST_CHECK_EQUAL( StringUtils::Trim( stotrim, true, false ), "AA " );
+		BOOST_CHECK_EQUAL( stotrim, "AA " );
+		stotrim = " AA ";
+		BOOST_CHECK_EQUAL( StringUtils::Trim( stotrim, false, false ), " AA " );
+		BOOST_CHECK_EQUAL( stotrim, " AA " );
+		std::wstring wtotrim = L"AA";
+		BOOST_CHECK_EQUAL( StringUtils::Trim( wtotrim ), L"AA" );
+		BOOST_CHECK_EQUAL( wtotrim, L"AA" );
+		wtotrim = L"AA ";
+		BOOST_CHECK_EQUAL( StringUtils::Trim( wtotrim ), L"AA" );
+		BOOST_CHECK_EQUAL( wtotrim, L"AA" );
+		wtotrim = L" AA";
+		BOOST_CHECK_EQUAL( StringUtils::Trim( wtotrim ), L"AA" );
+		BOOST_CHECK_EQUAL( wtotrim, L"AA" );
+		wtotrim = L" AA ";
+		BOOST_CHECK_EQUAL( StringUtils::Trim( wtotrim, false ), L" AA" );
+		BOOST_CHECK_EQUAL( wtotrim, L" AA" );
+		wtotrim = L" AA ";
+		BOOST_CHECK_EQUAL( StringUtils::Trim( wtotrim, true, false ), L"AA " );
+		BOOST_CHECK_EQUAL( wtotrim, L"AA " );
+		wtotrim = L" AA ";
+		BOOST_CHECK_EQUAL( StringUtils::Trim( wtotrim, false, false ), L" AA " );
+		BOOST_CHECK_EQUAL( wtotrim, L" AA " );
+
+		CLogger::LogInfo( StringStream() << "  Replace" );
+		std::string sreplace = "gsdg,,sdfh,sdh,dshgh,dfh,dsfh,dsfhsdfhsd,fhsdfh,dfhdsh";
+		BOOST_CHECK_EQUAL( StringUtils::Replace( sreplace, ",", " " ), "gsdg  sdfh sdh dshgh dfh dsfh dsfhsdfhsd fhsdfh dfhdsh" );
+		BOOST_CHECK_EQUAL( sreplace, "gsdg  sdfh sdh dshgh dfh dsfh dsfhsdfhsd fhsdfh dfhdsh" );
+		BOOST_CHECK_EQUAL( StringUtils::Replace( sreplace, "gsdg", "je" ), "je  sdfh sdh dshgh dfh dsfh dsfhsdfhsd fhsdfh dfhdsh" );
+		BOOST_CHECK_EQUAL( sreplace, "je  sdfh sdh dshgh dfh dsfh dsfhsdfhsd fhsdfh dfhdsh" );
+		BOOST_CHECK_EQUAL( StringUtils::Replace( sreplace, "dfhdsh", "voilà" ), "je  sdfh sdh dshgh dfh dsfh dsfhsdfhsd fhsdfh voilà" );
+		BOOST_CHECK_EQUAL( sreplace, "je  sdfh sdh dshgh dfh dsfh dsfhsdfhsd fhsdfh voilà" );
+		BOOST_CHECK_EQUAL( StringUtils::Replace( sreplace, "coin", "glop" ), "je  sdfh sdh dshgh dfh dsfh dsfhsdfhsd fhsdfh voilà" );
+		BOOST_CHECK_EQUAL( sreplace, "je  sdfh sdh dshgh dfh dsfh dsfhsdfhsd fhsdfh voilà" );
+		std::wstring wreplace = L"gsdg,,sdfh,sdh,dshgh,dfh,dsfh,dsfhsdfhsd,fhsdfh,dfhdsh";
+		BOOST_CHECK_EQUAL( StringUtils::Replace( wreplace, L",", L" " ), L"gsdg  sdfh sdh dshgh dfh dsfh dsfhsdfhsd fhsdfh dfhdsh" );
+		BOOST_CHECK_EQUAL( wreplace, L"gsdg  sdfh sdh dshgh dfh dsfh dsfhsdfhsd fhsdfh dfhdsh" );
+		BOOST_CHECK_EQUAL( StringUtils::Replace( wreplace, L"gsdg", L"je" ), L"je  sdfh sdh dshgh dfh dsfh dsfhsdfhsd fhsdfh dfhdsh" );
+		BOOST_CHECK_EQUAL( wreplace, L"je  sdfh sdh dshgh dfh dsfh dsfhsdfhsd fhsdfh dfhdsh" );
+		BOOST_CHECK_EQUAL( StringUtils::Replace( wreplace, L"dfhdsh", L"voilà" ), L"je  sdfh sdh dshgh dfh dsfh dsfhsdfhsd fhsdfh voilà" );
+		BOOST_CHECK_EQUAL( wreplace, L"je  sdfh sdh dshgh dfh dsfh dsfhsdfhsd fhsdfh voilà" );
+		BOOST_CHECK_EQUAL( StringUtils::Replace( wreplace, L"coin", L"glop" ), L"je  sdfh sdh dshgh dfh dsfh dsfhsdfhsd fhsdfh voilà" );
+		BOOST_CHECK_EQUAL( wreplace, L"je  sdfh sdh dshgh dfh dsfh dsfhsdfhsd fhsdfh voilà" );
+
+		CLogger::LogInfo( StringStream() << "  Formalize" );
+		std::string sformalized;
+		CDatabaseException::LinkSystemErrors();
+		BOOST_CHECK_NO_THROW( StringUtils::Formalize( sformalized, 10, "%010i", 100 ) );
+		BOOST_CHECK_EQUAL( sformalized, "0000000100" );
+		BOOST_CHECK_NO_THROW( StringUtils::Formalize( sformalized, 9, "%010i", 100 ) );
+		BOOST_CHECK_EQUAL( sformalized, "000000010" );
+		BOOST_CHECK_NO_THROW( StringUtils::Formalize( sformalized, 9, "%.2f", 100 ) );
+		BOOST_CHECK_EQUAL( sformalized, "0.00" );
+		BOOST_CHECK_NO_THROW( StringUtils::Formalize( sformalized, 9, "%.2f", 100.0f ) );
+		BOOST_CHECK_EQUAL( sformalized, "100.00" );
+		BOOST_CHECK_THROW( StringUtils::Formalize( sformalized, 9, "%s", 100 ), CDatabaseException );
+		CDatabaseException::UnlinkSystemErrors();
 
 		CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseStringUtils ****" );
 	}
 
 	void CDatabaseInterfaceTest::TestCase_DatabaseConnection()
 	{
-		CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseConnection ****" );
+		//CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseConnection ****" );
 
 
 
-		CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseConnection ****" );
+		//CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseConnection ****" );
 	}
 
 	void CDatabaseInterfaceTest::TestCase_DatabaseFieldInfos()
 	{
-		CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseFieldInfos ****" );
+		//CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseFieldInfos ****" );
 
 
 
-		CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseFieldInfos ****" );
+		//CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseFieldInfos ****" );
 	}
 
 	void CDatabaseInterfaceTest::TestCase_DatabaseValue()
 	{
-		CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseValue ****" );
+		//CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseValue ****" );
 
 
 
-		CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseValue ****" );
+		//CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseValue ****" );
 	}
 
 	void CDatabaseInterfaceTest::TestCase_DatabaseValuedObject()
 	{
-		CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseValuedObject ****" );
+		//CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseValuedObject ****" );
 
 
 
-		CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseValuedObject ****" );
+		//CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseValuedObject ****" );
 	}
 
 	void CDatabaseInterfaceTest::TestCase_DatabaseParameter()
 	{
-		CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseParameter ****" );
+		//CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseParameter ****" );
 
 
 
-		CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseParameter ****" );
+		//CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseParameter ****" );
 	}
 
 	void CDatabaseInterfaceTest::TestCase_DatabaseField()
 	{
-		CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseField ****" );
+		//CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseField ****" );
 
 
 
-		CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseField ****" );
+		//CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseField ****" );
 	}
 
 	void CDatabaseInterfaceTest::TestCase_DatabaseRow()
 	{
-		CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseRow ****" );
+		//CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseRow ****" );
 
 
 
-		CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseRow ****" );
+		//CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseRow ****" );
 	}
 
 	void CDatabaseInterfaceTest::TestCase_DatabaseResult()
 	{
-		CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseResult ****" );
+		//CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseResult ****" );
 
 
 
-		CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseResult ****" );
+		//CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseResult ****" );
 	}
 
 	void CDatabaseInterfaceTest::TestCase_DatabaseQuery()
 	{
-		CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseQuery ****" );
+		//CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseQuery ****" );
 
 
 
-		CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseQuery ****" );
+		//CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseQuery ****" );
 	}
 
 	void CDatabaseInterfaceTest::TestCase_DatabaseStatement()
 	{
-		CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseStatement ****" );
+		//CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseStatement ****" );
 
 
 
-		CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseStatement ****" );
+		//CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseStatement ****" );
 	}
 }
 END_NAMESPACE_DATABASE_TEST

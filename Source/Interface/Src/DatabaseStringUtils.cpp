@@ -160,7 +160,7 @@ BEGIN_NAMESPACE_DATABASE
 							l_start = l_pos + 1;
 						}
 
-						l_start = p_str.find_first_not_of( p_delims, l_start );
+						//l_start = p_str.find_first_not_of( p_delims, l_start );
 						++ l_numSplits;
 					}
 					while ( l_pos != string_t::npos );
@@ -296,8 +296,8 @@ BEGIN_NAMESPACE_DATABASE
 
 					if ( format != NULL )
 					{
-						str_vprintf( strText.data(), maxSize, format, vaList );
-						formattedString = strText.data();
+						size_t written = str_vprintf( strText.data(), maxSize, format, vaList );
+						formattedString.assign( strText.data(), strText.data() + std::min( written, size_t( maxSize ) ) );
 					}
 				}
 				catch ( ... )
@@ -495,7 +495,7 @@ BEGIN_NAMESPACE_DATABASE
 			{
 				va_list vaList;
 				va_start( vaList, format );
-				detail::str_formalize( formattedString,maxSize, format, vaList );
+				detail::str_formalize( formattedString, maxSize, format, vaList );
 				va_end( vaList );
 			}
 		}
@@ -508,7 +508,7 @@ BEGIN_NAMESPACE_DATABASE
 			{
 				va_list vaList;
 				va_start( vaList, format );
-				detail::str_formalize( formattedString,maxSize, format, vaList );
+				detail::str_formalize( formattedString, maxSize, format, vaList );
 				va_end( vaList );
 			}
 		}

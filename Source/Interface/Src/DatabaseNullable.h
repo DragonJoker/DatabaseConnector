@@ -92,11 +92,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		T const & operator *()const
 		{
-			if ( !_isSet )
-			{
-				DB_EXCEPT( EDatabaseExceptionCodes_InternalError, ERROR_DB_VALUE_NOT_SET );
-			}
-
+			DoCheckIsSet();
 			return _value;
 		}
 
@@ -106,7 +102,19 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		T & operator *()
 		{
+			DoCheckIsSet();
 			return _value;
+		}
+
+	private:
+		/** Checks if the value is set, throws an exception if not
+		*/
+		void DoCheckIsSet()
+		{
+			if ( !_isSet )
+			{
+				DB_EXCEPT( EDatabaseExceptionCodes_InternalError, ERROR_DB_VALUE_NOT_SET );
+			}
 		}
 
 	private:
