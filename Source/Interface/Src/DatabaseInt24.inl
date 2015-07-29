@@ -13,11 +13,18 @@
 
 #include "DatabasePrerequisites.h"
 
+#include "DatabaseException.h"
+
 BEGIN_NAMESPACE_DATABASE
 {
 	inline int24_t::operator uint24_t() const
 	{
 		return uint24_t( *this );
+	}
+
+	inline int24_t::operator uint32_t() const
+	{
+		return uint32_t( int32_t( *this ) );
 	}
 
 	inline int24_t::operator int32_t() const
@@ -38,9 +45,27 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	}
 
+	inline int24_t::operator uint64_t() const
+	{
+		return uint64_t( int64_t( *this ) );
+	}
+
 	inline int24_t::operator int64_t() const
 	{
-		return int64_t( int32_t( *this ) );
+		// Sign extend negative quantities
+		if ( _value[2] & 0x80 )
+		{
+			return ( 0xffffffffff000000 )
+			| ( _value[2] << 16 )
+			| ( _value[1] <<  8 )
+			| ( _value[0] );
+		}
+		else
+		{
+			return ( _value[2] << 16 )
+			| ( _value[1] <<  8 )
+			| ( _value[0] );
+		}
 	}
 
 	inline int24_t::operator float() const
@@ -50,7 +75,7 @@ BEGIN_NAMESPACE_DATABASE
 
 	inline int24_t::operator double() const
 	{
-		return double( int32_t( *this ) );
+		return double( int64_t( *this ) );
 	}
 
 	inline int24_t & int24_t::operator=( const int32_t input )
@@ -175,6 +200,18 @@ BEGIN_NAMESPACE_DATABASE
 		return int24_t( -int32_t( value ) );
 	}
 
+	inline std::ostream & operator<<( std::ostream & out, const int24_t & value )
+	{
+		 out << int32_t( value );
+		 return out;
+	}
+
+	inline std::wostream & operator<<( std::wostream & out, const int24_t & value )
+	{
+		 out << int32_t( value );
+		 return out;
+	}
+
 	inline uint24_t::operator int24_t() const
 	{
 		return int24_t( *this );
@@ -187,19 +224,29 @@ BEGIN_NAMESPACE_DATABASE
 		| ( _value[0] );
 	}
 
+	inline uint24_t::operator int32_t() const
+	{
+		return int32_t( uint32_t( *this ) );
+	}
+
 	inline uint24_t::operator uint64_t() const
 	{
-		return uint64_t( int32_t( *this ) );
+		return uint64_t( uint32_t( *this ) );
+	}
+
+	inline uint24_t::operator int64_t() const
+	{
+		return int64_t( uint32_t( *this ) );
 	}
 
 	inline uint24_t::operator float() const
 	{
-		return float( int32_t( *this ) );
+		return float( uint32_t( *this ) );
 	}
 
 	inline uint24_t::operator double() const
 	{
-		return double( int32_t( *this ) );
+		return double( uint64_t( *this ) );
 	}
 
 	inline uint24_t & uint24_t::operator=( const uint32_t input )
@@ -317,6 +364,18 @@ BEGIN_NAMESPACE_DATABASE
 	inline bool operator!( const uint24_t & value )
 	{
 		return !uint32_t( value );
+	}
+
+	inline std::ostream & operator<<( std::ostream & out, const uint24_t & value )
+	{
+		 out << uint32_t( value );
+		 return out;
+	}
+
+	inline std::wostream & operator<<( std::wostream & out, const uint24_t & value )
+	{
+		 out << uint32_t( value );
+		 return out;
 	}
 }
 END_NAMESPACE_DATABASE

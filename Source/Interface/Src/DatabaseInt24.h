@@ -99,30 +99,43 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline explicit operator uint24_t() const;
 
-		/** uint32_t conversion operator
+		/** int32_t explicit conversion operator
 		@return
-			This value as uint32_t
+			This value as int32_t
 		*/
 		inline explicit operator int32_t() const;
 
-		/** uint32_t conversion operator
+		/** uint32_t explicit conversion operator
 		@return
 			This value as uint32_t
 		*/
+		inline explicit operator uint32_t() const;
+
+		/** int64_t explicit conversion operator
+		@return
+			This value as int64_t
+		*/
 		inline explicit operator int64_t() const;
 
-		/** float conversion operator
+		/** uint64_t explicit conversion operator
+		@return
+			This value as uint64_t
+		*/
+		inline explicit operator uint64_t() const;
+
+		/** float explicit conversion operator
 		@return
 			This value as float
 		*/
 		inline explicit operator float() const;
 
-		/** double conversion operator
+		/** double explicit conversion operator
 		@return
 			This value as double
 		*/
 		inline explicit operator double() const;
-		/** Implicit conversion to bool
+
+		/** bool implicit conversion operator
 		*/
 		inline operator bool() const;
 
@@ -283,6 +296,26 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	inline int24_t operator-( const int24_t & rhs );
 
+	/** Stream operator
+	@param stream
+		The stream.
+	@param value
+		The value.
+	@return
+		The stream.
+	*/
+	inline std::ostream & operator <<( std::ostream & stream, const int24_t & value );
+
+	/** Stream operator
+	@param stream
+		The stream.
+	@param value
+		The value.
+	@return
+		The stream.
+	*/
+	inline std::wostream & operator <<( std::wostream & stream, const int24_t & value );
+
 	static const int24_t INT24_MAX = int24_t( 0x007FFFFF );
 	static const int24_t INT24_MIN = int24_t( 0x00800000 );
 	static const int24_t INT24_LOWEST = INT24_MIN;
@@ -368,31 +401,43 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline explicit operator int24_t() const;
 
-		/** uint32_t Implicit conversion operator
+		/** int32_t explicit conversion operator
+		@return
+			This value as int32_t
+		*/
+		inline explicit operator int32_t() const;
+
+		/** uint32_t explicit conversion operator
 		@return
 			This value as uint32_t
 		*/
 		inline explicit operator uint32_t() const;
 
-		/** uint64_t Implicit conversion operator
+		/** int64_t explicit conversion operator
+		@return
+			This value as int64_t
+		*/
+		inline explicit operator int64_t() const;
+
+		/** uint64_t explicit conversion operator
 		@return
 			This value as uint64_t
 		*/
 		inline explicit operator uint64_t() const;
 
-		/** float conversion operator
+		/** float explicit conversion operator
 		@return
 			This value as float
 		*/
 		inline explicit operator float() const;
 
-		/** double conversion operator
+		/** double explicit conversion operator
 		@return
 			This value as double
 		*/
 		inline explicit operator double() const;
 
-		/** Implicit conversion to bool
+		/** bool implicit conversion operator
 		*/
 		inline operator bool() const;
 
@@ -548,6 +593,26 @@ BEGIN_NAMESPACE_DATABASE
 		The result
 	*/
 	inline bool operator!( const uint24_t & rhs );
+
+	/** Stream operator
+	@param stream
+		The stream.
+	@param value
+		The value.
+	@return
+		The stream.
+	*/
+	inline std::ostream & operator <<( std::ostream & stream, const uint24_t & value );
+
+	/** Stream operator
+	@param stream
+		The stream.
+	@param value
+		The value.
+	@return
+		The stream.
+	*/
+	inline std::wostream & operator <<( std::wostream & stream, const uint24_t & value );
 }
 END_NAMESPACE_DATABASE
 
@@ -735,6 +800,42 @@ namespace std
 		static const bool is_signed = false;
 		static const int digits = CHAR_BIT * sizeof( my_type ) - 1;
 		static const int digits10 = ( CHAR_BIT * sizeof( my_type ) - 1 ) * 301L / 1000;
+	};
+
+	template<>
+	struct is_integral< NAMESPACE_DATABASE::int24_t >
+		: true_type
+	{
+	};
+
+	template<>
+	struct is_integral< NAMESPACE_DATABASE::uint24_t >
+		: true_type
+	{
+	};
+
+	template<>
+	struct is_signed< NAMESPACE_DATABASE::int24_t >
+		: true_type
+	{
+	};
+
+	template<>
+	struct is_signed< NAMESPACE_DATABASE::uint24_t >
+		: false_type
+	{
+	};
+
+	template<>
+	struct is_unsigned< NAMESPACE_DATABASE::int24_t >
+		: false_type
+	{
+	};
+
+	template<>
+	struct is_unsigned< NAMESPACE_DATABASE::uint24_t >
+		: true_type
+	{
 	};
 }
 

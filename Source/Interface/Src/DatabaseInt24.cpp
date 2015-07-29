@@ -20,44 +20,33 @@
 BEGIN_NAMESPACE_DATABASE
 {
 	int24_t::int24_t()
-		: _value()
+		: int24_t( int32_t( 0 ) )
 	{
 	}
 
 	int24_t::int24_t( const int8_t input )
-		: _value()
+		: int24_t( int32_t( input ) )
 	{
-		_value[0] = ( ( uint8_t * )&input )[0];
 	}
 
 	int24_t::int24_t( const uint8_t input )
-		: _value()
+		: int24_t( uint32_t( input ) )
 	{
-		_value[0] = ( ( uint8_t * )&input )[0];
 	}
 
 	int24_t::int24_t( const int16_t input )
-		: _value()
+		: int24_t( int32_t( input ) )
 	{
-		_value[0] = ( ( uint8_t * )&input )[0];
-		_value[1] = ( ( uint8_t * )&input )[1];
-		_value[2] = ( ( uint8_t * )&input )[2];
 	}
 
 	int24_t::int24_t( const uint16_t input )
-		: _value()
+		: int24_t( uint32_t( input ) )
 	{
-		_value[0] = ( ( uint8_t * )&input )[0];
-		_value[1] = ( ( uint8_t * )&input )[1];
-		_value[2] = ( ( uint8_t * )&input )[2];
 	}
 
 	int24_t::int24_t( const uint24_t input )
-		: _value()
+		: int24_t( uint32_t( input ) )
 	{
-		_value[0] = ( ( uint8_t * )&input )[0];
-		_value[1] = ( ( uint8_t * )&input )[1];
-		_value[2] = ( ( uint8_t * )&input )[2];
 	}
 
 	int24_t::int24_t( const int32_t input )
@@ -69,94 +58,63 @@ BEGIN_NAMESPACE_DATABASE
 	}
 
 	int24_t::int24_t( const uint32_t input )
-		: _value()
+		: int24_t( int32_t( input ) )
 	{
-		_value[0] = ( ( uint8_t * )&input )[0];
-		_value[1] = ( ( uint8_t * )&input )[1];
-		_value[2] = ( ( uint8_t * )&input )[2];
 	}
 
 	int24_t::int24_t( const int64_t input )
-		: _value()
+		: int24_t( int32_t( input ) )
 	{
-		_value[0] = ( ( uint8_t * )&input )[0];
-		_value[1] = ( ( uint8_t * )&input )[1];
-		_value[2] = ( ( uint8_t * )&input )[2];
 	}
 
 	int24_t::int24_t( const uint64_t input )
-		: _value()
+		: int24_t( uint32_t( input ) )
 	{
-		_value[0] = ( ( uint8_t * )&input )[0];
-		_value[1] = ( ( uint8_t * )&input )[1];
-		_value[2] = ( ( uint8_t * )&input )[2];
 	}
 
 	int24_t::int24_t( const float input )
-		: _value()
+		: int24_t( int32_t( input ) )
 	{
-		int32_t in = int32_t( input );
-		_value[0] = ( ( uint8_t * )&in )[0];
-		_value[1] = ( ( uint8_t * )&in )[1];
-		_value[2] = ( ( uint8_t * )&in )[2];
 	}
 
 	int24_t::int24_t( const double input )
-		: _value()
+		: int24_t( int32_t( input ) )
 	{
-		int32_t in = int32_t( input );
-		_value[0] = ( ( uint8_t * )&in )[0];
-		_value[1] = ( ( uint8_t * )&in )[1];
-		_value[2] = ( ( uint8_t * )&in )[2];
 	}
 
 	uint24_t::uint24_t()
-		: _value()
+		: uint24_t( uint32_t( 0 ) )
 	{
 	}
 
 	uint24_t::uint24_t( const int8_t input )
-		: _value()
+		: uint24_t( int32_t( input ) )
 	{
-		_value[0] = ( ( uint8_t * )&input )[0];
 	}
 
 	uint24_t::uint24_t( const uint8_t input )
-		: _value()
+		: uint24_t( uint32_t( input ) )
 	{
-		_value[0] = ( ( uint8_t * )&input )[0];
 	}
 
 	uint24_t::uint24_t( const int16_t input )
-		: _value()
+		: uint24_t( int32_t( input ) )
 	{
-		_value[0] = ( ( uint8_t * )&input )[0];
-		_value[1] = ( ( uint8_t * )&input )[1];
-		_value[2] = ( ( uint8_t * )&input )[2];
 	}
 
 	uint24_t::uint24_t( const uint16_t input )
-		: _value()
+		: uint24_t( uint32_t( input ) )
 	{
-		_value[0] = ( ( uint8_t * )&input )[0];
-		_value[1] = ( ( uint8_t * )&input )[1];
-		_value[2] = ( ( uint8_t * )&input )[2];
 	}
 
 	uint24_t::uint24_t( const int24_t input )
-		: _value()
+		: uint24_t( int32_t( input ) )
 	{
-		_value[0] = ( ( uint8_t * )&input )[0];
-		_value[1] = ( ( uint8_t * )&input )[1];
-		_value[2] = ( ( uint8_t * )&input )[2];
 	}
 
 	uint24_t::uint24_t( const int32_t input )
-		: _value()
+		: uint24_t( uint32_t( input ) )
 	{
-		_value[0] = ( ( uint8_t * )&input )[0];
-		_value[1] = ( ( uint8_t * )&input )[1];
-		_value[2] = ( ( uint8_t * )&input )[2];
 	}
 
 	uint24_t::uint24_t( const uint32_t input )
@@ -168,37 +126,23 @@ BEGIN_NAMESPACE_DATABASE
 	}
 
 	uint24_t::uint24_t( const int64_t input )
-		: _value()
+		: uint24_t( int32_t( input ) )
 	{
-		_value[0] = ( ( uint8_t * )&input )[0];
-		_value[1] = ( ( uint8_t * )&input )[1];
-		_value[2] = ( ( uint8_t * )&input )[2];
 	}
 
 	uint24_t::uint24_t( const uint64_t input )
-		: _value()
+		: uint24_t( uint32_t( input ) )
 	{
-		_value[0] = ( ( uint8_t * )&input )[0];
-		_value[1] = ( ( uint8_t * )&input )[1];
-		_value[2] = ( ( uint8_t * )&input )[2];
 	}
 
 	uint24_t::uint24_t( const float input )
-		: _value()
+		: uint24_t( int32_t( input ) )
 	{
-		int32_t in = int32_t( input );
-		_value[0] = ( ( uint8_t * )&in )[0];
-		_value[1] = ( ( uint8_t * )&in )[1];
-		_value[2] = ( ( uint8_t * )&in )[2];
 	}
 
 	uint24_t::uint24_t( const double input )
-		: _value()
+		: uint24_t( int32_t( input ) )
 	{
-		int32_t in = int32_t( input );
-		_value[0] = ( ( uint8_t * )&in )[0];
-		_value[1] = ( ( uint8_t * )&in )[1];
-		_value[2] = ( ( uint8_t * )&in )[2];
 	}
 }
 END_NAMESPACE_DATABASE

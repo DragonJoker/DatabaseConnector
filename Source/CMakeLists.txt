@@ -98,6 +98,7 @@ if( MSVC )
 		string( REPLACE ${ZmFlag} "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} )
 	endif()
 	set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zm300" )
+	set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHa" )
 endif()
 
 msg_debug( "CMAKE_BUILD_TYPE : ${CMAKE_BUILD_TYPE}")

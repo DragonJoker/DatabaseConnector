@@ -28,6 +28,8 @@ BEGIN_NAMESPACE_DATABASE
 		: _factory( factory )
 		, _installed( false )
 	{
+		CDatabaseException::LinkSystemErrors();
+
 		if ( _factory == NULL )
 		{
 			DB_EXCEPT( EDatabaseExceptionCodes_NullPointer, ERROR_DB_FACTORY_IS_NULL );
@@ -38,12 +40,14 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		delete _factory;
 		_factory = NULL;
+		CDatabaseException::UnlinkSystemErrors();
 	}
 
 	void CPluginDatabase::Install()
 	{
 		if ( !_installed )
 		{
+
 			//!@remarks Initialize the factory.
 			_factory->Initialize();
 

@@ -41,6 +41,128 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			BOOST_CHECK_EQUAL( fp.ToUInt64(), uint64_t( ival ) );
 			BOOST_CHECK_EQUAL( fp.ToString(), sval );
 		}
+
+		template< typename Int24Type, typename T, typename Enable = void > struct Int24Check;
+
+		template< typename Int24Type, typename T >
+		struct Int24Check< Int24Type, T, typename std::enable_if< ( sizeof( T ) <= sizeof( Int24Type ) ) && std::is_signed< T >::value && std::is_integral< T >::value >::type >
+		{
+			static void Construction()
+			{
+				{
+					T value = std::numeric_limits< T >::max();
+					BOOST_CHECK_EQUAL( T( int64_t( Int24Type( value ) ) ), value );
+				}
+				{
+					T value = std::numeric_limits< T >::min();
+					BOOST_CHECK_EQUAL( T( int64_t( Int24Type( value ) ) ), value );
+				}
+				{
+					T value = std::numeric_limits< T >::lowest();
+					BOOST_CHECK_EQUAL( T( int64_t( Int24Type( value ) ) ), value );
+				}
+			}
+		};
+
+		template< typename Int24Type, typename T >
+		struct Int24Check< Int24Type, T, typename std::enable_if< ( sizeof( T ) <= sizeof( Int24Type ) ) && std::is_unsigned< T >::value >::type >
+		{
+			static void Construction()
+			{
+				{
+					T value = std::numeric_limits< T >::max();
+					BOOST_CHECK_EQUAL( T( uint64_t( Int24Type( value ) ) ), value );
+				}
+				{
+					T value = std::numeric_limits< T >::min();
+					BOOST_CHECK_EQUAL( T( uint64_t( Int24Type( value ) ) ), value );
+				}
+				{
+					T value = std::numeric_limits< T >::lowest();
+					BOOST_CHECK_EQUAL( T( uint64_t( Int24Type( value ) ) ), value );
+				}
+			}
+		};
+
+		template< typename T >
+		struct Int24Check< int24_t, T, typename std::enable_if< ( sizeof( T ) > sizeof( int24_t ) ) && std::is_signed< T >::value && std::is_integral< T >::value >::type >
+		{
+			static void Construction()
+			{
+				{
+					T value = std::numeric_limits< T >::max();
+					BOOST_CHECK_EQUAL( int32_t( int24_t( value ) ), int32_t( 0xFFFFFFFF | value ) );
+				}
+				{
+					T value = std::numeric_limits< T >::min();
+					BOOST_CHECK_EQUAL( int32_t( int24_t( value ) ), int32_t( 0x00FFFFFF & value ) );
+				}
+				{
+					T value = std::numeric_limits< T >::lowest();
+					BOOST_CHECK_EQUAL( int32_t( int24_t( value ) ), int32_t( 0x00FFFFFF & value ) );
+				}
+			}
+		};
+
+		template< typename T >
+		struct Int24Check< int24_t, T, typename std::enable_if< ( sizeof( T ) > sizeof( int24_t ) ) && std::is_unsigned< T >::value >::type >
+		{
+			static void Construction()
+			{
+				{
+					T value = std::numeric_limits< T >::max();
+					BOOST_CHECK_EQUAL( T( uint64_t( int24_t( value ) ) ), value );
+				}
+				{
+					T value = std::numeric_limits< T >::min();
+					BOOST_CHECK_EQUAL( T( uint64_t( int24_t( value ) ) ), value );
+				}
+				{
+					T value = std::numeric_limits< T >::lowest();
+					BOOST_CHECK_EQUAL( T( uint64_t( int24_t( value ) ) ), value );
+				}
+			}
+		};
+
+		template< typename T >
+		struct Int24Check< uint24_t, T, typename std::enable_if< ( sizeof( T ) > sizeof( uint24_t ) ) && std::is_integral< T >::value >::type >
+		{
+			static void Construction()
+			{
+				{
+					T value = std::numeric_limits< T >::max();
+					BOOST_CHECK_EQUAL( T( uint64_t( uint24_t( value ) ) ), int32_t( 0x00FFFFFF & value ) );
+				}
+				{
+					T value = std::numeric_limits< T >::min();
+					BOOST_CHECK_EQUAL( T( uint64_t( uint24_t( value ) ) ), int32_t( 0x00FFFFFF & value ) );
+				}
+				{
+					T value = std::numeric_limits< T >::lowest();
+					BOOST_CHECK_EQUAL( T( uint64_t( uint24_t( value ) ) ), int32_t( 0x00FFFFFF & value ) );
+				}
+			}
+		};
+
+		template< typename Int24Type, typename T >
+		struct Int24Check< Int24Type, T, typename std::enable_if< std::is_floating_point< T >::value >::type >
+		{
+			static void Construction()
+			{
+				{
+					T value = std::numeric_limits< T >::max();
+					BOOST_CHECK_EQUAL( int64_t( Int24Type( value ) ), int64_t( Int24Type( int64_t( value ) ) ) );
+				}
+				{
+					T value = std::numeric_limits< T >::min();
+					BOOST_CHECK_EQUAL( int64_t( Int24Type( value ) ), int64_t( value ) );
+				}
+				{
+					T value = std::numeric_limits< T >::lowest();
+					BOOST_CHECK_EQUAL( int64_t( Int24Type( value ) ), int64_t( Int24Type( int64_t( value ) ) ) );
+				}
+			}
+		};
 	}
 
 	CDatabaseInterfaceTest::CDatabaseInterfaceTest()
@@ -684,7 +806,102 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	{
 		CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseInt24 ****" );
 
-
+		CLogger::LogInfo( StringStream() << "  Construction" );
+		{
+			Int24Check< int24_t, int8_t >::Construction();
+			Int24Check< int24_t, uint8_t >::Construction();
+			Int24Check< int24_t, int16_t >::Construction();
+			Int24Check< int24_t, uint16_t >::Construction();
+			Int24Check< int24_t, int24_t >::Construction();
+			Int24Check< int24_t, uint24_t >::Construction();
+			Int24Check< int24_t, int32_t >::Construction();
+			Int24Check< int24_t, uint32_t >::Construction();
+			Int24Check< int24_t, int64_t >::Construction();
+			Int24Check< int24_t, uint64_t >::Construction();
+			Int24Check< int24_t, float >::Construction();
+			Int24Check< int24_t, double >::Construction();
+		}
+		CLogger::LogInfo( StringStream() << "  Addition" );
+		{
+			int32_t a, b;
+			CLogger::LogInfo( StringStream() << "    No overflow" );
+			a = 996;
+			b = 3;
+			BOOST_CHECK_EQUAL( int24_t( a + b ), int24_t( a ) + int24_t( b ) );
+			BOOST_CHECK_EQUAL( int24_t( a + b ), int24_t( 999 ) );
+			CLogger::LogInfo( StringStream() << "    Integer overflow" );
+			a = int32_t( std::numeric_limits< int24_t >::max() ) - 2;
+			BOOST_CHECK_EQUAL( int24_t( a + b ), int24_t( a ) + int24_t( b ) );
+			BOOST_CHECK_EQUAL( int24_t( a + b ), std::numeric_limits< int24_t >::lowest() );
+		}
+		CLogger::LogInfo( StringStream() << "  Subtraction" );
+		{
+			int32_t a, b;
+			CLogger::LogInfo( StringStream() << "    No underflow" );
+			a = 996;
+			b = 3;
+			BOOST_CHECK_EQUAL( int24_t( b - a ), int24_t( b ) - int24_t( a ) );
+			BOOST_CHECK_EQUAL( int24_t( b - a ), int24_t( -993 ) );
+			CLogger::LogInfo( StringStream() << "    Integer underflow" );
+			a = int32_t( std::numeric_limits< int24_t >::lowest() ) + 2;
+			BOOST_CHECK_EQUAL( int24_t( a - b ), int24_t( a ) - int24_t( b ) );
+			BOOST_CHECK_EQUAL( int24_t( a - b ), std::numeric_limits< int24_t >::max() );
+		}
+		CLogger::LogInfo( StringStream() << "  Multiplication" );
+		{
+			int32_t a, b;
+			CLogger::LogInfo( StringStream() << "    No overflow" );
+			a = 333;
+			b = 3;
+			BOOST_CHECK_EQUAL( int24_t( a * b ), int24_t( a ) * int24_t( b ) );
+			BOOST_CHECK_EQUAL( int24_t( a * b ), int24_t( 999 ) );
+			CLogger::LogInfo( StringStream() << "    Integer overflow" );
+			a = int32_t( std::numeric_limits< int24_t >::max() ) / 2;
+			BOOST_CHECK_EQUAL( int24_t( a * b ), int24_t( a ) * int24_t( b ) );
+			BOOST_CHECK_EQUAL( int24_t( a * b ), int24_t( int32_t( std::numeric_limits< int24_t >::lowest() ) / 2 - 3 ) );
+		}
+		CLogger::LogInfo( StringStream() << "  Division" );
+		{
+			int32_t a, b;
+			CLogger::LogInfo( StringStream() << "    No error" );
+			a = 333;
+			b = 3;
+			BOOST_CHECK_EQUAL( int24_t( a / b ), int24_t( a ) / int24_t( b ) );
+			BOOST_CHECK_EQUAL( int24_t( a / b ), int24_t( 111 ) );
+			CLogger::LogInfo( StringStream() << "    Division by zero" );
+			b = 0;
+			CDatabaseException::LinkSystemErrors();
+			BOOST_CHECK_THROW( int24_t( a ) / int24_t( b ), CDatabaseException );
+			CDatabaseException::UnlinkSystemErrors();
+		}
+		CLogger::LogInfo( StringStream() << "  Left shift" );
+		{
+			int32_t a;
+			int b;
+			CLogger::LogInfo( StringStream() << "    No overflow" );
+			a = 8;
+			b = 3;
+			BOOST_CHECK_EQUAL( int24_t( a << b ), int24_t( a ) << b );
+			BOOST_CHECK_EQUAL( int24_t( a ) << b, int24_t( 64 ) );
+			CLogger::LogInfo( StringStream() << "    Integer overflow" );
+			a = 0x007FFFFF >> 2;
+			BOOST_CHECK_EQUAL( int24_t( a << b ), int24_t( a ) << b );
+			BOOST_CHECK_EQUAL( int24_t( a ) << b, int24_t( -8 ) );
+		}
+		CLogger::LogInfo( StringStream() << "  Right shift" );
+		{
+			int32_t a;
+			int b;
+			CLogger::LogInfo( StringStream() << "    No underflow" );
+			a = 64;
+			b = 3;
+			BOOST_CHECK_EQUAL( int24_t( a >> b ), int24_t( a ) >> b );
+			BOOST_CHECK_EQUAL( int24_t( a ) >> b, int24_t( 8 ) );
+			CLogger::LogInfo( StringStream() << "    Underflow" );
+			a = 0x00000001 << 2;
+			BOOST_CHECK_EQUAL( int24_t( a >> b ), int24_t( a ) >> b );
+			BOOST_CHECK_EQUAL( int24_t( a ) >> b, int24_t( 0 ) );
+		}
 
 		CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseInt24 ****" );
 	}
@@ -693,7 +910,102 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	{
 		CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseUInt24 ****" );
 
-
+		CLogger::LogInfo( StringStream() << "  Construction" );
+		{
+			Int24Check< uint24_t, int8_t >::Construction();
+			Int24Check< uint24_t, uint8_t >::Construction();
+			Int24Check< uint24_t, int16_t >::Construction();
+			Int24Check< uint24_t, uint16_t >::Construction();
+			Int24Check< uint24_t, int24_t >::Construction();
+			Int24Check< uint24_t, uint24_t >::Construction();
+			Int24Check< uint24_t, int32_t >::Construction();
+			Int24Check< uint24_t, uint32_t >::Construction();
+			Int24Check< uint24_t, int64_t >::Construction();
+			Int24Check< uint24_t, uint64_t >::Construction();
+			Int24Check< uint24_t, float >::Construction();
+			Int24Check< uint24_t, double >::Construction();
+		}
+		CLogger::LogInfo( StringStream() << "  Addition" );
+		{
+			uint32_t a, b;
+			CLogger::LogInfo( StringStream() << "    No overflow" );
+			a = 996;
+			b = 3;
+			BOOST_CHECK_EQUAL( uint24_t( a + b ), uint24_t( a ) + uint24_t( b ) );
+			BOOST_CHECK_EQUAL( uint24_t( a + b ), uint24_t( 999 ) );
+			CLogger::LogInfo( StringStream() << "    Integer overflow" );
+			a = uint32_t( std::numeric_limits< uint24_t >::max() ) - 2;
+			BOOST_CHECK_EQUAL( uint24_t( a + b ), uint24_t( a ) + uint24_t( b ) );
+			BOOST_CHECK_EQUAL( uint24_t( a + b ), std::numeric_limits< uint24_t >::lowest() );
+		}
+		CLogger::LogInfo( StringStream() << "  Subtraction" );
+		{
+			uint32_t a, b;
+			CLogger::LogInfo( StringStream() << "    No underflow" );
+			a = 996;
+			b = 3;
+			BOOST_CHECK_EQUAL( uint24_t( b - a ), uint24_t( b ) - uint24_t( a ) );
+			BOOST_CHECK_EQUAL( uint24_t( b - a ), uint24_t( -993 ) );
+			CLogger::LogInfo( StringStream() << "    Integer underflow" );
+			a = uint32_t( std::numeric_limits< uint24_t >::lowest() ) + 2;
+			BOOST_CHECK_EQUAL( uint24_t( a - b ), uint24_t( a ) - uint24_t( b ) );
+			BOOST_CHECK_EQUAL( uint24_t( a - b ), std::numeric_limits< uint24_t >::max() );
+		}
+		CLogger::LogInfo( StringStream() << "  Multiplication" );
+		{
+			uint32_t a, b;
+			CLogger::LogInfo( StringStream() << "    No overflow" );
+			a = 333;
+			b = 3;
+			BOOST_CHECK_EQUAL( uint24_t( a * b ), uint24_t( a ) * uint24_t( b ) );
+			BOOST_CHECK_EQUAL( uint24_t( a * b ), uint24_t( 999 ) );
+			CLogger::LogInfo( StringStream() << "    Integer overflow" );
+			a = uint32_t( std::numeric_limits< uint24_t >::max() ) / 2;
+			BOOST_CHECK_EQUAL( uint24_t( a * b ), uint24_t( a ) * uint24_t( b ) );
+			BOOST_CHECK_EQUAL( uint24_t( a * b ), uint24_t( uint32_t( std::numeric_limits< uint24_t >::max() ) / 2 - 2 ) );
+		}
+		CLogger::LogInfo( StringStream() << "  Division" );
+		{
+			uint32_t a, b;
+			CLogger::LogInfo( StringStream() << "    No error" );
+			a = 333;
+			b = 3;
+			BOOST_CHECK_EQUAL( uint24_t( a / b ), uint24_t( a ) / uint24_t( b ) );
+			BOOST_CHECK_EQUAL( uint24_t( a / b ), uint24_t( 111 ) );
+			CLogger::LogInfo( StringStream() << "    Division by zero" );
+			b = 0;
+			CDatabaseException::LinkSystemErrors();
+			BOOST_CHECK_THROW( uint24_t( a ) / uint24_t( b ), CDatabaseException );
+			CDatabaseException::UnlinkSystemErrors();
+		}
+		CLogger::LogInfo( StringStream() << "  Left shift" );
+		{
+			uint32_t a;
+			int b;
+			CLogger::LogInfo( StringStream() << "    No overflow" );
+			a = 8;
+			b = 3;
+			BOOST_CHECK_EQUAL( uint24_t( a << b ), uint24_t( a ) << b );
+			BOOST_CHECK_EQUAL( uint24_t( a ) << b, uint24_t( 64 ) );
+			CLogger::LogInfo( StringStream() << "    Integer overflow" );
+			a = 0x007FFFFF >> 2;
+			BOOST_CHECK_EQUAL( uint24_t( a << b ), uint24_t( a ) << b );
+			BOOST_CHECK_EQUAL( uint24_t( a ) << b, uint24_t( -8 ) );
+		}
+		CLogger::LogInfo( StringStream() << "  Right shift" );
+		{
+			uint32_t a;
+			int b;
+			CLogger::LogInfo( StringStream() << "    No underflow" );
+			a = 64;
+			b = 3;
+			BOOST_CHECK_EQUAL( uint24_t( a >> b ), uint24_t( a ) >> b );
+			BOOST_CHECK_EQUAL( uint24_t( a ) >> b, uint24_t( 8 ) );
+			CLogger::LogInfo( StringStream() << "    underflow" );
+			a = 0x00000001 << 2;
+			BOOST_CHECK_EQUAL( uint24_t( a >> b ), uint24_t( a ) >> b );
+			BOOST_CHECK_EQUAL( uint24_t( a ) >> b, uint24_t( 0 ) );
+		}
 
 		CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseUInt24 ****" );
 	}

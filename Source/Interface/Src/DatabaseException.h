@@ -37,6 +37,7 @@ BEGIN_NAMESPACE_DATABASE
 		EDatabaseExceptionCodes_ItemNotFound,
 		EDatabaseExceptionCodes_InternalError,
 		EDatabaseExceptionCodes_ArithmeticError,
+		EDatabaseExceptionCodes_SystemError,
 
 		EDatabaseExceptionCodes_LastCode //!< Represent the maximum number of exception code. Must be always the last.
 	};
@@ -139,6 +140,14 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Override std::exception::what */
 		DatabaseExport const char * what() const throw();
+
+		/** Makes system errors to be translated in CDatabaseExceptions
+		*/
+		DatabaseExport static void LinkSystemErrors();
+
+		/** Resets the system errors as before the previous call to LinkSystemErrors
+		*/
+		DatabaseExport static void UnlinkSystemErrors();
 
 	private:
 		//! The exception number
