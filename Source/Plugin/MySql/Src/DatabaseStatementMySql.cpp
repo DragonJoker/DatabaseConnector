@@ -247,7 +247,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		return eReturn;
 	}
 
-	bool CDatabaseStatementMySql::DoExecuteUpdate( EErrorType * result )
+	bool CDatabaseStatementMySql::DoExecuteUpdate()
 	{
 		DatabaseConnectionMySqlSPtr connection = DoGetMySqlConnection();
 
@@ -256,22 +256,18 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_MYSQL_LOST_CONNECTION );
 		}
 
-		DoPreExecute( result );
+		DoPreExecute();
+		bool bReturn = connection->ExecuteUpdate( _statement );
 
-		bool bReturn;
-		EErrorType eResult = EErrorType_NONE;
-		bReturn = connection->ExecuteUpdate( _statement );
-		DoPostExecute( result );
-
-		if ( result )
+		if ( bReturn )
 		{
-			*result = eResult;
+			DoPostExecute();
 		}
 
 		return bReturn;
 	}
 
-	DatabaseResultSPtr CDatabaseStatementMySql::DoExecuteSelect( EErrorType * result )
+	DatabaseResultSPtr CDatabaseStatementMySql::DoExecuteSelect()
 	{
 		DatabaseConnectionMySqlSPtr connection = DoGetMySqlConnection();
 
@@ -280,14 +276,12 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_MYSQL_LOST_CONNECTION );
 		}
 
-		DoPreExecute( result );
-		EErrorType eResult = EErrorType_NONE;
+		DoPreExecute();
 		DatabaseResultSPtr pReturn = connection->ExecuteSelect( _statement );
-		DoPostExecute( result );
 
-		if ( result )
+		if ( pReturn )
 		{
-			*result = eResult;
+			DoPostExecute();
 		}
 
 		return pReturn;
@@ -309,7 +303,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		_stmtOutParams.reset();
 	}
 
-	void CDatabaseStatementMySql::DoPreExecute( EErrorType * result )
+	void CDatabaseStatementMySql::DoPreExecute()
 	{
 		for ( auto && it : _inOutInitializers )
 		{
@@ -324,16 +318,16 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				it.first->SetParameterValue( 0, *parameter );
 			}
 
-			it.first->ExecuteUpdate( result );
+			it.first->ExecuteUpdate();
 		}
 
 		for ( auto && it : _outInitializers )
 		{
-			it->ExecuteUpdate( result );
+			it->ExecuteUpdate();
 		}
 	}
 
-	void CDatabaseStatementMySql::DoPostExecute( EErrorType * result )
+	void CDatabaseStatementMySql::DoPostExecute()
 	{
 		if ( !_arrayOutParams.empty() )
 		{

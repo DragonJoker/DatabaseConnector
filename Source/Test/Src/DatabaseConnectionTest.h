@@ -1,48 +1,59 @@
 /************************************************************************//**
-* @file DatabaseConnectionOdbcMySql.h
+* @file DatabaseConnectionTest.h
 * @author Sylvain Doremus
 * @version 1.0
 * @date 3/14/2014 5:03:05 PM
 *
 *
-* @brief CDatabaseConnectionOdbcMySql class declaration.
+* @brief CDatabaseConnectionTest class declaration.
 *
-* @details Describes a connection to a database via an ODBC driver.
+* @details Describes a connection used to run the tests.
 *
 ***************************************************************************/
 
-#ifndef ___DATABASE_CONNECTION_ODBC_MYSQL_H___
-#define ___DATABASE_CONNECTION_ODBC_MYSQL_H___
+#ifndef ___DATABASE_CONNECTION_TEST_H___
+#define ___DATABASE_CONNECTION_TEST_H___
 
-#include "DatabaseOdbcMySqlPrerequisites.h"
+#include "DatabaseTestPrerequisites.h"
 
-#include <DatabaseConnectionOdbc.h>
+#include <DatabaseConnection.h>
 
-BEGIN_NAMESPACE_DATABASE_ODBC_MYSQL
+BEGIN_NAMESPACE_DATABASE_TEST
 {
-	/** Describes a connection to a database via an ODBC driver.
+	static const String TEST_SQL_NULL = STR( "NULL" );
+
+	static const String TEST_FORMAT_DATE = STR( "CAST('%Y-%m-%d' AS DATE)" );
+	static const String TEST_FORMAT_TIME = STR( "CAST('%H:%M:%S' AS TIME)" );
+	static const String TEST_FORMAT_DATETIME = STR( "CAST('%Y-%m-%d %H:%M:%S' AS DATETIME)" );
+	static const String TEST_FORMAT_DATETIME_DATE = STR( "CAST('%Y-%m-%d 00:00:00' AS DATETIME)" );
+	static const String TEST_FORMAT_DATETIME_TIME = STR( "CAST('0000-00-00 %H:%M:%S' AS DATETIME)" );
+	static const String TEST_FORMAT_STMT_DATE = STR( "{-d %Y-%m-%d}" );
+	static const String TEST_FORMAT_STMT_TIME = STR( "{-t %H:%M:%S}" );
+	static const String TEST_FORMAT_STMT_DATETIME = STR( "{-ts %Y-%m-%d %H:%M:%S}" );
+
+	/** Describes a connection to a database via an MYSQL driver.
 	*/
-	class CDatabaseConnectionOdbcMySql
-		: public CDatabaseConnectionOdbc
+	class CDatabaseConnectionTest
+		: public CDatabaseConnection
 	{
 	public:
 		/** Constructor.
-		@param[in] sqlEnvironmentHandle
-			The handle to the SQL environment.
 		@param[in] server
 			Address or name of the server.
+		@param[in] database
+			Database name or DSN.
 		@param[in] userName
 			User name.
 		@param[in] password
 			User password.
 		@param[out] connectionString
 			Created connection string.
-			*/
-		CDatabaseConnectionOdbcMySql( SQLHENV sqlEnvironmentHandle, const String & server, const String & userName, const String & password, String & connectionString );
+		*/
+		CDatabaseConnectionTest( const String & server, const String & userName, const String & password, String & connectionString );
 
 		/** Destructor.
-			*/
-		virtual ~CDatabaseConnectionOdbcMySql();
+		*/
+		virtual ~CDatabaseConnectionTest();
 
 		/** Retrieves the precision for given field type.
 		@return
@@ -69,6 +80,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MYSQL
 		virtual unsigned long GetStmtTimeSize()const;
 
 	protected:
+
 		/** Creates a database.
 		@param[in] database
 			Database identifier (name or DSN (ODBC)).
@@ -103,14 +115,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MYSQL
 		*/
 		virtual std::wstring DoWriteNText( const std::wstring & text ) const;
 
-		/** Format a string to be supported by the DBMS.
-		@param[in] text
-			Text to format.
-		@return
-			The formatted text.
-		*/
-		virtual String DoWriteName( const String & text ) const;
-
 		/** Format a byte array to insert into a request.
 		@param[in] array
 			Value to format.
@@ -118,6 +122,14 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MYSQL
 			Formatted value.
 		*/
 		virtual String DoWriteBinary( const ByteArray & array ) const;
+
+		/** Format a string to be supported by the DBMS.
+		@param[in] text
+			Text to format.
+		@return
+			The formatted text.
+		*/
+		virtual String DoWriteName( const String & text ) const;
 
 		/** Format a date into a string to be supported by the DBMS.
 		@param[in] date
@@ -223,6 +235,54 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MYSQL
 		*/
 		virtual EErrorType DoConnect( String & connectionString );
 
+		/** Disconnect from the database.
+		*/
+		virtual void DoDisconnect();
+
+		/** Initialize a named transaction.
+		@param[in] name
+			Transaction name.
+		@return
+			true if no problem
+		*/
+		virtual bool DoBeginTransaction( const String & name );
+
+		/** Validate a named transaction.
+		@param[in] name
+			Transaction name.
+		@return
+			true if no problem
+		*/
+		virtual bool DoCommit( const String & name );
+
+		/** Invalidate a named transaction.
+		@param[in] name
+			Transaction name.
+		@return
+			true if no problem
+		*/
+		virtual bool DoRollBack( const String & name );
+
+		/** Execute directly a request.
+		@param[in]  query
+			Request text.
+		@param[out] result
+			Error code if the returned value is NULL.
+		@return
+			The result.
+		*/
+		virtual bool DoExecuteUpdate( const String & query );
+
+		/** Execute directly a request.
+		@param[in]  query
+			Request text.
+		@param[out] result
+			Error code if the returned value is NULL.
+		@return
+			The result.
+		*/
+		virtual DatabaseResultSPtr DoExecuteSelect( const String & query );
+
 		/** Create a statement from a request.
 		@param[in]  query
 			Request text.
@@ -231,9 +291,9 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MYSQL
 		@return
 			The created statement.
 		*/
-		virtual DatabaseStatementSPtr DoCreateStatement( const String & query);
+		virtual DatabaseStatementSPtr DoCreateStatement( const String & query );
 	};
 }
-END_NAMESPACE_DATABASE_ODBC_MYSQL
+END_NAMESPACE_DATABASE_TEST
 
-#endif // ___DATABASE_CONNECTION_ODBC_MYSQL_H___
+#endif // ___DATABASE_CONNECTION_TEST_H___

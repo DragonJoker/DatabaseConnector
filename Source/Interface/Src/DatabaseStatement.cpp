@@ -24,6 +24,7 @@
 
 BEGIN_NAMESPACE_DATABASE
 {
+	static const String ERROR_DB_STATEMENT_NOT_INITIALISED = STR( "Statement is not initialised" );
 	static const String ERROR_DB_STATEMENT_INDEX = STR( "No statement parameter at index: " );
 	static const String ERROR_DB_STATEMENT_NAME = STR( "No statement parameter named: " );
 	static const String ERROR_DB_STATEMENT_ALREADY_ADDED_PARAMETER = STR( "Parameter with name [%1%] already exists." );
@@ -64,6 +65,7 @@ BEGIN_NAMESPACE_DATABASE
 		try
 		{
 			ret = DoInitialize();
+			_initialised = true;
 		}
 		catch( CDatabaseException & exc )
 		{
@@ -81,13 +83,18 @@ BEGIN_NAMESPACE_DATABASE
 		return ret;
 	}
 
-	bool CDatabaseStatement::ExecuteUpdate( EErrorType * result )
+	bool CDatabaseStatement::ExecuteUpdate()
 	{
+		if ( !_initialised )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_DB_STATEMENT_NOT_INITIALISED );
+		}
+
 		bool ret = false;
 
 		try
 		{
-			ret = DoExecuteUpdate( result );
+			ret = DoExecuteUpdate();
 		}
 		catch( CDatabaseException & exc )
 		{
@@ -105,13 +112,18 @@ BEGIN_NAMESPACE_DATABASE
 		return ret;
 	}
 
-	DatabaseResultSPtr CDatabaseStatement::ExecuteSelect( EErrorType * result )
+	DatabaseResultSPtr CDatabaseStatement::ExecuteSelect()
 	{
+		if ( !_initialised )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_DB_STATEMENT_NOT_INITIALISED );
+		}
+
 		DatabaseResultSPtr ret;
 
 		try
 		{
-			ret = DoExecuteSelect( result );
+			ret = DoExecuteSelect();
 		}
 		catch( CDatabaseException & exc )
 		{

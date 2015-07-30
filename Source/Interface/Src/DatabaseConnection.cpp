@@ -37,7 +37,6 @@ BEGIN_NAMESPACE_DATABASE
 
 	CDatabaseConnection::CDatabaseConnection( const String & server, const String & userName, const String & password )
 		: _connected( false )
-		, _inTransaction( false )
 		, _server( server )
 		, _userName( userName )
 		, _password( password )
@@ -56,14 +55,16 @@ BEGIN_NAMESPACE_DATABASE
 		return DoConnect( connectionString );
 	}
 
+	bool CDatabaseConnection::IsConnected() const
+	{
+		return _connected;
+	}
+
 	void CDatabaseConnection::BeginTransaction( const String & name )
 	{
-		if ( !IsConnected() )
-		{
-			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_DB_NOT_CONNECTED );
-		}
+		DoCheckConnected();
 
-		if ( IsInTransaction() )
+		if ( IsInTransaction( name ) )
 		{
 			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_DB_ALREADY_IN_TRANSACTION );
 		}
@@ -73,17 +74,14 @@ BEGIN_NAMESPACE_DATABASE
 			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_DB_CANT_BEGIN_TRANSACTION );
 		}
 
-		DoSetInTransaction( true );
+		DoStartTransaction( name );
 	}
 
 	void CDatabaseConnection::Commit( const String & name )
 	{
-		if ( !IsConnected() )
-		{
-			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_DB_NOT_CONNECTED );
-		}
+		DoCheckConnected();
 
-		if ( !IsInTransaction() )
+		if ( !IsInTransaction( name ) )
 		{
 			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_DB_NOT_IN_TRANSACTION );
 		}
@@ -93,17 +91,14 @@ BEGIN_NAMESPACE_DATABASE
 			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_DB_CANT_COMMIT_TRANSACTION );
 		}
 
-		DoSetInTransaction( false );
+		DoFinishTransaction( name );
 	}
 
 	void CDatabaseConnection::RollBack( const String & name )
 	{
-		if ( !IsConnected() )
-		{
-			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_DB_NOT_CONNECTED );
-		}
+		DoCheckConnected();
 
-		if ( !IsInTransaction() )
+		if ( !IsInTransaction( name ) )
 		{
 			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_DB_NOT_IN_TRANSACTION );
 		}
@@ -113,31 +108,34 @@ BEGIN_NAMESPACE_DATABASE
 			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_DB_CANT_ROLLBACK_TRANSACTION );
 		}
 
-		DoSetInTransaction( false );
+		DoFinishTransaction( name );
+	}
+
+	bool CDatabaseConnection::IsInTransaction() const
+	{
+		return !_startedTransactions.empty();
+	}
+
+	bool CDatabaseConnection::IsInTransaction( const String & name ) const
+	{
+		return _startedTransactions.find( name ) != _startedTransactions.end();
 	}
 
 	DatabaseStatementSPtr CDatabaseConnection::CreateStatement( const String & query )
 	{
-		if ( !IsConnected() )
-		{
-			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_DB_NOT_CONNECTED );
-		}
-
+		DoCheckConnected();
 		return DoCreateStatement( query );
 	}
 
 	DatabaseQuerySPtr CDatabaseConnection::CreateQuery( const String & query )
 	{
+		DoCheckConnected();
 		return std::make_shared< CDatabaseQuery >( shared_from_this(), query );
 	}
 
 	bool CDatabaseConnection::ExecuteUpdate( const String & query )
 	{
-		if ( !IsConnected() )
-		{
-			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_DB_NOT_CONNECTED );
-		}
-
+		DoCheckConnected();
 		CLogger::LogInfo( INFO_DB_EXECUTING_SELECT + query );
 		bool ret = false;
 
@@ -169,11 +167,7 @@ BEGIN_NAMESPACE_DATABASE
 
 	DatabaseResultSPtr CDatabaseConnection::ExecuteSelect( const String & query )
 	{
-		if ( !IsConnected() )
-		{
-			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_DB_NOT_CONNECTED );
-		}
-		
+		DoCheckConnected();
 		CLogger::LogInfo( INFO_DB_EXECUTING_SELECT + query );
 		DatabaseResultSPtr ret;
 
@@ -203,258 +197,192 @@ BEGIN_NAMESPACE_DATABASE
 		return ret;
 	}
 
-	bool CDatabaseConnection::IsConnected() const
+	void CDatabaseConnection::CreateDatabase( const String & database )
 	{
-		return _connected;
+		DoCheckConnected();
+
+		try
+		{
+			DoCreateDatabase( database );
+		}
+		catch ( CDatabaseException & exc )
+		{
+			StringStream stream;
+			stream << ERROR_DB_EXECUTION_ERROR << exc.GetFullDescription();
+			CLogger::LogError( stream );
+		}
+		catch ( std::exception & exc )
+		{
+			StringStream stream;
+			stream << ERROR_DB_EXECUTION_ERROR << exc.what();
+			CLogger::LogError( stream );
+		}
+		catch ( ... )
+		{
+			StringStream stream;
+			stream << ERROR_DB_EXECUTION_ERROR << STR( "UNKNOWN" );
+			CLogger::LogError( stream );
+		}
 	}
 
-	bool CDatabaseConnection::IsInTransaction() const
+	void CDatabaseConnection::SelectDatabase( const String & database )
 	{
-		return _inTransaction;
+		DoCheckConnected();
+
+		try
+		{
+			DoSelectDatabase( database );
+		}
+		catch ( CDatabaseException & exc )
+		{
+			StringStream stream;
+			stream << ERROR_DB_EXECUTION_ERROR << exc.GetFullDescription();
+			CLogger::LogError( stream );
+		}
+		catch ( std::exception & exc )
+		{
+			StringStream stream;
+			stream << ERROR_DB_EXECUTION_ERROR << exc.what();
+			CLogger::LogError( stream );
+		}
+		catch ( ... )
+		{
+			StringStream stream;
+			stream << ERROR_DB_EXECUTION_ERROR << STR( "UNKNOWN" );
+			CLogger::LogError( stream );
+		}
 	}
 
-	std::string CDatabaseConnection::WriteDate( const std::string & date, const std::string & format ) const
+	void CDatabaseConnection::DestroyDatabase( const String & database )
 	{
-		std::string strReturn;
-		DateType dateObj;
+		DoCheckConnected();
 
-		if ( Date::IsDate( date, format, dateObj ) )
+		try
 		{
-			strReturn = WriteDateS( dateObj );
+			DoDestroyDatabase( database );
 		}
-		else
+		catch ( CDatabaseException & exc )
 		{
-			strReturn += DB_SQL_SNULL;
+			StringStream stream;
+			stream << ERROR_DB_EXECUTION_ERROR << exc.GetFullDescription();
+			CLogger::LogError( stream );
 		}
-
-		return strReturn;
-	}
-
-	std::string CDatabaseConnection::WriteTime( const std::string & time, const std::string & format ) const
-	{
-		std::string strReturn;
-		TimeType timeObj;
-
-		if ( Time::IsTime( time, format, timeObj ) )
+		catch ( std::exception & exc )
 		{
-			strReturn = WriteTimeS( timeObj );
+			StringStream stream;
+			stream << ERROR_DB_EXECUTION_ERROR << exc.what();
+			CLogger::LogError( stream );
 		}
-		else
+		catch ( ... )
 		{
-			strReturn += DB_SQL_SNULL;
+			StringStream stream;
+			stream << ERROR_DB_EXECUTION_ERROR << STR( "UNKNOWN" );
+			CLogger::LogError( stream );
 		}
-
-		return strReturn;
-	}
-
-	std::string CDatabaseConnection::WriteDateTime( const std::string & dateTime, const std::string & format ) const
-	{
-		std::string strReturn;
-		DateTimeType dateTimeObj;
-
-		if ( DateTime::IsDateTime( dateTime, format, dateTimeObj ) )
-		{
-			strReturn = WriteDateTimeS( dateTimeObj );
-		}
-		else
-		{
-			strReturn += DB_SQL_SNULL;
-		}
-
-		return strReturn;
-	}
-
-	std::string CDatabaseConnection::WriteStmtDate( const std::string & date, const std::string & format ) const
-	{
-		std::string strReturn;
-		DateType dateObj;
-
-		if ( Date::IsDate( date, format, dateObj ) )
-		{
-			strReturn = WriteStmtDateS( dateObj );
-		}
-		else
-		{
-			strReturn += DB_SQL_SNULL;
-		}
-
-		return strReturn;
-	}
-
-	std::string CDatabaseConnection::WriteStmtTime( const std::string & time, const std::string & format ) const
-	{
-		std::string strReturn;
-		TimeType timeObj;
-
-		if ( Time::IsTime( time, format, timeObj ) )
-		{
-			strReturn = WriteStmtTimeS( timeObj );
-		}
-		else
-		{
-			strReturn += DB_SQL_SNULL;
-		}
-
-		return strReturn;
-	}
-
-	std::string CDatabaseConnection::WriteStmtDateTime( const std::string & dateTime, const std::string & format ) const
-	{
-		std::string strReturn;
-		DateTimeType dateTimeObj;
-
-		if ( DateTime::IsDateTime( dateTime, format, dateTimeObj ) )
-		{
-			strReturn = WriteStmtDateTimeS( dateTimeObj );
-		}
-		else
-		{
-			strReturn += DB_SQL_SNULL;
-		}
-
-		return strReturn;
-	}
-
-	std::wstring CDatabaseConnection::WriteDate( const std::wstring & date, const std::wstring & format ) const
-	{
-		std::wstring strReturn;
-		DateType dateObj;
-
-		if ( Date::IsDate( date, format, dateObj ) )
-		{
-			strReturn = WriteDateW( dateObj );
-		}
-		else
-		{
-			strReturn = DB_SQL_WNULL;
-		}
-
-		return strReturn;
-	}
-
-	std::wstring CDatabaseConnection::WriteTime( const std::wstring & time, const std::wstring & format ) const
-	{
-		std::wstring strReturn;
-		TimeType timeObj;
-
-		if ( Time::IsTime( time, format, timeObj ) )
-		{
-			strReturn = WriteTimeW( timeObj );
-		}
-		else
-		{
-			strReturn = DB_SQL_WNULL;
-		}
-
-		return strReturn;
-	}
-
-	std::wstring CDatabaseConnection::WriteDateTime( const std::wstring & dateTime, const std::wstring & format ) const
-	{
-		std::wstring strReturn;
-		DateTimeType dateTimeObj;
-
-		if ( DateTime::IsDateTime( dateTime, format, dateTimeObj ) )
-		{
-			strReturn = WriteDateTimeW( dateTimeObj );
-		}
-		else
-		{
-			strReturn = DB_SQL_WNULL;
-		}
-
-		return strReturn;
-	}
-
-	std::wstring CDatabaseConnection::WriteStmtDate( const std::wstring & date, const std::wstring & format ) const
-	{
-		std::wstring strReturn;
-		DateType dateObj;
-
-		if ( Date::IsDate( date, format, dateObj ) )
-		{
-			strReturn = WriteStmtDateW( dateObj );
-		}
-		else
-		{
-			strReturn = DB_SQL_WNULL;
-		}
-
-		return strReturn;
-	}
-
-	std::wstring CDatabaseConnection::WriteStmtTime( const std::wstring & time, const std::wstring & format ) const
-	{
-		std::wstring strReturn;
-		TimeType timeObj;
-
-		if ( Time::IsTime( time, format, timeObj ) )
-		{
-			strReturn = WriteStmtTimeW( timeObj );
-		}
-		else
-		{
-			strReturn = DB_SQL_WNULL;
-		}
-
-		return strReturn;
-	}
-
-	std::wstring CDatabaseConnection::WriteStmtDateTime( const std::wstring & dateTime, const std::wstring & format ) const
-	{
-		std::wstring strReturn;
-		DateTimeType dateTimeObj;
-
-		if ( DateTime::IsDateTime( dateTime, format, dateTimeObj ) )
-		{
-			strReturn = WriteStmtDateTimeW( dateTimeObj );
-		}
-		else
-		{
-			strReturn = DB_SQL_WNULL;
-		}
-
-		return strReturn;
 	}
 
 	String CDatabaseConnection::WriteDate( const DateType & date ) const
 	{
-		return WriteDateS( date );
+		DoCheckConnected();
+		return DoWriteDate( date );
 	}
 
 	String CDatabaseConnection::WriteStmtDate( const DateType & date ) const
 	{
-		return WriteStmtDateS( date );
+		DoCheckConnected();
+		return DoWriteStmtDate( date );
 	}
 
 	String CDatabaseConnection::WriteTime( const TimeType & time ) const
 	{
-		return WriteTimeS( time );
+		DoCheckConnected();
+		return DoWriteTime( time );
 	}
 
 	String CDatabaseConnection::WriteStmtTime( const TimeType & time ) const
 	{
-		return WriteStmtTimeS( time );
+		DoCheckConnected();
+		return DoWriteStmtTime( time );
 	}
 
 	String CDatabaseConnection::WriteDateTime( const DateTimeType & dateTime ) const
 	{
-		return WriteDateTimeS( dateTime );
+		DoCheckConnected();
+		return DoWriteDateTime( dateTime );
 	}
 
 	String CDatabaseConnection::WriteDateTime( const DateType & date ) const
 	{
-		return WriteDateTimeS( date );
+		DoCheckConnected();
+		return DoWriteDateTime( date );
 	}
 
 	String CDatabaseConnection::WriteDateTime( const TimeType & time ) const
 	{
-		return WriteDateTimeS( time );
+		DoCheckConnected();
+		return DoWriteDateTime( time );
 	}
 
 	String CDatabaseConnection::WriteStmtDateTime( const DateTimeType & dateTime ) const
 	{
-		return WriteStmtDateTimeS( dateTime );
+		DoCheckConnected();
+		return DoWriteStmtDateTime( dateTime );
+	}
+
+	std::string CDatabaseConnection::WriteText( const std::string & text ) const
+	{
+		DoCheckConnected();
+		return DoWriteText( text );
+	}
+
+	std::wstring CDatabaseConnection::WriteNText( const std::wstring & text ) const
+	{
+		DoCheckConnected();
+		return DoWriteNText( text );
+	}
+
+	String CDatabaseConnection::WriteBinary( const ByteArray & array ) const
+	{
+		DoCheckConnected();
+		return DoWriteBinary( array );
+	}
+
+	String CDatabaseConnection::WriteName( const String & name ) const
+	{
+		DoCheckConnected();
+		return DoWriteName( name );
+	}
+
+	String CDatabaseConnection::WriteBool( bool value ) const
+	{
+		DoCheckConnected();
+		return DoWriteBool( value );
+	}
+
+	DateType CDatabaseConnection::ParseDate( const String & date ) const
+	{
+		DoCheckConnected();
+		return DoParseDate( date );
+	}
+
+	TimeType CDatabaseConnection::ParseTime( const String & time ) const
+	{
+		DoCheckConnected();
+		return DoParseTime( time );
+	}
+
+	DateTimeType CDatabaseConnection::ParseDateTime( const String & dateTime ) const
+	{
+		DoCheckConnected();
+		return DoParseDateTime( dateTime );
+	}
+	
+	void CDatabaseConnection::DoCheckConnected() const
+	{
+		if ( !IsConnected() )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_DB_NOT_CONNECTED );
+		}
 	}
 
 	void CDatabaseConnection::DoSetConnected( bool value )
@@ -462,9 +390,14 @@ BEGIN_NAMESPACE_DATABASE
 		_connected = value;
 	}
 
-	void CDatabaseConnection::DoSetInTransaction( bool value )
+	void CDatabaseConnection::DoStartTransaction( const String & name )
 	{
-		_inTransaction = value;
+		_startedTransactions.insert( name );
+	}
+
+	void CDatabaseConnection::DoFinishTransaction( const String & name )
+	{
+		_startedTransactions.erase( name );
 	}
 }
 END_NAMESPACE_DATABASE

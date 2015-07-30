@@ -18,6 +18,8 @@
 
 #include "EErrorType.h"
 
+#include <unordered_set>
+
 BEGIN_NAMESPACE_DATABASE
 {
 	/** Describes a database connection.
@@ -26,6 +28,9 @@ BEGIN_NAMESPACE_DATABASE
 		: public std::enable_shared_from_this< CDatabaseConnection >
 	{
 	public:
+		/**@name Construction */
+		//@{
+
 		/** Constructor.
 		@param[in] server
 			Server identifier (name or address).
@@ -40,6 +45,10 @@ BEGIN_NAMESPACE_DATABASE
 			*/
 		DatabaseExport virtual ~CDatabaseConnection();
 
+		//@}
+		/**@name Connection */
+		//@{
+
 		/** Initialize the connection to the database.
 		@param[out] connectionString
 			Connection string in case of error.
@@ -47,6 +56,16 @@ BEGIN_NAMESPACE_DATABASE
 			Error code.
 		*/
 		DatabaseExport EErrorType Reconnect( String & connectionString );
+
+		/** Get the connection status.
+		@return
+			true if connected, false otherwise.
+		*/
+		DatabaseExport virtual bool IsConnected() const;
+
+		//@}
+		/**@name Transactions */
+		//@{
 
 		/** Initialize a named transaction.
 		@param[in] name
@@ -65,6 +84,24 @@ BEGIN_NAMESPACE_DATABASE
 			Transaction name.
 		*/
 		DatabaseExport void RollBack( const String & name );
+
+		/** Get the transaction status.
+		@return
+			true if any transaction is started, false otherwise.
+		*/
+		DatabaseExport bool IsInTransaction() const;
+
+		/** Get a given transaction status.
+		@param[in] name
+			The transaction name
+		@return
+			true if the given transaction is started, false otherwise.
+		*/
+		DatabaseExport bool IsInTransaction( const String & name ) const;
+
+		//@}
+		/**@name Query/Statement */
+		//@{
 
 		/** Create a statement based on a request.
 		@param[in] query
@@ -106,137 +143,27 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport DatabaseResultSPtr ExecuteSelect( const String & query );
 
-		/** Get the connection status.
-		@return
-			true if connected, false otherwise.
+		/** Creates a database.
+		@param[in] database
+			Database identifier (name or DSN (ODBC)).
 		*/
-		DatabaseExport virtual bool IsConnected() const;
+		DatabaseExport void CreateDatabase( const String & database );
 
-		/** Get the transaction status.
-		@return
-			true if a transaction is started, false otherwise.
+		/** Selects a database.
+		@param[in] database
+			Database identifier (name or DSN (ODBC)).
 		*/
-		DatabaseExport virtual bool IsInTransaction() const;
+		DatabaseExport void SelectDatabase( const String & database );
 
-		/** Format a date to insert into a request.
-		@param[in] date
-			Value to format.
-		@param[in] format
-			String describing the format.
-		@return
-			Formatted value.
+		/** Destroys a database.
+		@param[in] database
+			Database identifier (name or DSN (ODBC)).
 		*/
-		DatabaseExport std::string WriteDate( const std::string & date, const std::string & format ) const;
+		DatabaseExport void DestroyDatabase( const String & database );
 
-		/** Format a time to insert into a request.
-		@param[in] time
-			Value to format.
-		@param[in] format
-			String describing the format.
-		@return
-			Formatted value.
-		*/
-		DatabaseExport std::string WriteTime( const std::string & time, const std::string & format ) const;
-
-		/** Format a date/time to insert into a request.
-		@param[in] dateTime
-			Value to format.
-		@param[in] format
-			String describing the format.
-		@return
-			Formatted value.
-		*/
-		DatabaseExport std::string WriteDateTime( const std::string & dateTime, const std::string & format ) const;
-
-		/** Format a date to insert into a statement.
-		@param[in] date
-			Value to format.
-		@param[in] format
-			String describing the format.
-		@return
-			Formatted value.
-		*/
-		DatabaseExport std::string WriteStmtDate( const std::string & date, const std::string & format ) const;
-
-		/** Format a time to insert into a statement.
-		@param[in] time
-			Value to format.
-		@param[in] format
-			String describing the format.
-		@return
-			Formatted value.
-		*/
-		DatabaseExport std::string WriteStmtTime( const std::string & time, const std::string & format ) const;
-
-		/** Format a date/time to insert into a statement.
-		@param[in] dateTime
-			Value to format.
-		@param[in] format
-			String describing the format.
-		@return
-			Formatted value.
-		*/
-		DatabaseExport std::string WriteStmtDateTime( const std::string & dateTime, const std::string & format ) const;
-
-		/** Format a date to insert into a request.
-		@param[in] date
-			Value to format.
-		@param[in] format
-			String describing the format.
-		@return
-			Formatted value.
-		*/
-		DatabaseExport std::wstring WriteDate( const std::wstring & date, const std::wstring & format ) const;
-
-		/** Format a time to insert into a request.
-		@param[in] time
-			Value to format.
-		@param[in] format
-			String describing the format.
-		@return
-			Formatted value.
-		*/
-		DatabaseExport std::wstring WriteTime( const std::wstring & time, const std::wstring & format ) const;
-
-		/** Format a date/time to insert into a request.
-		@param[in] dateTime
-			Value to format.
-		@param[in] format
-			String describing the format.
-		@return
-			Formatted value.
-		*/
-		DatabaseExport std::wstring WriteDateTime( const std::wstring & dateTime, const std::wstring & format ) const;
-
-		/** Format a date to insert into a statement.
-		@param[in] date
-			Value to format.
-		@param[in] format
-			String describing the format.
-		@return
-			Formatted value.
-		*/
-		DatabaseExport std::wstring WriteStmtDate( const std::wstring & date, const std::wstring & format ) const;
-
-		/** Format a time to insert into a statement.
-		@param[in] time
-			Value to format.
-		@param[in] format
-			String describing the format.
-		@return
-			Formatted value.
-		*/
-		DatabaseExport std::wstring WriteStmtTime( const std::wstring & time, const std::wstring & format ) const;
-
-		/** Format a date/time to insert into a statement.
-		@param[in] dateTime
-			Value to format.
-		@param[in] format
-			String describing the format.
-		@return
-			Formatted value.
-		*/
-		DatabaseExport std::wstring WriteStmtDateTime( const std::wstring & dateTime, const std::wstring & format ) const;
+		//@}
+		/**@name Textual data writing */
+		//@{
 
 		/** Format a date to insert into a request.
 		@param[in] date
@@ -302,29 +229,13 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport String WriteStmtDateTime( const DateTimeType & dateTime ) const;
 
-		/** Retrieves the precision for given field type.
+		/** Format a string to insert into a request.
+		@param[in] text
+			Value to format.
 		@return
-			The precision.
+			Formatted value.
 		*/
-		DatabaseExport virtual uint32_t GetPrecision( EFieldType type ) const = 0;
-
-		/** Creates a database.
-		@param[in] database
-			Database identifier (name or DSN (ODBC)).
-		*/
-		DatabaseExport virtual void CreateDatabase( const String & database ) = 0;
-
-		/** Selects a database.
-		@param[in] database
-			Database identifier (name or DSN (ODBC)).
-		*/
-		DatabaseExport virtual void SelectDatabase( const String & database ) = 0;
-
-		/** Destroys a database.
-		@param[in] database
-			Database identifier (name or DSN (ODBC)).
-		*/
-		DatabaseExport virtual void DestroyDatabase( const String & database ) = 0;
+		DatabaseExport std::string WriteText( const std::string & text ) const;
 
 		/** Format a string to insert into a request.
 		@param[in] text
@@ -332,15 +243,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Formatted value.
 		*/
-		DatabaseExport virtual std::string WriteText( const std::string & text ) const = 0;
-
-		/** Format a string to insert into a request.
-		@param[in] text
-			Value to format.
-		@return
-			Formatted value.
-		*/
-		DatabaseExport virtual std::wstring WriteNText( const std::wstring & text ) const = 0;
+		DatabaseExport std::wstring WriteNText( const std::wstring & text ) const;
 
 		/** Format a byte array to insert into a request.
 		@param[in] array
@@ -348,7 +251,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Formatted value.
 		*/
-		DatabaseExport virtual String WriteBinary( const ByteArray & array ) const = 0;
+		DatabaseExport String WriteBinary( const ByteArray & array ) const;
 
 		/** Format a string to insert into a request.
 		@param[in] name
@@ -356,135 +259,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Formatted value.
 		*/
-		DatabaseExport virtual String WriteName( const String & name ) const = 0;
-
-		/** Format a date to insert into a request.
-		@param[in] date
-			Value to format.
-		@return
-			Formatted value.
-		*/
-		DatabaseExport virtual std::string WriteDateS( const DateType & date ) const = 0;
-
-		/** Format a date to insert into a statement.
-		@param[in] date
-			Value to format.
-		@return
-			Formatted value.
-		*/
-		DatabaseExport virtual std::string WriteStmtDateS( const DateType & date ) const = 0;
-
-		/** Format a time to insert into a request.
-		@param[in] time
-			Value to format.
-		@return
-			Formatted value.
-		*/
-		DatabaseExport virtual std::string WriteTimeS( const TimeType & time ) const = 0;
-
-		/** Format a time to insert into a statement.
-		@param[in] time
-			Value to format.
-		@return
-			Formatted value.
-		*/
-		DatabaseExport virtual std::string WriteStmtTimeS( const TimeType & time ) const = 0;
-
-		/** Format a date/time to insert into a request.
-		@param[in] dateTime
-			Value to format.
-		@return
-			Formatted value.
-		*/
-		DatabaseExport virtual std::string WriteDateTimeS( const DateTimeType & dateTime ) const = 0;
-
-		/** Format a date/time to insert into a request.
-		@param[in] date
-			Value to format.
-		@return
-			Formatted value.
-		*/
-		DatabaseExport virtual std::string WriteDateTimeS( const DateType & date ) const = 0;
-
-		/** Format a date/time to insert into a request.
-		@param[in] time
-			Value to format.
-		@return
-			Formatted value.
-		*/
-		DatabaseExport virtual std::string WriteDateTimeS( const TimeType & time ) const = 0;
-
-		/** Format a date/time to insert into a statement.
-		@param[in] dateTime
-			Value to format.
-		@return
-			Formatted value.
-		*/
-		DatabaseExport virtual std::string WriteStmtDateTimeS( const DateTimeType & dateTime ) const = 0;
-
-		/** Format a date to insert into a request.
-		@param[in] date
-			Value to format.
-		@return
-			Formatted value.
-		*/
-		DatabaseExport virtual std::wstring WriteDateW( const DateType & date ) const = 0;
-
-		/** Format a date to insert into a statement.
-		@param[in] date
-			Value to format.
-		@return
-			Formatted value.
-		*/
-		DatabaseExport virtual std::wstring WriteStmtDateW( const DateType & date ) const = 0;
-
-		/** Format a time to insert into a request.
-		@param[in] time
-			Value to format.
-		@return
-			Formatted value.
-		*/
-		DatabaseExport virtual std::wstring WriteTimeW( const TimeType & time ) const = 0;
-
-		/** Format a time to insert into a statement.
-		@param[in] time
-			Value to format.
-		@return
-			Formatted value.
-		*/
-		DatabaseExport virtual std::wstring WriteStmtTimeW( const TimeType & time ) const = 0;
-
-		/** Format a date/time to insert into a request.
-		@param[in] dateTime
-			Value to format.
-		@return
-			Formatted value.
-		*/
-		DatabaseExport virtual std::wstring WriteDateTimeW( const DateTimeType & dateTime ) const = 0;
-
-		/** Format a date/time to insert into a request.
-		@param[in] date
-			Value to format.
-		@return
-			Formatted value.
-		*/
-		DatabaseExport virtual std::wstring WriteDateTimeW( const DateType & date ) const = 0;
-
-		/** Format a date/time to insert into a request.
-		@param[in] time
-			Value to format.
-		@return
-			Formatted value.
-		*/
-		DatabaseExport virtual std::wstring WriteDateTimeW( const TimeType & time ) const = 0;
-
-		/** Format a date/time to insert into a statement.
-		@param[in] dateTime
-			Value to format.
-		@return
-			Formatted value.
-		*/
-		DatabaseExport virtual std::wstring WriteStmtDateTimeW( const DateTimeType & dateTime ) const = 0;
+		DatabaseExport String WriteName( const String & name ) const;
 
 		/** Format a boolean to insert into a request or statement.
 		@param[in] value
@@ -492,15 +267,11 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Formatted value.
 		*/
-		DatabaseExport virtual String WriteBool( bool value ) const = 0;
+		DatabaseExport String WriteBool( bool value ) const;
 
-		/** Format a boolean to insert into a request or statement.
-		@param[in] value
-			Value to format.
-		@return
-			Formatted value.
-		*/
-		DatabaseExport virtual String WriteBool( const String & value ) const = 0;
+		//@}
+		/**@name Textual data retrieval */
+		//@{
 
 		/** Convert a string from the database to a date.
 		@param[in] date
@@ -508,7 +279,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Created date with the string.
 		*/
-		DatabaseExport virtual DateType ParseDate( const std::string & date ) const = 0;
+		DatabaseExport DateType ParseDate( const String & date ) const;
 
 		/** Convert a string from the database to a time.
 		@param[in] time
@@ -516,7 +287,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Created time with the string.
 		*/
-		DatabaseExport virtual TimeType ParseTime( const std::string & time ) const = 0;
+		DatabaseExport TimeType ParseTime( const String & time ) const;
 
 		/** Convert a string from the database to a date/time.
 		@param[in] dateTime
@@ -524,31 +295,17 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Created date/time with the string.
 		*/
-		DatabaseExport virtual DateTimeType ParseDateTime( const std::string & dateTime ) const = 0;
+		DatabaseExport DateTimeType ParseDateTime( const String & dateTime ) const;
 
-		/** Convert a string from the database to a date.
-		@param[in] date
-			String representing a date.
-		@return
-			Created date with the string.
-		*/
-		DatabaseExport virtual DateType ParseDate( const std::wstring & date ) const = 0;
+		//@}
+		/**@name Size/Precision informations */
+		//@{
 
-		/** Convert a string from the database to a time.
-		@param[in] time
-			String representing a time.
+		/** Retrieves the precision for given field type.
 		@return
-			Created time with the string.
+			The precision.
 		*/
-		DatabaseExport virtual TimeType ParseTime( const std::wstring & time ) const = 0;
-
-		/** Convert a string from the database to a date/time.
-		@param[in] dateTime
-			String representing a date/time.
-		@return
-			Created date/time with the string.
-		*/
-		DatabaseExport virtual DateTimeType ParseDateTime( const std::wstring & dateTime ) const = 0;
+		DatabaseExport virtual uint32_t GetPrecision( EFieldType type ) const = 0;
 
 		/** Retrieves the statement date type size
 		@return
@@ -568,7 +325,177 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport virtual unsigned long GetStmtTimeSize()const = 0;
 
+		//@}
+
 	protected:
+		/** Checks if the connection is established, throws an exception if not
+		*/
+		DatabaseExport void DoCheckConnected() const;
+
+		/** Update the connection status.
+		@param value
+			New status.
+		*/
+		DatabaseExport void DoSetConnected( bool value );
+
+		/** Sets the given transaction to be started.
+		@param name
+			The transaction name.
+		*/
+		DatabaseExport void DoStartTransaction( const String & name );
+
+		/** Sets the given transaction to be finished.
+		@param name
+			The transaction name.
+		*/
+		DatabaseExport void DoFinishTransaction( const String & name );
+
+		/** Creates a database.
+		@param[in] database
+			Database identifier (name or DSN (ODBC)).
+		*/
+		DatabaseExport virtual void DoCreateDatabase( const String & database ) = 0;
+
+		/** Selects a database.
+		@param[in] database
+			Database identifier (name or DSN (ODBC)).
+		*/
+		DatabaseExport virtual void DoSelectDatabase( const String & database ) = 0;
+
+		/** Destroys a database.
+		@param[in] database
+			Database identifier (name or DSN (ODBC)).
+		*/
+		DatabaseExport virtual void DoDestroyDatabase( const String & database ) = 0;
+
+		/** Format a string to insert into a request.
+		@param[in] text
+			Value to format.
+		@return
+			Formatted value.
+		*/
+		DatabaseExport virtual std::string DoWriteText( const std::string & text ) const = 0;
+
+		/** Format a string to insert into a request.
+		@param[in] text
+			Value to format.
+		@return
+			Formatted value.
+		*/
+		DatabaseExport virtual std::wstring DoWriteNText( const std::wstring & text ) const = 0;
+
+		/** Format a byte array to insert into a request.
+		@param[in] array
+			Value to format.
+		@return
+			Formatted value.
+		*/
+		DatabaseExport virtual String DoWriteBinary( const ByteArray & array ) const = 0;
+
+		/** Format a string to insert into a request.
+		@param[in] name
+			Value to format.
+		@return
+			Formatted value.
+		*/
+		DatabaseExport virtual String DoWriteName( const String & name ) const = 0;
+
+		/** Format a date to insert into a request.
+		@param[in] date
+			Value to format.
+		@return
+			Formatted value.
+		*/
+		DatabaseExport virtual String DoWriteDate( const DateType & date ) const = 0;
+
+		/** Format a date to insert into a statement.
+		@param[in] date
+			Value to format.
+		@return
+			Formatted value.
+		*/
+		DatabaseExport virtual String DoWriteStmtDate( const DateType & date ) const = 0;
+
+		/** Format a time to insert into a request.
+		@param[in] time
+			Value to format.
+		@return
+			Formatted value.
+		*/
+		DatabaseExport virtual String DoWriteTime( const TimeType & time ) const = 0;
+
+		/** Format a time to insert into a statement.
+		@param[in] time
+			Value to format.
+		@return
+			Formatted value.
+		*/
+		DatabaseExport virtual String DoWriteStmtTime( const TimeType & time ) const = 0;
+
+		/** Format a date/time to insert into a request.
+		@param[in] dateTime
+			Value to format.
+		@return
+			Formatted value.
+		*/
+		DatabaseExport virtual String DoWriteDateTime( const DateTimeType & dateTime ) const = 0;
+
+		/** Format a date/time to insert into a request.
+		@param[in] date
+			Value to format.
+		@return
+			Formatted value.
+		*/
+		DatabaseExport virtual String DoWriteDateTime( const DateType & date ) const = 0;
+
+		/** Format a date/time to insert into a request.
+		@param[in] time
+			Value to format.
+		@return
+			Formatted value.
+		*/
+		DatabaseExport virtual String DoWriteDateTime( const TimeType & time ) const = 0;
+
+		/** Format a date/time to insert into a statement.
+		@param[in] dateTime
+			Value to format.
+		@return
+			Formatted value.
+		*/
+		DatabaseExport virtual String DoWriteStmtDateTime( const DateTimeType & dateTime ) const = 0;
+
+		/** Format a boolean to insert into a request or statement.
+		@param[in] value
+			Value to format.
+		@return
+			Formatted value.
+		*/
+		DatabaseExport virtual String DoWriteBool( bool value ) const = 0;
+
+		/** Convert a string from the database to a date.
+		@param[in] date
+			String representing a date.
+		@return
+			Created date with the string.
+		*/
+		DatabaseExport virtual DateType DoParseDate( const String & date ) const = 0;
+
+		/** Convert a string from the database to a time.
+		@param[in] time
+			String representing a time.
+		@return
+			Created time with the string.
+		*/
+		DatabaseExport virtual TimeType DoParseTime( const String & time ) const = 0;
+
+		/** Convert a string from the database to a date/time.
+		@param[in] dateTime
+			String representing a date/time.
+		@return
+			Created date/time with the string.
+		*/
+		DatabaseExport virtual DateTimeType DoParseDateTime( const String & dateTime ) const = 0;
+
 		/** Disconnect from the database.
 		*/
 		DatabaseExport virtual void DoDisconnect() = 0;
@@ -635,18 +562,6 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport virtual DatabaseResultSPtr DoExecuteSelect( const String & query ) = 0;
 
-		/** Update the connection status.
-		@param value
-			New status.
-		*/
-		DatabaseExport void DoSetConnected( bool value );
-
-		/** Update the transaction status.
-		@param value
-			New status.
-		*/
-		DatabaseExport void DoSetInTransaction( bool value );
-
 	protected:
 		//! Server identifier (name or address).
 		String _server;
@@ -661,7 +576,7 @@ BEGIN_NAMESPACE_DATABASE
 		//! Connection status
 		bool _connected;
 		//! Transaction status.
-		bool _inTransaction;
+		std::unordered_set< String > _startedTransactions;
 	};
 }
 END_NAMESPACE_DATABASE

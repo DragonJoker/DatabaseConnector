@@ -88,20 +88,16 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		virtual EErrorType DoInitialize();
 
 		/** Execute this statement.
-		@param[out] result
-			Error code.
 		@return
 			The result.
 		*/
-		virtual bool DoExecuteUpdate( EErrorType * result = NULL );
+		virtual bool DoExecuteUpdate();
 
 		/** Execute this statement.
-		@param[out] result
-			Error code.
 		@return
 			The result.
 		*/
-		virtual DatabaseResultSPtr DoExecuteSelect( EErrorType * result = NULL );
+		virtual DatabaseResultSPtr DoExecuteSelect();
 
 		/** Clean statement.
 		*/

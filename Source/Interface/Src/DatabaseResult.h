@@ -26,10 +26,6 @@ BEGIN_NAMESPACE_DATABASE
 	{
 	public:
 		/** Constructor.
-		*/
-		DatabaseExport CDatabaseResult();
-
-		/** Constructor.
 		@param[in] arrayFieldInfos
 			Array of field informations for the future results.
 		*/

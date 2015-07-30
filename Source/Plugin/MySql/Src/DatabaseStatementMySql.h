@@ -86,20 +86,16 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		virtual EErrorType DoInitialize();
 
 		/** Execute this statement.
-		@param[out] result
-			Error code.
 		@return
 			The result.
 		*/
-		virtual bool DoExecuteUpdate( EErrorType * result = NULL );
+		virtual bool DoExecuteUpdate();
 
 		/** Execute this statement.
-		@param[out] result
-			Error code.
 		@return
 			The result.
 		*/
-		virtual DatabaseResultSPtr DoExecuteSelect( EErrorType * result = NULL );
+		virtual DatabaseResultSPtr DoExecuteSelect();
 
 		/** Clean statement.
 		*/
@@ -108,20 +104,16 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		/** Pre-execution action
 		@remarks
 			Computes the final query from parameters values
-		@param[out] result
-			Receives the error code
 		@return
 			The full query
 		*/
-		void DoPreExecute( EErrorType * result );
+		void DoPreExecute();
 
 		/** Pre-execution action
 		@remarks
 			Computes the final query from parameters values
-		@param[out] result
-			Receives the error code
 		*/
-		void DoPostExecute( EErrorType * result );
+		void DoPostExecute();
 
 		/** Retrieves the MySQL connection
 		@return

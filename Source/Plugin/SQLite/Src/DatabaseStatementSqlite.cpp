@@ -248,7 +248,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		return eReturn;
 	}
 
-	bool CDatabaseStatementSqlite::DoExecuteUpdate( EErrorType * result )
+	bool CDatabaseStatementSqlite::DoExecuteUpdate()
 	{
 		DatabaseConnectionSqliteSPtr connection = DoGetSqliteConnection();
 
@@ -257,22 +257,18 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_SQLITE_LOST_CONNECTION );
 		}
 
-		DoPreExecute( result );
+		DoPreExecute();
+		bool bReturn = connection->ExecuteUpdate( _statement );
 
-		bool bReturn;
-		EErrorType eResult = EErrorType_NONE;
-		bReturn = connection->ExecuteUpdate( _statement );
-		DoPostExecute( result );
-
-		if ( result )
+		if ( bReturn )
 		{
-			*result = eResult;
+			DoPostExecute();
 		}
 
 		return bReturn;
 	}
 
-	DatabaseResultSPtr CDatabaseStatementSqlite::DoExecuteSelect( EErrorType * result )
+	DatabaseResultSPtr CDatabaseStatementSqlite::DoExecuteSelect()
 	{
 		DatabaseConnectionSqliteSPtr connection = DoGetSqliteConnection();
 
@@ -281,16 +277,12 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_SQLITE_LOST_CONNECTION );
 		}
 
-		DoPreExecute( result );
+		DoPreExecute();
+		DatabaseResultSPtr pReturn = connection->ExecuteSelect( _statement );
 
-		DatabaseResultSPtr pReturn;
-		EErrorType eResult = EErrorType_NONE;
-		pReturn = connection->ExecuteSelect( _statement );
-		DoPostExecute( result );
-
-		if ( result )
+		if ( pReturn )
 		{
-			*result = eResult;
+			DoPostExecute();
 		}
 
 		return pReturn;
@@ -319,7 +311,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		_stmtOutParams.reset();
 	}
 
-	void CDatabaseStatementSqlite::DoPreExecute( EErrorType * result )
+	void CDatabaseStatementSqlite::DoPreExecute()
 	{
 		for ( auto && it : _inOutInitializers )
 		{
@@ -334,16 +326,16 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 				it.first->SetParameterValue( 0, *parameter );
 			}
 
-			it.first->ExecuteUpdate( result );
+			it.first->ExecuteUpdate();
 		}
 
 		for ( auto && statement : _outInitializers )
 		{
-			statement->ExecuteUpdate( result );
+			statement->ExecuteUpdate();
 		}
 	}
 
-	void CDatabaseStatementSqlite::DoPostExecute( EErrorType * result )
+	void CDatabaseStatementSqlite::DoPostExecute()
 	{
 		if ( !_arrayOutParams.empty() )
 		{

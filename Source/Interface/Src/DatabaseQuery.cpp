@@ -33,6 +33,7 @@ BEGIN_NAMESPACE_DATABASE
 	static const String ERROR_DB_QUERY_INCONSISTENCY = STR( "Number of parameters doesn't match the sizes of parameter containers." );
 	static const String ERROR_DB_QUERY_ALREADY_ADDED_PARAMETER = STR( "Parameter with name [%1%] already exists." );
 	static const String WARNING_DB_QUERY_NULL_PARAMETER = STR( "Trying to add a null parameter." );
+	static const String ERROR_DB_QUERY_NOT_INITIALISED = STR( "The query is not initialised." );
 
 	CDatabaseQuery::CDatabaseQuery( DatabaseConnectionSPtr connection, const String & query )
 		: _connection( connection )
@@ -61,12 +62,17 @@ BEGIN_NAMESPACE_DATABASE
 		return eReturn;
 	}
 
-	bool CDatabaseQuery::ExecuteUpdate( EErrorType * result )
+	bool CDatabaseQuery::ExecuteUpdate()
 	{
+		if ( _arrayQueries.empty() )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_QueryError, ERROR_DB_QUERY_NOT_INITIALISED );
+		}
+
 		bool bReturn = false;
 		DatabaseConnectionSPtr connection = DoGetConnection();
 
-		if ( connection && connection->IsConnected() && _arrayQueries.size() > 0 )
+		if ( connection && connection->IsConnected() )
 		{
 			bReturn = connection->ExecuteUpdate( DoPreExecute() );
 		}
@@ -74,12 +80,17 @@ BEGIN_NAMESPACE_DATABASE
 		return bReturn;
 	}
 
-	DatabaseResultSPtr CDatabaseQuery::ExecuteSelect( EErrorType * result )
+	DatabaseResultSPtr CDatabaseQuery::ExecuteSelect()
 	{
+		if ( _arrayQueries.empty() )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_QueryError, ERROR_DB_QUERY_NOT_INITIALISED );
+		}
+
 		DatabaseResultSPtr pReturn;
 		DatabaseConnectionSPtr connection = DoGetConnection();
 
-		if ( connection && connection->IsConnected() && _arrayQueries.size() > 0 )
+		if ( connection && connection->IsConnected() )
 		{
 			pReturn = connection->ExecuteSelect( DoPreExecute() );
 		}

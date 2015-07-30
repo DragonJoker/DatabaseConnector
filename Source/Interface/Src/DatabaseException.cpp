@@ -132,7 +132,24 @@ BEGIN_NAMESPACE_DATABASE
 	static const String ERROR_DB_READ_ATTEMPT = STR( "The thread attempted to read the inaccessible data at address 0x" );
 	static const String ERROR_DB_WRITE_ATTEMPT = STR( "The thread attempted to write to an inaccessible address 0x" );
 	static const String ERROR_DB_DEP_VIOLATION = STR( "The thread causes a user-mode data execution prevention (DEP) violation at address 0x" );
-	static _se_translator_function g_oldTranslator = NULL;
+
+	class CSehExceptionHandler
+		: public CSystemExceptionHandler
+	{
+	public:
+		CSehExceptionHandler( _se_translator_function function )
+			: _function( function )
+		{
+		}
+
+		_se_translator_function GetFunction()const
+		{
+			return _function;
+		}
+
+	private:
+		_se_translator_function _function;
+	};
 
 	void OsToDatabaseException( unsigned int code, EXCEPTION_POINTERS * pointers )
 	{
@@ -344,24 +361,17 @@ BEGIN_NAMESPACE_DATABASE
 		return _what.c_str();
 	}
 
-	void CDatabaseException::LinkSystemErrors()
+	std::unique_ptr< CSystemExceptionHandler > CDatabaseException::LinkSystemErrors()
 	{
 #if defined( _WIN32 )
-		if ( !g_oldTranslator )
-		{
-			g_oldTranslator = _set_se_translator( OsToDatabaseException );
-		}
+		return std::make_unique< CSehExceptionHandler >( _set_se_translator( OsToDatabaseException ) );
 #endif
 	}
 
-	void CDatabaseException::UnlinkSystemErrors()
+	void CDatabaseException::UnlinkSystemErrors( std::unique_ptr< CSystemExceptionHandler > && previous )
 	{
 #if defined( _WIN32 )
-		if ( g_oldTranslator )
-		{
-			_set_se_translator( g_oldTranslator );
-			g_oldTranslator = NULL;
-		}
+		_set_se_translator( static_cast< const CSehExceptionHandler & >( *previous ).GetFunction() );
 #endif
 	}
 }

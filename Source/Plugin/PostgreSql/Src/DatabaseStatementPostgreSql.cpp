@@ -205,7 +205,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		return eReturn;
 	}
 
-	bool CDatabaseStatementPostgreSql::DoExecuteUpdate( EErrorType * result )
+	bool CDatabaseStatementPostgreSql::DoExecuteUpdate()
 	{
 		DatabaseConnectionPostgreSqlSPtr connection = DoGetPostgreSqlConnection();
 
@@ -217,16 +217,10 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		EErrorType eResult = EErrorType_NONE;
 		PGresult * pgresult = PQexecPrepared( connection->GetConnection(), _statement.c_str(), int( _arrayParams.size() ), _arrayValues.data(), _arrayLengths.data(), _arrayFormats.data(), 0 );
 		PostgreSQLCheck( pgresult, INFO_POSTGRESQL_STATEMENT_EXECUTION, EDatabaseExceptionCodes_StatementError, connection->GetConnection() );
-
-		if ( result )
-		{
-			*result = eResult;
-		}
-
 		return true;
 	}
 
-	DatabaseResultSPtr CDatabaseStatementPostgreSql::DoExecuteSelect( EErrorType * result )
+	DatabaseResultSPtr CDatabaseStatementPostgreSql::DoExecuteSelect()
 	{
 		DatabaseConnectionPostgreSqlSPtr connection = DoGetPostgreSqlConnection();
 
@@ -241,14 +235,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		PostgreSQLCheck( pgresult, INFO_POSTGRESQL_STATEMENT_EXECUTION, EDatabaseExceptionCodes_StatementError, connection->GetConnection() );
 
 		std::vector< std::unique_ptr< SInPostgreSqlBindBase > > binds;
-		pReturn = PostgreSqlFetchResult( pgresult, PostgreSqlGetColumns( pgresult, binds ), connection, binds );
-
-		if ( result )
-		{
-			*result = eResult;
-		}
-
-		return pReturn;
+		return PostgreSqlFetchResult( pgresult, PostgreSqlGetColumns( pgresult, binds ), connection, binds );
 	}
 
 	void CDatabaseStatementPostgreSql::DoCleanup()

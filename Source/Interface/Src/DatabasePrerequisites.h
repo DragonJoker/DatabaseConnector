@@ -100,6 +100,10 @@ namespace Database
 	class CFactoryDatabase;
 	class CPluginDatabase;
 
+	/** Base class holding the system error handler
+	*/
+	class CSystemExceptionHandler {};
+
 	// 
 	class CDatabase;
 	class CDatabaseConnection;

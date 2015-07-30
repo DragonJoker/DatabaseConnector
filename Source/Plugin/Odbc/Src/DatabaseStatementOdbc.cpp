@@ -156,29 +156,16 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		return errorType;
 	}
 
-	bool CDatabaseStatementOdbc::DoExecuteUpdate( EErrorType * result )
+	bool CDatabaseStatementOdbc::DoExecuteUpdate()
 	{
 		DatabaseResultSPtr rs;
-		EErrorType error = DoExecute( rs );
-
-		if ( result )
-		{
-			*result = error;
-		}
-
-		return error == EErrorType_NONE;
+		return DoExecute( rs ) == EErrorType_NONE;
 	}
 
-	DatabaseResultSPtr CDatabaseStatementOdbc::DoExecuteSelect( EErrorType * result )
+	DatabaseResultSPtr CDatabaseStatementOdbc::DoExecuteSelect()
 	{
 		DatabaseResultSPtr rs;
-		EErrorType error = DoExecute( rs );
-
-		if ( result )
-		{
-			*result = error;
-		}
-
+		DoExecute( rs );
 		return rs;
 	}
 

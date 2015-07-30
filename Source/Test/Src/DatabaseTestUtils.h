@@ -144,7 +144,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			return result;
 		}
 
-		template< EFieldType FieldType > struct Helpers;;
+		template< EFieldType FieldType > struct Helpers;
 
 		template<> struct Helpers< EFieldType_BIT >
 		{
@@ -308,9 +308,14 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef CFixedPoint ParamType;
 			typedef ParamType FieldType;
 
-			static ParamType InitialiseValue( uint8_t precision = 10, uint8_t decimals = 3 )
+			static ParamType InitialiseValue( const uint8_t precision = 10, const uint8_t decimals = 3 )
 			{
 				return CFixedPoint( ( int64_t( rand() ) * int64_t( rand() ) ) % int64_t( pow( 10, precision ) ), precision, decimals );
+			}
+
+			static ParamType InitialiseValue( const std::pair< uint32_t, uint32_t > & precision )
+			{
+				return InitialiseValue( precision.first, precision.second );
 			}
 		};
 
@@ -356,13 +361,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef std::string ParamType;
 			typedef std::string FieldType;
 
-			static ParamType InitialiseValue()
-			{
-				static char l_return[] = "Bonjour, comment va?";
-				return l_return;
-			}
-
-			static ParamType InitialiseValue( size_t size )
+			static ParamType InitialiseValue( const size_t size )
 			{
 				std::stringstream text;
 
@@ -379,6 +378,11 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				};
 
 				return text.str();
+			}
+
+			static ParamType InitialiseValue()
+			{
+				return InitialiseValue( Limit );
 			}
 		};
 
@@ -388,13 +392,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef std::string ParamType;
 			typedef std::string FieldType;
 
-			static ParamType InitialiseValue()
-			{
-				static char l_return[] = "Bonjour, comment va?";
-				return l_return;
-			}
-
-			static ParamType InitialiseValue( size_t size )
+			static ParamType InitialiseValue( const size_t size )
 			{
 				std::stringstream text;
 
@@ -412,6 +410,11 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				return text.str();
 			}
+
+			static ParamType InitialiseValue()
+			{
+				return InitialiseValue( Limit );
+			}
 		};
 
 		template<> struct Helpers< EFieldType_NCHAR >
@@ -420,13 +423,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef std::wstring ParamType;
 			typedef std::wstring FieldType;
 
-			static ParamType InitialiseValue()
-			{
-				static wchar_t l_return[] = L"Ca va bien, et toi?";
-				return l_return;
-			}
-
-			static ParamType InitialiseValue( size_t size )
+			static ParamType InitialiseValue( const size_t size )
 			{
 				std::wstringstream text;
 
@@ -444,6 +441,11 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				return text.str();
 			}
+
+			static ParamType InitialiseValue()
+			{
+				return InitialiseValue( Limit );
+			}
 		};
 
 		template<> struct Helpers< EFieldType_NVARCHAR >
@@ -458,7 +460,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				return l_return;
 			}
 
-			static ParamType InitialiseValue( size_t size )
+			static ParamType InitialiseValue( const size_t size )
 			{
 				std::wstringstream text;
 
@@ -484,25 +486,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef std::string ParamType;
 			typedef std::string FieldType;
 
-			static ParamType InitialiseValue()
-			{
-				return std::string( "\n\
-				template< class StmtType, typename Type >\n\
-				inline void InsertAndRetrieve( DatabaseConnectionSPtr connection, const String & name )\n\
-				{\n\
-					try\n\
-					{\n\
-						auto stmtInsert = DatabaseUtils::CreateStmt< StmtType >( connection, STR( \"INSERT INTO Test (\" ) + name + STR( \") VALUES (?)\" ) );\n\
-						auto stmtSelect = DatabaseUtils::CreateStmt< StmtType >( connection, STR( \"SELECT \" ) + name + STR( \"FROM Test WHERE name = ?\" ) );\n\
-						Type valueIn = InitialiseValue< Type >();\n\
-					}\n\
-					catch ( ... )\n\
-					{\n\
-						BOOST_CHECK( false );\n\
-					}\n\
-				}" );
-			}
-
 			static ParamType InitialiseValue( size_t size )
 			{
 				std::stringstream text;
@@ -521,23 +504,49 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				return text.str();
 			}
-		};
-
-		template<> struct Helpers< EFieldType_VARBINARY >
-		{
-			static const uint32_t Limit = -1;
-			typedef ByteArray ParamType;
-			typedef ParamType FieldType;
 
 			static ParamType InitialiseValue()
 			{
-				ByteArray blob =
-				{
-					0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
-					0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF
-				};
-				return blob;
+				return InitialiseValue( 500 );
 			}
+		};
+
+		template<> struct Helpers< EFieldType_NTEXT >
+		{
+			static const uint32_t Limit = -1;
+			typedef std::wstring ParamType;
+			typedef std::wstring FieldType;
+
+			static ParamType InitialiseValue( size_t size )
+			{
+				std::wstringstream text;
+
+				for ( size_t i = 0; i < size; ++i )
+				{
+					wchar_t c = wchar_t( 32 + ( rand() % 95 ) );
+
+					if ( c == '\\' )
+					{
+						c = '/';
+					}
+
+					text << c;
+				};
+
+				return text.str();
+			}
+
+			static ParamType InitialiseValue()
+			{
+				return InitialiseValue( 500 );
+			}
+		};
+
+		template<> struct Helpers< EFieldType_BINARY >
+		{
+			static const uint32_t Limit = 20;
+			typedef ByteArray ParamType;
+			typedef ParamType FieldType;
 
 			static ParamType InitialiseValue( size_t size )
 			{
@@ -556,6 +565,73 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				};
 
 				return blob;
+			}
+
+			static ParamType InitialiseValue()
+			{
+				return InitialiseValue( Limit );
+			}
+		};
+
+		template<> struct Helpers< EFieldType_VARBINARY >
+		{
+			static const uint32_t Limit = 255;
+			typedef ByteArray ParamType;
+			typedef ParamType FieldType;
+
+			static ParamType InitialiseValue( size_t size )
+			{
+				ByteArray blob( size );
+
+				for ( auto & value : blob )
+				{
+					char c = char( 32 + ( rand() % 95 ) );
+
+					if ( c == '\\' )
+					{
+						c = '/';
+					}
+
+					value = c;
+				};
+
+				return blob;
+			}
+
+			static ParamType InitialiseValue()
+			{
+				return InitialiseValue( Limit );
+			}
+		};
+
+		template<> struct Helpers< EFieldType_LONG_VARBINARY >
+		{
+			static const uint32_t Limit = 255;
+			typedef ByteArray ParamType;
+			typedef ParamType FieldType;
+
+			static ParamType InitialiseValue( size_t size )
+			{
+				ByteArray blob( size );
+
+				for ( auto & value : blob )
+				{
+					char c = char( 32 + ( rand() % 95 ) );
+
+					if ( c == '\\' )
+					{
+						c = '/';
+					}
+
+					value = c;
+				};
+
+				return blob;
+			}
+
+			static ParamType InitialiseValue()
+			{
+				return InitialiseValue( 1024 );
 			}
 		};
 

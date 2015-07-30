@@ -67,29 +67,19 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	static const String MYSQL_SQL_USE = STR( "USE " );
 	static const String MYSQL_SQL_DROP_DATABASE = STR( "DROP DATABASE " );
 
-	static const std::string MYSQL_SQL_SNULL = "NULL";
-	static const std::wstring MYSQL_SQL_WNULL = L"NULL";
+	static const String MYSQL_SQL_NULL = STR( "NULL" );
 
 	static const char * MYSQL_OPTION_NAMES = "SET NAMES 'utf8'";
 	static const char * MYSQL_OPTION_UTF8 = "utf8";
 
-	static const std::string MYSQL_FORMAT_SDATE = "CAST('%Y-%m-%d' AS DATE)";
-	static const std::string MYSQL_FORMAT_STIME = "CAST('%H:%M:%S' AS TIME)";
-	static const std::string MYSQL_FORMAT_SDATETIME = "CAST('%Y-%m-%d %H:%M:%S' AS DATETIME)";
-	static const std::string MYSQL_FORMAT_SDATETIME_DATE = "CAST('%Y-%m-%d 00:00:00' AS DATETIME)";
-	static const std::string MYSQL_FORMAT_SDATETIME_TIME = "CAST('0000-00-00 %H:%M:%S' AS DATETIME)";
-	static const std::string MYSQL_FORMAT_STMT_SDATE = "{-d %Y-%m-%d}";
-	static const std::string MYSQL_FORMAT_STMT_STIME = "{-t %H:%M:%S}";
-	static const std::string MYSQL_FORMAT_STMT_SDATETIME = "{-ts %Y-%m-%d %H:%M:%S}";
-
-	static const std::wstring MYSQL_FORMAT_WDATE = L"CAST('%Y-%m-%d' AS DATE)";
-	static const std::wstring MYSQL_FORMAT_WTIME = L"CAST('%H:%M:%S' AS TIME)";
-	static const std::wstring MYSQL_FORMAT_WDATETIME = L"CAST('%Y-%m-%d %H:%M:%S' AS DATETIME)";
-	static const std::wstring MYSQL_FORMAT_WDATETIME_DATE = L"CAST('%Y-%m-%d 00:00:00' AS DATETIME)";
-	static const std::wstring MYSQL_FORMAT_WDATETIME_TIME = L"CAST('0000-00-00 %H:%M:%S' AS DATETIME)";
-	static const std::wstring MYSQL_FORMAT_STMT_WDATE = L"{-d %Y-%m-%d}";
-	static const std::wstring MYSQL_FORMAT_STMT_WTIME = L"{-t %H:%M:%S}";
-	static const std::wstring MYSQL_FORMAT_STMT_WDATETIME = L"{-ts %Y-%m-%d %H:%M:%S}";
+	static const String MYSQL_FORMAT_DATE = STR( "CAST('%Y-%m-%d' AS DATE)" );
+	static const String MYSQL_FORMAT_TIME = STR( "CAST('%H:%M:%S' AS TIME)" );
+	static const String MYSQL_FORMAT_DATETIME = STR( "CAST('%Y-%m-%d %H:%M:%S' AS DATETIME)" );
+	static const String MYSQL_FORMAT_DATETIME_DATE = STR( "CAST('%Y-%m-%d 00:00:00' AS DATETIME)" );
+	static const String MYSQL_FORMAT_DATETIME_TIME = STR( "CAST('0000-00-00 %H:%M:%S' AS DATETIME)" );
+	static const String MYSQL_FORMAT_STMT_DATE = STR( "{-d %Y-%m-%d}" );
+	static const String MYSQL_FORMAT_STMT_TIME = STR( "{-t %H:%M:%S}" );
+	static const String MYSQL_FORMAT_STMT_DATETIME = STR( "{-ts %Y-%m-%d %H:%M:%S}" );
 
 	// cf. https://dev.mysql.com/doc/refman/5.1/en/c-api-data-structures.html
 	static const int MYSQL_BINARY_CHARSET = 63;
@@ -124,403 +114,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		}
 
 		return result;
-	}
-
-	std::string CDatabaseConnectionMySql::WriteText( const std::string & text ) const
-	{
-		std::string strReturn( text );
-
-		if ( strReturn != MYSQL_SQL_SNULL )
-		{
-			StringUtils::Replace( strReturn, "'", "''" );
-			StringUtils::Replace( strReturn, "\\", "\\\\" );
-			strReturn = "'" + strReturn + "'";
-		}
-
-		return strReturn;
-	}
-
-	std::wstring CDatabaseConnectionMySql::WriteNText( const std::wstring & text ) const
-	{
-		String strReturn( StringUtils::ToString( text ) );
-
-		if ( strReturn != MYSQL_SQL_SNULL )
-		{
-			StringUtils::Replace( strReturn, STR( "'" ), STR( "''" ) );
-			StringUtils::Replace( strReturn, STR( "\\" ), STR( "\\\\" ) );
-			strReturn = STR( "N'" ) + strReturn + STR( "'" );
-		}
-
-		return StringUtils::ToWStr( strReturn );
-	}
-
-	String CDatabaseConnectionMySql::WriteBinary( const ByteArray & array ) const
-	{
-		StringStream stream;
-		stream.setf( std::ios::hex, std::ios::basefield );
-
-		for ( auto && it = array.begin(); it != array.end(); ++it )
-		{
-			stream.width( 2 );
-			stream.fill( STR( '0' ) );
-			stream << int( *it );
-		}
-
-		return STR( "X'" ) + stream.str() + STR( "'" );
-	}
-
-	String CDatabaseConnectionMySql::WriteName( const String & text ) const
-	{
-		return STR( "[" ) + text + STR( "]" );
-	}
-
-	std::string CDatabaseConnectionMySql::WriteDateS( const DateType & date ) const
-	{
-		std::string strReturn;
-
-		if ( Date::IsValid( date ) )
-		{
-			strReturn = Date::Format( date, MYSQL_FORMAT_SDATE );
-		}
-		else
-		{
-			strReturn += MYSQL_SQL_SNULL;
-		}
-
-		return strReturn;
-	}
-
-	std::string CDatabaseConnectionMySql::WriteTimeS( const TimeType & time ) const
-	{
-		std::string strReturn;
-
-		if ( Time::IsValid( time ) )
-		{
-			strReturn = Time::Format( time, MYSQL_FORMAT_STIME );
-		}
-		else
-		{
-			strReturn += MYSQL_SQL_SNULL;
-		}
-
-		return strReturn;
-	}
-
-	std::string CDatabaseConnectionMySql::WriteDateTimeS( const DateTimeType & dateTime ) const
-	{
-		std::string strReturn;
-
-		if ( DateTime::IsValid( dateTime ) )
-		{
-			strReturn = DateTime::Format( dateTime, MYSQL_FORMAT_SDATETIME );
-		}
-		else
-		{
-			strReturn += MYSQL_SQL_SNULL;
-		}
-
-		return strReturn;
-	}
-
-	std::string CDatabaseConnectionMySql::WriteDateTimeS( const DateType & date ) const
-	{
-		std::string strReturn;
-
-		if ( Date::IsValid( date ) )
-		{
-			strReturn = Date::Format( date, MYSQL_FORMAT_SDATETIME_DATE );
-		}
-		else
-		{
-			strReturn += MYSQL_SQL_SNULL;
-		}
-
-		return strReturn;
-	}
-
-	std::string CDatabaseConnectionMySql::WriteDateTimeS( const TimeType & time ) const
-	{
-		std::string strReturn;
-
-		if ( Time::IsValid( time ) )
-		{
-			strReturn = Time::Format( time, MYSQL_FORMAT_SDATETIME_TIME );
-		}
-		else
-		{
-			strReturn += MYSQL_SQL_SNULL;
-		}
-
-		return strReturn;
-	}
-
-	std::string CDatabaseConnectionMySql::WriteStmtDateS( const DateType & date ) const
-	{
-		std::string strReturn;
-
-		if ( Date::IsValid( date ) )
-		{
-			strReturn = Date::Format( date, MYSQL_FORMAT_STMT_SDATE );
-		}
-		else
-		{
-			strReturn += MYSQL_SQL_SNULL;
-		}
-
-		return strReturn;
-	}
-
-	std::string CDatabaseConnectionMySql::WriteStmtTimeS( const TimeType & time ) const
-	{
-		std::string strReturn;
-
-		if ( Time::IsValid( time ) )
-		{
-			strReturn = Time::Format( time, MYSQL_FORMAT_STMT_STIME );
-		}
-		else
-		{
-			strReturn += MYSQL_SQL_SNULL;
-		}
-
-		return strReturn;
-	}
-
-	std::string CDatabaseConnectionMySql::WriteStmtDateTimeS( const DateTimeType & dateTime ) const
-	{
-		std::string strReturn;
-
-		if ( DateTime::IsValid( dateTime ) )
-		{
-			strReturn = DateTime::Format( dateTime, MYSQL_FORMAT_STMT_SDATETIME );
-		}
-		else
-		{
-			strReturn += MYSQL_SQL_SNULL;
-		}
-
-		return strReturn;
-	}
-
-	std::wstring CDatabaseConnectionMySql::WriteDateW( const DateType & date ) const
-	{
-		std::wstring strReturn;
-
-		if ( Date::IsValid( date ) )
-		{
-			strReturn = Date::Format( date, MYSQL_FORMAT_WDATE );
-		}
-		else
-		{
-			strReturn += MYSQL_SQL_WNULL;
-		}
-
-		return strReturn;
-	}
-
-	std::wstring CDatabaseConnectionMySql::WriteTimeW( const TimeType & time ) const
-	{
-		std::wstring strReturn;
-
-		if ( Time::IsValid( time ) )
-		{
-			strReturn = Time::Format( time, MYSQL_FORMAT_WTIME );
-		}
-		else
-		{
-			strReturn += MYSQL_SQL_WNULL;
-		}
-
-		return strReturn;
-	}
-
-	std::wstring CDatabaseConnectionMySql::WriteDateTimeW( const DateTimeType & dateTime ) const
-	{
-		std::wstring strReturn;
-
-		if ( DateTime::IsValid( dateTime ) )
-		{
-			strReturn = DateTime::Format( dateTime, MYSQL_FORMAT_WDATETIME );
-		}
-		else
-		{
-			strReturn += MYSQL_SQL_WNULL;
-		}
-
-		return strReturn;
-	}
-
-	std::wstring CDatabaseConnectionMySql::WriteDateTimeW( const DateType & date ) const
-	{
-		std::wstring strReturn;
-
-		if ( Date::IsValid( date ) )
-		{
-			strReturn = Date::Format( date, MYSQL_FORMAT_WDATETIME_DATE );
-		}
-		else
-		{
-			strReturn += MYSQL_SQL_WNULL;
-		}
-
-		return strReturn;
-	}
-
-	std::wstring CDatabaseConnectionMySql::WriteDateTimeW( const TimeType & time ) const
-	{
-		std::wstring strReturn;
-
-		if ( Time::IsValid( time ) )
-		{
-			strReturn = Time::Format( time, MYSQL_FORMAT_WDATETIME_TIME );
-		}
-		else
-		{
-			strReturn += MYSQL_SQL_WNULL;
-		}
-
-		return strReturn;
-	}
-
-	std::wstring CDatabaseConnectionMySql::WriteStmtDateW( const DateType & date ) const
-	{
-		std::wstring strReturn;
-
-		if ( Date::IsValid( date ) )
-		{
-			strReturn = Date::Format( date, MYSQL_FORMAT_STMT_WDATE );
-		}
-		else
-		{
-			strReturn += MYSQL_SQL_WNULL;
-		}
-
-		return strReturn;
-	}
-
-	std::wstring CDatabaseConnectionMySql::WriteStmtTimeW( const TimeType & time ) const
-	{
-		std::wstring strReturn;
-
-		if ( Time::IsValid( time ) )
-		{
-			strReturn = Time::Format( time, MYSQL_FORMAT_STMT_WTIME );
-		}
-		else
-		{
-			strReturn += MYSQL_SQL_WNULL;
-		}
-
-		return strReturn;
-	}
-
-	std::wstring CDatabaseConnectionMySql::WriteStmtDateTimeW( const DateTimeType & dateTime ) const
-	{
-		std::wstring strReturn;
-
-		if ( DateTime::IsValid( dateTime ) )
-		{
-			strReturn = DateTime::Format( dateTime, MYSQL_FORMAT_STMT_WDATETIME );
-		}
-		else
-		{
-			strReturn += MYSQL_SQL_WNULL;
-		}
-
-		return strReturn;
-	}
-
-	String CDatabaseConnectionMySql::WriteBool( bool value ) const
-	{
-		return ( value ? STR( "1" ) : STR( "0" ) );
-	}
-
-	String CDatabaseConnectionMySql::WriteBool( const String & value ) const
-	{
-		const String lowerCaseValue = StringUtils::LowerCase( value );
-		return ( lowerCaseValue == STR( "x" ) || lowerCaseValue == STR( "oui" ) || lowerCaseValue == STR( "yes" ) || lowerCaseValue == STR( "y" ) || value == STR( "1" ) ? STR( "1" ) : STR( "0" ) );
-	}
-
-	DateType CDatabaseConnectionMySql::ParseDate( const std::string & date ) const
-	{
-		DateType dateObj;
-
-		if ( !Date::IsDate( date, MYSQL_FORMAT_SDATE, dateObj )
-		&& !Date::IsDate( date, MYSQL_FORMAT_STMT_SDATE, dateObj ) )
-		{
-			// date is already invalid
-		}
-
-		return dateObj;
-	}
-
-	TimeType CDatabaseConnectionMySql::ParseTime( const std::string & time ) const
-	{
-		TimeType timeObj;
-
-		if ( !Time::IsTime( time, MYSQL_FORMAT_STIME, timeObj )
-		&& !Time::IsTime( time, MYSQL_FORMAT_STMT_STIME, timeObj ) )
-		{
-			// time is already invalid
-		}
-
-		return timeObj;
-	}
-
-	DateTimeType CDatabaseConnectionMySql::ParseDateTime( const std::string & dateTime ) const
-	{
-		DateTimeType dateTimeObj;
-
-		if ( !DateTime::IsDateTime( dateTime, MYSQL_FORMAT_SDATETIME, dateTimeObj )
-		&& !DateTime::IsDateTime( dateTime, MYSQL_FORMAT_STMT_SDATETIME, dateTimeObj )
-		&& !DateTime::IsDateTime( dateTime, MYSQL_FORMAT_SDATE, dateTimeObj )
-		&& !DateTime::IsDateTime( dateTime, MYSQL_FORMAT_STMT_SDATE, dateTimeObj ) )
-		{
-			// date/time is already invalid
-		}
-
-		return dateTimeObj;
-	}
-
-	DateType CDatabaseConnectionMySql::ParseDate( const std::wstring & date ) const
-	{
-		DateType dateObj;
-
-		if ( !Date::IsDate( date, MYSQL_FORMAT_WDATE, dateObj )
-		&& !Date::IsDate( date, MYSQL_FORMAT_STMT_WDATE, dateObj ) )
-		{
-			// date is already invalid
-		}
-
-		return dateObj;
-	}
-
-	TimeType CDatabaseConnectionMySql::ParseTime( const std::wstring & time ) const
-	{
-		TimeType timeObj;
-
-		if ( !Time::IsTime( time, MYSQL_FORMAT_WTIME, timeObj )
-		&& !Time::IsTime( time, MYSQL_FORMAT_STMT_WTIME, timeObj ) )
-		{
-			// time is already invalid
-		}
-
-		return timeObj;
-	}
-
-	DateTimeType CDatabaseConnectionMySql::ParseDateTime( const std::wstring & dateTime ) const
-	{
-		DateTimeType dateTimeObj;
-
-		if ( !DateTime::IsDateTime( dateTime, MYSQL_FORMAT_WDATETIME, dateTimeObj )
-		&& !DateTime::IsDateTime( dateTime, MYSQL_FORMAT_STMT_WDATETIME, dateTimeObj )
-		&& !DateTime::IsDateTime( dateTime, MYSQL_FORMAT_WDATE, dateTimeObj )
-		&& !DateTime::IsDateTime( dateTime, MYSQL_FORMAT_STMT_WDATE, dateTimeObj ) )
-		{
-			// date/time is already invalid
-		}
-
-		return dateTimeObj;
 	}
 
 	unsigned long CDatabaseConnectionMySql::GetStmtDateSize()const
@@ -595,23 +188,13 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		return result;
 	}
 
-	void CDatabaseConnectionMySql::CreateDatabase( const String & database )
+	void CDatabaseConnectionMySql::DoCreateDatabase( const String & database )
 	{
-		if ( !IsConnected() )
-		{
-			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_MYSQL_NOT_CONNECTED );
-		}
-
 		DoExecuteUpdate( MYSQL_SQL_CREATE_DATABASE + database + MYSQL_SQL_CHARSET );
 	}
 
-	void CDatabaseConnectionMySql::SelectDatabase( const String & database )
+	void CDatabaseConnectionMySql::DoSelectDatabase( const String & database )
 	{
-		if ( !IsConnected() )
-		{
-			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_MYSQL_NOT_CONNECTED );
-		}
-
 		if ( _connection )
 		{
 			std::string query = StringUtils::ToStr( MYSQL_SQL_USE + database );
@@ -620,14 +203,231 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		}
 	}
 
-	void CDatabaseConnectionMySql::DestroyDatabase( const String & database )
+	void CDatabaseConnectionMySql::DoDestroyDatabase( const String & database )
 	{
-		if ( !IsConnected() )
+		DoExecuteUpdate( MYSQL_SQL_DROP_DATABASE + database );
+	}
+
+	std::string CDatabaseConnectionMySql::DoWriteText( const std::string & text ) const
+	{
+		std::string strReturn( text );
+
+		if ( strReturn != MYSQL_SQL_NULL )
 		{
-			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_MYSQL_NOT_CONNECTED );
+			StringUtils::Replace( strReturn, "'", "''" );
+			StringUtils::Replace( strReturn, "\\", "\\\\" );
+			strReturn = "'" + strReturn + "'";
 		}
 
-		DoExecuteUpdate( MYSQL_SQL_DROP_DATABASE + database );
+		return strReturn;
+	}
+
+	std::wstring CDatabaseConnectionMySql::DoWriteNText( const std::wstring & text ) const
+	{
+		String strReturn( StringUtils::ToString( text ) );
+
+		if ( strReturn != MYSQL_SQL_NULL )
+		{
+			StringUtils::Replace( strReturn, STR( "'" ), STR( "''" ) );
+			StringUtils::Replace( strReturn, STR( "\\" ), STR( "\\\\" ) );
+			strReturn = STR( "N'" ) + strReturn + STR( "'" );
+		}
+
+		return StringUtils::ToWStr( strReturn );
+	}
+
+	String CDatabaseConnectionMySql::DoWriteBinary( const ByteArray & array ) const
+	{
+		StringStream stream;
+		stream.setf( std::ios::hex, std::ios::basefield );
+
+		for ( auto && it = array.begin(); it != array.end(); ++it )
+		{
+			stream.width( 2 );
+			stream.fill( STR( '0' ) );
+			stream << int( *it );
+		}
+
+		return STR( "X'" ) + stream.str() + STR( "'" );
+	}
+
+	String CDatabaseConnectionMySql::DoWriteName( const String & text ) const
+	{
+		return STR( "[" ) + text + STR( "]" );
+	}
+
+	String CDatabaseConnectionMySql::DoWriteDate( const DateType & date ) const
+	{
+		String strReturn;
+
+		if ( Date::IsValid( date ) )
+		{
+			strReturn = Date::Format( date, MYSQL_FORMAT_DATE );
+		}
+		else
+		{
+			strReturn += MYSQL_SQL_NULL;
+		}
+
+		return strReturn;
+	}
+
+	String CDatabaseConnectionMySql::DoWriteTime( const TimeType & time ) const
+	{
+		String strReturn;
+
+		if ( Time::IsValid( time ) )
+		{
+			strReturn = Time::Format( time, MYSQL_FORMAT_TIME );
+		}
+		else
+		{
+			strReturn += MYSQL_SQL_NULL;
+		}
+
+		return strReturn;
+	}
+
+	String CDatabaseConnectionMySql::DoWriteDateTime( const DateTimeType & dateTime ) const
+	{
+		String strReturn;
+
+		if ( DateTime::IsValid( dateTime ) )
+		{
+			strReturn = DateTime::Format( dateTime, MYSQL_FORMAT_DATETIME );
+		}
+		else
+		{
+			strReturn += MYSQL_SQL_NULL;
+		}
+
+		return strReturn;
+	}
+
+	String CDatabaseConnectionMySql::DoWriteDateTime( const DateType & date ) const
+	{
+		String strReturn;
+
+		if ( Date::IsValid( date ) )
+		{
+			strReturn = Date::Format( date, MYSQL_FORMAT_DATETIME_DATE );
+		}
+		else
+		{
+			strReturn += MYSQL_SQL_NULL;
+		}
+
+		return strReturn;
+	}
+
+	String CDatabaseConnectionMySql::DoWriteDateTime( const TimeType & time ) const
+	{
+		String strReturn;
+
+		if ( Time::IsValid( time ) )
+		{
+			strReturn = Time::Format( time, MYSQL_FORMAT_DATETIME_TIME );
+		}
+		else
+		{
+			strReturn += MYSQL_SQL_NULL;
+		}
+
+		return strReturn;
+	}
+
+	String CDatabaseConnectionMySql::DoWriteStmtDate( const DateType & date ) const
+	{
+		String strReturn;
+
+		if ( Date::IsValid( date ) )
+		{
+			strReturn = Date::Format( date, MYSQL_FORMAT_STMT_DATE );
+		}
+		else
+		{
+			strReturn += MYSQL_SQL_NULL;
+		}
+
+		return strReturn;
+	}
+
+	String CDatabaseConnectionMySql::DoWriteStmtTime( const TimeType & time ) const
+	{
+		String strReturn;
+
+		if ( Time::IsValid( time ) )
+		{
+			strReturn = Time::Format( time, MYSQL_FORMAT_STMT_TIME );
+		}
+		else
+		{
+			strReturn += MYSQL_SQL_NULL;
+		}
+
+		return strReturn;
+	}
+
+	String CDatabaseConnectionMySql::DoWriteStmtDateTime( const DateTimeType & dateTime ) const
+	{
+		String strReturn;
+
+		if ( DateTime::IsValid( dateTime ) )
+		{
+			strReturn = DateTime::Format( dateTime, MYSQL_FORMAT_STMT_DATETIME );
+		}
+		else
+		{
+			strReturn += MYSQL_SQL_NULL;
+		}
+
+		return strReturn;
+	}
+
+	String CDatabaseConnectionMySql::DoWriteBool( bool value ) const
+	{
+		return ( value ? STR( "1" ) : STR( "0" ) );
+	}
+
+	DateType CDatabaseConnectionMySql::DoParseDate( const String & date ) const
+	{
+		DateType dateObj;
+
+		if ( !Date::IsDate( date, MYSQL_FORMAT_DATE, dateObj )
+		&& !Date::IsDate( date, MYSQL_FORMAT_STMT_DATE, dateObj ) )
+		{
+			// date is already invalid
+		}
+
+		return dateObj;
+	}
+
+	TimeType CDatabaseConnectionMySql::DoParseTime( const String & time ) const
+	{
+		TimeType timeObj;
+
+		if ( !Time::IsTime( time, MYSQL_FORMAT_TIME, timeObj )
+		&& !Time::IsTime( time, MYSQL_FORMAT_STMT_TIME, timeObj ) )
+		{
+			// time is already invalid
+		}
+
+		return timeObj;
+	}
+
+	DateTimeType CDatabaseConnectionMySql::DoParseDateTime( const String & dateTime ) const
+	{
+		DateTimeType dateTimeObj;
+
+		if ( !DateTime::IsDateTime( dateTime, MYSQL_FORMAT_DATETIME, dateTimeObj )
+		&& !DateTime::IsDateTime( dateTime, MYSQL_FORMAT_STMT_DATETIME, dateTimeObj )
+		&& !DateTime::IsDateTime( dateTime, MYSQL_FORMAT_DATE, dateTimeObj )
+		&& !DateTime::IsDateTime( dateTime, MYSQL_FORMAT_STMT_DATE, dateTimeObj ) )
+		{
+			// date/time is already invalid
+		}
+
+		return dateTimeObj;
 	}
 
 	EErrorType CDatabaseConnectionMySql::DoConnect( String & connectionString )

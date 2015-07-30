@@ -28,7 +28,7 @@ BEGIN_NAMESPACE_DATABASE
 		: _factory( factory )
 		, _installed( false )
 	{
-		CDatabaseException::LinkSystemErrors();
+		_previousHandler = CDatabaseException::LinkSystemErrors();
 
 		if ( _factory == NULL )
 		{
@@ -40,7 +40,7 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		delete _factory;
 		_factory = NULL;
-		CDatabaseException::UnlinkSystemErrors();
+		CDatabaseException::UnlinkSystemErrors( std::move( _previousHandler ) );
 	}
 
 	void CPluginDatabase::Install()

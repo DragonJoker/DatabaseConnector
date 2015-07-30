@@ -52,20 +52,16 @@ BEGIN_NAMESPACE_DATABASE
 		DatabaseExport EErrorType Initialize();
 
 		/** Execute a query that has no result set.
-		@param[out] result
-			Error code.
 		@return
 			Results.
 		*/
-		DatabaseExport bool ExecuteUpdate( EErrorType * result = NULL );
+		DatabaseExport bool ExecuteUpdate();
 
 		/** Execute query that has a result set.
-		@param[out] result
-			Error code.
 		@return
 			Results.
 		*/
-		DatabaseExport DatabaseResultSPtr ExecuteSelect( EErrorType * result = NULL );
+		DatabaseExport DatabaseResultSPtr ExecuteSelect();
 
 		/** Clean query.
 		*/
@@ -235,12 +231,10 @@ BEGIN_NAMESPACE_DATABASE
 		DatabaseExport String DoPreExecute();
 
 		/** Execute query.
-		@param[out] result
-			Error code.
 		@return
 			Results.
 		*/
-		DatabaseExport DatabaseResultSPtr DoExecute( EErrorType * result = NULL );
+		DatabaseExport DatabaseResultSPtr DoExecute();
 
 		/** Retrieves the connection
 		@return

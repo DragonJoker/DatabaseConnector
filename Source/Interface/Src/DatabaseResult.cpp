@@ -26,16 +26,11 @@ BEGIN_NAMESPACE_DATABASE
 {
 	static const String ERROR_DB_NO_FIELD = STR( "No field at index: " );
 
-	CDatabaseResult::CDatabaseResult()
-		: _rowCount( 0 )
-	{
-		// Empty
-	}
-
 	CDatabaseResult::CDatabaseResult( const DatabaseFieldInfosPtrArray & arrayFieldInfos )
 		: _rowCount( 0 )
 		, _arrayFieldInfos( arrayFieldInfos )
 	{
+		// Empty
 	}
 
 	CDatabaseResult::~CDatabaseResult()

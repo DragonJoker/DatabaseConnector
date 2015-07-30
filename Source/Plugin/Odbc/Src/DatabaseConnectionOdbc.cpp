@@ -102,50 +102,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	{
 	}
 
-	std::string CDatabaseConnectionOdbc::WriteText( const std::string & text ) const
-	{
-		std::string strReturn( text );
-
-		if ( strReturn != ODBC_SQL_SNULL )
-		{
-			StringUtils::Replace( strReturn, "'", "''" );
-			StringUtils::Replace( strReturn, "\\", "\\\\" );
-			strReturn = "'" + strReturn + "'";
-		}
-
-		return strReturn;
-	}
-
-	std::wstring CDatabaseConnectionOdbc::WriteNText( const std::wstring & text ) const
-	{
-		String strReturn( StringUtils::ToString( text ) );
-
-		if ( strReturn != ODBC_SQL_NULL )
-		{
-			StringUtils::Replace( strReturn, STR( "'" ), STR( "''" ) );
-			StringUtils::Replace( strReturn, STR( "\\" ), STR( "\\\\" ) );
-			strReturn = STR( "N'" ) + strReturn + STR( "'" );
-		}
-
-		return StringUtils::ToWStr( strReturn );
-	}
-
-	String CDatabaseConnectionOdbc::WriteName( const String & text ) const
-	{
-		return STR( "[" ) + text + STR( "]" );
-	}
-
-	String CDatabaseConnectionOdbc::WriteBool( bool value ) const
-	{
-		return ( value ? STR( "1" ) : STR( "0" ) );
-	}
-
-	String CDatabaseConnectionOdbc::WriteBool( const String & value ) const
-	{
-		const String lowerCaseValue = StringUtils::LowerCase( value );
-		return ( lowerCaseValue == STR( "x" ) || lowerCaseValue == STR( "oui" ) || lowerCaseValue == STR( "yes" ) || lowerCaseValue == STR( "y" ) || value == STR( "1" ) ? STR( "1" ) : STR( "0" ) );
-	}
-
 	HDBC CDatabaseConnectionOdbc::GetHdbc() const
 	{
 		return _connectionHandle;

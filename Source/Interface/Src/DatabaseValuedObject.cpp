@@ -782,7 +782,7 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		case EFieldType_NVARCHAR:// ODBC stores date as NVARCHAR
-			value = GetConnection()->ParseDate( static_cast< CDatabaseValue< EFieldType_NVARCHAR > & >( *_value ).GetValue() );
+			value = GetConnection()->ParseDate( StringUtils::ToString( static_cast< CDatabaseValue< EFieldType_NVARCHAR > & >( *_value ).GetValue() ) );
 			break;
 
 		default:
