@@ -381,7 +381,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				std::string value = CStrUtils::ToStr( _value.GetValue().ToString() );
 				strcpy( _holder, value.c_str() );
 				_columnLenOrInd = value.size();
-				columnSize = value.size();
+				columnSize = SQLULEN( value.size() );
 			}
 
 			OdbcCheck( SQLBindParameter( _statement, _index, _inputOutputType, SQL_C_CHAR, _parameterType, columnSize, 0, SQLPOINTER( &_holder ), sizeof( _holder ), &_columnLenOrInd ), SQL_HANDLE_STMT, _statement, INFO_ODBC_BindParameter + message.str() );

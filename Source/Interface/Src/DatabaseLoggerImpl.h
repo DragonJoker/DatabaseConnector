@@ -133,8 +133,10 @@ BEGIN_NAMESPACE_DATABASE
 		/** Logs a message queue
 		@param[in] queue
 			The messages
+		@param[in] display
+			Tells if the messages must be printed on console
 		*/
-		void LogMessageQueue( MessageQueue const & queue );
+		void LogMessageQueue( MessageQueue const & queue, bool display );
 
 	private:
 		/** Prints a message to the console
@@ -162,8 +164,10 @@ BEGIN_NAMESPACE_DATABASE
 			The file
 		@param[in] logType
 			The log level
+		@param[in] display
+			Tells if the line must be printed on console
 		*/
-		void DoLogLine( String const & timestamp, String const & line, FILE * logFile, ELogType logType );
+		void DoLogLine( String const & timestamp, String const & line, FILE * logFile, ELogType logType, bool display );
 
 	private:
 		//! The files paths, per log level

@@ -590,6 +590,14 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_POSTGRESQL_NOT_CONNECTED );
 		}
 
+		if ( database == _database )
+		{
+			DoDisconnect();
+			String connectionString;
+			DoConnect( String(), connectionString );
+			_database.clear();
+		}
+
 		ExecuteUpdate( POSTGRESQL_SQL_DROP_DATABASE + database );
 	}
 

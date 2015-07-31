@@ -491,7 +491,7 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	}
 
-	void CLogger::DoFlushQueue()
+	void CLogger::DoFlushQueue( bool display )
 	{
 		if ( !_queue.empty() )
 		{
@@ -502,7 +502,7 @@ BEGIN_NAMESPACE_DATABASE
 				std::swap( queue, _queue );
 			}
 
-			_impl->LogMessageQueue( queue );
+			_impl->LogMessageQueue( queue, display );
 		}
 	}
 
@@ -513,11 +513,11 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			while ( !_stopped )
 			{
-				DoFlushQueue();
+				DoFlushQueue( true );
 				std::this_thread::sleep_for( std::chrono::milliseconds( 10 ) );
 			}
 
-			DoFlushQueue();
+			DoFlushQueue( false );
 			{
 				std::unique_lock< std::mutex > l_lock( _mutexThreadEnded );
 				_threadEnded.notify_one();

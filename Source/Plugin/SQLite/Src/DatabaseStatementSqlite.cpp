@@ -215,34 +215,24 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			_stmtOutParams->Initialize();
 		}
 
-		sqlite3 * sqlite = connection->GetConnection();
-		std::string query2 = CStrUtils::ToStr( _query );
-		SQLiteCheck( sqlite3_prepare_v2( sqlite, query2.c_str(), int( query2.size() ), &_statement, NULL ), INFO_SQLITE_STATEMENT_PREPARATION, EDatabaseExceptionCodes_StatementError, sqlite );
+		_statement = SqlitePrepareStatement( _query, DoGetSqliteConnection()->GetConnection() );
+		int count = sqlite3_bind_parameter_count( _statement );
 
-		if ( !_statement )
+		if ( count == _arrayParams.size() )
 		{
-			CLogger::LogError( ERROR_SQLITE_CANT_PREPARE_STATEMENT );
+			CLogger::LogDebug( StringStream() << INFO_SQLITE_STMT_PARAMS_COUNT << count );
+			eReturn = EErrorType_NONE;
 		}
 		else
 		{
-			int count = sqlite3_bind_parameter_count( _statement );
-
-			if ( count == _arrayParams.size() )
-			{
-				CLogger::LogDebug( StringStream() << INFO_SQLITE_STMT_PARAMS_COUNT << count );
-				eReturn = EErrorType_NONE;
-			}
-			else
-			{
-				StringStream error;
-				error << ERROR_SQLITE_QUERY_INCONSISTENCY << _arrayParams.size() << STR( ", Expected: " ) << count;
-				DB_EXCEPT( EDatabaseExceptionCodes_StatementError, error.str() );
-			}
+			StringStream error;
+			error << ERROR_SQLITE_QUERY_INCONSISTENCY << _arrayParams.size() << STR( ", Expected: " ) << count;
+			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, error.str() );
 		}
 
-		for ( DatabaseParameterPtrArray::iterator it = _arrayInParams.begin(); it != _arrayInParams.end(); ++it )
+		for ( auto && parameter : _arrayInParams )
 		{
-			std::static_pointer_cast< CDatabaseStatementParameterSqlite >( *it )->SetStatement( _statement );
+			std::static_pointer_cast< CDatabaseStatementParameterSqlite >( parameter )->SetStatement( _statement );
 		}
 
 		return eReturn;

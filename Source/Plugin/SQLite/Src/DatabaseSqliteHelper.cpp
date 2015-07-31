@@ -22,7 +22,9 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 {
 	namespace
 	{
-		static const String ERROR_SQLITE_UNSUPPORTED_TYPE = STR( "Unsupported type" );
+		static const String ERROR_SQLITE_UNSUPPORTED_TYPE = STR( "Unsupported type, for column " );
+
+		static const TChar * INFO_SQLITE_PREPARATION = STR( "Couldn't prepare the statement" );
 
 		std::pair< int, int > RetrieveLimits( String const & type )
 		{
@@ -362,13 +364,13 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			switch ( type )
 			{
 			case SQLITE_INTEGER:
-				infos->SetType( EFieldType_SINT32 );
-				field = GetValue< EFieldType_SINT32 >( statement, i, connection, infos );
+				infos->SetType( EFieldType_UINT64 );
+				field = GetValue< EFieldType_UINT64 >( statement, i, connection, infos );
 				break;
 
 			case SQLITE_FLOAT:
-				infos->SetType( EFieldType_FLOAT32 );
-				field = GetValue< EFieldType_FLOAT32 >( statement, i, connection, infos );
+				infos->SetType( EFieldType_FLOAT64 );
+				field = GetValue< EFieldType_FLOAT64 >( statement, i, connection, infos );
 				break;
 
 			case SQLITE_TEXT:
@@ -687,7 +689,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			}
 			else
 			{
-				CLogger::LogWarning( ERROR_SQLITE_UNSUPPORTED_TYPE );
+				CLogger::LogWarning( StringStream() << ERROR_SQLITE_UNSUPPORTED_TYPE << columnName << STR( "(" ) << type << STR( ")" ) );
 				infos = std::make_shared< CDatabaseFieldInfos >( columnName, EFieldType_NULL, -1 );
 			}
 
@@ -903,6 +905,23 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		}
 
 		return pReturn;
+	}
+
+	sqlite3_stmt * SqlitePrepareStatement( const String & query, sqlite3 * connection )
+	{
+		std::string query2 = CStrUtils::ToStr( query );
+		sqlite3_stmt * statement = NULL;
+		int code = sqlite3_prepare_v2( connection, query2.c_str(), int( query2.size() ), &statement, NULL );
+
+		while ( code == SQLITE_BUSY || code == SQLITE_LOCKED )
+		{
+			// Retry as long as the database is locked or busy
+			std::this_thread::sleep_for( std::chrono::milliseconds( 10 ) );
+			code = sqlite3_prepare_v2( connection, query2.c_str(), int( query2.size() ), &statement, NULL );
+		}
+
+		SQLiteCheck( code, INFO_SQLITE_PREPARATION, EDatabaseExceptionCodes_ConnectionError, connection );
+		return statement;
 	}
 
 	void SQLiteCheck( int code, TChar const * msg, EDatabaseExceptionCodes exc, sqlite3 * database )

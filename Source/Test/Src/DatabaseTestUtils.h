@@ -22,6 +22,7 @@
 #include <DatabaseResult.h>
 #include <DatabaseRow.h>
 #include <DatabaseInt24.h>
+#include <random>
 
 BEGIN_NAMESPACE_DATABASE_TEST
 {
@@ -152,9 +153,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef bool ParamType;
 			typedef ParamType FieldType;
 
-			static ParamType InitialiseValue()
+			static ParamType InitialiseValue( std::random_device & generator )
 			{
-				return bool( 0 == rand() % 2 );
+				std::uniform_int_distribution< int > distribution( 0, 1 );
+				return distribution( generator ) == 1;
 			}
 		};
 
@@ -164,9 +166,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef int8_t ParamType;
 			typedef ParamType FieldType;
 
-			static ParamType InitialiseValue()
+			static ParamType InitialiseValue( std::random_device & generator )
 			{
-				return ParamType( rand() % 256 );
+				std::uniform_int_distribution< int > distribution( std::numeric_limits< ParamType >::lowest(), std::numeric_limits< ParamType >::max() );
+				return ParamType( distribution( generator ) );
 			}
 		};
 
@@ -176,9 +179,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef uint8_t ParamType;
 			typedef ParamType FieldType;
 
-			static ParamType InitialiseValue()
+			static ParamType InitialiseValue( std::random_device & generator )
 			{
-				return ParamType( rand() % 256 );
+				std::uniform_int_distribution< int > distribution( std::numeric_limits< ParamType >::lowest(), std::numeric_limits< ParamType >::max() );
+				return distribution( generator );
 			}
 		};
 
@@ -188,9 +192,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef int16_t ParamType;
 			typedef ParamType FieldType;
 
-			static ParamType InitialiseValue()
+			static ParamType InitialiseValue( std::random_device & generator )
 			{
-				return ParamType( rand() );
+				std::uniform_int_distribution< ParamType > distribution( std::numeric_limits< ParamType >::lowest(), std::numeric_limits< ParamType >::max() );
+				return distribution( generator );
 			}
 		};
 
@@ -200,9 +205,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef uint16_t ParamType;
 			typedef ParamType FieldType;
 
-			static ParamType InitialiseValue()
+			static ParamType InitialiseValue( std::random_device & generator )
 			{
-				return ParamType( rand() );
+				std::uniform_int_distribution< ParamType > distribution( std::numeric_limits< ParamType >::lowest(), std::numeric_limits< ParamType >::max() );
+				return distribution( generator );
 			}
 		};
 
@@ -212,9 +218,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef int24_t ParamType;
 			typedef ParamType FieldType;
 
-			static ParamType InitialiseValue()
+			static ParamType InitialiseValue( std::random_device & generator )
 			{
-				return ParamType( rand() );
+				std::uniform_int_distribution< int32_t > distribution( 0xFF800000, 0x007FFFFF );
+				return ParamType( distribution( generator ) );
 			}
 		};
 
@@ -224,9 +231,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef uint24_t ParamType;
 			typedef ParamType FieldType;
 
-			static ParamType InitialiseValue()
+			static ParamType InitialiseValue( std::random_device & generator )
 			{
-				return ParamType( rand() );
+				std::uniform_int_distribution< uint32_t > distribution( 0, 0x00FFFFFF );
+				return ParamType( distribution( generator ) );
 			}
 		};
 
@@ -236,9 +244,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef int32_t ParamType;
 			typedef ParamType FieldType;
 
-			static ParamType InitialiseValue()
+			static ParamType InitialiseValue( std::random_device & generator )
 			{
-				return ParamType( rand() );
+				std::uniform_int_distribution< ParamType > distribution( std::numeric_limits< ParamType >::lowest(), std::numeric_limits< ParamType >::max() );
+				return distribution( generator );
 			}
 		};
 
@@ -248,9 +257,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef uint32_t ParamType;
 			typedef ParamType FieldType;
 
-			static ParamType InitialiseValue()
+			static ParamType InitialiseValue( std::random_device & generator )
 			{
-				return ParamType( rand() );
+				std::uniform_int_distribution< ParamType > distribution( std::numeric_limits< ParamType >::lowest(), std::numeric_limits< ParamType >::max() );
+				return distribution( generator );
 			}
 		};
 
@@ -260,9 +270,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef int64_t ParamType;
 			typedef ParamType FieldType;
 
-			static ParamType InitialiseValue()
+			static ParamType InitialiseValue( std::random_device & generator )
 			{
-				return ParamType( rand() );
+				std::uniform_int_distribution< ParamType > distribution( std::numeric_limits< ParamType >::lowest(), std::numeric_limits< ParamType >::max() );
+				return distribution( generator );
 			}
 		};
 
@@ -272,9 +283,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef uint64_t ParamType;
 			typedef ParamType FieldType;
 
-			static ParamType InitialiseValue()
+			static ParamType InitialiseValue( std::random_device & generator )
 			{
-				return ParamType( rand() );
+				std::uniform_int_distribution< ParamType > distribution( std::numeric_limits< ParamType >::lowest(), std::numeric_limits< ParamType >::max() );
+				return distribution( generator );
 			}
 		};
 
@@ -284,9 +296,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef float ParamType;
 			typedef ParamType FieldType;
 
-			static ParamType InitialiseValue()
+			static ParamType InitialiseValue( std::random_device & generator )
 			{
-				return float( rand() ) / ( std::abs( rand() ) + 1.0f );
+				std::uniform_real_distribution< ParamType > distribution( std::numeric_limits< ParamType >::lowest() / 2, std::numeric_limits< ParamType >::max() / 2 );
+				return distribution( generator );
 			}
 		};
 
@@ -296,9 +309,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef double ParamType;
 			typedef ParamType FieldType;
 
-			static ParamType InitialiseValue()
+			static ParamType InitialiseValue( std::random_device & generator )
 			{
-				return double( rand() ) / ( std::abs( rand() ) + 1.0 );
+				std::uniform_real_distribution< ParamType > distribution( std::numeric_limits< ParamType >::lowest() / 2, std::numeric_limits< ParamType >::max() / 2 );
+				return distribution( generator );
 			}
 		};
 
@@ -308,9 +322,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef CFixedPoint ParamType;
 			typedef ParamType FieldType;
 
-			static ParamType InitialiseValue( uint8_t precision = 10, uint8_t decimals = 3 )
+			static ParamType InitialiseValue( std::random_device & generator, uint8_t precision = 10, uint8_t decimals = 3 )
 			{
-				return CFixedPoint( ( int64_t( rand() ) * int64_t( rand() ) ) % int64_t( pow( 10, precision ) ), precision, decimals );
+				std::uniform_int_distribution< int64_t > distribution( std::numeric_limits< int64_t >::lowest(), std::numeric_limits< int64_t >::max() );
+				return CFixedPoint( distribution( generator ) % int64_t( pow( 10, precision ) ), precision, decimals );
 			}
 		};
 
@@ -320,7 +335,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef CDate ParamType;
 			typedef ParamType FieldType;
 
-			static ParamType InitialiseValue()
+			static ParamType InitialiseValue( std::random_device & generator )
 			{
 				return CDate::Now();
 			}
@@ -332,7 +347,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef CDateTime ParamType;
 			typedef ParamType FieldType;
 
-			static ParamType InitialiseValue()
+			static ParamType InitialiseValue( std::random_device & generator )
 			{
 				return CDateTime::Now();
 			}
@@ -344,7 +359,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef CTime ParamType;
 			typedef ParamType FieldType;
 
-			static ParamType InitialiseValue()
+			static ParamType InitialiseValue( std::random_device & generator )
 			{
 				return CTime::Now();
 			}
@@ -356,19 +371,14 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef std::string ParamType;
 			typedef std::string FieldType;
 
-			static ParamType InitialiseValue()
+			static ParamType InitialiseValue( std::random_device & generator, size_t size )
 			{
-				static char l_return[] = "Bonjour, comment va?";
-				return l_return;
-			}
-
-			static ParamType InitialiseValue( size_t size )
-			{
+				std::uniform_int_distribution< int > distribution( 32, 126 );
 				std::stringstream text;
 
 				for ( size_t i = 0; i < size; ++i )
 				{
-					char c = char( 32 + ( rand() % 95 ) );
+					char c = char( distribution( generator ) );
 
 					if ( c == '\\' )
 					{
@@ -379,6 +389,11 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				};
 
 				return text.str();
+			}
+
+			static ParamType InitialiseValue( std::random_device & generator )
+			{
+				return InitialiseValue( generator, Limit );
 			}
 		};
 
@@ -388,19 +403,14 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef std::string ParamType;
 			typedef std::string FieldType;
 
-			static ParamType InitialiseValue()
+			static ParamType InitialiseValue( std::random_device & generator, size_t size )
 			{
-				static char l_return[] = "Bonjour, comment va?";
-				return l_return;
-			}
-
-			static ParamType InitialiseValue( size_t size )
-			{
+				std::uniform_int_distribution< int > distribution( 32, 126 );
 				std::stringstream text;
 
 				for ( size_t i = 0; i < size; ++i )
 				{
-					char c = char( 32 + ( rand() % 95 ) );
+					char c = char( distribution( generator ) );
 
 					if ( c == '\\' )
 					{
@@ -411,6 +421,11 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				};
 
 				return text.str();
+			}
+
+			static ParamType InitialiseValue( std::random_device & generator )
+			{
+				return InitialiseValue( generator, Limit );
 			}
 		};
 
@@ -420,19 +435,14 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef std::wstring ParamType;
 			typedef std::wstring FieldType;
 
-			static ParamType InitialiseValue()
+			static ParamType InitialiseValue( std::random_device & generator, size_t size )
 			{
-				static wchar_t l_return[] = L"Ca va bien, et toi?";
-				return l_return;
-			}
-
-			static ParamType InitialiseValue( size_t size )
-			{
+				std::uniform_int_distribution< int > distribution( 32, 126 );
 				std::wstringstream text;
 
 				for ( size_t i = 0; i < size; ++i )
 				{
-					wchar_t c = wchar_t( 32 + ( rand() % 95 ) );
+					wchar_t c = wchar_t( distribution( generator ) );
 
 					if ( c == L'\\' )
 					{
@@ -443,6 +453,11 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				};
 
 				return text.str();
+			}
+
+			static ParamType InitialiseValue( std::random_device & generator )
+			{
+				return InitialiseValue( generator, Limit );
 			}
 		};
 
@@ -452,19 +467,14 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef std::wstring ParamType;
 			typedef std::wstring FieldType;
 
-			static ParamType InitialiseValue()
+			static ParamType InitialiseValue( std::random_device & generator, size_t size )
 			{
-				static wchar_t l_return[] = L"Ca va bien, et toi?";
-				return l_return;
-			}
-
-			static ParamType InitialiseValue( size_t size )
-			{
+				std::uniform_int_distribution< int > distribution( 32, 126 );
 				std::wstringstream text;
 
 				for ( size_t i = 0; i < size; ++i )
 				{
-					wchar_t c = wchar_t( 32 + ( rand() % 95 ) );
+					wchar_t c = wchar_t( distribution( generator ) );
 
 					if ( c == L'\\' )
 					{
@@ -476,6 +486,11 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				return text.str();
 			}
+
+			static ParamType InitialiseValue( std::random_device & generator )
+			{
+				return InitialiseValue( generator, Limit );
+			}
 		};
 
 		template<> struct Helpers< EFieldType_TEXT >
@@ -484,32 +499,14 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef std::string ParamType;
 			typedef std::string FieldType;
 
-			static ParamType InitialiseValue()
+			static ParamType InitialiseValue( std::random_device & generator, size_t size )
 			{
-				return std::string( "\n\
-				template< class StmtType, typename Type >\n\
-				inline void InsertAndRetrieve( DatabaseConnectionSPtr connection, const String & name )\n\
-				{\n\
-					try\n\
-					{\n\
-						auto stmtInsert = DatabaseUtils::CreateStmt< StmtType >( connection, STR( \"INSERT INTO Test (\" ) + name + STR( \") VALUES (?)\" ) );\n\
-						auto stmtSelect = DatabaseUtils::CreateStmt< StmtType >( connection, STR( \"SELECT \" ) + name + STR( \"FROM Test WHERE name = ?\" ) );\n\
-						Type valueIn = InitialiseValue< Type >();\n\
-					}\n\
-					catch ( ... )\n\
-					{\n\
-						BOOST_CHECK( false );\n\
-					}\n\
-				}" );
-			}
-
-			static ParamType InitialiseValue( size_t size )
-			{
+				std::uniform_int_distribution< int > distribution( 32, 126 );
 				std::stringstream text;
 
 				for ( size_t i = 0; i < size; ++i )
 				{
-					char c = char( 32 + ( rand() % 95 ) );
+					char c = char( distribution( generator ) );
 
 					if ( c == '\\' )
 					{
@@ -521,6 +518,11 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				return text.str();
 			}
+
+			static ParamType InitialiseValue( std::random_device & generator )
+			{
+				return InitialiseValue( generator, 500 );
+			}
 		};
 
 		template<> struct Helpers< EFieldType_VARBINARY >
@@ -529,23 +531,14 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef ByteArray ParamType;
 			typedef ParamType FieldType;
 
-			static ParamType InitialiseValue()
+			static ParamType InitialiseValue( std::random_device & generator, size_t size )
 			{
-				ByteArray blob =
-				{
-					0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
-					0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF
-				};
-				return blob;
-			}
-
-			static ParamType InitialiseValue( size_t size )
-			{
+				std::uniform_int_distribution< int > distribution( 32, 126 );
 				ByteArray blob( size );
 
 				for ( auto & value : blob )
 				{
-					char c = char( 32 + ( rand() % 95 ) );
+					char c = char( distribution( generator ) );
 
 					if ( c == '\\' )
 					{
@@ -556,6 +549,11 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				};
 
 				return blob;
+			}
+
+			static ParamType InitialiseValue( std::random_device & generator )
+			{
+				return InitialiseValue( generator, 100 );
 			}
 		};
 
@@ -588,31 +586,59 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< class StmtType >
-		inline void SetParametersValue( uint32_t & index, int mult, int i, std::shared_ptr< StmtType > stmt )
+		inline void UncheckedCreateParameters( std::shared_ptr< StmtType > stmt )
 		{
-			stmt->SetParameterValue( index++, Helpers< EFieldType_SINT32 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_SINT32 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_UINT8 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_SINT16 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_SINT24 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_SINT64 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_SINT16 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_SINT64 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_FLOAT64 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_FLOAT64 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_FLOAT64 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_FLOAT32 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_FIXED_POINT >::InitialiseValue( 10, 0 ) );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_FIXED_POINT >::InitialiseValue( 10, 5 ) );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_BIT >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_DATE >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_DATETIME >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_CHAR >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_VARCHAR >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_NCHAR >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_NVARCHAR >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_TEXT >::InitialiseValue() );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_VARBINARY >::InitialiseValue() );
+			stmt->CreateParameter( STR( "IntField" ), EFieldType_SINT32 );
+			stmt->CreateParameter( STR( "IntegerField" ), EFieldType_SINT32 );
+			stmt->CreateParameter( STR( "TinyIntField" ), EFieldType_UINT8 );
+			stmt->CreateParameter( STR( "SmallIntField" ), EFieldType_SINT16 );
+			stmt->CreateParameter( STR( "MediumIntField" ), EFieldType_SINT24 );
+			stmt->CreateParameter( STR( "BigIntField" ), EFieldType_SINT64 );
+			stmt->CreateParameter( STR( "Int2Field" ), EFieldType_SINT16 );
+			stmt->CreateParameter( STR( "Int8Field" ), EFieldType_SINT64 );
+			stmt->CreateParameter( STR( "RealField" ), EFieldType_FLOAT64 );
+			stmt->CreateParameter( STR( "DoubleField" ), EFieldType_FLOAT64 );
+			stmt->CreateParameter( STR( "DoublePrecisionField" ), EFieldType_FLOAT64 );
+			stmt->CreateParameter( STR( "FloatField" ), EFieldType_FLOAT32 );
+			stmt->CreateParameter( STR( "NumericField" ), EFieldType_FIXED_POINT, std::make_pair( 10, 0 ) );
+			stmt->CreateParameter( STR( "DecimalField" ), EFieldType_FIXED_POINT, std::make_pair( 10, 5 ) );
+			stmt->CreateParameter( STR( "BooleanField" ), EFieldType_BIT );
+			stmt->CreateParameter( STR( "DateField" ), EFieldType_DATE );
+			stmt->CreateParameter( STR( "DateTimeField" ), EFieldType_DATETIME );
+			stmt->CreateParameter( STR( "CharacterField" ), EFieldType_CHAR, 20 );
+			stmt->CreateParameter( STR( "VarcharField" ), EFieldType_VARCHAR, 255 );
+			stmt->CreateParameter( STR( "NcharField" ), EFieldType_NCHAR, 55 );
+			stmt->CreateParameter( STR( "NVarcharField" ), EFieldType_NVARCHAR, 100 );
+			stmt->CreateParameter( STR( "TextField" ), EFieldType_TEXT );
+			stmt->CreateParameter( STR( "BlobField" ), EFieldType_VARBINARY );
+		}
+
+		template< class StmtType >
+		inline void SetParametersValue( std::random_device & generator, uint32_t & index, int mult, int i, std::shared_ptr< StmtType > stmt )
+		{
+			stmt->SetParameterValue( index++, Helpers< EFieldType_SINT32 >::InitialiseValue( generator ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_SINT32 >::InitialiseValue( generator ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_UINT8 >::InitialiseValue( generator ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_SINT16 >::InitialiseValue( generator ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_SINT24 >::InitialiseValue( generator ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_SINT64 >::InitialiseValue( generator ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_SINT16 >::InitialiseValue( generator ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_SINT64 >::InitialiseValue( generator ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_FLOAT64 >::InitialiseValue( generator ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_FLOAT64 >::InitialiseValue( generator ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_FLOAT64 >::InitialiseValue( generator ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_FLOAT32 >::InitialiseValue( generator ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_FIXED_POINT >::InitialiseValue( generator, 10, 0 ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_FIXED_POINT >::InitialiseValue( generator, 10, 5 ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_BIT >::InitialiseValue( generator ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_DATE >::InitialiseValue( generator ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_DATETIME >::InitialiseValue( generator ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_CHAR >::InitialiseValue( generator ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_VARCHAR >::InitialiseValue( generator ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_NCHAR >::InitialiseValue( generator ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_NVARCHAR >::InitialiseValue( generator ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_TEXT >::InitialiseValue( generator ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_VARBINARY >::InitialiseValue( generator ) );
 		}
 
 		inline void DisplayValues( uint32_t & index, DatabaseRowSPtr row )
@@ -1124,9 +1150,9 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< class StmtType, EFieldType FieldType >
-		inline void InsertAndRetrieveOtherIndex( DatabaseConnectionSPtr connection, const String & name, bool equal, String const & is )
+		inline void InsertAndRetrieveOtherIndex( DatabaseConnectionSPtr connection, const String & name, bool equal, String const & is, std::random_device & generator )
 		{
-			InsertAndRetrieveOtherIndex< StmtType, FieldType >( connection, name, Helpers< FieldType >::InitialiseValue(), equal, is );
+			InsertAndRetrieveOtherIndex< StmtType, FieldType >( connection, name, Helpers< FieldType >::InitialiseValue( generator ), equal, is );
 		}
 
 		template< class StmtType, EFieldType FieldType >
@@ -1229,9 +1255,9 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< class StmtType, EFieldType FieldType >
-		inline void InsertAndRetrieveFast( DatabaseConnectionSPtr connection, const String & name, bool equal, String const & is )
+		inline void InsertAndRetrieveFast( DatabaseConnectionSPtr connection, const String & name, bool equal, String const & is, std::random_device & generator )
 		{
-			InsertAndRetrieveFast< StmtType, FieldType >( connection, name, Helpers< FieldType >::InitialiseValue(), equal, is );
+			InsertAndRetrieveFast< StmtType, FieldType >( connection, name, Helpers< FieldType >::InitialiseValue( generator ), equal, is );
 		}
 
 		template< class StmtType, EFieldType FieldType >
@@ -1339,13 +1365,13 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< class StmtType, EFieldType FieldType >
-		inline void InsertAndRetrieveFastOtherIndex( DatabaseConnectionSPtr connection, const String & name, bool equal, String const & is )
+		inline void InsertAndRetrieveFastOtherIndex( DatabaseConnectionSPtr connection, const String & name, bool equal, String const & is, std::random_device & generator )
 		{
-			InsertAndRetrieveFastOtherIndex< StmtType, FieldType >( connection, name, Helpers< FieldType >::InitialiseValue(), equal, is );
+			InsertAndRetrieveFastOtherIndex< StmtType, FieldType >( connection, name, Helpers< FieldType >::InitialiseValue( generator ), equal, is );
 		}
 
 		template< typename StmtType >
-		inline void TestDirectInsert( DatabaseConnectionSPtr connection )
+		inline void TestDirectInsert( std::random_device & generator, DatabaseConnectionSPtr connection )
 		{
 			try
 			{
@@ -1379,7 +1405,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( count )
 				{
-					auto stmtInsert = CreateStmt< StmtType >( connection, QUERY_INSERT_ELEMENT );
+					auto stmtInsert = CreateStmt< StmtType >( connection, QUERY_DIRECT_INSERT_ELEMENT );
 					BOOST_CHECK( stmtInsert );
 
 					if ( stmtInsert )
@@ -1391,7 +1417,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 						for ( int i = 0; i < inserts; i++ )
 						{
 							uint32_t index = 0;
-							SetParametersValue( index, i + 1, i, stmtInsert );
+							SetParametersValue( generator, index, i + 1, i, stmtInsert );
 							BOOST_CHECK( stmtInsert->ExecuteUpdate() );
 						}
 
@@ -1436,7 +1462,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< typename StmtType >
-		inline void TestDirectSelect( DatabaseConnectionSPtr connection )
+		inline void TestDirectSelect( std::random_device & generator, DatabaseConnectionSPtr connection )
 		{
 			try
 			{
@@ -1489,13 +1515,13 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< typename StmtType >
-		inline void TestDirectUpdate( DatabaseConnectionSPtr connection )
+		inline void TestDirectUpdate( std::random_device & generator, DatabaseConnectionSPtr connection )
 		{
 			try
 			{
 				auto stmtGetMin = CreateStmt< StmtType >( connection, QUERY_SELECT_MIN );
 				BOOST_CHECK( stmtGetMin );
-				int64_t min = -1;
+				int64_t min = 0;
 
 				if ( stmtGetMin )
 				{
@@ -1533,7 +1559,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 						for ( int i = 0; i < 10; i++ )
 						{
 							uint32_t index = 0;
-							SetParametersValue( index, i + 40, i, stmtUpdate );
+							SetParametersValue( generator, index, i + 40, i, stmtUpdate );
 							stmtUpdate->SetParameterValue( index++, min + i );
 							BOOST_CHECK( stmtUpdate->ExecuteUpdate() );
 						}
@@ -1557,7 +1583,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< typename StmtType >
-		inline void TestDirectDelete( DatabaseConnectionSPtr connection )
+		inline void TestDirectDelete( std::random_device & generator, DatabaseConnectionSPtr connection )
 		{
 			try
 			{
@@ -1623,7 +1649,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< typename StmtType >
-		inline void TestStoredNoParamNoReturn( DatabaseConnectionSPtr connection )
+		inline void TestStoredNoParamNoReturn( std::random_device & generator, DatabaseConnectionSPtr connection )
 		{
 			try
 			{
@@ -1657,7 +1683,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< typename StmtType >
-		inline void TestStoredNoParamReturn( DatabaseConnectionSPtr connection, const String & where )
+		inline void TestStoredNoParamReturn( std::random_device & generator, DatabaseConnectionSPtr connection, const String & where )
 		{
 			try
 			{
@@ -1716,7 +1742,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< typename StmtType >
-		inline void TestStoredInParamNoReturn( DatabaseConnectionSPtr connection )
+		inline void TestStoredInParamNoReturn( std::random_device & generator, DatabaseConnectionSPtr connection )
 		{
 			try
 			{
@@ -1782,7 +1808,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< typename StmtType >
-		inline void TestStoredInOutParamNoReturn( DatabaseConnectionSPtr connection )
+		inline void TestStoredInOutParamNoReturn( std::random_device & generator, DatabaseConnectionSPtr connection )
 		{
 			try
 			{
@@ -1830,7 +1856,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 						{
 							uint32_t index = 0;
 							stmtAddElement->SetParameterNull( index++ );
-							SetParametersValue( index, i + 40, i, stmtAddElement );
+							SetParametersValue( generator, index, i + 40, i, stmtAddElement );
 							BOOST_CHECK( stmtAddElement->ExecuteUpdate() );
 							int64_t tmp;
 							stmtAddElement->GetOutputValue( 0, tmp );
@@ -1856,7 +1882,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< typename StmtType >
-		inline void TestStoredInOutDtParamNoReturn( DatabaseConnectionSPtr connection )
+		inline void TestStoredInOutDtParamNoReturn( std::random_device & generator, DatabaseConnectionSPtr connection )
 		{
 			try
 			{
@@ -1905,7 +1931,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 						{
 							uint32_t index = 0;
 							stmtUpdateElement->SetParameterNull( index++ );
-							SetParametersValue( index, i + 40, i, stmtUpdateElement );
+							SetParametersValue( generator, index, i + 40, i, stmtUpdateElement );
 							stmtUpdateElement->SetParameterNull( index++ );
 							BOOST_CHECK( stmtUpdateElement->ExecuteUpdate() );
 							int64_t tmp;
