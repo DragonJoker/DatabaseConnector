@@ -978,12 +978,12 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		CDatabaseValue< EFieldType_VARBINARY > & _value;
 	};
 
-	/** COutOdbcBind specialisation for EFieldType_LONG_VARBINARY
+	/** COutOdbcBind specialisation for EFieldType_BLOB
 	@remarks
 		Sends data at execution, not at binding
 	*/
 	template<>
-	struct COutOdbcBind< EFieldType_LONG_VARBINARY >
+	struct COutOdbcBind< EFieldType_BLOB >
 		: public COutOdbcBindBase
 	{
 		/** Constructor.
@@ -996,8 +996,8 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		@param[in] value
 			Parameter value.
 		*/
-		COutOdbcBind( HSTMT statement, uint16_t index, EParameterType parameterType, const String & name, CDatabaseValue< EFieldType_LONG_VARBINARY > & value )
-			: COutOdbcBindBase( statement, index, EFieldType_LONG_VARBINARY, parameterType, name, value )
+		COutOdbcBind( HSTMT statement, uint16_t index, EParameterType parameterType, const String & name, CDatabaseValue< EFieldType_BLOB > & value )
+			: COutOdbcBindBase( statement, index, EFieldType_BLOB, parameterType, name, value )
 			, _value( value )
 		{
 		}
@@ -1026,7 +1026,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		}
 
 		//! The explicitly typed value
-		CDatabaseValue< EFieldType_LONG_VARBINARY > & _value;
+		CDatabaseValue< EFieldType_BLOB > & _value;
 	};
 
 	/** Function to facilitate the COutOdbcBindBase creation

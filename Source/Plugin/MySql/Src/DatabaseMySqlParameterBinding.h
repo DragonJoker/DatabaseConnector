@@ -63,7 +63,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		MYSQL_TYPE_TIME,		// EFieldType_TIME,
 		MYSQL_TYPE_BLOB,		// EFieldType_BINARY,
 		MYSQL_TYPE_BLOB,		// EFieldType_VARBINARY,
-		MYSQL_TYPE_BLOB,		// EFieldType_LONG_VARBINARY,
+		MYSQL_TYPE_BLOB,		// EFieldType_BLOB,
 	};
 
 	/** Structure used to retrieve the MySQL data types from the field type
@@ -245,9 +245,9 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		typedef uint8_t * FieldDataType;
 	};
 
-	/** Specialization for EFieldType_LONG_VARBINARY
+	/** Specialization for EFieldType_BLOB
 	*/
-	template<> struct SFieldTypeMySqlDataTyper< EFieldType_LONG_VARBINARY >
+	template<> struct SFieldTypeMySqlDataTyper< EFieldType_BLOB >
 	{
 		typedef uint8_t * FieldDataType;
 	};

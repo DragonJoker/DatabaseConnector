@@ -269,9 +269,9 @@ BEGIN_NAMESPACE_DATABASE
 		typedef ByteArray value_type;
 	};
 
-	/** SFieldTypeDataTyper specialization for EFieldType_LONG_VARBINARY
+	/** SFieldTypeDataTyper specialization for EFieldType_BLOB
 	*/
-	template<> struct SFieldTypeDataTyper< EFieldType_LONG_VARBINARY >
+	template<> struct SFieldTypeDataTyper< EFieldType_BLOB >
 	{
 		static const size_t size = 0;
 		typedef ByteArray value_type;
@@ -710,10 +710,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			if ( valSet )
 			{
-				StringStream stream;
-				stream.precision( connection.GetPrecision( EFieldType_FLOAT32 ) );
-				stream << value;
-				return stream.str();
+				return connection.WriteFloat( value );
 			}
 			else
 			{
@@ -786,10 +783,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			if ( valSet )
 			{
-				StringStream stream;
-				stream.precision( connection.GetPrecision( EFieldType_FLOAT64 ) );
-				stream << value;
-				return stream.str();
+				return connection.WriteDouble( value );
 			}
 			else
 			{
@@ -1065,7 +1059,7 @@ BEGIN_NAMESPACE_DATABASE
 		typedef SNTextDatabaseValuePolicy::value_type value_type;
 	};
 
-	/** ByteArray value policy (shared amongst EFieldType_BINARY, EFieldType_VARBINARY, and EFieldType_LONG_VARBINARY)
+	/** ByteArray value policy (shared amongst EFieldType_BINARY, EFieldType_VARBINARY, and EFieldType_BLOB)
 	*/
 	struct SByteArrayDatabaseValuePolicy
 	{
@@ -1175,9 +1169,9 @@ BEGIN_NAMESPACE_DATABASE
 		typedef SByteArrayDatabaseValuePolicy::value_type value_type;
 	};
 
-	/** SDatabaseValuePolicy specialization for EFieldType_LONG_VARBINARY type
+	/** SDatabaseValuePolicy specialization for EFieldType_BLOB type
 	*/
-	template<> struct SDatabaseValuePolicy< EFieldType_LONG_VARBINARY >
+	template<> struct SDatabaseValuePolicy< EFieldType_BLOB >
 		: public SByteArrayDatabaseValuePolicy
 	{
 		typedef SByteArrayDatabaseValuePolicy::value_type value_type;

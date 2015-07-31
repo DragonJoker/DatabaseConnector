@@ -539,7 +539,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			static ParamType InitialiseValue( std::random_device & generator, size_t size )
 			{
 				std::uniform_int_distribution< int > distribution( 32, 126 );
-				std::stringstream text;
+				std::wstringstream text;
 
 				for ( size_t i = 0; i < size; ++i )
 				{
@@ -626,7 +626,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 		};
 
-		template<> struct Helpers< EFieldType_LONG_VARBINARY >
+		template<> struct Helpers< EFieldType_BLOB >
 		{
 			static const uint32_t Limit = -1;
 			typedef ByteArray ParamType;

@@ -423,10 +423,10 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			}
 		};
 
-		/** SInPostgreSqlBind specialisation for EFieldType_LONG_VARBINARY
+		/** SInPostgreSqlBind specialisation for EFieldType_BLOB
 		*/
 		template<>
-		struct SInPostgreSqlBind< EFieldType_LONG_VARBINARY >
+		struct SInPostgreSqlBind< EFieldType_BLOB >
 			: public SByteBufferInPostgreSqlBind
 		{
 			/** Constructor
@@ -761,8 +761,8 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 				ret = std::make_unique< SInPostgreSqlBind< EFieldType_VARBINARY > >( index, result );
 				break;
 
-			case EFieldType_LONG_VARBINARY:
-				ret = std::make_unique< SInPostgreSqlBind< EFieldType_LONG_VARBINARY > >( index, result );
+			case EFieldType_BLOB:
+				ret = std::make_unique< SInPostgreSqlBind< EFieldType_BLOB > >( index, result );
 				break;
 			}
 
@@ -875,8 +875,8 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 					static_cast< CDatabaseValue< EFieldType_VARBINARY > & >( field->GetObjectValue() ).SetValue( static_cast< SInPostgreSqlBind< EFieldType_VARBINARY > const & >( bind ).GetValue( row ) );
 					break;
 
-				case EFieldType_LONG_VARBINARY:
-					static_cast< CDatabaseValue< EFieldType_LONG_VARBINARY > & >( field->GetObjectValue() ).SetValue( static_cast< SInPostgreSqlBind< EFieldType_LONG_VARBINARY > const & >( bind ).GetValue( row ) );
+				case EFieldType_BLOB:
+					static_cast< CDatabaseValue< EFieldType_BLOB > & >( field->GetObjectValue() ).SetValue( static_cast< SInPostgreSqlBind< EFieldType_BLOB > const & >( bind ).GetValue( row ) );
 					break;
 
 				default:
@@ -1163,7 +1163,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			result = EOid_BYTEA;
 			break;
 
-		case EFieldType_LONG_VARBINARY:
+		case EFieldType_BLOB:
 			result = EOid_BYTEA;
 			break;
 		}

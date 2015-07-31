@@ -275,6 +275,22 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport String WriteBool( bool value ) const;
 
+		/** Format a float to insert into a request or statement.
+		@param[in] value
+			Value to format.
+		@return
+			Formatted value.
+		*/
+		DatabaseExport String WriteFloat( float value ) const;
+
+		/** Format a double to insert into a request or statement.
+		@param[in] value
+			Value to format.
+		@return
+			Formatted value.
+		*/
+		DatabaseExport String WriteDouble( double value ) const;
+
 		//@}
 		/**@name Textual data retrieval */
 		//@{
@@ -481,6 +497,22 @@ BEGIN_NAMESPACE_DATABASE
 			Formatted value.
 		*/
 		DatabaseExport virtual String DoWriteBool( bool value ) const = 0;
+
+		/** Format a float to insert into a request or statement.
+		@param[in] value
+			Value to format.
+		@return
+			Formatted value.
+		*/
+		DatabaseExport virtual String DoWriteFloat( float value ) const;
+
+		/** Format a double to insert into a request or statement.
+		@param[in] value
+			Value to format.
+		@return
+			Formatted value.
+		*/
+		DatabaseExport virtual String DoWriteDouble( double value ) const;
 
 		/** Convert a string from the database to a date.
 		@param[in] date

@@ -135,8 +135,8 @@ BEGIN_NAMESPACE_DATABASE
 		case EFieldType_VARBINARY:
 			result = SFieldTypeNeedsLimits< EFieldType_VARBINARY >::value;
 			break;
-		case EFieldType_LONG_VARBINARY:
-			result = SFieldTypeNeedsLimits< EFieldType_LONG_VARBINARY >::value;
+		case EFieldType_BLOB:
+			result = SFieldTypeNeedsLimits< EFieldType_BLOB >::value;
 			break;
 		default:
 			result = false;
@@ -230,8 +230,8 @@ BEGIN_NAMESPACE_DATABASE
 		case EFieldType_VARBINARY:
 			result = SFieldTypeNeedsPrecision< EFieldType_VARBINARY >::value;
 			break;
-		case EFieldType_LONG_VARBINARY:
-			result = SFieldTypeNeedsPrecision< EFieldType_LONG_VARBINARY >::value;
+		case EFieldType_BLOB:
+			result = SFieldTypeNeedsPrecision< EFieldType_BLOB >::value;
 			break;
 		default:
 			result = false;
@@ -444,8 +444,8 @@ BEGIN_NAMESPACE_DATABASE
 			DoSetValue( static_cast< CDatabaseValue< EFieldType_VARBINARY > const & >( value ).GetValue() );
 			break;
 
-		case EFieldType_LONG_VARBINARY:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_LONG_VARBINARY > const & >( value ).GetValue() );
+		case EFieldType_BLOB:
+			DoSetValue( static_cast< CDatabaseValue< EFieldType_BLOB > const & >( value ).GetValue() );
 			break;
 
 		default:

@@ -166,8 +166,8 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			_binding = MakeOutBind< EFieldType_VARBINARY >( *bind, GetObjectValue(), *this );
 			break;
 
-		case EFieldType_LONG_VARBINARY:
-			_binding = MakeOutBind< EFieldType_LONG_VARBINARY >( *bind, GetObjectValue(), *this );
+		case EFieldType_BLOB:
+			_binding = MakeOutBind< EFieldType_BLOB >( *bind, GetObjectValue(), *this );
 			break;
 
 		default:

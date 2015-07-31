@@ -1027,10 +1027,10 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		CDatabaseValue< EFieldType_VARBINARY > const & _value;
 	};
 
-	/** SSqliteBinding specialization for EFieldType_LONG_VARBINARY
+	/** SSqliteBinding specialization for EFieldType_BLOB
 	*/
 	template<>
-	struct SSqliteBinding< EFieldType_LONG_VARBINARY >
+	struct SSqliteBinding< EFieldType_BLOB >
 		: public SSqliteBindingBase
 	{
 		/** Constructor
@@ -1043,7 +1043,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@param value
 			The parameter value
 		*/
-		SSqliteBinding( sqlite3_stmt * statement, sqlite3 * connection, uint16_t index, CDatabaseValue< EFieldType_LONG_VARBINARY > const & value )
+		SSqliteBinding( sqlite3_stmt * statement, sqlite3 * connection, uint16_t index, CDatabaseValue< EFieldType_BLOB > const & value )
 			: SSqliteBindingBase( statement, connection, index )
 			, _value( value )
 		{
@@ -1063,7 +1063,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		}
 
 		//! The parameter value
-		CDatabaseValue< EFieldType_LONG_VARBINARY > const & _value;
+		CDatabaseValue< EFieldType_BLOB > const & _value;
 	};
 
 	/** Function used to create a SSqliteBinding easily

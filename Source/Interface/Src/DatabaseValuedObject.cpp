@@ -848,8 +848,8 @@ BEGIN_NAMESPACE_DATABASE
 			value = static_cast< CDatabaseValue< EFieldType_VARBINARY > & >( *_value ).GetValue();
 			break;
 
-		case EFieldType_LONG_VARBINARY:
-			value = static_cast< CDatabaseValue< EFieldType_LONG_VARBINARY > & >( *_value ).GetValue();
+		case EFieldType_BLOB:
+			value = static_cast< CDatabaseValue< EFieldType_BLOB > & >( *_value ).GetValue();
 			break;
 
 		default:
@@ -1013,7 +1013,7 @@ BEGIN_NAMESPACE_DATABASE
 
 	void CDatabaseValuedObject::DoGetValueFast( ByteArray & value ) const
 	{
-		assert( GetType() == EFieldType_BINARY || GetType() == EFieldType_VARBINARY || GetType() == EFieldType_LONG_VARBINARY );
+		assert( GetType() == EFieldType_BINARY || GetType() == EFieldType_VARBINARY || GetType() == EFieldType_BLOB );
 		value = static_cast< CDatabaseValue< EFieldType_BINARY > & >( *_value ).GetValue();
 	}
 
@@ -1801,8 +1801,8 @@ BEGIN_NAMESPACE_DATABASE
 			static_cast< CDatabaseValue< EFieldType_VARBINARY > & >( *_value ).SetValue( value.data(), std::min( GetLimits(), uint32_t( value.size() ) ) );
 			break;
 
-		case EFieldType_LONG_VARBINARY:
-			static_cast< CDatabaseValue< EFieldType_LONG_VARBINARY > & >( *_value ).SetValue( value.data(), std::min( GetLimits(), uint32_t( value.size() ) ) );
+		case EFieldType_BLOB:
+			static_cast< CDatabaseValue< EFieldType_BLOB > & >( *_value ).SetValue( value.data(), std::min( GetLimits(), uint32_t( value.size() ) ) );
 			break;
 
 		default:
@@ -1944,7 +1944,7 @@ BEGIN_NAMESPACE_DATABASE
 
 	void CDatabaseValuedObject::DoSetValueFast( const ByteArray & value )
 	{
-		assert( GetType() == EFieldType_BINARY || GetType() == EFieldType_VARBINARY || GetType() == EFieldType_LONG_VARBINARY );
+		assert( GetType() == EFieldType_BINARY || GetType() == EFieldType_VARBINARY || GetType() == EFieldType_BLOB );
 		static_cast< CDatabaseValue< EFieldType_BINARY > & >( *_value ).SetValue( value.data(), std::min( GetLimits(), uint32_t( value.size() ) ) );
 	}
 
@@ -2052,8 +2052,8 @@ BEGIN_NAMESPACE_DATABASE
 			_value = std::make_unique< CDatabaseValue< EFieldType_VARBINARY > >( GetConnection() );
 			break;
 
-		case EFieldType_LONG_VARBINARY:
-			_value = std::make_unique< CDatabaseValue< EFieldType_LONG_VARBINARY > >( GetConnection() );
+		case EFieldType_BLOB:
+			_value = std::make_unique< CDatabaseValue< EFieldType_BLOB > >( GetConnection() );
 			break;
 
 		default:

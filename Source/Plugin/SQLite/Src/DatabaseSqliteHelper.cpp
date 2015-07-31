@@ -340,7 +340,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		}
 
 		template<>
-		DatabaseFieldSPtr GetValue< EFieldType_LONG_VARBINARY >( sqlite3_stmt * statement, int i, DatabaseConnectionSPtr connection, DatabaseFieldInfosSPtr infos )
+		DatabaseFieldSPtr GetValue< EFieldType_BLOB >( sqlite3_stmt * statement, int i, DatabaseConnectionSPtr connection, DatabaseFieldInfosSPtr infos )
 		{
 			const uint8_t * value = reinterpret_cast< const uint8_t * >( sqlite3_column_blob( statement, i ) );
 			int iSize = sqlite3_column_bytes( statement, i );
@@ -348,7 +348,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 			if ( value && iSize != 0 )
 			{
-				static_cast< CDatabaseValue< EFieldType_LONG_VARBINARY > & >( field->GetObjectValue() ).SetValue( value, std::min( uint32_t( iSize ), infos->GetLimits() ) );
+				static_cast< CDatabaseValue< EFieldType_BLOB > & >( field->GetObjectValue() ).SetValue( value, std::min( uint32_t( iSize ), infos->GetLimits() ) );
 			}
 
 			return field;
@@ -543,7 +543,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			}
 			else
 			{
-				infos = std::make_shared< CDatabaseFieldInfos >( columnName, EFieldType_LONG_VARBINARY );
+				infos = std::make_shared< CDatabaseFieldInfos >( columnName, EFieldType_BLOB );
 			}
 
 			return infos;
@@ -677,7 +677,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			}
 			else if ( upperType.find( "BLOB" ) != String::npos )
 			{
-				infos = std::make_shared< CDatabaseFieldInfos >( columnName, EFieldType_LONG_VARBINARY, -1 );
+				infos = std::make_shared< CDatabaseFieldInfos >( columnName, EFieldType_BLOB, -1 );
 			}
 			else if ( upperType.find( "VARBINARY" ) != String::npos )
 			{
@@ -853,8 +853,8 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			field = GetValue< EFieldType_VARBINARY >( statement, index, connection, infos );
 			break;
 
-		case EFieldType_LONG_VARBINARY:
-			field = GetValue< EFieldType_LONG_VARBINARY >( statement, index, connection, infos );
+		case EFieldType_BLOB:
+			field = GetValue< EFieldType_BLOB >( statement, index, connection, infos );
 			break;
 
 		default:
@@ -909,7 +909,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 	sqlite3_stmt * SqlitePrepareStatement( const String & query, sqlite3 * connection )
 	{
-		std::string query2 = CStrUtils::ToStr( query );
+		std::string query2 = StringUtils::ToStr( query );
 		sqlite3_stmt * statement = NULL;
 		int code = sqlite3_prepare_v2( connection, query2.c_str(), int( query2.size() ), &statement, NULL );
 

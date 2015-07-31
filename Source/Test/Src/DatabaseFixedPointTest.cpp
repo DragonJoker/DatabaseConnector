@@ -195,7 +195,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			BOOST_CHECK_THROW( CFixedPoint( std::numeric_limits< double >::lowest(), precision, decimals ), CDatabaseException );
 			CLogger::LogInfo( StringStream() << "    Random valid Value" );
 			{
-				double value = DatabaseUtils::Helpers< EFieldType_FLOAT64 >::InitialiseValue();
+				std::random_device generator;
+				double value = fmod( DatabaseUtils::Helpers< EFieldType_FLOAT64 >::InitialiseValue( generator ), 100000.00 );
 				CFixedPoint fp( value, precision, decimals );
 				BOOST_CHECK_LT( value - fp.ToDouble(), pow( 10, -decimals ) );
 			}
@@ -210,7 +211,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			BOOST_CHECK_THROW( CFixedPoint( std::numeric_limits< float >::lowest(), precision, decimals ), CDatabaseException );
 			CLogger::LogInfo( StringStream() << "    Random valid Value" );
 			{
-				float value = DatabaseUtils::Helpers< EFieldType_FLOAT32 >::InitialiseValue();
+				std::random_device generator;
+				float value = fmod( DatabaseUtils::Helpers< EFieldType_FLOAT32 >::InitialiseValue( generator ), 100000.00 );
 				CFixedPoint fp( value, precision, decimals );
 				BOOST_CHECK_LT( value - fp.ToFloat(), pow( 10, -decimals ) );
 			}
@@ -253,6 +255,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 		CLogger::LogInfo( StringStream() << "  From uint64_t" );
 		{
+			std::random_device generator;
 			CLogger::LogInfo( StringStream() << "    Max Value (Precision overflow)" );
 			BOOST_CHECK_THROW( CFixedPoint( std::numeric_limits< uint64_t >::max(), precision, decimals ), CDatabaseException );
 			CLogger::LogInfo( StringStream() << "    Min Value" );
@@ -260,7 +263,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			CLogger::LogInfo( StringStream() << "    Lowest Value" );
 			BOOST_CHECK_EQUAL( CFixedPoint( std::numeric_limits< uint64_t >::lowest(), precision, decimals ).ToUInt64(), 0 );
 			CLogger::LogInfo( StringStream() << "    Random valid Value" );
-			uint64_t value = DatabaseUtils::Helpers< EFieldType_UINT64 >::InitialiseValue() % uint64_t( pow( 10, precision ) );
+			uint64_t value = DatabaseUtils::Helpers< EFieldType_UINT64 >::InitialiseValue( generator ) % uint64_t( pow( 10, precision ) );
 			BOOST_CHECK_EQUAL( CFixedPoint( value, precision, decimals ).ToUInt64(), uint64_t( value / pow( 10, decimals ) ) );
 		}
 		CLogger::LogInfo( StringStream() << "  From String" );

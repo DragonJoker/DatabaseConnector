@@ -40,7 +40,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		SQLITE_INTEGER,  //!< EFieldType_TIME
 		SQLITE_BLOB,     //!< EFieldType_BINARY
 		SQLITE_BLOB,     //!< EFieldType_VARBINARY
-		SQLITE_BLOB,     //!< EFieldType_LONG_VARBINARY
+		SQLITE_BLOB,     //!< EFieldType_BLOB
 	};
 
 	CDatabaseParameterSqlite::CDatabaseParameterSqlite( EFieldType fieldType )

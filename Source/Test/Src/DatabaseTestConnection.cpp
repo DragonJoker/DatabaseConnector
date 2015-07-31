@@ -33,87 +33,88 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	{
 		DatabaseFieldSPtr CreateField( DatabaseConnectionSPtr connection, DatabaseFieldInfosSPtr infos )
 		{
+			std::random_device generator;
 			DatabaseFieldSPtr field = std::make_shared< CDatabaseField >( connection, infos );
 
 			switch ( infos->GetType() )
 			{
 			case EFieldType_BIT:
-				static_cast< CDatabaseValue< EFieldType_BIT > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_BIT >::InitialiseValue() );
+				static_cast< CDatabaseValue< EFieldType_BIT > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_BIT >::InitialiseValue( generator ) );
 				break;
 			case EFieldType_SINT8:
-				static_cast< CDatabaseValue< EFieldType_SINT8 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_SINT8 >::InitialiseValue() );
+				static_cast< CDatabaseValue< EFieldType_SINT8 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_SINT8 >::InitialiseValue( generator ) );
 				break;
 			case EFieldType_SINT16:
-				static_cast< CDatabaseValue< EFieldType_SINT16 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_SINT16 >::InitialiseValue() );
+				static_cast< CDatabaseValue< EFieldType_SINT16 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_SINT16 >::InitialiseValue( generator ) );
 				break;
 			case EFieldType_SINT24:
-				static_cast< CDatabaseValue< EFieldType_SINT24 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_SINT24 >::InitialiseValue() );
+				static_cast< CDatabaseValue< EFieldType_SINT24 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_SINT24 >::InitialiseValue( generator ) );
 				break;
 			case EFieldType_SINT32:
-				static_cast< CDatabaseValue< EFieldType_SINT32 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_SINT32 >::InitialiseValue() );
+				static_cast< CDatabaseValue< EFieldType_SINT32 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_SINT32 >::InitialiseValue( generator ) );
 				break;
 			case EFieldType_SINT64:
-				static_cast< CDatabaseValue< EFieldType_SINT64 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_SINT64 >::InitialiseValue() );
+				static_cast< CDatabaseValue< EFieldType_SINT64 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_SINT64 >::InitialiseValue( generator ) );
 				break;
 			case EFieldType_UINT8:
-				static_cast< CDatabaseValue< EFieldType_UINT8 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_UINT8 >::InitialiseValue() );
+				static_cast< CDatabaseValue< EFieldType_UINT8 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_UINT8 >::InitialiseValue( generator ) );
 				break;
 			case EFieldType_UINT16:
-				static_cast< CDatabaseValue< EFieldType_UINT16 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_UINT16 >::InitialiseValue() );
+				static_cast< CDatabaseValue< EFieldType_UINT16 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_UINT16 >::InitialiseValue( generator ) );
 				break;
 			case EFieldType_UINT24:
-				static_cast< CDatabaseValue< EFieldType_UINT24 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_UINT24 >::InitialiseValue() );
+				static_cast< CDatabaseValue< EFieldType_UINT24 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_UINT24 >::InitialiseValue( generator ) );
 				break;
 			case EFieldType_UINT32:
-				static_cast< CDatabaseValue< EFieldType_UINT32 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_UINT32 >::InitialiseValue() );
+				static_cast< CDatabaseValue< EFieldType_UINT32 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_UINT32 >::InitialiseValue( generator ) );
 				break;
 			case EFieldType_UINT64:
-				static_cast< CDatabaseValue< EFieldType_UINT64 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_UINT64 >::InitialiseValue() );
+				static_cast< CDatabaseValue< EFieldType_UINT64 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_UINT64 >::InitialiseValue( generator ) );
 				break;
 			case EFieldType_FLOAT32:
-				static_cast< CDatabaseValue< EFieldType_FLOAT32 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_FLOAT32 >::InitialiseValue() );
+				static_cast< CDatabaseValue< EFieldType_FLOAT32 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_FLOAT32 >::InitialiseValue( generator ) );
 				break;
 			case EFieldType_FLOAT64:
-				static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_FLOAT64 >::InitialiseValue() );
+				static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_FLOAT64 >::InitialiseValue( generator ) );
 				break;
 			case EFieldType_FIXED_POINT:
-				static_cast< CDatabaseValue< EFieldType_FIXED_POINT > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue( infos->GetPrecision() ) );
+				static_cast< CDatabaseValue< EFieldType_FIXED_POINT > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue( generator, infos->GetPrecision() ) );
 				break;
 			case EFieldType_CHAR:
-				static_cast< CDatabaseValue< EFieldType_CHAR > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_CHAR >::InitialiseValue( infos->GetLimits() ) );
+				static_cast< CDatabaseValue< EFieldType_CHAR > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_CHAR >::InitialiseValue( generator, infos->GetLimits() ) );
 				break;
 			case EFieldType_VARCHAR:
-				static_cast< CDatabaseValue< EFieldType_VARCHAR > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_VARCHAR >::InitialiseValue( infos->GetLimits() ) );
+				static_cast< CDatabaseValue< EFieldType_VARCHAR > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_VARCHAR >::InitialiseValue( generator, infos->GetLimits() ) );
 				break;
 			case EFieldType_TEXT:
-				static_cast< CDatabaseValue< EFieldType_TEXT > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_TEXT >::InitialiseValue() );
+				static_cast< CDatabaseValue< EFieldType_TEXT > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_TEXT >::InitialiseValue( generator ) );
 				break;
 			case EFieldType_NCHAR:
-				static_cast< CDatabaseValue< EFieldType_NCHAR > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_NCHAR >::InitialiseValue( infos->GetLimits() ) );
+				static_cast< CDatabaseValue< EFieldType_NCHAR > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_NCHAR >::InitialiseValue( generator, infos->GetLimits() ) );
 				break;
 			case EFieldType_NVARCHAR:
-				static_cast< CDatabaseValue< EFieldType_NVARCHAR > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_NVARCHAR >::InitialiseValue( infos->GetLimits() ) );
+				static_cast< CDatabaseValue< EFieldType_NVARCHAR > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_NVARCHAR >::InitialiseValue( generator, infos->GetLimits() ) );
 				break;
 			case EFieldType_NTEXT:
-				static_cast< CDatabaseValue< EFieldType_NTEXT > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_NTEXT >::InitialiseValue() );
+				static_cast< CDatabaseValue< EFieldType_NTEXT > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_NTEXT >::InitialiseValue( generator ) );
 				break;
 			case EFieldType_DATE:
-				static_cast< CDatabaseValue< EFieldType_DATE > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_DATE >::InitialiseValue() );
+				static_cast< CDatabaseValue< EFieldType_DATE > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_DATE >::InitialiseValue( generator ) );
 				break;
 			case EFieldType_DATETIME:
-				static_cast< CDatabaseValue< EFieldType_DATETIME > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_DATETIME >::InitialiseValue() );
+				static_cast< CDatabaseValue< EFieldType_DATETIME > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_DATETIME >::InitialiseValue( generator ) );
 				break;
 			case EFieldType_TIME:
-				static_cast< CDatabaseValue< EFieldType_TIME > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_TIME >::InitialiseValue() );
+				static_cast< CDatabaseValue< EFieldType_TIME > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_TIME >::InitialiseValue( generator ) );
 				break;
 			case EFieldType_BINARY:
-				static_cast< CDatabaseValue< EFieldType_BINARY > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_BINARY >::InitialiseValue( infos->GetLimits() ) );
+				static_cast< CDatabaseValue< EFieldType_BINARY > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_BINARY >::InitialiseValue( generator, infos->GetLimits() ) );
 				break;
 			case EFieldType_VARBINARY:
-				static_cast< CDatabaseValue< EFieldType_VARBINARY > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_VARBINARY >::InitialiseValue( infos->GetLimits() ) );
+				static_cast< CDatabaseValue< EFieldType_VARBINARY > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_VARBINARY >::InitialiseValue( generator, infos->GetLimits() ) );
 				break;
-			case EFieldType_LONG_VARBINARY:
-				static_cast< CDatabaseValue< EFieldType_LONG_VARBINARY > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_LONG_VARBINARY >::InitialiseValue() );
+			case EFieldType_BLOB:
+				static_cast< CDatabaseValue< EFieldType_BLOB > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_BLOB >::InitialiseValue( generator ) );
 				break;
 			}
 
@@ -150,7 +151,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_TIME" ), EFieldType_TIME ) ) );
 		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_BINARY( 20 )" ), EFieldType_BINARY, 20 ) ) );
 		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_VARBINARY( 255 )" ), EFieldType_VARBINARY, 255 ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_LONG_VARBINARY" ), EFieldType_LONG_VARBINARY ) ) );
+		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_BLOB" ), EFieldType_BLOB ) ) );
 
 		DatabaseResultSPtr result = std::make_shared< CDatabaseResult >( fieldInfos );
 		DatabaseRowSPtr row = std::make_shared< CDatabaseRow >();

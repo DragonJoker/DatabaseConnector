@@ -74,7 +74,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		TIMEOID,		// EFieldType_TIME,
 		BYTEAOID,		// EFieldType_BINARY,
 		BYTEAOID,		// EFieldType_VARBINARY,
-		BYTEAOID,		// EFieldType_LONG_VARBINARY,
+		BYTEAOID,		// EFieldType_BLOB,
 	};
 
 	/** Structure used to retrieve the PostgreSQL data types from the field type
@@ -256,9 +256,9 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		typedef uint8_t * FieldDataType;
 	};
 
-	/** Specialization for EFieldType_LONG_VARBINARY
+	/** Specialization for EFieldType_BLOB
 	*/
-	template<> struct SFieldTypePostgreSqlDataTyper< EFieldType_LONG_VARBINARY >
+	template<> struct SFieldTypePostgreSqlDataTyper< EFieldType_BLOB >
 	{
 		typedef uint8_t * FieldDataType;
 	};
@@ -678,10 +678,10 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		}
 	};
 
-	/** SOutPostgreSqlBind specialization for EFieldType_LONG_VARBINARY
+	/** SOutPostgreSqlBind specialization for EFieldType_BLOB
 	*/
 	template<>
-	struct SOutPostgreSqlBind< EFieldType_LONG_VARBINARY >
+	struct SOutPostgreSqlBind< EFieldType_BLOB >
 		: public SBinaryOutPostgreSqlBind
 	{
 		/** Constructor
@@ -694,7 +694,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		@param parameter
 			The parameter
 		*/
-		SOutPostgreSqlBind( PGbind & bind, Oid type, CDatabaseValue< EFieldType_LONG_VARBINARY > & value, CDatabaseParameterPostgreSql & parameter )
+		SOutPostgreSqlBind( PGbind & bind, Oid type, CDatabaseValue< EFieldType_BLOB > & value, CDatabaseParameterPostgreSql & parameter )
 			: SBinaryOutPostgreSqlBind( bind, type, value, parameter )
 		{
 		}

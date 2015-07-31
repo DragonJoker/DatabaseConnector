@@ -48,7 +48,7 @@ BEGIN_NAMESPACE_DATABASE
 		EFieldType_TIME,
 		EFieldType_BINARY,
 		EFieldType_VARBINARY,
-		EFieldType_LONG_VARBINARY,
+		EFieldType_BLOB,
 		EFieldType_COUNT
 	}	EFieldType;
 

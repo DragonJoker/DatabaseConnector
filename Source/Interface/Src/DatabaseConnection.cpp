@@ -379,6 +379,18 @@ BEGIN_NAMESPACE_DATABASE
 		return DoWriteBool( value );
 	}
 
+	String CDatabaseConnection::WriteFloat( float value ) const
+	{
+		DoCheckConnected();
+		return DoWriteFloat( value );
+	}
+
+	String CDatabaseConnection::WriteDouble( double value ) const
+	{
+		DoCheckConnected();
+		return DoWriteDouble( value );
+	}
+
 	DateType CDatabaseConnection::ParseDate( const String & date ) const
 	{
 		DoCheckConnected();
@@ -426,6 +438,22 @@ BEGIN_NAMESPACE_DATABASE
 	void CDatabaseConnection::DoFinishTransaction( const String & name )
 	{
 		_startedTransactions.erase( name );
+	}
+
+	String CDatabaseConnection::DoWriteFloat( float value ) const
+	{
+		StringStream stream;
+		stream.precision( GetPrecision( EFieldType_FLOAT32 ) );
+		stream << value;
+		return stream.str();
+	}
+
+	String CDatabaseConnection::DoWriteDouble( double value ) const
+	{
+		StringStream stream;
+		stream.precision( GetPrecision( EFieldType_FLOAT64 ) );
+		stream << value;
+		return stream.str();
 	}
 }
 END_NAMESPACE_DATABASE

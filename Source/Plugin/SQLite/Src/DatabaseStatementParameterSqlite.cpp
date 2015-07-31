@@ -164,8 +164,8 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			_binding = MakeSqliteBind< EFieldType_VARBINARY >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
 			break;
 
-		case EFieldType_LONG_VARBINARY:
-			_binding = MakeSqliteBind< EFieldType_LONG_VARBINARY >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
+		case EFieldType_BLOB:
+			_binding = MakeSqliteBind< EFieldType_BLOB >( _statement, GetConnection(), GetIndex(), GetObjectValue() );
 			break;
 
 		default:

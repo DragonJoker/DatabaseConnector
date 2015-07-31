@@ -442,10 +442,10 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			}
 		};
 
-		/** SInMySqlBind specialisation for EFieldType_LONG_VARBINARY
+		/** SInMySqlBind specialisation for EFieldType_BLOB
 		*/
 		template<>
-		struct SInMySqlBind< EFieldType_LONG_VARBINARY >
+		struct SInMySqlBind< EFieldType_BLOB >
 			: public SByteBufferInMySqlBind
 		{
 			/** Constructor
@@ -819,8 +819,8 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				bind.is_unsigned = false;
 				break;
 
-			case EFieldType_LONG_VARBINARY:
-				result = std::make_unique< SInMySqlBind< EFieldType_LONG_VARBINARY > >( bind, length );
+			case EFieldType_BLOB:
+				result = std::make_unique< SInMySqlBind< EFieldType_BLOB > >( bind, length );
 				bind.is_unsigned = false;
 				break;
 			}
@@ -932,8 +932,8 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				static_cast< CDatabaseValue< EFieldType_VARBINARY > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< EFieldType_VARBINARY > const & >( bind ).GetValue() );
 				break;
 
-			case EFieldType_LONG_VARBINARY:
-				static_cast< CDatabaseValue< EFieldType_LONG_VARBINARY > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< EFieldType_LONG_VARBINARY > const & >( bind ).GetValue() );
+			case EFieldType_BLOB:
+				static_cast< CDatabaseValue< EFieldType_BLOB > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< EFieldType_BLOB > const & >( bind ).GetValue() );
 				break;
 
 			default:

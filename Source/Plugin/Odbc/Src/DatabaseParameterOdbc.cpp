@@ -48,7 +48,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			SQL_C_TIME,			//!< EFieldType_TIME
 			SQL_C_BINARY,		//!< EFieldType_BINARY
 			SQL_C_BINARY,		//!< EFieldType_VARBINARY
-			SQL_C_BINARY,		//!< EFieldType_LONG_VARBINARY
+			SQL_C_BINARY,		//!< EFieldType_BLOB
 		};
 
 		SQLSMALLINT Types[EFieldType_COUNT] =
@@ -79,7 +79,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			SQL_TIME,			//!< EFieldType_TIME
 			SQL_BINARY,			//!< EFieldType_BINARY
 			SQL_VARBINARY,		//!< EFieldType_VARBINARY
-			SQL_LONGVARBINARY,	//!< EFieldType_LONG_VARBINARY
+			SQL_LONGVARBINARY,	//!< EFieldType_BLOB
 		};
 
 		SQLULEN Sizes[EFieldType_COUNT] =
@@ -110,7 +110,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			14,	//!< EFieldType_TIME
 			0,	//!< EFieldType_BINARY
 			0,	//!< EFieldType_VARBINARY
-			0,	//!< EFieldType_LONG_VARBINARY
+			0,	//!< EFieldType_BLOB
 		};
 
 		SQLSMALLINT InOutTypes[EParameterType_COUNT] =
@@ -314,8 +314,8 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			_binding = MakeOutBind< EFieldType_VARBINARY >( statementHandle, parameter, parameter.GetObjectValue() );
 			break;
 
-		case EFieldType_LONG_VARBINARY:
-			_binding = MakeOutBind< EFieldType_LONG_VARBINARY >( statementHandle, parameter, parameter.GetObjectValue() );
+		case EFieldType_BLOB:
+			_binding = MakeOutBind< EFieldType_BLOB >( statementHandle, parameter, parameter.GetObjectValue() );
 			break;
 
 		default:

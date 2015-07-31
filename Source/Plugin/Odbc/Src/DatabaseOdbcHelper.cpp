@@ -487,7 +487,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 			case EFieldType_BINARY:
 			case EFieldType_VARBINARY:
-			case EFieldType_LONG_VARBINARY:
+			case EFieldType_BLOB:
 				result = std::make_unique< CInOdbcBind< uint8_t * > >( SQL_C_BINARY, limits );
 				break;
 			}
@@ -673,7 +673,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			}
 			else if ( strTypel.find( STR( "BLOB" ) ) != String::npos )
 			{
-				result = EFieldType_LONG_VARBINARY;
+				result = EFieldType_BLOB;
 				limprec.first = -1;
 			}
 			else if ( strTypel.find( STR( "VARBINARY" ) ) != String::npos )
@@ -886,8 +886,8 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				static_cast< CDatabaseValue< EFieldType_VARBINARY > & >( value ).SetValue( VectorFromOdbcBinary( static_cast< CInOdbcBind< uint8_t * > const & >( bind ) ) );
 				break;
 
-			case EFieldType_LONG_VARBINARY:
-				static_cast< CDatabaseValue< EFieldType_LONG_VARBINARY > & >( value ).SetValue( VectorFromOdbcBinary( static_cast< CInOdbcBind< uint8_t * > const & >( bind ) ) );
+			case EFieldType_BLOB:
+				static_cast< CDatabaseValue< EFieldType_BLOB > & >( value ).SetValue( VectorFromOdbcBinary( static_cast< CInOdbcBind< uint8_t * > const & >( bind ) ) );
 				break;
 
 			default:
@@ -1169,7 +1169,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			break;
 
 		case SQL_LONGVARBINARY:
-			fieldType = EFieldType_LONG_VARBINARY;
+			fieldType = EFieldType_BLOB;
 			break;
 
 		case SQL_TYPE_DATE:

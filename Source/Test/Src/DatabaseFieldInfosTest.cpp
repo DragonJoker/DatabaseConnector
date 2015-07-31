@@ -152,7 +152,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		FieldInfosChecks< EFieldType_TIME >::All();
 		FieldInfosChecks< EFieldType_BINARY >::All();
 		FieldInfosChecks< EFieldType_VARBINARY >::All();
-		FieldInfosChecks< EFieldType_LONG_VARBINARY >::All();
+		FieldInfosChecks< EFieldType_BLOB >::All();
 
 		CLogger::LogInfo( StringStream() << "**** End TestCase_FieldInfos ****" );
 	}

@@ -52,7 +52,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			The value.
 		*/
-		DatabaseExport virtual String GetQueryValue() = 0;
+		DatabaseExport virtual String GetQueryValue()const = 0;
 
 		/** Get a pointer to the value.
 		@return
@@ -98,7 +98,7 @@ BEGIN_NAMESPACE_DATABASE
 		DatabaseExport virtual void DoSetNull() = 0;
 		/** Set parameter value to NULL.
 		*/
-		inline DatabaseConnectionSPtr DoGetConnection();
+		inline DatabaseConnectionSPtr DoGetConnection()const;
 
 	protected:
 		//! Value size

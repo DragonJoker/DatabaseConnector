@@ -21,7 +21,7 @@ BEGIN_NAMESPACE_DATABASE
 	//! The minimal date, time and date/time size. Needed because ODBC writes at least 16 bytes of data if the parameter is out or in/out
 	static const size_t MIN_DATE_TIME_SIZE = 16;
 
-	DatabaseConnectionSPtr CDatabaseValueBase::DoGetConnection()
+	DatabaseConnectionSPtr CDatabaseValueBase::DoGetConnection()const
 	{
 		return _connection.lock();
 	}
@@ -76,7 +76,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			The value.
 		*/
-		inline String GetQueryValue()
+		inline String GetQueryValue()const
 		{
 			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), *DoGetConnection() );
 		}
@@ -214,7 +214,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			The value.
 		*/
-		inline String GetQueryValue()
+		inline String GetQueryValue()const
 		{
 			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), *DoGetConnection() );
 		}
@@ -338,7 +338,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			The value.
 		*/
-		inline String GetQueryValue()
+		inline String GetQueryValue()const
 		{
 			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), *DoGetConnection() );
 		}
@@ -462,7 +462,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			The value.
 		*/
-		inline String GetQueryValue()
+		inline String GetQueryValue()const
 		{
 			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), *DoGetConnection() );
 		}
@@ -551,7 +551,7 @@ BEGIN_NAMESPACE_DATABASE
 		inline void SetValue( CDatabaseValueBase const & value )
 		{
 			CDatabaseValue< EFieldType_NCHAR > const & val = static_cast< CDatabaseValue< EFieldType_NCHAR > const & >( value );
-			SetValue( val._tValue.c_str(), val.GetPtrSize() );
+			SetValue( val._tValue.c_str(), uint32_t( val._tValue.size() ) );
 		}
 
 		/** Set value.
@@ -600,7 +600,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			The value.
 		*/
-		inline String GetQueryValue()
+		inline String GetQueryValue()const
 		{
 			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), *DoGetConnection() );
 		}
@@ -724,7 +724,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			The value.
 		*/
-		inline String GetQueryValue()
+		inline String GetQueryValue()const
 		{
 			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), *DoGetConnection() );
 		}
@@ -848,7 +848,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			The value.
 		*/
-		inline String GetQueryValue()
+		inline String GetQueryValue()const
 		{
 			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), *DoGetConnection() );
 		}
@@ -972,7 +972,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			The value.
 		*/
-		inline String GetQueryValue()
+		inline String GetQueryValue()const
 		{
 			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), *DoGetConnection() );
 		}
@@ -1096,7 +1096,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			The value.
 		*/
-		inline String GetQueryValue()
+		inline String GetQueryValue()const
 		{
 			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), *DoGetConnection() );
 		}
@@ -1149,10 +1149,10 @@ BEGIN_NAMESPACE_DATABASE
 		value_type _tValue;
 	};
 
-	/** Describes a EFieldType_LONG_VARBINARY field value.
+	/** Describes a EFieldType_BLOB field value.
 	*/
 	template< typename ValuePolicy >
-	class CDatabaseValue< EFieldType_LONG_VARBINARY, ValuePolicy >
+	class CDatabaseValue< EFieldType_BLOB, ValuePolicy >
 		: public CDatabaseValueBase
 		, private ValuePolicy
 	{
@@ -1184,7 +1184,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline void SetValue( CDatabaseValueBase const & value )
 		{
-			SetValue( static_cast< CDatabaseValue< EFieldType_LONG_VARBINARY > const & >( value )._tValue );
+			SetValue( static_cast< CDatabaseValue< EFieldType_BLOB > const & >( value )._tValue );
 		}
 
 		/** Set value.
@@ -1220,7 +1220,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			The value.
 		*/
-		inline String GetQueryValue()
+		inline String GetQueryValue()const
 		{
 			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), *DoGetConnection() );
 		}

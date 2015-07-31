@@ -57,6 +57,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		*/
 		void TestCase_ValueCopy();
 
+		/** Test CDatabaseValue GetQueryValue function
+		*/
+		void TestCase_ValueForQuery();
+
 		//!@}
 	};
 }
