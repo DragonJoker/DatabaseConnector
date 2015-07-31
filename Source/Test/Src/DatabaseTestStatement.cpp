@@ -1,11 +1,11 @@
 /************************************************************************//**
-* @file DatabaseStatementTest.cpp
+* @file DatabaseTestStatement.cpp
 * @author Sylvain Doremus
 * @version 1.0
 * @date 3/20/2014 2:47:39 PM
 *
 *
-* @brief CDatabaseStatementTest class declaration.
+* @brief CDatabaseTestStatement class declaration.
 *
 * @details Describes a statement for tests
 *
@@ -13,12 +13,11 @@
 
 #include "DatabaseTestPch.h"
 
-#include "DatabaseStatementTest.h"
+#include "DatabaseTestStatement.h"
 
-#include "DatabaseConnectionTest.h"
+#include "DatabaseTestConnection.h"
 
 #include <DatabaseStringUtils.h>
-
 #include <DatabaseRow.h>
 
 BEGIN_NAMESPACE_DATABASE_TEST
@@ -27,21 +26,21 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 	static const String ERROR_TEST_LOST_CONNECTION = STR( "The statement has lost his connection" );
 
-	CDatabaseStatementTest::CDatabaseStatementTest( DatabaseConnectionTestSPtr connection, const String & query )
+	CDatabaseTestStatement::CDatabaseTestStatement( DatabaseTestConnectionSPtr connection, const String & query )
 		: CDatabaseStatement( connection, query )
 		, _paramsCount( 0 )
 		, _connectionTest( connection )
 	{
 	}
 
-	CDatabaseStatementTest::~CDatabaseStatementTest()
+	CDatabaseTestStatement::~CDatabaseTestStatement()
 	{
 		Cleanup();
 	}
 
-	DatabaseParameterSPtr CDatabaseStatementTest::CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType )
+	DatabaseParameterSPtr CDatabaseTestStatement::CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType )
 	{
-		DatabaseConnectionTestSPtr connection = DoGetTestConnection();
+		DatabaseTestConnectionSPtr connection = DoGetTestConnection();
 
 		if ( !connection )
 		{
@@ -58,9 +57,9 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		return pReturn;
 	}
 
-	DatabaseParameterSPtr CDatabaseStatementTest::CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType )
+	DatabaseParameterSPtr CDatabaseTestStatement::CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType )
 	{
-		DatabaseConnectionTestSPtr connection = DoGetTestConnection();
+		DatabaseTestConnectionSPtr connection = DoGetTestConnection();
 
 		if ( !connection )
 		{
@@ -77,9 +76,9 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		return pReturn;
 	}
 
-	DatabaseParameterSPtr CDatabaseStatementTest::CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType )
+	DatabaseParameterSPtr CDatabaseTestStatement::CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType )
 	{
-		DatabaseConnectionTestSPtr connection = DoGetTestConnection();
+		DatabaseTestConnectionSPtr connection = DoGetTestConnection();
 
 		if ( !connection )
 		{
@@ -96,9 +95,9 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		return pReturn;
 	}
 
-	EErrorType CDatabaseStatementTest::DoInitialize()
+	EErrorType CDatabaseTestStatement::DoInitialize()
 	{
-		DatabaseConnectionTestSPtr connection = DoGetTestConnection();
+		DatabaseTestConnectionSPtr connection = DoGetTestConnection();
 
 		if ( !connection )
 		{
@@ -117,9 +116,9 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		return eReturn;
 	}
 
-	bool CDatabaseStatementTest::DoExecuteUpdate()
+	bool CDatabaseTestStatement::DoExecuteUpdate()
 	{
-		DatabaseConnectionTestSPtr connection = DoGetTestConnection();
+		DatabaseTestConnectionSPtr connection = DoGetTestConnection();
 
 		if ( !connection )
 		{
@@ -129,9 +128,9 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		return _query == STR( "TestUpdate" );
 	}
 
-	DatabaseResultSPtr CDatabaseStatementTest::DoExecuteSelect()
+	DatabaseResultSPtr CDatabaseTestStatement::DoExecuteSelect()
 	{
-		DatabaseConnectionTestSPtr connection = DoGetTestConnection();
+		DatabaseTestConnectionSPtr connection = DoGetTestConnection();
 
 		if ( !connection )
 		{
@@ -141,7 +140,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		return _query == STR( "TestSelect" ) ? BuildResult( DoGetTestConnection() ) : DatabaseResultSPtr();
 	}
 
-	void CDatabaseStatementTest::DoCleanup()
+	void CDatabaseTestStatement::DoCleanup()
 	{
 		_arrayQueries.clear();
 		_paramsCount = 0;

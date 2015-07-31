@@ -14,7 +14,17 @@
 #include "DatabaseTestPch.h"
 
 #include "DatabaseTest.h"
-#include "DatabaseInterfaceTest.h"
+#include "DatabaseDateTest.h"
+#include "DatabaseTimeTest.h"
+#include "DatabaseDateTimeTest.h"
+#include "DatabaseFixedPointTest.h"
+#include "DatabaseInt24Test.h"
+#include "DatabaseUInt24Test.h"
+#include "DatabaseNullableTest.h"
+#include "DatabaseStringUtilsTest.h"
+#include "DatabaseConnectionTest.h"
+#include "DatabaseFieldInfosTest.h"
+#include "DatabaseValueTest.h"
 #include "DatabaseMySqlTest.h"
 #include "DatabaseSqliteTest.h"
 #include "DatabasePostgreSqlTest.h"
@@ -26,12 +36,22 @@
 
 NAMESPACE_DATABASE::String g_path;
 
-std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseInterfaceTest > g_databaseInterfaceTest; //!<A pointer to the CDatabaseInterfaceTest class.
-std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseMySqlTest > g_databaseMySqlTest; //!<A pointer to the CDatabaseMySqlTest class.
-std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseSqliteTest > g_databaseSqliteTest; //!<A pointer to the CDatabasePluginSqlite class.
-std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabasePostgreSqlTest > g_databasePostgreSqlTest; //!<A pointer to the CDatabasePostgreSqlTest class.
-std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseOdbcMySqlTest > g_databaseOdbcMySqlTest; //!<A pointer to the CDatabaseOdbcMySqlTest class.
-std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseOdbcMsSqlTest > g_databaseOdbcMsSqlTest; //!<A pointer to the CDatabaseOdbcMsSqlTest class.
+std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseDateTest > g_databaseDateTest;
+std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseTimeTest > g_databaseTimeTest;
+std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseDateTimeTest > g_databaseDateTimeTest;
+std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseFixedPointTest > g_databaseFixedPointTest;
+std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseInt24Test > g_databaseInt24Test;
+std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseUInt24Test > g_databaseUInt24Test;
+std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseNullableTest > g_databaseNullableTest;
+std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseStringUtilsTest > g_databaseStringUtilsTest;
+std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseConnectionTest > g_databaseConnectionTest;
+std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseFieldInfosTest > g_databaseFieldInfosTest;
+std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseValueTest > g_databaseValueTest;
+std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseMySqlTest > g_databaseMySqlTest;
+std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseSqliteTest > g_databaseSqliteTest;
+std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabasePostgreSqlTest > g_databasePostgreSqlTest;
+std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseOdbcMySqlTest > g_databaseOdbcMySqlTest;
+std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseOdbcMsSqlTest > g_databaseOdbcMsSqlTest;
 std::unique_ptr< NAMESPACE_DATABASE_TEST::CTestPluginsLoader > g_pluginsLoader;
 
 void Startup( char * arg )
@@ -49,8 +69,18 @@ void Startup( char * arg )
 	NAMESPACE_DATABASE::CLogger::Initialise( NAMESPACE_DATABASE::ELogType_DEBUG );
 #endif
 	NAMESPACE_DATABASE::CLogger::SetFileName( g_path + STR( "DatabaseTest.log" ) );
-
-	g_databaseInterfaceTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseInterfaceTest >();
+	
+	g_databaseDateTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseDateTest >();
+	g_databaseTimeTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseTimeTest >();
+	g_databaseDateTimeTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseDateTimeTest >();
+	g_databaseFixedPointTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseFixedPointTest >();
+	g_databaseInt24Test = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseInt24Test >();
+	g_databaseUInt24Test = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseUInt24Test >();
+	g_databaseNullableTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseNullableTest >();
+	g_databaseStringUtilsTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseStringUtilsTest >();
+	g_databaseConnectionTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseConnectionTest >();
+	g_databaseFieldInfosTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseFieldInfosTest >();
+	g_databaseValueTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseValueTest >();
 	g_databaseMySqlTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseMySqlTest >();
 	g_databaseSqliteTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseSqliteTest >();
 	g_databasePostgreSqlTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabasePostgreSqlTest >();
@@ -62,7 +92,17 @@ void Startup( char * arg )
 void Shutdown()
 {
 	g_pluginsLoader.reset();
-	g_databaseInterfaceTest.reset();
+	g_databaseDateTest.reset();
+	g_databaseTimeTest.reset();
+	g_databaseDateTimeTest.reset();
+	g_databaseFixedPointTest.reset();
+	g_databaseInt24Test.reset();
+	g_databaseUInt24Test.reset();
+	g_databaseNullableTest.reset();
+	g_databaseStringUtilsTest.reset();
+	g_databaseConnectionTest.reset();
+	g_databaseFieldInfosTest.reset();
+	g_databaseValueTest.reset();
 	g_databaseMySqlTest.reset();
 	g_databaseSqliteTest.reset();
 	g_databasePostgreSqlTest.reset();
@@ -132,7 +172,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		TS_List.clear();
 
 		//!@remarks Create the TS' sequences
-		TS_List.push_back( g_databaseInterfaceTest->Init_Test_Suite() );
+		TS_List.push_back( g_databaseDateTest->Init_Test_Suite() );
+		TS_List.push_back( g_databaseTimeTest->Init_Test_Suite() );
+		TS_List.push_back( g_databaseDateTimeTest->Init_Test_Suite() );
+		TS_List.push_back( g_databaseFixedPointTest->Init_Test_Suite() );
+		TS_List.push_back( g_databaseInt24Test->Init_Test_Suite() );
+		TS_List.push_back( g_databaseUInt24Test->Init_Test_Suite() );
+		TS_List.push_back( g_databaseNullableTest->Init_Test_Suite() );
+		TS_List.push_back( g_databaseStringUtilsTest->Init_Test_Suite() );
+		TS_List.push_back( g_databaseConnectionTest->Init_Test_Suite() );
+		TS_List.push_back( g_databaseFieldInfosTest->Init_Test_Suite() );
+		TS_List.push_back( g_databaseValueTest->Init_Test_Suite() );
+
 #if defined( TESTING_PLUGIN_SQLITE )
 		//TS_List.push_back( g_databaseSqliteTest->Init_Test_Suite() );
 #endif

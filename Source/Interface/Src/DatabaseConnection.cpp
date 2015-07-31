@@ -26,6 +26,7 @@ BEGIN_NAMESPACE_DATABASE
 	static const std::wstring DB_SQL_WNULL = L"NULL";
 
 	static const String ERROR_DB_NOT_CONNECTED = STR( "Not connected" );
+	static const String ERROR_DB_NO_DATABASE_SELECTED = STR( "No database selected" );
 	static const String ERROR_DB_EXECUTION_ERROR = STR( "Query execution error: " );
 	static const String ERROR_DB_NOT_IN_TRANSACTION = STR( "Not in a transaction" );
 	static const String ERROR_DB_ALREADY_IN_TRANSACTION = STR( "Already in a transaction" );
@@ -63,6 +64,7 @@ BEGIN_NAMESPACE_DATABASE
 	void CDatabaseConnection::BeginTransaction( const String & name )
 	{
 		DoCheckConnected();
+		DoCheckDatabaseSelected();
 
 		if ( IsInTransaction( name ) )
 		{
@@ -80,6 +82,7 @@ BEGIN_NAMESPACE_DATABASE
 	void CDatabaseConnection::Commit( const String & name )
 	{
 		DoCheckConnected();
+		DoCheckDatabaseSelected();
 
 		if ( !IsInTransaction( name ) )
 		{
@@ -97,6 +100,7 @@ BEGIN_NAMESPACE_DATABASE
 	void CDatabaseConnection::RollBack( const String & name )
 	{
 		DoCheckConnected();
+		DoCheckDatabaseSelected();
 
 		if ( !IsInTransaction( name ) )
 		{
@@ -124,18 +128,21 @@ BEGIN_NAMESPACE_DATABASE
 	DatabaseStatementSPtr CDatabaseConnection::CreateStatement( const String & query )
 	{
 		DoCheckConnected();
+		DoCheckDatabaseSelected();
 		return DoCreateStatement( query );
 	}
 
 	DatabaseQuerySPtr CDatabaseConnection::CreateQuery( const String & query )
 	{
 		DoCheckConnected();
+		DoCheckDatabaseSelected();
 		return std::make_shared< CDatabaseQuery >( shared_from_this(), query );
 	}
 
 	bool CDatabaseConnection::ExecuteUpdate( const String & query )
 	{
 		DoCheckConnected();
+		DoCheckDatabaseSelected();
 		CLogger::LogInfo( INFO_DB_EXECUTING_SELECT + query );
 		bool ret = false;
 
@@ -168,6 +175,7 @@ BEGIN_NAMESPACE_DATABASE
 	DatabaseResultSPtr CDatabaseConnection::ExecuteSelect( const String & query )
 	{
 		DoCheckConnected();
+		DoCheckDatabaseSelected();
 		CLogger::LogInfo( INFO_DB_EXECUTING_SELECT + query );
 		DatabaseResultSPtr ret;
 
@@ -197,13 +205,15 @@ BEGIN_NAMESPACE_DATABASE
 		return ret;
 	}
 
-	void CDatabaseConnection::CreateDatabase( const String & database )
+	bool CDatabaseConnection::CreateDatabase( const String & database )
 	{
 		DoCheckConnected();
+		bool ret = false;
 
 		try
 		{
 			DoCreateDatabase( database );
+			ret = true;
 		}
 		catch ( CDatabaseException & exc )
 		{
@@ -223,15 +233,19 @@ BEGIN_NAMESPACE_DATABASE
 			stream << ERROR_DB_EXECUTION_ERROR << STR( "UNKNOWN" );
 			CLogger::LogError( stream );
 		}
+
+		return ret;
 	}
 
-	void CDatabaseConnection::SelectDatabase( const String & database )
+	bool CDatabaseConnection::SelectDatabase( const String & database )
 	{
 		DoCheckConnected();
+		bool ret = false;
 
 		try
 		{
 			DoSelectDatabase( database );
+			ret = true;
 		}
 		catch ( CDatabaseException & exc )
 		{
@@ -251,15 +265,19 @@ BEGIN_NAMESPACE_DATABASE
 			stream << ERROR_DB_EXECUTION_ERROR << STR( "UNKNOWN" );
 			CLogger::LogError( stream );
 		}
+
+		return ret;
 	}
 
-	void CDatabaseConnection::DestroyDatabase( const String & database )
+	bool CDatabaseConnection::DestroyDatabase( const String & database )
 	{
 		DoCheckConnected();
+		bool ret = false;
 
 		try
 		{
 			DoDestroyDatabase( database );
+			ret = true;
 		}
 		catch ( CDatabaseException & exc )
 		{
@@ -279,6 +297,8 @@ BEGIN_NAMESPACE_DATABASE
 			stream << ERROR_DB_EXECUTION_ERROR << STR( "UNKNOWN" );
 			CLogger::LogError( stream );
 		}
+
+		return ret;
 	}
 
 	String CDatabaseConnection::WriteDate( const DateType & date ) const
@@ -376,12 +396,20 @@ BEGIN_NAMESPACE_DATABASE
 		DoCheckConnected();
 		return DoParseDateTime( dateTime );
 	}
-	
+
 	void CDatabaseConnection::DoCheckConnected() const
 	{
 		if ( !IsConnected() )
 		{
 			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_DB_NOT_CONNECTED );
+		}
+	}
+
+	void CDatabaseConnection::DoCheckDatabaseSelected() const
+	{
+		if ( _database.empty() )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_DB_NO_DATABASE_SELECTED );
 		}
 	}
 

@@ -29,6 +29,42 @@
 
 BEGIN_NAMESPACE_DATABASE
 {
+	/** Structure used to tell if a field type needs limits
+	*/
+	template< EFieldType Type > struct SFieldTypeNeedsLimits : std::false_type {};
+
+	/** SFieldTypeNeedsLimits for EFieldType_CHAR
+	*/
+	template<> struct SFieldTypeNeedsLimits< EFieldType_CHAR > : std::true_type {};
+
+	/** SFieldTypeNeedsLimits for EFieldType_VARCHAR
+	*/
+	template<> struct SFieldTypeNeedsLimits< EFieldType_VARCHAR > : std::true_type {};
+
+	/** SFieldTypeNeedsLimits for EFieldType_NCHAR
+	*/
+	template<> struct SFieldTypeNeedsLimits< EFieldType_NCHAR > : std::true_type {};
+
+	/** SFieldTypeNeedsLimits for EFieldType_NVARCHAR
+	*/
+	template<> struct SFieldTypeNeedsLimits< EFieldType_NVARCHAR > : std::true_type {};
+
+	/** SFieldTypeNeedsLimits for EFieldType_BINARY
+	*/
+	template<> struct SFieldTypeNeedsLimits< EFieldType_BINARY > : std::true_type {};
+
+	/** SFieldTypeNeedsLimits for EFieldType_VARBINARY
+	*/
+	template<> struct SFieldTypeNeedsLimits< EFieldType_VARBINARY > : std::true_type {};
+
+	/** Structure used to tell if a field type needs precision
+	*/
+	template< EFieldType Type > struct SFieldTypeNeedsPrecision : std::false_type {};
+
+	/** SFieldTypeNeedsPrecision for EFieldType_FIXED_POINT
+	*/
+	template<> struct SFieldTypeNeedsPrecision< EFieldType_FIXED_POINT > : std::true_type {};
+
 	/** Structure used to retrieve the data type from the field type
 	*/
 	template< EFieldType Type > struct SFieldTypeDataTyper;

@@ -1,16 +1,16 @@
 /************************************************************************//**
- * @file DatabaseConnectionTest.h
- * @author Sylvain Doremus
- * @version 1.0
- * @date 12/02/2014 14:29:35
- *
- *
- * @brief Class testing connection common methods
+* @file DatabaseValueTest.h
+* @author Sylvain Doremus
+* @version 1.0
+* @date 12/02/2014 14:29:35
+*
+*
+* @brief Class testing CDatabaseValue class
 *
 ***************************************************************************/
 
-#ifndef ___DATABASE_CONNECTION_TEST_H___
-#define ___DATABASE_CONNECTION_TEST_H___
+#ifndef ___DATABASE_VALUE_TEST_H___
+#define ___DATABASE_VALUE_TEST_H___
 
 #include "DatabaseTestPrerequisites.h"
 
@@ -20,18 +20,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 {
 	/** Database unit test class
 	*/
-	class CDatabaseConnectionTest
+	class CDatabaseValueTest
 	{
 		/** @name Default constructor / Destructor */
 		//!@{
 	public:
 		/** Default constructor.
 		*/
-		CDatabaseConnectionTest();
+		CDatabaseValueTest();
 
 		/** Destructor.
 		*/
-		~CDatabaseConnectionTest();
+		~CDatabaseValueTest();
 		//!@}
 
 	public:
@@ -53,29 +53,9 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		*/
 		//!@{
 
-		/** Test the connection to server
+		/** Test CDatabaseValue copy function
 		*/
-		void TestCase_ConnectionChecks();
-
-		/** Test the database creation, selection, and destruction
-		*/
-		void TestCase_DatabaseManagementChecks();
-
-		/** Test the basic transaction checks
-		*/
-		void TestCase_TransactionChecks();
-
-		/** Test the basic query and statement checks
-		*/
-		void TestCase_QueryStatementChecks();
-
-		/** Test CDatabaseConnection::Write*** functions
-		*/
-		void TestCase_StringDataWrite();
-
-		/** Test CDatabaseConnection::Parse*** functions
-		*/
-		void TestCase_StringDataParse();
+		void TestCase_ValueCopy();
 
 		//!@}
 	};

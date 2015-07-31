@@ -129,7 +129,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[out] result
 			Error code.
 		@return
-			Results.
+			false if any problem occured.
 		*/
 		DatabaseExport bool ExecuteUpdate( const String & query );
 
@@ -146,20 +146,26 @@ BEGIN_NAMESPACE_DATABASE
 		/** Creates a database.
 		@param[in] database
 			Database identifier (name or DSN (ODBC)).
+		@return
+			false if any problem occured.
 		*/
-		DatabaseExport void CreateDatabase( const String & database );
+		DatabaseExport bool CreateDatabase( const String & database );
 
 		/** Selects a database.
 		@param[in] database
 			Database identifier (name or DSN (ODBC)).
+		@return
+			false if any problem occured.
 		*/
-		DatabaseExport void SelectDatabase( const String & database );
+		DatabaseExport bool SelectDatabase( const String & database );
 
 		/** Destroys a database.
 		@param[in] database
 			Database identifier (name or DSN (ODBC)).
+		@return
+			false if any problem occured.
 		*/
-		DatabaseExport void DestroyDatabase( const String & database );
+		DatabaseExport bool DestroyDatabase( const String & database );
 
 		//@}
 		/**@name Textual data writing */
@@ -331,6 +337,10 @@ BEGIN_NAMESPACE_DATABASE
 		/** Checks if the connection is established, throws an exception if not
 		*/
 		DatabaseExport void DoCheckConnected() const;
+
+		/** Checks that a database has been selected
+		*/
+		DatabaseExport void DoCheckDatabaseSelected() const;
 
 		/** Update the connection status.
 		@param value

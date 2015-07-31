@@ -1,16 +1,16 @@
 /************************************************************************//**
- * @file DatabaseConnectionTest.h
+ * @file DatabaseDateTest.h
  * @author Sylvain Doremus
  * @version 1.0
  * @date 12/02/2014 14:29:35
  *
  *
- * @brief Class testing connection common methods
+ * @brief Class testing Date functions
 *
 ***************************************************************************/
 
-#ifndef ___DATABASE_CONNECTION_TEST_H___
-#define ___DATABASE_CONNECTION_TEST_H___
+#ifndef ___DATABASE_DATE_TEST_H___
+#define ___DATABASE_DATE_TEST_H___
 
 #include "DatabaseTestPrerequisites.h"
 
@@ -20,18 +20,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 {
 	/** Database unit test class
 	*/
-	class CDatabaseConnectionTest
+	class CDatabaseDateTest
 	{
 		/** @name Default constructor / Destructor */
 		//!@{
 	public:
 		/** Default constructor.
 		*/
-		CDatabaseConnectionTest();
+		CDatabaseDateTest();
 
 		/** Destructor.
 		*/
-		~CDatabaseConnectionTest();
+		~CDatabaseDateTest();
 		//!@}
 
 	public:
@@ -53,29 +53,21 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		*/
 		//!@{
 
-		/** Test the connection to server
+		/** Test Date::Format
 		*/
-		void TestCase_ConnectionChecks();
+		void TestCase_FormatDate();
 
-		/** Test the database creation, selection, and destruction
+		/** Test Date::Print
 		*/
-		void TestCase_DatabaseManagementChecks();
+		void TestCase_PrintDate();
 
-		/** Test the basic transaction checks
+		/** Test Date::IsDate
 		*/
-		void TestCase_TransactionChecks();
+		void TestCase_IsDate();
 
-		/** Test the basic query and statement checks
+		/** Test Date::IsDate, filling a date
 		*/
-		void TestCase_QueryStatementChecks();
-
-		/** Test CDatabaseConnection::Write*** functions
-		*/
-		void TestCase_StringDataWrite();
-
-		/** Test CDatabaseConnection::Parse*** functions
-		*/
-		void TestCase_StringDataParse();
+		void TestCase_IsDateWithDate();
 
 		//!@}
 	};

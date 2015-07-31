@@ -50,6 +50,196 @@ BEGIN_NAMESPACE_DATABASE
 
 		return false;
 	}
+	
+	bool NeedsLimits( EFieldType type )
+	{
+		bool result = false;
+
+		switch ( type )
+		{
+		case EFieldType_NULL:
+			result = SFieldTypeNeedsLimits< EFieldType_NULL >::value;
+			break;
+		case EFieldType_BIT:
+			result = SFieldTypeNeedsLimits< EFieldType_BIT >::value;
+			break;
+		case EFieldType_SINT8:
+			result = SFieldTypeNeedsLimits< EFieldType_SINT8 >::value;
+			break;
+		case EFieldType_SINT16:
+			result = SFieldTypeNeedsLimits< EFieldType_SINT16 >::value;
+			break;
+		case EFieldType_SINT24:
+			result = SFieldTypeNeedsLimits< EFieldType_SINT24 >::value;
+			break;
+		case EFieldType_SINT32:
+			result = SFieldTypeNeedsLimits< EFieldType_SINT32 >::value;
+			break;
+		case EFieldType_SINT64:
+			result = SFieldTypeNeedsLimits< EFieldType_SINT64 >::value;
+			break;
+		case EFieldType_UINT8:
+			result = SFieldTypeNeedsLimits< EFieldType_UINT8 >::value;
+			break;
+		case EFieldType_UINT16:
+			result = SFieldTypeNeedsLimits< EFieldType_UINT16 >::value;
+			break;
+		case EFieldType_UINT24:
+			result = SFieldTypeNeedsLimits< EFieldType_UINT24 >::value;
+			break;
+		case EFieldType_UINT32:
+			result = SFieldTypeNeedsLimits< EFieldType_UINT32 >::value;
+			break;
+		case EFieldType_UINT64:
+			result = SFieldTypeNeedsLimits< EFieldType_UINT64 >::value;
+			break;
+		case EFieldType_FLOAT32:
+			result = SFieldTypeNeedsLimits< EFieldType_FLOAT32 >::value;
+			break;
+		case EFieldType_FLOAT64:
+			result = SFieldTypeNeedsLimits< EFieldType_FLOAT64 >::value;
+			break;
+		case EFieldType_FIXED_POINT:
+			result = SFieldTypeNeedsLimits< EFieldType_FIXED_POINT >::value;
+			break;
+		case EFieldType_CHAR:
+			result = SFieldTypeNeedsLimits< EFieldType_CHAR >::value;
+			break;
+		case EFieldType_VARCHAR:
+			result = SFieldTypeNeedsLimits< EFieldType_VARCHAR >::value;
+			break;
+		case EFieldType_TEXT:
+			result = SFieldTypeNeedsLimits< EFieldType_TEXT >::value;
+			break;
+		case EFieldType_NCHAR:
+			result = SFieldTypeNeedsLimits< EFieldType_NCHAR >::value;
+			break;
+		case EFieldType_NVARCHAR:
+			result = SFieldTypeNeedsLimits< EFieldType_NVARCHAR >::value;
+			break;
+		case EFieldType_NTEXT:
+			result = SFieldTypeNeedsLimits< EFieldType_NTEXT >::value;
+			break;
+		case EFieldType_DATE:
+			result = SFieldTypeNeedsLimits< EFieldType_DATE >::value;
+			break;
+		case EFieldType_DATETIME:
+			result = SFieldTypeNeedsLimits< EFieldType_DATETIME >::value;
+			break;
+		case EFieldType_TIME:
+			result = SFieldTypeNeedsLimits< EFieldType_TIME >::value;
+			break;
+		case EFieldType_BINARY:
+			result = SFieldTypeNeedsLimits< EFieldType_BINARY >::value;
+			break;
+		case EFieldType_VARBINARY:
+			result = SFieldTypeNeedsLimits< EFieldType_VARBINARY >::value;
+			break;
+		case EFieldType_LONG_VARBINARY:
+			result = SFieldTypeNeedsLimits< EFieldType_LONG_VARBINARY >::value;
+			break;
+		default:
+			result = false;
+			break;
+		}
+
+		return result;
+	}
+	
+	bool NeedsPrecision( EFieldType type )
+	{
+		bool result = false;
+
+		switch ( type )
+		{
+		case EFieldType_NULL:
+			result = SFieldTypeNeedsPrecision< EFieldType_NULL >::value;
+			break;
+		case EFieldType_BIT:
+			result = SFieldTypeNeedsPrecision< EFieldType_BIT >::value;
+			break;
+		case EFieldType_SINT8:
+			result = SFieldTypeNeedsPrecision< EFieldType_SINT8 >::value;
+			break;
+		case EFieldType_SINT16:
+			result = SFieldTypeNeedsPrecision< EFieldType_SINT16 >::value;
+			break;
+		case EFieldType_SINT24:
+			result = SFieldTypeNeedsPrecision< EFieldType_SINT24 >::value;
+			break;
+		case EFieldType_SINT32:
+			result = SFieldTypeNeedsPrecision< EFieldType_SINT32 >::value;
+			break;
+		case EFieldType_SINT64:
+			result = SFieldTypeNeedsPrecision< EFieldType_SINT64 >::value;
+			break;
+		case EFieldType_UINT8:
+			result = SFieldTypeNeedsPrecision< EFieldType_UINT8 >::value;
+			break;
+		case EFieldType_UINT16:
+			result = SFieldTypeNeedsPrecision< EFieldType_UINT16 >::value;
+			break;
+		case EFieldType_UINT24:
+			result = SFieldTypeNeedsPrecision< EFieldType_UINT24 >::value;
+			break;
+		case EFieldType_UINT32:
+			result = SFieldTypeNeedsPrecision< EFieldType_UINT32 >::value;
+			break;
+		case EFieldType_UINT64:
+			result = SFieldTypeNeedsPrecision< EFieldType_UINT64 >::value;
+			break;
+		case EFieldType_FLOAT32:
+			result = SFieldTypeNeedsPrecision< EFieldType_FLOAT32 >::value;
+			break;
+		case EFieldType_FLOAT64:
+			result = SFieldTypeNeedsPrecision< EFieldType_FLOAT64 >::value;
+			break;
+		case EFieldType_FIXED_POINT:
+			result = SFieldTypeNeedsPrecision< EFieldType_FIXED_POINT >::value;
+			break;
+		case EFieldType_CHAR:
+			result = SFieldTypeNeedsPrecision< EFieldType_CHAR >::value;
+			break;
+		case EFieldType_VARCHAR:
+			result = SFieldTypeNeedsPrecision< EFieldType_VARCHAR >::value;
+			break;
+		case EFieldType_TEXT:
+			result = SFieldTypeNeedsPrecision< EFieldType_TEXT >::value;
+			break;
+		case EFieldType_NCHAR:
+			result = SFieldTypeNeedsPrecision< EFieldType_NCHAR >::value;
+			break;
+		case EFieldType_NVARCHAR:
+			result = SFieldTypeNeedsPrecision< EFieldType_NVARCHAR >::value;
+			break;
+		case EFieldType_NTEXT:
+			result = SFieldTypeNeedsPrecision< EFieldType_NTEXT >::value;
+			break;
+		case EFieldType_DATE:
+			result = SFieldTypeNeedsPrecision< EFieldType_DATE >::value;
+			break;
+		case EFieldType_DATETIME:
+			result = SFieldTypeNeedsPrecision< EFieldType_DATETIME >::value;
+			break;
+		case EFieldType_TIME:
+			result = SFieldTypeNeedsPrecision< EFieldType_TIME >::value;
+			break;
+		case EFieldType_BINARY:
+			result = SFieldTypeNeedsPrecision< EFieldType_BINARY >::value;
+			break;
+		case EFieldType_VARBINARY:
+			result = SFieldTypeNeedsPrecision< EFieldType_VARBINARY >::value;
+			break;
+		case EFieldType_LONG_VARBINARY:
+			result = SFieldTypeNeedsPrecision< EFieldType_LONG_VARBINARY >::value;
+			break;
+		default:
+			result = false;
+			break;
+		}
+
+		return result;
+	}
 
 	CDatabaseParameter::CDatabaseParameter( DatabaseConnectionSPtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
 		: CDatabaseValuedObject( connection )

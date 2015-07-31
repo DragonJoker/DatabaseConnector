@@ -30,12 +30,28 @@ BEGIN_NAMESPACE_DATABASE
 			Database connection.
 		@param[in] name
 			Field name.
+			*/
+		DatabaseExport CDatabaseFieldInfos( const String & name );
+		/** Constructor.
+		@param[in] connection
+			Database connection.
+		@param[in] name
+			Field name.
 		@param[in] type
 			Field type
-		@param[in] limprec
-			Field limits or precision (depends on field type)
 			*/
-		DatabaseExport CDatabaseFieldInfos( const String & name, EFieldType type = EFieldType_NULL, uint32_t limprec = -1 );
+		DatabaseExport CDatabaseFieldInfos( const String & name, EFieldType type );
+		/** Constructor.
+		@param[in] connection
+			Database connection.
+		@param[in] name
+			Field name.
+		@param[in] type
+			Field type
+		@param[in] limits
+			Field limits
+			*/
+		DatabaseExport CDatabaseFieldInfos( const String & name, EFieldType type, uint32_t limits );
 
 		/** Constructor.
 		@param[in] connection
@@ -47,7 +63,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] precision
 			Field precision
 			*/
-		DatabaseExport CDatabaseFieldInfos( const String & name, EFieldType type, std::pair< uint32_t, uint32_t > _precision );
+		DatabaseExport CDatabaseFieldInfos( const String & name, EFieldType type, const std::pair< uint32_t, uint32_t > & precision );
 
 		/** Destructor.
 		*/
@@ -59,11 +75,27 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport EFieldType GetType() const;
 
-		/** Get field type.
-		@return
-			Field type.
+		/** Set field type.
+		@param[in] type
+			Field type
 		*/
 		DatabaseExport void SetType( EFieldType type );
+
+		/** Set field type, for types needing a limit.
+		@param[in] type
+			Field type
+		@param[in] limits
+			Field limits
+		*/
+		DatabaseExport void SetType( EFieldType type, uint32_t limits );
+
+		/** Set field type, for types needing a precision.
+		@param[in] type
+			Field type
+		@param[in] precision
+			Field precision
+		*/
+		DatabaseExport void SetType( EFieldType type, const std::pair< uint32_t, uint32_t > & precision );
 
 		/** Get field name.
 		@return

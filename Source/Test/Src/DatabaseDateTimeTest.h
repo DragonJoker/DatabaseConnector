@@ -1,16 +1,16 @@
 /************************************************************************//**
- * @file DatabaseConnectionTest.h
+ * @file DatabaseDateTimeTest.h
  * @author Sylvain Doremus
  * @version 1.0
  * @date 12/02/2014 14:29:35
  *
  *
- * @brief Class testing connection common methods
+ * @brief Class testing DateTime functions
 *
 ***************************************************************************/
 
-#ifndef ___DATABASE_CONNECTION_TEST_H___
-#define ___DATABASE_CONNECTION_TEST_H___
+#ifndef ___DATABASE_DATETIME_TEST_H___
+#define ___DATABASE_DATETIME_TEST_H___
 
 #include "DatabaseTestPrerequisites.h"
 
@@ -20,18 +20,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 {
 	/** Database unit test class
 	*/
-	class CDatabaseConnectionTest
+	class CDatabaseDateTimeTest
 	{
 		/** @name Default constructor / Destructor */
 		//!@{
 	public:
 		/** Default constructor.
 		*/
-		CDatabaseConnectionTest();
+		CDatabaseDateTimeTest();
 
 		/** Destructor.
 		*/
-		~CDatabaseConnectionTest();
+		~CDatabaseDateTimeTest();
 		//!@}
 
 	public:
@@ -53,33 +53,25 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		*/
 		//!@{
 
-		/** Test the connection to server
+		/** Test DateTime::Format
 		*/
-		void TestCase_ConnectionChecks();
+		void TestCase_FormatDateTime();
 
-		/** Test the database creation, selection, and destruction
+		/** Test DateTime::Print
 		*/
-		void TestCase_DatabaseManagementChecks();
+		void TestCase_PrintDateTime();
 
-		/** Test the basic transaction checks
+		/** Test DateTime::IsDateTime
 		*/
-		void TestCase_TransactionChecks();
+		void TestCase_IsDateTime();
 
-		/** Test the basic query and statement checks
+		/** Test DateTime::IsDateTime, filling a date/time
 		*/
-		void TestCase_QueryStatementChecks();
-
-		/** Test CDatabaseConnection::Write*** functions
-		*/
-		void TestCase_StringDataWrite();
-
-		/** Test CDatabaseConnection::Parse*** functions
-		*/
-		void TestCase_StringDataParse();
+		void TestCase_IsDateTimeWithDateTime();
 
 		//!@}
 	};
 }
 END_NAMESPACE_DATABASE_TEST
 
-#endif // ___DATABASE_INTERFACE_TEST_H___
+#endif // ___DATABASE_DATETIME_TEST_H___

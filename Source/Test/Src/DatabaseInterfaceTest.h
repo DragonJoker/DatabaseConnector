@@ -1,11 +1,11 @@
 /************************************************************************//**
- * @file DatabaseInterfaceTest.h
- * @author Sylvain Doremus
- * @version 1.0
- * @date 12/02/2014 14:29:35
- *
- *
- * @brief Class testing all Interface members
+* @file DatabaseInterfaceTest.h
+* @author Sylvain Doremus
+* @version 1.0
+* @date 12/02/2014 14:29:35
+*
+*
+* @brief Class testing all Interface members
 *
 ***************************************************************************/
 
@@ -50,52 +50,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 	private:
 		/** @name TCs' implementation
-		*  TCs' implementation
 		*/
-
-		/** Test the basic CDatabaseDate functions
-		*/
-		void TestCase_DatabaseDate();
-
-		/** Test the basic CDatabaseDateTime functions
-		*/
-		void TestCase_DatabaseDateTime();
-
-		/** Test the basic CDatabaseTime functions
-		*/
-		void TestCase_DatabaseTime();
-
-		/** Test the basic CDatabaseFixedPoint functions
-		*/
-		void TestCase_DatabaseFixedPoint();
-
-		/** Test the basic CDatabaseInt24 functions
-		*/
-		void TestCase_DatabaseInt24();
-
-		/** Test the basic CDatabaseUInt24 functions
-		*/
-		void TestCase_DatabaseUInt24();
-
-		/** Test the basic CDatabaseNullable functions
-		*/
-		void TestCase_DatabaseNullable();
-
-		/** Test the basic CDatabaseStringUtils functions
-		*/
-		void TestCase_DatabaseStringUtils();
-
-		/** Test the basic CDatabaseConnection functions
-		*/
-		void TestCase_DatabaseConnection();
-
-		/** Test the basic CDatabaseField functions
-		*/
-		void TestCase_DatabaseFieldInfos();
-
-		/** Test the basic CDatabaseValue functions
-		*/
-		void TestCase_DatabaseValue();
+		//!@{
 
 		/** Test the basic CDatabaseValuedObject functions
 		*/
@@ -124,6 +80,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		/** Test the basic CDatabaseStatement functions
 		*/
 		void TestCase_DatabaseStatement();
+
 		//!@}
 	};
 }

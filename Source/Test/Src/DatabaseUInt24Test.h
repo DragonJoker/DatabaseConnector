@@ -1,16 +1,16 @@
 /************************************************************************//**
- * @file DatabaseConnectionTest.h
- * @author Sylvain Doremus
- * @version 1.0
- * @date 12/02/2014 14:29:35
- *
- *
- * @brief Class testing connection common methods
+* @file DatabaseUInt24Test.h
+* @author Sylvain Doremus
+* @version 1.0
+* @date 12/02/2014 14:29:35
+*
+*
+* @brief Class testing uint24_t type
 *
 ***************************************************************************/
 
-#ifndef ___DATABASE_CONNECTION_TEST_H___
-#define ___DATABASE_CONNECTION_TEST_H___
+#ifndef ___DATABASE_UINT24_TEST_H___
+#define ___DATABASE_UINT24_TEST_H___
 
 #include "DatabaseTestPrerequisites.h"
 
@@ -20,18 +20,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 {
 	/** Database unit test class
 	*/
-	class CDatabaseConnectionTest
+	class CDatabaseUInt24Test
 	{
 		/** @name Default constructor / Destructor */
 		//!@{
 	public:
 		/** Default constructor.
 		*/
-		CDatabaseConnectionTest();
+		CDatabaseUInt24Test();
 
 		/** Destructor.
 		*/
-		~CDatabaseConnectionTest();
+		~CDatabaseUInt24Test();
 		//!@}
 
 	public:
@@ -53,33 +53,37 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		*/
 		//!@{
 
-		/** Test the connection to server
+		/** Test uint24_t construction
 		*/
-		void TestCase_ConnectionChecks();
+		void TestCase_UInt24Construction();
 
-		/** Test the database creation, selection, and destruction
+		/** Test uint24_t addition
 		*/
-		void TestCase_DatabaseManagementChecks();
+		void TestCase_UInt24Addition();
 
-		/** Test the basic transaction checks
+		/** Test uint24_t subtraction
 		*/
-		void TestCase_TransactionChecks();
+		void TestCase_UInt24Subtraction();
 
-		/** Test the basic query and statement checks
+		/** Test uint24_t multiplication
 		*/
-		void TestCase_QueryStatementChecks();
+		void TestCase_UInt24Multiplication();
 
-		/** Test CDatabaseConnection::Write*** functions
+		/** Test uint24_t division
 		*/
-		void TestCase_StringDataWrite();
+		void TestCase_UInt24Division();
 
-		/** Test CDatabaseConnection::Parse*** functions
+		/** Test uint24_t left shift
 		*/
-		void TestCase_StringDataParse();
+		void TestCase_UInt24LeftShift();
+
+		/** Test uint24_t right shift
+		*/
+		void TestCase_UInt24RightShift();
 
 		//!@}
 	};
 }
 END_NAMESPACE_DATABASE_TEST
 
-#endif // ___DATABASE_INTERFACE_TEST_H___
+#endif // ___DATABASE_UINT24_TEST_H___

@@ -1,16 +1,16 @@
 /************************************************************************//**
- * @file DatabaseConnectionTest.h
- * @author Sylvain Doremus
- * @version 1.0
- * @date 12/02/2014 14:29:35
- *
- *
- * @brief Class testing connection common methods
+* @file DatabaseTimeTest.h
+* @author Sylvain Doremus
+* @version 1.0
+* @date 12/02/2014 14:29:35
+*
+*
+* @brief Class testing Time functions
 *
 ***************************************************************************/
 
-#ifndef ___DATABASE_CONNECTION_TEST_H___
-#define ___DATABASE_CONNECTION_TEST_H___
+#ifndef ___DATABASE_TIME_TEST_H___
+#define ___DATABASE_TIME_TEST_H___
 
 #include "DatabaseTestPrerequisites.h"
 
@@ -20,18 +20,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 {
 	/** Database unit test class
 	*/
-	class CDatabaseConnectionTest
+	class CDatabaseTimeTest
 	{
 		/** @name Default constructor / Destructor */
 		//!@{
 	public:
 		/** Default constructor.
 		*/
-		CDatabaseConnectionTest();
+		CDatabaseTimeTest();
 
 		/** Destructor.
 		*/
-		~CDatabaseConnectionTest();
+		~CDatabaseTimeTest();
 		//!@}
 
 	public:
@@ -53,33 +53,25 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		*/
 		//!@{
 
-		/** Test the connection to server
+		/** Test Time::Format
 		*/
-		void TestCase_ConnectionChecks();
+		void TestCase_FormatTime();
 
-		/** Test the database creation, selection, and destruction
+		/** Test Time::Print
 		*/
-		void TestCase_DatabaseManagementChecks();
+		void TestCase_PrintTime();
 
-		/** Test the basic transaction checks
+		/** Test Time::IsTime
 		*/
-		void TestCase_TransactionChecks();
+		void TestCase_IsTime();
 
-		/** Test the basic query and statement checks
+		/** Test Time::IsTime, filling a time
 		*/
-		void TestCase_QueryStatementChecks();
-
-		/** Test CDatabaseConnection::Write*** functions
-		*/
-		void TestCase_StringDataWrite();
-
-		/** Test CDatabaseConnection::Parse*** functions
-		*/
-		void TestCase_StringDataParse();
+		void TestCase_IsTimeWithTime();
 
 		//!@}
 	};
 }
 END_NAMESPACE_DATABASE_TEST
 
-#endif // ___DATABASE_INTERFACE_TEST_H___
+#endif // ___DATABASE_TIME_TEST_H___

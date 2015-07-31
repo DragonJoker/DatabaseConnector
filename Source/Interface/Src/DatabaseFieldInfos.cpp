@@ -16,6 +16,7 @@
 #include "DatabaseFieldInfos.h"
 
 #include "DatabaseStringUtils.h"
+#include "DatabaseException.h"
 
 BEGIN_NAMESPACE_DATABASE
 {
@@ -48,15 +49,41 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	}
 
-	CDatabaseFieldInfos::CDatabaseFieldInfos( const String & name, EFieldType type, uint32_t limprec )
-		: _name( name )
-		, _type( type )
-		, _precision( std::make_pair( limprec, 0 ) )
+	const String & ERROR_DB_MISSING_LIMITS = STR( "Missing limits for field " );
+	const String & ERROR_DB_MISSING_PRECISION = STR( "Missing precision for field " );
+
+	CDatabaseFieldInfos::CDatabaseFieldInfos( const String & name )
+		: CDatabaseFieldInfos( name, EFieldType_NULL, -1 )
 	{
 		// Empty
 	}
 
-	CDatabaseFieldInfos::CDatabaseFieldInfos( const String & name, EFieldType type, std::pair< uint32_t, uint32_t > precision )
+	CDatabaseFieldInfos::CDatabaseFieldInfos( const String & name, EFieldType type )
+		: CDatabaseFieldInfos( name, type, -1 )
+	{
+		if ( NeedsLimits( type ) )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_MISSING_LIMITS + name );
+		}
+
+		if ( NeedsPrecision( type ) )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_MISSING_PRECISION + name );
+		}
+	}
+
+	CDatabaseFieldInfos::CDatabaseFieldInfos( const String & name, EFieldType type, uint32_t limits )
+		: _name( name )
+		, _type( type )
+		, _precision( std::make_pair( limits, 0 ) )
+	{
+		if ( NeedsPrecision( type ) )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_MISSING_PRECISION + name );
+		}
+	}
+
+	CDatabaseFieldInfos::CDatabaseFieldInfos( const String & name, EFieldType type, const std::pair< uint32_t, uint32_t > & precision )
 		: _name( name )
 		, _type( type )
 		, _precision( precision )
@@ -76,7 +103,34 @@ BEGIN_NAMESPACE_DATABASE
 
 	void CDatabaseFieldInfos::SetType( EFieldType type )
 	{
+		if ( NeedsLimits( type ) )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_MISSING_LIMITS + GetName() );
+		}
+
+		if ( NeedsPrecision( type ) )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_MISSING_PRECISION + GetName() );
+		}
+
 		_type = type;
+	}
+
+	void CDatabaseFieldInfos::SetType( EFieldType type, uint32_t limits )
+	{
+		if ( NeedsPrecision( type ) )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, ERROR_DB_MISSING_PRECISION + GetName() );
+		}
+
+		_type = type;
+		_precision = std::make_pair( limits, 0 );
+	}
+
+	void CDatabaseFieldInfos::SetType( EFieldType type, const std::pair< uint32_t, uint32_t > & precision )
+	{
+		_type = type;
+		_precision = precision;
 	}
 
 	const String & CDatabaseFieldInfos::GetName() const

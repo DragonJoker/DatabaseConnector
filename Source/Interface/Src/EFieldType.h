@@ -59,6 +59,18 @@ BEGIN_NAMESPACE_DATABASE
 		True if typeA and typeB are compatible
 	*/
 	DatabaseExport bool AreTypesCompatible( EFieldType typeA, EFieldType typeB );
+
+	/** Function used to tell if a field type needs limits
+	@param[in] type
+		The field type
+	*/
+	DatabaseExport bool NeedsLimits( EFieldType type );
+
+	/** Function used to tell if a field type needs precision
+	@param[in] type
+		The field type
+	*/
+	DatabaseExport bool NeedsPrecision( EFieldType type );
 }
 END_NAMESPACE_DATABASE
 

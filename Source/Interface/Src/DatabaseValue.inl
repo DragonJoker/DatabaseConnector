@@ -23,7 +23,7 @@ BEGIN_NAMESPACE_DATABASE
 
 	DatabaseConnectionSPtr CDatabaseValueBase::DoGetConnection()
 	{
-	return _connection.lock();
+		return _connection.lock();
 	}
 
 	/** Describes a value, used in fields and parameters.

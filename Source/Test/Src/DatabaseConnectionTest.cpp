@@ -1,13 +1,11 @@
 /************************************************************************//**
-* @file DatabaseConnectionTest.cpp
-* @author Sylvain Doremus
-* @version 1.0
-* @date 3/14/2014 5:03:15 PM
-*
-*
-* @brief CDatabaseConnectionTest class declaration.
-*
-* @details Describes a connection used to run the tests.
+ * @file DatabaseConnectionTest.cpp
+ * @author Sylvain Doremus
+ * @version 1.0
+ * @date 12/02/2014 14:29:35
+ *
+ *
+ * @brief Class testing connection common methods
 *
 ***************************************************************************/
 
@@ -15,509 +13,489 @@
 
 #include "DatabaseConnectionTest.h"
 
-#include "DatabaseStatementTest.h"
 #include "DatabaseTestUtils.h"
+#include "DatabaseTestConnection.h"
+#include "DatabaseTestStatement.h"
 
-#include <DatabaseDate.h>
-#include <DatabaseDateTime.h>
-#include <DatabaseDateTimeHelper.h>
-#include <DatabaseTime.h>
-#include <DatabaseFieldInfos.h>
-
-#include <DatabaseStringUtils.h>
-#include <DatabaseLogger.h>
+namespace std
+{
+	inline ostream& operator <<( ostream & out, const wstring & value )
+	{
+		 out << NAMESPACE_DATABASE::StringUtils::ToStr( value );
+		 return out;
+	}
+}
 
 BEGIN_NAMESPACE_DATABASE_TEST
 {
-	namespace
+	CDatabaseConnectionTest::CDatabaseConnectionTest()
 	{
-		DatabaseFieldSPtr CreateField( DatabaseConnectionSPtr connection, DatabaseFieldInfosSPtr infos )
-		{
-			DatabaseFieldSPtr field = std::make_shared< CDatabaseField >( connection, infos );
-
-			switch ( infos->GetType() )
-			{
-			case EFieldType_BIT:
-				static_cast< CDatabaseValue< EFieldType_BIT > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_BIT >::InitialiseValue() );
-				break;
-			case EFieldType_SINT8:
-				static_cast< CDatabaseValue< EFieldType_SINT8 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_SINT8 >::InitialiseValue() );
-				break;
-			case EFieldType_SINT16:
-				static_cast< CDatabaseValue< EFieldType_SINT16 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_SINT16 >::InitialiseValue() );
-				break;
-			case EFieldType_SINT24:
-				static_cast< CDatabaseValue< EFieldType_SINT24 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_SINT24 >::InitialiseValue() );
-				break;
-			case EFieldType_SINT32:
-				static_cast< CDatabaseValue< EFieldType_SINT32 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_SINT32 >::InitialiseValue() );
-				break;
-			case EFieldType_SINT64:
-				static_cast< CDatabaseValue< EFieldType_SINT64 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_SINT64 >::InitialiseValue() );
-				break;
-			case EFieldType_UINT8:
-				static_cast< CDatabaseValue< EFieldType_UINT8 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_UINT8 >::InitialiseValue() );
-				break;
-			case EFieldType_UINT16:
-				static_cast< CDatabaseValue< EFieldType_UINT16 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_UINT16 >::InitialiseValue() );
-				break;
-			case EFieldType_UINT24:
-				static_cast< CDatabaseValue< EFieldType_UINT24 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_UINT24 >::InitialiseValue() );
-				break;
-			case EFieldType_UINT32:
-				static_cast< CDatabaseValue< EFieldType_UINT32 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_UINT32 >::InitialiseValue() );
-				break;
-			case EFieldType_UINT64:
-				static_cast< CDatabaseValue< EFieldType_UINT64 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_UINT64 >::InitialiseValue() );
-				break;
-			case EFieldType_FLOAT32:
-				static_cast< CDatabaseValue< EFieldType_FLOAT32 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_FLOAT32 >::InitialiseValue() );
-				break;
-			case EFieldType_FLOAT64:
-				static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_FLOAT64 >::InitialiseValue() );
-				break;
-			case EFieldType_FIXED_POINT:
-				static_cast< CDatabaseValue< EFieldType_FIXED_POINT > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue( infos->GetPrecision() ) );
-				break;
-			case EFieldType_CHAR:
-				static_cast< CDatabaseValue< EFieldType_CHAR > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_CHAR >::InitialiseValue( infos->GetLimits() ) );
-				break;
-			case EFieldType_VARCHAR:
-				static_cast< CDatabaseValue< EFieldType_VARCHAR > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_VARCHAR >::InitialiseValue( infos->GetLimits() ) );
-				break;
-			case EFieldType_TEXT:
-				static_cast< CDatabaseValue< EFieldType_TEXT > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_TEXT >::InitialiseValue() );
-				break;
-			case EFieldType_NCHAR:
-				static_cast< CDatabaseValue< EFieldType_NCHAR > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_NCHAR >::InitialiseValue( infos->GetLimits() ) );
-				break;
-			case EFieldType_NVARCHAR:
-				static_cast< CDatabaseValue< EFieldType_NVARCHAR > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_NVARCHAR >::InitialiseValue( infos->GetLimits() ) );
-				break;
-			case EFieldType_NTEXT:
-				static_cast< CDatabaseValue< EFieldType_NTEXT > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_NTEXT >::InitialiseValue() );
-				break;
-			case EFieldType_DATE:
-				static_cast< CDatabaseValue< EFieldType_DATE > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_DATE >::InitialiseValue() );
-				break;
-			case EFieldType_DATETIME:
-				static_cast< CDatabaseValue< EFieldType_DATETIME > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_DATETIME >::InitialiseValue() );
-				break;
-			case EFieldType_TIME:
-				static_cast< CDatabaseValue< EFieldType_TIME > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_TIME >::InitialiseValue() );
-				break;
-			case EFieldType_BINARY:
-				static_cast< CDatabaseValue< EFieldType_BINARY > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_BINARY >::InitialiseValue( infos->GetLimits() ) );
-				break;
-			case EFieldType_VARBINARY:
-				static_cast< CDatabaseValue< EFieldType_VARBINARY > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_VARBINARY >::InitialiseValue( infos->GetLimits() ) );
-				break;
-			case EFieldType_LONG_VARBINARY:
-				static_cast< CDatabaseValue< EFieldType_LONG_VARBINARY > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_LONG_VARBINARY >::InitialiseValue() );
-				break;
-			}
-
-			return field;
-		}
-	}
-
-	DatabaseResultSPtr BuildResult( DatabaseConnectionSPtr connection )
-	{
-		DatabaseFieldInfosPtrArray fieldInfos;
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_BIT" ), EFieldType_BIT ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_SINT8" ), EFieldType_SINT8 ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_SINT16" ), EFieldType_SINT16 ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_SINT24" ), EFieldType_SINT24 ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_SINT32" ), EFieldType_SINT32 ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_SINT64" ), EFieldType_SINT64 ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_UINT8" ), EFieldType_UINT8 ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_UINT16" ), EFieldType_UINT16 ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_UINT24" ), EFieldType_UINT24 ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_UINT32" ), EFieldType_UINT32 ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_UINT64" ), EFieldType_UINT64 ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_FLOAT32" ), EFieldType_FLOAT32 ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_FLOAT64" ), EFieldType_FLOAT64 ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_FIXED_POINT( 10, 0 )" ), EFieldType_FIXED_POINT, std::make_pair( 10, 0 ) ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_FIXED_POINT( 10, 5 )" ), EFieldType_FIXED_POINT, std::make_pair( 10, 5 ) ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_CHAR( 20 )" ), EFieldType_CHAR, 20 ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_VARCHAR( 100 )" ), EFieldType_VARCHAR, 100 ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_TEXT" ), EFieldType_TEXT ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_NCHAR( 55 )" ), EFieldType_NCHAR, 55 ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_NVARCHAR( 255 )" ), EFieldType_NVARCHAR, 255 ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_NTEXT" ), EFieldType_NTEXT ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_DATE" ), EFieldType_DATE ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_DATETIME" ), EFieldType_DATETIME ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_TIME" ), EFieldType_TIME ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_BINARY( 20 )" ), EFieldType_BINARY, 20 ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_VARBINARY( 255 )" ), EFieldType_VARBINARY, 255 ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_LONG_VARBINARY" ), EFieldType_LONG_VARBINARY ) ) );
-
-		DatabaseResultSPtr result = std::make_shared< CDatabaseResult >( fieldInfos );
-		DatabaseRowSPtr row = std::make_shared< CDatabaseRow >();
-		
-		for ( auto infos : fieldInfos )
-		{
-			row->AddField( CreateField( connection, infos ) );
-		}
-
-		result->AddRow( row );
-		return result;
-	}
-
-	static const String ERROR_TEST_CONNECTION = STR( "Couldn't create the connection" );
-	static const String ERROR_TEST_NOT_CONNECTED = STR( "Not connected" );
-
-	CDatabaseConnectionTest::CDatabaseConnectionTest( const String & server, const String & userName, const String & password, String & connectionString )
-		: CDatabaseConnection( server, userName, password )
-	{
-		DoConnect( connectionString );
 	}
 
 	CDatabaseConnectionTest::~CDatabaseConnectionTest()
 	{
-		DoDisconnect();
 	}
 
-	uint32_t CDatabaseConnectionTest::GetPrecision( EFieldType type ) const
+	boost::unit_test::test_suite * CDatabaseConnectionTest::Init_Test_Suite()
 	{
-		uint32_t result = 0;
+		//!@remarks Create the internal TS instance.
+		testSuite = new boost::unit_test::test_suite( "CDatabaseConnectionTest" );
 
-		switch ( type )
+		//!@remarks Add the TC to the internal TS.
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseConnectionTest::TestCase_ConnectionChecks, this ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseConnectionTest::TestCase_DatabaseManagementChecks, this ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseConnectionTest::TestCase_TransactionChecks, this ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseConnectionTest::TestCase_QueryStatementChecks, this ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseConnectionTest::TestCase_StringDataWrite, this ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseConnectionTest::TestCase_StringDataParse, this ) ) );
+
+		//!@remarks Return the TS instance.
+		return testSuite;
+	}
+
+	void CDatabaseConnectionTest::TestCase_ConnectionChecks()
+	{
+		CLogger::LogInfo( StringStream() << "**** Start TestCase_ConnectionChecks ****" );
+		String goodserver = TEST_GOOD_SERVER;
+		String gooduser = TEST_GOOD_USER;
+		String goodpassword = TEST_GOOD_PASSWORD;
+		String wrongserver = STR( "WrongServer" );
+		String wronguser = STR( "WrongUser" );
+		String wrongpassword = STR( "WrongPassword" );
+		String connectionString;
+
+		CLogger::LogInfo( StringStream() << "  Wrong server" );
 		{
-		case EFieldType_FLOAT32:
-			result = 6;
-			break;
-
-		case EFieldType_FLOAT64:
-			result = 17;
-			break;
+			DatabaseConnectionSPtr connection = std::make_shared< CDatabaseTestConnection >( wrongserver, gooduser, goodpassword, connectionString );
+			BOOST_CHECK_EQUAL( connectionString, STR( "server=" ) + wrongserver + STR( ";user=" ) + gooduser + STR( ";password=" ) + goodpassword );
+			BOOST_CHECK( !connection->IsConnected() );
+		}
+		CLogger::LogInfo( StringStream() << "  Wrong user" );
+		{
+			DatabaseConnectionSPtr connection = std::make_shared< CDatabaseTestConnection >( goodserver, wronguser, goodpassword, connectionString );
+			BOOST_CHECK_EQUAL( connectionString, STR( "server=" ) + goodserver + STR( ";user=" ) + wronguser + STR( ";password=" ) + goodpassword );
+			BOOST_CHECK( !connection->IsConnected() );
+		}
+		CLogger::LogInfo( StringStream() << "  Wrong password" );
+		{
+			DatabaseConnectionSPtr connection = std::make_shared< CDatabaseTestConnection >( goodserver, gooduser, wrongpassword, connectionString );
+			BOOST_CHECK_EQUAL( connectionString, STR( "server=" ) + goodserver + STR( ";user=" ) + gooduser + STR( ";password=" ) + wrongpassword );
+			BOOST_CHECK( !connection->IsConnected() );
 		}
 
-		return result;
+		CLogger::LogInfo( StringStream() << "**** End TestCase_ConnectionChecks ****" );
 	}
 
-	unsigned long CDatabaseConnectionTest::GetStmtDateSize()const
+	void CDatabaseConnectionTest::TestCase_DatabaseManagementChecks()
 	{
-		return sizeof( DateType );
+		CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseManagementChecks ****" );
+		String goodserver = TEST_GOOD_SERVER;
+		String gooduser = TEST_GOOD_USER;
+		String goodpassword = TEST_GOOD_PASSWORD;
+		String gooddatabase = TEST_GOOD_DATABASE;
+		String wrongserver = STR( "WrongServer" );
+		String wronguser = STR( "WrongUser" );
+		String wrongpassword = STR( "WrongPassword" );
+		String wrongdatabase = STR( "WrongDatabase" );
+		String connectionString;
+
+		CLogger::LogInfo( StringStream() << "  Creation of invalid database" );
+		{
+			DatabaseConnectionSPtr connection = std::make_shared< CDatabaseTestConnection >( goodserver, gooduser, goodpassword, connectionString );
+			BOOST_CHECK( !connection->CreateDatabase( wrongdatabase ) );
+		}
+		CLogger::LogInfo( StringStream() << "  Creation of valid database" );
+		{
+			DatabaseConnectionSPtr connection = std::make_shared< CDatabaseTestConnection >( goodserver, gooduser, goodpassword, connectionString );
+			BOOST_CHECK( connection->CreateDatabase( gooddatabase ) );
+		}
+		CLogger::LogInfo( StringStream() << "  Selection of invalid database" );
+		{
+			DatabaseConnectionSPtr connection = std::make_shared< CDatabaseTestConnection >( goodserver, gooduser, goodpassword, connectionString );
+			BOOST_CHECK( !connection->SelectDatabase( wrongdatabase ) );
+		}
+		CLogger::LogInfo( StringStream() << "  Selection of valid database" );
+		{
+			DatabaseConnectionSPtr connection = std::make_shared< CDatabaseTestConnection >( goodserver, gooduser, goodpassword, connectionString );
+			BOOST_CHECK( connection->SelectDatabase( gooddatabase ) );
+		}
+		CLogger::LogInfo( StringStream() << "  Destruction of invalid database" );
+		{
+			DatabaseConnectionSPtr connection = std::make_shared< CDatabaseTestConnection >( goodserver, gooduser, goodpassword, connectionString );
+			BOOST_CHECK( !connection->DestroyDatabase( wrongdatabase ) );
+		}
+		CLogger::LogInfo( StringStream() << "  Destruction of valid database" );
+		{
+			DatabaseConnectionSPtr connection = std::make_shared< CDatabaseTestConnection >( goodserver, gooduser, goodpassword, connectionString );
+			BOOST_CHECK( connection->DestroyDatabase( gooddatabase ) );
+		}
+		CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseManagementChecks ****" );
 	}
 
-	unsigned long CDatabaseConnectionTest::GetStmtDateTimeSize()const
+	void CDatabaseConnectionTest::TestCase_TransactionChecks()
 	{
-		return sizeof( DateTimeType );
-	}
+		CLogger::LogInfo( StringStream() << "**** Start TestCase_TransactionChecks ****" );
+		String goodserver = TEST_GOOD_SERVER;
+		String gooduser = TEST_GOOD_USER;
+		String goodpassword = TEST_GOOD_PASSWORD;
+		String gooddatabase = TEST_GOOD_DATABASE;
+		String wrongserver = STR( "WrongServer" );
+		String wronguser = STR( "WrongUser" );
+		String wrongpassword = STR( "WrongPassword" );
+		String connectionString;
+		String wrongtran = STR( "WrongTransaction" );
+		String goodtran = STR( "TestTransaction" );
 
-	unsigned long CDatabaseConnectionTest::GetStmtTimeSize()const
-	{
-		return sizeof( TimeType );
-	}
-
-	void CDatabaseConnectionTest::DoCreateDatabase( const String & database )
-	{
-		if ( !IsConnected() )
+		CLogger::LogInfo( StringStream() << "  Not connected" );
 		{
-			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_TEST_NOT_CONNECTED );
+			DatabaseConnectionSPtr connection = std::make_shared< CDatabaseTestConnection >( wrongserver, wronguser, wrongpassword, connectionString );
+			BOOST_CHECK_THROW( connection->BeginTransaction( String() ), CDatabaseException );
+			BOOST_CHECK_THROW( connection->BeginTransaction( goodtran ), CDatabaseException );
+			BOOST_CHECK_THROW( connection->Commit( goodtran ), CDatabaseException );
+			BOOST_CHECK_THROW( connection->RollBack( goodtran ), CDatabaseException );
 		}
-	}
-
-	void CDatabaseConnectionTest::DoSelectDatabase( const String & database )
-	{
-		if ( !IsConnected() )
+		CLogger::LogInfo( StringStream() << "  Not database selected" );
 		{
-			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_TEST_NOT_CONNECTED );
+			DatabaseConnectionSPtr connection = std::make_shared< CDatabaseTestConnection >( goodserver, goodserver, goodserver, connectionString );
+			BOOST_CHECK_THROW( connection->BeginTransaction( String() ), CDatabaseException );
+			BOOST_CHECK_THROW( connection->BeginTransaction( goodtran ), CDatabaseException );
+			BOOST_CHECK_THROW( connection->Commit( goodtran ), CDatabaseException );
+			BOOST_CHECK_THROW( connection->RollBack( goodtran ), CDatabaseException );
 		}
-	}
-
-	void CDatabaseConnectionTest::DoDestroyDatabase( const String & database )
-	{
-		if ( !IsConnected() )
+		CLogger::LogInfo( StringStream() << "  Commit/Rollback without transaction" );
 		{
-			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_TEST_NOT_CONNECTED );
+			DatabaseConnectionSPtr connection = std::make_shared< CDatabaseTestConnection >( goodserver, gooduser, goodpassword, connectionString );
+			BOOST_CHECK( connection->SelectDatabase( gooddatabase ) );
+			BOOST_CHECK_THROW( connection->Commit( goodtran ), CDatabaseException );
+			BOOST_CHECK_THROW( connection->RollBack( goodtran ), CDatabaseException );
 		}
-	}
-
-	std::string CDatabaseConnectionTest::DoWriteText( const std::string & text ) const
-	{
-		std::string strReturn( text );
-
-		if ( strReturn != TEST_SQL_NULL )
+		CLogger::LogInfo( StringStream() << "  Invalid transaction name" );
 		{
-			StringUtils::Replace( strReturn, "'", "''" );
-			StringUtils::Replace( strReturn, "\\", "\\\\" );
-			strReturn = "'" + strReturn + "'";
+			DatabaseConnectionSPtr connection = std::make_shared< CDatabaseTestConnection >( goodserver, gooduser, goodpassword, connectionString );
+			BOOST_CHECK( connection->SelectDatabase( gooddatabase ) );
+			BOOST_CHECK_THROW( connection->BeginTransaction( wrongtran ), CDatabaseException );
+			BOOST_CHECK( !connection->IsInTransaction() );
+			BOOST_CHECK( !connection->IsInTransaction( wrongtran ) );
 		}
-
-		return strReturn;
-	}
-
-	std::wstring CDatabaseConnectionTest::DoWriteNText( const std::wstring & text ) const
-	{
-		String strReturn( StringUtils::ToString( text ) );
-
-		if ( strReturn != TEST_SQL_NULL )
+		CLogger::LogInfo( StringStream() << "  Commit/Rollback without corresponding transaction" );
 		{
-			StringUtils::Replace( strReturn, STR( "'" ), STR( "''" ) );
-			StringUtils::Replace( strReturn, STR( "\\" ), STR( "\\\\" ) );
-			strReturn = STR( "N'" ) + strReturn + STR( "'" );
+			DatabaseConnectionSPtr connection = std::make_shared< CDatabaseTestConnection >( goodserver, gooduser, goodpassword, connectionString );
+			BOOST_CHECK( connection->SelectDatabase( gooddatabase ) );
+			BOOST_CHECK_NO_THROW( connection->BeginTransaction( goodtran ) );
+			BOOST_CHECK( connection->IsInTransaction() );
+			BOOST_CHECK( connection->IsInTransaction( goodtran ) );
+			BOOST_CHECK( !connection->IsInTransaction( wrongtran ) );
+			BOOST_CHECK_THROW( connection->RollBack( wrongtran ), CDatabaseException );
+			BOOST_CHECK_THROW( connection->Commit( wrongtran ), CDatabaseException );
+			BOOST_CHECK_NO_THROW( connection->RollBack( goodtran ) );
 		}
-
-		return StringUtils::ToWStr( strReturn );
-	}
-
-	String CDatabaseConnectionTest::DoWriteBinary( const ByteArray & array ) const
-	{
-		StringStream stream;
-		stream.setf( std::ios::hex, std::ios::basefield );
-
-		for ( auto && it = array.begin(); it != array.end(); ++it )
+		CLogger::LogInfo( StringStream() << "  Valid Begin/Rollback" );
 		{
-			stream.width( 2 );
-			stream.fill( STR( '0' ) );
-			stream << int( *it );
+			DatabaseConnectionSPtr connection = std::make_shared< CDatabaseTestConnection >( goodserver, gooduser, goodpassword, connectionString );
+			BOOST_CHECK( connection->SelectDatabase( gooddatabase ) );
+			BOOST_CHECK_NO_THROW( connection->BeginTransaction( goodtran ) );
+			BOOST_CHECK( connection->IsInTransaction() );
+			BOOST_CHECK( connection->IsInTransaction( goodtran ) );
+			BOOST_CHECK_NO_THROW( connection->RollBack( goodtran ) );
+			BOOST_CHECK( !connection->IsInTransaction( goodtran ) );
+			BOOST_CHECK( !connection->IsInTransaction() );
+			CLogger::LogInfo( StringStream() << "    Invalid afterwards Commit/Rollback" );
+			BOOST_CHECK_THROW( connection->Commit( goodtran ), CDatabaseException );
+			BOOST_CHECK_THROW( connection->RollBack( goodtran ), CDatabaseException );
 		}
-
-		return STR( "X'" ) + stream.str() + STR( "'" );
-	}
-
-	String CDatabaseConnectionTest::DoWriteName( const String & text ) const
-	{
-		return STR( "[" ) + text + STR( "]" );
-	}
-
-	String CDatabaseConnectionTest::DoWriteDate( const DateType & date ) const
-	{
-		String strReturn;
-
-		if ( Date::IsValid( date ) )
+		CLogger::LogInfo( StringStream() << "  Valid Begin/Commit" );
 		{
-			strReturn = Date::Format( date, TEST_FORMAT_DATE );
+			DatabaseConnectionSPtr connection = std::make_shared< CDatabaseTestConnection >( goodserver, gooduser, goodpassword, connectionString );
+			BOOST_CHECK( connection->SelectDatabase( gooddatabase ) );
+			BOOST_CHECK_NO_THROW( connection->BeginTransaction( goodtran ) );
+			BOOST_CHECK( connection->IsInTransaction() );
+			BOOST_CHECK( connection->IsInTransaction( goodtran ) );
+			BOOST_CHECK_NO_THROW( connection->Commit( goodtran ) );
+			BOOST_CHECK( !connection->IsInTransaction( goodtran ) );
+			BOOST_CHECK( !connection->IsInTransaction() );
+			CLogger::LogInfo( StringStream() << "    Invalid afterwards Commit/Rollback" );
+			BOOST_CHECK_THROW( connection->RollBack( goodtran ), CDatabaseException );
+			BOOST_CHECK_THROW( connection->Commit( goodtran ), CDatabaseException );
 		}
-		else
+		CLogger::LogInfo( StringStream() << "  Multiple transactions" );
 		{
-			strReturn += TEST_SQL_NULL;
-		}
-
-		return strReturn;
-	}
-
-	String CDatabaseConnectionTest::DoWriteTime( const TimeType & time ) const
-	{
-		String strReturn;
-
-		if ( Time::IsValid( time ) )
-		{
-			strReturn = Time::Format( time, TEST_FORMAT_TIME );
-		}
-		else
-		{
-			strReturn += TEST_SQL_NULL;
-		}
-
-		return strReturn;
-	}
-
-	String CDatabaseConnectionTest::DoWriteDateTime( const DateTimeType & dateTime ) const
-	{
-		String strReturn;
-
-		if ( DateTime::IsValid( dateTime ) )
-		{
-			strReturn = DateTime::Format( dateTime, TEST_FORMAT_DATETIME );
-		}
-		else
-		{
-			strReturn += TEST_SQL_NULL;
-		}
-
-		return strReturn;
-	}
-
-	String CDatabaseConnectionTest::DoWriteDateTime( const DateType & date ) const
-	{
-		String strReturn;
-
-		if ( Date::IsValid( date ) )
-		{
-			strReturn = Date::Format( date, TEST_FORMAT_DATETIME_DATE );
-		}
-		else
-		{
-			strReturn += TEST_SQL_NULL;
-		}
-
-		return strReturn;
-	}
-
-	String CDatabaseConnectionTest::DoWriteDateTime( const TimeType & time ) const
-	{
-		String strReturn;
-
-		if ( Time::IsValid( time ) )
-		{
-			strReturn = Time::Format( time, TEST_FORMAT_DATETIME_TIME );
-		}
-		else
-		{
-			strReturn += TEST_SQL_NULL;
-		}
-
-		return strReturn;
-	}
-
-	String CDatabaseConnectionTest::DoWriteStmtDate( const DateType & date ) const
-	{
-		String strReturn;
-
-		if ( Date::IsValid( date ) )
-		{
-			strReturn = Date::Format( date, TEST_FORMAT_STMT_DATE );
-		}
-		else
-		{
-			strReturn += TEST_SQL_NULL;
+			DatabaseConnectionSPtr connection = std::make_shared< CDatabaseTestConnection >( goodserver, gooduser, goodpassword, connectionString );
+			BOOST_CHECK( connection->SelectDatabase( gooddatabase ) );
+			CLogger::LogInfo( StringStream() << "    Start named one" );
+			BOOST_CHECK_NO_THROW( connection->BeginTransaction( goodtran ) );
+			BOOST_CHECK( connection->IsInTransaction() );
+			BOOST_CHECK( connection->IsInTransaction( goodtran ) );
+			BOOST_CHECK( !connection->IsInTransaction( String() ) );
+			CLogger::LogInfo( StringStream() << "    Start unnamed one" );
+			BOOST_CHECK_NO_THROW( connection->BeginTransaction( String() ) );
+			BOOST_CHECK( connection->IsInTransaction() );
+			BOOST_CHECK( connection->IsInTransaction( goodtran ) );
+			BOOST_CHECK( connection->IsInTransaction( String() ) );
+			CLogger::LogInfo( StringStream() << "    Commit named one" );
+			BOOST_CHECK_NO_THROW( connection->Commit( goodtran ) );
+			BOOST_CHECK( !connection->IsInTransaction( goodtran ) );
+			BOOST_CHECK( connection->IsInTransaction( String() ) );
+			BOOST_CHECK( connection->IsInTransaction() );
+			CLogger::LogInfo( StringStream() << "    Restart named one" );
+			BOOST_CHECK_NO_THROW( connection->BeginTransaction( goodtran ) );
+			BOOST_CHECK( connection->IsInTransaction() );
+			BOOST_CHECK( connection->IsInTransaction( goodtran ) );
+			BOOST_CHECK( connection->IsInTransaction( String() ) );
+			CLogger::LogInfo( StringStream() << "    RollBack named one" );
+			BOOST_CHECK_NO_THROW( connection->RollBack( goodtran ) );
+			BOOST_CHECK( !connection->IsInTransaction( goodtran ) );
+			BOOST_CHECK( connection->IsInTransaction( String() ) );
+			BOOST_CHECK( connection->IsInTransaction() );
+			CLogger::LogInfo( StringStream() << "    Commit unnamed one" );
+			BOOST_CHECK_NO_THROW( connection->Commit( String() ) );
+			BOOST_CHECK( !connection->IsInTransaction( goodtran ) );
+			BOOST_CHECK( !connection->IsInTransaction( String() ) );
+			BOOST_CHECK( !connection->IsInTransaction() );
+			CLogger::LogInfo( StringStream() << "    Invalid afterwards Commit/Rollback" );
+			BOOST_CHECK_THROW( connection->RollBack( goodtran ), CDatabaseException );
+			BOOST_CHECK_THROW( connection->Commit( goodtran ), CDatabaseException );
+			BOOST_CHECK_THROW( connection->RollBack( String() ), CDatabaseException );
+			BOOST_CHECK_THROW( connection->Commit( String() ), CDatabaseException );
 		}
 
-		return strReturn;
+		CLogger::LogInfo( StringStream() << "**** End TestCase_TransactionChecks ****" );
 	}
 
-	String CDatabaseConnectionTest::DoWriteStmtTime( const TimeType & time ) const
+	void CDatabaseConnectionTest::TestCase_QueryStatementChecks()
 	{
-		String strReturn;
+		CLogger::LogInfo( StringStream() << "**** Start TestCase_QueryStatementChecks ****" );
+		String goodserver = TEST_GOOD_SERVER;
+		String gooduser = TEST_GOOD_USER;
+		String goodpassword = TEST_GOOD_PASSWORD;
+		String gooddatabase = TEST_GOOD_DATABASE;
+		String goodselect = TEST_GOOD_SELECT;
+		String goodupdate = TEST_GOOD_UPDATE;
+		String wrongserver = STR( "WrongServer" );
+		String wronguser = STR( "WrongUser" );
+		String wrongpassword = STR( "WrongPassword" );
+		String connectionString;
+		String wrongquery = STR( "WrongQuery" );
 
-		if ( Time::IsValid( time ) )
+		CLogger::LogInfo( StringStream() << "  Not connected" );
 		{
-			strReturn = Time::Format( time, TEST_FORMAT_STMT_TIME );
+			DatabaseConnectionSPtr connection = std::make_shared< CDatabaseTestConnection >( wrongserver, wronguser, wrongpassword, connectionString );
+			BOOST_CHECK_THROW( connection->CreateQuery( goodupdate ), CDatabaseException );
+			BOOST_CHECK_THROW( connection->CreateStatement( goodupdate ), CDatabaseException );
+			BOOST_CHECK_THROW( connection->ExecuteSelect( goodselect ), CDatabaseException );
+			BOOST_CHECK_THROW( connection->ExecuteUpdate( goodupdate ), CDatabaseException );
 		}
-		else
+		CLogger::LogInfo( StringStream() << "  Not database selected" );
 		{
-			strReturn += TEST_SQL_NULL;
+			DatabaseConnectionSPtr connection = std::make_shared< CDatabaseTestConnection >( goodserver, goodserver, goodserver, connectionString );
+			BOOST_CHECK_THROW( connection->CreateQuery( goodupdate ), CDatabaseException );
+			BOOST_CHECK_THROW( connection->CreateStatement( goodupdate ), CDatabaseException );
+			BOOST_CHECK_THROW( connection->ExecuteSelect( goodselect ), CDatabaseException );
+			BOOST_CHECK_THROW( connection->ExecuteUpdate( goodupdate ), CDatabaseException );
 		}
-
-		return strReturn;
-	}
-
-	String CDatabaseConnectionTest::DoWriteStmtDateTime( const DateTimeType & dateTime ) const
-	{
-		String strReturn;
-
-		if ( DateTime::IsValid( dateTime ) )
+		CLogger::LogInfo( StringStream() << "  Execute queries direct" );
 		{
-			strReturn = DateTime::Format( dateTime, TEST_FORMAT_STMT_DATETIME );
+			DatabaseConnectionSPtr connection = std::make_shared< CDatabaseTestConnection >( goodserver, gooduser, goodpassword, connectionString );
+			BOOST_CHECK( connection->SelectDatabase( gooddatabase ) );
+			BOOST_CHECK( connection->ExecuteSelect( goodselect ) );
+			BOOST_CHECK( !connection->ExecuteSelect( goodupdate ) );
+			BOOST_CHECK( !connection->ExecuteUpdate( goodselect ) );
+			BOOST_CHECK( connection->ExecuteUpdate( goodupdate ) );
 		}
-		else
+		CLogger::LogInfo( StringStream() << "  Query creation and execution" );
 		{
-			strReturn += TEST_SQL_NULL;
+			DatabaseConnectionSPtr connection = std::make_shared< CDatabaseTestConnection >( goodserver, gooduser, goodpassword, connectionString );
+			BOOST_CHECK( connection->SelectDatabase( gooddatabase ) );
+			DatabaseQuerySPtr query;
+			BOOST_CHECK_NO_THROW( query = connection->CreateQuery( wrongquery ) );
+			BOOST_CHECK_THROW( query->ExecuteSelect(), CDatabaseException );
+			BOOST_CHECK_THROW( query->ExecuteUpdate(), CDatabaseException );
+			BOOST_CHECK_NO_THROW( query->Initialize() );
+			BOOST_CHECK( !query->ExecuteSelect() );
+			BOOST_CHECK( !query->ExecuteUpdate() );
+			BOOST_CHECK_NO_THROW( query = connection->CreateQuery( goodselect ) );
+			BOOST_CHECK_NO_THROW( query->Initialize() );
+			BOOST_CHECK( query->ExecuteSelect() );
+			BOOST_CHECK( !query->ExecuteUpdate() );
+			BOOST_CHECK_NO_THROW( query = connection->CreateQuery( goodupdate ) );
+			BOOST_CHECK_NO_THROW( query->Initialize() );
+			BOOST_CHECK( !query->ExecuteSelect() );
+			BOOST_CHECK( query->ExecuteUpdate() );
 		}
-
-		return strReturn;
-	}
-
-	String CDatabaseConnectionTest::DoWriteBool( bool value ) const
-	{
-		return ( value ? STR( "1" ) : STR( "0" ) );
-	}
-
-	DateType CDatabaseConnectionTest::DoParseDate( const String & date ) const
-	{
-		DateType dateObj;
-
-		if ( !Date::IsDate( date, TEST_FORMAT_DATE, dateObj )
-		&& !Date::IsDate( date, TEST_FORMAT_STMT_DATE, dateObj ) )
+		CLogger::LogInfo( StringStream() << "  Statement creation and execution" );
 		{
-			// date is already invalid
-		}
-
-		return dateObj;
-	}
-
-	TimeType CDatabaseConnectionTest::DoParseTime( const String & time ) const
-	{
-		TimeType timeObj;
-
-		if ( !Time::IsTime( time, TEST_FORMAT_TIME, timeObj )
-		&& !Time::IsTime( time, TEST_FORMAT_STMT_TIME, timeObj ) )
-		{
-			// time is already invalid
-		}
-
-		return timeObj;
-	}
-
-	DateTimeType CDatabaseConnectionTest::DoParseDateTime( const String & dateTime ) const
-	{
-		DateTimeType dateTimeObj;
-
-		if ( !DateTime::IsDateTime( dateTime, TEST_FORMAT_DATETIME, dateTimeObj )
-		&& !DateTime::IsDateTime( dateTime, TEST_FORMAT_STMT_DATETIME, dateTimeObj )
-		&& !DateTime::IsDateTime( dateTime, TEST_FORMAT_DATE, dateTimeObj )
-		&& !DateTime::IsDateTime( dateTime, TEST_FORMAT_STMT_DATE, dateTimeObj ) )
-		{
-			// date/time is already invalid
-		}
-
-		return dateTimeObj;
-	}
-
-	EErrorType CDatabaseConnectionTest::DoConnect( String & connectionString )
-	{
-		EErrorType ret = EErrorType_NONE;
-
-		try
-		{
-			connectionString = STR( "server=" ) + _server + STR( ";user=" ) + _userName + STR( ";password=" ) + _password;
-			DoSetConnected( _server == STR( "TestServer" ) && _userName == STR( "TestUser" ) && _password == STR( "TestPassword" ) );
-		}
-		catch ( CDatabaseException & exc )
-		{
-			CLogger::LogError( StringStream() << ERROR_TEST_CONNECTION << STR( " - " ) << exc.GetFullDescription() );
-			ret = EErrorType_ERROR;
-		}
-		catch ( std::exception & exc )
-		{
-			CLogger::LogError( StringStream() << ERROR_TEST_CONNECTION << STR( " - " ) << exc.what() );
-			ret = EErrorType_ERROR;
-		}
-		catch ( ... )
-		{
-			CLogger::LogError( ERROR_TEST_CONNECTION );
-			ret = EErrorType_ERROR;
+			DatabaseConnectionSPtr connection = std::make_shared< CDatabaseTestConnection >( goodserver, gooduser, goodpassword, connectionString );
+			BOOST_CHECK( connection->SelectDatabase( gooddatabase ) );
+			DatabaseStatementSPtr statement;
+			BOOST_CHECK_NO_THROW( statement = connection->CreateStatement( wrongquery ) );
+			BOOST_CHECK_THROW( statement->ExecuteSelect(), CDatabaseException );
+			BOOST_CHECK_THROW( statement->ExecuteUpdate(), CDatabaseException );
+			BOOST_CHECK_NO_THROW( statement->Initialize() );
+			BOOST_CHECK( !statement->ExecuteSelect() );
+			BOOST_CHECK( !statement->ExecuteUpdate() );
+			BOOST_CHECK_NO_THROW( statement = connection->CreateStatement( goodselect ) );
+			BOOST_CHECK_NO_THROW( statement->Initialize() );
+			BOOST_CHECK( statement->ExecuteSelect() );
+			BOOST_CHECK( !statement->ExecuteUpdate() );
+			BOOST_CHECK_NO_THROW( statement = connection->CreateStatement( goodupdate ) );
+			BOOST_CHECK_NO_THROW( statement->Initialize() );
+			BOOST_CHECK( !statement->ExecuteSelect() );
+			BOOST_CHECK( statement->ExecuteUpdate() );
 		}
 
-		return ret;
+		CLogger::LogInfo( StringStream() << "**** End TestCase_QueryStatementChecks ****" );
 	}
 
-	void CDatabaseConnectionTest::DoDisconnect()
+	void CDatabaseConnectionTest::TestCase_StringDataWrite()
 	{
-		DoSetConnected( false );
+		CLogger::LogInfo( StringStream() << "**** Start TestCase_StringDataWrite ****" );
+		String goodserver = TEST_GOOD_SERVER;
+		String gooduser = TEST_GOOD_USER;
+		String goodpassword = TEST_GOOD_PASSWORD;
+		String wrongserver = STR( "WrongServer" );
+		String wronguser = STR( "WrongUser" );
+		String wrongpassword = STR( "WrongPassword" );
+		String connectionString;
+
+		CLogger::LogInfo( StringStream() << "  Not connected" );
+		{
+			DatabaseConnectionSPtr connection = std::make_shared< CDatabaseTestConnection >( wrongserver, wronguser, wrongpassword, connectionString );
+			BOOST_CHECK_THROW( connection->WriteName( String() ), CDatabaseException );
+			BOOST_CHECK_THROW( connection->WriteText( std::string() ), CDatabaseException );
+			BOOST_CHECK_THROW( connection->WriteNText( std::wstring() ), CDatabaseException );
+			BOOST_CHECK_THROW( connection->WriteBool( false ), CDatabaseException );
+			BOOST_CHECK_THROW( connection->WriteDate( DateType() ), CDatabaseException );
+			BOOST_CHECK_THROW( connection->WriteTime( TimeType() ), CDatabaseException );
+			BOOST_CHECK_THROW( connection->WriteDateTime( DateType() ), CDatabaseException );
+			BOOST_CHECK_THROW( connection->WriteDateTime( TimeType() ), CDatabaseException );
+			BOOST_CHECK_THROW( connection->WriteDateTime( DateTimeType() ), CDatabaseException );
+			BOOST_CHECK_THROW( connection->WriteStmtDate( DateType() ), CDatabaseException );
+			BOOST_CHECK_THROW( connection->WriteStmtTime( TimeType() ), CDatabaseException );
+			BOOST_CHECK_THROW( connection->WriteStmtDateTime( DateTimeType() ), CDatabaseException );
+		}
+		CLogger::LogInfo( StringStream() << "  Name/Text/NText/Bool" );
+		{
+			DatabaseConnectionSPtr connection = std::make_shared< CDatabaseTestConnection >( goodserver, gooduser, goodpassword, connectionString );
+			String name = STR( "name" );
+			std::string text = "text";
+			std::wstring ntxt = L"ntext";
+			String rname;
+			std::string rtext;
+			std::wstring rntxt;
+			String rbool;
+			BOOST_CHECK_NO_THROW( rname = connection->WriteName( name ) );
+			BOOST_CHECK_EQUAL( rname, STR( "[" ) + name + STR( "]" ) );
+			BOOST_CHECK_NO_THROW( rtext = connection->WriteText( text ) );
+			BOOST_CHECK_EQUAL( rtext, STR( "'" ) + text + STR( "'" ) );
+			BOOST_CHECK_NO_THROW( rntxt = connection->WriteNText( ntxt ) );
+			BOOST_CHECK_EQUAL( rntxt, L"N'" + ntxt + L"'" );
+			BOOST_CHECK_NO_THROW( rbool = connection->WriteBool( false ) );
+			BOOST_CHECK_EQUAL( rbool, STR( "0" ) );
+		}
+		CLogger::LogInfo( StringStream() << "  Date/Time/DateTime" );
+		{
+			DateType wrongdate;
+			TimeType wrongtime( -1, -1, -1 );
+			DateTimeType wrongdateTime( wrongdate, wrongtime );
+			DateType gooddate( 2015, 1, 1 );
+			TimeType goodtime( 1, 1, 1 );
+			DateTimeType gooddateTime( gooddate, goodtime );
+			String result;
+			DatabaseConnectionSPtr connection = std::make_shared< CDatabaseTestConnection >( goodserver, gooduser, goodpassword, connectionString );
+			CLogger::LogInfo( StringStream() << "    Invalid values" );
+			{
+				BOOST_CHECK_NO_THROW( result = connection->WriteDate( wrongdate ) );
+				BOOST_CHECK_EQUAL( result, TEST_SQL_NULL );
+				BOOST_CHECK_NO_THROW( result = connection->WriteTime( wrongtime ) );
+				BOOST_CHECK_EQUAL( result, TEST_SQL_NULL );
+				BOOST_CHECK_NO_THROW( result = connection->WriteDateTime( wrongdate ) );
+				BOOST_CHECK_EQUAL( result, TEST_SQL_NULL );
+				BOOST_CHECK_NO_THROW( result = connection->WriteDateTime( wrongtime ) );
+				BOOST_CHECK_EQUAL( result, TEST_SQL_NULL );
+				BOOST_CHECK_NO_THROW( result = connection->WriteDateTime( wrongdateTime ) );
+				BOOST_CHECK_EQUAL( result, TEST_SQL_NULL );
+				BOOST_CHECK_NO_THROW( result = connection->WriteStmtDate( wrongdate ) );
+				BOOST_CHECK_EQUAL( result, TEST_SQL_NULL );
+				BOOST_CHECK_NO_THROW( result = connection->WriteStmtTime( wrongtime ) );
+				BOOST_CHECK_EQUAL( result, TEST_SQL_NULL );
+				BOOST_CHECK_NO_THROW( result = connection->WriteStmtDateTime( wrongdateTime ) );
+				BOOST_CHECK_EQUAL( result, TEST_SQL_NULL );
+			}
+			CLogger::LogInfo( StringStream() << "    Valid values" );
+			{
+				BOOST_CHECK_NO_THROW( result = connection->WriteDate( gooddate ) );
+				BOOST_CHECK_EQUAL( result, Date::Format( gooddate, TEST_FORMAT_DATE ) );
+				BOOST_CHECK_NO_THROW( result = connection->WriteTime( goodtime ) );
+				BOOST_CHECK_EQUAL( result, Time::Format( goodtime, TEST_FORMAT_TIME ) );
+				BOOST_CHECK_NO_THROW( result = connection->WriteDateTime( gooddate ) );
+				BOOST_CHECK_EQUAL( result, Date::Format( gooddate, TEST_FORMAT_DATETIME_DATE ) );
+				BOOST_CHECK_NO_THROW( result = connection->WriteDateTime( goodtime ) );
+				BOOST_CHECK_EQUAL( result, Time::Format( goodtime, TEST_FORMAT_DATETIME_TIME ) );
+				BOOST_CHECK_NO_THROW( result = connection->WriteDateTime( gooddateTime ) );
+				BOOST_CHECK_EQUAL( result, DateTime::Format( gooddateTime, TEST_FORMAT_DATETIME ) );
+				BOOST_CHECK_NO_THROW( result = connection->WriteStmtDate( gooddate ) );
+				BOOST_CHECK_EQUAL( result, Date::Format( gooddate, TEST_FORMAT_STMT_DATE ) );
+				BOOST_CHECK_NO_THROW( result = connection->WriteStmtTime( goodtime ) );
+				BOOST_CHECK_EQUAL( result, Time::Format( goodtime, TEST_FORMAT_STMT_TIME ) );
+				BOOST_CHECK_NO_THROW( result = connection->WriteStmtDateTime( gooddateTime ) );
+				BOOST_CHECK_EQUAL( result, DateTime::Format( gooddateTime, TEST_FORMAT_STMT_DATETIME ) );
+			}
+		}
+
+		CLogger::LogInfo( StringStream() << "**** End TestCase_StringDataWrite ****" );
 	}
 
-	bool CDatabaseConnectionTest::DoBeginTransaction( const String & name )
+	void CDatabaseConnectionTest::TestCase_StringDataParse()
 	{
-		return name.empty() || name == STR( "TestTransaction" );
-	}
+		CLogger::LogInfo( StringStream() << "**** Start TestCase_StringDataParse ****" );
+		String goodserver = TEST_GOOD_SERVER;
+		String gooduser = TEST_GOOD_USER;
+		String goodpassword = TEST_GOOD_PASSWORD;
+		String wrongserver = STR( "WrongServer" );
+		String wronguser = STR( "WrongUser" );
+		String wrongpassword = STR( "WrongPassword" );
+		String connectionString;
 
-	bool CDatabaseConnectionTest::DoCommit( const String & name )
-	{
-		return name.empty() || name == STR( "TestTransaction" );
-	}
+		String gooddate = Date::Format( DateType( 2015, 1, 1 ), TEST_FORMAT_DATE );
+		String goodtime = Time::Format( TimeType( 1, 1, 1 ), TEST_FORMAT_TIME );
+		String gooddatetime = DateTime::Format( DateTimeType( DateType( 2015, 1, 1 ), TimeType( 1, 1, 1 ) ), TEST_FORMAT_DATETIME );
+		String wrongdate;
+		String wrongtime;
+		String wrongdatetime;
+		CLogger::LogInfo( StringStream() << "    Not connected" );
+		{
+			DatabaseConnectionSPtr connection = std::make_shared< CDatabaseTestConnection >( wrongserver, wronguser, wrongpassword, connectionString );
+			BOOST_CHECK_THROW( connection->ParseDate( gooddate ), CDatabaseException );
+			BOOST_CHECK_THROW( connection->ParseTime( goodtime ), CDatabaseException );
+			BOOST_CHECK_THROW( connection->ParseDateTime( gooddatetime ), CDatabaseException );
+		}
+		CLogger::LogInfo( StringStream() << "    Invalid values" );
+		{
+			DateType date;
+			TimeType time;
+			DateTimeType dateTime;
+			DatabaseConnectionSPtr connection = std::make_shared< CDatabaseTestConnection >( goodserver, gooduser, goodpassword, connectionString );
+			BOOST_CHECK_NO_THROW( date = connection->ParseDate( wrongdate ) );
+			BOOST_CHECK( !Date::IsValid( date ) );
+			BOOST_CHECK_NO_THROW( time = connection->ParseTime( wrongtime ) );
+			BOOST_CHECK( !Time::IsValid( time ) );
+			BOOST_CHECK_NO_THROW( dateTime = connection->ParseDateTime( wrongdatetime ) );
+			BOOST_CHECK( !DateTime::IsValid( dateTime ) );
+		}
+		CLogger::LogInfo( StringStream() << "    Valid values" );
+		{
+			DateType date;
+			TimeType time;
+			DateTimeType dateTime;
+			DatabaseConnectionSPtr connection = std::make_shared< CDatabaseTestConnection >( goodserver, gooduser, goodpassword, connectionString );
+			BOOST_CHECK_NO_THROW( date = connection->ParseDate( gooddate ) );
+			BOOST_CHECK( Date::IsValid( date ) );
+			BOOST_CHECK_NO_THROW( time = connection->ParseTime( goodtime ) );
+			BOOST_CHECK( Time::IsValid( time ) );
+			BOOST_CHECK_NO_THROW( dateTime = connection->ParseDateTime( gooddatetime ) );
+			BOOST_CHECK( DateTime::IsValid( dateTime ) );
+		}
 
-	bool CDatabaseConnectionTest::DoRollBack( const String & name )
-	{
-		return name.empty() || name == STR( "TestTransaction" );
-	}
-
-	bool CDatabaseConnectionTest::DoExecuteUpdate( const String & query )
-	{
-		return query == STR( "TestUpdate" );
-	}
-
-	DatabaseResultSPtr CDatabaseConnectionTest::DoExecuteSelect( const String & query )
-	{
-		return query == STR( "TestSelect" ) ? BuildResult( shared_from_this() ) : DatabaseResultSPtr();
-	}
-
-	DatabaseStatementSPtr CDatabaseConnectionTest::DoCreateStatement( const String & request )
-	{
-		return std::make_shared< CDatabaseStatementTest >( std::static_pointer_cast< CDatabaseConnectionTest >( shared_from_this() ), request );
+		CLogger::LogInfo( StringStream() << "**** End TestCase_StringDataParse ****" );
 	}
 }
 END_NAMESPACE_DATABASE_TEST

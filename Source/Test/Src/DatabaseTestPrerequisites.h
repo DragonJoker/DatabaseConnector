@@ -49,11 +49,11 @@ BEGIN_NAMESPACE_DATABASE
 {
 	namespace Test
 	{
-		class CDatabaseConnectionTest;
-		class CDatabaseStatementTest;
+		class CDatabaseTestConnection;
+		class CDatabaseTestStatement;
 
-		DECLARE_SMART_PTR( DatabaseConnectionTest );
-		DECLARE_SMART_PTR( DatabaseStatementTest );
+		DECLARE_SMART_PTR( DatabaseTestConnection );
+		DECLARE_SMART_PTR( DatabaseTestStatement );
 
 		String InitializeSingletons();
 		void LoadPlugins( const String & path, bool mySql, bool sqlite, bool odbcMySql, bool odbcMsSql, bool postgreSql );

@@ -1,11 +1,11 @@
 /************************************************************************//**
-* @file DatabaseStatementTest.h
+* @file DatabaseTestStatement.h
 * @author Sylvain Doremus
 * @version 1.0
 * @date 3/20/2014 2:47:39 PM
 *
 *
-* @brief CDatabaseStatementTest class declaration.
+* @brief CDatabaseTestStatement class declaration.
 *
 * @details Describes a statement for tests
 *
@@ -22,7 +22,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 {
 	/** Describes a statement for Test
 	*/
-	class CDatabaseStatementTest
+	class CDatabaseTestStatement
 		: public CDatabaseStatement
 	{
 	public:
@@ -32,11 +32,11 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		@param[in] query
 			Request text.
 		*/
-		CDatabaseStatementTest( DatabaseConnectionTestSPtr connection, const String & query );
+		CDatabaseTestStatement( DatabaseTestConnectionSPtr connection, const String & query );
 
 		/** Destructor.
 			*/
-		virtual ~CDatabaseStatementTest();
+		virtual ~CDatabaseTestStatement();
 
 		/** Create a parameter.
 		@param[in] name
@@ -119,14 +119,14 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		@return
 			The connection.
 		*/
-		inline DatabaseConnectionTestSPtr DoGetTestConnection()const
+		inline DatabaseTestConnectionSPtr DoGetTestConnection()const
 		{
 			return _connectionTest.lock();
 		}
 
 	private:
 		/// Database connection.
-		DatabaseConnectionTestWPtr _connectionTest;
+		DatabaseTestConnectionWPtr _connectionTest;
 		/// Tokenized string (delimiter is "?").
 		StringArray _arrayQueries;
 		/// Number of parameters (i.e. number of "?").
