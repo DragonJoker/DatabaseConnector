@@ -132,6 +132,14 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 
 	void CDatabaseConnectionPostgreSql::DoDestroyDatabase( const String & database )
 	{
+		if ( database == _database )
+		{
+			DoDisconnect();
+			String connectionString;
+			DoConnect( String(), connectionString );
+			_database.clear();
+		}
+
 		DoExecuteUpdate( POSTGRESQL_SQL_DROP_DATABASE + database );
 	}
 

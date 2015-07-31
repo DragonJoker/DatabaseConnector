@@ -47,7 +47,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		typedef typename helper_type::ParamType param_type;
 
 		template< typename Function >
-		void operator()( Function function, DatabaseConnectionSPtr connection, String const & name, String const & is, param_type valueIn = helper_type::InitialiseValue() )
+		void operator()( Function function, DatabaseConnectionSPtr connection, String const & name, String const & is, std::random_device & generator )
 		{
 			param_type value = param_type();
 
@@ -66,7 +66,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			CLogger::LogInfo( StringStream() << "  Min" );
 			function( connection, name, &( value = std::numeric_limits< param_type >::min() ), true, is );
 			CLogger::LogInfo( StringStream() << "  Given" );
-			function( connection, name, &valueIn, true, is );
+			function( connection, name, &( value = helper_type::InitialiseValue( generator ) ), true, is );
 		}
 	};
 
@@ -77,7 +77,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		typedef helper_type::ParamType param_type;
 
 		template< typename Function >
-		void operator()( Function function, DatabaseConnectionSPtr connection, String const & name, String const & is, param_type valueIn = helper_type::InitialiseValue() )
+		void operator()( Function function, DatabaseConnectionSPtr connection, String const & name, String const & is, std::random_device & generator )
 		{
 			param_type value = param_type();
 
@@ -96,7 +96,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			CLogger::LogInfo( StringStream() << "  Min" );
 			function( connection, name, &( value = std::numeric_limits< param_type >::min() ), true, is );
 			CLogger::LogInfo( StringStream() << "  Given" );
-			function( connection, name, &valueIn, true, is );
+			function( connection, name, &( value = helper_type::InitialiseValue( generator ) ), true, is );
 		}
 	};
 
@@ -107,7 +107,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		typedef helper_type::ParamType param_type;
 
 		template< typename Function >
-		void operator()( Function function, DatabaseConnectionSPtr connection, String const & name, String const & is, param_type valueIn = helper_type::InitialiseValue() )
+		void operator()( Function function, DatabaseConnectionSPtr connection, String const & name, String const & is, std::random_device & generator )
 		{
 			param_type value = param_type();
 
@@ -126,7 +126,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			CLogger::LogInfo( StringStream() << "  Min" );
 			function( connection, name, &( value = std::numeric_limits< param_type >::min() ), true, is );
 			CLogger::LogInfo( StringStream() << "  Given" );
-			function( connection, name, &valueIn, true, is );
+			function( connection, name, &( value = helper_type::InitialiseValue( generator ) ), true, is );
 		}
 	};
 
@@ -137,7 +137,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		typedef helper_type::ParamType param_type;
 
 		template< typename Function >
-		void operator()( Function function, DatabaseConnectionSPtr connection, String const & name, String const & is, param_type valueIn = helper_type::InitialiseValue() )
+		void operator()( Function function, DatabaseConnectionSPtr connection, String const & name, String const & is, std::random_device & generator )
 		{
 			param_type value = param_type();
 
@@ -150,7 +150,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 
 			CLogger::LogInfo( StringStream() << "  Given" );
-			function( connection, name, &valueIn, true, is );
+			function( connection, name, &( value = helper_type::InitialiseValue( generator ) ), true, is );
 		}
 	};
 
@@ -161,7 +161,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		typedef helper_type::ParamType param_type;
 
 		template< typename Function >
-		void operator()( Function function, DatabaseConnectionSPtr connection, String const & name, String const & is, param_type valueIn = helper_type::InitialiseValue() )
+		void operator()( Function function, DatabaseConnectionSPtr connection, String const & name, String const & is, std::random_device & generator )
 		{
 			param_type value = param_type();
 
@@ -174,7 +174,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 
 			CLogger::LogInfo( StringStream() << "  Given" );
-			function( connection, name, &valueIn, true, is );
+			function( connection, name, &( value = helper_type::InitialiseValue( generator ) ), true, is );
 		}
 	};
 
@@ -185,7 +185,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		typedef helper_type::ParamType param_type;
 
 		template< typename Function >
-		void operator()( Function function, DatabaseConnectionSPtr connection, String const & name, String const & is, param_type valueIn = helper_type::InitialiseValue() )
+		void operator()( Function function, DatabaseConnectionSPtr connection, String const & name, String const & is, std::random_device & generator )
 		{
 			param_type value = param_type();
 
@@ -198,7 +198,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			CLogger::LogInfo( StringStream() << "  Default" );
 			function( connection, name, &value, true, is );
 			CLogger::LogInfo( StringStream() << "  Given" );
-			function( connection, name, &valueIn, true, is );
+			function( connection, name, &( value = helper_type::InitialiseValue( generator ) ), true, is );
 		}
 	};
 
@@ -209,7 +209,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		typedef helper_type::ParamType param_type;
 
 		template< typename Function >
-		void operator()( Function function, DatabaseConnectionSPtr connection, String const & name, String const & is, param_type valueIn = helper_type::InitialiseValue( Precision, Decimals ) )
+		void operator()( Function function, DatabaseConnectionSPtr connection, String const & name, String const & is, std::random_device & generator )
 		{
 			typedef DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::ParamType param_type;
 			param_type value = param_type();
@@ -229,7 +229,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			CLogger::LogInfo( StringStream() << "  Lowest" );
 			function( connection, name, &( value = param_type( ( std::numeric_limits< int64_t >::lowest() ) % int64_t( pow( 10, Precision ) ), Precision, Decimals ) ), true, is );
 			CLogger::LogInfo( StringStream() << "  Given" );
-			function( connection, name, &valueIn, true, is );
+			function( connection, name, &( value = helper_type::InitialiseValue( generator, Precision, Decimals ) ), true, is );
 			CLogger::LogInfo( StringStream() << "  Specific value, precision test" );
 			function( connection, name, &( value = param_type( 602872352, Precision, Decimals ) ), true, is );
 			CLogger::LogInfo( StringStream() << "  Specific value, underflow" );
@@ -244,7 +244,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		typedef helper_type::ParamType param_type;
 
 		template< typename Function >
-		void operator()( Function function, DatabaseConnectionSPtr connection, String const & name, String const & is, param_type valueIn = helper_type::InitialiseValue( Size ) )
+		void operator()( Function function, DatabaseConnectionSPtr connection, String const & name, String const & is, std::random_device & generator )
 		{
 			typedef DatabaseUtils::Helpers< EFieldType_CHAR >::ParamType param_type;
 			param_type value = param_type();
@@ -258,9 +258,9 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			CLogger::LogInfo( StringStream() << "  Default" );
 			function( connection, name, &value, true, is );
 			CLogger::LogInfo( StringStream() << "  Truncate" );
-			function( connection, name, &( value = DatabaseUtils::Helpers< EFieldType_CHAR >::InitialiseValue( 1024 ) ), true, is );
+			function( connection, name, &( value = DatabaseUtils::Helpers< EFieldType_CHAR >::InitialiseValue( generator, 1024 ) ), true, is );
 			CLogger::LogInfo( StringStream() << "  Given" );
-			function( connection, name, &valueIn, true, is );
+			function( connection, name, &( value = helper_type::InitialiseValue( generator, Size ) ), true, is );
 		}
 	};
 
@@ -271,7 +271,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		typedef helper_type::ParamType param_type;
 
 		template< typename Function >
-		void operator()( Function function, DatabaseConnectionSPtr connection, String const & name, String const & is, param_type valueIn = helper_type::InitialiseValue() )
+		void operator()( Function function, DatabaseConnectionSPtr connection, String const & name, String const & is, std::random_device & generator )
 		{
 			typedef DatabaseUtils::Helpers< EFieldType_VARCHAR >::ParamType param_type;
 			param_type value = param_type();
@@ -285,9 +285,9 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			CLogger::LogInfo( StringStream() << "  Default" );
 			function( connection, name, &value, true, is );
 			CLogger::LogInfo( StringStream() << "  Truncate" );
-			function( connection, name, &( value = DatabaseUtils::Helpers< EFieldType_VARCHAR >::InitialiseValue( 1024 ) ), true, is );
+			function( connection, name, &( value = DatabaseUtils::Helpers< EFieldType_VARCHAR >::InitialiseValue( generator, 1024 ) ), true, is );
 			CLogger::LogInfo( StringStream() << "  Given" );
-			function( connection, name, &valueIn, true, is );
+			function( connection, name, &( value = helper_type::InitialiseValue( generator ) ), true, is );
 		}
 	};
 
@@ -298,7 +298,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		typedef helper_type::ParamType param_type;
 
 		template< typename Function >
-		void operator()( Function function, DatabaseConnectionSPtr connection, String const & name, String const & is, param_type valueIn = helper_type::InitialiseValue() )
+		void operator()( Function function, DatabaseConnectionSPtr connection, String const & name, String const & is, std::random_device & generator )
 		{
 			typedef DatabaseUtils::Helpers< EFieldType_NCHAR >::ParamType param_type;
 			param_type value = param_type();
@@ -312,9 +312,9 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			CLogger::LogInfo( StringStream() << "  Default" );
 			function( connection, name, &value, true, is );
 			CLogger::LogInfo( StringStream() << "  Truncate" );
-			function( connection, name, &( value = DatabaseUtils::Helpers< EFieldType_NCHAR >::InitialiseValue( 1024 ) ), true, is );
+			function( connection, name, &( value = DatabaseUtils::Helpers< EFieldType_NCHAR >::InitialiseValue( generator, 1024 ) ), true, is );
 			CLogger::LogInfo( StringStream() << "  Given" );
-			function( connection, name, &valueIn, true, is );
+			function( connection, name, &( value = helper_type::InitialiseValue( generator ) ), true, is );
 		}
 	};
 
@@ -325,7 +325,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		typedef helper_type::ParamType param_type;
 
 		template< typename Function >
-		void operator()( Function function, DatabaseConnectionSPtr connection, String const & name, String const & is, param_type valueIn = helper_type::InitialiseValue() )
+		void operator()( Function function, DatabaseConnectionSPtr connection, String const & name, String const & is, std::random_device & generator )
 		{
 			typedef DatabaseUtils::Helpers< EFieldType_NVARCHAR >::ParamType param_type;
 			param_type value = param_type();
@@ -339,9 +339,9 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			CLogger::LogInfo( StringStream() << "  Default" );
 			function( connection, name, &value, true, is );
 			CLogger::LogInfo( StringStream() << "  Truncate" );
-			function( connection, name, &( value = DatabaseUtils::Helpers< EFieldType_NVARCHAR >::InitialiseValue( 1024 ) ), true, is );
+			function( connection, name, &( value = DatabaseUtils::Helpers< EFieldType_NVARCHAR >::InitialiseValue( generator, 1024 ) ), true, is );
 			CLogger::LogInfo( StringStream() << "  Given" );
-			function( connection, name, &valueIn, true, is );
+			function( connection, name, &( value = helper_type::InitialiseValue( generator ) ), true, is );
 		}
 	};
 
@@ -352,7 +352,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		typedef helper_type::ParamType param_type;
 
 		template< typename Function >
-		void operator()( Function function, DatabaseConnectionSPtr connection, String const & name, String const & is, param_type valueIn = helper_type::InitialiseValue() )
+		void operator()( Function function, DatabaseConnectionSPtr connection, String const & name, String const & is, std::random_device & generator )
 		{
 			typedef DatabaseUtils::Helpers< EFieldType_TEXT >::ParamType param_type;
 			param_type value = param_type();
@@ -366,9 +366,9 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			CLogger::LogInfo( StringStream() << "  Default" );
 			function( connection, name, &value, true, is );
 			CLogger::LogInfo( StringStream() << "  Big" );
-			function( connection, name, &( value = DatabaseUtils::Helpers< EFieldType_TEXT >::InitialiseValue( 1024 * 16 ) ), true, is );
+			function( connection, name, &( value = DatabaseUtils::Helpers< EFieldType_TEXT >::InitialiseValue( generator, 1024 * 16 ) ), true, is );
 			CLogger::LogInfo( StringStream() << "  Given" );
-			function( connection, name, &valueIn, true, is );
+			function( connection, name, &( value = helper_type::InitialiseValue( generator ) ), true, is );
 		}
 	};
 
@@ -379,7 +379,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		typedef helper_type::ParamType param_type;
 
 		template< typename Function >
-		void operator()( Function function, DatabaseConnectionSPtr connection, String const & name, String const & is, param_type valueIn = helper_type::InitialiseValue() )
+		void operator()( Function function, DatabaseConnectionSPtr connection, String const & name, String const & is, std::random_device & generator )
 		{
 			typedef DatabaseUtils::Helpers< EFieldType_VARBINARY >::ParamType param_type;
 			param_type value = param_type();
@@ -391,9 +391,9 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 
 			CLogger::LogInfo( StringStream() << "  Big" );
-			function( connection, name, &( value = DatabaseUtils::Helpers< EFieldType_VARBINARY >::InitialiseValue( 1024 * 16 ) ), true, is );
+			function( connection, name, &( value = DatabaseUtils::Helpers< EFieldType_VARBINARY >::InitialiseValue( generator, 1024 * 16 ) ), true, is );
 			CLogger::LogInfo( StringStream() << "  Given" );
-			function( connection, name, &valueIn, true, is );
+			function( connection, name, &( value = helper_type::InitialiseValue( generator ) ), true, is );
 		}
 	};
 
@@ -421,39 +421,40 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				{
 					connection->SelectDatabase( _database );
 					DoFlushTable( connection );
-					BatchTests< EFieldType_SINT32 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_SINT32 >, connection, STR( "IntegerField" ), _config.is );
-					BatchTests< EFieldType_SINT16 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_SINT16 >, connection, STR( "SmallIntField" ), _config.is );
-					BatchTests< EFieldType_SINT64 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_SINT64 >, connection, STR( "BigIntField" ), _config.is );
-					BatchTests< EFieldType_SINT16 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_SINT16 >, connection, STR( "Int2Field" ), _config.is );
-					BatchTests< EFieldType_SINT64 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_SINT64 >, connection, STR( "Int8Field" ), _config.is );
-					BatchTests< EFieldType_FLOAT64 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_FLOAT64 >, connection, STR( "RealField" ), _config.is );
-					BatchTests< EFieldType_FLOAT64 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_FLOAT64 >, connection, STR( "DoubleField" ), _config.is );
-					BatchTests< EFieldType_FLOAT64 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_FLOAT64 >, connection, STR( "DoublePrecisionField" ), _config.is );
-					BatchTests< EFieldType_FLOAT32 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_FLOAT32 >, connection, STR( "FloatField" ), _config.is );
-					BatchTests< EFieldType_FIXED_POINT, 10, 0 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_FIXED_POINT >, connection, STR( "NumericField" ), _config.is );
-					BatchTests< EFieldType_FIXED_POINT, 10, 5 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_FIXED_POINT >, connection, STR( "DecimalField" ), _config.is );
-					BatchTests< EFieldType_BIT >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_BIT >, connection, STR( "BooleanField" ), _config.is );
-					BatchTests< EFieldType_DATE >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_DATE >, connection, STR( "DateField" ), _config.is );
-					BatchTests< EFieldType_DATETIME >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_DATETIME >, connection, STR( "DateTimeField" ), _config.is );
-					BatchTests< EFieldType_CHAR, 20 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_CHAR >, connection, STR( "CharacterField" ), _config.is );
-					BatchTests< EFieldType_VARCHAR >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_VARCHAR >, connection, STR( "VarcharField" ), _config.is );
-					BatchTests< EFieldType_NCHAR, 55 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_NCHAR >, connection, STR( "NcharField" ), _config.is );
-					BatchTests< EFieldType_NVARCHAR >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_NVARCHAR >, connection, STR( "NVarcharField" ), _config.is );
-					BatchTests< EFieldType_TEXT >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_TEXT >, connection, STR( "TextField" ), _config.is );
-					BatchTests< EFieldType_VARBINARY >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_VARBINARY >, connection, STR( "BlobField" ), _config.is );
+					std::random_device generator;
+					BatchTests< EFieldType_SINT32 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_SINT32 >, connection, STR( "IntegerField" ), _config.is, generator );
+					BatchTests< EFieldType_SINT16 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_SINT16 >, connection, STR( "SmallIntField" ), _config.is, generator );
+					BatchTests< EFieldType_SINT64 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_SINT64 >, connection, STR( "BigIntField" ), _config.is, generator );
+					BatchTests< EFieldType_SINT16 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_SINT16 >, connection, STR( "Int2Field" ), _config.is, generator );
+					BatchTests< EFieldType_SINT64 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_SINT64 >, connection, STR( "Int8Field" ), _config.is, generator );
+					BatchTests< EFieldType_FLOAT64 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_FLOAT64 >, connection, STR( "RealField" ), _config.is, generator );
+					BatchTests< EFieldType_FLOAT64 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_FLOAT64 >, connection, STR( "DoubleField" ), _config.is, generator );
+					BatchTests< EFieldType_FLOAT64 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_FLOAT64 >, connection, STR( "DoublePrecisionField" ), _config.is, generator );
+					BatchTests< EFieldType_FLOAT32 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_FLOAT32 >, connection, STR( "FloatField" ), _config.is, generator );
+					BatchTests< EFieldType_FIXED_POINT, 10, 0 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_FIXED_POINT >, connection, STR( "NumericField" ), _config.is, generator );
+					BatchTests< EFieldType_FIXED_POINT, 10, 5 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_FIXED_POINT >, connection, STR( "DecimalField" ), _config.is, generator );
+					BatchTests< EFieldType_BIT >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_BIT >, connection, STR( "BooleanField" ), _config.is, generator );
+					BatchTests< EFieldType_DATE >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_DATE >, connection, STR( "DateField" ), _config.is, generator );
+					BatchTests< EFieldType_DATETIME >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_DATETIME >, connection, STR( "DateTimeField" ), _config.is, generator );
+					BatchTests< EFieldType_CHAR, 20 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_CHAR >, connection, STR( "CharacterField" ), _config.is, generator );
+					BatchTests< EFieldType_VARCHAR >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_VARCHAR >, connection, STR( "VarcharField" ), _config.is, generator );
+					BatchTests< EFieldType_NCHAR, 55 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_NCHAR >, connection, STR( "NcharField" ), _config.is, generator );
+					BatchTests< EFieldType_NVARCHAR >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_NVARCHAR >, connection, STR( "NVarcharField" ), _config.is, generator );
+					BatchTests< EFieldType_TEXT >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_TEXT >, connection, STR( "TextField" ), _config.is, generator );
+					BatchTests< EFieldType_VARBINARY >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_VARBINARY >, connection, STR( "BlobField" ), _config.is, generator );
 
 					if ( _config.hasUnsignedTiny )
 					{
-						BatchTests< EFieldType_UINT8 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_UINT8 >, connection, STR( "TinyIntField" ), _config.is );
+						BatchTests< EFieldType_UINT8 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_UINT8 >, connection, STR( "TinyIntField" ), _config.is, generator );
 					}
 					else
 					{
-						BatchTests< EFieldType_SINT8 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_SINT8 >, connection, STR( "TinyIntField" ), _config.is );
+						BatchTests< EFieldType_SINT8 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_SINT8 >, connection, STR( "TinyIntField" ), _config.is, generator );
 					}
 
 					if ( _config.hasInt24 )
 					{
-						BatchTests< EFieldType_SINT24 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_SINT24 >, connection, STR( "MediumIntField" ), _config.is );
+						BatchTests< EFieldType_SINT24 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_SINT24 >, connection, STR( "MediumIntField" ), _config.is, generator );
 					}
 				}
 
@@ -486,39 +487,40 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				{
 					connection->SelectDatabase( _database );
 					DoFlushTable( connection );
-					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_SINT32 >( connection, STR( "IntegerField" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_SINT16 >( connection, STR( "SmallIntField" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_SINT64 >( connection, STR( "BigIntField" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_SINT16 >( connection, STR( "Int2Field" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_SINT64 >( connection, STR( "Int8Field" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_FLOAT64 >( connection, STR( "RealField" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_FLOAT64 >( connection, STR( "DoubleField" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_FLOAT64 >( connection, STR( "DoublePrecisionField" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_FLOAT32 >( connection, STR( "FloatField" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_FIXED_POINT >( connection, STR( "NumericField" ), DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue( 10, 0 ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_FIXED_POINT >( connection, STR( "DecimalField" ), DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue( 10, 5 ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_BIT >( connection, STR( "BooleanField" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_DATE >( connection, STR( "DateField" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_DATETIME >( connection, STR( "DateTimeField" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_CHAR >( connection, STR( "CharacterField" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_VARCHAR >( connection, STR( "VarcharField" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_NCHAR >( connection, STR( "NcharField" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_NVARCHAR >( connection, STR( "NVarcharField" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_TEXT >( connection, STR( "TextField" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_VARBINARY >( connection, STR( "BlobField" ), true, _config.is );
+					std::random_device generator;
+					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_SINT32 >( connection, STR( "IntegerField" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_SINT16 >( connection, STR( "SmallIntField" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_SINT64 >( connection, STR( "BigIntField" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_SINT16 >( connection, STR( "Int2Field" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_SINT64 >( connection, STR( "Int8Field" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_FLOAT64 >( connection, STR( "RealField" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_FLOAT64 >( connection, STR( "DoubleField" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_FLOAT64 >( connection, STR( "DoublePrecisionField" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_FLOAT32 >( connection, STR( "FloatField" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_FIXED_POINT >( connection, STR( "NumericField" ), DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue( generator, 10, 0 ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_FIXED_POINT >( connection, STR( "DecimalField" ), DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue( generator, 10, 5 ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_BIT >( connection, STR( "BooleanField" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_DATE >( connection, STR( "DateField" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_DATETIME >( connection, STR( "DateTimeField" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_CHAR >( connection, STR( "CharacterField" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_VARCHAR >( connection, STR( "VarcharField" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_NCHAR >( connection, STR( "NcharField" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_NVARCHAR >( connection, STR( "NVarcharField" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_TEXT >( connection, STR( "TextField" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_VARBINARY >( connection, STR( "BlobField" ), true, _config.is, generator );
 
 					if ( _config.hasUnsignedTiny )
 					{
-						DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_UINT8 >( connection, STR( "TinyIntField" ), true, _config.is );
+						DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_UINT8 >( connection, STR( "TinyIntField" ), true, _config.is, generator );
 					}
 					else
 					{
-						DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_SINT8 >( connection, STR( "TinyIntField" ), true, _config.is );
+						DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_SINT8 >( connection, STR( "TinyIntField" ), true, _config.is, generator );
 					}
 
 					if ( _config.hasInt24 )
 					{
-						DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_SINT24 >( connection, STR( "MediumIntField" ), true, _config.is );
+						DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_SINT24 >( connection, STR( "MediumIntField" ), true, _config.is, generator );
 					}
 				}
 
@@ -551,50 +553,51 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				{
 					connection->SelectDatabase( _database );
 					DoFlushTable( connection );
-					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_SINT32 >( connection, STR( "IntegerField" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_SINT16 >( connection, STR( "SmallIntField" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_SINT64 >( connection, STR( "BigIntField" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_SINT16 >( connection, STR( "Int2Field" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_SINT64 >( connection, STR( "Int8Field" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_FLOAT64 >( connection, STR( "RealField" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_FLOAT64 >( connection, STR( "DoubleField" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_FLOAT64 >( connection, STR( "DoublePrecisionField" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_FLOAT32 >( connection, STR( "FloatField" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_FIXED_POINT >( connection, STR( "NumericField" ), DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue( 10, 0 ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_FIXED_POINT >( connection, STR( "DecimalField" ), DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue( 10, 5 ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_DATE >( connection, STR( "DateField" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_DATETIME >( connection, STR( "DateTimeField" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_CHAR >( connection, STR( "CharacterField" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_VARCHAR >( connection, STR( "VarcharField" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_TEXT >( connection, STR( "TextField" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_VARBINARY >( connection, STR( "BlobField" ), true, _config.is );
+					std::random_device generator;
+					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_SINT32 >( connection, STR( "IntegerField" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_SINT16 >( connection, STR( "SmallIntField" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_SINT64 >( connection, STR( "BigIntField" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_SINT16 >( connection, STR( "Int2Field" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_SINT64 >( connection, STR( "Int8Field" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_FLOAT64 >( connection, STR( "RealField" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_FLOAT64 >( connection, STR( "DoubleField" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_FLOAT64 >( connection, STR( "DoublePrecisionField" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_FLOAT32 >( connection, STR( "FloatField" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_FIXED_POINT >( connection, STR( "NumericField" ), DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue( generator, 10, 0 ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_FIXED_POINT >( connection, STR( "DecimalField" ), DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue( generator, 10, 5 ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_DATE >( connection, STR( "DateField" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_DATETIME >( connection, STR( "DateTimeField" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_CHAR >( connection, STR( "CharacterField" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_VARCHAR >( connection, STR( "VarcharField" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_TEXT >( connection, STR( "TextField" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_VARBINARY >( connection, STR( "BlobField" ), true, _config.is, generator );
 
 					if ( _config.hasTinyInt )
 					{
 						if ( _config.hasUnsignedTiny )
 						{
-							DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_UINT8 >( connection, STR( "TinyIntField" ), true, _config.is );
+							DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_UINT8 >( connection, STR( "TinyIntField" ), true, _config.is, generator );
 						}
 						else
 						{
-							DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_SINT8 >( connection, STR( "TinyIntField" ), true, _config.is );
+							DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_SINT8 >( connection, STR( "TinyIntField" ), true, _config.is, generator );
 						}
 					}
 
 					if ( _config.hasInt24 )
 					{
-						DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_SINT24 >( connection, STR( "MediumIntField" ), true, _config.is );
+						DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_SINT24 >( connection, STR( "MediumIntField" ), true, _config.is, generator );
 					}
 
 					if ( _config.hasNChar )
 					{
-						DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_NCHAR >( connection, STR( "NcharField" ), true, _config.is );
-						DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_NVARCHAR >( connection, STR( "NVarcharField" ), true, _config.is );
+						DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_NCHAR >( connection, STR( "NcharField" ), true, _config.is, generator );
+						DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_NVARCHAR >( connection, STR( "NVarcharField" ), true, _config.is, generator );
 					}
 
 					if ( _config.hasSeparateBooleanAndTinyInt )
 					{
-						DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_BIT >( connection, STR( "BooleanField" ), true, _config.is );
+						DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_BIT >( connection, STR( "BooleanField" ), true, _config.is, generator );
 					}
 				}
 
@@ -627,50 +630,51 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				{
 					connection->SelectDatabase( _database );
 					DoFlushTable( connection );
-					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_SINT32 >( connection, STR( "IntegerField" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_SINT16 >( connection, STR( "SmallIntField" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_SINT64 >( connection, STR( "BigIntField" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_SINT16 >( connection, STR( "Int2Field" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_SINT64 >( connection, STR( "Int8Field" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_FLOAT64 >( connection, STR( "RealField" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_FLOAT64 >( connection, STR( "DoubleField" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_FLOAT64 >( connection, STR( "DoublePrecisionField" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_FLOAT32 >( connection, STR( "FloatField" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_FIXED_POINT >( connection, STR( "NumericField" ), DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue( 10, 0 ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_FIXED_POINT >( connection, STR( "DecimalField" ), DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue( 10, 5 ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_DATE >( connection, STR( "DateField" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_DATETIME >( connection, STR( "DateTimeField" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_CHAR >( connection, STR( "CharacterField" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_VARCHAR >( connection, STR( "VarcharField" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_TEXT >( connection, STR( "TextField" ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_VARBINARY >( connection, STR( "BlobField" ), true, _config.is );
+					std::random_device generator;
+					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_SINT32 >( connection, STR( "IntegerField" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_SINT16 >( connection, STR( "SmallIntField" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_SINT64 >( connection, STR( "BigIntField" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_SINT16 >( connection, STR( "Int2Field" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_SINT64 >( connection, STR( "Int8Field" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_FLOAT64 >( connection, STR( "RealField" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_FLOAT64 >( connection, STR( "DoubleField" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_FLOAT64 >( connection, STR( "DoublePrecisionField" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_FLOAT32 >( connection, STR( "FloatField" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_FIXED_POINT >( connection, STR( "NumericField" ), DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue( generator, 10, 0 ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_FIXED_POINT >( connection, STR( "DecimalField" ), DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue( generator, 10, 5 ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_DATE >( connection, STR( "DateField" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_DATETIME >( connection, STR( "DateTimeField" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_CHAR >( connection, STR( "CharacterField" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_VARCHAR >( connection, STR( "VarcharField" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_TEXT >( connection, STR( "TextField" ), true, _config.is, generator );
+					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_VARBINARY >( connection, STR( "BlobField" ), true, _config.is, generator );
 
 					if ( _config.hasTinyInt )
 					{
 						if ( _config.hasUnsignedTiny )
 						{
-							DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_UINT8 >( connection, STR( "TinyIntField" ), true, _config.is );
+							DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_UINT8 >( connection, STR( "TinyIntField" ), true, _config.is, generator );
 						}
 						else
 						{
-							DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_SINT8 >( connection, STR( "TinyIntField" ), true, _config.is );
+							DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_SINT8 >( connection, STR( "TinyIntField" ), true, _config.is, generator );
 						}
 					}
 
 					if ( _config.hasInt24 )
 					{
-						DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_SINT24 >( connection, STR( "MediumIntField" ), true, _config.is );
+						DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_SINT24 >( connection, STR( "MediumIntField" ), true, _config.is, generator );
 					}
 
 					if ( _config.hasNChar )
 					{
-						DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_NCHAR >( connection, STR( "NcharField" ), true, _config.is );
-						DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_NVARCHAR >( connection, STR( "NVarcharField" ), true, _config.is );
+						DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_NCHAR >( connection, STR( "NcharField" ), true, _config.is, generator );
+						DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_NVARCHAR >( connection, STR( "NVarcharField" ), true, _config.is, generator );
 					}
 
 					if ( _config.hasSeparateBooleanAndTinyInt )
 					{
-						DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_BIT >( connection, STR( "BooleanField" ), true, _config.is );
+						DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_BIT >( connection, STR( "BooleanField" ), true, _config.is, generator );
 					}
 				}
 
@@ -703,14 +707,15 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				{
 					connection->SelectDatabase( _database );
 					DoFlushTable( connection );
+					std::random_device generator;
 					CLogger::LogInfo( StringStream() << " Insertions" );
-					DatabaseUtils::TestDirectInsert< StmtType >( connection );
+					DatabaseUtils::TestDirectInsert< StmtType >( generator, connection );
 					CLogger::LogInfo( StringStream() << " Selection" );
-					DatabaseUtils::TestDirectSelect< StmtType >( connection );
+					DatabaseUtils::TestDirectSelect< StmtType >( generator, connection );
 					CLogger::LogInfo( StringStream() << " Update" );
-					DatabaseUtils::TestDirectUpdate< StmtType >( connection );
+					DatabaseUtils::TestDirectUpdate< StmtType >( generator, connection );
 					CLogger::LogInfo( StringStream() << " Deletion" );
-					DatabaseUtils::TestDirectDelete< StmtType >( connection );
+					DatabaseUtils::TestDirectDelete< StmtType >( generator, connection );
 				}
 
 				database->RemoveConnection();
@@ -743,18 +748,19 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				if ( connection->IsConnected() )
 				{
 					connection->SelectDatabase( _database );
+					std::random_device generator;
 					CLogger::LogInfo( StringStream() << " No parameter, No Return" );
-					DatabaseUtils::TestStoredNoParamNoReturn< StmtType >( connection );
+					DatabaseUtils::TestStoredNoParamNoReturn< StmtType >( generator, connection );
 					CLogger::LogInfo( StringStream() << " No parameter, Return" );
-					DatabaseUtils::TestStoredNoParamReturn< StmtType >( connection, STR( "" ) );
+					DatabaseUtils::TestStoredNoParamReturn< StmtType >( generator, connection, STR( "" ) );
 					CLogger::LogInfo( StringStream() << " In parameters, No Return" );
-					DatabaseUtils::TestStoredInParamNoReturn< StmtType >( connection );
+					DatabaseUtils::TestStoredInParamNoReturn< StmtType >( generator, connection );
 					CLogger::LogInfo( StringStream() << " In parameters, Return" );
-					DatabaseUtils::TestStoredNoParamReturn< StmtType >( connection, STR( "WHERE ACTOR_ID > 5" ) );
+					DatabaseUtils::TestStoredNoParamReturn< StmtType >( generator, connection, STR( "WHERE ACTOR_ID > 5" ) );
 					CLogger::LogInfo( StringStream() << " In/Out INTEGER parameter, No Return" );
-					DatabaseUtils::TestStoredInOutParamNoReturn< StmtType >( connection );
+					DatabaseUtils::TestStoredInOutParamNoReturn< StmtType >( generator, connection );
 					CLogger::LogInfo( StringStream() << " In/Out INTEGER and DATETIME parameters, No Return" );
-					DatabaseUtils::TestStoredInOutDtParamNoReturn< StmtType >( connection );
+					DatabaseUtils::TestStoredInOutDtParamNoReturn< StmtType >( generator, connection );
 				}
 
 				database->RemoveConnection();

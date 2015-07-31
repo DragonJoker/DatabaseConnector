@@ -84,7 +84,7 @@ BEGIN_NAMESPACE_DATABASE
 		DoPrintMessage( logLevel, StringUtils::ToString( message ) );
 	}
 
-	void CLoggerImpl::LogMessageQueue( MessageQueue const & p_queue )
+	void CLoggerImpl::LogMessageQueue( MessageQueue const & p_queue, bool display )
 	{
 		static const String LOG_TIMESTAMP = STR( "%Y-%m-%d %H:%M:%S" );
 		DateTimeType today = boost::posix_time::second_clock::local_time();
@@ -130,12 +130,12 @@ BEGIN_NAMESPACE_DATABASE
 
 						for ( auto && line : array )
 						{
-							DoLogLine( timeStamp, line, file, message->m_type );
+							DoLogLine( timeStamp, line, file, message->m_type, display );
 						}
 					}
 					else
 					{
-						DoLogLine( timeStamp, toLog, file, message->m_type );
+						DoLogLine( timeStamp, toLog, file, message->m_type, display );
 					}
 				}
 			}
@@ -174,10 +174,13 @@ BEGIN_NAMESPACE_DATABASE
 		_console->Print( line, true );
 	}
 
-	void CLoggerImpl::DoLogLine( String const & timestamp, String const & line, FILE * logFile, ELogType logLevel )
+	void CLoggerImpl::DoLogLine( String const & timestamp, String const & line, FILE * logFile, ELogType logLevel, bool display )
 	{
 #if defined( NDEBUG )
-		DoPrintLine( line, logLevel );
+		if ( display )
+		{
+			DoPrintLine( line, logLevel );
+		}
 #endif
 
 		if ( logFile )

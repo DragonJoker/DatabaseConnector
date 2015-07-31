@@ -48,11 +48,10 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 	static const TChar * INFO_SQLITE_STATEMENT_FINALISATION = STR( "Statement finalisation" );
 	static const TChar * INFO_SQLITE_EXECUTING_SELECT = STR( "Executing select : " );
+	static const TChar * INFO_SQLITE_SELECTION = STR( "Database selection" );
 
 	static const String ERROR_SQLITE_CONNECTION = STR( "Couldn't create the connection" );
-	static const String ERROR_SQLITE_SELECTION = STR( "Couldn't select the database: " );
 	static const String ERROR_SQLITE_DESTRUCTION = STR( "Couldn't destroy the database: " );
-	static const String ERROR_SQLITE_PREPARATION_ERROR = STR( "Couldn't prepare the query" );
 	static const String ERROR_SQLITE_EXECUTION_ERROR = STR( "Couldn't execute the query" );
 	static const String ERROR_SQLITE_UNKNOWN_ERROR = STR( "Unknown error" );
 	static const String ERROR_SQLITE_NOT_CONNECTED = STR( "Not connected" );
@@ -74,31 +73,6 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 	static const unsigned long SQLITE_STMT_DATETIME_SIZE = 19;
 	//HH:MM:SS
 	static const unsigned long SQLITE_STMT_TIME_SIZE = 8;
-
-	namespace
-	{
-		sqlite3_stmt * PrepareStatement( const String & query, sqlite3 * connection )
-		{
-			sqlite3_stmt * statement = NULL;
-			int code = sqlite3_prepare_v2( connection, StringUtils::ToStr( query ).c_str(), int( query.size() ), &statement, NULL );
-
-			while ( code == SQLITE_BUSY || code == SQLITE_LOCKED )
-			{
-				// Tant qu'on n'a pas réussi à compiler la requête parce que la BDD est lockée ou occupée, on retente le coup
-				std::this_thread::sleep_for( std::chrono::milliseconds( 10 ) );
-				code = sqlite3_prepare_v2( connection, StringUtils::ToStr( query ).c_str(), int( query.size() ), &statement, NULL );
-			}
-
-			if ( !statement )
-			{
-				StringStream stream;
-				stream << ERROR_SQLITE_PREPARATION_ERROR << STR( " - " ) << StringUtils::ToString( sqlite3_errmsg( connection ) );
-				DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, stream.str() );
-			}
-
-			return statement;
-		}
-	}
 
 	CDatabaseConnectionSqlite::CDatabaseConnectionSqlite( const String & server, const String & userName, const String & password, String & connectionString )
 		:   CDatabaseConnection( server, userName, password )
@@ -205,7 +179,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			sqlite3_close( _connection );
 		}
 
-		SQLiteCheck( sqlite3_open( StringUtils::ToStr( _server + PATH_SEP + database ).c_str(), &_connection ), StringStream() << ERROR_SQLITE_SELECTION, EDatabaseExceptionCodes_ConnectionError, _connection );
+		SQLiteCheck( sqlite3_open( StringUtils::ToStr( _server + PATH_SEP + database ).c_str(), &_connection ), StringStream() << INFO_SQLITE_SELECTION, EDatabaseExceptionCodes_ConnectionError, _connection );
 		_database = database;
 	}
 
@@ -508,7 +482,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 		try
 		{
-			sqlite3_stmt * statement = PrepareStatement( query, _connection );
+			sqlite3_stmt * statement = SqlitePrepareStatement( query, _connection );
 			ret = ExecuteUpdate( statement );
 			SQLiteCheck( sqlite3_finalize( statement ), INFO_SQLITE_STATEMENT_FINALISATION, EDatabaseExceptionCodes_ConnectionError, _connection );
 		}
@@ -532,7 +506,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 		try
 		{
-			sqlite3_stmt * statement = PrepareStatement( query, _connection );
+			sqlite3_stmt * statement = SqlitePrepareStatement( query, _connection );
 			ret = ExecuteSelect( statement );
 			SQLiteCheck( sqlite3_finalize( statement ), INFO_SQLITE_STATEMENT_FINALISATION, EDatabaseExceptionCodes_ConnectionError, _connection );
 		}

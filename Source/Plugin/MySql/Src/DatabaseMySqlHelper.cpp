@@ -652,8 +652,11 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				break;
 
 			case MYSQL_TYPE_VAR_STRING:
-			case MYSQL_TYPE_STRING:
 				result = EFieldType_VARCHAR;
+				break;
+
+			case MYSQL_TYPE_STRING:
+				result = EFieldType_CHAR;
 				break;
 
 			case MYSQL_TYPE_DATE:

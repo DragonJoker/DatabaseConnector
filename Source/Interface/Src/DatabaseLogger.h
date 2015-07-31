@@ -239,7 +239,7 @@ BEGIN_NAMESPACE_DATABASE
 		void DoPushMessage( ELogType type, std::wstring const & message );
 		void DoInitialiseThread();
 		void DoCleanupThread();
-		void DoFlushQueue();
+		void DoFlushQueue( bool display );
 
 	private:
 		friend class CLoggerImpl;

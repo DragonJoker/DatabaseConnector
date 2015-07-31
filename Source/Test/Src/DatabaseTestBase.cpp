@@ -7,7 +7,7 @@
  *
  * @brief Base class for database tests
  * @todo
- *	Transactions test:
+ *	Transactions tests:
  *		Commit, close conn.
  *		Rollback, close conn.
  *		Begin, no modif, close conn.
@@ -18,8 +18,29 @@
  *		Begin, modif, rollback, close conn.
  *		Begin, begin, close conn.
  *	Stored procedures
- *	Multithread test
- *	Multistatmeent test
+ *	Multithread tests:
+ *		One transacting insert, one insert
+ *		One transacting insert, one update
+ *		One transacting insert, one select
+ *		One transacting insert, one delete
+ *		One transacting update, one insert
+ *		One transacting update, one update
+ *		One transacting update, one select
+ *		One transacting update, one delete
+ *		One transacting select, one insert
+ *		One transacting select, one update
+ *		One transacting select, one select
+ *		One transacting select, one delete
+ *		One transacting insert, one transacting insert
+ *		One transacting insert, one transacting select
+ *		One transacting insert, one transacting update
+ *		One transacting insert, one transacting delete
+ *		One transacting update, one transacting select
+ *		One transacting update, one transacting update
+ *		One transacting update, one transacting delete
+ *		One transacting select, one transacting select
+ *		One transacting select, one transacting delete
+ *	Multistatement tests
  *
  ***************************************************************************/
 
@@ -33,10 +54,13 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	String const QUERY_SELECT_MIN = STR( "SELECT MIN( IDTest ) AS TestID\n" )
 	STR( "FROM\n" )
 	STR( "	Test" );
+	String const QUERY_SELECT_MAX = STR( "SELECT MAX( IDTest ) AS TestID\n" )
+	STR( "FROM\n" )
+	STR( "	Test" );
 	String const QUERY_GET_COUNT = STR( "SELECT COUNT( IDTest ) AS TestID\n" )
 	STR( "FROM\n" )
 	STR( "	Test" );
-	String const QUERY_INSERT_ELEMENT = STR( "INSERT INTO Test\n" )
+	String const QUERY_DIRECT_INSERT_ELEMENT = STR( "INSERT INTO Test\n" )
 	STR( "(\n" )
 	STR( "	IntField, IntegerField, TinyIntField, SmallIntField, MediumIntField, BigIntField, Int2Field, Int8Field,\n" )
 	STR( "	RealField, DoubleField, DoublePrecisionField, FloatField, NumericField, DecimalField, BooleanField,\n" )
@@ -202,6 +226,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					connection->CreateDatabase( _database );
 					connection->SelectDatabase( _database );
 					connection->ExecuteUpdate( _createTable );
+					DoFlushTable( connection );
 				}
 
 				database->RemoveConnection();
