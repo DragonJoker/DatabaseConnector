@@ -66,10 +66,6 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport virtual const void * GetPtrValue() const = 0;
 
-		/** Re-initialize internal values.
-		*/
-		DatabaseExport virtual void Reset() = 0;
-
 		/** Get the value pointer size
 		@return
 			The size.

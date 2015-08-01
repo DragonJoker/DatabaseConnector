@@ -285,15 +285,6 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		typedef typename SFieldTypeDataTyper< FieldType >::value_type value_type;
 
-		/** Reinitializes the given value
-		@param value
-			The value
-		*/
-		void Reset( value_type & value )
-		{
-			value = value_type();
-		}
-
 		/** Sets the value to the given one
 		@param in
 			The input value
@@ -358,15 +349,6 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		typedef SFieldTypeDataTyper< EFieldType_SINT8 >::value_type value_type;
 
-		/** Reinitializes the given value
-		@param value
-			The value
-		*/
-		void Reset( value_type & value )
-		{
-			value = value_type( 0 );
-		}
-
 		/** Sets the value to the given one
 		@param in
 			The input value
@@ -430,15 +412,6 @@ BEGIN_NAMESPACE_DATABASE
 	template<> struct SDatabaseValuePolicy< EFieldType_UINT8 >
 	{
 		typedef SFieldTypeDataTyper< EFieldType_UINT8 >::value_type value_type;
-
-		/** Reinitializes the given value
-		@param value
-			The value
-		*/
-		void Reset( value_type & value )
-		{
-			value = value_type( 0 );
-		}
 
 		/** Sets the value to the given one
 		@param in
@@ -505,15 +478,6 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		typedef SFieldTypeDataTyper< EFieldType_SINT24 >::value_type value_type;
 
-		/** Reinitializes the given value
-		@param value
-			The value
-		*/
-		void Reset( value_type & value )
-		{
-			value = value_type();
-		}
-
 		/** Sets the value to the given one
 		@param in
 			The input value
@@ -579,15 +543,6 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		typedef SFieldTypeDataTyper< EFieldType_UINT24 >::value_type value_type;
 
-		/** Reinitializes the given value
-		@param value
-			The value
-		*/
-		void Reset( value_type & value )
-		{
-			value = value_type();
-		}
-
 		/** Sets the value to the given one
 		@param in
 			The input value
@@ -651,15 +606,6 @@ BEGIN_NAMESPACE_DATABASE
 	template<> struct SDatabaseValuePolicy< EFieldType_FLOAT32 >
 	{
 		typedef SFieldTypeDataTyper< EFieldType_FLOAT32 >::value_type value_type;
-
-		/** Reinitializes the given value
-		@param value
-			The value
-		*/
-		void Reset( value_type & value )
-		{
-			value = value_type( 0 );
-		}
 
 		/** Sets the value to the given one
 		@param in
@@ -725,15 +671,6 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		typedef SFieldTypeDataTyper< EFieldType_FLOAT64 >::value_type value_type;
 
-		/** Reinitializes the given value
-		@param value
-			The value
-		*/
-		void Reset( value_type & value )
-		{
-			value = value_type( 0 );
-		}
-
 		/** Sets the value to the given one
 		@param in
 			The input value
@@ -798,15 +735,6 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		typedef SFieldTypeDataTyper< EFieldType_BIT >::value_type value_type;
 
-		/** Reinitializes the given value
-		@param value
-			The value
-		*/
-		void Reset( value_type & value )
-		{
-			value = value_type();
-		}
-
 		/** Sets the value to the given one
 		@param in
 			The input value
@@ -870,15 +798,6 @@ BEGIN_NAMESPACE_DATABASE
 	struct CTextDatabaseValuePolicy
 	{
 		typedef std::string value_type;
-
-		/** Reinitializes the given value
-		@param value
-			The value
-		*/
-		void Reset( value_type & value )
-		{
-			value.clear();
-		}
 
 		/** Sets the value to the given one
 		@param in
@@ -968,15 +887,6 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		typedef std::wstring value_type;
 
-		/** Reinitializes the given value
-		@param value
-			The value
-		*/
-		void Reset( value_type & value )
-		{
-			value.clear();
-		}
-
 		/** Sets the value to the given one
 		@param in
 			The input value
@@ -1064,15 +974,6 @@ BEGIN_NAMESPACE_DATABASE
 	struct SByteArrayDatabaseValuePolicy
 	{
 		typedef ByteArray value_type;
-
-		/** Reinitializes the given value
-		@param value
-			The value
-		*/
-		void Reset( value_type & value )
-		{
-			value.clear();
-		}
 
 		/** Sets the value to the given one
 		@param in
@@ -1183,15 +1084,6 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		typedef SFieldTypeDataTyper< EFieldType_DATE >::value_type value_type;
 
-		/** Reinitializes the given value
-		@param value
-			The value
-		*/
-		void Reset( value_type & value )
-		{
-			value = value_type();
-		}
-
 		/** Sets the value to the given one
 		@param in
 			The input value
@@ -1215,14 +1107,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		void * Ptr( value_type & value )
 		{
-			void * result = NULL;
-
-			if ( !_value.empty() )
-			{
-				result = &_value[0];
-			}
-
-			return result;
+			return &value;
 		}
 
 		/** Retrieves a pointer from the given value
@@ -1231,14 +1116,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		const void * Ptr( const value_type & value )const
 		{
-			void const * result = NULL;
-
-			if ( !_value.empty() )
-			{
-				result = _value.data();
-			}
-
-			return result;
+			return &value;
 		}
 
 		/** Puts the value into the given string
@@ -1262,8 +1140,6 @@ BEGIN_NAMESPACE_DATABASE
 				return NULL_VALUE;
 			}
 		}
-
-		std::string _value;
 	};
 
 	/** SDatabaseValuePolicy specialization for EFieldType_TIME type
@@ -1271,15 +1147,6 @@ BEGIN_NAMESPACE_DATABASE
 	template<> struct SDatabaseValuePolicy< EFieldType_TIME >
 	{
 		typedef SFieldTypeDataTyper< EFieldType_TIME >::value_type value_type;
-
-		/** Reinitializes the given value
-		@param value
-			The value
-		*/
-		void Reset( value_type & value )
-		{
-			value = value_type();
-		}
 
 		/** Sets the value to the given one
 		@param in
@@ -1304,14 +1171,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		void * Ptr( value_type & value )
 		{
-			void * result = NULL;
-
-			if ( !_value.empty() )
-			{
-				result = &_value[0];
-			}
-
-			return result;
+			return &value;
 		}
 
 		/** Retrieves a pointer from the given value
@@ -1320,14 +1180,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		const void * Ptr( const value_type & value )const
 		{
-			void const * result = NULL;
-
-			if ( !_value.empty() )
-			{
-				result = _value.data();
-			}
-
-			return result;
+			return &value;
 		}
 
 		/** Puts the value into the given string
@@ -1351,8 +1204,6 @@ BEGIN_NAMESPACE_DATABASE
 				return NULL_VALUE;
 			}
 		}
-
-		std::string _value;
 	};
 
 	/** SDatabaseValuePolicy specialization for EFieldType_DATETIME type
@@ -1360,15 +1211,6 @@ BEGIN_NAMESPACE_DATABASE
 	template<> struct SDatabaseValuePolicy< EFieldType_DATETIME >
 	{
 		typedef SFieldTypeDataTyper< EFieldType_DATETIME >::value_type value_type;
-
-		/** Reinitializes the given value
-		@param value
-			The value
-		*/
-		void Reset( value_type & value )
-		{
-			value = value_type();
-		}
 
 		/** Sets the value to the given one
 		@param in
@@ -1393,14 +1235,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		void * Ptr( value_type & value )
 		{
-			void * result = NULL;
-
-			if ( !_value.empty() )
-			{
-				result = &_value[0];
-			}
-
-			return result;
+			return &value;
 		}
 
 		/** Retrieves a pointer from the given value
@@ -1409,14 +1244,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		const void * Ptr( const value_type & value )const
 		{
-			void const * result = NULL;
-
-			if ( !_value.empty() )
-			{
-				result = _value.data();
-			}
-
-			return result;
+			return &value;
 		}
 
 		/** Puts the value into the given string
@@ -1440,8 +1268,6 @@ BEGIN_NAMESPACE_DATABASE
 				return NULL_VALUE;
 			}
 		}
-
-		std::string _value;
 	};
 
 	/** SDatabaseValuePolicy specialization for EFieldType_FIXED_POINT type
@@ -1449,15 +1275,6 @@ BEGIN_NAMESPACE_DATABASE
 	template<> struct SDatabaseValuePolicy< EFieldType_FIXED_POINT >
 	{
 		typedef SFieldTypeDataTyper< EFieldType_FIXED_POINT >::value_type value_type;
-
-		/** Reinitializes the given value
-		@param value
-			The value
-		*/
-		void Reset( value_type & value )
-		{
-			value = value_type();
-		}
 
 		/** Sets the value to the given one
 		@param in
@@ -1472,7 +1289,7 @@ BEGIN_NAMESPACE_DATABASE
 		bool Set( const value_type & in, value_type & out, unsigned long & size, const CDatabaseConnection & connection )
 		{
 			out = in;
-			size = out.GetDecimals();
+			size = sizeof( value_type );
 			return true;
 		}
 

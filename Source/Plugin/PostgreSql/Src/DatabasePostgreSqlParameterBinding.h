@@ -292,7 +292,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			stream << _value.GetValue();
 			std::string value = stream.str();
 			_bind.length = int( value.size() );
-			assert( _bind.length < _holder.size() );
+			assert( value.size() < _holder.size() );
 			strcpy( _holder.data(), value.data() );
 			_bind.value = _holder.data();
 		}
@@ -332,7 +332,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			stream << int16_t( _value.GetValue() );
 			std::string value = stream.str();
 			_bind.length = int( value.size() );
-			assert( _bind.length < _holder.size() );
+			assert( value.size() < _holder.size() );
 			strcpy( _holder.data(), value.data() );
 			_bind.value = _holder.data();
 		}
@@ -372,7 +372,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			stream << uint16_t( _value.GetValue() );
 			std::string value = stream.str();
 			_bind.length = int( value.size() );
-			assert( _bind.length < _holder.size() );
+			assert( value.size() < _holder.size() );
 			strcpy( _holder.data(), value.data() );
 			_bind.value = _holder.data();
 		}
@@ -763,7 +763,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		{
 			std::string value = StringUtils::ToStr( _value.GetValue().ToString() );
 			_bind.length = int( value.size() );
-			assert( _bind.length < _holder.size() );
+			assert( value.size() < _holder.size() );
 			strcpy( _holder.data(), value.data() );
 			_bind.value = _holder.data();
 		}
@@ -801,7 +801,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		{
 			std::string value = Date::Format( _value.GetValue(), POSTGRE_FORMAT_DATE );
 			_bind.length = int( value.size() );
-			assert( _bind.length < _holder.size() );
+			assert( value.size() < _holder.size() );
 			strcpy( _holder.data(), value.data() );
 			_bind.value = reinterpret_cast< char * >( &_holder );
 		}
@@ -840,7 +840,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		{
 			std::string value = DateTime::Format( _value.GetValue(), POSTGRE_FORMAT_DATETIME );
 			_bind.length = int( value.size() );
-			assert( _bind.length < _holder.size() );
+			assert( value.size() < _holder.size() );
 			strcpy( _holder.data(), value.data() );
 			_bind.value = reinterpret_cast< char * >( &_holder );
 		}
@@ -878,7 +878,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		{
 			std::string value = Time::Format( _value.GetValue(), POSTGRE_FORMAT_TIME );
 			_bind.length = int( value.size() );
-			assert( _bind.length < _holder.size() );
+			assert( value.size() < _holder.size() );
 			strcpy( _holder.data(), value.data() );
 			_bind.value = reinterpret_cast< char * >( &_holder );
 		}

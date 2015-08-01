@@ -42,182 +42,321 @@ namespace std
 
 BEGIN_NAMESPACE_DATABASE_TEST
 {
-	template< EFieldType ValueType > struct QueryValueChecker
+	template< EFieldType ValueType > struct ValueChecker
 	{
-		static void Compare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const typename DatabaseUtils::Helpers< ValueType >::ParamType & val )
+		typedef typename DatabaseUtils::Helpers< ValueType >::ParamType ParamType;
+
+		static void QueryValueCompare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const ParamType & val )
 		{
 			BOOST_CHECK_EQUAL( value.GetQueryValue(), StringUtils::ToString( val ) );
-		};
+		}
+		static void PtrValueCompare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const ParamType & val )
+		{
+			BOOST_CHECK_EQUAL( *reinterpret_cast< const ParamType * >( value.GetPtrValue() ), value.GetValue() );
+			BOOST_CHECK_EQUAL( *reinterpret_cast< const ParamType * >( value.GetPtrValue() ), val );
+			BOOST_CHECK_EQUAL( value.GetPtrSize(), sizeof( val ) );
+		}
 	};
 
-	template<> struct QueryValueChecker< EFieldType_BIT >
+	template<> struct ValueChecker< EFieldType_BIT >
 	{
 		static const EFieldType ValueType = EFieldType_BIT;
+		typedef DatabaseUtils::Helpers< ValueType >::ParamType ParamType;
 
-		static void Compare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const DatabaseUtils::Helpers< ValueType >::ParamType & val )
+		static void QueryValueCompare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const ParamType & val )
 		{
 			BOOST_CHECK_EQUAL( value.GetQueryValue(), connection->WriteBool( val ) );
-		};
+		}
+		static void PtrValueCompare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const ParamType & val )
+		{
+			BOOST_CHECK_EQUAL( *reinterpret_cast< const ParamType * >( value.GetPtrValue() ), value.GetValue() );
+			BOOST_CHECK_EQUAL( *reinterpret_cast< const ParamType * >( value.GetPtrValue() ), val );
+			BOOST_CHECK_EQUAL( value.GetPtrSize(), sizeof( val ) );
+		}
 	};
 
-	template<> struct QueryValueChecker< EFieldType_SINT8 >
+	template<> struct ValueChecker< EFieldType_SINT8 >
 	{
 		static const EFieldType ValueType = EFieldType_SINT8;
+		typedef DatabaseUtils::Helpers< ValueType >::ParamType ParamType;
 
-		static void Compare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const DatabaseUtils::Helpers< ValueType >::ParamType & val )
+		static void QueryValueCompare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const ParamType & val )
 		{
 			BOOST_CHECK_EQUAL( value.GetQueryValue(), StringUtils::ToString( int16_t( val ) ) );
-		};
+		}
+		static void PtrValueCompare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const ParamType & val )
+		{
+			BOOST_CHECK_EQUAL( *reinterpret_cast< const ParamType * >( value.GetPtrValue() ), value.GetValue() );
+			BOOST_CHECK_EQUAL( *reinterpret_cast< const ParamType * >( value.GetPtrValue() ), val );
+			BOOST_CHECK_EQUAL( value.GetPtrSize(), sizeof( val ) );
+		}
 	};
 
-	template<> struct QueryValueChecker< EFieldType_UINT8 >
+	template<> struct ValueChecker< EFieldType_UINT8 >
 	{
 		static const EFieldType ValueType = EFieldType_UINT8;
+		typedef DatabaseUtils::Helpers< ValueType >::ParamType ParamType;
 
-		static void Compare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const DatabaseUtils::Helpers< ValueType >::ParamType & val )
+		static void QueryValueCompare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const ParamType & val )
 		{
 			BOOST_CHECK_EQUAL( value.GetQueryValue(), StringUtils::ToString( uint16_t( val ) ) );
-		};
+		}
+		static void PtrValueCompare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const ParamType & val )
+		{
+			BOOST_CHECK_EQUAL( *reinterpret_cast< const ParamType * >( value.GetPtrValue() ), value.GetValue() );
+			BOOST_CHECK_EQUAL( *reinterpret_cast< const ParamType * >( value.GetPtrValue() ), val );
+			BOOST_CHECK_EQUAL( value.GetPtrSize(), sizeof( val ) );
+		}
 	};
 
-	template<> struct QueryValueChecker< EFieldType_FLOAT64 >
+	template<> struct ValueChecker< EFieldType_FLOAT64 >
 	{
 		static const EFieldType ValueType = EFieldType_FLOAT64;
+		typedef DatabaseUtils::Helpers< ValueType >::ParamType ParamType;
 
-		static void Compare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const DatabaseUtils::Helpers< ValueType >::ParamType & val )
+		static void QueryValueCompare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const ParamType & val )
 		{
 			BOOST_CHECK_EQUAL( value.GetQueryValue(), connection->WriteDouble( val ) );
-		};
+		}
+		static void PtrValueCompare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const ParamType & val )
+		{
+			BOOST_CHECK_EQUAL( *reinterpret_cast< const ParamType * >( value.GetPtrValue() ), value.GetValue() );
+			BOOST_CHECK_EQUAL( *reinterpret_cast< const ParamType * >( value.GetPtrValue() ), val );
+			BOOST_CHECK_EQUAL( value.GetPtrSize(), sizeof( val ) );
+		}
 	};
 
-	template<> struct QueryValueChecker< EFieldType_FIXED_POINT >
+	template<> struct ValueChecker< EFieldType_FIXED_POINT >
 	{
 		static const EFieldType ValueType = EFieldType_FIXED_POINT;
+		typedef DatabaseUtils::Helpers< ValueType >::ParamType ParamType;
 
-		static void Compare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const DatabaseUtils::Helpers< ValueType >::ParamType & val )
+		static void QueryValueCompare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const ParamType & val )
 		{
 			BOOST_CHECK_EQUAL( value.GetQueryValue(), val.ToString() );
-		};
+		}
+		static void PtrValueCompare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const ParamType & val )
+		{
+			BOOST_CHECK_EQUAL( *reinterpret_cast< const ParamType * >( value.GetPtrValue() ), value.GetValue() );
+			BOOST_CHECK_EQUAL( *reinterpret_cast< const ParamType * >( value.GetPtrValue() ), val );
+			BOOST_CHECK_EQUAL( value.GetPtrSize(), sizeof( val ) );
+		}
 	};
 
-	template<> struct QueryValueChecker< EFieldType_CHAR >
+	template<> struct ValueChecker< EFieldType_CHAR >
 	{
 		static const EFieldType ValueType = EFieldType_CHAR;
+		typedef DatabaseUtils::Helpers< ValueType >::ParamType ParamType;
 
-		static void Compare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const DatabaseUtils::Helpers< ValueType >::ParamType & val )
+		static void QueryValueCompare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const ParamType & val )
 		{
 			BOOST_CHECK_EQUAL( value.GetQueryValue(), connection->WriteText( val ) );
-		};
+		}
+		static void PtrValueCompare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const ParamType & val )
+		{
+			ParamType ptr( reinterpret_cast< const char * >( value.GetPtrValue() ) );
+			BOOST_CHECK_EQUAL( ptr, value.GetValue() );
+			BOOST_CHECK_EQUAL( ptr, val );
+			BOOST_CHECK_EQUAL( value.GetPtrSize(), val.size() );
+		}
 	};
 
-	template<> struct QueryValueChecker< EFieldType_VARCHAR >
+	template<> struct ValueChecker< EFieldType_VARCHAR >
 	{
 		static const EFieldType ValueType = EFieldType_VARCHAR;
+		typedef DatabaseUtils::Helpers< ValueType >::ParamType ParamType;
 
-		static void Compare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const DatabaseUtils::Helpers< ValueType >::ParamType & val )
+		static void QueryValueCompare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const ParamType & val )
 		{
 			BOOST_CHECK_EQUAL( value.GetQueryValue(), connection->WriteText( val ) );
-		};
+		}
+		static void PtrValueCompare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const ParamType & val )
+		{
+			ParamType ptr( reinterpret_cast< const char * >( value.GetPtrValue() ) );
+			BOOST_CHECK_EQUAL( ptr, value.GetValue() );
+			BOOST_CHECK_EQUAL( ptr, val );
+			BOOST_CHECK_EQUAL( value.GetPtrSize(), val.size() );
+		}
 	};
 
-	template<> struct QueryValueChecker< EFieldType_TEXT >
+	template<> struct ValueChecker< EFieldType_TEXT >
 	{
 		static const EFieldType ValueType = EFieldType_TEXT;
+		typedef DatabaseUtils::Helpers< ValueType >::ParamType ParamType;
 
-		static void Compare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const DatabaseUtils::Helpers< ValueType >::ParamType & val )
+		static void QueryValueCompare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const ParamType & val )
 		{
 			BOOST_CHECK_EQUAL( value.GetQueryValue(), connection->WriteText( val ) );
-		};
+		}
+		static void PtrValueCompare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const ParamType & val )
+		{
+			ParamType ptr( reinterpret_cast< const char * >( value.GetPtrValue() ) );
+			BOOST_CHECK_EQUAL( ptr, value.GetValue() );
+			BOOST_CHECK_EQUAL( ptr, val );
+			BOOST_CHECK_EQUAL( value.GetPtrSize(), val.size() );
+		}
 	};
 
-	template<> struct QueryValueChecker< EFieldType_NCHAR >
+	template<> struct ValueChecker< EFieldType_NCHAR >
 	{
 		static const EFieldType ValueType = EFieldType_NCHAR;
+		typedef DatabaseUtils::Helpers< ValueType >::ParamType ParamType;
 
-		static void Compare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const DatabaseUtils::Helpers< ValueType >::ParamType & val )
+		static void QueryValueCompare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const ParamType & val )
 		{
 			BOOST_CHECK_EQUAL( value.GetQueryValue(), StringUtils::ToString( connection->WriteNText( val ) ) );
-		};
+		}
+		static void PtrValueCompare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const ParamType & val )
+		{
+			ParamType ptr( reinterpret_cast< const wchar_t * >( value.GetPtrValue() ) );
+			BOOST_CHECK_EQUAL( ptr, value.GetValue() );
+			BOOST_CHECK_EQUAL( ptr, val );
+			BOOST_CHECK_EQUAL( ptr.size(), val.size() );
+		}
 	};
 
-	template<> struct QueryValueChecker< EFieldType_NVARCHAR >
+	template<> struct ValueChecker< EFieldType_NVARCHAR >
 	{
 		static const EFieldType ValueType = EFieldType_NVARCHAR;
+		typedef DatabaseUtils::Helpers< ValueType >::ParamType ParamType;
 
-		static void Compare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const DatabaseUtils::Helpers< ValueType >::ParamType & val )
+		static void QueryValueCompare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const ParamType & val )
 		{
 			BOOST_CHECK_EQUAL( value.GetQueryValue(), StringUtils::ToString( connection->WriteNText( val ) ) );
-		};
+		}
+		static void PtrValueCompare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const ParamType & val )
+		{
+			ParamType ptr( reinterpret_cast< const wchar_t * >( value.GetPtrValue() ) );
+			BOOST_CHECK_EQUAL( ptr, value.GetValue() );
+			BOOST_CHECK_EQUAL( ptr, val );
+			BOOST_CHECK_EQUAL( ptr.size(), val.size() );
+		}
 	};
 
-	template<> struct QueryValueChecker< EFieldType_NTEXT >
+	template<> struct ValueChecker< EFieldType_NTEXT >
 	{
 		static const EFieldType ValueType = EFieldType_NTEXT;
+		typedef DatabaseUtils::Helpers< ValueType >::ParamType ParamType;
 
-		static void Compare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const DatabaseUtils::Helpers< ValueType >::ParamType & val )
+		static void QueryValueCompare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const ParamType & val )
 		{
 			BOOST_CHECK_EQUAL( value.GetQueryValue(), StringUtils::ToString( connection->WriteNText( val ) ) );
-		};
+		}
+		static void PtrValueCompare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const ParamType & val )
+		{
+			ParamType ptr( reinterpret_cast< const wchar_t * >( value.GetPtrValue() ) );
+			BOOST_CHECK_EQUAL( ptr, value.GetValue() );
+			BOOST_CHECK_EQUAL( ptr, val );
+			BOOST_CHECK_EQUAL( ptr.size(), val.size() );
+		}
 	};
 
-	template<> struct QueryValueChecker< EFieldType_DATE >
+	template<> struct ValueChecker< EFieldType_DATE >
 	{
 		static const EFieldType ValueType = EFieldType_DATE;
+		typedef DatabaseUtils::Helpers< ValueType >::ParamType ParamType;
 
-		static void Compare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const DatabaseUtils::Helpers< ValueType >::ParamType & val )
+		static void QueryValueCompare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const ParamType & val )
 		{
 			BOOST_CHECK_EQUAL( value.GetQueryValue(), connection->WriteDate( val ) );
-		};
+		}
+		static void PtrValueCompare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const ParamType & val )
+		{
+			BOOST_CHECK_EQUAL( *reinterpret_cast< const ParamType * >( value.GetPtrValue() ), value.GetValue() );
+			BOOST_CHECK_EQUAL( *reinterpret_cast< const ParamType * >( value.GetPtrValue() ), val );
+			BOOST_CHECK_EQUAL( value.GetPtrSize(), sizeof( val ) );
+		}
 	};
 
-	template<> struct QueryValueChecker< EFieldType_TIME >
+	template<> struct ValueChecker< EFieldType_TIME >
 	{
 		static const EFieldType ValueType = EFieldType_TIME;
+		typedef DatabaseUtils::Helpers< ValueType >::ParamType ParamType;
 
-		static void Compare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const DatabaseUtils::Helpers< ValueType >::ParamType & val )
+		static void QueryValueCompare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const ParamType & val )
 		{
 			BOOST_CHECK_EQUAL( value.GetQueryValue(), connection->WriteTime( val ) );
-		};
+		}
+		static void PtrValueCompare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const ParamType & val )
+		{
+			BOOST_CHECK_EQUAL( *reinterpret_cast< const ParamType * >( value.GetPtrValue() ), value.GetValue() );
+			BOOST_CHECK_EQUAL( *reinterpret_cast< const ParamType * >( value.GetPtrValue() ), val );
+			BOOST_CHECK_EQUAL( value.GetPtrSize(), sizeof( val ) );
+		}
 	};
 
-	template<> struct QueryValueChecker< EFieldType_DATETIME >
+	template<> struct ValueChecker< EFieldType_DATETIME >
 	{
 		static const EFieldType ValueType = EFieldType_DATETIME;
+		typedef DatabaseUtils::Helpers< ValueType >::ParamType ParamType;
 
-		static void Compare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const DatabaseUtils::Helpers< ValueType >::ParamType & val )
+		static void QueryValueCompare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const ParamType & val )
 		{
 			BOOST_CHECK_EQUAL( value.GetQueryValue(), connection->WriteDateTime( val ) );
-		};
+		}
+		static void PtrValueCompare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const ParamType & val )
+		{
+			BOOST_CHECK_EQUAL( *reinterpret_cast< const ParamType * >( value.GetPtrValue() ), value.GetValue() );
+			BOOST_CHECK_EQUAL( *reinterpret_cast< const ParamType * >( value.GetPtrValue() ), val );
+			BOOST_CHECK_EQUAL( value.GetPtrSize(), sizeof( val ) );
+		}
 	};
 
-	template<> struct QueryValueChecker< EFieldType_BINARY >
+	template<> struct ValueChecker< EFieldType_BINARY >
 	{
 		static const EFieldType ValueType = EFieldType_BINARY;
+		typedef DatabaseUtils::Helpers< ValueType >::ParamType ParamType;
 
-		static void Compare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const DatabaseUtils::Helpers< ValueType >::ParamType & val )
+		static void QueryValueCompare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const ParamType & val )
 		{
 			BOOST_CHECK_EQUAL( value.GetQueryValue(), connection->WriteBinary( val ) );
-		};
+		}
+		static void PtrValueCompare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const ParamType & val )
+		{
+			const uint8_t * raw = reinterpret_cast< const uint8_t * >( value.GetPtrValue() );
+			ParamType ptr( raw, raw + value.GetPtrSize() );
+			BOOST_CHECK_EQUAL( ptr, value.GetValue() );
+			BOOST_CHECK_EQUAL( ptr, val );
+			BOOST_CHECK_EQUAL( value.GetPtrSize(), val.size() );
+		}
 	};
 
-	template<> struct QueryValueChecker< EFieldType_VARBINARY >
+	template<> struct ValueChecker< EFieldType_VARBINARY >
 	{
 		static const EFieldType ValueType = EFieldType_VARBINARY;
+		typedef DatabaseUtils::Helpers< ValueType >::ParamType ParamType;
 
-		static void Compare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const DatabaseUtils::Helpers< ValueType >::ParamType & val )
+		static void QueryValueCompare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const ParamType & val )
 		{
 			BOOST_CHECK_EQUAL( value.GetQueryValue(), connection->WriteBinary( val ) );
-		};
+		}
+		static void PtrValueCompare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const ParamType & val )
+		{
+			const uint8_t * raw = reinterpret_cast< const uint8_t * >( value.GetPtrValue() );
+			ParamType ptr( raw, raw + value.GetPtrSize() );
+			BOOST_CHECK_EQUAL( ptr, value.GetValue() );
+			BOOST_CHECK_EQUAL( ptr, val );
+			BOOST_CHECK_EQUAL( value.GetPtrSize(), val.size() );
+		}
 	};
 
-	template<> struct QueryValueChecker< EFieldType_BLOB >
+	template<> struct ValueChecker< EFieldType_BLOB >
 	{
 		static const EFieldType ValueType = EFieldType_BLOB;
+		typedef DatabaseUtils::Helpers< ValueType >::ParamType ParamType;
 
-		static void Compare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const DatabaseUtils::Helpers< ValueType >::ParamType & val )
+		static void QueryValueCompare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const ParamType & val )
 		{
 			BOOST_CHECK_EQUAL( value.GetQueryValue(), connection->WriteBinary( val ) );
-		};
+		}
+		static void PtrValueCompare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const ParamType & val )
+		{
+			const uint8_t * raw = reinterpret_cast< const uint8_t * >( value.GetPtrValue() );
+			ParamType ptr( raw, raw + value.GetPtrSize() );
+			BOOST_CHECK_EQUAL( ptr, value.GetValue() );
+			BOOST_CHECK_EQUAL( ptr, val );
+			BOOST_CHECK_EQUAL( value.GetPtrSize(), val.size() );
+		}
 	};
 
 	template< EFieldType ValueType > struct ValueChecks
@@ -243,7 +382,22 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			CDatabaseValue< ValueType > value( connection );
 			auto val = DatabaseUtils::Helpers< ValueType >::InitialiseValue( generator );
 			BOOST_CHECK_NO_THROW( value.SetValue( val ) );
-			QueryValueChecker< ValueType >::Compare( connection, value, val );
+			ValueChecker< ValueType >::QueryValueCompare( connection, value, val );
+		}
+
+		static void PtrValue( std::random_device & generator )
+		{
+			String connectionString;
+			DatabaseConnectionSPtr connection = std::make_shared< CDatabaseTestConnection >( TEST_GOOD_SERVER, TEST_GOOD_USER, TEST_GOOD_PASSWORD, connectionString );
+			connection->SelectDatabase( TEST_GOOD_DATABASE );
+			CDatabaseValue< ValueType > value( connection );
+			BOOST_CHECK( value.IsNull() );
+			BOOST_CHECK_EQUAL( value.GetPtrSize(), 0 );
+			auto val = DatabaseUtils::Helpers< ValueType >::InitialiseValue( generator );
+			BOOST_CHECK_NO_THROW( value.SetValue( val ) );
+			BOOST_CHECK( !value.IsNull() );
+			BOOST_CHECK( value.GetPtrValue() );
+			ValueChecker< ValueType >::PtrValueCompare( connection, value, val );
 		}
 	};
 
@@ -263,6 +417,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		//!@remarks Add the TC to the internal TS.
 		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseValueTest::TestCase_ValueCopy, this ) ) );
 		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseValueTest::TestCase_ValueForQuery, this ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseValueTest::TestCase_ValueGetPtr, this ) ) );
 
 		//!@remarks Return the TS instance.
 		return testSuite;
@@ -331,7 +486,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 	void CDatabaseValueTest::TestCase_ValueForQuery()
 	{
-		CLogger::LogInfo( StringStream() << "**** Start TestCase_ValueCopy ****" );
+		CLogger::LogInfo( StringStream() << "**** Start TestCase_ValueForQuery ****" );
 		std::random_device generator;
 
 		CLogger::LogInfo( StringStream() << "  EFieldType_BIT" );
@@ -387,7 +542,68 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		CLogger::LogInfo( StringStream() << "  EFieldType_BLOB" );
 		ValueChecks< EFieldType_BLOB >::QueryValue( generator );
 
-		CLogger::LogInfo( StringStream() << "**** End TestCase_ValueCopy ****" );
+		CLogger::LogInfo( StringStream() << "**** End TestCase_ValueForQuery ****" );
+	}
+
+	void CDatabaseValueTest::TestCase_ValueGetPtr()
+	{
+		CLogger::LogInfo( StringStream() << "**** Start TestCase_ValueGetPtr ****" );
+		std::random_device generator;
+
+		CLogger::LogInfo( StringStream() << "  EFieldType_BIT" );
+		ValueChecks< EFieldType_BIT >::PtrValue( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_SINT8" );
+		ValueChecks< EFieldType_SINT8 >::PtrValue( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_SINT16" );
+		ValueChecks< EFieldType_SINT16 >::PtrValue( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_SINT24" );
+		ValueChecks< EFieldType_SINT24 >::PtrValue( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_SINT32" );
+		ValueChecks< EFieldType_SINT32 >::PtrValue( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_SINT64" );
+		ValueChecks< EFieldType_SINT64 >::PtrValue( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_UINT8" );
+		ValueChecks< EFieldType_UINT8 >::PtrValue( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_UINT16" );
+		ValueChecks< EFieldType_UINT16 >::PtrValue( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_UINT24" );
+		ValueChecks< EFieldType_UINT24 >::PtrValue( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_UINT32" );
+		ValueChecks< EFieldType_UINT32 >::PtrValue( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_UINT64" );
+		ValueChecks< EFieldType_UINT64 >::PtrValue( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_FLOAT32" );
+		ValueChecks< EFieldType_FLOAT32 >::PtrValue( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_FLOAT64" );
+		ValueChecks< EFieldType_FLOAT64 >::PtrValue( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_FIXED_POINT" );
+		ValueChecks< EFieldType_FIXED_POINT >::PtrValue( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_CHAR" );
+		ValueChecks< EFieldType_CHAR >::PtrValue( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_VARCHAR" );
+		ValueChecks< EFieldType_VARCHAR >::PtrValue( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_TEXT" );
+		ValueChecks< EFieldType_TEXT >::PtrValue( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_NCHAR" );
+		ValueChecks< EFieldType_NCHAR >::PtrValue( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_NVARCHAR" );
+		ValueChecks< EFieldType_NVARCHAR >::PtrValue( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_NTEXT" );
+		ValueChecks< EFieldType_NTEXT >::PtrValue( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_DATE" );
+		ValueChecks< EFieldType_DATE >::PtrValue( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_DATETIME" );
+		ValueChecks< EFieldType_DATETIME >::PtrValue( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_TIME" );
+		ValueChecks< EFieldType_TIME >::PtrValue( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_BINARY" );
+		ValueChecks< EFieldType_BINARY >::PtrValue( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_VARBINARY" );
+		ValueChecks< EFieldType_VARBINARY >::PtrValue( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_BLOB" );
+		ValueChecks< EFieldType_BLOB >::PtrValue( generator );
+
+		CLogger::LogInfo( StringStream() << "**** End TestCase_ValueGetPtr ****" );
 	}
 }
 END_NAMESPACE_DATABASE_TEST

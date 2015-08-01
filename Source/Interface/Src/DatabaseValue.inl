@@ -43,13 +43,14 @@ BEGIN_NAMESPACE_DATABASE
 			: CDatabaseValueBase( connection )
 			, _tValue( value_type() )
 		{
+			// Empty
 		}
 
 		/** Destructor.
 		*/
 		inline ~CDatabaseValue()
 		{
-			Reset();
+			// Empty
 		}
 
 		/** Defines this value from the given one
@@ -96,7 +97,14 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline const void * GetPtrValue()const
 		{
-			return ValuePolicy::Ptr( _tValue );
+			if ( !IsNull() )
+			{
+				return ValuePolicy::Ptr( _tValue );
+			}
+			else
+			{
+				return NULL;
+			}
 		}
 
 		/** Get the value.
@@ -106,13 +114,6 @@ BEGIN_NAMESPACE_DATABASE
 		inline const value_type & GetValue()const
 		{
 			return _tValue;
-		}
-
-		/** Re-initialize internal values.
-		*/
-		inline void Reset()
-		{
-			ValuePolicy::Reset( _tValue );
 		}
 
 	private:
@@ -153,7 +154,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline ~CDatabaseValue()
 		{
-			Reset();
+			// Empty
 		}
 
 		/** Defines this value from the given one
@@ -246,13 +247,6 @@ BEGIN_NAMESPACE_DATABASE
 			return _tValue;
 		}
 
-		/** Re-initialize internal values.
-		*/
-		inline void Reset()
-		{
-			ValuePolicy::Reset( _tValue );
-		}
-
 	private:
 		/** Set parameter value to NULL.
 		*/
@@ -291,7 +285,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline ~CDatabaseValue()
 		{
-			Reset();
+			// Empty
 		}
 
 		/** Defines this value from the given one
@@ -370,13 +364,6 @@ BEGIN_NAMESPACE_DATABASE
 			return _tValue;
 		}
 
-		/** Re-initialize internal values.
-		*/
-		inline void Reset()
-		{
-			ValuePolicy::Reset( _tValue );
-		}
-
 	private:
 		/** Set parameter value to NULL.
 		*/
@@ -415,7 +402,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline ~CDatabaseValue()
 		{
-			Reset();
+			// Empty
 		}
 
 		/** Defines this value from the given one
@@ -494,13 +481,6 @@ BEGIN_NAMESPACE_DATABASE
 			return _tValue;
 		}
 
-		/** Re-initialize internal values.
-		*/
-		inline void Reset()
-		{
-			ValuePolicy::Reset( _tValue );
-		}
-
 	private:
 		/** Set parameter value to NULL.
 		*/
@@ -539,7 +519,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline ~CDatabaseValue()
 		{
-			Reset();
+			// Empty
 		}
 
 		/** Defines this value from the given one
@@ -632,13 +612,6 @@ BEGIN_NAMESPACE_DATABASE
 			return _tValue;
 		}
 
-		/** Re-initialize internal values.
-		*/
-		inline void Reset()
-		{
-			ValuePolicy::Reset( _tValue );
-		}
-
 	private:
 		/** Set parameter value to NULL.
 		*/
@@ -677,7 +650,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline ~CDatabaseValue()
 		{
-			Reset();
+			// Empty
 		}
 
 		/** Defines this value from the given one
@@ -756,13 +729,6 @@ BEGIN_NAMESPACE_DATABASE
 			return _tValue;
 		}
 
-		/** Re-initialize internal values.
-		*/
-		inline void Reset()
-		{
-			ValuePolicy::Reset( _tValue );
-		}
-
 	private:
 		/** Set parameter value to NULL.
 		*/
@@ -801,7 +767,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline ~CDatabaseValue()
 		{
-			Reset();
+			// Empty
 		}
 
 		/** Defines this value from the given one
@@ -880,13 +846,6 @@ BEGIN_NAMESPACE_DATABASE
 			return _tValue;
 		}
 
-		/** Re-initialize internal values.
-		*/
-		inline void Reset()
-		{
-			ValuePolicy::Reset( _tValue );
-		}
-
 	private:
 		/** Set parameter value to NULL.
 		*/
@@ -925,7 +884,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline ~CDatabaseValue()
 		{
-			Reset();
+			// Empty
 		}
 
 		/** Defines this value from the given one
@@ -1004,13 +963,6 @@ BEGIN_NAMESPACE_DATABASE
 			return _tValue;
 		}
 
-		/** Re-initialize internal values.
-		*/
-		inline void Reset()
-		{
-			ValuePolicy::Reset( _tValue );
-		}
-
 	private:
 		/** Set parameter value to NULL.
 		*/
@@ -1049,7 +1001,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline ~CDatabaseValue()
 		{
-			Reset();
+			// Empty
 		}
 
 		/** Defines this value from the given one
@@ -1128,13 +1080,6 @@ BEGIN_NAMESPACE_DATABASE
 			return _tValue;
 		}
 
-		/** Re-initialize internal values.
-		*/
-		inline void Reset()
-		{
-			ValuePolicy::Reset( _tValue );
-		}
-
 	private:
 		/** Set parameter value to NULL.
 		*/
@@ -1173,7 +1118,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline ~CDatabaseValue()
 		{
-			Reset();
+			// Empty
 		}
 
 		/** Defines this value from the given one
@@ -1250,13 +1195,6 @@ BEGIN_NAMESPACE_DATABASE
 		inline const value_type & GetValue()const
 		{
 			return _tValue;
-		}
-
-		/** Re-initialize internal values.
-		*/
-		inline void Reset()
-		{
-			ValuePolicy::Reset( _tValue );
 		}
 
 	private:

@@ -61,6 +61,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		*/
 		void TestCase_ValueForQuery();
 
+		/** Test CDatabaseValue GetPtrValue function
+		*/
+		void TestCase_ValueGetPtr();
+
 		//!@}
 	};
 }
