@@ -22,7 +22,8 @@
 
 BEGIN_NAMESPACE_DATABASE_TEST
 {
-	extern DatabaseResultSPtr BuildResult( DatabaseConnectionSPtr connection );
+	extern DatabaseRowSPtr CreateRow( DatabaseConnectionSPtr connection, const DatabaseValuedObjectInfosPtrArray & fieldInfos );
+	extern DatabaseValuedObjectInfosPtrArray CreateFieldsInfos();
 
 	static const String ERROR_TEST_LOST_CONNECTION = STR( "The statement has lost his connection" );
 
@@ -99,7 +100,11 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_TEST_LOST_CONNECTION );
 		}
 
-		return _query == STR( "TestSelect" ) ? BuildResult( DoGetTestConnection() ) : DatabaseResultSPtr();
+		DatabaseValuedObjectInfosPtrArray fieldsInfos = CreateFieldsInfos();
+		DatabaseResultSPtr result = std::make_shared< CDatabaseResult >( fieldsInfos );
+		result->AddRow( CreateRow( connection, fieldsInfos ) );
+
+		return _query == STR( "TestSelect" ) ? result : DatabaseResultSPtr();
 	}
 
 	void CDatabaseTestStatement::DoCleanup()

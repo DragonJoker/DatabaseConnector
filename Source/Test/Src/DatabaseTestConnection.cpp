@@ -122,7 +122,19 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 	}
 
-	DatabaseResultSPtr BuildResult( DatabaseConnectionSPtr connection )
+	DatabaseRowSPtr CreateRow( DatabaseConnectionSPtr connection, const DatabaseValuedObjectInfosPtrArray & fieldInfos )
+	{
+		DatabaseRowSPtr row = std::make_shared< CDatabaseRow >();
+		
+		for ( auto infos : fieldInfos )
+		{
+			row->AddField( CreateField( connection, infos ) );
+		}
+
+		return row;
+	}
+
+	DatabaseValuedObjectInfosPtrArray CreateFieldsInfos()
 	{
 		DatabaseValuedObjectInfosPtrArray fieldInfos;
 		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseValuedObjectInfos >( STR( "EFieldType_BIT" ), EFieldType_BIT ) ) );
@@ -152,17 +164,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseValuedObjectInfos >( STR( "EFieldType_BINARY( 20 )" ), EFieldType_BINARY, 20 ) ) );
 		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseValuedObjectInfos >( STR( "EFieldType_VARBINARY( 255 )" ), EFieldType_VARBINARY, 255 ) ) );
 		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseValuedObjectInfos >( STR( "EFieldType_BLOB" ), EFieldType_BLOB ) ) );
-
-		DatabaseResultSPtr result = std::make_shared< CDatabaseResult >( fieldInfos );
-		DatabaseRowSPtr row = std::make_shared< CDatabaseRow >();
-		
-		for ( auto infos : fieldInfos )
-		{
-			row->AddField( CreateField( connection, infos ) );
-		}
-
-		result->AddRow( row );
-		return result;
+		return fieldInfos;
 	}
 
 	static const String ERROR_TEST_CONNECTION = STR( "Couldn't create the connection" );
@@ -531,7 +533,11 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 	DatabaseResultSPtr CDatabaseTestConnection::DoExecuteSelect( const String & query )
 	{
-		return query == STR( "TestSelect" ) ? BuildResult( shared_from_this() ) : DatabaseResultSPtr();
+		DatabaseValuedObjectInfosPtrArray fieldsInfos = CreateFieldsInfos();
+		DatabaseResultSPtr result = std::make_shared< CDatabaseResult >( fieldsInfos );
+		result->AddRow( CreateRow( shared_from_this(), fieldsInfos ) );
+
+		return query == STR( "TestSelect" ) ? result : DatabaseResultSPtr();
 	}
 
 	DatabaseStatementSPtr CDatabaseTestConnection::DoCreateStatement( const String & request )
