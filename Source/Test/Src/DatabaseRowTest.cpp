@@ -1,17 +1,17 @@
 /************************************************************************//**
- * @file DatabaseFieldTest.cpp
+ * @file DatabaseRowTest.cpp
  * @author Sylvain Doremus
  * @version 1.0
  * @date 12/02/2014 14:29:35
  *
  *
-* @brief Class testing CDatabaseField class
+ * @brief Class testing CDatabaseRow class
 *
 ***************************************************************************/
 
 #include "DatabaseTestPch.h"
 
-#include "DatabaseFieldTest.h"
+#include "DatabaseRowTest.h"
 
 #include "DatabaseTestConnection.h"
 #include "DatabaseTestUtils.h"
@@ -79,19 +79,19 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		{
 			static void Check( std::random_device & generator, DatabaseConnectionSPtr connection, DatabaseValuedObjectInfosSPtr infos )
 			{
-				CDatabaseField object( connection, infos );
+				CDatabaseRow row;
+				row.AddField( std::make_shared< CDatabaseField >( connection, infos ) );
 				auto valueIn = DatabaseUtils::Helpers< FieldTypeA >::GetRandomValue( generator );
-				BOOST_CHECK( object.IsNull() );
-				BOOST_CHECK_NO_THROW( static_cast< CDatabaseValue< FieldTypeA > & >( object.GetObjectValue() ).SetValue( valueIn ) );
+				BOOST_CHECK_NO_THROW( static_cast< CDatabaseValue< FieldTypeA > & >( row.GetField( 0 )->GetObjectValue() ).SetValue( valueIn ) );
 				DatabaseUtils::Helpers< FieldTypeB >::ParamType valueOut;
 
 				if ( AreTypesCompatibleGet( FieldTypeA, FieldTypeB ) )
 				{
-					BOOST_CHECK_NO_THROW( object.GetValue( valueOut ) );
+					BOOST_CHECK_NO_THROW( row.Get( 0, valueOut ) );
 				}
 				else
 				{
-					BOOST_CHECK_THROW( object.GetValue( valueOut ), CDatabaseException );
+					BOOST_CHECK_THROW( row.Get( 0, valueOut ), CDatabaseException );
 				}
 			}
 		};
@@ -101,22 +101,22 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		{
 			static void Check( std::random_device & generator, DatabaseConnectionSPtr connection, DatabaseValuedObjectInfosSPtr infos )
 			{
-				CDatabaseField object( connection, infos );
-				BOOST_CHECK( object.IsNull() );
+				CDatabaseRow row;
+				row.AddField( std::make_shared< CDatabaseField >( connection, infos ) );
 				CDatabaseNullable< DatabaseUtils::Helpers< FieldTypeB >::ParamType > valueOpt;
-				BOOST_CHECK_NO_THROW( object.GetValueOpt( valueOpt ) );
+				BOOST_CHECK_NO_THROW( row.GetOpt( 0, valueOpt ) );
 				BOOST_CHECK( !valueOpt );
 				auto value = DatabaseUtils::Helpers< FieldTypeA >::GetRandomValue( generator );
-				BOOST_CHECK_NO_THROW( static_cast< CDatabaseValue< FieldTypeA > & >( object.GetObjectValue() ).SetValue( value ) );
+				BOOST_CHECK_NO_THROW( static_cast< CDatabaseValue< FieldTypeA > & >( row.GetField( 0 )->GetObjectValue() ).SetValue( value ) );
 
 				if ( AreTypesCompatibleGet( FieldTypeA, FieldTypeB ) )
 				{
-					BOOST_CHECK_NO_THROW( object.GetValueOpt( valueOpt ) );
+					BOOST_CHECK_NO_THROW( row.GetOpt( 0, valueOpt ) );
 					BOOST_CHECK( ( bool )valueOpt );
 				}
 				else
 				{
-					BOOST_CHECK_THROW( object.GetValueOpt( valueOpt ), CDatabaseException );
+					BOOST_CHECK_THROW( row.GetOpt( 0, valueOpt ), CDatabaseException );
 				}
 			}
 		};
@@ -126,12 +126,12 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		{
 			static void Check( std::random_device & generator, DatabaseConnectionSPtr connection, DatabaseValuedObjectInfosSPtr infos )
 			{
-				CDatabaseField object( connection, infos );
-				BOOST_CHECK( object.IsNull() );
+				CDatabaseRow row;
+				row.AddField( std::make_shared< CDatabaseField >( connection, infos ) );
 				auto valueIn = DatabaseUtils::Helpers< FieldTypeA >::GetRandomValue( generator );
-				BOOST_CHECK_NO_THROW( static_cast< CDatabaseValue< FieldTypeA > & >( object.GetObjectValue() ).SetValue( valueIn ) );
+				BOOST_CHECK_NO_THROW( static_cast< CDatabaseValue< FieldTypeA > & >( row.GetField( 0 )->GetObjectValue() ).SetValue( valueIn ) );
 				DatabaseUtils::Helpers< FieldTypeB >::ParamType valueOut;
-				BOOST_CHECK_NO_THROW( object.GetValueFast( valueOut ) );
+				BOOST_CHECK_NO_THROW( row.GetFast( 0, valueOut ) );
 				BOOST_CHECK_EQUAL( valueIn, valueOut );
 			}
 		};
@@ -141,14 +141,14 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		{
 			static void Check( std::random_device & generator, DatabaseConnectionSPtr connection, DatabaseValuedObjectInfosSPtr infos )
 			{
-				CDatabaseField object( connection, infos );
-				BOOST_CHECK( object.IsNull() );
+				CDatabaseRow row;
+				row.AddField( std::make_shared< CDatabaseField >( connection, infos ) );
 				CDatabaseNullable< DatabaseUtils::Helpers< FieldTypeB >::ParamType > valueOpt;
-				BOOST_CHECK_NO_THROW( object.GetValueOpt( valueOpt ) );
+				BOOST_CHECK_NO_THROW( row.GetOptFast( 0, valueOpt ) );
 				BOOST_CHECK( !valueOpt );
 				auto value = DatabaseUtils::Helpers< FieldTypeA >::GetRandomValue( generator );
-				BOOST_CHECK_NO_THROW( static_cast< CDatabaseValue< FieldTypeA > & >( object.GetObjectValue() ).SetValue( value ) );
-				BOOST_CHECK_NO_THROW( object.GetValueOpt( valueOpt ) );
+				BOOST_CHECK_NO_THROW( static_cast< CDatabaseValue< FieldTypeA > & >( row.GetField( 0 )->GetObjectValue() ).SetValue( value ) );
+				BOOST_CHECK_NO_THROW( row.GetOptFast( 0, valueOpt ) );
 				BOOST_CHECK( ( bool )valueOpt );
 				BOOST_CHECK_EQUAL( *valueOpt, value );
 			}
@@ -249,32 +249,97 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		};
 	}
 
-	CDatabaseFieldTest::CDatabaseFieldTest()
+	CDatabaseRowTest::CDatabaseRowTest()
 	{
 	}
 
-	CDatabaseFieldTest::~CDatabaseFieldTest()
+	CDatabaseRowTest::~CDatabaseRowTest()
 	{
 	}
 
-	boost::unit_test::test_suite * CDatabaseFieldTest::Init_Test_Suite()
+	boost::unit_test::test_suite * CDatabaseRowTest::Init_Test_Suite()
 	{
 		//!@remarks Create the internal TS instance.
-		testSuite = new boost::unit_test::test_suite( "CDatabaseFieldTest" );
+		testSuite = new boost::unit_test::test_suite( "CDatabaseRowTest" );
 
 		//!@remarks Add the TC to the internal TS.
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseFieldTest::TestCase_FieldGetValue, this ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseFieldTest::TestCase_FieldGetValueOpt, this ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseFieldTest::TestCase_FieldGetValueFast, this ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseFieldTest::TestCase_FieldGetValueOptFast, this ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseRowTest::TestCase_RowFieldManagement, this ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseRowTest::TestCase_RowGet, this ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseRowTest::TestCase_RowGetOpt, this ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseRowTest::TestCase_RowGetFast, this ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseRowTest::TestCase_RowGetOptFast, this ) ) );
 
 		//!@remarks Return the TS instance.
 		return testSuite;
 	}
 
-	void CDatabaseFieldTest::TestCase_FieldGetValue()
+	void CDatabaseRowTest::TestCase_RowFieldManagement()
 	{
-		CLogger::LogInfo( StringStream() << "**** Start TestCase_FieldGetValue ****" );
+		CLogger::LogInfo( StringStream() << "**** Start TestCase_RowFieldManagement ****" );
+		String goodname = STR( "TestField" );
+		String wrongname = STR( "RowField" );
+		bool valueOut;
+		CDatabaseNullable< bool > valueOpt;
+		String connectionString;
+		DatabaseConnectionSPtr connection = std::make_shared< CDatabaseTestConnection >( TEST_GOOD_SERVER, TEST_GOOD_USER, TEST_GOOD_PASSWORD, connectionString );
+		connection->SelectDatabase( TEST_GOOD_DATABASE );
+
+		CDatabaseRow row;
+		BOOST_CHECK_THROW( row.GetField( 0 ), CDatabaseException );
+		BOOST_CHECK_THROW( row.GetField( goodname ), CDatabaseException );
+		BOOST_CHECK_THROW( row.IsNull( 0 ), CDatabaseException );
+		BOOST_CHECK_THROW( row.IsNull( goodname ), CDatabaseException );
+		BOOST_CHECK_THROW( row.Get< bool >( 0 ), CDatabaseException );
+		BOOST_CHECK_THROW( row.Get< bool >( goodname ), CDatabaseException );
+		BOOST_CHECK_THROW( row.GetOpt< bool >( 0 ), CDatabaseException );
+		BOOST_CHECK_THROW( row.GetOpt< bool >( goodname ), CDatabaseException );
+		BOOST_CHECK_THROW( row.GetFast( 0, valueOut ), CDatabaseException );
+		BOOST_CHECK_THROW( row.GetFast( goodname, valueOut ), CDatabaseException );
+		BOOST_CHECK_THROW( row.GetOptFast( 0, valueOpt ), CDatabaseException );
+		BOOST_CHECK_THROW( row.GetOptFast( goodname, valueOpt ), CDatabaseException );
+
+		row.AddField( std::make_shared< CDatabaseField >( connection, std::make_shared< CDatabaseValuedObjectInfos >( goodname, EFieldType_BIT ) ) );
+		BOOST_CHECK_THROW( row.GetField( 1 ), CDatabaseException );
+		BOOST_CHECK_THROW( row.GetField( wrongname ), CDatabaseException );
+		BOOST_CHECK_THROW( row.IsNull( 1 ), CDatabaseException );
+		BOOST_CHECK_THROW( row.IsNull( wrongname ), CDatabaseException );
+		BOOST_CHECK_THROW( row.Get< bool >( 1 ), CDatabaseException );
+		BOOST_CHECK_THROW( row.Get< bool >( wrongname ), CDatabaseException );
+		BOOST_CHECK_THROW( row.GetOpt< bool >( 1 ), CDatabaseException );
+		BOOST_CHECK_THROW( row.GetOpt< bool >( wrongname ), CDatabaseException );
+		BOOST_CHECK_THROW( row.GetFast( 1, valueOut ), CDatabaseException );
+		BOOST_CHECK_THROW( row.GetFast( wrongname, valueOut ), CDatabaseException );
+		BOOST_CHECK_THROW( row.GetOptFast( 1, valueOpt ), CDatabaseException );
+		BOOST_CHECK_THROW( row.GetOptFast( wrongname, valueOpt ), CDatabaseException );
+		BOOST_CHECK_NO_THROW( row.GetField( 0 ) );
+		BOOST_CHECK_NO_THROW( row.GetField( goodname ) );
+		BOOST_CHECK_EQUAL( row.GetField( 0 ), row.GetField( goodname ) );
+		BOOST_CHECK_NO_THROW( row.IsNull( 0 ) );
+		BOOST_CHECK( row.IsNull( 0 ) );
+		BOOST_CHECK_NO_THROW( row.Get< bool >( 0 ) );
+		BOOST_CHECK_NO_THROW( row.GetOpt< bool >( 0 ) );
+		BOOST_CHECK( !row.GetOpt< bool >( 0 ) );
+		BOOST_CHECK_NO_THROW( row.GetFast( 0, valueOut ) );
+		BOOST_CHECK_NO_THROW( row.GetOptFast( 0, valueOpt ) );
+		BOOST_CHECK( !valueOpt );
+
+		BOOST_CHECK_NO_THROW( static_cast< CDatabaseValue< EFieldType_BIT > & >( row.GetField( 0 )->GetObjectValue() ).SetValue( true ) );
+		BOOST_CHECK( !row.IsNull( 0 ) );
+		BOOST_CHECK( row.Get< bool >( 0 ) );
+		BOOST_CHECK( ( bool )row.GetOpt< bool >( 0 ) );
+		BOOST_CHECK( *row.GetOpt< bool >( 0 ) );
+		BOOST_CHECK_NO_THROW( row.GetFast( 0, valueOut ) );
+		BOOST_CHECK( valueOut );
+		BOOST_CHECK_NO_THROW( row.GetOptFast( 0, valueOpt ) );
+		BOOST_CHECK( ( bool )valueOpt );
+		BOOST_CHECK( *valueOpt );
+
+		CLogger::LogInfo( StringStream() << "**** End TestCase_RowFieldManagement ****" );
+	}
+
+	void CDatabaseRowTest::TestCase_RowGet()
+	{
+		CLogger::LogInfo( StringStream() << "**** Start TestCase_RowGet ****" );
 		std::random_device generator;
 
 		CLogger::LogInfo( StringStream() << "  EFieldType_BIT" );
@@ -330,12 +395,12 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		CLogger::LogInfo( StringStream() << "  EFieldType_BLOB" );
 		SValuedObjectChecks< EFieldType_BLOB >::GetValueChecks( generator );
 
-		CLogger::LogInfo( StringStream() << "**** End TestCase_FieldGetValue ****" );
+		CLogger::LogInfo( StringStream() << "**** End TestCase_RowGet ****" );
 	}
 
-	void CDatabaseFieldTest::TestCase_FieldGetValueOpt()
+	void CDatabaseRowTest::TestCase_RowGetOpt()
 	{
-		CLogger::LogInfo( StringStream() << "**** Start TestCase_FieldGetValue ****" );
+		CLogger::LogInfo( StringStream() << "**** Start TestCase_RowGetOpt ****" );
 		std::random_device generator;
 
 		CLogger::LogInfo( StringStream() << "  EFieldType_BIT" );
@@ -391,12 +456,12 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		CLogger::LogInfo( StringStream() << "  EFieldType_BLOB" );
 		SValuedObjectChecks< EFieldType_BLOB >::GetValueOptChecks( generator );
 
-		CLogger::LogInfo( StringStream() << "**** End TestCase_FieldGetValue ****" );
+		CLogger::LogInfo( StringStream() << "**** End TestCase_RowGetOpt ****" );
 	}
 
-	void CDatabaseFieldTest::TestCase_FieldGetValueFast()
+	void CDatabaseRowTest::TestCase_RowGetFast()
 	{
-		CLogger::LogInfo( StringStream() << "**** Start TestCase_FieldGetValueFast ****" );
+		CLogger::LogInfo( StringStream() << "**** Start TestCase_RowGetFast ****" );
 		std::random_device generator;
 
 		CLogger::LogInfo( StringStream() << "  EFieldType_BIT" );
@@ -452,12 +517,12 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		CLogger::LogInfo( StringStream() << "  EFieldType_BLOB" );
 		SValuedObjectChecks< EFieldType_BLOB >::GetValueFastChecks( generator );
 
-		CLogger::LogInfo( StringStream() << "**** End TestCase_FieldGetValueFast ****" );
+		CLogger::LogInfo( StringStream() << "**** End TestCase_RowGetFast ****" );
 	}
 
-	void CDatabaseFieldTest::TestCase_FieldGetValueOptFast()
+	void CDatabaseRowTest::TestCase_RowGetOptFast()
 	{
-		CLogger::LogInfo( StringStream() << "**** Start TestCase_FieldGetValueOptFast ****" );
+		CLogger::LogInfo( StringStream() << "**** Start TestCase_RowGetOptFast ****" );
 		std::random_device generator;
 
 		CLogger::LogInfo( StringStream() << "  EFieldType_BIT" );
@@ -513,7 +578,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		CLogger::LogInfo( StringStream() << "  EFieldType_BLOB" );
 		SValuedObjectChecks< EFieldType_BLOB >::GetValueOptFastChecks( generator );
 
-		CLogger::LogInfo( StringStream() << "**** End TestCase_FieldGetValueOptFast ****" );
+		CLogger::LogInfo( StringStream() << "**** End TestCase_RowGetOptFast ****" );
 	}
 }
 END_NAMESPACE_DATABASE_TEST

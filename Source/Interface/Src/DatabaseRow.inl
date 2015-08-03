@@ -209,11 +209,5 @@ BEGIN_NAMESPACE_DATABASE
 			DB_EXCEPT( EDatabaseExceptionCodes_RowError, message.str() );
 		}
 	}
-
-	template< typename T >
-	inline T CDatabaseRow::GetDefault()
-	{
-		return T();
-	}
 }
 END_NAMESPACE_DATABASE

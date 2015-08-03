@@ -62,6 +62,22 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Value.
 		*/
+		DatabaseExport bool IsNull( uint32_t index );
+
+		/** Get value
+		@param[in] name
+			Field name.
+		@return
+			Value.
+		*/
+		DatabaseExport bool IsNull( const String & name );
+
+		/** Get value
+		@param[in] index
+			Field index.
+		@return
+			Value.
+		*/
 		template< typename T > inline T Get( uint32_t index );
 
 		/** Get value
@@ -151,12 +167,6 @@ BEGIN_NAMESPACE_DATABASE
 			Value.
 		*/
 		template< typename T > inline void GetOptFast( const String & name, CDatabaseNullable< T > & value );
-
-		/** Get default value.
-		@return
-			Default value.
-		*/
-		template< typename T > inline T GetDefault();
 
 	protected:
 		//! Array of fields.

@@ -42,6 +42,12 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport virtual ~CDatabaseField();
 
+		/** Tells if the field is null.
+		@return
+			The null status.
+		*/
+		inline bool IsNull() const;
+
 		/** Get field value.
 		@remarks
 			If field type is incompatible with the value type, an exception will be thrown.

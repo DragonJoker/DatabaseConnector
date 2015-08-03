@@ -29,22 +29,12 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		testSuite = new boost::unit_test::test_suite( "CDatabaseInterfaceTest" );
 
 		//!@remarks Add the TC to the internal TS.
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseInterfaceTest::TestCase_DatabaseRow, this ) ) );
 		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseInterfaceTest::TestCase_DatabaseResult, this ) ) );
 		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseInterfaceTest::TestCase_DatabaseQuery, this ) ) );
 		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseInterfaceTest::TestCase_DatabaseStatement, this ) ) );
 
 		//!@remarks Return the TS instance.
 		return testSuite;
-	}
-
-	void CDatabaseInterfaceTest::TestCase_DatabaseRow()
-	{
-		//CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseRow ****" );
-
-
-
-		//CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseRow ****" );
 	}
 
 	void CDatabaseInterfaceTest::TestCase_DatabaseResult()

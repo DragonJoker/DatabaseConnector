@@ -1,16 +1,16 @@
 /************************************************************************//**
-* @file DatabaseInterfaceTest.h
+* @file DatabaseRowTest.h
 * @author Sylvain Doremus
 * @version 1.0
 * @date 12/02/2014 14:29:35
 *
 *
-* @brief Class testing all Interface members
+* @brief Class testing CDatabaseRow class
 *
 ***************************************************************************/
 
-#ifndef ___DATABASE_INTERFACE_TEST_H___
-#define ___DATABASE_INTERFACE_TEST_H___
+#ifndef ___DATABASE_ROW_TEST_H___
+#define ___DATABASE_ROW_TEST_H___
 
 #include "DatabaseTestPrerequisites.h"
 
@@ -20,18 +20,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 {
 	/** Database unit test class
 	*/
-	class CDatabaseInterfaceTest
+	class CDatabaseRowTest
 	{
 		/** @name Default constructor / Destructor */
 		//!@{
 	public:
 		/** Default constructor.
 		*/
-		CDatabaseInterfaceTest();
+		CDatabaseRowTest();
 
 		/** Destructor.
 		*/
-		~CDatabaseInterfaceTest();
+		~CDatabaseRowTest();
 		//!@}
 
 	public:
@@ -53,21 +53,29 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		*/
 		//!@{
 
-		/** Test the basic CDatabaseRow functions
+		/** Test AddField and GetField functions
 		*/
-		void TestCase_DatabaseResult();
+		void TestCase_RowFieldManagement();
 
-		/** Test the basic CDatabaseQuery functions
+		/** Test the basic CDatabaseRow::Get functions
 		*/
-		void TestCase_DatabaseQuery();
+		void TestCase_RowGet();
 
-		/** Test the basic CDatabaseStatement functions
+		/** Test the basic CDatabaseRow::GetOpt functions
 		*/
-		void TestCase_DatabaseStatement();
+		void TestCase_RowGetOpt();
+
+		/** Test the basic CDatabaseRow::GetFast functions
+		*/
+		void TestCase_RowGetFast();
+
+		/** Test the basic CDatabaseRow::GetOptFast functions
+		*/
+		void TestCase_RowGetOptFast();
 
 		//!@}
 	};
 }
 END_NAMESPACE_DATABASE_TEST
 
-#endif // ___DATABASE_INTERFACE_TEST_H___
+#endif // ___DATABASE_ROW_TEST_H___
