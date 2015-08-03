@@ -17,6 +17,7 @@
 
 #include "Database.h"
 #include "DatabaseParameter.h"
+#include "DatabaseValuedObjectInfos.h"
 #include "DatabaseException.h"
 
 #include "DatabaseStringUtils.h"
@@ -161,6 +162,21 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	}
 
+	DatabaseParameterSPtr CDatabaseStatement::CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType )
+	{
+		return DoCreateParameter( std::make_shared< CDatabaseValuedObjectInfos >( name, fieldType ), parameterType );
+	}
+
+	DatabaseParameterSPtr CDatabaseStatement::CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType )
+	{
+		return DoCreateParameter( std::make_shared< CDatabaseValuedObjectInfos >( name, fieldType, limits ), parameterType );
+	}
+
+	DatabaseParameterSPtr CDatabaseStatement::CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType )
+	{
+		return DoCreateParameter( std::make_shared< CDatabaseValuedObjectInfos >( name, fieldType, precision ), parameterType );
+	}
+
 	DatabaseParameterSPtr CDatabaseStatement::GetParameter( uint32_t index )const
 	{
 		try
@@ -212,14 +228,14 @@ BEGIN_NAMESPACE_DATABASE
 		GetParameter( name )->SetNull();
 	}
 
-	void CDatabaseStatement::SetParameterValue( uint32_t index, const CDatabaseParameter & parameter )
+	void CDatabaseStatement::SetParameterValue( uint32_t index, const CDatabaseValuedObject & object )
 	{
-		GetParameter( index )->SetValue( parameter );
+		GetParameter( index )->SetValue( object );
 	}
 
-	void CDatabaseStatement::SetParameterValue( const String & name, const CDatabaseParameter & parameter )
+	void CDatabaseStatement::SetParameterValue( const String & name, const CDatabaseValuedObject & object )
 	{
-		GetParameter( name )->SetValue( parameter );
+		GetParameter( name )->SetValue( object );
 	}
 
 	bool CDatabaseStatement::DoAddParameter( DatabaseParameterSPtr parameter )

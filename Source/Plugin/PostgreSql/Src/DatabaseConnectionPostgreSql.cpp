@@ -23,7 +23,7 @@
 #include <DatabaseDateTime.h>
 #include <DatabaseDateTimeHelper.h>
 #include <DatabaseTime.h>
-#include <DatabaseFieldInfos.h>
+#include <DatabaseValuedObjectInfos.h>
 
 #include <DatabaseStringUtils.h>
 #include <DatabaseLogger.h>

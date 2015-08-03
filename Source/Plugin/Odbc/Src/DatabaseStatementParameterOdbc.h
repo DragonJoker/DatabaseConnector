@@ -15,9 +15,9 @@
 #define ___DATABASE_STATEMENT_PARAMETER_ODBC_H___
 
 #include "DatabaseOdbcPrerequisites.h"
+#include "DatabaseOdbcParameterBinding.h"
 
 #include <DatabaseParameter.h>
-#include "DatabaseParameterOdbc.h"
 
 BEGIN_NAMESPACE_DATABASE_ODBC
 {
@@ -25,60 +25,21 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	*/
 	class CDatabaseStatementParameterOdbc
 		: public CDatabaseParameter
-		, public CDatabaseParameterOdbc
 	{
 	public:
 		/** Constructor.
 		@param[in] connection
 			Connection to database.
-		@param[in] name
-			Parameter name.
+		@param[in] infos
+			Parameter informations.
 		@param[in] index
 			Internal index.
-		@param[in] fieldType
-			Field type.
 		@param[in] parameterType
 			Parameter type.
 		@param[in] updater
 			The parent updater
 		*/
-		CDatabaseStatementParameterOdbc( DatabaseConnectionOdbcSPtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
-
-		/** Constructor.
-		@param[in] connection
-			Connection to database.
-		@param[in] name
-			Parameter name.
-		@param[in] index
-			Internal index.
-		@param[in] fieldType
-			Field type.
-		@param[in] limits
-			Field limits.
-		@param[in] parameterType
-			Parameter type.
-		@param[in] updater
-			The parent updater
-		*/
-		CDatabaseStatementParameterOdbc( DatabaseConnectionOdbcSPtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
-
-		/** Constructor.
-		@param[in] connection
-			Connection to database.
-		@param[in] name
-			Parameter name.
-		@param[in] index
-			Internal index.
-		@param[in] fieldType
-			Field type.
-		@param[in] precision
-			Field precision.
-		@param[in] parameterType
-			Parameter type.
-		@param[in] updater
-			The parent updater
-		*/
-		CDatabaseStatementParameterOdbc( DatabaseConnectionOdbcSPtr connection, const String & name, unsigned short index, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
+		CDatabaseStatementParameterOdbc( DatabaseConnectionOdbcSPtr connection, DatabaseValuedObjectInfosSPtr infos, unsigned short index, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
 
 		/** Destructor.
 		*/
@@ -89,6 +50,24 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			The statement handle
 		*/
 		void Initialize( SQLHSTMT statementHandle );
+
+		/** Retrieves the parameter binding
+		@return
+			The binding
+		*/
+		const COutOdbcBindBase & GetBinding()const
+		{
+			return *_binding;
+		}
+
+		/** Retrieves the parameter binding
+		@return
+			The binding
+		*/
+		COutOdbcBindBase & GetBinding()
+		{
+			return *_binding;
+		}
 
 	private:
 		/** Set parameter value
@@ -378,6 +357,10 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		{
 			DoSetAndUpdateValueFast( value );
 		}
+
+	private:
+		//! The binding to ODBC parameter
+		std::unique_ptr< COutOdbcBindBase > _binding;
 	};
 }
 END_NAMESPACE_DATABASE_ODBC

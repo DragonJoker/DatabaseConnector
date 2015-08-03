@@ -22,7 +22,7 @@
 #include <DatabaseDateTime.h>
 #include <DatabaseDateTimeHelper.h>
 #include <DatabaseTime.h>
-#include <DatabaseFieldInfos.h>
+#include <DatabaseValuedObjectInfos.h>
 
 #include <DatabaseStringUtils.h>
 #include <DatabaseLogger.h>
@@ -31,7 +31,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 {
 	namespace
 	{
-		DatabaseFieldSPtr CreateField( DatabaseConnectionSPtr connection, DatabaseFieldInfosSPtr infos )
+		DatabaseFieldSPtr CreateField( DatabaseConnectionSPtr connection, DatabaseValuedObjectInfosSPtr infos )
 		{
 			std::random_device generator;
 			DatabaseFieldSPtr field = std::make_shared< CDatabaseField >( connection, infos );
@@ -39,82 +39,82 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			switch ( infos->GetType() )
 			{
 			case EFieldType_BIT:
-				static_cast< CDatabaseValue< EFieldType_BIT > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_BIT >::InitialiseValue( generator ) );
+				static_cast< CDatabaseValue< EFieldType_BIT > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_BIT >::GetRandomValue( generator ) );
 				break;
 			case EFieldType_SINT8:
-				static_cast< CDatabaseValue< EFieldType_SINT8 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_SINT8 >::InitialiseValue( generator ) );
+				static_cast< CDatabaseValue< EFieldType_SINT8 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_SINT8 >::GetRandomValue( generator ) );
 				break;
 			case EFieldType_SINT16:
-				static_cast< CDatabaseValue< EFieldType_SINT16 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_SINT16 >::InitialiseValue( generator ) );
+				static_cast< CDatabaseValue< EFieldType_SINT16 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_SINT16 >::GetRandomValue( generator ) );
 				break;
 			case EFieldType_SINT24:
-				static_cast< CDatabaseValue< EFieldType_SINT24 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_SINT24 >::InitialiseValue( generator ) );
+				static_cast< CDatabaseValue< EFieldType_SINT24 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_SINT24 >::GetRandomValue( generator ) );
 				break;
 			case EFieldType_SINT32:
-				static_cast< CDatabaseValue< EFieldType_SINT32 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_SINT32 >::InitialiseValue( generator ) );
+				static_cast< CDatabaseValue< EFieldType_SINT32 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_SINT32 >::GetRandomValue( generator ) );
 				break;
 			case EFieldType_SINT64:
-				static_cast< CDatabaseValue< EFieldType_SINT64 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_SINT64 >::InitialiseValue( generator ) );
+				static_cast< CDatabaseValue< EFieldType_SINT64 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_SINT64 >::GetRandomValue( generator ) );
 				break;
 			case EFieldType_UINT8:
-				static_cast< CDatabaseValue< EFieldType_UINT8 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_UINT8 >::InitialiseValue( generator ) );
+				static_cast< CDatabaseValue< EFieldType_UINT8 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_UINT8 >::GetRandomValue( generator ) );
 				break;
 			case EFieldType_UINT16:
-				static_cast< CDatabaseValue< EFieldType_UINT16 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_UINT16 >::InitialiseValue( generator ) );
+				static_cast< CDatabaseValue< EFieldType_UINT16 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_UINT16 >::GetRandomValue( generator ) );
 				break;
 			case EFieldType_UINT24:
-				static_cast< CDatabaseValue< EFieldType_UINT24 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_UINT24 >::InitialiseValue( generator ) );
+				static_cast< CDatabaseValue< EFieldType_UINT24 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_UINT24 >::GetRandomValue( generator ) );
 				break;
 			case EFieldType_UINT32:
-				static_cast< CDatabaseValue< EFieldType_UINT32 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_UINT32 >::InitialiseValue( generator ) );
+				static_cast< CDatabaseValue< EFieldType_UINT32 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_UINT32 >::GetRandomValue( generator ) );
 				break;
 			case EFieldType_UINT64:
-				static_cast< CDatabaseValue< EFieldType_UINT64 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_UINT64 >::InitialiseValue( generator ) );
+				static_cast< CDatabaseValue< EFieldType_UINT64 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_UINT64 >::GetRandomValue( generator ) );
 				break;
 			case EFieldType_FLOAT32:
-				static_cast< CDatabaseValue< EFieldType_FLOAT32 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_FLOAT32 >::InitialiseValue( generator ) );
+				static_cast< CDatabaseValue< EFieldType_FLOAT32 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_FLOAT32 >::GetRandomValue( generator ) );
 				break;
 			case EFieldType_FLOAT64:
-				static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_FLOAT64 >::InitialiseValue( generator ) );
+				static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_FLOAT64 >::GetRandomValue( generator ) );
 				break;
 			case EFieldType_FIXED_POINT:
-				static_cast< CDatabaseValue< EFieldType_FIXED_POINT > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue( generator, infos->GetPrecision() ) );
+				static_cast< CDatabaseValue< EFieldType_FIXED_POINT > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::GetRandomValue( generator, infos->GetPrecision() ) );
 				break;
 			case EFieldType_CHAR:
-				static_cast< CDatabaseValue< EFieldType_CHAR > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_CHAR >::InitialiseValue( generator, infos->GetLimits() ) );
+				static_cast< CDatabaseValue< EFieldType_CHAR > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_CHAR >::GetRandomValue( generator, infos->GetLimits() ) );
 				break;
 			case EFieldType_VARCHAR:
-				static_cast< CDatabaseValue< EFieldType_VARCHAR > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_VARCHAR >::InitialiseValue( generator, infos->GetLimits() ) );
+				static_cast< CDatabaseValue< EFieldType_VARCHAR > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_VARCHAR >::GetRandomValue( generator, infos->GetLimits() ) );
 				break;
 			case EFieldType_TEXT:
-				static_cast< CDatabaseValue< EFieldType_TEXT > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_TEXT >::InitialiseValue( generator ) );
+				static_cast< CDatabaseValue< EFieldType_TEXT > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_TEXT >::GetRandomValue( generator ) );
 				break;
 			case EFieldType_NCHAR:
-				static_cast< CDatabaseValue< EFieldType_NCHAR > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_NCHAR >::InitialiseValue( generator, infos->GetLimits() ) );
+				static_cast< CDatabaseValue< EFieldType_NCHAR > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_NCHAR >::GetRandomValue( generator, infos->GetLimits() ) );
 				break;
 			case EFieldType_NVARCHAR:
-				static_cast< CDatabaseValue< EFieldType_NVARCHAR > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_NVARCHAR >::InitialiseValue( generator, infos->GetLimits() ) );
+				static_cast< CDatabaseValue< EFieldType_NVARCHAR > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_NVARCHAR >::GetRandomValue( generator, infos->GetLimits() ) );
 				break;
 			case EFieldType_NTEXT:
-				static_cast< CDatabaseValue< EFieldType_NTEXT > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_NTEXT >::InitialiseValue( generator ) );
+				static_cast< CDatabaseValue< EFieldType_NTEXT > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_NTEXT >::GetRandomValue( generator ) );
 				break;
 			case EFieldType_DATE:
-				static_cast< CDatabaseValue< EFieldType_DATE > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_DATE >::InitialiseValue( generator ) );
+				static_cast< CDatabaseValue< EFieldType_DATE > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_DATE >::GetRandomValue( generator ) );
 				break;
 			case EFieldType_DATETIME:
-				static_cast< CDatabaseValue< EFieldType_DATETIME > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_DATETIME >::InitialiseValue( generator ) );
+				static_cast< CDatabaseValue< EFieldType_DATETIME > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_DATETIME >::GetRandomValue( generator ) );
 				break;
 			case EFieldType_TIME:
-				static_cast< CDatabaseValue< EFieldType_TIME > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_TIME >::InitialiseValue( generator ) );
+				static_cast< CDatabaseValue< EFieldType_TIME > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_TIME >::GetRandomValue( generator ) );
 				break;
 			case EFieldType_BINARY:
-				static_cast< CDatabaseValue< EFieldType_BINARY > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_BINARY >::InitialiseValue( generator, infos->GetLimits() ) );
+				static_cast< CDatabaseValue< EFieldType_BINARY > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_BINARY >::GetRandomValue( generator, infos->GetLimits() ) );
 				break;
 			case EFieldType_VARBINARY:
-				static_cast< CDatabaseValue< EFieldType_VARBINARY > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_VARBINARY >::InitialiseValue( generator, infos->GetLimits() ) );
+				static_cast< CDatabaseValue< EFieldType_VARBINARY > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_VARBINARY >::GetRandomValue( generator, infos->GetLimits() ) );
 				break;
 			case EFieldType_BLOB:
-				static_cast< CDatabaseValue< EFieldType_BLOB > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_BLOB >::InitialiseValue( generator ) );
+				static_cast< CDatabaseValue< EFieldType_BLOB > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_BLOB >::GetRandomValue( generator ) );
 				break;
 			}
 
@@ -124,34 +124,34 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 	DatabaseResultSPtr BuildResult( DatabaseConnectionSPtr connection )
 	{
-		DatabaseFieldInfosPtrArray fieldInfos;
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_BIT" ), EFieldType_BIT ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_SINT8" ), EFieldType_SINT8 ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_SINT16" ), EFieldType_SINT16 ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_SINT24" ), EFieldType_SINT24 ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_SINT32" ), EFieldType_SINT32 ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_SINT64" ), EFieldType_SINT64 ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_UINT8" ), EFieldType_UINT8 ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_UINT16" ), EFieldType_UINT16 ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_UINT24" ), EFieldType_UINT24 ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_UINT32" ), EFieldType_UINT32 ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_UINT64" ), EFieldType_UINT64 ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_FLOAT32" ), EFieldType_FLOAT32 ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_FLOAT64" ), EFieldType_FLOAT64 ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_FIXED_POINT( 10, 0 )" ), EFieldType_FIXED_POINT, std::make_pair( 10, 0 ) ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_FIXED_POINT( 10, 5 )" ), EFieldType_FIXED_POINT, std::make_pair( 10, 5 ) ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_CHAR( 20 )" ), EFieldType_CHAR, 20 ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_VARCHAR( 100 )" ), EFieldType_VARCHAR, 100 ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_TEXT" ), EFieldType_TEXT ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_NCHAR( 55 )" ), EFieldType_NCHAR, 55 ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_NVARCHAR( 255 )" ), EFieldType_NVARCHAR, 255 ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_NTEXT" ), EFieldType_NTEXT ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_DATE" ), EFieldType_DATE ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_DATETIME" ), EFieldType_DATETIME ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_TIME" ), EFieldType_TIME ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_BINARY( 20 )" ), EFieldType_BINARY, 20 ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_VARBINARY( 255 )" ), EFieldType_VARBINARY, 255 ) ) );
-		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseFieldInfos >( STR( "EFieldType_BLOB" ), EFieldType_BLOB ) ) );
+		DatabaseValuedObjectInfosPtrArray fieldInfos;
+		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseValuedObjectInfos >( STR( "EFieldType_BIT" ), EFieldType_BIT ) ) );
+		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseValuedObjectInfos >( STR( "EFieldType_SINT8" ), EFieldType_SINT8 ) ) );
+		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseValuedObjectInfos >( STR( "EFieldType_SINT16" ), EFieldType_SINT16 ) ) );
+		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseValuedObjectInfos >( STR( "EFieldType_SINT24" ), EFieldType_SINT24 ) ) );
+		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseValuedObjectInfos >( STR( "EFieldType_SINT32" ), EFieldType_SINT32 ) ) );
+		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseValuedObjectInfos >( STR( "EFieldType_SINT64" ), EFieldType_SINT64 ) ) );
+		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseValuedObjectInfos >( STR( "EFieldType_UINT8" ), EFieldType_UINT8 ) ) );
+		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseValuedObjectInfos >( STR( "EFieldType_UINT16" ), EFieldType_UINT16 ) ) );
+		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseValuedObjectInfos >( STR( "EFieldType_UINT24" ), EFieldType_UINT24 ) ) );
+		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseValuedObjectInfos >( STR( "EFieldType_UINT32" ), EFieldType_UINT32 ) ) );
+		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseValuedObjectInfos >( STR( "EFieldType_UINT64" ), EFieldType_UINT64 ) ) );
+		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseValuedObjectInfos >( STR( "EFieldType_FLOAT32" ), EFieldType_FLOAT32 ) ) );
+		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseValuedObjectInfos >( STR( "EFieldType_FLOAT64" ), EFieldType_FLOAT64 ) ) );
+		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseValuedObjectInfos >( STR( "EFieldType_FIXED_POINT( 10, 0 )" ), EFieldType_FIXED_POINT, std::make_pair( 10, 0 ) ) ) );
+		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseValuedObjectInfos >( STR( "EFieldType_FIXED_POINT( 10, 5 )" ), EFieldType_FIXED_POINT, std::make_pair( 10, 5 ) ) ) );
+		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseValuedObjectInfos >( STR( "EFieldType_CHAR( 20 )" ), EFieldType_CHAR, 20 ) ) );
+		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseValuedObjectInfos >( STR( "EFieldType_VARCHAR( 100 )" ), EFieldType_VARCHAR, 100 ) ) );
+		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseValuedObjectInfos >( STR( "EFieldType_TEXT" ), EFieldType_TEXT ) ) );
+		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseValuedObjectInfos >( STR( "EFieldType_NCHAR( 55 )" ), EFieldType_NCHAR, 55 ) ) );
+		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseValuedObjectInfos >( STR( "EFieldType_NVARCHAR( 255 )" ), EFieldType_NVARCHAR, 255 ) ) );
+		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseValuedObjectInfos >( STR( "EFieldType_NTEXT" ), EFieldType_NTEXT ) ) );
+		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseValuedObjectInfos >( STR( "EFieldType_DATE" ), EFieldType_DATE ) ) );
+		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseValuedObjectInfos >( STR( "EFieldType_DATETIME" ), EFieldType_DATETIME ) ) );
+		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseValuedObjectInfos >( STR( "EFieldType_TIME" ), EFieldType_TIME ) ) );
+		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseValuedObjectInfos >( STR( "EFieldType_BINARY( 20 )" ), EFieldType_BINARY, 20 ) ) );
+		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseValuedObjectInfos >( STR( "EFieldType_VARBINARY( 255 )" ), EFieldType_VARBINARY, 255 ) ) );
+		BOOST_CHECK_NO_THROW( fieldInfos.push_back( std::make_shared< CDatabaseValuedObjectInfos >( STR( "EFieldType_BLOB" ), EFieldType_BLOB ) ) );
 
 		DatabaseResultSPtr result = std::make_shared< CDatabaseResult >( fieldInfos );
 		DatabaseRowSPtr row = std::make_shared< CDatabaseRow >();

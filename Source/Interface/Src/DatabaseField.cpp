@@ -18,41 +18,20 @@
 #include "Database.h"
 #include "DatabaseConnection.h"
 #include "DatabaseField.h"
-#include "DatabaseFieldInfos.h"
+#include "DatabaseValuedObjectInfos.h"
 #include "DatabaseValue.h"
 #include "DatabaseException.h"
 
 BEGIN_NAMESPACE_DATABASE
 {
-	CDatabaseField::CDatabaseField( DatabaseConnectionSPtr connection, DatabaseFieldInfosSPtr infos )
-		: CDatabaseValuedObject( connection )
-		, _infos( infos )
+	CDatabaseField::CDatabaseField( DatabaseConnectionSPtr connection, DatabaseValuedObjectInfosSPtr infos )
+		: CDatabaseValuedObject( connection, infos )
 	{
 		DoCreateValue();
 	}
 
 	CDatabaseField::~CDatabaseField()
 	{
-	}
-
-	EFieldType CDatabaseField::GetType() const
-	{
-		return DoGetInfos()->GetType();
-	}
-
-	const String & CDatabaseField::GetName() const
-	{
-		return DoGetInfos()->GetName();
-	}
-
-	const uint32_t & CDatabaseField::GetLimits() const
-	{
-		return DoGetInfos()->GetLimits();
-	}
-
-	const std::pair< uint32_t, uint32_t > & CDatabaseField::GetPrecision() const
-	{
-		return DoGetInfos()->GetPrecision();
 	}
 }
 END_NAMESPACE_DATABASE

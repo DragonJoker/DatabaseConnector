@@ -1,19 +1,19 @@
 /************************************************************************//**
-* @file DatabaseFieldInfosTest.h
+* @file DatabaseValuedObjectInfosTest.h
 * @author Sylvain Doremus
 * @version 1.0
 * @date 12/02/2014 14:29:35
 *
 *
-* @brief Class testing CDatabaseFieldInfos class
+* @brief Class testing CDatabaseValuedObjectInfos class
 *
 ***************************************************************************/
 
 #include "DatabaseTestPch.h"
 
-#include "DatabaseFieldInfosTest.h"
+#include "DatabaseValuedObjectInfosTest.h"
 
-#include <DatabaseFieldInfos.h>
+#include <DatabaseValuedObjectInfos.h>
 
 namespace std
 {
@@ -34,18 +34,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			static void All()
 			{
 				static const String FieldName = STR( "coin" );
-				DatabaseFieldInfosSPtr infos;
-				BOOST_CHECK_NO_THROW( infos = std::make_shared< CDatabaseFieldInfos >( FieldName ) );
+				DatabaseValuedObjectInfosSPtr infos;
+				BOOST_CHECK_NO_THROW( infos = std::make_shared< CDatabaseValuedObjectInfos >( FieldName ) );
 				BOOST_CHECK( infos );
 				BOOST_CHECK( infos->GetName() == FieldName );
 				BOOST_CHECK( infos->GetType() == EFieldType_NULL );
 				BOOST_CHECK_NO_THROW( infos->SetType( FieldType ) );
 				BOOST_CHECK( infos->GetType() == FieldType );
-				BOOST_CHECK_NO_THROW( infos = std::make_shared< CDatabaseFieldInfos >( FieldName, FieldType ) );
+				BOOST_CHECK_NO_THROW( infos = std::make_shared< CDatabaseValuedObjectInfos >( FieldName, FieldType ) );
 				BOOST_CHECK( infos->GetType() == FieldType );
-				BOOST_CHECK_NO_THROW( infos = std::make_shared< CDatabaseFieldInfos >( FieldName, FieldType, 0 ) );
+				BOOST_CHECK_NO_THROW( infos = std::make_shared< CDatabaseValuedObjectInfos >( FieldName, FieldType, 0 ) );
 				BOOST_CHECK( infos->GetType() == FieldType );
-				BOOST_CHECK_NO_THROW( infos = std::make_shared< CDatabaseFieldInfos >( FieldName, FieldType, std::make_pair( 0, 0 ) ) );
+				BOOST_CHECK_NO_THROW( infos = std::make_shared< CDatabaseValuedObjectInfos >( FieldName, FieldType, std::make_pair( 0, 0 ) ) );
 				BOOST_CHECK( infos->GetType() == FieldType );
 			}
 		};
@@ -57,8 +57,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			{
 				static const String FieldName = STR( "coin" );
 				static const uint32_t FieldLimits = 10;
-				DatabaseFieldInfosSPtr infos;
-				BOOST_CHECK_NO_THROW( infos = std::make_shared< CDatabaseFieldInfos >( FieldName ) );
+				DatabaseValuedObjectInfosSPtr infos;
+				BOOST_CHECK_NO_THROW( infos = std::make_shared< CDatabaseValuedObjectInfos >( FieldName ) );
 				BOOST_CHECK( infos );
 				BOOST_CHECK( infos->GetName() == FieldName );
 				BOOST_CHECK( infos->GetType() == EFieldType_NULL );
@@ -66,11 +66,11 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				BOOST_CHECK_NO_THROW( infos->SetType( FieldType, FieldLimits ) );
 				BOOST_CHECK( infos->GetType() == FieldType );
 				BOOST_CHECK( infos->GetLimits() == FieldLimits );
-				BOOST_CHECK_THROW( infos = std::make_shared< CDatabaseFieldInfos >( FieldName, FieldType ), CDatabaseException );
-				BOOST_CHECK_NO_THROW( infos = std::make_shared< CDatabaseFieldInfos >( FieldName, FieldType, FieldLimits ) );
+				BOOST_CHECK_THROW( infos = std::make_shared< CDatabaseValuedObjectInfos >( FieldName, FieldType ), CDatabaseException );
+				BOOST_CHECK_NO_THROW( infos = std::make_shared< CDatabaseValuedObjectInfos >( FieldName, FieldType, FieldLimits ) );
 				BOOST_CHECK( infos->GetType() == FieldType );
 				BOOST_CHECK( infos->GetLimits() == FieldLimits );
-				BOOST_CHECK_NO_THROW( infos = std::make_shared< CDatabaseFieldInfos >( FieldName, FieldType, std::make_pair( FieldLimits, 0 ) ) );
+				BOOST_CHECK_NO_THROW( infos = std::make_shared< CDatabaseValuedObjectInfos >( FieldName, FieldType, std::make_pair( FieldLimits, 0 ) ) );
 				BOOST_CHECK( infos->GetType() == FieldType );
 				BOOST_CHECK( infos->GetLimits() == FieldLimits );
 			}
@@ -83,8 +83,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			{
 				static const String FieldName = STR( "coin" );
 				static const std::pair< uint32_t, uint32_t > FieldPrecision = std::make_pair( 10, 5 );
-				DatabaseFieldInfosSPtr infos;
-				BOOST_CHECK_NO_THROW( infos = std::make_shared< CDatabaseFieldInfos >( FieldName ) );
+				DatabaseValuedObjectInfosSPtr infos;
+				BOOST_CHECK_NO_THROW( infos = std::make_shared< CDatabaseValuedObjectInfos >( FieldName ) );
 				BOOST_CHECK( infos );
 				BOOST_CHECK( infos->GetName() == FieldName );
 				BOOST_CHECK( infos->GetType() == EFieldType_NULL );
@@ -93,36 +93,36 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				BOOST_CHECK_NO_THROW( infos->SetType( FieldType, FieldPrecision ) );
 				BOOST_CHECK( infos->GetType() == FieldType );
 				BOOST_CHECK( infos->GetPrecision() == FieldPrecision );
-				BOOST_CHECK_THROW( infos = std::make_shared< CDatabaseFieldInfos >( FieldName, FieldType ), CDatabaseException );
-				BOOST_CHECK_THROW( infos = std::make_shared< CDatabaseFieldInfos >( FieldName, FieldType, FieldPrecision.first ), CDatabaseException );
-				BOOST_CHECK_NO_THROW( infos = std::make_shared< CDatabaseFieldInfos >( FieldName, FieldType, FieldPrecision ) );
+				BOOST_CHECK_THROW( infos = std::make_shared< CDatabaseValuedObjectInfos >( FieldName, FieldType ), CDatabaseException );
+				BOOST_CHECK_THROW( infos = std::make_shared< CDatabaseValuedObjectInfos >( FieldName, FieldType, FieldPrecision.first ), CDatabaseException );
+				BOOST_CHECK_NO_THROW( infos = std::make_shared< CDatabaseValuedObjectInfos >( FieldName, FieldType, FieldPrecision ) );
 				BOOST_CHECK( infos->GetType() == FieldType );
 				BOOST_CHECK( infos->GetPrecision() == FieldPrecision );
 			}
 		};
 	}
 
-	CDatabaseFieldInfosTest::CDatabaseFieldInfosTest()
+	CDatabaseValuedObjectInfosTest::CDatabaseValuedObjectInfosTest()
 	{
 	}
 
-	CDatabaseFieldInfosTest::~CDatabaseFieldInfosTest()
+	CDatabaseValuedObjectInfosTest::~CDatabaseValuedObjectInfosTest()
 	{
 	}
 
-	boost::unit_test::test_suite * CDatabaseFieldInfosTest::Init_Test_Suite()
+	boost::unit_test::test_suite * CDatabaseValuedObjectInfosTest::Init_Test_Suite()
 	{
 		//!@remarks Create the internal TS instance.
-		testSuite = new boost::unit_test::test_suite( "CDatabaseFieldInfosTest" );
+		testSuite = new boost::unit_test::test_suite( "CDatabaseValuedObjectInfosTest" );
 
 		//!@remarks Add the TC to the internal TS.
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseFieldInfosTest::TestCase_FieldInfos, this ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseValuedObjectInfosTest::TestCase_FieldInfos, this ) ) );
 
 		//!@remarks Return the TS instance.
 		return testSuite;
 	}
 
-	void CDatabaseFieldInfosTest::TestCase_FieldInfos()
+	void CDatabaseValuedObjectInfosTest::TestCase_FieldInfos()
 	{
 		CLogger::LogInfo( StringStream() << "**** Start TestCase_FieldInfos ****" );
 

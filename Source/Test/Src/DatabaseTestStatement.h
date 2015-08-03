@@ -38,47 +38,17 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			*/
 		virtual ~CDatabaseTestStatement();
 
-		/** Create a parameter.
-		@param[in] name
-			Parameter name.
-		@param[in] fieldType
-			Date type.
-		@param[in] parameterType
-			Parameter type.
-		@return
-			Created parameter.
-		*/
-		virtual DatabaseParameterSPtr CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType );
-
-		/** Create a parameter which has limits (strings, etc.).
-		@param[in] name
-			Parameter name.
-		@param[in] fieldType
-			Date type.
-		@param[in] limits
-			Size limits.
-		@param[in] parameterType
-			Parameter type.
-		@return
-			Created parameter.
-		*/
-		virtual DatabaseParameterSPtr CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType );
-
-		/** Create a parameter which has limits (strings, etc.).
-		@param[in] name
-			Parameter name.
-		@param[in] fieldType
-			Date type.
-		@param[in] precision
-			Field precision.
-		@param[in] parameterType
-			Parameter type.
-		@return
-			Created parameter.
-		*/
-		virtual DatabaseParameterSPtr CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType );
-
 	private:
+		/** Create a parameter.
+		@param[in] infos
+			Parameter informations.
+		@param[in] parameterType
+			Parameter type.
+		@return
+			Created parameter.
+		*/
+		virtual DatabaseParameterSPtr DoCreateParameter( DatabaseValuedObjectInfosSPtr infos, EParameterType parameterType );
+
 		/** Initialize this statement.
 		@return
 			Error code.

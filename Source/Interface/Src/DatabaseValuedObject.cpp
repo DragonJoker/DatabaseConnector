@@ -15,6 +15,7 @@
 
 #include "DatabaseValuedObject.h"
 
+#include "DatabaseValuedObjectInfos.h"
 #include "DatabaseDateTimeHelper.h"
 #include "DatabaseLogger.h"
 #include "DatabaseValue.h"
@@ -27,13 +28,34 @@ BEGIN_NAMESPACE_DATABASE
 	static const String ERROR_DB_FIELD_GETVALUE_TYPE = STR( "Type error while getting value from the object: " );
 	static const String ERROR_DB_FIELD_SETVALUE_TYPE = STR( "Type error while setting value of the object: " );
 
-	CDatabaseValuedObject::CDatabaseValuedObject( DatabaseConnectionSPtr connection )
+	CDatabaseValuedObject::CDatabaseValuedObject( DatabaseConnectionSPtr connection, DatabaseValuedObjectInfosSPtr infos )
 		: _connection( connection )
+		, _infos( infos )
 	{
 	}
 
 	CDatabaseValuedObject::~CDatabaseValuedObject()
 	{
+	}
+
+	EFieldType CDatabaseValuedObject::GetType() const
+	{
+		return _infos->GetType();
+	}
+
+	const String & CDatabaseValuedObject::GetName() const
+	{
+		return _infos->GetName();
+	}
+
+	const uint32_t & CDatabaseValuedObject::GetLimits() const
+	{
+		return _infos->GetLimits();
+	}
+
+	const std::pair< uint32_t, uint32_t > & CDatabaseValuedObject::GetPrecision() const
+	{
+		return _infos->GetPrecision();
 	}
 
 	void CDatabaseValuedObject::DoGetValue( bool & value ) const
@@ -127,16 +149,8 @@ BEGIN_NAMESPACE_DATABASE
 			value = static_cast< CDatabaseValue< EFieldType_SINT8 > & >( *_value ).GetValue();
 			break;
 
-		case EFieldType_SINT16:
-			value = int8_t( static_cast< CDatabaseValue< EFieldType_SINT16 > & >( *_value ).GetValue() );
-			break;
-
 		case EFieldType_UINT8:
 			value = static_cast< CDatabaseValue< EFieldType_UINT8 > & >( *_value ).GetValue();
-			break;
-
-		case EFieldType_UINT16:
-			value = int8_t( static_cast< CDatabaseValue< EFieldType_UINT16 > & >( *_value ).GetValue() );
 			break;
 
 		default:
@@ -158,16 +172,9 @@ BEGIN_NAMESPACE_DATABASE
 			value = static_cast< CDatabaseValue< EFieldType_SINT8 > & >( *_value ).GetValue();
 			break;
 
-		case EFieldType_SINT16:
-			value = uint8_t( static_cast< CDatabaseValue< EFieldType_SINT16 > & >( *_value ).GetValue() );
-			break;
-
 		case EFieldType_UINT8:
 			value = static_cast< CDatabaseValue< EFieldType_UINT8 > & >( *_value ).GetValue();
 			break;
-
-		case EFieldType_UINT16:
-			value = uint8_t( static_cast< CDatabaseValue< EFieldType_UINT16 > & >( *_value ).GetValue() );
 
 		default:
 			String errMsg = ERROR_DB_FIELD_GETVALUE_TYPE + this->GetName();
@@ -258,10 +265,6 @@ BEGIN_NAMESPACE_DATABASE
 			value = static_cast< CDatabaseValue< EFieldType_SINT24 > & >( *_value ).GetValue();
 			break;
 
-		case EFieldType_SINT32:
-			value = static_cast< CDatabaseValue< EFieldType_SINT32 > & >( *_value ).GetValue();
-			break;
-
 		case EFieldType_UINT8:
 			value = static_cast< CDatabaseValue< EFieldType_UINT8 > & >( *_value ).GetValue();
 			break;
@@ -272,10 +275,6 @@ BEGIN_NAMESPACE_DATABASE
 
 		case EFieldType_UINT24:
 			value = static_cast< CDatabaseValue< EFieldType_UINT24 > & >( *_value ).GetValue();
-			break;
-
-		case EFieldType_UINT32:
-			value = static_cast< CDatabaseValue< EFieldType_UINT32 > & >( *_value ).GetValue();
 			break;
 
 		default:
@@ -362,6 +361,10 @@ BEGIN_NAMESPACE_DATABASE
 
 		case EFieldType_UINT32:
 			value = static_cast< CDatabaseValue< EFieldType_UINT32 > & >( *_value ).GetValue();
+			break;
+
+		case EFieldType_FLOAT32:
+			value = uint32_t ( static_cast< CDatabaseValue< EFieldType_FLOAT32 > & >( *_value ).GetValue() );
 			break;
 
 		case EFieldType_FLOAT64:
@@ -474,8 +477,12 @@ BEGIN_NAMESPACE_DATABASE
 			value = static_cast< CDatabaseValue< EFieldType_UINT64 > & >( *_value ).GetValue();
 			break;
 
+		case EFieldType_FLOAT32:
+			value = int64_t ( static_cast< CDatabaseValue< EFieldType_FLOAT32 > & >( *_value ).GetValue() );
+			break;
+
 		case EFieldType_FLOAT64:
-			value = uint32_t ( static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( *_value ).GetValue() );
+			value = int64_t ( static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( *_value ).GetValue() );
 			break;
 
 		default:
@@ -529,8 +536,12 @@ BEGIN_NAMESPACE_DATABASE
 			value = static_cast< CDatabaseValue< EFieldType_UINT64 > & >( *_value ).GetValue();
 			break;
 
+		case EFieldType_FLOAT32:
+			value = uint64_t ( static_cast< CDatabaseValue< EFieldType_FLOAT32 > & >( *_value ).GetValue() );
+			break;
+
 		case EFieldType_FLOAT64:
-			value = uint32_t ( static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( *_value ).GetValue() );
+			value = uint64_t ( static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( *_value ).GetValue() );
 			break;
 
 		default:
@@ -654,36 +665,52 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		switch ( GetType() )
 		{
+		case EFieldType_SINT8:
+			value = CFixedPoint( static_cast< CDatabaseValue< EFieldType_SINT8 > & >( *_value ).GetValue(), 4, 0 );
+			break;
+
+		case EFieldType_SINT16:
+			value = CFixedPoint( static_cast< CDatabaseValue< EFieldType_SINT16 > & >( *_value ).GetValue(), 6, 0 );
+			break;
+
 		case EFieldType_SINT24:
-			value = CFixedPoint( static_cast< CDatabaseValue< EFieldType_SINT24 > & >( *_value ).GetValue(), GetPrecision().second, GetPrecision().first );
+			value = CFixedPoint( int32_t( static_cast< CDatabaseValue< EFieldType_SINT24 > & >( *_value ).GetValue() ), 10, 0 );
 			break;
 
 		case EFieldType_SINT32:
-			value = CFixedPoint( static_cast< CDatabaseValue< EFieldType_SINT32 > & >( *_value ).GetValue(), GetPrecision().second, GetPrecision().first );
+			value = CFixedPoint( static_cast< CDatabaseValue< EFieldType_SINT32 > & >( *_value ).GetValue(), 12, 0 );
 			break;
 
 		case EFieldType_SINT64:
-			value = CFixedPoint( static_cast< CDatabaseValue< EFieldType_SINT64 > & >( *_value ).GetValue(), GetPrecision().second, GetPrecision().first );
+			value = CFixedPoint( static_cast< CDatabaseValue< EFieldType_SINT64 > & >( *_value ).GetValue(), CFixedPoint::GetMaxPrecision(), 0 );
+			break;
+
+		case EFieldType_UINT8:
+			value = CFixedPoint( static_cast< CDatabaseValue< EFieldType_UINT8 > & >( *_value ).GetValue(), 4, 0 );
+			break;
+
+		case EFieldType_UINT16:
+			value = CFixedPoint( static_cast< CDatabaseValue< EFieldType_UINT16 > & >( *_value ).GetValue(), 6, 0 );
 			break;
 
 		case EFieldType_UINT24:
-			value = CFixedPoint( static_cast< CDatabaseValue< EFieldType_UINT24 > & >( *_value ).GetValue(), GetPrecision().second, GetPrecision().first );
+			value = CFixedPoint( uint32_t( static_cast< CDatabaseValue< EFieldType_UINT24 > & >( *_value ).GetValue() ), 10, 0 );
 			break;
 
 		case EFieldType_UINT32:
-			value = CFixedPoint( static_cast< CDatabaseValue< EFieldType_UINT32 > & >( *_value ).GetValue(), GetPrecision().second, GetPrecision().first );
+			value = CFixedPoint( static_cast< CDatabaseValue< EFieldType_UINT32 > & >( *_value ).GetValue(), 12, 0 );
 			break;
 
 		case EFieldType_UINT64:
-			value = CFixedPoint( static_cast< CDatabaseValue< EFieldType_UINT64 > & >( *_value ).GetValue(), GetPrecision().second, GetPrecision().first );
+			value = CFixedPoint( static_cast< CDatabaseValue< EFieldType_UINT32 > & >( *_value ).GetValue(), CFixedPoint::GetMaxPrecision(), 0 );
 			break;
 
 		case EFieldType_FLOAT32:
-			value = CFixedPoint( static_cast< CDatabaseValue< EFieldType_FLOAT32 > & >( *_value ).GetValue(), GetPrecision().second, GetPrecision().first );
+			value = CFixedPoint( static_cast< CDatabaseValue< EFieldType_FLOAT32 > & >( *_value ).GetValue(), CFixedPoint::GetMaxPrecision(), 7 );
 			break;
 
 		case EFieldType_FLOAT64:
-			value = CFixedPoint( static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( *_value ).GetValue(), GetPrecision().second, GetPrecision().first );
+			value = CFixedPoint( static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( *_value ).GetValue(), CFixedPoint::GetMaxPrecision(), 7 );
 			break;
 
 		case EFieldType_FIXED_POINT:
@@ -716,7 +743,7 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		case EFieldType_NTEXT:
-			value = StringUtils::ToStr( static_cast< CDatabaseValue< EFieldType_TEXT > & >( *_value ).GetValue() );
+			value = StringUtils::ToStr( static_cast< CDatabaseValue< EFieldType_NTEXT > & >( *_value ).GetValue() );
 			break;
 
 		case EFieldType_NCHAR:
@@ -1309,6 +1336,10 @@ BEGIN_NAMESPACE_DATABASE
 			static_cast< CDatabaseValue< EFieldType_UINT64 > & >( *_value ).SetValue( value );
 			break;
 
+		case EFieldType_FLOAT32:
+			static_cast< CDatabaseValue< EFieldType_FLOAT32 > & >( *_value ).SetValue( value );
+			break;
+
 		case EFieldType_FLOAT64:
 			static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( *_value ).SetValue( value );
 			break;
@@ -1350,6 +1381,10 @@ BEGIN_NAMESPACE_DATABASE
 
 		case EFieldType_UINT64:
 			static_cast< CDatabaseValue< EFieldType_UINT64 > & >( *_value ).SetValue( value );
+			break;
+
+		case EFieldType_FLOAT32:
+			static_cast< CDatabaseValue< EFieldType_FLOAT32 > & >( *_value ).SetValue( float( value ) );
 			break;
 
 		case EFieldType_FLOAT64:
@@ -1762,6 +1797,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		case EFieldType_TIME:
 			static_cast< CDatabaseValue< EFieldType_TIME > & >( *_value ).SetValue( TimeFromDateTime( value ) );
+			break;
 
 		default:
 			String errMsg = ERROR_DB_FIELD_SETVALUE_TYPE + this->GetName();

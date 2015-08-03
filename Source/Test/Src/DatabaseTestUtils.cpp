@@ -234,5 +234,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		return ExecuteScript( SCRIPT_FILES_DIR, SCRIPT_ODBC_UNINSTALL + SCRIPT_EXT, { database } );
 	}
 #endif
+
+	namespace DatabaseUtils
+	{
+		const std::pair< uint32_t, uint32_t > Helpers< EFieldType_FIXED_POINT >::Precision = std::make_pair( 10, 5 );
+	}
 }
 END_NAMESPACE_DATABASE_TEST

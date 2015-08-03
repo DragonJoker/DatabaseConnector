@@ -21,28 +21,46 @@
 #include <DatabaseException.h>
 #include <DatabaseLogger.h>
 #include <DatabaseStringUtils.h>
+#include <DatabaseValuedObjectInfos.h>
 
 BEGIN_NAMESPACE_DATABASE_SQLITE
 {
+	int CDatabaseStatementParameterSqlite::SqliteDataTypes[EFieldType_COUNT] =
+	{
+		SQLITE_NULL,     //!< EFieldType_NULL
+		SQLITE_INTEGER,  //!< EFieldType_BIT
+		SQLITE_INTEGER,  //!< EFieldType_SINT8
+		SQLITE_INTEGER,  //!< EFieldType_SINT16
+		SQLITE_INTEGER,  //!< EFieldType_SINT24
+		SQLITE_INTEGER,  //!< EFieldType_SINT32
+		SQLITE_INTEGER,  //!< EFieldType_SINT64
+		SQLITE_INTEGER,  //!< EFieldType_UINT8
+		SQLITE_INTEGER,  //!< EFieldType_UINT16
+		SQLITE_INTEGER,  //!< EFieldType_UINT24
+		SQLITE_INTEGER,  //!< EFieldType_UINT32
+		SQLITE_INTEGER,  //!< EFieldType_UINT64
+		SQLITE_FLOAT,    //!< EFieldType_FLOAT32
+		SQLITE_FLOAT,    //!< EFieldType_FLOAT64
+		SQLITE_FLOAT,    //!< EFieldType_FIXED_POINT
+		SQLITE3_TEXT,    //!< EFieldType_CHAR
+		SQLITE3_TEXT,    //!< EFieldType_VARCHAR
+		SQLITE3_TEXT,    //!< EFieldType_TEXT
+		SQLITE3_TEXT,    //!< EFieldType_NCHAR
+		SQLITE3_TEXT,    //!< EFieldType_NVARCHAR
+		SQLITE3_TEXT,    //!< EFieldType_NTEXT
+		SQLITE_INTEGER,  //!< EFieldType_DATE
+		SQLITE_INTEGER,  //!< EFieldType_DATETIME
+		SQLITE_INTEGER,  //!< EFieldType_TIME
+		SQLITE_BLOB,     //!< EFieldType_BINARY
+		SQLITE_BLOB,     //!< EFieldType_VARBINARY
+		SQLITE_BLOB,     //!< EFieldType_BLOB
+	};
+
 	static const String ERROR_SQLITE_PARAMETER_TYPE = STR( "Undefined parameter type when trying to set its binding." );
 
-	CDatabaseStatementParameterSqlite::CDatabaseStatementParameterSqlite( DatabaseConnectionSqliteSPtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
-		: CDatabaseParameter( connection, name, index, fieldType, parameterType, std::move( updater ) )
-		, CDatabaseParameterSqlite( fieldType )
-		, _statement( NULL )
-	{
-	}
-
-	CDatabaseStatementParameterSqlite::CDatabaseStatementParameterSqlite( DatabaseConnectionSqliteSPtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
-		: CDatabaseParameter( connection, name, index, fieldType, limits, parameterType, std::move( updater ) )
-		, CDatabaseParameterSqlite( fieldType )
-		, _statement( NULL )
-	{
-	}
-
-	CDatabaseStatementParameterSqlite::CDatabaseStatementParameterSqlite( DatabaseConnectionSqliteSPtr connection, const String & name, unsigned short index, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
-		: CDatabaseParameter( connection, name, index, fieldType, precision, parameterType, std::move( updater ) )
-		, CDatabaseParameterSqlite( fieldType )
+	CDatabaseStatementParameterSqlite::CDatabaseStatementParameterSqlite( DatabaseConnectionSqliteSPtr connection, DatabaseValuedObjectInfosSPtr infos, unsigned short index, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
+		: CDatabaseParameter( connection, infos, index, parameterType, std::move( updater ) )
+		, _dataType( SqliteDataTypes[infos->GetType()] )
 		, _statement( NULL )
 	{
 	}
@@ -50,6 +68,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 	CDatabaseStatementParameterSqlite::~CDatabaseStatementParameterSqlite()
 	{
 		_statement = NULL;
+	}
+
+	const int & CDatabaseStatementParameterSqlite::GetDataType() const
+	{
+		return _dataType;
 	}
 
 	void CDatabaseStatementParameterSqlite::SetNull()

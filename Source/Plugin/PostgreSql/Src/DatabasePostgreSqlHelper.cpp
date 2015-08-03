@@ -18,7 +18,7 @@
 #include "ExceptionDatabasePostgreSql.h"
 #include "DatabaseParameterPostgreSql.h"
 
-#include <DatabaseFieldInfos.h>
+#include <DatabaseValuedObjectInfos.h>
 
 #if defined( _WIN32 )
 #	include <Winsock2.h>
@@ -769,7 +769,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			return ret;
 		}
 
-		void SetFieldValue( DatabaseFieldInfosSPtr infos, DatabaseFieldSPtr field, SInPostgreSqlBindBase const & bind, int row )
+		void SetFieldValue( DatabaseValuedObjectInfosSPtr infos, DatabaseFieldSPtr field, SInPostgreSqlBindBase const & bind, int row )
 		{
 			if ( !bind.IsNull( row ) )
 			{
@@ -888,9 +888,9 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 
 	//************************************************************************************************
 
-	DatabaseFieldInfosPtrArray PostgreSqlGetColumns( PGresult * result, std::vector< std::unique_ptr< SInPostgreSqlBindBase > > & binds )
+	DatabaseValuedObjectInfosPtrArray PostgreSqlGetColumns( PGresult * result, std::vector< std::unique_ptr< SInPostgreSqlBindBase > > & binds )
 	{
-		DatabaseFieldInfosPtrArray arrayReturn;
+		DatabaseValuedObjectInfosPtrArray arrayReturn;
 		int columnCount = PQnfields( result );
 		binds.resize( columnCount );
 		int index = 0;
@@ -901,7 +901,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			Oid oid = PQftype( result, index );
 			int size = PQfsize( result, index );
 			EFieldType type = GetFieldTypeFromOid( oid );
-			arrayReturn.push_back( std::make_shared< CDatabaseFieldInfos >( StringUtils::ToString( name ), type, size ) );
+			arrayReturn.push_back( std::make_shared< CDatabaseValuedObjectInfos >( StringUtils::ToString( name ), type, size ) );
 			bind = std::move( GetInBind( type, index, result ) );
 			++index;
 		}
@@ -909,7 +909,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		return arrayReturn;
 	}
 
-	DatabaseResultSPtr PostgreSqlFetchResult( PGresult * result, DatabaseFieldInfosPtrArray const & columns, DatabaseConnectionPostgreSqlSPtr connection, std::vector< std::unique_ptr< SInPostgreSqlBindBase > > const & binds )
+	DatabaseResultSPtr PostgreSqlFetchResult( PGresult * result, DatabaseValuedObjectInfosPtrArray const & columns, DatabaseConnectionPostgreSqlSPtr connection, std::vector< std::unique_ptr< SInPostgreSqlBindBase > > const & binds )
 	{
 		DatabaseResultSPtr pReturn;
 
@@ -926,7 +926,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 
 				for ( auto && bind : binds )
 				{
-					DatabaseFieldInfosSPtr infos;
+					DatabaseValuedObjectInfosSPtr infos;
 
 					try
 					{

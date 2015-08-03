@@ -17,7 +17,7 @@
 
 #include "Database.h"
 #include "DatabaseConnection.h"
-#include "DatabaseFieldInfos.h"
+#include "DatabaseValuedObjectInfos.h"
 #include "DatabaseException.h"
 #include "DatabaseStringUtils.h"
 #include "DatabaseLogger.h"
@@ -26,7 +26,7 @@ BEGIN_NAMESPACE_DATABASE
 {
 	static const String ERROR_DB_NO_FIELD = STR( "No field at index: " );
 
-	CDatabaseResult::CDatabaseResult( const DatabaseFieldInfosPtrArray & arrayFieldInfos )
+	CDatabaseResult::CDatabaseResult( const DatabaseValuedObjectInfosPtrArray & arrayFieldInfos )
 		: _rowCount( 0 )
 		, _arrayFieldInfos( arrayFieldInfos )
 	{
@@ -75,7 +75,7 @@ BEGIN_NAMESPACE_DATABASE
 		return ( uint32_t )_arrayFieldInfos.size();
 	}
 
-	DatabaseFieldInfosSPtr CDatabaseResult::GetFieldInfos( uint32_t index ) const
+	DatabaseValuedObjectInfosSPtr CDatabaseResult::GetFieldInfos( uint32_t index ) const
 	{
 		if ( index >= _arrayFieldInfos.size() )
 		{

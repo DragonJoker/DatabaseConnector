@@ -133,21 +133,21 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport void SetParameterNull( const String & name );
 
-		/** Set parameter value from another parameter.
+		/** Set parameter value from another valued object.
 		@param[in] index
 			Parameter index.
-		@param[in] parameter
-			The parameter.
+		@param[in] object
+			The object.
 		*/
-		DatabaseExport void SetParameterValue( uint32_t index, const CDatabaseParameter & parameter );
+		DatabaseExport void SetParameterValue( uint32_t index, const CDatabaseValuedObject & object );
 
-		/** Set parameter value from another parameter.
+		/** Set parameter value from another valued object.
 		@param[in] name
 			Parameter name.
-		@param[in] parameter
-			The parameter.
+		@param[in] object
+			The object.
 		*/
-		DatabaseExport void SetParameterValue( const String & name, const CDatabaseParameter & parameter );
+		DatabaseExport void SetParameterValue( const String & name, const CDatabaseValuedObject & object );
 
 		/** Set parameter value.
 		@param[in] index
@@ -214,6 +214,14 @@ BEGIN_NAMESPACE_DATABASE
 		template< typename T > void GetOutputValue( const String & name, T & value );
 
 	protected:
+		/** Creates a parameter, given it's valued object informations
+		@param[in] infos
+			Parameter informations.
+		@return
+			The created parameter
+		*/
+		DatabaseParameterSPtr DoCreateParameter( DatabaseValuedObjectInfosSPtr infos );
+
 		/** Add parameter to query.
 		@param[in] parameter
 			Parameter to add.

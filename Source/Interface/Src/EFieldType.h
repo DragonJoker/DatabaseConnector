@@ -52,13 +52,21 @@ BEGIN_NAMESPACE_DATABASE
 		EFieldType_COUNT
 	}	EFieldType;
 
-	/** Checks if the two given field types are compatible
-	@param typeA, typeB
+	/** Checks if the two given field types are compatible to set a value from typeFrom to typeTo
+	@param typeFrom, typeTo
 		The field types
 	@return
 		True if typeA and typeB are compatible
 	*/
-	DatabaseExport bool AreTypesCompatible( EFieldType typeA, EFieldType typeB );
+	DatabaseExport bool AreTypesCompatibleSet( EFieldType typeFrom, EFieldType typeTo );
+
+	/** Checks if the two given field types are compatible to get a value from typeFrom to typeTo
+	@param typeFrom, typeTo
+		The field types
+	@return
+		True if typeA and typeB are compatible
+	*/
+	DatabaseExport bool AreTypesCompatibleGet( EFieldType typeFrom, EFieldType typeTo );
 
 	/** Function used to tell if a field type needs limits
 	@param[in] type

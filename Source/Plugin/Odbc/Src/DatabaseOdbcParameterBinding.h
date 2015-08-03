@@ -10,8 +10,8 @@
 *
 ***************************************************************************/
 
-#ifndef ___DATABASE_PARAMETER_ODBC_H___
-#define ___DATABASE_PARAMETER_ODBC_H___
+#ifndef ___DATABASE_ODBC_PARAMETER_BINDING_H___
+#define ___DATABASE_ODBC_PARAMETER_BINDING_H___
 
 #include "DatabaseOdbcPrerequisites.h"
 
@@ -1040,48 +1040,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	{
 		return std::make_unique< COutOdbcBind< Type > >( statement, parameter.GetIndex(), parameter.GetParamType(), parameter.GetName(), static_cast< CDatabaseValue< Type > & >( value ) );
 	}
-
-	/** Describes a parameter for ODBC.
-	*/
-	class CDatabaseParameterOdbc
-	{
-	public:
-		/** Constructor
-		*/
-		CDatabaseParameterOdbc();
-
-		/** Destructor
-		*/
-		virtual ~CDatabaseParameterOdbc();
-
-		/** Initializes parameter members from the given statement handle
-		@param statementHandle
-		    The statement handle
-		*/
-		void Initialize( SQLHSTMT statementHandle, CDatabaseParameter & parameter );
-
-		/** Retrieves the parameter binding
-		@return
-			The binding
-		*/
-		const COutOdbcBindBase & GetBinding()const
-		{
-			return *_binding;
-		}
-
-		/** Retrieves the parameter binding
-		@return
-			The binding
-		*/
-		COutOdbcBindBase & GetBinding()
-		{
-			return *_binding;
-		}
-
-	private:
-		std::unique_ptr< COutOdbcBindBase > _binding;
-	};
 }
 END_NAMESPACE_DATABASE_ODBC
 
-#endif // ___DATABASE_PARAMETER_ODBC_H___
+#endif // ___DATABASE_ODBC_PARAMETER_BINDING_H___

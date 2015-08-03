@@ -73,6 +73,8 @@ if( Boost_UNIT_TEST_FRAMEWORK_FOUND )
 			set(BoostUnitTestLibraries "${Lib}")
 		endif()
 	ENDFOREACH()
+  
+  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj" )
 	
 	add_target(
 		${PROJECT_NAME}

@@ -26,10 +26,12 @@ BEGIN_NAMESPACE_DATABASE
 	{
 	public:
 		/** Constructor.
-		@param connection
+		@param[in] connection
 			The database connection.
+		@param[in] infos
+			Valued object informations.
 		*/
-		DatabaseExport CDatabaseValuedObject( DatabaseConnectionSPtr connection );
+		DatabaseExport CDatabaseValuedObject( DatabaseConnectionSPtr connection, DatabaseValuedObjectInfosSPtr infos );
 
 		/** Destructor.
 		*/
@@ -57,25 +59,25 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Field type.
 		*/
-		DatabaseExport virtual EFieldType GetType() const = 0;
+		DatabaseExport EFieldType GetType() const;
 
 		/** Get field type.
 		@return
 			Field type.
 		*/
-		DatabaseExport virtual const String & GetName() const = 0;
+		DatabaseExport const String & GetName() const;
 
 		/** Get field limits.
 		@return
 			Field limits.
 		*/
-		DatabaseExport virtual const uint32_t & GetLimits() const = 0;
+		DatabaseExport const uint32_t & GetLimits() const;
 
 		/** Get field precision.
 		@return
 			Field precision.
 		*/
-		DatabaseExport virtual const std::pair< uint32_t, uint32_t > & GetPrecision() const = 0;
+		DatabaseExport const std::pair< uint32_t, uint32_t > & GetPrecision() const;
 
 	protected:
 		/** Get value as boolean.
@@ -647,6 +649,8 @@ BEGIN_NAMESPACE_DATABASE
 	private:
 		//! The value.
 		mutable DatabaseValueBaseSPtr _value;
+		//! The value informations
+		DatabaseValuedObjectInfosSPtr _infos;
 		//! Database connection.
 		DatabaseConnectionWPtr _connection;
 	};

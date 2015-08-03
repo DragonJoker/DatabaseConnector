@@ -56,29 +56,29 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template< class StmtType >
 		inline void SetParametersValue( uint32_t & index, int mult, int i, std::shared_ptr< StmtType > stmt )
 		{
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_SINT32 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_SINT32 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_UINT8 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_SINT16 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_SINT24 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_SINT64 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_SINT16 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_SINT64 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_FLOAT64 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_FLOAT64 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_FLOAT64 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_FLOAT32 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue( 10, 0 ) );
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue( 10, 5 ) );
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_BIT >::InitialiseValue() );
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_DATE >::InitialiseValue() );
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_DATETIME >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_SINT32 >::GetRandomValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_SINT32 >::GetRandomValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_UINT8 >::GetRandomValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_SINT16 >::GetRandomValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_SINT24 >::GetRandomValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_SINT64 >::GetRandomValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_SINT16 >::GetRandomValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_SINT64 >::GetRandomValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_FLOAT64 >::GetRandomValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_FLOAT64 >::GetRandomValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_FLOAT64 >::GetRandomValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_FLOAT32 >::GetRandomValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::GetRandomValue( 10, 0 ) );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::GetRandomValue( 10, 5 ) );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_BIT >::GetRandomValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_DATE >::GetRandomValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_DATETIME >::GetRandomValue() );
 			stmt->SetParameterValue( index++, "CHAR: Areva Intercontrôle " + std::to_string( mult * i + index ) );
 			stmt->SetParameterValue( index++, "VARCHAR: Areva Intercontrôle " + std::to_string( mult * i + index ) );
 			stmt->SetParameterValue( index++, "NCHAR: Areva Intercontrôle " + std::to_string( mult * i + index ) );
 			stmt->SetParameterValue( index++, "NVARCHAR: Areva Intercontrôle " + std::to_string( mult * i + index ) );
 			stmt->SetParameterValue( index++, "TEXT: Areva Intercontrôle " + std::to_string( mult * i + index ) );
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_VARBINARY >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_VARBINARY >::GetRandomValue() );
 		}
 
 		inline void DisplayValues( uint32_t & index, DatabaseRowSPtr row )

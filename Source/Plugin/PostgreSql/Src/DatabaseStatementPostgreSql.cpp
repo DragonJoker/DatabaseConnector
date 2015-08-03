@@ -63,7 +63,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		Cleanup();
 	}
 
-	DatabaseParameterSPtr CDatabaseStatementPostgreSql::CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType )
+	DatabaseParameterSPtr CDatabaseStatementPostgreSql::DoCreateParameter( DatabaseValuedObjectInfosSPtr infos, EParameterType parameterType )
 	{
 		DatabaseConnectionPostgreSqlSPtr connection = DoGetPostgreSqlConnection();
 
@@ -72,45 +72,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_POSTGRESQL_LOST_CONNECTION );
 		}
 
-		DatabaseParameterPostgreSqlSPtr pReturn = std::make_shared< CDatabaseParameterPostgreSql >( connection, name, uint16_t( _arrayParams.size() + 1 ), fieldType, parameterType, std::make_unique< SValueUpdater >( this ) );
-
-		if ( !DoAddParameter( pReturn ) )
-		{
-			pReturn.reset();
-		}
-
-		return pReturn;
-	}
-
-	DatabaseParameterSPtr CDatabaseStatementPostgreSql::CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType )
-	{
-		DatabaseConnectionPostgreSqlSPtr connection = DoGetPostgreSqlConnection();
-
-		if ( !connection )
-		{
-			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_POSTGRESQL_LOST_CONNECTION );
-		}
-
-		DatabaseParameterPostgreSqlSPtr pReturn = std::make_shared< CDatabaseParameterPostgreSql >( connection, name, uint16_t( _arrayParams.size() + 1 ), fieldType, limits, parameterType, std::make_unique< SValueUpdater >( this ) );
-
-		if ( !DoAddParameter( pReturn ) )
-		{
-			pReturn.reset();
-		}
-
-		return pReturn;
-	}
-
-	DatabaseParameterSPtr CDatabaseStatementPostgreSql::CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType )
-	{
-		DatabaseConnectionPostgreSqlSPtr connection = DoGetPostgreSqlConnection();
-
-		if ( !connection )
-		{
-			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_POSTGRESQL_LOST_CONNECTION );
-		}
-
-		DatabaseParameterPostgreSqlSPtr pReturn = std::make_shared< CDatabaseParameterPostgreSql >( connection, name, uint16_t( _arrayParams.size() + 1 ), fieldType, precision, parameterType, std::make_unique< SValueUpdater >( this ) );
+		DatabaseParameterPostgreSqlSPtr pReturn = std::make_shared< CDatabaseParameterPostgreSql >( connection, infos, uint16_t( _arrayParams.size() + 1 ), parameterType, std::make_unique< SValueUpdater >( this ) );
 
 		if ( !DoAddParameter( pReturn ) )
 		{

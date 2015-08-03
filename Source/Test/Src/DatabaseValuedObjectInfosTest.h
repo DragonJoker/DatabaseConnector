@@ -1,11 +1,11 @@
 /************************************************************************//**
-* @file DatabaseFieldInfosTest.h
+* @file DatabaseValuedObjectInfosTest.h
 * @author Sylvain Doremus
 * @version 1.0
 * @date 12/02/2014 14:29:35
 *
 *
-* @brief Class testing CDatabaseFieldInfos class
+* @brief Class testing CDatabaseValuedObjectInfos class
 *
 ***************************************************************************/
 
@@ -20,18 +20,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 {
 	/** Database unit test class
 	*/
-	class CDatabaseFieldInfosTest
+	class CDatabaseValuedObjectInfosTest
 	{
 		/** @name Default constructor / Destructor */
 		//!@{
 	public:
 		/** Default constructor.
 		*/
-		CDatabaseFieldInfosTest();
+		CDatabaseValuedObjectInfosTest();
 
 		/** Destructor.
 		*/
-		~CDatabaseFieldInfosTest();
+		~CDatabaseValuedObjectInfosTest();
 		//!@}
 
 	public:
@@ -53,7 +53,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		*/
 		//!@{
 
-		/** Test the CDatabaseFieldInfos functions
+		/** Test the CDatabaseValuedObjectInfos functions
 		*/
 		void TestCase_FieldInfos();
 

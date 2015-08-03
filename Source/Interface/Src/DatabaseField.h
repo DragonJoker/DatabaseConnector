@@ -34,57 +34,41 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] connection
 			The database connection.
 		@param[in] infos
-			Field informations.
+			Valued object informations.
 		*/
-		DatabaseExport CDatabaseField( DatabaseConnectionSPtr connection, DatabaseFieldInfosSPtr infos );
+		DatabaseExport CDatabaseField( DatabaseConnectionSPtr connection, DatabaseValuedObjectInfosSPtr infos );
 
 		/** Destructor.
 		*/
 		DatabaseExport virtual ~CDatabaseField();
 
-		/** Get field type.
-		@return
-			Field type.
-		*/
-		DatabaseExport virtual EFieldType GetType() const;
-
-		/** Get field name.
-		@return
-			Field name.
-		*/
-		DatabaseExport virtual const String & GetName() const;
-
-		/** Get field limits.
-		@return
-			Field limits.
-		*/
-		DatabaseExport virtual const uint32_t & GetLimits() const;
-
-		/** Get field limits.
-		@return
-			Field limits.
-		*/
-		DatabaseExport virtual const std::pair< uint32_t, uint32_t > & GetPrecision() const;
-
 		/** Get field value.
+		@remarks
+			If field type is incompatible with the value type, an exception will be thrown.
 		@return
 			Field value.
 		*/
 		template< typename T > inline T GetValue() const;
 
 		/** Get field value.
+		@remarks
+			If field type is incompatible with the value type, an exception will be thrown.
 		@param[out] value
 			Field value.
 		*/
 		template< typename T > inline void GetValue( T & value ) const;
 
 		/** Get field value as a std::optional.
+		@remarks
+			If field type is incompatible with the value type, an exception will be thrown.
 		@return
 			Field value, std::none if the field is null.
 		*/
 		template< typename T > inline CDatabaseNullable< T > GetValueOpt() const;
 
 		/** Get field value as a std::optional.
+		@remarks
+			If field type is incompatible with the value type, an exception will be thrown.
 		@param[out] value
 			Field value, std::none if the field is null.
 		*/
@@ -92,7 +76,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Get field value.
 		@remarks
-			No check is made in this function, so the value type must match the field type
+			If field type is incompatible with the value type, The behaviour is undefined.
 		@return
 			Field value.
 		*/
@@ -100,7 +84,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Get field value.
 		@remarks
-			No check is made in this function, so the value type must match the field type
+			If field type is incompatible with the value type, The behaviour is undefined.
 		@param[out] value
 			Field value.
 		*/
@@ -108,7 +92,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Get field value as a std::optional.
 		@remarks
-			No check is made in this function, so the value type must match the field type
+			If field type is incompatible with the value type, The behaviour is undefined.
 		@return
 			Field value, std::none if the field is null.
 		*/
@@ -116,21 +100,11 @@ BEGIN_NAMESPACE_DATABASE
 
 		/** Get field value as a std::optional.
 		@remarks
-			No check is made in this function, so the value type must match the field type
+			If field type is incompatible with the value type, The behaviour is undefined.
 		@param[out] value
 			Field value, std::none if the field is null.
 		*/
 		template< typename T > inline void GetValueOptFast( CDatabaseNullable< T > & value ) const;
-
-	protected:
-		/** Retrieves the infos
-		@return
-			The infos
-		*/
-		inline DatabaseFieldInfosSPtr DoGetInfos()const;
-
-		//! Field information.
-		DatabaseFieldInfosWPtr _infos;
 	};
 }
 END_NAMESPACE_DATABASE

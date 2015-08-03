@@ -61,7 +61,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		Cleanup();
 	}
 
-	DatabaseParameterSPtr CDatabaseStatementMySql::CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType )
+	DatabaseParameterSPtr CDatabaseStatementMySql::DoCreateParameter( DatabaseValuedObjectInfosSPtr infos, EParameterType parameterType )
 	{
 		DatabaseConnectionMySqlSPtr connection = DoGetMySqlConnection();
 
@@ -70,53 +70,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_MYSQL_LOST_CONNECTION );
 		}
 
-		DatabaseParameterMySqlSPtr pReturn = std::make_shared< CDatabaseParameterMySql >( connection, name, uint16_t( _arrayInParams.size() + 1 ), fieldType, parameterType, std::make_unique< SValueUpdater >( this ) );
-
-		if ( !DoAddParameter( pReturn ) )
-		{
-			pReturn.reset();
-		}
-		else if ( parameterType == EParameterType_IN )
-		{
-			_arrayInParams.push_back( pReturn );
-		}
-
-		return pReturn;
-	}
-
-	DatabaseParameterSPtr CDatabaseStatementMySql::CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType )
-	{
-		DatabaseConnectionMySqlSPtr connection = DoGetMySqlConnection();
-
-		if ( !connection )
-		{
-			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_MYSQL_LOST_CONNECTION );
-		}
-
-		DatabaseParameterMySqlSPtr pReturn = std::make_shared< CDatabaseParameterMySql >( connection, name, uint16_t( _arrayInParams.size() + 1 ), fieldType, limits, parameterType, std::make_unique< SValueUpdater >( this ) );
-
-		if ( !DoAddParameter( pReturn ) )
-		{
-			pReturn.reset();
-		}
-		else if ( parameterType == EParameterType_IN )
-		{
-			_arrayInParams.push_back( pReturn );
-		}
-
-		return pReturn;
-	}
-
-	DatabaseParameterSPtr CDatabaseStatementMySql::CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType )
-	{
-		DatabaseConnectionMySqlSPtr connection = DoGetMySqlConnection();
-
-		if ( !connection )
-		{
-			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_MYSQL_LOST_CONNECTION );
-		}
-
-		DatabaseParameterMySqlSPtr pReturn = std::make_shared< CDatabaseParameterMySql >( connection, name, uint16_t( _arrayInParams.size() + 1 ), fieldType, precision, parameterType, std::make_unique< SValueUpdater >( this ) );
+		DatabaseParameterMySqlSPtr pReturn = std::make_shared< CDatabaseParameterMySql >( connection, infos, uint16_t( _arrayInParams.size() + 1 ), parameterType, std::make_unique< SValueUpdater >( this ) );
 
 		if ( !DoAddParameter( pReturn ) )
 		{
@@ -315,7 +269,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			}
 			else
 			{
-				it.first->SetParameterValue( 0, *parameter );
+				it.first->SetParameterValue( 0, static_cast< const CDatabaseValuedObject & >( *parameter ) );
 			}
 
 			it.first->ExecuteUpdate();
@@ -356,7 +310,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 						if ( field )
 						{
-							parameter->SetValue( *field );
+							parameter->SetValue( static_cast< const CDatabaseValuedObject & >( *field ) );
 						}
 					}
 				}

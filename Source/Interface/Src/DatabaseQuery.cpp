@@ -18,6 +18,7 @@
 #include "Database.h"
 #include "DatabaseConnection.h"
 #include "DatabaseParameter.h"
+#include "DatabaseValuedObjectInfos.h"
 #include "DatabaseException.h"
 #include "DatabaseResult.h"
 #include "DatabaseRow.h"
@@ -106,38 +107,17 @@ BEGIN_NAMESPACE_DATABASE
 
 	DatabaseParameterSPtr CDatabaseQuery::CreateParameter( const String & name, EFieldType fieldType )
 	{
-		DatabaseParameterSPtr pReturn = std::make_shared< CDatabaseParameter >( DoGetConnection(), name, ( unsigned short )_arrayParams.size() + 1, fieldType, EParameterType_IN, std::make_unique< SDummyValueUpdater >() );
-
-		if ( !DoAddParameter( pReturn ) )
-		{
-			pReturn.reset();
-		}
-
-		return pReturn;
+		return DoCreateParameter( std::make_shared< CDatabaseValuedObjectInfos >( name, fieldType ) );
 	}
 
 	DatabaseParameterSPtr CDatabaseQuery::CreateParameter( const String & name, EFieldType fieldType, uint32_t limits )
 	{
-		DatabaseParameterSPtr pReturn = std::make_shared< CDatabaseParameter >( DoGetConnection(), name, ( unsigned short )_arrayParams.size() + 1, fieldType, limits, EParameterType_IN, std::make_unique< SDummyValueUpdater >() );
-
-		if ( !DoAddParameter( pReturn ) )
-		{
-			pReturn.reset();
-		}
-
-		return pReturn;
+		return DoCreateParameter( std::make_shared< CDatabaseValuedObjectInfos >( name, fieldType, limits ) );
 	}
 
 	DatabaseParameterSPtr CDatabaseQuery::CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision )
 	{
-		DatabaseParameterSPtr pReturn = std::make_shared< CDatabaseParameter >( DoGetConnection(), name, ( unsigned short )_arrayParams.size() + 1, fieldType, precision, EParameterType_IN, std::make_unique< SDummyValueUpdater >() );
-
-		if ( !DoAddParameter( pReturn ) )
-		{
-			pReturn.reset();
-		}
-
-		return pReturn;
+		return DoCreateParameter( std::make_shared< CDatabaseValuedObjectInfos >( name, fieldType, precision ) );
 	}
 
 	DatabaseParameterSPtr CDatabaseQuery::GetParameter( uint32_t index )const
@@ -191,14 +171,21 @@ BEGIN_NAMESPACE_DATABASE
 		GetParameter( name )->SetNull();
 	}
 
-	void CDatabaseQuery::SetParameterValue( uint32_t index, const CDatabaseParameter & parameter )
+	void CDatabaseQuery::SetParameterValue( uint32_t index, const CDatabaseValuedObject & object )
 	{
-		GetParameter( index )->SetValue( parameter );
+		GetParameter( index )->SetValue( object );
 	}
 
-	void CDatabaseQuery::SetParameterValue( const String & name, const CDatabaseParameter & parameter )
+	DatabaseParameterSPtr CDatabaseQuery::DoCreateParameter( DatabaseValuedObjectInfosSPtr infos )
 	{
-		GetParameter( name )->SetValue( parameter );
+		DatabaseParameterSPtr pReturn = std::make_shared< CDatabaseParameter >( DoGetConnection(), infos, uint16_t( _arrayParams.size() + 1 ), EParameterType_IN, std::make_unique< SDummyValueUpdater >() );
+
+		if ( !DoAddParameter( pReturn ) )
+		{
+			pReturn.reset();
+		}
+
+		return pReturn;
 	}
 
 	bool CDatabaseQuery::DoAddParameter( DatabaseParameterSPtr parameter )

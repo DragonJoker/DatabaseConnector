@@ -12,7 +12,7 @@
 
 #include "DatabaseOdbcPch.h"
 
-#include "DatabaseParameterOdbc.h"
+#include "DatabaseOdbcParameterBinding.h"
 
 #include "DatabaseOdbcHelper.h"
 
@@ -125,8 +125,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	static const String INFO_ODBC_GetData = STR( "SQLGetData" );
 	static const String INFO_ODBC_PutData = STR( "SQLPutData: " );
 
-	static const String ERROR_ODBC_PARAMETER_TYPE = STR( "Undefined parameter type when trying to set its binding." );
-
 	COutOdbcBindBase::COutOdbcBindBase( HSTMT statement, uint16_t index, EFieldType fieldType, EParameterType parameterType, const String & name, CDatabaseValueBase & value )
 		: _inputOutputType( InOutTypes[parameterType] )
 		, _valueType( CTypes[fieldType] )
@@ -198,130 +196,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		}
 
 		return errorType;
-	}
-
-	CDatabaseParameterOdbc::CDatabaseParameterOdbc()
-	{
-		// Empty
-	}
-
-	CDatabaseParameterOdbc::~CDatabaseParameterOdbc()
-	{
-		// Empty
-	}
-
-	void CDatabaseParameterOdbc::Initialize( SQLHSTMT statementHandle, CDatabaseParameter & parameter )
-	{
-		switch ( parameter.GetType() )
-		{
-		case EFieldType_BIT:
-			_binding = MakeOutBind< EFieldType_BIT >( statementHandle, parameter, parameter.GetObjectValue() );
-			break;
-
-		case EFieldType_SINT8:
-			_binding = MakeOutBind< EFieldType_SINT8 >( statementHandle, parameter, parameter.GetObjectValue() );
-			break;
-
-		case EFieldType_SINT16:
-			_binding = MakeOutBind< EFieldType_SINT16 >( statementHandle, parameter, parameter.GetObjectValue() );
-			break;
-
-		case EFieldType_SINT24:
-			_binding = MakeOutBind< EFieldType_SINT24 >( statementHandle, parameter, parameter.GetObjectValue() );
-			break;
-
-		case EFieldType_SINT32:
-			_binding = MakeOutBind< EFieldType_SINT32 >( statementHandle, parameter, parameter.GetObjectValue() );
-			break;
-
-		case EFieldType_SINT64:
-			_binding = MakeOutBind< EFieldType_SINT64 >( statementHandle, parameter, parameter.GetObjectValue() );
-			break;
-
-		case EFieldType_UINT8:
-			_binding = MakeOutBind< EFieldType_UINT8 >( statementHandle, parameter, parameter.GetObjectValue() );
-			break;
-
-		case EFieldType_UINT16:
-			_binding = MakeOutBind< EFieldType_UINT16 >( statementHandle, parameter, parameter.GetObjectValue() );
-			break;
-
-		case EFieldType_UINT24:
-			_binding = MakeOutBind< EFieldType_UINT24 >( statementHandle, parameter, parameter.GetObjectValue() );
-			break;
-
-		case EFieldType_UINT32:
-			_binding = MakeOutBind< EFieldType_UINT32 >( statementHandle, parameter, parameter.GetObjectValue() );
-			break;
-
-		case EFieldType_UINT64:
-			_binding = MakeOutBind< EFieldType_UINT64 >( statementHandle, parameter, parameter.GetObjectValue() );
-			break;
-
-		case EFieldType_FLOAT32:
-			_binding = MakeOutBind< EFieldType_FLOAT32 >( statementHandle, parameter, parameter.GetObjectValue() );
-			break;
-
-		case EFieldType_FLOAT64:
-			_binding = MakeOutBind< EFieldType_FLOAT64 >( statementHandle, parameter, parameter.GetObjectValue() );
-			break;
-
-		case EFieldType_FIXED_POINT:
-			_binding = MakeOutBind< EFieldType_FIXED_POINT >( statementHandle, parameter, parameter.GetObjectValue() );
-			break;
-
-		case EFieldType_CHAR:
-			_binding = MakeOutBind< EFieldType_CHAR >( statementHandle, parameter, parameter.GetObjectValue() );
-			break;
-
-		case EFieldType_VARCHAR:
-			_binding = MakeOutBind< EFieldType_VARCHAR >( statementHandle, parameter, parameter.GetObjectValue() );
-			break;
-
-		case EFieldType_TEXT:
-			_binding = MakeOutBind< EFieldType_TEXT >( statementHandle, parameter, parameter.GetObjectValue() );
-			break;
-
-		case EFieldType_NCHAR:
-			_binding = MakeOutBind< EFieldType_NCHAR >( statementHandle, parameter, parameter.GetObjectValue() );
-			break;
-
-		case EFieldType_NVARCHAR:
-			_binding = MakeOutBind< EFieldType_NVARCHAR >( statementHandle, parameter, parameter.GetObjectValue() );
-			break;
-
-		case EFieldType_NTEXT:
-			_binding = MakeOutBind< EFieldType_NTEXT >( statementHandle, parameter, parameter.GetObjectValue() );
-			break;
-
-		case EFieldType_DATE:
-			_binding = MakeOutBind< EFieldType_DATE >( statementHandle, parameter, parameter.GetObjectValue() );
-			break;
-
-		case EFieldType_DATETIME:
-			_binding = MakeOutBind< EFieldType_DATETIME >( statementHandle, parameter, parameter.GetObjectValue() );
-			break;
-
-		case EFieldType_TIME:
-			_binding = MakeOutBind< EFieldType_TIME >( statementHandle, parameter, parameter.GetObjectValue() );
-			break;
-
-		case EFieldType_BINARY:
-			_binding = MakeOutBind< EFieldType_BINARY >( statementHandle, parameter, parameter.GetObjectValue() );
-			break;
-
-		case EFieldType_VARBINARY:
-			_binding = MakeOutBind< EFieldType_VARBINARY >( statementHandle, parameter, parameter.GetObjectValue() );
-			break;
-
-		case EFieldType_BLOB:
-			_binding = MakeOutBind< EFieldType_BLOB >( statementHandle, parameter, parameter.GetObjectValue() );
-			break;
-
-		default:
-			DB_EXCEPT( EDatabaseExceptionCodes_ParameterError, ERROR_ODBC_PARAMETER_TYPE );
-			break;
-		}
 	}
 }
 END_NAMESPACE_DATABASE_ODBC

@@ -153,7 +153,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef bool ParamType;
 			typedef ParamType FieldType;
 
-			static ParamType InitialiseValue( std::random_device & generator )
+			static ParamType GetRandomValue( std::random_device & generator )
 			{
 				std::uniform_int_distribution< int > distribution( 0, 1 );
 				return distribution( generator ) == 1;
@@ -166,7 +166,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef int8_t ParamType;
 			typedef ParamType FieldType;
 
-			static ParamType InitialiseValue( std::random_device & generator )
+			static ParamType GetRandomValue( std::random_device & generator )
 			{
 				std::uniform_int_distribution< int > distribution( std::numeric_limits< ParamType >::lowest(), std::numeric_limits< ParamType >::max() );
 				return ParamType( distribution( generator ) );
@@ -179,7 +179,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef uint8_t ParamType;
 			typedef ParamType FieldType;
 
-			static ParamType InitialiseValue( std::random_device & generator )
+			static ParamType GetRandomValue( std::random_device & generator )
 			{
 				std::uniform_int_distribution< int > distribution( std::numeric_limits< ParamType >::lowest(), std::numeric_limits< ParamType >::max() );
 				return distribution( generator );
@@ -192,7 +192,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef int16_t ParamType;
 			typedef ParamType FieldType;
 
-			static ParamType InitialiseValue( std::random_device & generator )
+			static ParamType GetRandomValue( std::random_device & generator )
 			{
 				std::uniform_int_distribution< ParamType > distribution( std::numeric_limits< ParamType >::lowest(), std::numeric_limits< ParamType >::max() );
 				return distribution( generator );
@@ -205,7 +205,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef uint16_t ParamType;
 			typedef ParamType FieldType;
 
-			static ParamType InitialiseValue( std::random_device & generator )
+			static ParamType GetRandomValue( std::random_device & generator )
 			{
 				std::uniform_int_distribution< ParamType > distribution( std::numeric_limits< ParamType >::lowest(), std::numeric_limits< ParamType >::max() );
 				return distribution( generator );
@@ -218,7 +218,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef int24_t ParamType;
 			typedef ParamType FieldType;
 
-			static ParamType InitialiseValue( std::random_device & generator )
+			static ParamType GetRandomValue( std::random_device & generator )
 			{
 				std::uniform_int_distribution< int32_t > distribution( 0xFF800000, 0x007FFFFF );
 				return ParamType( distribution( generator ) );
@@ -231,7 +231,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef uint24_t ParamType;
 			typedef ParamType FieldType;
 
-			static ParamType InitialiseValue( std::random_device & generator )
+			static ParamType GetRandomValue( std::random_device & generator )
 			{
 				std::uniform_int_distribution< uint32_t > distribution( 0, 0x00FFFFFF );
 				return ParamType( distribution( generator ) );
@@ -244,7 +244,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef int32_t ParamType;
 			typedef ParamType FieldType;
 
-			static ParamType InitialiseValue( std::random_device & generator )
+			static ParamType GetRandomValue( std::random_device & generator )
 			{
 				std::uniform_int_distribution< ParamType > distribution( std::numeric_limits< ParamType >::lowest(), std::numeric_limits< ParamType >::max() );
 				return distribution( generator );
@@ -257,7 +257,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef uint32_t ParamType;
 			typedef ParamType FieldType;
 
-			static ParamType InitialiseValue( std::random_device & generator )
+			static ParamType GetRandomValue( std::random_device & generator )
 			{
 				std::uniform_int_distribution< ParamType > distribution( std::numeric_limits< ParamType >::lowest(), std::numeric_limits< ParamType >::max() );
 				return distribution( generator );
@@ -270,7 +270,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef int64_t ParamType;
 			typedef ParamType FieldType;
 
-			static ParamType InitialiseValue( std::random_device & generator )
+			static ParamType GetRandomValue( std::random_device & generator )
 			{
 				std::uniform_int_distribution< ParamType > distribution( std::numeric_limits< ParamType >::lowest(), std::numeric_limits< ParamType >::max() );
 				return distribution( generator );
@@ -283,7 +283,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef uint64_t ParamType;
 			typedef ParamType FieldType;
 
-			static ParamType InitialiseValue( std::random_device & generator )
+			static ParamType GetRandomValue( std::random_device & generator )
 			{
 				std::uniform_int_distribution< ParamType > distribution( std::numeric_limits< ParamType >::lowest(), std::numeric_limits< ParamType >::max() );
 				return distribution( generator );
@@ -296,10 +296,11 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef float ParamType;
 			typedef ParamType FieldType;
 
-			static ParamType InitialiseValue( std::random_device & generator )
+			static ParamType GetRandomValue( std::random_device & generator )
 			{
-				std::uniform_real_distribution< ParamType > distribution( std::numeric_limits< ParamType >::lowest() / 2, std::numeric_limits< ParamType >::max() / 2 );
-				return distribution( generator );
+				std::uniform_int_distribution< int > bdistribution( 0, 1 );
+				std::uniform_real_distribution< ParamType > fdistribution( std::numeric_limits< ParamType >::lowest() / 2, std::numeric_limits< ParamType >::max() / 2 );
+				return ParamType( fmod( fdistribution( generator ), 1000000.0000 ) * ( bdistribution( generator ) ? 1 : -1 ) );
 			}
 		};
 
@@ -309,28 +310,29 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef double ParamType;
 			typedef ParamType FieldType;
 
-			static ParamType InitialiseValue( std::random_device & generator )
+			static ParamType GetRandomValue( std::random_device & generator )
 			{
-				std::uniform_real_distribution< ParamType > distribution( std::numeric_limits< ParamType >::lowest() / 2, std::numeric_limits< ParamType >::max() / 2 );
-				return distribution( generator );
+				std::uniform_int_distribution< int > bdistribution( 0, 1 );
+				std::uniform_real_distribution< ParamType > fdistribution( std::numeric_limits< ParamType >::lowest() / 2, std::numeric_limits< ParamType >::max() / 2 );
+				return ParamType( fmod( fdistribution( generator ), 1000000000.0000000 ) * ( bdistribution( generator ) ? 1 : -1 ) );
 			}
 		};
 
 		template<> struct Helpers< EFieldType_FIXED_POINT >
 		{
-			static const uint32_t Limit = -1;
+			static const std::pair< uint32_t, uint32_t > Precision;
 			typedef CFixedPoint ParamType;
 			typedef ParamType FieldType;
 
-			static ParamType InitialiseValue( std::random_device & generator, const uint8_t precision = 10, const uint8_t decimals = 3 )
+			static ParamType GetRandomValue( std::random_device & generator, const uint8_t precision = 10, const uint8_t decimals = 3 )
 			{
 				std::uniform_int_distribution< int64_t > distribution( std::numeric_limits< int64_t >::lowest(), std::numeric_limits< int64_t >::max() );
 				return CFixedPoint( distribution( generator ) % int64_t( pow( 10, precision ) ), precision, decimals );
 			}
 
-			static ParamType InitialiseValue( std::random_device & generator, const std::pair< uint32_t, uint32_t > & precision )
+			static ParamType GetRandomValue( std::random_device & generator, const std::pair< uint32_t, uint32_t > & precision )
 			{
-				return InitialiseValue( generator, precision.first, precision.second );
+				return GetRandomValue( generator, precision.first, precision.second );
 			}
 		};
 
@@ -340,7 +342,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef DateType ParamType;
 			typedef ParamType FieldType;
 
-			static ParamType InitialiseValue( std::random_device & generator )
+			static ParamType GetRandomValue( std::random_device & generator )
 			{
 				return boost::gregorian::day_clock::local_day();
 			}
@@ -352,7 +354,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef DateTimeType ParamType;
 			typedef ParamType FieldType;
 
-			static ParamType InitialiseValue( std::random_device & generator )
+			static ParamType GetRandomValue( std::random_device & generator )
 			{
 				return boost::posix_time::second_clock::local_time();
 			}
@@ -364,7 +366,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef TimeType ParamType;
 			typedef ParamType FieldType;
 
-			static ParamType InitialiseValue( std::random_device & generator )
+			static ParamType GetRandomValue( std::random_device & generator )
 			{
 				return boost::posix_time::second_clock::local_time().time_of_day();
 			}
@@ -376,7 +378,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef std::string ParamType;
 			typedef std::string FieldType;
 
-			static ParamType InitialiseValue( std::random_device & generator, size_t size )
+			static ParamType GetRandomValue( std::random_device & generator, size_t size )
 			{
 				std::uniform_int_distribution< int > distribution( 32, 126 );
 				std::stringstream text;
@@ -396,9 +398,9 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				return text.str();
 			}
 
-			static ParamType InitialiseValue( std::random_device & generator )
+			static ParamType GetRandomValue( std::random_device & generator )
 			{
-				return InitialiseValue( generator, Limit );
+				return GetRandomValue( generator, Limit );
 			}
 		};
 
@@ -408,7 +410,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef std::string ParamType;
 			typedef std::string FieldType;
 
-			static ParamType InitialiseValue( std::random_device & generator, size_t size )
+			static ParamType GetRandomValue( std::random_device & generator, size_t size )
 			{
 				std::uniform_int_distribution< int > distribution( 32, 126 );
 				std::stringstream text;
@@ -428,9 +430,9 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				return text.str();
 			}
 
-			static ParamType InitialiseValue( std::random_device & generator )
+			static ParamType GetRandomValue( std::random_device & generator )
 			{
-				return InitialiseValue( generator, Limit );
+				return GetRandomValue( generator, Limit );
 			}
 		};
 
@@ -440,7 +442,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef std::wstring ParamType;
 			typedef std::wstring FieldType;
 
-			static ParamType InitialiseValue( std::random_device & generator, size_t size )
+			static ParamType GetRandomValue( std::random_device & generator, size_t size )
 			{
 				std::uniform_int_distribution< int > distribution( 32, 126 );
 				std::wstringstream text;
@@ -460,9 +462,9 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				return text.str();
 			}
 
-			static ParamType InitialiseValue( std::random_device & generator )
+			static ParamType GetRandomValue( std::random_device & generator )
 			{
-				return InitialiseValue( generator, Limit );
+				return GetRandomValue( generator, Limit );
 			}
 		};
 
@@ -472,7 +474,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef std::wstring ParamType;
 			typedef std::wstring FieldType;
 
-			static ParamType InitialiseValue( std::random_device & generator, size_t size )
+			static ParamType GetRandomValue( std::random_device & generator, size_t size )
 			{
 				std::uniform_int_distribution< int > distribution( 32, 126 );
 				std::wstringstream text;
@@ -492,9 +494,9 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				return text.str();
 			}
 
-			static ParamType InitialiseValue( std::random_device & generator )
+			static ParamType GetRandomValue( std::random_device & generator )
 			{
-				return InitialiseValue( generator, Limit );
+				return GetRandomValue( generator, Limit );
 			}
 		};
 
@@ -504,7 +506,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef std::string ParamType;
 			typedef std::string FieldType;
 
-			static ParamType InitialiseValue( std::random_device & generator, size_t size )
+			static ParamType GetRandomValue( std::random_device & generator, size_t size )
 			{
 				std::uniform_int_distribution< int > distribution( 32, 126 );
 				std::stringstream text;
@@ -524,9 +526,9 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				return text.str();
 			}
 
-			static ParamType InitialiseValue( std::random_device & generator )
+			static ParamType GetRandomValue( std::random_device & generator )
 			{
-				return InitialiseValue( generator, 500 );
+				return GetRandomValue( generator, 500 );
 			}
 		};
 
@@ -536,7 +538,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef std::wstring ParamType;
 			typedef std::wstring FieldType;
 
-			static ParamType InitialiseValue( std::random_device & generator, size_t size )
+			static ParamType GetRandomValue( std::random_device & generator, size_t size )
 			{
 				std::uniform_int_distribution< int > distribution( 32, 126 );
 				std::wstringstream text;
@@ -556,9 +558,9 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				return text.str();
 			}
 
-			static ParamType InitialiseValue( std::random_device & generator )
+			static ParamType GetRandomValue( std::random_device & generator )
 			{
-				return InitialiseValue( generator, 500 );
+				return GetRandomValue( generator, 500 );
 			}
 		};
 
@@ -568,7 +570,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef ByteArray ParamType;
 			typedef ParamType FieldType;
 
-			static ParamType InitialiseValue( std::random_device & generator, size_t size )
+			static ParamType GetRandomValue( std::random_device & generator, size_t size )
 			{
 				std::uniform_int_distribution< int > distribution( 32, 126 );
 				ByteArray blob( size );
@@ -588,9 +590,9 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				return blob;
 			}
 
-			static ParamType InitialiseValue( std::random_device & generator )
+			static ParamType GetRandomValue( std::random_device & generator )
 			{
-				return InitialiseValue( generator, Limit );
+				return GetRandomValue( generator, Limit );
 			}
 		};
 
@@ -600,7 +602,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef ByteArray ParamType;
 			typedef ParamType FieldType;
 
-			static ParamType InitialiseValue( std::random_device & generator, size_t size )
+			static ParamType GetRandomValue( std::random_device & generator, size_t size )
 			{
 				std::uniform_int_distribution< int > distribution( 32, 126 );
 				ByteArray blob( size );
@@ -620,9 +622,9 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				return blob;
 			}
 
-			static ParamType InitialiseValue( std::random_device & generator )
+			static ParamType GetRandomValue( std::random_device & generator )
 			{
-				return InitialiseValue( generator, Limit );
+				return GetRandomValue( generator, Limit );
 			}
 		};
 
@@ -632,7 +634,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			typedef ByteArray ParamType;
 			typedef ParamType FieldType;
 
-			static ParamType InitialiseValue( std::random_device & generator, size_t size )
+			static ParamType GetRandomValue( std::random_device & generator, size_t size )
 			{
 				std::uniform_int_distribution< int > distribution( 32, 126 );
 				ByteArray blob( size );
@@ -652,9 +654,9 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				return blob;
 			}
 
-			static ParamType InitialiseValue( std::random_device & generator )
+			static ParamType GetRandomValue( std::random_device & generator )
 			{
-				return InitialiseValue( generator, 1024 );
+				return GetRandomValue( generator, 1024 );
 			}
 		};
 
@@ -717,29 +719,29 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template< class StmtType >
 		inline void SetParametersValue( std::random_device & generator, uint32_t & index, int mult, int i, std::shared_ptr< StmtType > stmt )
 		{
-			stmt->SetParameterValue( index++, Helpers< EFieldType_SINT32 >::InitialiseValue( generator ) );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_SINT32 >::InitialiseValue( generator ) );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_UINT8 >::InitialiseValue( generator ) );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_SINT16 >::InitialiseValue( generator ) );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_SINT24 >::InitialiseValue( generator ) );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_SINT64 >::InitialiseValue( generator ) );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_SINT16 >::InitialiseValue( generator ) );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_SINT64 >::InitialiseValue( generator ) );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_FLOAT64 >::InitialiseValue( generator ) );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_FLOAT64 >::InitialiseValue( generator ) );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_FLOAT64 >::InitialiseValue( generator ) );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_FLOAT32 >::InitialiseValue( generator ) );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_FIXED_POINT >::InitialiseValue( generator, 10, 0 ) );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_FIXED_POINT >::InitialiseValue( generator, 10, 5 ) );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_BIT >::InitialiseValue( generator ) );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_DATE >::InitialiseValue( generator ) );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_DATETIME >::InitialiseValue( generator ) );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_CHAR >::InitialiseValue( generator ) );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_VARCHAR >::InitialiseValue( generator ) );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_NCHAR >::InitialiseValue( generator ) );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_NVARCHAR >::InitialiseValue( generator ) );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_TEXT >::InitialiseValue( generator ) );
-			stmt->SetParameterValue( index++, Helpers< EFieldType_VARBINARY >::InitialiseValue( generator ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_SINT32 >::GetRandomValue( generator ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_SINT32 >::GetRandomValue( generator ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_UINT8 >::GetRandomValue( generator ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_SINT16 >::GetRandomValue( generator ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_SINT24 >::GetRandomValue( generator ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_SINT64 >::GetRandomValue( generator ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_SINT16 >::GetRandomValue( generator ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_SINT64 >::GetRandomValue( generator ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_FLOAT64 >::GetRandomValue( generator ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_FLOAT64 >::GetRandomValue( generator ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_FLOAT64 >::GetRandomValue( generator ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_FLOAT32 >::GetRandomValue( generator ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_FIXED_POINT >::GetRandomValue( generator, 10, 0 ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_FIXED_POINT >::GetRandomValue( generator, 10, 5 ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_BIT >::GetRandomValue( generator ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_DATE >::GetRandomValue( generator ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_DATETIME >::GetRandomValue( generator ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_CHAR >::GetRandomValue( generator ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_VARCHAR >::GetRandomValue( generator ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_NCHAR >::GetRandomValue( generator ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_NVARCHAR >::GetRandomValue( generator ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_TEXT >::GetRandomValue( generator ) );
+			stmt->SetParameterValue( index++, Helpers< EFieldType_VARBINARY >::GetRandomValue( generator ) );
 		}
 
 		inline void DisplayValues( uint32_t & index, DatabaseRowSPtr row )
@@ -1053,6 +1055,41 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 		};
 
+		template< EFieldType FieldType, typename Enable=void >
+		struct ParameterCreator
+		{
+			template< typename StmtType >
+			static void Create( std::shared_ptr< StmtType > stmt, const String & name )
+			{
+				BOOST_CHECK( stmt->CreateParameter( name, FieldType ) );
+			}
+		};
+
+		template< EFieldType FieldType >
+		struct ParameterCreator< FieldType, typename std::enable_if< SFieldTypeNeedsLimits< FieldType >::value >::type >
+		{
+			template< typename StmtType >
+			static void Create( std::shared_ptr< StmtType > stmt, const String & name )
+			{
+				BOOST_CHECK( stmt->CreateParameter( name, FieldType, Helpers< FieldType >::Limit ) );
+			}
+		};
+
+		template< EFieldType FieldType >
+		struct ParameterCreator< FieldType, typename std::enable_if< SFieldTypeNeedsPrecision< FieldType >::value >::type >
+		{
+			template< typename StmtType >
+			static void Create( std::shared_ptr< StmtType > stmt, const String & name )
+			{
+				BOOST_CHECK( stmt->CreateParameter( name, FieldType, Helpers< FieldType >::Precision ) );
+			}
+		};
+
+		template< EFieldType FieldType >
+		inline void InsertAndRetrieve( DatabaseConnectionSPtr connection, const String & name, typename Helpers< FieldType >::ParamType const * valueIn, bool equal, String const & is )
+		{
+		};
+
 		template< class StmtType, EFieldType FieldType >
 		inline void InsertAndRetrieve( DatabaseConnectionSPtr connection, const String & name, typename Helpers< FieldType >::ParamType const * valueIn, bool equal, String const & is )
 		{
@@ -1075,8 +1112,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( stmtInsert && stmtSelect )
 				{
-					BOOST_CHECK( stmtInsert->CreateParameter( name, FieldType, Helpers< FieldType >::Limit ) );
-					BOOST_CHECK( stmtSelect->CreateParameter( name, FieldType, Helpers< FieldType >::Limit ) );
+					ParameterCreator< FieldType >::Create( stmtInsert, name );
+					ParameterCreator< FieldType >::Create( stmtSelect, name );
 
 					BOOST_CHECK( stmtInsert->Initialize() == EErrorType_NONE );
 					BOOST_CHECK( stmtSelect->Initialize() == EErrorType_NONE );
@@ -1168,10 +1205,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( stmtInsert && stmtSelect )
 				{
-					BOOST_CHECK( stmtInsert->CreateParameter( STR( "IntField" ), EFieldType_SINT32 ) );
-					BOOST_CHECK( stmtInsert->CreateParameter( name, FieldType, Helpers< FieldType >::Limit ) );
-					BOOST_CHECK( stmtSelect->CreateParameter( STR( "IntField" ), EFieldType_SINT32 ) );
-					BOOST_CHECK( stmtSelect->CreateParameter( name, FieldType, Helpers< FieldType >::Limit ) );
+					ParameterCreator< EFieldType_SINT32 >::Create( stmtInsert, STR( "IntField" ) );
+					ParameterCreator< FieldType >::Create( stmtInsert, name );
+					ParameterCreator< EFieldType_SINT32 >::Create( stmtSelect, STR( "IntField" ) );
+					ParameterCreator< FieldType >::Create( stmtSelect, name );
 
 					BOOST_CHECK( stmtInsert->Initialize() == EErrorType_NONE );
 					BOOST_CHECK( stmtSelect->Initialize() == EErrorType_NONE );
@@ -1253,7 +1290,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template< class StmtType, EFieldType FieldType >
 		inline void InsertAndRetrieveOtherIndex( DatabaseConnectionSPtr connection, const String & name, bool equal, String const & is, std::random_device & generator )
 		{
-			InsertAndRetrieveOtherIndex< StmtType, FieldType >( connection, name, Helpers< FieldType >::InitialiseValue( generator ), equal, is );
+			InsertAndRetrieveOtherIndex< StmtType, FieldType >( connection, name, Helpers< FieldType >::GetRandomValue( generator ), equal, is );
 		}
 
 		template< class StmtType, EFieldType FieldType >
@@ -1278,8 +1315,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( stmtInsert && stmtSelect )
 				{
-					BOOST_CHECK( stmtInsert->CreateParameter( name, FieldType, Helpers< FieldType >::Limit ) );
-					BOOST_CHECK( stmtSelect->CreateParameter( name, FieldType, Helpers< FieldType >::Limit ) );
+					ParameterCreator< FieldType >::Create( stmtInsert, name );
+					ParameterCreator< FieldType >::Create( stmtSelect, name );
 
 					BOOST_CHECK( stmtInsert->Initialize() == EErrorType_NONE );
 					BOOST_CHECK( stmtSelect->Initialize() == EErrorType_NONE );
@@ -1358,7 +1395,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template< class StmtType, EFieldType FieldType >
 		inline void InsertAndRetrieveFast( DatabaseConnectionSPtr connection, const String & name, bool equal, String const & is, std::random_device & generator )
 		{
-			InsertAndRetrieveFast< StmtType, FieldType >( connection, name, Helpers< FieldType >::InitialiseValue( generator ), equal, is );
+			InsertAndRetrieveFast< StmtType, FieldType >( connection, name, Helpers< FieldType >::GetRandomValue( generator ), equal, is );
 		}
 
 		template< class StmtType, EFieldType FieldType >
@@ -1383,10 +1420,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( stmtInsert && stmtSelect )
 				{
-					BOOST_CHECK( stmtInsert->CreateParameter( STR( "IntField" ), EFieldType_SINT32 ) );
-					BOOST_CHECK( stmtInsert->CreateParameter( name, FieldType, Helpers< FieldType >::Limit ) );
-					BOOST_CHECK( stmtSelect->CreateParameter( STR( "IntField" ), EFieldType_SINT32 ) );
-					BOOST_CHECK( stmtSelect->CreateParameter( name, FieldType, Helpers< FieldType >::Limit ) );
+					ParameterCreator< EFieldType_SINT32 >::Create( stmtInsert, STR( "IntField" ) );
+					ParameterCreator< FieldType >::Create( stmtInsert, name );
+					ParameterCreator< EFieldType_SINT32 >::Create( stmtSelect, STR( "IntField" ) );
+					ParameterCreator< FieldType >::Create( stmtSelect, name );
 
 					BOOST_CHECK( stmtInsert->Initialize() == EErrorType_NONE );
 					BOOST_CHECK( stmtSelect->Initialize() == EErrorType_NONE );
@@ -1468,7 +1505,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template< class StmtType, EFieldType FieldType >
 		inline void InsertAndRetrieveFastOtherIndex( DatabaseConnectionSPtr connection, const String & name, bool equal, String const & is, std::random_device & generator )
 		{
-			InsertAndRetrieveFastOtherIndex< StmtType, FieldType >( connection, name, Helpers< FieldType >::InitialiseValue( generator ), equal, is );
+			InsertAndRetrieveFastOtherIndex< StmtType, FieldType >( connection, name, Helpers< FieldType >::GetRandomValue( generator ), equal, is );
 		}
 
 		template< typename StmtType >

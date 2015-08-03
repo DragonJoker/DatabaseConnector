@@ -16,7 +16,7 @@
 #include "DatabaseSqlite.h"
 #include "DatabaseConnectionSqlite.h"
 
-#include <DatabaseFieldInfos.h>
+#include <DatabaseValuedObjectInfos.h>
 
 BEGIN_NAMESPACE_DATABASE_SQLITE
 {

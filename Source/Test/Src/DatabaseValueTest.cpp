@@ -367,9 +367,9 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			DatabaseConnectionSPtr connection = std::make_shared< CDatabaseTestConnection >( TEST_GOOD_SERVER, TEST_GOOD_USER, TEST_GOOD_PASSWORD, connectionString );
 			connection->SelectDatabase( TEST_GOOD_DATABASE );
 			CDatabaseValue< ValueType > valueA( connection );
-			BOOST_CHECK_NO_THROW( valueA.SetValue( DatabaseUtils::Helpers< ValueType >::InitialiseValue( generator ) ) );
+			BOOST_CHECK_NO_THROW( valueA.SetValue( DatabaseUtils::Helpers< ValueType >::GetRandomValue( generator ) ) );
 			CDatabaseValue< ValueType > valueB( connection );
-			BOOST_CHECK_NO_THROW( valueB.SetValue( DatabaseUtils::Helpers< ValueType >::InitialiseValue( generator ) ) );
+			BOOST_CHECK_NO_THROW( valueB.SetValue( DatabaseUtils::Helpers< ValueType >::GetRandomValue( generator ) ) );
 			BOOST_CHECK_NO_THROW( valueA.SetValue( valueB ) );
 			BOOST_CHECK_EQUAL( valueA.GetValue(), valueB.GetValue() );
 		}
@@ -380,7 +380,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			DatabaseConnectionSPtr connection = std::make_shared< CDatabaseTestConnection >( TEST_GOOD_SERVER, TEST_GOOD_USER, TEST_GOOD_PASSWORD, connectionString );
 			connection->SelectDatabase( TEST_GOOD_DATABASE );
 			CDatabaseValue< ValueType > value( connection );
-			auto val = DatabaseUtils::Helpers< ValueType >::InitialiseValue( generator );
+			auto val = DatabaseUtils::Helpers< ValueType >::GetRandomValue( generator );
 			BOOST_CHECK_NO_THROW( value.SetValue( val ) );
 			ValueChecker< ValueType >::QueryValueCompare( connection, value, val );
 		}
@@ -393,7 +393,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			CDatabaseValue< ValueType > value( connection );
 			BOOST_CHECK( value.IsNull() );
 			BOOST_CHECK_EQUAL( value.GetPtrSize(), 0 );
-			auto val = DatabaseUtils::Helpers< ValueType >::InitialiseValue( generator );
+			auto val = DatabaseUtils::Helpers< ValueType >::GetRandomValue( generator );
 			BOOST_CHECK_NO_THROW( value.SetValue( val ) );
 			BOOST_CHECK( !value.IsNull() );
 			BOOST_CHECK( value.GetPtrValue() );

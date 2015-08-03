@@ -66,7 +66,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			CLogger::LogInfo( StringStream() << "  Min" );
 			function( connection, name, &( value = std::numeric_limits< param_type >::min() ), true, is );
 			CLogger::LogInfo( StringStream() << "  Given" );
-			function( connection, name, &( value = helper_type::InitialiseValue( generator ) ), true, is );
+			function( connection, name, &( value = helper_type::GetRandomValue( generator ) ), true, is );
 		}
 	};
 
@@ -96,7 +96,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			CLogger::LogInfo( StringStream() << "  Min" );
 			function( connection, name, &( value = std::numeric_limits< param_type >::min() ), true, is );
 			CLogger::LogInfo( StringStream() << "  Given" );
-			function( connection, name, &( value = helper_type::InitialiseValue( generator ) ), true, is );
+			function( connection, name, &( value = helper_type::GetRandomValue( generator ) ), true, is );
 		}
 	};
 
@@ -126,7 +126,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			CLogger::LogInfo( StringStream() << "  Min" );
 			function( connection, name, &( value = std::numeric_limits< param_type >::min() ), true, is );
 			CLogger::LogInfo( StringStream() << "  Given" );
-			function( connection, name, &( value = helper_type::InitialiseValue( generator ) ), true, is );
+			function( connection, name, &( value = helper_type::GetRandomValue( generator ) ), true, is );
 		}
 	};
 
@@ -150,7 +150,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 
 			CLogger::LogInfo( StringStream() << "  Given" );
-			function( connection, name, &( value = helper_type::InitialiseValue( generator ) ), true, is );
+			function( connection, name, &( value = helper_type::GetRandomValue( generator ) ), true, is );
 		}
 	};
 
@@ -174,7 +174,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 
 			CLogger::LogInfo( StringStream() << "  Given" );
-			function( connection, name, &( value = helper_type::InitialiseValue( generator ) ), true, is );
+			function( connection, name, &( value = helper_type::GetRandomValue( generator ) ), true, is );
 		}
 	};
 
@@ -198,7 +198,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			CLogger::LogInfo( StringStream() << "  Default" );
 			function( connection, name, &value, true, is );
 			CLogger::LogInfo( StringStream() << "  Given" );
-			function( connection, name, &( value = helper_type::InitialiseValue( generator ) ), true, is );
+			function( connection, name, &( value = helper_type::GetRandomValue( generator ) ), true, is );
 		}
 	};
 
@@ -229,7 +229,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			CLogger::LogInfo( StringStream() << "  Lowest" );
 			function( connection, name, &( value = param_type( ( std::numeric_limits< int64_t >::lowest() ) % int64_t( pow( 10, Precision ) ), Precision, Decimals ) ), true, is );
 			CLogger::LogInfo( StringStream() << "  Given" );
-			function( connection, name, &( value = helper_type::InitialiseValue( generator, Precision, Decimals ) ), true, is );
+			function( connection, name, &( value = helper_type::GetRandomValue( generator, Precision, Decimals ) ), true, is );
 			CLogger::LogInfo( StringStream() << "  Specific value, precision test" );
 			function( connection, name, &( value = param_type( 602872352, Precision, Decimals ) ), true, is );
 			CLogger::LogInfo( StringStream() << "  Specific value, underflow" );
@@ -258,9 +258,9 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			CLogger::LogInfo( StringStream() << "  Default" );
 			function( connection, name, &value, true, is );
 			CLogger::LogInfo( StringStream() << "  Truncate" );
-			function( connection, name, &( value = DatabaseUtils::Helpers< EFieldType_CHAR >::InitialiseValue( generator, 1024 ) ), true, is );
+			function( connection, name, &( value = DatabaseUtils::Helpers< EFieldType_CHAR >::GetRandomValue( generator, 1024 ) ), true, is );
 			CLogger::LogInfo( StringStream() << "  Given" );
-			function( connection, name, &( value = helper_type::InitialiseValue( generator, Size ) ), true, is );
+			function( connection, name, &( value = helper_type::GetRandomValue( generator, Size ) ), true, is );
 		}
 	};
 
@@ -285,9 +285,9 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			CLogger::LogInfo( StringStream() << "  Default" );
 			function( connection, name, &value, true, is );
 			CLogger::LogInfo( StringStream() << "  Truncate" );
-			function( connection, name, &( value = DatabaseUtils::Helpers< EFieldType_VARCHAR >::InitialiseValue( generator, 1024 ) ), true, is );
+			function( connection, name, &( value = DatabaseUtils::Helpers< EFieldType_VARCHAR >::GetRandomValue( generator, 1024 ) ), true, is );
 			CLogger::LogInfo( StringStream() << "  Given" );
-			function( connection, name, &( value = helper_type::InitialiseValue( generator ) ), true, is );
+			function( connection, name, &( value = helper_type::GetRandomValue( generator ) ), true, is );
 		}
 	};
 
@@ -312,9 +312,9 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			CLogger::LogInfo( StringStream() << "  Default" );
 			function( connection, name, &value, true, is );
 			CLogger::LogInfo( StringStream() << "  Truncate" );
-			function( connection, name, &( value = DatabaseUtils::Helpers< EFieldType_NCHAR >::InitialiseValue( generator, 1024 ) ), true, is );
+			function( connection, name, &( value = DatabaseUtils::Helpers< EFieldType_NCHAR >::GetRandomValue( generator, 1024 ) ), true, is );
 			CLogger::LogInfo( StringStream() << "  Given" );
-			function( connection, name, &( value = helper_type::InitialiseValue( generator ) ), true, is );
+			function( connection, name, &( value = helper_type::GetRandomValue( generator ) ), true, is );
 		}
 	};
 
@@ -339,9 +339,9 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			CLogger::LogInfo( StringStream() << "  Default" );
 			function( connection, name, &value, true, is );
 			CLogger::LogInfo( StringStream() << "  Truncate" );
-			function( connection, name, &( value = DatabaseUtils::Helpers< EFieldType_NVARCHAR >::InitialiseValue( generator, 1024 ) ), true, is );
+			function( connection, name, &( value = DatabaseUtils::Helpers< EFieldType_NVARCHAR >::GetRandomValue( generator, 1024 ) ), true, is );
 			CLogger::LogInfo( StringStream() << "  Given" );
-			function( connection, name, &( value = helper_type::InitialiseValue( generator ) ), true, is );
+			function( connection, name, &( value = helper_type::GetRandomValue( generator ) ), true, is );
 		}
 	};
 
@@ -366,9 +366,9 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			CLogger::LogInfo( StringStream() << "  Default" );
 			function( connection, name, &value, true, is );
 			CLogger::LogInfo( StringStream() << "  Big" );
-			function( connection, name, &( value = DatabaseUtils::Helpers< EFieldType_TEXT >::InitialiseValue( generator, 1024 * 16 ) ), true, is );
+			function( connection, name, &( value = DatabaseUtils::Helpers< EFieldType_TEXT >::GetRandomValue( generator, 1024 * 16 ) ), true, is );
 			CLogger::LogInfo( StringStream() << "  Given" );
-			function( connection, name, &( value = helper_type::InitialiseValue( generator ) ), true, is );
+			function( connection, name, &( value = helper_type::GetRandomValue( generator ) ), true, is );
 		}
 	};
 
@@ -391,9 +391,9 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 
 			CLogger::LogInfo( StringStream() << "  Big" );
-			function( connection, name, &( value = DatabaseUtils::Helpers< EFieldType_VARBINARY >::InitialiseValue( generator, 1024 * 16 ) ), true, is );
+			function( connection, name, &( value = DatabaseUtils::Helpers< EFieldType_VARBINARY >::GetRandomValue( generator, 1024 * 16 ) ), true, is );
 			CLogger::LogInfo( StringStream() << "  Given" );
-			function( connection, name, &( value = helper_type::InitialiseValue( generator ) ), true, is );
+			function( connection, name, &( value = helper_type::GetRandomValue( generator ) ), true, is );
 		}
 	};
 
@@ -497,8 +497,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_FLOAT64 >( connection, STR( "DoubleField" ), true, _config.is, generator );
 					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_FLOAT64 >( connection, STR( "DoublePrecisionField" ), true, _config.is, generator );
 					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_FLOAT32 >( connection, STR( "FloatField" ), true, _config.is, generator );
-					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_FIXED_POINT >( connection, STR( "NumericField" ), DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue( generator, 10, 0 ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_FIXED_POINT >( connection, STR( "DecimalField" ), DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue( generator, 10, 5 ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_FIXED_POINT >( connection, STR( "NumericField" ), DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::GetRandomValue( generator, 10, 0 ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_FIXED_POINT >( connection, STR( "DecimalField" ), DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::GetRandomValue( generator, 10, 5 ), true, _config.is );
 					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_BIT >( connection, STR( "BooleanField" ), true, _config.is, generator );
 					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_DATE >( connection, STR( "DateField" ), true, _config.is, generator );
 					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_DATETIME >( connection, STR( "DateTimeField" ), true, _config.is, generator );
@@ -563,8 +563,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_FLOAT64 >( connection, STR( "DoubleField" ), true, _config.is, generator );
 					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_FLOAT64 >( connection, STR( "DoublePrecisionField" ), true, _config.is, generator );
 					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_FLOAT32 >( connection, STR( "FloatField" ), true, _config.is, generator );
-					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_FIXED_POINT >( connection, STR( "NumericField" ), DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue( generator, 10, 0 ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_FIXED_POINT >( connection, STR( "DecimalField" ), DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue( generator, 10, 5 ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_FIXED_POINT >( connection, STR( "NumericField" ), DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::GetRandomValue( generator, 10, 0 ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_FIXED_POINT >( connection, STR( "DecimalField" ), DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::GetRandomValue( generator, 10, 5 ), true, _config.is );
 					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_DATE >( connection, STR( "DateField" ), true, _config.is, generator );
 					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_DATETIME >( connection, STR( "DateTimeField" ), true, _config.is, generator );
 					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_CHAR >( connection, STR( "CharacterField" ), true, _config.is, generator );
@@ -640,8 +640,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_FLOAT64 >( connection, STR( "DoubleField" ), true, _config.is, generator );
 					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_FLOAT64 >( connection, STR( "DoublePrecisionField" ), true, _config.is, generator );
 					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_FLOAT32 >( connection, STR( "FloatField" ), true, _config.is, generator );
-					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_FIXED_POINT >( connection, STR( "NumericField" ), DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue( generator, 10, 0 ), true, _config.is );
-					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_FIXED_POINT >( connection, STR( "DecimalField" ), DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue( generator, 10, 5 ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_FIXED_POINT >( connection, STR( "NumericField" ), DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::GetRandomValue( generator, 10, 0 ), true, _config.is );
+					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_FIXED_POINT >( connection, STR( "DecimalField" ), DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::GetRandomValue( generator, 10, 5 ), true, _config.is );
 					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_DATE >( connection, STR( "DateField" ), true, _config.is, generator );
 					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_DATETIME >( connection, STR( "DateTimeField" ), true, _config.is, generator );
 					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_CHAR >( connection, STR( "CharacterField" ), true, _config.is, generator );

@@ -1,13 +1,13 @@
 /************************************************************************//**
-* @file DatabaseFieldInfos.h
+* @file DatabaseValuedObjectInfos.h
 * @author Sylvain Doremus
 * @version 1.0
 * @date 3/20/2014 2:47:39 PM
 *
 *
-* @brief CDatabaseFieldInfos class declaration.
+* @brief CDatabaseValuedObjectInfos class declaration.
 *
-* @details Describes database field information.
+* @details Describes database valued object information.
 *
 ***************************************************************************/
 
@@ -20,107 +20,109 @@
 
 BEGIN_NAMESPACE_DATABASE
 {
-	/** Describes database field information.
+	/** Describes database valued object information.
 	*/
-	class CDatabaseFieldInfos
+	class CDatabaseValuedObjectInfos
 	{
 	public:
 		/** Constructor.
 		@param[in] connection
 			Database connection.
 		@param[in] name
-			Field name.
+			Valued object name.
 			*/
-		DatabaseExport CDatabaseFieldInfos( const String & name );
-		/** Constructor.
-		@param[in] connection
-			Database connection.
-		@param[in] name
-			Field name.
-		@param[in] type
-			Field type
-			*/
-		DatabaseExport CDatabaseFieldInfos( const String & name, EFieldType type );
-		/** Constructor.
-		@param[in] connection
-			Database connection.
-		@param[in] name
-			Field name.
-		@param[in] type
-			Field type
-		@param[in] limits
-			Field limits
-			*/
-		DatabaseExport CDatabaseFieldInfos( const String & name, EFieldType type, uint32_t limits );
+		DatabaseExport CDatabaseValuedObjectInfos( const String & name );
 
 		/** Constructor.
 		@param[in] connection
 			Database connection.
 		@param[in] name
-			Field name.
+			Valued object name.
 		@param[in] type
-			Field type
-		@param[in] precision
-			Field precision
+			Valued object type
 			*/
-		DatabaseExport CDatabaseFieldInfos( const String & name, EFieldType type, const std::pair< uint32_t, uint32_t > & precision );
+		DatabaseExport CDatabaseValuedObjectInfos( const String & name, EFieldType type );
+
+		/** Constructor.
+		@param[in] connection
+			Database connection.
+		@param[in] name
+			Valued object name.
+		@param[in] type
+			Valued object type
+		@param[in] limits
+			Valued object limits
+			*/
+		DatabaseExport CDatabaseValuedObjectInfos( const String & name, EFieldType type, uint32_t limits );
+
+		/** Constructor.
+		@param[in] connection
+			Database connection.
+		@param[in] name
+			Valued object name.
+		@param[in] type
+			Valued object type
+		@param[in] precision
+			Valued object precision
+			*/
+		DatabaseExport CDatabaseValuedObjectInfos( const String & name, EFieldType type, const std::pair< uint32_t, uint32_t > & precision );
 
 		/** Destructor.
 		*/
-		DatabaseExport virtual ~CDatabaseFieldInfos();
+		DatabaseExport virtual ~CDatabaseValuedObjectInfos();
 
-		/** Get field type.
+		/** Get valued object type.
 		@return
-			Field type.
+			Valued object type.
 		*/
 		DatabaseExport EFieldType GetType() const;
 
-		/** Set field type.
+		/** Set valued object type.
 		@param[in] type
-			Field type
+			Valued object type
 		*/
 		DatabaseExport void SetType( EFieldType type );
 
-		/** Set field type, for types needing a limit.
+		/** Set valued object type, for types needing a limit.
 		@param[in] type
-			Field type
+			Valued object type
 		@param[in] limits
-			Field limits
+			Valued object limits
 		*/
 		DatabaseExport void SetType( EFieldType type, uint32_t limits );
 
-		/** Set field type, for types needing a precision.
+		/** Set valued object type, for types needing a precision.
 		@param[in] type
-			Field type
+			Valued object type
 		@param[in] precision
-			Field precision
+			Valued object precision
 		*/
 		DatabaseExport void SetType( EFieldType type, const std::pair< uint32_t, uint32_t > & precision );
 
-		/** Get field name.
+		/** Get valued object name.
 		@return
-			Field name.
+			Valued object name.
 		*/
 		DatabaseExport const String & GetName() const;
 
-		/** Get field limits.
+		/** Get valued object limits.
 		@return
-			Field limits.
+			Valued object limits.
 		*/
 		DatabaseExport const uint32_t & GetLimits() const;
 
-		/** Get field limits.
+		/** Get valued object limits.
 		@return
-			Field limits.
+			Valued object limits.
 		*/
 		DatabaseExport const std::pair< uint32_t, uint32_t > & GetPrecision() const;
 
 	protected:
-		//! Field name.
+		//! Valued object name.
 		String _name;
-		//! Field type.
+		//! Valued object type.
 		EFieldType _type;
-		//! Precision (floating and fixed points), _precision.first is also used as field limit (char, varchar, ...)
+		//! Precision (floating and fixed points), _precision.first is also used as valued object limit (char, varchar, ...)
 		std::pair< uint32_t, uint32_t > _precision;
 	};
 }

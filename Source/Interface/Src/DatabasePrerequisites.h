@@ -108,7 +108,7 @@ namespace Database
 	class CDatabase;
 	class CDatabaseConnection;
 	class CDatabaseField;
-	class CDatabaseFieldInfos;
+	class CDatabaseValuedObjectInfos;
 	class CDatabaseValueBase;
 	template< EFieldType FieldType > struct SFieldTypeDataTyper;
 	template< EFieldType FieldType > struct SDatabaseValuePolicy;
@@ -124,7 +124,7 @@ namespace Database
 	DECLARE_SMART_PTR( Database );
 	DECLARE_SMART_PTR( DatabaseConnection );
 	DECLARE_SMART_PTR( DatabaseField );
-	DECLARE_SMART_PTR( DatabaseFieldInfos );
+	DECLARE_SMART_PTR( DatabaseValuedObjectInfos );
 	DECLARE_SMART_PTR( DatabaseValueBase );
 	DECLARE_SMART_PTR( DatabaseParameter );
 	DECLARE_SMART_PTR( DatabaseQuery );
@@ -138,7 +138,7 @@ namespace Database
 	typedef std::vector< DatabaseFieldSPtr > DatabaseFieldPtrArray;
 	typedef std::map< String, DatabaseFieldWPtr > DatabaseFieldPtrStrMap;
 	typedef std::list< DatabaseRowSPtr > DatabaseRowPtrList;
-	typedef std::vector< DatabaseFieldInfosSPtr > DatabaseFieldInfosPtrArray;
+	typedef std::vector< DatabaseValuedObjectInfosSPtr > DatabaseValuedObjectInfosPtrArray;
 	typedef std::vector< DatabaseParameterSPtr > DatabaseParameterPtrArray;
 	typedef std::map< String, DatabaseParameterWPtr > DatabaseParameterPtrStrMap;
 	typedef std::map< std::thread::id, DatabaseConnectionSPtr > DatabaseConnectionPtrIdMap;

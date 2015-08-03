@@ -17,7 +17,7 @@
 
 #include "ExceptionDatabaseOdbc.h"
 
-#include <DatabaseFieldInfos.h>
+#include <DatabaseValuedObjectInfos.h>
 #include <DatabaseField.h>
 #include <DatabaseResult.h>
 #include <DatabaseRow.h>
@@ -698,11 +698,11 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			return result;
 		}
 
-		DatabaseFieldInfosPtrArray InitializeColumns( SQLSMALLINT columnCount, std::vector< std::unique_ptr< CInOdbcBindBase > > & columns, SQLHSTMT stmt )
+		DatabaseValuedObjectInfosPtrArray InitializeColumns( SQLSMALLINT columnCount, std::vector< std::unique_ptr< CInOdbcBindBase > > & columns, SQLHSTMT stmt )
 		{
 			static const SQLSMALLINT BUFFER_SIZE = 255;
 			EErrorType errorType = EErrorType_NONE;
-			DatabaseFieldInfosPtrArray result;
+			DatabaseValuedObjectInfosPtrArray result;
 
 			for ( SQLSMALLINT i = 1; i <= columnCount; ++i )
 			{
@@ -756,7 +756,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				OdbcCheck( SQLColAttribute( stmt, i, SQL_DESC_TYPE_NAME, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_TYPE_NAME );
 				String typeName = StringUtils::ToString( buffer );
 				
-				DatabaseFieldInfosSPtr infos;
+				DatabaseValuedObjectInfosSPtr infos;
 				std::unique_ptr< CInOdbcBindBase > bind;
 
 				if ( conciseType == SQL_NTS || conciseType == SQL_TINYINT || conciseType == SQL_CHAR || conciseType == SQL_VARCHAR )
@@ -764,7 +764,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 					if ( errorType == EErrorType_NONE )
 					{
 						std::pair< uint32_t, uint32_t > limprec( precision, scale );
-						infos = std::make_shared< CDatabaseFieldInfos >( name, GetFieldTypeFromTypeName( typeName, limprec ), std::make_pair( precision, scale ) );
+						infos = std::make_shared< CDatabaseValuedObjectInfos >( name, GetFieldTypeFromTypeName( typeName, limprec ), std::make_pair( precision, scale ) );
 						bind = GetBindFromFieldType( infos->GetType(), limits, precision, scale );
 					}
 				}
@@ -772,7 +772,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				{
 					EFieldType type = GetFieldTypeFromConciseType( conciseType, limits );
 					bind = GetBindFromFieldType( type, limits, precision, scale );
-					infos = std::make_shared< CDatabaseFieldInfos >( name, type, std::make_pair( precision, scale ) );
+					infos = std::make_shared< CDatabaseValuedObjectInfos >( name, type, std::make_pair( precision, scale ) );
 				}
 
 				columns.push_back( std::move( bind ) );
@@ -1217,7 +1217,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			if ( numColumns )
 			{
 				std::vector< std::unique_ptr< CInOdbcBindBase > > arrayColumnData;
-				DatabaseFieldInfosPtrArray columns = InitializeColumns( numColumns, arrayColumnData, statementHandle );
+				DatabaseValuedObjectInfosPtrArray columns = InitializeColumns( numColumns, arrayColumnData, statementHandle );
 				pReturn = std::make_shared< CDatabaseResult >( columns );
 				FetchResultSet( connection, pReturn, arrayColumnData, statementHandle );
 			}

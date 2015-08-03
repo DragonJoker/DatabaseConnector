@@ -77,19 +77,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Created statement parameter.
 		*/
-		DatabaseExport virtual DatabaseParameterSPtr CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType = EParameterType_IN ) = 0;
-
-		/** Create a query parameter for variable-sized parameter (with limits)
-		@param[in] name
-			Parameter name.
-		@param[in] fieldType
-			Field type.
-		@param[in] precision
-			Field precision and scale.
-		@return
-			Created query parameter.
-		*/
-		DatabaseExport virtual DatabaseParameterSPtr CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType = EParameterType_IN ) = 0;
+		DatabaseExport DatabaseParameterSPtr CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType = EParameterType_IN );
 
 		/** Create a statement parameter for variable-sized parameter (with limits)
 		@param[in] name
@@ -103,7 +91,21 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Created statement parameter.
 		*/
-		DatabaseExport virtual DatabaseParameterSPtr CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType = EParameterType_IN ) = 0;
+		DatabaseExport DatabaseParameterSPtr CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType = EParameterType_IN );
+
+		/** Create a query parameter for variable-sized parameter (with limits)
+		@param[in] name
+			Parameter name.
+		@param[in] fieldType
+			Field type.
+		@param[in] precision
+			Field precision and scale.
+		@param[in] parameterType
+			Parameter type.
+		@return
+			Created query parameter.
+		*/
+		DatabaseExport DatabaseParameterSPtr CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType = EParameterType_IN );
 
 		/** Retrieves a parameter, by index
 		@param[in] index
@@ -137,21 +139,21 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport void SetParameterNull( const String & name );
 
-		/** Set parameter value from another parameter.
+		/** Set parameter value from another valued object.
 		@param[in] index
 			Parameter index.
-		@param[in] parameter
-			The parameter.
+		@param[in] object
+			The object.
 		*/
-		DatabaseExport void SetParameterValue( uint32_t index, const CDatabaseParameter & parameter );
+		DatabaseExport void SetParameterValue( uint32_t index, const CDatabaseValuedObject & object );
 
-		/** Set parameter value from another parameter.
+		/** Set parameter value from another valued object.
 		@param[in] name
 			Parameter name.
-		@param[in] parameter
-			The parameter.
+		@param[in] object
+			The object.
 		*/
-		DatabaseExport void SetParameterValue( const String & name, const CDatabaseParameter & parameter );
+		DatabaseExport void SetParameterValue( const String & name, const CDatabaseValuedObject & object );
 
 		/** Set parameter value.
 		@param[in] index
@@ -218,6 +220,16 @@ BEGIN_NAMESPACE_DATABASE
 		template< typename T > void GetOutputValue( const String & name, T & value );
 
 	protected:
+		/** Creates a parameter, given it's valued object informations
+		@param[in] infos
+			Parameter informations.
+		@param[in] parameterType
+			Parameter type.
+		@return
+			The created parameter
+		*/
+		DatabaseExport virtual DatabaseParameterSPtr DoCreateParameter( DatabaseValuedObjectInfosSPtr infos, EParameterType parameterType ) = 0;
+
 		/** Add parameter to query.
 		@param[in] parameter
 			Parameter to add.

@@ -23,8 +23,9 @@
 #include "DatabaseNullableTest.h"
 #include "DatabaseStringUtilsTest.h"
 #include "DatabaseConnectionTest.h"
-#include "DatabaseFieldInfosTest.h"
+#include "DatabaseValuedObjectInfosTest.h"
 #include "DatabaseValueTest.h"
+#include "DatabaseValuedObjectTest.h"
 #include "DatabaseMySqlTest.h"
 #include "DatabaseSqliteTest.h"
 #include "DatabasePostgreSqlTest.h"
@@ -45,8 +46,9 @@ std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseUInt24Test > g_databaseUInt24
 std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseNullableTest > g_databaseNullableTest;
 std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseStringUtilsTest > g_databaseStringUtilsTest;
 std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseConnectionTest > g_databaseConnectionTest;
-std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseFieldInfosTest > g_databaseFieldInfosTest;
+std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseValuedObjectInfosTest > g_databaseValuedObjectInfosTest;
 std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseValueTest > g_databaseValueTest;
+std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseValuedObjectTest > g_databaseValuedObjectTest;
 std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseMySqlTest > g_databaseMySqlTest;
 std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseSqliteTest > g_databaseSqliteTest;
 std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabasePostgreSqlTest > g_databasePostgreSqlTest;
@@ -79,8 +81,9 @@ void Startup( char * arg )
 	g_databaseNullableTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseNullableTest >();
 	g_databaseStringUtilsTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseStringUtilsTest >();
 	g_databaseConnectionTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseConnectionTest >();
-	g_databaseFieldInfosTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseFieldInfosTest >();
+	g_databaseValuedObjectInfosTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseValuedObjectInfosTest >();
 	g_databaseValueTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseValueTest >();
+	g_databaseValuedObjectTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseValuedObjectTest >();
 	g_databaseMySqlTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseMySqlTest >();
 	g_databaseSqliteTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseSqliteTest >();
 	g_databasePostgreSqlTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabasePostgreSqlTest >();
@@ -101,8 +104,9 @@ void Shutdown()
 	g_databaseNullableTest.reset();
 	g_databaseStringUtilsTest.reset();
 	g_databaseConnectionTest.reset();
-	g_databaseFieldInfosTest.reset();
+	g_databaseValuedObjectInfosTest.reset();
 	g_databaseValueTest.reset();
+	g_databaseValuedObjectTest.reset();
 	g_databaseMySqlTest.reset();
 	g_databaseSqliteTest.reset();
 	g_databasePostgreSqlTest.reset();
@@ -181,8 +185,9 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		TS_List.push_back( g_databaseNullableTest->Init_Test_Suite() );
 		TS_List.push_back( g_databaseStringUtilsTest->Init_Test_Suite() );
 		TS_List.push_back( g_databaseConnectionTest->Init_Test_Suite() );
-		TS_List.push_back( g_databaseFieldInfosTest->Init_Test_Suite() );
+		TS_List.push_back( g_databaseValuedObjectInfosTest->Init_Test_Suite() );
 		TS_List.push_back( g_databaseValueTest->Init_Test_Suite() );
+		TS_List.push_back( g_databaseValuedObjectTest->Init_Test_Suite() );
 
 #if defined( TESTING_PLUGIN_SQLITE )
 		//TS_List.push_back( g_databaseSqliteTest->Init_Test_Suite() );

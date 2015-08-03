@@ -38,7 +38,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		Cleanup();
 	}
 
-	DatabaseParameterSPtr CDatabaseTestStatement::CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType )
+	DatabaseParameterSPtr CDatabaseTestStatement::DoCreateParameter( DatabaseValuedObjectInfosSPtr infos, EParameterType parameterType )
 	{
 		DatabaseTestConnectionSPtr connection = DoGetTestConnection();
 
@@ -47,45 +47,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_TEST_LOST_CONNECTION );
 		}
 
-		DatabaseParameterSPtr pReturn = std::make_shared< CDatabaseParameter >( connection, name, uint16_t( _arrayParams.size() + 1 ), fieldType, parameterType, std::make_unique< SValueUpdater >( this ) );
-
-		if ( !DoAddParameter( pReturn ) )
-		{
-			pReturn.reset();
-		}
-
-		return pReturn;
-	}
-
-	DatabaseParameterSPtr CDatabaseTestStatement::CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType )
-	{
-		DatabaseTestConnectionSPtr connection = DoGetTestConnection();
-
-		if ( !connection )
-		{
-			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_TEST_LOST_CONNECTION );
-		}
-
-		DatabaseParameterSPtr pReturn = std::make_shared< CDatabaseParameter >( connection, name, uint16_t( _arrayParams.size() + 1 ), fieldType, limits, parameterType, std::make_unique< SValueUpdater >( this ) );
-
-		if ( !DoAddParameter( pReturn ) )
-		{
-			pReturn.reset();
-		}
-
-		return pReturn;
-	}
-
-	DatabaseParameterSPtr CDatabaseTestStatement::CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType )
-	{
-		DatabaseTestConnectionSPtr connection = DoGetTestConnection();
-
-		if ( !connection )
-		{
-			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_TEST_LOST_CONNECTION );
-		}
-
-		DatabaseParameterSPtr pReturn = std::make_shared< CDatabaseParameter >( connection, name, uint16_t( _arrayParams.size() + 1 ), fieldType, precision, parameterType, std::make_unique< SValueUpdater >( this ) );
+		DatabaseParameterSPtr pReturn = std::make_shared< CDatabaseParameter >( connection, infos, uint16_t( _arrayParams.size() + 1 ), parameterType, std::make_unique< SValueUpdater >( this ) );
 
 		if ( !DoAddParameter( pReturn ) )
 		{
