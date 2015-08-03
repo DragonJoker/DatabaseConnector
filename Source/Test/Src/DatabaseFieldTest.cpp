@@ -1,17 +1,17 @@
 /************************************************************************//**
- * @file DatabaseValuedObjectTest.cpp
+ * @file DatabaseFieldTest.cpp
  * @author Sylvain Doremus
  * @version 1.0
  * @date 12/02/2014 14:29:35
  *
  *
- * @brief Class testing CDatabaseValuedObject class
+* @brief Class testing CDatabaseField class
 *
 ***************************************************************************/
 
 #include "DatabaseTestPch.h"
 
-#include "DatabaseValuedObjectTest.h"
+#include "DatabaseFieldTest.h"
 
 #include "DatabaseTestConnection.h"
 #include "DatabaseTestUtils.h"
@@ -79,17 +79,42 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		{
 			static void Check( std::random_device & generator, DatabaseConnectionSPtr connection, DatabaseValuedObjectInfosSPtr infos )
 			{
-				CDatabaseTestValuedObject< FieldTypeA > object( connection, infos );
-				BOOST_CHECK_NO_THROW( object.SetValue( DatabaseUtils::Helpers< FieldTypeA >::GetRandomValue( generator ) ) );
-				DatabaseUtils::Helpers< FieldTypeB >::ParamType value;
+				CDatabaseField object( connection, infos );
+				auto valueIn = DatabaseUtils::Helpers< FieldTypeA >::GetRandomValue( generator );
+				BOOST_CHECK_NO_THROW( static_cast< CDatabaseValue< FieldTypeA > & >( object.GetObjectValue() ).SetValue( valueIn ) );
+				DatabaseUtils::Helpers< FieldTypeB >::ParamType valueOut;
 
 				if ( AreTypesCompatibleGet( FieldTypeA, FieldTypeB ) )
 				{
-					BOOST_CHECK_NO_THROW( object.GetValue( value ) );
+					BOOST_CHECK_NO_THROW( object.GetValue( valueOut ) );
 				}
 				else
 				{
-					BOOST_CHECK_THROW( object.GetValue( value ), CDatabaseException );
+					BOOST_CHECK_THROW( object.GetValue( valueOut ), CDatabaseException );
+				}
+			}
+		};
+
+		template< EFieldType FieldTypeA, EFieldType FieldTypeB >
+		struct GetValueOptCheck
+		{
+			static void Check( std::random_device & generator, DatabaseConnectionSPtr connection, DatabaseValuedObjectInfosSPtr infos )
+			{
+				CDatabaseField object( connection, infos );
+				CDatabaseNullable< DatabaseUtils::Helpers< FieldTypeB >::ParamType > valueOpt;
+				BOOST_CHECK_NO_THROW( object.GetValueOpt( valueOpt ) );
+				BOOST_CHECK( !valueOpt );
+				auto value = DatabaseUtils::Helpers< FieldTypeA >::GetRandomValue( generator );
+				BOOST_CHECK_NO_THROW( static_cast< CDatabaseValue< FieldTypeA > & >( object.GetObjectValue() ).SetValue( value ) );
+
+				if ( AreTypesCompatibleGet( FieldTypeA, FieldTypeB ) )
+				{
+					BOOST_CHECK_NO_THROW( object.GetValueOpt( valueOpt ) );
+					BOOST_CHECK( ( bool )valueOpt );
+				}
+				else
+				{
+					BOOST_CHECK_THROW( object.GetValueOpt( valueOpt ), CDatabaseException );
 				}
 			}
 		};
@@ -99,9 +124,9 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		{
 			static void Check( std::random_device & generator, DatabaseConnectionSPtr connection, DatabaseValuedObjectInfosSPtr infos )
 			{
-				CDatabaseTestValuedObject< FieldTypeA > object( connection, infos );
+				CDatabaseField object( connection, infos );
 				auto valueIn = DatabaseUtils::Helpers< FieldTypeA >::GetRandomValue( generator );
-				BOOST_CHECK_NO_THROW( object.SetValue( valueIn ) );
+				BOOST_CHECK_NO_THROW( static_cast< CDatabaseValue< FieldTypeA > & >( object.GetObjectValue() ).SetValue( valueIn ) );
 				DatabaseUtils::Helpers< FieldTypeB >::ParamType valueOut;
 				BOOST_CHECK_NO_THROW( object.GetValueFast( valueOut ) );
 				BOOST_CHECK_EQUAL( valueIn, valueOut );
@@ -109,34 +134,19 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		};
 
 		template< EFieldType FieldTypeA, EFieldType FieldTypeB >
-		struct SetValueCheck
+		struct GetValueOptFastCheck
 		{
 			static void Check( std::random_device & generator, DatabaseConnectionSPtr connection, DatabaseValuedObjectInfosSPtr infos )
 			{
-				CDatabaseTestValuedObject< FieldTypeA > object( connection, infos );
-
-				if ( AreTypesCompatibleSet( FieldTypeB, FieldTypeA ) )
-				{
-					BOOST_CHECK_NO_THROW( object.SetValue( DatabaseUtils::Helpers< FieldTypeB >::GetRandomValue( generator ) ) );
-				}
-				else
-				{
-					BOOST_CHECK_THROW( object.SetValue( DatabaseUtils::Helpers< FieldTypeB >::GetRandomValue( generator ) ), CDatabaseException );
-				}
-			}
-		};
-
-		template< EFieldType FieldTypeA, EFieldType FieldTypeB >
-		struct SetValueFastCheck
-		{
-			static void Check( std::random_device & generator, DatabaseConnectionSPtr connection, DatabaseValuedObjectInfosSPtr infos )
-			{
-				CDatabaseTestValuedObject< FieldTypeA > object( connection, infos );
-				auto valueIn = DatabaseUtils::Helpers< FieldTypeB >::GetRandomValue( generator );
-				BOOST_CHECK_NO_THROW( object.SetValueFast( valueIn ) );
-				DatabaseUtils::Helpers< FieldTypeA >::ParamType valueOut;
-				object.GetValue( valueOut );
-				BOOST_CHECK_EQUAL( valueIn, valueOut );
+				CDatabaseField object( connection, infos );
+				CDatabaseNullable< DatabaseUtils::Helpers< FieldTypeB >::ParamType > valueOpt;
+				BOOST_CHECK_NO_THROW( object.GetValueOpt( valueOpt ) );
+				BOOST_CHECK( !valueOpt );
+				auto value = DatabaseUtils::Helpers< FieldTypeA >::GetRandomValue( generator );
+				BOOST_CHECK_NO_THROW( static_cast< CDatabaseValue< FieldTypeA > & >( object.GetObjectValue() ).SetValue( value ) );
+				BOOST_CHECK_NO_THROW( object.GetValueOpt( valueOpt ) );
+				BOOST_CHECK( ( bool )valueOpt );
+				BOOST_CHECK_EQUAL( *valueOpt, value );
 			}
 		};
 
@@ -178,6 +188,41 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				GetValueCheck< FieldType, EFieldType_BLOB >::Check( generator, connection, infos );
 			}
 
+			static void GetValueOptChecks( std::random_device & generator )
+			{
+				String connectionString;
+				DatabaseConnectionSPtr connection = std::make_shared< CDatabaseTestConnection >( TEST_GOOD_SERVER, TEST_GOOD_USER, TEST_GOOD_PASSWORD, connectionString );
+				connection->SelectDatabase( TEST_GOOD_DATABASE );
+				DatabaseValuedObjectInfosSPtr infos = InfosCreator< FieldType >::Create();
+
+				GetValueOptCheck< FieldType, EFieldType_BIT >::Check( generator, connection, infos );
+				GetValueOptCheck< FieldType, EFieldType_SINT8 >::Check( generator, connection, infos );
+				GetValueOptCheck< FieldType, EFieldType_SINT16 >::Check( generator, connection, infos );
+				GetValueOptCheck< FieldType, EFieldType_SINT24 >::Check( generator, connection, infos );
+				GetValueOptCheck< FieldType, EFieldType_SINT32 >::Check( generator, connection, infos );
+				GetValueOptCheck< FieldType, EFieldType_SINT64 >::Check( generator, connection, infos );
+				GetValueOptCheck< FieldType, EFieldType_UINT8 >::Check( generator, connection, infos );
+				GetValueOptCheck< FieldType, EFieldType_UINT16 >::Check( generator, connection, infos );
+				GetValueOptCheck< FieldType, EFieldType_UINT24 >::Check( generator, connection, infos );
+				GetValueOptCheck< FieldType, EFieldType_UINT32 >::Check( generator, connection, infos );
+				GetValueOptCheck< FieldType, EFieldType_UINT64 >::Check( generator, connection, infos );
+				GetValueOptCheck< FieldType, EFieldType_FLOAT32 >::Check( generator, connection, infos );
+				GetValueOptCheck< FieldType, EFieldType_FLOAT64 >::Check( generator, connection, infos );
+				GetValueOptCheck< FieldType, EFieldType_FIXED_POINT >::Check( generator, connection, infos );
+				GetValueOptCheck< FieldType, EFieldType_CHAR >::Check( generator, connection, infos );
+				GetValueOptCheck< FieldType, EFieldType_VARCHAR >::Check( generator, connection, infos );
+				GetValueOptCheck< FieldType, EFieldType_TEXT >::Check( generator, connection, infos );
+				GetValueOptCheck< FieldType, EFieldType_NCHAR >::Check( generator, connection, infos );
+				GetValueOptCheck< FieldType, EFieldType_NVARCHAR >::Check( generator, connection, infos );
+				GetValueOptCheck< FieldType, EFieldType_NTEXT >::Check( generator, connection, infos );
+				GetValueOptCheck< FieldType, EFieldType_DATE >::Check( generator, connection, infos );
+				GetValueOptCheck< FieldType, EFieldType_DATETIME >::Check( generator, connection, infos );
+				GetValueOptCheck< FieldType, EFieldType_TIME >::Check( generator, connection, infos );
+				GetValueOptCheck< FieldType, EFieldType_BINARY >::Check( generator, connection, infos );
+				GetValueOptCheck< FieldType, EFieldType_VARBINARY >::Check( generator, connection, infos );
+				GetValueOptCheck< FieldType, EFieldType_BLOB >::Check( generator, connection, infos );
+			}
+
 			static void GetValueFastChecks( std::random_device & generator )
 			{
 				String connectionString;
@@ -188,79 +233,44 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				GetValueFastCheck< FieldType, FieldType >::Check( generator, connection, infos );
 			}
 
-			static void SetValueChecks( std::random_device & generator )
+			static void GetValueOptFastChecks( std::random_device & generator )
 			{
 				String connectionString;
 				DatabaseConnectionSPtr connection = std::make_shared< CDatabaseTestConnection >( TEST_GOOD_SERVER, TEST_GOOD_USER, TEST_GOOD_PASSWORD, connectionString );
 				connection->SelectDatabase( TEST_GOOD_DATABASE );
 				DatabaseValuedObjectInfosSPtr infos = InfosCreator< FieldType >::Create();
 
-				SetValueCheck< FieldType, EFieldType_BIT >::Check( generator, connection, infos );
-				SetValueCheck< FieldType, EFieldType_SINT8 >::Check( generator, connection, infos );
-				SetValueCheck< FieldType, EFieldType_SINT16 >::Check( generator, connection, infos );
-				SetValueCheck< FieldType, EFieldType_SINT24 >::Check( generator, connection, infos );
-				SetValueCheck< FieldType, EFieldType_SINT32 >::Check( generator, connection, infos );
-				SetValueCheck< FieldType, EFieldType_SINT64 >::Check( generator, connection, infos );
-				SetValueCheck< FieldType, EFieldType_UINT8 >::Check( generator, connection, infos );
-				SetValueCheck< FieldType, EFieldType_UINT16 >::Check( generator, connection, infos );
-				SetValueCheck< FieldType, EFieldType_UINT24 >::Check( generator, connection, infos );
-				SetValueCheck< FieldType, EFieldType_UINT32 >::Check( generator, connection, infos );
-				SetValueCheck< FieldType, EFieldType_UINT64 >::Check( generator, connection, infos );
-				SetValueCheck< FieldType, EFieldType_FLOAT32 >::Check( generator, connection, infos );
-				SetValueCheck< FieldType, EFieldType_FLOAT64 >::Check( generator, connection, infos );
-				SetValueCheck< FieldType, EFieldType_FIXED_POINT >::Check( generator, connection, infos );
-				SetValueCheck< FieldType, EFieldType_CHAR >::Check( generator, connection, infos );
-				SetValueCheck< FieldType, EFieldType_VARCHAR >::Check( generator, connection, infos );
-				SetValueCheck< FieldType, EFieldType_TEXT >::Check( generator, connection, infos );
-				SetValueCheck< FieldType, EFieldType_NCHAR >::Check( generator, connection, infos );
-				SetValueCheck< FieldType, EFieldType_NVARCHAR >::Check( generator, connection, infos );
-				SetValueCheck< FieldType, EFieldType_NTEXT >::Check( generator, connection, infos );
-				SetValueCheck< FieldType, EFieldType_DATE >::Check( generator, connection, infos );
-				SetValueCheck< FieldType, EFieldType_DATETIME >::Check( generator, connection, infos );
-				SetValueCheck< FieldType, EFieldType_TIME >::Check( generator, connection, infos );
-				SetValueCheck< FieldType, EFieldType_BINARY >::Check( generator, connection, infos );
-				SetValueCheck< FieldType, EFieldType_VARBINARY >::Check( generator, connection, infos );
-				SetValueCheck< FieldType, EFieldType_BLOB >::Check( generator, connection, infos );
-			}
-
-			static void SetValueFastChecks( std::random_device & generator )
-			{
-				String connectionString;
-				DatabaseConnectionSPtr connection = std::make_shared< CDatabaseTestConnection >( TEST_GOOD_SERVER, TEST_GOOD_USER, TEST_GOOD_PASSWORD, connectionString );
-				connection->SelectDatabase( TEST_GOOD_DATABASE );
-				DatabaseValuedObjectInfosSPtr infos = InfosCreator< FieldType >::Create();
-
-				SetValueFastCheck< FieldType, FieldType >::Check( generator, connection, infos );
+				GetValueOptFastCheck< FieldType, FieldType >::Check( generator, connection, infos );
 			}
 		};
 	}
 
-	CDatabaseValuedObjectTest::CDatabaseValuedObjectTest()
+	CDatabaseFieldTest::CDatabaseFieldTest()
 	{
 	}
 
-	CDatabaseValuedObjectTest::~CDatabaseValuedObjectTest()
+	CDatabaseFieldTest::~CDatabaseFieldTest()
 	{
 	}
 
-	boost::unit_test::test_suite * CDatabaseValuedObjectTest::Init_Test_Suite()
+	boost::unit_test::test_suite * CDatabaseFieldTest::Init_Test_Suite()
 	{
 		//!@remarks Create the internal TS instance.
-		testSuite = new boost::unit_test::test_suite( "CDatabaseValuedObjectTest" );
+		testSuite = new boost::unit_test::test_suite( "CDatabaseFieldTest" );
 
 		//!@remarks Add the TC to the internal TS.
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseValuedObjectTest::TestCase_ValuedObjectGetValue, this ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseValuedObjectTest::TestCase_ValuedObjectGetValueFast, this ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseValuedObjectTest::TestCase_ValuedObjectSetValue, this ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseValuedObjectTest::TestCase_ValuedObjectSetValueFast, this ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseFieldTest::TestCase_FieldGetValue, this ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseFieldTest::TestCase_FieldGetValueOpt, this ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseFieldTest::TestCase_FieldGetValueFast, this ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseFieldTest::TestCase_FieldGetValueOptFast, this ) ) );
 
 		//!@remarks Return the TS instance.
 		return testSuite;
 	}
 
-	void CDatabaseValuedObjectTest::TestCase_ValuedObjectGetValue()
+	void CDatabaseFieldTest::TestCase_FieldGetValue()
 	{
-		CLogger::LogInfo( StringStream() << "**** Start TestCase_ValuedObjectGetValue ****" );
+		CLogger::LogInfo( StringStream() << "**** Start TestCase_FieldGetValue ****" );
 		std::random_device generator;
 
 		CLogger::LogInfo( StringStream() << "  EFieldType_BIT" );
@@ -316,12 +326,73 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		CLogger::LogInfo( StringStream() << "  EFieldType_BLOB" );
 		SValuedObjectChecks< EFieldType_BLOB >::GetValueChecks( generator );
 
-		CLogger::LogInfo( StringStream() << "**** End TestCase_ValuedObjectGetValue ****" );
+		CLogger::LogInfo( StringStream() << "**** End TestCase_FieldGetValue ****" );
 	}
 
-	void CDatabaseValuedObjectTest::TestCase_ValuedObjectGetValueFast()
+	void CDatabaseFieldTest::TestCase_FieldGetValueOpt()
 	{
-		CLogger::LogInfo( StringStream() << "**** Start TestCase_ValuedObjectGetValueFast ****" );
+		CLogger::LogInfo( StringStream() << "**** Start TestCase_FieldGetValue ****" );
+		std::random_device generator;
+
+		CLogger::LogInfo( StringStream() << "  EFieldType_BIT" );
+		SValuedObjectChecks< EFieldType_BIT >::GetValueOptChecks( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_SINT8" );
+		SValuedObjectChecks< EFieldType_SINT8 >::GetValueOptChecks( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_SINT16" );
+		SValuedObjectChecks< EFieldType_SINT16 >::GetValueOptChecks( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_SINT24" );
+		SValuedObjectChecks< EFieldType_SINT24 >::GetValueOptChecks( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_SINT32" );
+		SValuedObjectChecks< EFieldType_SINT32 >::GetValueOptChecks( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_SINT64" );
+		SValuedObjectChecks< EFieldType_SINT64 >::GetValueOptChecks( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_UINT8" );
+		SValuedObjectChecks< EFieldType_UINT8 >::GetValueOptChecks( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_UINT16" );
+		SValuedObjectChecks< EFieldType_UINT16 >::GetValueOptChecks( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_UINT24" );
+		SValuedObjectChecks< EFieldType_UINT24 >::GetValueOptChecks( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_UINT32" );
+		SValuedObjectChecks< EFieldType_UINT32 >::GetValueOptChecks( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_UINT64" );
+		SValuedObjectChecks< EFieldType_UINT64 >::GetValueOptChecks( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_FLOAT32" );
+		SValuedObjectChecks< EFieldType_FLOAT32 >::GetValueOptChecks( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_FLOAT64" );
+		SValuedObjectChecks< EFieldType_FLOAT64 >::GetValueOptChecks( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_FIXED_POINT" );
+		SValuedObjectChecks< EFieldType_FIXED_POINT >::GetValueOptChecks( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_CHAR" );
+		SValuedObjectChecks< EFieldType_CHAR >::GetValueOptChecks( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_VARCHAR" );
+		SValuedObjectChecks< EFieldType_VARCHAR >::GetValueOptChecks( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_TEXT" );
+		SValuedObjectChecks< EFieldType_TEXT >::GetValueOptChecks( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_NCHAR" );
+		SValuedObjectChecks< EFieldType_NCHAR >::GetValueOptChecks( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_NVARCHAR" );
+		SValuedObjectChecks< EFieldType_NVARCHAR >::GetValueOptChecks( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_NTEXT" );
+		SValuedObjectChecks< EFieldType_NTEXT >::GetValueOptChecks( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_DATE" );
+		SValuedObjectChecks< EFieldType_DATE >::GetValueOptChecks( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_DATETIME" );
+		SValuedObjectChecks< EFieldType_DATETIME >::GetValueOptChecks( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_TIME" );
+		SValuedObjectChecks< EFieldType_TIME >::GetValueOptChecks( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_BINARY" );
+		SValuedObjectChecks< EFieldType_BINARY >::GetValueOptChecks( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_VARBINARY" );
+		SValuedObjectChecks< EFieldType_VARBINARY >::GetValueOptChecks( generator );
+		CLogger::LogInfo( StringStream() << "  EFieldType_BLOB" );
+		SValuedObjectChecks< EFieldType_BLOB >::GetValueOptChecks( generator );
+
+		CLogger::LogInfo( StringStream() << "**** End TestCase_FieldGetValue ****" );
+	}
+
+	void CDatabaseFieldTest::TestCase_FieldGetValueFast()
+	{
+		CLogger::LogInfo( StringStream() << "**** Start TestCase_FieldGetValueFast ****" );
 		std::random_device generator;
 
 		CLogger::LogInfo( StringStream() << "  EFieldType_BIT" );
@@ -377,129 +448,68 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		CLogger::LogInfo( StringStream() << "  EFieldType_BLOB" );
 		SValuedObjectChecks< EFieldType_BLOB >::GetValueFastChecks( generator );
 
-		CLogger::LogInfo( StringStream() << "**** End TestCase_ValuedObjectGetValueFast ****" );
+		CLogger::LogInfo( StringStream() << "**** End TestCase_FieldGetValueFast ****" );
 	}
 
-	void CDatabaseValuedObjectTest::TestCase_ValuedObjectSetValue()
+	void CDatabaseFieldTest::TestCase_FieldGetValueOptFast()
 	{
-		CLogger::LogInfo( StringStream() << "**** Start TestCase_ValuedObjectSetValue ****" );
+		CLogger::LogInfo( StringStream() << "**** Start TestCase_FieldGetValueOptFast ****" );
 		std::random_device generator;
 
 		CLogger::LogInfo( StringStream() << "  EFieldType_BIT" );
-		SValuedObjectChecks< EFieldType_BIT >::SetValueChecks( generator );
+		SValuedObjectChecks< EFieldType_BIT >::GetValueOptFastChecks( generator );
 		CLogger::LogInfo( StringStream() << "  EFieldType_SINT8" );
-		SValuedObjectChecks< EFieldType_SINT8 >::SetValueChecks( generator );
+		SValuedObjectChecks< EFieldType_SINT8 >::GetValueOptFastChecks( generator );
 		CLogger::LogInfo( StringStream() << "  EFieldType_SINT16" );
-		SValuedObjectChecks< EFieldType_SINT16 >::SetValueChecks( generator );
+		SValuedObjectChecks< EFieldType_SINT16 >::GetValueOptFastChecks( generator );
 		CLogger::LogInfo( StringStream() << "  EFieldType_SINT24" );
-		SValuedObjectChecks< EFieldType_SINT24 >::SetValueChecks( generator );
+		SValuedObjectChecks< EFieldType_SINT24 >::GetValueOptFastChecks( generator );
 		CLogger::LogInfo( StringStream() << "  EFieldType_SINT32" );
-		SValuedObjectChecks< EFieldType_SINT32 >::SetValueChecks( generator );
+		SValuedObjectChecks< EFieldType_SINT32 >::GetValueOptFastChecks( generator );
 		CLogger::LogInfo( StringStream() << "  EFieldType_SINT64" );
-		SValuedObjectChecks< EFieldType_SINT64 >::SetValueChecks( generator );
+		SValuedObjectChecks< EFieldType_SINT64 >::GetValueOptFastChecks( generator );
 		CLogger::LogInfo( StringStream() << "  EFieldType_UINT8" );
-		SValuedObjectChecks< EFieldType_UINT8 >::SetValueChecks( generator );
+		SValuedObjectChecks< EFieldType_UINT8 >::GetValueOptFastChecks( generator );
 		CLogger::LogInfo( StringStream() << "  EFieldType_UINT16" );
-		SValuedObjectChecks< EFieldType_UINT16 >::SetValueChecks( generator );
+		SValuedObjectChecks< EFieldType_UINT16 >::GetValueOptFastChecks( generator );
 		CLogger::LogInfo( StringStream() << "  EFieldType_UINT24" );
-		SValuedObjectChecks< EFieldType_UINT24 >::SetValueChecks( generator );
+		SValuedObjectChecks< EFieldType_UINT24 >::GetValueOptFastChecks( generator );
 		CLogger::LogInfo( StringStream() << "  EFieldType_UINT32" );
-		SValuedObjectChecks< EFieldType_UINT32 >::SetValueChecks( generator );
+		SValuedObjectChecks< EFieldType_UINT32 >::GetValueOptFastChecks( generator );
 		CLogger::LogInfo( StringStream() << "  EFieldType_UINT64" );
-		SValuedObjectChecks< EFieldType_UINT64 >::SetValueChecks( generator );
+		SValuedObjectChecks< EFieldType_UINT64 >::GetValueOptFastChecks( generator );
 		CLogger::LogInfo( StringStream() << "  EFieldType_FLOAT32" );
-		SValuedObjectChecks< EFieldType_FLOAT32 >::SetValueChecks( generator );
+		SValuedObjectChecks< EFieldType_FLOAT32 >::GetValueOptFastChecks( generator );
 		CLogger::LogInfo( StringStream() << "  EFieldType_FLOAT64" );
-		SValuedObjectChecks< EFieldType_FLOAT64 >::SetValueChecks( generator );
+		SValuedObjectChecks< EFieldType_FLOAT64 >::GetValueOptFastChecks( generator );
 		CLogger::LogInfo( StringStream() << "  EFieldType_FIXED_POINT" );
-		SValuedObjectChecks< EFieldType_FIXED_POINT >::SetValueChecks( generator );
+		SValuedObjectChecks< EFieldType_FIXED_POINT >::GetValueOptFastChecks( generator );
 		CLogger::LogInfo( StringStream() << "  EFieldType_CHAR" );
-		SValuedObjectChecks< EFieldType_CHAR >::SetValueChecks( generator );
+		SValuedObjectChecks< EFieldType_CHAR >::GetValueOptFastChecks( generator );
 		CLogger::LogInfo( StringStream() << "  EFieldType_VARCHAR" );
-		SValuedObjectChecks< EFieldType_VARCHAR >::SetValueChecks( generator );
+		SValuedObjectChecks< EFieldType_VARCHAR >::GetValueOptFastChecks( generator );
 		CLogger::LogInfo( StringStream() << "  EFieldType_TEXT" );
-		SValuedObjectChecks< EFieldType_TEXT >::SetValueChecks( generator );
+		SValuedObjectChecks< EFieldType_TEXT >::GetValueOptFastChecks( generator );
 		CLogger::LogInfo( StringStream() << "  EFieldType_NCHAR" );
-		SValuedObjectChecks< EFieldType_NCHAR >::SetValueChecks( generator );
+		SValuedObjectChecks< EFieldType_NCHAR >::GetValueOptFastChecks( generator );
 		CLogger::LogInfo( StringStream() << "  EFieldType_NVARCHAR" );
-		SValuedObjectChecks< EFieldType_NVARCHAR >::SetValueChecks( generator );
+		SValuedObjectChecks< EFieldType_NVARCHAR >::GetValueOptFastChecks( generator );
 		CLogger::LogInfo( StringStream() << "  EFieldType_NTEXT" );
-		SValuedObjectChecks< EFieldType_NTEXT >::SetValueChecks( generator );
+		SValuedObjectChecks< EFieldType_NTEXT >::GetValueOptFastChecks( generator );
 		CLogger::LogInfo( StringStream() << "  EFieldType_DATE" );
-		SValuedObjectChecks< EFieldType_DATE >::SetValueChecks( generator );
+		SValuedObjectChecks< EFieldType_DATE >::GetValueOptFastChecks( generator );
 		CLogger::LogInfo( StringStream() << "  EFieldType_DATETIME" );
-		SValuedObjectChecks< EFieldType_DATETIME >::SetValueChecks( generator );
+		SValuedObjectChecks< EFieldType_DATETIME >::GetValueOptFastChecks( generator );
 		CLogger::LogInfo( StringStream() << "  EFieldType_TIME" );
-		SValuedObjectChecks< EFieldType_TIME >::SetValueChecks( generator );
+		SValuedObjectChecks< EFieldType_TIME >::GetValueOptFastChecks( generator );
 		CLogger::LogInfo( StringStream() << "  EFieldType_BINARY" );
-		SValuedObjectChecks< EFieldType_BINARY >::SetValueChecks( generator );
+		SValuedObjectChecks< EFieldType_BINARY >::GetValueOptFastChecks( generator );
 		CLogger::LogInfo( StringStream() << "  EFieldType_VARBINARY" );
-		SValuedObjectChecks< EFieldType_VARBINARY >::SetValueChecks( generator );
+		SValuedObjectChecks< EFieldType_VARBINARY >::GetValueOptFastChecks( generator );
 		CLogger::LogInfo( StringStream() << "  EFieldType_BLOB" );
-		SValuedObjectChecks< EFieldType_BLOB >::SetValueChecks( generator );
+		SValuedObjectChecks< EFieldType_BLOB >::GetValueOptFastChecks( generator );
 
-		CLogger::LogInfo( StringStream() << "**** End TestCase_ValuedObjectSetValue ****" );
-	}
-
-	void CDatabaseValuedObjectTest::TestCase_ValuedObjectSetValueFast()
-	{
-		CLogger::LogInfo( StringStream() << "**** Start TestCase_ValuedObjectSetValueFast ****" );
-		std::random_device generator;
-
-		CLogger::LogInfo( StringStream() << "  EFieldType_BIT" );
-		SValuedObjectChecks< EFieldType_BIT >::SetValueFastChecks( generator );
-		CLogger::LogInfo( StringStream() << "  EFieldType_SINT8" );
-		SValuedObjectChecks< EFieldType_SINT8 >::SetValueFastChecks( generator );
-		CLogger::LogInfo( StringStream() << "  EFieldType_SINT16" );
-		SValuedObjectChecks< EFieldType_SINT16 >::SetValueFastChecks( generator );
-		CLogger::LogInfo( StringStream() << "  EFieldType_SINT24" );
-		SValuedObjectChecks< EFieldType_SINT24 >::SetValueFastChecks( generator );
-		CLogger::LogInfo( StringStream() << "  EFieldType_SINT32" );
-		SValuedObjectChecks< EFieldType_SINT32 >::SetValueFastChecks( generator );
-		CLogger::LogInfo( StringStream() << "  EFieldType_SINT64" );
-		SValuedObjectChecks< EFieldType_SINT64 >::SetValueFastChecks( generator );
-		CLogger::LogInfo( StringStream() << "  EFieldType_UINT8" );
-		SValuedObjectChecks< EFieldType_UINT8 >::SetValueFastChecks( generator );
-		CLogger::LogInfo( StringStream() << "  EFieldType_UINT16" );
-		SValuedObjectChecks< EFieldType_UINT16 >::SetValueFastChecks( generator );
-		CLogger::LogInfo( StringStream() << "  EFieldType_UINT24" );
-		SValuedObjectChecks< EFieldType_UINT24 >::SetValueFastChecks( generator );
-		CLogger::LogInfo( StringStream() << "  EFieldType_UINT32" );
-		SValuedObjectChecks< EFieldType_UINT32 >::SetValueFastChecks( generator );
-		CLogger::LogInfo( StringStream() << "  EFieldType_UINT64" );
-		SValuedObjectChecks< EFieldType_UINT64 >::SetValueFastChecks( generator );
-		CLogger::LogInfo( StringStream() << "  EFieldType_FLOAT32" );
-		SValuedObjectChecks< EFieldType_FLOAT32 >::SetValueFastChecks( generator );
-		CLogger::LogInfo( StringStream() << "  EFieldType_FLOAT64" );
-		SValuedObjectChecks< EFieldType_FLOAT64 >::SetValueFastChecks( generator );
-		CLogger::LogInfo( StringStream() << "  EFieldType_FIXED_POINT" );
-		SValuedObjectChecks< EFieldType_FIXED_POINT >::SetValueFastChecks( generator );
-		CLogger::LogInfo( StringStream() << "  EFieldType_CHAR" );
-		SValuedObjectChecks< EFieldType_CHAR >::SetValueFastChecks( generator );
-		CLogger::LogInfo( StringStream() << "  EFieldType_VARCHAR" );
-		SValuedObjectChecks< EFieldType_VARCHAR >::SetValueFastChecks( generator );
-		CLogger::LogInfo( StringStream() << "  EFieldType_TEXT" );
-		SValuedObjectChecks< EFieldType_TEXT >::SetValueFastChecks( generator );
-		CLogger::LogInfo( StringStream() << "  EFieldType_NCHAR" );
-		SValuedObjectChecks< EFieldType_NCHAR >::SetValueFastChecks( generator );
-		CLogger::LogInfo( StringStream() << "  EFieldType_NVARCHAR" );
-		SValuedObjectChecks< EFieldType_NVARCHAR >::SetValueFastChecks( generator );
-		CLogger::LogInfo( StringStream() << "  EFieldType_NTEXT" );
-		SValuedObjectChecks< EFieldType_NTEXT >::SetValueFastChecks( generator );
-		CLogger::LogInfo( StringStream() << "  EFieldType_DATE" );
-		SValuedObjectChecks< EFieldType_DATE >::SetValueFastChecks( generator );
-		CLogger::LogInfo( StringStream() << "  EFieldType_DATETIME" );
-		SValuedObjectChecks< EFieldType_DATETIME >::SetValueFastChecks( generator );
-		CLogger::LogInfo( StringStream() << "  EFieldType_TIME" );
-		SValuedObjectChecks< EFieldType_TIME >::SetValueFastChecks( generator );
-		CLogger::LogInfo( StringStream() << "  EFieldType_BINARY" );
-		SValuedObjectChecks< EFieldType_BINARY >::SetValueFastChecks( generator );
-		CLogger::LogInfo( StringStream() << "  EFieldType_VARBINARY" );
-		SValuedObjectChecks< EFieldType_VARBINARY >::SetValueFastChecks( generator );
-		CLogger::LogInfo( StringStream() << "  EFieldType_BLOB" );
-		SValuedObjectChecks< EFieldType_BLOB >::SetValueFastChecks( generator );
-
-		CLogger::LogInfo( StringStream() << "**** End TestCase_ValuedObjectSetValueFast ****" );
+		CLogger::LogInfo( StringStream() << "**** End TestCase_FieldGetValueOptFast ****" );
 	}
 }
 END_NAMESPACE_DATABASE_TEST

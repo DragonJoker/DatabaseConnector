@@ -108,7 +108,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			static void Check( std::random_device & generator, DatabaseConnectionSPtr connection, DatabaseValuedObjectInfosSPtr infos )
 			{
 				CDatabaseParameter object( connection, infos, 0, EParameterType_IN, std::make_unique< SParameterValueUpdater >() );
-				DatabaseUtils::Helpers< FieldTypeA >::ParamType valueIn = DatabaseUtils::Helpers< FieldTypeA >::GetRandomValue( generator );
+				auto valueIn = DatabaseUtils::Helpers< FieldTypeA >::GetRandomValue( generator );
 				BOOST_CHECK_NO_THROW( object.SetValue( valueIn ) );
 				DatabaseUtils::Helpers< FieldTypeB >::ParamType valueOut;
 				BOOST_CHECK_NO_THROW( object.GetValueFast( valueOut ) );
@@ -140,7 +140,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			static void Check( std::random_device & generator, DatabaseConnectionSPtr connection, DatabaseValuedObjectInfosSPtr infos )
 			{
 				CDatabaseParameter object( connection, infos, 0, EParameterType_IN, std::make_unique< SParameterValueUpdater >() );
-				DatabaseUtils::Helpers< FieldTypeB >::ParamType valueIn = DatabaseUtils::Helpers< FieldTypeB >::GetRandomValue( generator );
+				auto valueIn = DatabaseUtils::Helpers< FieldTypeB >::GetRandomValue( generator );
 				BOOST_CHECK_NO_THROW( object.SetValueFast( valueIn ) );
 				DatabaseUtils::Helpers< FieldTypeA >::ParamType valueOut;
 				object.GetValue( valueOut );
