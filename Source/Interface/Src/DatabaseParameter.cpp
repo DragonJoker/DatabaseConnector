@@ -56,7 +56,7 @@ BEGIN_NAMESPACE_DATABASE
 
 	void CDatabaseParameter::SetValue( const CDatabaseValuedObject & object )
 	{
-		if ( !AreTypesCompatibleSet( object.GetType(), GetType() ) )
+		if ( !object.GetObjectValue().IsNull() && !AreTypesCompatibleSet( object.GetType(), GetType() ) )
 		{
 			String errMsg = ERROR_DB_INCOMPATIBLE_TYPES + this->GetName();
 			DB_EXCEPT( EDatabaseExceptionCodes_FieldError, errMsg );
@@ -67,118 +67,125 @@ BEGIN_NAMESPACE_DATABASE
 
 	void CDatabaseParameter::SetValue( EFieldType type, CDatabaseValueBase const & value )
 	{
-		switch ( type )
+		if ( value.IsNull() )
 		{
-		case EFieldType_BIT:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_BIT > const & >( value ).GetValue() );
-			break;
-
-		case EFieldType_SINT8:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_SINT8 > const & >( value ).GetValue() );
-			break;
-
-		case EFieldType_SINT16:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_SINT16 > const & >( value ).GetValue() );
-			break;
-
-		case EFieldType_SINT24:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_SINT24 > const & >( value ).GetValue() );
-			break;
-
-		case EFieldType_SINT32:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_SINT32 > const & >( value ).GetValue() );
-			break;
-
-		case EFieldType_SINT64:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_SINT64 > const & >( value ).GetValue() );
-			break;
-
-		case EFieldType_UINT8:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_UINT8 > const & >( value ).GetValue() );
-			break;
-
-		case EFieldType_UINT16:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_UINT16 > const & >( value ).GetValue() );
-			break;
-
-		case EFieldType_UINT24:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_UINT24 > const & >( value ).GetValue() );
-			break;
-
-		case EFieldType_UINT32:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_UINT32 > const & >( value ).GetValue() );
-			break;
-
-		case EFieldType_UINT64:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_UINT64 > const & >( value ).GetValue() );
-			break;
-
-		case EFieldType_FLOAT32:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_FLOAT32 > const & >( value ).GetValue() );
-			break;
-
-		case EFieldType_FLOAT64:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_FLOAT64 > const & >( value ).GetValue() );
-			break;
-
-		case EFieldType_FIXED_POINT:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_FIXED_POINT > const & >( value ).GetValue() );
-			break;
-
-		case EFieldType_CHAR:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_CHAR > const & >( value ).GetValue() );
-			break;
-
-		case EFieldType_VARCHAR:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_VARCHAR > const & >( value ).GetValue() );
-			break;
-
-		case EFieldType_TEXT:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_TEXT > const & >( value ).GetValue() );
-			break;
-
-		case EFieldType_NCHAR:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_NCHAR > const & >( value ).GetValue() );
-			break;
-
-		case EFieldType_NVARCHAR:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_NVARCHAR > const & >( value ).GetValue() );
-			break;
-
-		case EFieldType_NTEXT:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_NTEXT > const & >( value ).GetValue() );
-			break;
-
-		case EFieldType_DATE:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_DATE > const & >( value ).GetValue() );
-			break;
-
-		case EFieldType_DATETIME:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_DATETIME > const & >( value ).GetValue() );
-			break;
-
-		case EFieldType_TIME:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_TIME > const & >( value ).GetValue() );
-			break;
-
-		case EFieldType_BINARY:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_BINARY > const & >( value ).GetValue() );
-			break;
-
-		case EFieldType_VARBINARY:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_VARBINARY > const & >( value ).GetValue() );
-			break;
-
-		case EFieldType_BLOB:
-			DoSetValue( static_cast< CDatabaseValue< EFieldType_BLOB > const & >( value ).GetValue() );
-			break;
-
-		default:
-			DB_EXCEPT( EDatabaseExceptionCodes_ParameterError, ERROR_DB_PARAMETER_SETVALUE_TYPE + this->GetName() );
-			break;
+			SetNull();
 		}
+		else
+		{
+			switch ( type )
+			{
+			case EFieldType_BIT:
+				DoSetValue( static_cast< CDatabaseValue< EFieldType_BIT > const & >( value ).GetValue() );
+				break;
 
-		_updater->Update( *this );
+			case EFieldType_SINT8:
+				DoSetValue( static_cast< CDatabaseValue< EFieldType_SINT8 > const & >( value ).GetValue() );
+				break;
+
+			case EFieldType_SINT16:
+				DoSetValue( static_cast< CDatabaseValue< EFieldType_SINT16 > const & >( value ).GetValue() );
+				break;
+
+			case EFieldType_SINT24:
+				DoSetValue( static_cast< CDatabaseValue< EFieldType_SINT24 > const & >( value ).GetValue() );
+				break;
+
+			case EFieldType_SINT32:
+				DoSetValue( static_cast< CDatabaseValue< EFieldType_SINT32 > const & >( value ).GetValue() );
+				break;
+
+			case EFieldType_SINT64:
+				DoSetValue( static_cast< CDatabaseValue< EFieldType_SINT64 > const & >( value ).GetValue() );
+				break;
+
+			case EFieldType_UINT8:
+				DoSetValue( static_cast< CDatabaseValue< EFieldType_UINT8 > const & >( value ).GetValue() );
+				break;
+
+			case EFieldType_UINT16:
+				DoSetValue( static_cast< CDatabaseValue< EFieldType_UINT16 > const & >( value ).GetValue() );
+				break;
+
+			case EFieldType_UINT24:
+				DoSetValue( static_cast< CDatabaseValue< EFieldType_UINT24 > const & >( value ).GetValue() );
+				break;
+
+			case EFieldType_UINT32:
+				DoSetValue( static_cast< CDatabaseValue< EFieldType_UINT32 > const & >( value ).GetValue() );
+				break;
+
+			case EFieldType_UINT64:
+				DoSetValue( static_cast< CDatabaseValue< EFieldType_UINT64 > const & >( value ).GetValue() );
+				break;
+
+			case EFieldType_FLOAT32:
+				DoSetValue( static_cast< CDatabaseValue< EFieldType_FLOAT32 > const & >( value ).GetValue() );
+				break;
+
+			case EFieldType_FLOAT64:
+				DoSetValue( static_cast< CDatabaseValue< EFieldType_FLOAT64 > const & >( value ).GetValue() );
+				break;
+
+			case EFieldType_FIXED_POINT:
+				DoSetValue( static_cast< CDatabaseValue< EFieldType_FIXED_POINT > const & >( value ).GetValue() );
+				break;
+
+			case EFieldType_CHAR:
+				DoSetValue( static_cast< CDatabaseValue< EFieldType_CHAR > const & >( value ).GetValue() );
+				break;
+
+			case EFieldType_VARCHAR:
+				DoSetValue( static_cast< CDatabaseValue< EFieldType_VARCHAR > const & >( value ).GetValue() );
+				break;
+
+			case EFieldType_TEXT:
+				DoSetValue( static_cast< CDatabaseValue< EFieldType_TEXT > const & >( value ).GetValue() );
+				break;
+
+			case EFieldType_NCHAR:
+				DoSetValue( static_cast< CDatabaseValue< EFieldType_NCHAR > const & >( value ).GetValue() );
+				break;
+
+			case EFieldType_NVARCHAR:
+				DoSetValue( static_cast< CDatabaseValue< EFieldType_NVARCHAR > const & >( value ).GetValue() );
+				break;
+
+			case EFieldType_NTEXT:
+				DoSetValue( static_cast< CDatabaseValue< EFieldType_NTEXT > const & >( value ).GetValue() );
+				break;
+
+			case EFieldType_DATE:
+				DoSetValue( static_cast< CDatabaseValue< EFieldType_DATE > const & >( value ).GetValue() );
+				break;
+
+			case EFieldType_DATETIME:
+				DoSetValue( static_cast< CDatabaseValue< EFieldType_DATETIME > const & >( value ).GetValue() );
+				break;
+
+			case EFieldType_TIME:
+				DoSetValue( static_cast< CDatabaseValue< EFieldType_TIME > const & >( value ).GetValue() );
+				break;
+
+			case EFieldType_BINARY:
+				DoSetValue( static_cast< CDatabaseValue< EFieldType_BINARY > const & >( value ).GetValue() );
+				break;
+
+			case EFieldType_VARBINARY:
+				DoSetValue( static_cast< CDatabaseValue< EFieldType_VARBINARY > const & >( value ).GetValue() );
+				break;
+
+			case EFieldType_BLOB:
+				DoSetValue( static_cast< CDatabaseValue< EFieldType_BLOB > const & >( value ).GetValue() );
+				break;
+
+			default:
+				DB_EXCEPT( EDatabaseExceptionCodes_ParameterError, ERROR_DB_PARAMETER_SETVALUE_TYPE + this->GetName() );
+				break;
+			}
+
+			_updater->Update( *this );
+		}
 	}
 }
 END_NAMESPACE_DATABASE

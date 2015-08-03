@@ -29,8 +29,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		testSuite = new boost::unit_test::test_suite( "CDatabaseInterfaceTest" );
 
 		//!@remarks Add the TC to the internal TS.
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseInterfaceTest::TestCase_DatabaseValuedObject, this ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseInterfaceTest::TestCase_DatabaseParameter, this ) ) );
 		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseInterfaceTest::TestCase_DatabaseField, this ) ) );
 		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseInterfaceTest::TestCase_DatabaseRow, this ) ) );
 		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseInterfaceTest::TestCase_DatabaseResult, this ) ) );
@@ -39,24 +37,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		//!@remarks Return the TS instance.
 		return testSuite;
-	}
-
-	void CDatabaseInterfaceTest::TestCase_DatabaseValuedObject()
-	{
-		//CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseValuedObject ****" );
-
-
-
-		//CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseValuedObject ****" );
-	}
-
-	void CDatabaseInterfaceTest::TestCase_DatabaseParameter()
-	{
-		//CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseParameter ****" );
-
-
-
-		//CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseParameter ****" );
 	}
 
 	void CDatabaseInterfaceTest::TestCase_DatabaseField()

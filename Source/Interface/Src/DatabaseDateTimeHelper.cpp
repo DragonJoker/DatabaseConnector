@@ -34,12 +34,34 @@ BEGIN_NAMESPACE_DATABASE
 
 	DateType DateFromDateTime( DateTimeType const & dateTime )
 	{
-		return DateType( dateTime.date().year(), dateTime.date().month(), dateTime.date().day() );
+		DateType result;
+
+		try
+		{
+			result = DateType( dateTime.date().year(), dateTime.date().month(), dateTime.date().day() );
+		}
+		catch ( std::exception & exc )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_DateTimeError, exc.what() );
+		}
+
+		return result;
 	}
 
 	TimeType TimeFromDateTime( DateTimeType const & dateTime )
 	{
-		return TimeType( dateTime.time_of_day().hours(), dateTime.time_of_day().minutes(), dateTime.time_of_day().seconds() );
+		TimeType result;
+
+		try
+		{
+			result = TimeType( dateTime.time_of_day().hours(), dateTime.time_of_day().minutes(), dateTime.time_of_day().seconds() );
+		}
+		catch ( std::exception & exc )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_DateTimeError, exc.what() );
+		}
+
+		return result;
 	}
 }
 END_NAMESPACE_DATABASE
