@@ -176,25 +176,25 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	boost::unit_test::test_suite * CDatabaseTest::Init_Test_Suite()
 	{
 		//!@remarks Create the internal TS instance.
-		testSuite = new boost::unit_test::test_suite( "CDatabaseSqliteTest" );
+		testSuite = new boost::unit_test::test_suite( "CDatabase" + _type + "Test" );
 
 		//!@remarks Add the TC to the internal TS.
 		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_CreateDatabase, this ) ) );
 
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseQueryFieldsInsertRetrieve, this ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieveOtherIndex< CDatabaseQuery >, this, STR( "Query" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieveFast< CDatabaseQuery >, this, STR( "Query" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieveFastOtherIndex< CDatabaseQuery >, this , STR( "Query" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseDirectQuery< CDatabaseQuery >, this, STR( "Query" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieve< 0 >, this, STR( "Query" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieveOtherIndex< 0 >, this, STR( "Query" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieveFast< 0 >, this, STR( "Query" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieveFastOtherIndex< 0 >, this , STR( "Query" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseDirectQuery< 0 >, this, STR( "Query" ) ) ) );
 
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseStatementFieldsInsertRetrieve, this ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieveOtherIndex< CDatabaseStatement >, this, STR( "Statement" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieveFast< CDatabaseStatement >, this, STR( "Statement" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieveFastOtherIndex< CDatabaseStatement >, this, STR( "Statement" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseDirectQuery< CDatabaseStatement >, this, STR( "Statement" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieve< 1 >, this, STR( "Statement" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieveOtherIndex< 1 >, this, STR( "Statement" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieveFast< 1 >, this, STR( "Statement" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieveFastOtherIndex< 1 >, this, STR( "Statement" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseDirectQuery< 1 >, this, STR( "Statement" ) ) ) );
 
-		//testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseStoredProcedure< CDatabaseQuery >, this ) ) );
-		//testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseStoredProcedure< CDatabaseStatement >, this ) ) );
+		//testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseStoredProcedure< 0 >, this ) ) );
+		//testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseStoredProcedure< 1 >, this ) ) );
 
 		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DestroyDatabase, this ) ) );
 
@@ -206,12 +206,12 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	{
 		auto const guard = make_block_guard( [this]()
 		{
-			CLogger::LogInfo( StringStream() << "**** Start TestCase_CreateDatabase ****" );
+			CLogger::LogInfo( StringStream() << "**** Start " + _type + "_TestCase_CreateDatabase ****" );
 			DoLoadPlugins();
-		}, []()
+		}, [this]()
 		{
 			UnloadPlugins();
-			CLogger::LogInfo( StringStream() << "**** End TestCase_CreateDatabase ****" );
+			CLogger::LogInfo( StringStream() << "**** End " + _type + "_TestCase_CreateDatabase ****" );
 		} );
 		std::unique_ptr< CDatabase > database( InstantiateDatabase( _type ) );
 
@@ -234,177 +234,35 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 	}
 
-	void CDatabaseTest::TestCase_DatabaseQueryFieldsInsertRetrieve()
-	{
-		auto const guard = make_block_guard( [this]()
-		{
-			CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseQueryFieldsInsertRetrieve ****" );
-			DoLoadPlugins();
-		}, []()
-		{
-			UnloadPlugins();
-			CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseQueryFieldsInsertRetrieve ****" );
-		} );
-		std::unique_ptr< CDatabase > database( InstantiateDatabase( _type ) );
-
-		if ( database )
-		{
-			DatabaseConnectionSPtr connection = CreateConnection( *database, _server, _user, _password );
-
-			if ( connection )
-			{
-				if ( connection->IsConnected() )
-				{
-					connection->SelectDatabase( _database );
-					DoFlushTable( connection );
-					std::random_device generator;
-					BatchTests< EFieldType_SINT32 >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, EFieldType_SINT32 >, connection, STR( "IntegerField" ), _config.is, generator );
-					BatchTests< EFieldType_SINT16 >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, EFieldType_SINT16 >, connection, STR( "SmallIntField" ), _config.is, generator );
-					BatchTests< EFieldType_SINT64 >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, EFieldType_SINT64 >, connection, STR( "BigIntField" ), _config.is, generator );
-					BatchTests< EFieldType_SINT16 >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, EFieldType_SINT16 >, connection, STR( "Int2Field" ), _config.is, generator );
-					BatchTests< EFieldType_SINT64 >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, EFieldType_SINT64 >, connection, STR( "Int8Field" ), _config.is, generator );
-					BatchTests< EFieldType_FLOAT64 >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, EFieldType_FLOAT64 >, connection, STR( "RealField" ), _config.is, generator );
-					BatchTests< EFieldType_FLOAT64 >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, EFieldType_FLOAT64 >, connection, STR( "DoubleField" ), _config.is, generator );
-					BatchTests< EFieldType_FLOAT64 >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, EFieldType_FLOAT64 >, connection, STR( "DoublePrecisionField" ), _config.is, generator );
-					BatchTests< EFieldType_FIXED_POINT, 10, 0 >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, EFieldType_FIXED_POINT >, connection, STR( "NumericField" ), _config.is, generator );
-					BatchTests< EFieldType_FIXED_POINT, 10, 5 >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, EFieldType_FIXED_POINT >, connection, STR( "DecimalField" ), _config.is, generator );
-					BatchTests< EFieldType_BIT >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, EFieldType_BIT >, connection, STR( "BooleanField" ), _config.is, generator );
-					BatchTests< EFieldType_DATE >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, EFieldType_DATE >, connection, STR( "DateField" ), _config.is, generator );
-					BatchTests< EFieldType_DATETIME >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, EFieldType_DATETIME >, connection, STR( "DateTimeField" ), _config.is, generator );
-					BatchTests< EFieldType_CHAR, 20 >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, EFieldType_CHAR >, connection, STR( "CharacterField" ), _config.is, generator );
-					BatchTests< EFieldType_VARCHAR >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, EFieldType_VARCHAR >, connection, STR( "VarcharField" ), _config.is, generator );
-					BatchTests< EFieldType_NCHAR, 55 >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, EFieldType_NCHAR >, connection, STR( "NcharField" ), _config.is, generator );
-					BatchTests< EFieldType_NVARCHAR >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, EFieldType_NVARCHAR >, connection, STR( "NVarcharField" ), _config.is, generator );
-					BatchTests< EFieldType_TEXT >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, EFieldType_TEXT >, connection, STR( "TextField" ), _config.is, generator );
-					BatchTests< EFieldType_VARBINARY >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, EFieldType_VARBINARY >, connection, STR( "BlobField" ), _config.is, generator );
-
-					if ( _config.hasDecentFloat32 )
-					{
-						BatchTests< EFieldType_FLOAT32 >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, EFieldType_FLOAT32 >, connection, STR( "FloatField" ), _config.is, generator, _config.hasDecentFloat32 );
-					}
-
-					if ( _config.hasTinyInt )
-					{
-						if ( _config.hasUnsignedTiny )
-						{
-							BatchTests< EFieldType_UINT8 >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, EFieldType_UINT8 >, connection, STR( "TinyIntField" ), _config.is, generator );
-						}
-						else
-						{
-							BatchTests< EFieldType_SINT8 >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, EFieldType_SINT8 >, connection, STR( "TinyIntField" ), _config.is, generator );
-						}
-					}
-
-					if ( _config.hasInt24 )
-					{
-						BatchTests< EFieldType_SINT24 >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseQuery, EFieldType_SINT24 >, connection, STR( "MediumIntField" ), _config.is, generator );
-					}
-				}
-
-				database->RemoveConnection();
-			}
-		}
-	}
-
-	void CDatabaseTest::TestCase_DatabaseStatementFieldsInsertRetrieve()
-	{
-		auto const guard = make_block_guard( [this]()
-		{
-			CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseStatementFieldsInsertRetrieve ****" );
-			DoLoadPlugins();
-		}, []()
-		{
-			UnloadPlugins();
-			CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseStatementFieldsInsertRetrieve ****" );
-		} );
-		std::unique_ptr< CDatabase > database( InstantiateDatabase( _type ) );
-
-		if ( database )
-		{
-			DatabaseConnectionSPtr connection = CreateConnection( *database, _server, _user, _password );
-
-			if ( connection )
-			{
-				if ( connection->IsConnected() )
-				{
-					connection->SelectDatabase( _database );
-					DoFlushTable( connection );
-					std::random_device generator;
-					BatchTests< EFieldType_SINT32 >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, EFieldType_SINT32 >, connection, STR( "IntegerField" ), _config.is, generator );
-					BatchTests< EFieldType_SINT16 >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, EFieldType_SINT16 >, connection, STR( "SmallIntField" ), _config.is, generator );
-					BatchTests< EFieldType_SINT64 >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, EFieldType_SINT64 >, connection, STR( "BigIntField" ), _config.is, generator );
-					BatchTests< EFieldType_SINT16 >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, EFieldType_SINT16 >, connection, STR( "Int2Field" ), _config.is, generator );
-					BatchTests< EFieldType_SINT64 >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, EFieldType_SINT64 >, connection, STR( "Int8Field" ), _config.is, generator );
-					BatchTests< EFieldType_FLOAT64 >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, EFieldType_FLOAT64 >, connection, STR( "RealField" ), _config.is, generator );
-					BatchTests< EFieldType_FLOAT64 >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, EFieldType_FLOAT64 >, connection, STR( "DoubleField" ), _config.is, generator );
-					BatchTests< EFieldType_FLOAT64 >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, EFieldType_FLOAT64 >, connection, STR( "DoublePrecisionField" ), _config.is, generator );
-					BatchTests< EFieldType_FLOAT32 >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, EFieldType_FLOAT32 >, connection, STR( "FloatField" ), _config.is, generator, true );
-					BatchTests< EFieldType_FIXED_POINT, 10, 0 >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, EFieldType_FIXED_POINT >, connection, STR( "NumericField" ), _config.is, generator );
-					BatchTests< EFieldType_FIXED_POINT, 10, 5 >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, EFieldType_FIXED_POINT >, connection, STR( "DecimalField" ), _config.is, generator );
-					BatchTests< EFieldType_BIT >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, EFieldType_BIT >, connection, STR( "BooleanField" ), _config.is, generator );
-					BatchTests< EFieldType_DATE >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, EFieldType_DATE >, connection, STR( "DateField" ), _config.is, generator );
-					BatchTests< EFieldType_DATETIME >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, EFieldType_DATETIME >, connection, STR( "DateTimeField" ), _config.is, generator );
-					BatchTests< EFieldType_CHAR, 20 >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, EFieldType_CHAR >, connection, STR( "CharacterField" ), _config.is, generator );
-					BatchTests< EFieldType_VARCHAR >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, EFieldType_VARCHAR >, connection, STR( "VarcharField" ), _config.is, generator );
-					BatchTests< EFieldType_NCHAR, 55 >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, EFieldType_NCHAR >, connection, STR( "NcharField" ), _config.is, generator );
-					BatchTests< EFieldType_NVARCHAR >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, EFieldType_NVARCHAR >, connection, STR( "NVarcharField" ), _config.is, generator );
-					BatchTests< EFieldType_TEXT >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, EFieldType_TEXT >, connection, STR( "TextField" ), _config.is, generator );
-					BatchTests< EFieldType_VARBINARY >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, EFieldType_VARBINARY >, connection, STR( "BlobField" ), _config.is, generator );
-
-					if ( _config.hasTinyInt )
-					{
-						if ( _config.hasUnsignedTiny )
-						{
-							BatchTests< EFieldType_UINT8 >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, EFieldType_UINT8 >, connection, STR( "TinyIntField" ), _config.is, generator );
-						}
-						else
-						{
-							BatchTests< EFieldType_SINT8 >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, EFieldType_SINT8 >, connection, STR( "TinyIntField" ), _config.is, generator );
-						}
-					}
-
-					if ( _config.hasInt24 )
-					{
-						BatchTests< EFieldType_SINT24 >()( &DatabaseUtils::InsertAndRetrieve< CDatabaseStatement, EFieldType_SINT24 >, connection, STR( "MediumIntField" ), _config.is, generator );
-					}
-				}
-
-				database->RemoveConnection();
-			}
-		}
-	}
-
 	void CDatabaseTest::TestCase_DestroyDatabase()
 	{
-		CLogger::LogInfo( StringStream() << "**** Start TestCase_DestroyDatabase ****" );
+		auto const guard = make_block_guard( [this]()
 		{
-			auto const guard = make_block_guard( [this]()
-			{
-				DoLoadPlugins();
-			}, []()
-			{
-				UnloadPlugins();
-			} );
-			std::unique_ptr< CDatabase > database( InstantiateDatabase( _type ) );
+			CLogger::LogInfo( StringStream() << "**** Start " + _type + "_TestCase_DestroyDatabase ****" );
+			DoLoadPlugins();
+		}, [this]()
+		{
+			UnloadPlugins();
+			CLogger::LogInfo( StringStream() << "**** End " + _type + "_TestCase_DestroyDatabase ****" );
+		} );
+		std::unique_ptr< CDatabase > database( InstantiateDatabase( _type ) );
 
-			if ( database )
-			{
-				DatabaseConnectionSPtr connection = CreateConnection( *database, _server, _user, _password );
+		if ( database )
+		{
+			DatabaseConnectionSPtr connection = CreateConnection( *database, _server, _user, _password );
 
-				if ( connection )
+			if ( connection )
+			{
+				if ( connection->IsConnected() )
 				{
-					if ( connection->IsConnected() )
-					{
-						connection->SelectDatabase( _database );
-						connection->ExecuteUpdate( QUERY_DROP_TABLE );
-						connection->DestroyDatabase( _database );
-					}
-
-					database->RemoveConnection();
+					connection->SelectDatabase( _database );
+					connection->ExecuteUpdate( QUERY_DROP_TABLE );
+					connection->DestroyDatabase( _database );
 				}
+
+				database->RemoveConnection();
 			}
 		}
-		CLogger::LogInfo( StringStream() << "**** End TestCase_DestroyDatabase ****" );
 	}
 
 	void CDatabaseTest::DoFlushTable( DatabaseConnectionSPtr connection )

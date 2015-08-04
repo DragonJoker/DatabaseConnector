@@ -77,7 +77,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		typedef helper_type::ParamType param_type;
 
 		template< typename Function >
-		void operator()( Function function, DatabaseConnectionSPtr connection, String const & name, String const & is, std::random_device & generator, bool hasDecentFloat32 )
+		void operator()( Function function, DatabaseConnectionSPtr connection, String const & name, String const & is, std::random_device & generator )
 		{
 			param_type value = param_type();
 
@@ -89,17 +89,12 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 			CLogger::LogInfo( StringStream() << "  Default" );
 			function( connection, name, &value, true, is );
-
-			if ( hasDecentFloat32 )
-			{
-				CLogger::LogInfo( StringStream() << "  Lowest" );
-				function( connection, name, &( value = std::numeric_limits< param_type >::lowest() ), true, is );
-				CLogger::LogInfo( StringStream() << "  Max" );
-				function( connection, name, &( value = std::numeric_limits< param_type >::max() ), true, is );
-				CLogger::LogInfo( StringStream() << "  Min" );
-				function( connection, name, &( value = std::numeric_limits< param_type >::min() ), true, is );
-			}
-
+			CLogger::LogInfo( StringStream() << "  Lowest" );
+			function( connection, name, &( value = std::numeric_limits< param_type >::lowest() ), true, is );
+			CLogger::LogInfo( StringStream() << "  Max" );
+			function( connection, name, &( value = std::numeric_limits< param_type >::max() ), true, is );
+			CLogger::LogInfo( StringStream() << "  Min" );
+			function( connection, name, &( value = std::numeric_limits< param_type >::min() ), true, is );
 			CLogger::LogInfo( StringStream() << "  Given" );
 			function( connection, name, &( value = helper_type::GetRandomValue( generator ) ), true, is );
 		}
@@ -402,17 +397,90 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 	};
 
-	template< typename StmtType >
+	template< size_t StmtType >
+	void CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieve( const String & name )
+	{
+		auto const guard = make_block_guard( [&name, this]()
+		{
+			CLogger::LogInfo( StringStream() << "**** Start " << _type << "_TestCase_Database" << name << "FieldsInsertRetrieve  ****" );
+			DoLoadPlugins();
+		}, [&name, this]()
+		{
+			UnloadPlugins();
+			CLogger::LogInfo( StringStream() << "**** End " << _type << "_TestCase_Database" << name << "FieldsInsertRetrieve  ****" );
+		} );
+		std::unique_ptr< CDatabase > database( InstantiateDatabase( _type ) );
+
+		if ( database )
+		{
+			DatabaseConnectionSPtr connection = CreateConnection( *database, _server, _user, _password );
+
+			if ( connection )
+			{
+				if ( connection->IsConnected() )
+				{
+					connection->SelectDatabase( _database );
+					DoFlushTable( connection );
+					std::random_device generator;
+					BatchTests< EFieldType_SINT32 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_SINT32 >, connection, STR( "IntegerField" ), _config.is, generator );
+					BatchTests< EFieldType_SINT16 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_SINT16 >, connection, STR( "SmallIntField" ), _config.is, generator );
+					BatchTests< EFieldType_SINT64 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_SINT64 >, connection, STR( "BigIntField" ), _config.is, generator );
+					BatchTests< EFieldType_SINT16 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_SINT16 >, connection, STR( "Int2Field" ), _config.is, generator );
+					BatchTests< EFieldType_SINT64 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_SINT64 >, connection, STR( "Int8Field" ), _config.is, generator );
+					BatchTests< EFieldType_FLOAT64 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_FLOAT64 >, connection, STR( "RealField" ), _config.is, generator );
+					BatchTests< EFieldType_FLOAT64 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_FLOAT64 >, connection, STR( "DoubleField" ), _config.is, generator );
+					BatchTests< EFieldType_FLOAT64 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_FLOAT64 >, connection, STR( "DoublePrecisionField" ), _config.is, generator );
+					BatchTests< EFieldType_FIXED_POINT, 10, 0 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_FIXED_POINT >, connection, STR( "NumericField" ), _config.is, generator );
+					BatchTests< EFieldType_FIXED_POINT, 10, 5 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_FIXED_POINT >, connection, STR( "DecimalField" ), _config.is, generator );
+					BatchTests< EFieldType_BIT >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_BIT >, connection, STR( "BooleanField" ), _config.is, generator );
+					BatchTests< EFieldType_DATE >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_DATE >, connection, STR( "DateField" ), _config.is, generator );
+					BatchTests< EFieldType_DATETIME >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_DATETIME >, connection, STR( "DateTimeField" ), _config.is, generator );
+					BatchTests< EFieldType_CHAR, 20 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_CHAR >, connection, STR( "CharacterField" ), _config.is, generator );
+					BatchTests< EFieldType_VARCHAR >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_VARCHAR >, connection, STR( "VarcharField" ), _config.is, generator );
+					BatchTests< EFieldType_NCHAR, 55 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_NCHAR >, connection, STR( "NcharField" ), _config.is, generator );
+					BatchTests< EFieldType_NVARCHAR >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_NVARCHAR >, connection, STR( "NVarcharField" ), _config.is, generator );
+					BatchTests< EFieldType_TEXT >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_TEXT >, connection, STR( "TextField" ), _config.is, generator );
+					BatchTests< EFieldType_VARBINARY >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_VARBINARY >, connection, STR( "BlobField" ), _config.is, generator );
+
+					if ( StmtType || _config.hasDecentFloat32 )
+					{
+						BatchTests< EFieldType_FLOAT32 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_FLOAT32 >, connection, STR( "FloatField" ), _config.is, generator );
+					}
+
+					if ( _config.hasTinyInt )
+					{
+						if ( _config.hasUnsignedTiny )
+						{
+							BatchTests< EFieldType_UINT8 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_UINT8 >, connection, STR( "TinyIntField" ), _config.is, generator );
+						}
+						else
+						{
+							BatchTests< EFieldType_SINT8 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_SINT8 >, connection, STR( "TinyIntField" ), _config.is, generator );
+						}
+					}
+
+					if ( _config.hasInt24 )
+					{
+						BatchTests< EFieldType_SINT24 >()( &DatabaseUtils::InsertAndRetrieve< StmtType, EFieldType_SINT24 >, connection, STR( "MediumIntField" ), _config.is, generator );
+					}
+				}
+
+				database->RemoveConnection();
+			}
+		}
+	}
+
+	template< size_t StmtType >
 	void CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieveOtherIndex( const String & name )
 	{
 		auto const guard = make_block_guard( [&name, this]()
 		{
-			CLogger::LogInfo( StringStream() << "**** Start TestCase_Database" << name << "InsertAndRetrieveOtherIndex ****" );
+			CLogger::LogInfo( StringStream() << "**** Start " << _type << "_TestCase_Database" << name << "InsertAndRetrieveOtherIndex ****" );
 			DoLoadPlugins();
-		}, [&name]()
+		}, [&name, this]()
 		{
 			UnloadPlugins();
-			CLogger::LogInfo( StringStream() << "**** End TestCase_Database" << name << "InsertAndRetrieveOtherIndex ****" );
+			CLogger::LogInfo( StringStream() << "**** End " << _type << "_TestCase_Database" << name << "InsertAndRetrieveOtherIndex ****" );
 		} );
 		std::unique_ptr< CDatabase > database( InstantiateDatabase( _type ) );
 
@@ -435,7 +503,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_FLOAT64 >( connection, STR( "RealField" ), true, _config.is, generator );
 					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_FLOAT64 >( connection, STR( "DoubleField" ), true, _config.is, generator );
 					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_FLOAT64 >( connection, STR( "DoublePrecisionField" ), true, _config.is, generator );
-					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_FLOAT32 >( connection, STR( "FloatField" ), true, _config.is, generator );
 					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_FIXED_POINT >( connection, STR( "NumericField" ), DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::GetRandomValue( generator, 10, 0 ), true, _config.is );
 					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_FIXED_POINT >( connection, STR( "DecimalField" ), DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::GetRandomValue( generator, 10, 5 ), true, _config.is );
 					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_BIT >( connection, STR( "BooleanField" ), true, _config.is, generator );
@@ -447,6 +514,11 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_NVARCHAR >( connection, STR( "NVarcharField" ), true, _config.is, generator );
 					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_TEXT >( connection, STR( "TextField" ), true, _config.is, generator );
 					DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_VARBINARY >( connection, STR( "BlobField" ), true, _config.is, generator );
+
+					if ( StmtType || _config.hasDecentFloat32 )
+					{
+						DatabaseUtils::InsertAndRetrieveOtherIndex< StmtType, EFieldType_FLOAT32 >( connection, STR( "FloatField" ), true, _config.is, generator );
+					}
 
 					if ( _config.hasTinyInt )
 					{
@@ -471,17 +543,17 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 	}
 
-	template< typename StmtType >
+	template< size_t StmtType >
 	void CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieveFast( const String & name )
 	{
 		auto const guard = make_block_guard( [&name, this]()
 		{
-			CLogger::LogInfo( StringStream() << "**** Start TestCase_Database" << name << "InsertAndRetrieveFast ****" );
+			CLogger::LogInfo( StringStream() << "**** Start " << _type << "_TestCase_Database" << name << "InsertAndRetrieveFast ****" );
 			DoLoadPlugins();
-		}, [&name]()
+		}, [&name, this]()
 		{
 			UnloadPlugins();
-			CLogger::LogInfo( StringStream() << "**** End TestCase_Database" << name << "InsertAndRetrieveFast ****" );
+			CLogger::LogInfo( StringStream() << "**** End " << _type << "_TestCase_Database" << name << "InsertAndRetrieveFast ****" );
 		} );
 		std::unique_ptr< CDatabase > database( InstantiateDatabase( _type ) );
 
@@ -504,7 +576,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_FLOAT64 >( connection, STR( "RealField" ), true, _config.is, generator );
 					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_FLOAT64 >( connection, STR( "DoubleField" ), true, _config.is, generator );
 					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_FLOAT64 >( connection, STR( "DoublePrecisionField" ), true, _config.is, generator );
-					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_FLOAT32 >( connection, STR( "FloatField" ), true, _config.is, generator );
 					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_FIXED_POINT >( connection, STR( "NumericField" ), DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::GetRandomValue( generator, 10, 0 ), true, _config.is );
 					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_FIXED_POINT >( connection, STR( "DecimalField" ), DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::GetRandomValue( generator, 10, 5 ), true, _config.is );
 					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_DATE >( connection, STR( "DateField" ), true, _config.is, generator );
@@ -513,6 +584,11 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_VARCHAR >( connection, STR( "VarcharField" ), true, _config.is, generator );
 					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_TEXT >( connection, STR( "TextField" ), true, _config.is, generator );
 					DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_VARBINARY >( connection, STR( "BlobField" ), true, _config.is, generator );
+
+					if ( StmtType || _config.hasDecentFloat32 )
+					{
+						DatabaseUtils::InsertAndRetrieveFast< StmtType, EFieldType_FLOAT32 >( connection, STR( "FloatField" ), true, _config.is, generator );
+					}
 
 					if ( _config.hasTinyInt )
 					{
@@ -548,17 +624,17 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 	}
 
-	template< typename StmtType >
+	template< size_t StmtType >
 	void CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieveFastOtherIndex( const String & name )
 	{
 		auto const guard = make_block_guard( [&name, this]()
 		{
-			CLogger::LogInfo( StringStream() << "**** Start TestCase_Database" << name << "InsertAndRetrieveFastOtherIndex ****" );
+			CLogger::LogInfo( StringStream() << "**** Start " << _type << "_TestCase_Database" << name << "InsertAndRetrieveFastOtherIndex ****" );
 			DoLoadPlugins();
-		}, [&name]()
+		}, [&name, this]()
 		{
 			UnloadPlugins();
-			CLogger::LogInfo( StringStream() << "**** End TestCase_Database" << name << "InsertAndRetrieveFastOtherIndex ****" );
+			CLogger::LogInfo( StringStream() << "**** End " << _type << "_TestCase_Database" << name << "InsertAndRetrieveFastOtherIndex ****" );
 		} );
 		std::unique_ptr< CDatabase > database( InstantiateDatabase( _type ) );
 
@@ -581,7 +657,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_FLOAT64 >( connection, STR( "RealField" ), true, _config.is, generator );
 					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_FLOAT64 >( connection, STR( "DoubleField" ), true, _config.is, generator );
 					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_FLOAT64 >( connection, STR( "DoublePrecisionField" ), true, _config.is, generator );
-					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_FLOAT32 >( connection, STR( "FloatField" ), true, _config.is, generator );
 					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_FIXED_POINT >( connection, STR( "NumericField" ), DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::GetRandomValue( generator, 10, 0 ), true, _config.is );
 					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_FIXED_POINT >( connection, STR( "DecimalField" ), DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::GetRandomValue( generator, 10, 5 ), true, _config.is );
 					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_DATE >( connection, STR( "DateField" ), true, _config.is, generator );
@@ -590,6 +665,11 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_VARCHAR >( connection, STR( "VarcharField" ), true, _config.is, generator );
 					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_TEXT >( connection, STR( "TextField" ), true, _config.is, generator );
 					DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_VARBINARY >( connection, STR( "BlobField" ), true, _config.is, generator );
+
+					if ( StmtType || _config.hasDecentFloat32 )
+					{
+						DatabaseUtils::InsertAndRetrieveFastOtherIndex< StmtType, EFieldType_FLOAT32 >( connection, STR( "FloatField" ), true, _config.is, generator );
+					}
 
 					if ( _config.hasTinyInt )
 					{
@@ -625,17 +705,17 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 	}
 
-	template< typename StmtType >
+	template< size_t StmtType >
 	void CDatabaseTest::TestCase_DatabaseDirectQuery( const String & name )
 	{
 		auto const guard = make_block_guard( [&name, this]()
 		{
-			CLogger::LogInfo( StringStream() << "**** Start TestCase_Database" << name << "DirectQuery ****" );
+			CLogger::LogInfo( StringStream() << "**** Start " << _type << "_TestCase_Database" << name << "DirectQuery ****" );
 			DoLoadPlugins();
-		}, [&name]()
+		}, [&name, this]()
 		{
 			UnloadPlugins();
-			CLogger::LogInfo( StringStream() << "**** End TestCase_Database" << name << "DirectQuery ****" );
+			CLogger::LogInfo( StringStream() << "**** End " << _type << "_TestCase_Database" << name << "DirectQuery ****" );
 		} );
 		std::unique_ptr< CDatabase > database( InstantiateDatabase( _type ) );
 
@@ -665,17 +745,17 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 	}
 
-	template< typename StmtType >
+	template< size_t StmtType >
 	void CDatabaseTest::TestCase_DatabaseStoredProcedure( const String & name )
 	{
 		auto const guard = make_block_guard( [&name, this]()
 		{
-			CLogger::LogInfo( StringStream() << "**** Start TestCase_Database" << name << "StoredProcedure ****" );
+			CLogger::LogInfo( StringStream() << "**** Start " << _type << "_TestCase_Database" << name << "StoredProcedure ****" );
 			DoLoadPlugins();
-		}, [&name]()
+		}, [&name, this]()
 		{
 			UnloadPlugins();
-			CLogger::LogInfo( StringStream() << "**** End TestCase_Database" << name << "StoredProcedure ****" );
+			CLogger::LogInfo( StringStream() << "**** End " << _type << "_TestCase_Database" << name << "StoredProcedure ****" );
 		} );
 		std::unique_ptr< CDatabase > database( InstantiateDatabase( _type ) );
 
@@ -709,17 +789,17 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	}
 
 #if defined( PERF_TEST )
-	template< typename StmtType >
+	template< size_t StmtType >
 	void CDatabaseTest::TestCase_DatabasePerformances( const String & name )
 	{
 		auto const guard = make_block_guard( [&name, this]()
 		{
-			CLogger::LogInfo( StringStream() << "**** Start TestCase_Database" << name << "Performances ****" );
+			CLogger::LogInfo( StringStream() << "**** Start " << _type << "_TestCase_Database" << name << "Performances ****" );
 			DoLoadPlugins();
-		}, [&name]()
+		}, [&name, this]()
 		{
 			UnloadPlugins();
-			CLogger::LogInfo( StringStream() << "**** End TestCase_Database" << name << "Performances ****" );
+			CLogger::LogInfo( StringStream() << "**** End " << _type << "_TestCase_Database" << name << "Performances ****" );
 		} );
 		std::unique_ptr< CDatabase > database( InstantiateDatabase( _type ) );
 

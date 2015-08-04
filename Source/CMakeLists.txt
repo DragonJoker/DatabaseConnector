@@ -20,7 +20,7 @@ set( CMAKE_TEMPLATES_DIR ${CMAKE_SOURCE_DIR}/Templates )
 # Experimental Precompiled headers support for GCC
 include( PCHSupport )
 
-set( CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "Set only Debug and Release configuration types" FORCE )
+set( CMAKE_CONFIGURATION_TYPES "Debug;Release;RelWithDebInfo" CACHE STRING "Set only Debug and Release configuration types" FORCE )
 
 # Enable CTest
 enable_testing()

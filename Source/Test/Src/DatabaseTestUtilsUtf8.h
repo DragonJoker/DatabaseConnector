@@ -108,7 +108,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			CLogger::LogInfo( StringStream() << STR( "BlobField : " ) << row->Get< ByteArray >( index++ ) );
 		}
 
-		template< typename StmtType >
+		template< size_t StmtType >
 		void PerfDirectInsertActors( DatabaseConnectionSPtr connection, uint32_t testCount )
 		{
 			try
@@ -158,7 +158,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 		}
 
-		template< typename StmtType >
+		template< size_t StmtType >
 		void PerfStoredProcedureInsertActors( DatabaseConnectionSPtr connection, uint32_t testCount )
 		{
 			try

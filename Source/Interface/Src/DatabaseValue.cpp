@@ -20,6 +20,7 @@ BEGIN_NAMESPACE_DATABASE
 	CDatabaseValueBase::CDatabaseValueBase( DatabaseConnectionSPtr connection )
 		: _connection( connection )
 		, _valueSize( 0 )
+		, _isNull( true )
 	{
 		// Empty
 	}

@@ -64,43 +64,40 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		*  TCs' implementation
 		*/
 
-		/** Test insertion and retrieval of a value through CDatabaseQuery
+		/** Test insertion and retrieval of a value
 		*/
-		void TestCase_DatabaseQueryFieldsInsertRetrieve();
-
-		/** Test insertion and retrieval of a value through CDatabaseStatement
-		*/
-		void TestCase_DatabaseStatementFieldsInsertRetrieve();
+		template< size_t StmtType >
+		void TestCase_DatabaseFieldsInsertRetrieve( const String & name );
 
 		/** Test insertion and retrieval of a value
 		*/
-		template< typename StmtType >
+		template< size_t StmtType >
 		void TestCase_DatabaseFieldsInsertRetrieveOtherIndex( const String & name );
 
 		/** Test insertion and retrieval of a value
 		*/
-		template< typename StmtType >
+		template< size_t StmtType >
 		void TestCase_DatabaseFieldsInsertRetrieveFast( const String & name );
 
 		/** Test insertion and retrieval of a value
 		*/
-		template< typename StmtType >
+		template< size_t StmtType >
 		void TestCase_DatabaseFieldsInsertRetrieveFastOtherIndex( const String & name );
 
 		/** Test direct query execution
 		*/
-		template< typename StmtType >
+		template< size_t StmtType >
 		void TestCase_DatabaseDirectQuery( const String & name );
 
 		/** Test stored procedures execution
 		*/
-		template< typename StmtType >
+		template< size_t StmtType >
 		void TestCase_DatabaseStoredProcedure( const String & name );
 
 #if defined( PERF_TEST )
 		/** Performance test
 		*/
-		template< typename StmtType >
+		template< size_t StmtType >
 		void TestCase_DatabasePerformances( const String & name );
 #endif
 

@@ -110,11 +110,25 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 	namespace DatabaseUtils
 	{
-		template< typename StmtType >
-		std::shared_ptr< StmtType > CreateStmt( DatabaseConnectionSPtr connection, const String & query );
+		template< size_t StmtType > struct StatementTyper;
 
 		template<>
-		inline std::shared_ptr< CDatabaseStatement > CreateStmt< CDatabaseStatement >( DatabaseConnectionSPtr connection, const String & query )
+		struct StatementTyper< 0 >
+		{
+			typedef CDatabaseQuery Type;
+		};
+
+		template<>
+		struct StatementTyper< 1 >
+		{
+			typedef CDatabaseStatement Type;
+		};
+
+		template< size_t StmtType >
+		std::shared_ptr< typename StatementTyper< StmtType >::Type > CreateStmt( DatabaseConnectionSPtr connection, const String & query );
+
+		template<>
+		inline std::shared_ptr< CDatabaseStatement > CreateStmt< 1 >( DatabaseConnectionSPtr connection, const String & query )
 		{
 			std::shared_ptr< CDatabaseStatement > result;
 
@@ -131,7 +145,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template<>
-		inline std::shared_ptr< CDatabaseQuery > CreateStmt< CDatabaseQuery >( DatabaseConnectionSPtr connection, const String & query )
+		inline std::shared_ptr< CDatabaseQuery > CreateStmt< 0 >( DatabaseConnectionSPtr connection, const String & query )
 		{
 			std::shared_ptr< CDatabaseQuery > result;
 
@@ -147,8 +161,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			return result;
 		}
 
-		template< class StmtType >
-		inline void CreateParameters( std::shared_ptr< StmtType > stmt )
+		template< size_t StmtType >
+		inline void CreateParameters( std::shared_ptr< typename StatementTyper< StmtType >::Type > stmt )
 		{
 			BOOST_CHECK( stmt->CreateParameter( STR( "IntField" ), EFieldType_SINT32 ) );
 			BOOST_CHECK( stmt->CreateParameter( STR( "IntegerField" ), EFieldType_SINT32 ) );
@@ -175,8 +189,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			BOOST_CHECK( stmt->CreateParameter( STR( "BlobField" ), EFieldType_BLOB ) );
 		}
 
-		template< class StmtType >
-		inline void UncheckedCreateParameters( std::shared_ptr< StmtType > stmt )
+		template< size_t StmtType >
+		inline void UncheckedCreateParameters( std::shared_ptr< typename StatementTyper< StmtType >::Type > stmt )
 		{
 			stmt->CreateParameter( STR( "IntField" ), EFieldType_SINT32 );
 			stmt->CreateParameter( STR( "IntegerField" ), EFieldType_SINT32 );
@@ -203,8 +217,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			stmt->CreateParameter( STR( "BlobField" ), EFieldType_BLOB );
 		}
 
-		template< class StmtType >
-		inline void SetParametersValue( std::random_device & generator, uint32_t & index, int mult, int i, std::shared_ptr< StmtType > stmt )
+		template< size_t StmtType >
+		inline void SetParametersValue( std::random_device & generator, uint32_t & index, int mult, int i, std::shared_ptr< typename StatementTyper< StmtType >::Type > stmt )
 		{
 			stmt->SetParameterValue( index++, Helpers< EFieldType_SINT32 >::GetRandomValue( generator ) );
 			stmt->SetParameterValue( index++, Helpers< EFieldType_SINT32 >::GetRandomValue( generator ) );
@@ -545,8 +559,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template< EFieldType FieldType, typename Enable = void >
 		struct ParameterCreator
 		{
-			template< typename StmtType >
-			static void Create( std::shared_ptr< StmtType > stmt, const String & name )
+			template< size_t StmtType >
+			static void Create( std::shared_ptr< typename StatementTyper< StmtType >::Type > stmt, const String & name )
 			{
 				BOOST_CHECK( stmt->CreateParameter( name, FieldType ) );
 			}
@@ -555,8 +569,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template< EFieldType FieldType >
 		struct ParameterCreator< FieldType, typename std::enable_if< SFieldTypeNeedsLimits< FieldType >::value >::type >
 		{
-			template< typename StmtType >
-			static void Create( std::shared_ptr< StmtType > stmt, const String & name )
+			template< size_t StmtType >
+			static void Create( std::shared_ptr< typename StatementTyper< StmtType >::Type > stmt, const String & name )
 			{
 				BOOST_CHECK( stmt->CreateParameter( name, FieldType, Helpers< FieldType >::Limit ) );
 			}
@@ -565,8 +579,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template< EFieldType FieldType >
 		struct ParameterCreator< FieldType, typename std::enable_if< SFieldTypeNeedsPrecision< FieldType >::value >::type >
 		{
-			template< typename StmtType >
-			static void Create( std::shared_ptr< StmtType > stmt, const String & name )
+			template< size_t StmtType >
+			static void Create( std::shared_ptr< typename StatementTyper< StmtType >::Type > stmt, const String & name )
 			{
 				BOOST_CHECK( stmt->CreateParameter( name, FieldType, Helpers< FieldType >::Precision ) );
 			}
@@ -577,13 +591,13 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		{
 		};
 
-		template< class StmtType, EFieldType FieldType >
+		template< size_t StmtType, EFieldType FieldType >
 		inline void InsertAndRetrieve( DatabaseConnectionSPtr connection, const String & name, typename Helpers< FieldType >::ParamType const * valueIn, bool equal, String const & is )
 		{
 			try
 			{
 				auto stmtInsert = CreateStmt< StmtType >( connection, STR( "INSERT INTO Test (" ) + name + STR( ") VALUES (?)" ) );
-				std::shared_ptr< StmtType > stmtSelect;
+				std::shared_ptr< typename StatementTyper< StmtType >::Type > stmtSelect;
 				String field;
 
 				if ( FieldType == EFieldType_FLOAT32 )
@@ -609,8 +623,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( stmtInsert && stmtSelect )
 				{
-					ParameterCreator< FieldType >::Create( stmtInsert, name );
-					ParameterCreator< FieldType >::Create( stmtSelect, name );
+					ParameterCreator< FieldType >::Create< StmtType >( stmtInsert, name );
+					ParameterCreator< FieldType >::Create< StmtType >( stmtSelect, name );
 
 					BOOST_CHECK( stmtInsert->Initialise() == EErrorType_NONE );
 					BOOST_CHECK( stmtSelect->Initialise() == EErrorType_NONE );
@@ -681,21 +695,21 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template<>
-		inline void InsertAndRetrieve< CDatabaseQuery, EFieldType_FLOAT32 >( DatabaseConnectionSPtr connection, const String & name, typename Helpers< EFieldType_FLOAT32 >::ParamType const * valueIn, bool equal, String const & is )
+		inline void InsertAndRetrieve< 0, EFieldType_FLOAT32 >( DatabaseConnectionSPtr connection, const String & name, typename Helpers< EFieldType_FLOAT32 >::ParamType const * valueIn, bool equal, String const & is )
 		{
 			try
 			{
-				auto stmtInsert = CreateStmt< CDatabaseQuery >( connection, STR( "INSERT INTO Test (" ) + name + STR( ") VALUES (?)" ) );
+				auto stmtInsert = CreateStmt< 0 >( connection, STR( "INSERT INTO Test (" ) + name + STR( ") VALUES (?)" ) );
 				std::shared_ptr< CDatabaseQuery > stmtSelect;
 				String field = STR( "CAST( " ) + name + STR( " AS DECIMAL( " ) + StringUtils::ToString( 39 + connection->GetPrecision( EFieldType_FLOAT32 ) ) + STR( ", " ) + StringUtils::ToString( connection->GetPrecision( EFieldType_FLOAT32 ) ) + STR( " ) )" );
 
 				if ( valueIn )
 				{
-					stmtSelect = CreateStmt< CDatabaseQuery >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE " ) + field + STR( " = ?" ) );
+					stmtSelect = CreateStmt< 0 >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE " ) + field + STR( " = ?" ) );
 				}
 				else
 				{
-					stmtSelect = CreateStmt< CDatabaseQuery >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE " ) + field + STR( " " ) + is + STR( " ?" ) );
+					stmtSelect = CreateStmt< 0 >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE " ) + field + STR( " " ) + is + STR( " ?" ) );
 				}
 
 				BOOST_CHECK( stmtInsert );
@@ -703,8 +717,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( stmtInsert && stmtSelect )
 				{
-					ParameterCreator< EFieldType_FLOAT32 >::Create( stmtInsert, name );
-					ParameterCreator< EFieldType_FLOAT32 >::Create( stmtSelect, name );
+					ParameterCreator< EFieldType_FLOAT32 >::Create< 0 >( stmtInsert, name );
+					ParameterCreator< EFieldType_FLOAT32 >::Create< 0 >( stmtSelect, name );
 
 					BOOST_CHECK( stmtInsert->Initialise() == EErrorType_NONE );
 					BOOST_CHECK( stmtSelect->Initialise() == EErrorType_NONE );
@@ -775,21 +789,21 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template<>
-		inline void InsertAndRetrieve< CDatabaseStatement, EFieldType_FLOAT32 >( DatabaseConnectionSPtr connection, const String & name, typename Helpers< EFieldType_FLOAT32 >::ParamType const * valueIn, bool equal, String const & is )
+		inline void InsertAndRetrieve< 1, EFieldType_FLOAT32 >( DatabaseConnectionSPtr connection, const String & name, typename Helpers< EFieldType_FLOAT32 >::ParamType const * valueIn, bool equal, String const & is )
 		{
 			try
 			{
-				auto stmtInsert = CreateStmt< CDatabaseStatement >( connection, STR( "INSERT INTO Test (" ) + name + STR( ") VALUES (?)" ) );
+				auto stmtInsert = CreateStmt< 1 >( connection, STR( "INSERT INTO Test (" ) + name + STR( ") VALUES (?)" ) );
 				std::shared_ptr< CDatabaseStatement > stmtSelect;
 				String field = name;
 
 				if ( valueIn )
 				{
-					stmtSelect = CreateStmt< CDatabaseStatement >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE " ) + field + STR( " = ?" ) );
+					stmtSelect = CreateStmt< 1 >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE " ) + field + STR( " = ?" ) );
 				}
 				else
 				{
-					stmtSelect = CreateStmt< CDatabaseStatement >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE " ) + field + STR( " " ) + is + STR( " ?" ) );
+					stmtSelect = CreateStmt< 1 >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE " ) + field + STR( " " ) + is + STR( " ?" ) );
 				}
 
 				BOOST_CHECK( stmtInsert );
@@ -797,8 +811,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( stmtInsert && stmtSelect )
 				{
-					ParameterCreator< EFieldType_FLOAT32 >::Create( stmtInsert, name );
-					ParameterCreator< EFieldType_FLOAT32 >::Create( stmtSelect, name );
+					ParameterCreator< EFieldType_FLOAT32 >::Create< 1 >( stmtInsert, name );
+					ParameterCreator< EFieldType_FLOAT32 >::Create< 1 >( stmtSelect, name );
 
 					BOOST_CHECK( stmtInsert->Initialise() == EErrorType_NONE );
 					BOOST_CHECK( stmtSelect->Initialise() == EErrorType_NONE );
@@ -868,13 +882,13 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 		}
 
-		template< class StmtType, EFieldType FieldType >
+		template< size_t StmtType, EFieldType FieldType >
 		inline void InsertAndRetrieveOtherIndex( DatabaseConnectionSPtr connection, const String & name, typename Helpers< FieldType >::ParamType const * valueIn, bool equal, String const & is )
 		{
 			try
 			{
 				auto stmtInsert = CreateStmt< StmtType >( connection, STR( "INSERT INTO Test (IntField, " ) + name + STR( ") VALUES (?, ?)" ) );
-				std::shared_ptr< StmtType > stmtSelect;
+				std::shared_ptr< typename StatementTyper< StmtType >::Type > stmtSelect;
 
 				if ( valueIn )
 				{
@@ -890,10 +904,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( stmtInsert && stmtSelect )
 				{
-					ParameterCreator< EFieldType_SINT32 >::Create( stmtInsert, STR( "IntField" ) );
-					ParameterCreator< FieldType >::Create( stmtInsert, name );
-					ParameterCreator< EFieldType_SINT32 >::Create( stmtSelect, STR( "IntField" ) );
-					ParameterCreator< FieldType >::Create( stmtSelect, name );
+					ParameterCreator< EFieldType_SINT32 >::Create< StmtType >( stmtInsert, STR( "IntField" ) );
+					ParameterCreator< FieldType >::Create< StmtType >( stmtInsert, name );
+					ParameterCreator< EFieldType_SINT32 >::Create< StmtType >( stmtSelect, STR( "IntField" ) );
+					ParameterCreator< FieldType >::Create< StmtType >( stmtSelect, name );
 
 					BOOST_CHECK( stmtInsert->Initialise() == EErrorType_NONE );
 					BOOST_CHECK( stmtSelect->Initialise() == EErrorType_NONE );
@@ -966,25 +980,25 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 		}
 
-		template< class StmtType, EFieldType FieldType >
+		template< size_t StmtType, EFieldType FieldType >
 		inline void InsertAndRetrieveOtherIndex( DatabaseConnectionSPtr connection, const String & name, typename Helpers< FieldType >::ParamType const & valueIn, bool equal, String const & is )
 		{
 			InsertAndRetrieveOtherIndex< StmtType, FieldType >( connection, name, &valueIn, equal, is );
 		}
 
-		template< class StmtType, EFieldType FieldType >
+		template< size_t StmtType, EFieldType FieldType >
 		inline void InsertAndRetrieveOtherIndex( DatabaseConnectionSPtr connection, const String & name, bool equal, String const & is, std::random_device & generator )
 		{
 			InsertAndRetrieveOtherIndex< StmtType, FieldType >( connection, name, Helpers< FieldType >::GetRandomValue( generator ), equal, is );
 		}
 
-		template< class StmtType, EFieldType FieldType >
+		template< size_t StmtType, EFieldType FieldType >
 		inline void InsertAndRetrieveFast( DatabaseConnectionSPtr connection, const String & name, typename Helpers< FieldType >::ParamType const * valueIn, bool equal, String const & is )
 		{
 			try
 			{
 				auto stmtInsert = CreateStmt< StmtType >( connection, STR( "INSERT INTO Test (" ) + name + STR( ") VALUES (?)" ) );
-				std::shared_ptr< StmtType > stmtSelect;
+				std::shared_ptr< typename StatementTyper< StmtType >::Type > stmtSelect;
 
 				if ( valueIn )
 				{
@@ -1000,8 +1014,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( stmtInsert && stmtSelect )
 				{
-					ParameterCreator< FieldType >::Create( stmtInsert, name );
-					ParameterCreator< FieldType >::Create( stmtSelect, name );
+					ParameterCreator< FieldType >::Create< StmtType >( stmtInsert, name );
+					ParameterCreator< FieldType >::Create< StmtType >( stmtSelect, name );
 
 					BOOST_CHECK( stmtInsert->Initialise() == EErrorType_NONE );
 					BOOST_CHECK( stmtSelect->Initialise() == EErrorType_NONE );
@@ -1071,25 +1085,25 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 		}
 
-		template< class StmtType, EFieldType FieldType >
+		template< size_t StmtType, EFieldType FieldType >
 		inline void InsertAndRetrieveFast( DatabaseConnectionSPtr connection, const String & name, typename Helpers< FieldType >::ParamType const & valueIn, bool equal, String const & is )
 		{
 			InsertAndRetrieveFast< StmtType, FieldType >( connection, name, &valueIn, equal, is );
 		}
 
-		template< class StmtType, EFieldType FieldType >
+		template< size_t StmtType, EFieldType FieldType >
 		inline void InsertAndRetrieveFast( DatabaseConnectionSPtr connection, const String & name, bool equal, String const & is, std::random_device & generator )
 		{
 			InsertAndRetrieveFast< StmtType, FieldType >( connection, name, Helpers< FieldType >::GetRandomValue( generator ), equal, is );
 		}
 
-		template< class StmtType, EFieldType FieldType >
+		template< size_t StmtType, EFieldType FieldType >
 		inline void InsertAndRetrieveFastOtherIndex( DatabaseConnectionSPtr connection, const String & name, typename Helpers< FieldType >::ParamType const * valueIn, bool equal, String const & is )
 		{
 			try
 			{
 				auto stmtInsert = CreateStmt< StmtType >( connection, STR( "INSERT INTO Test (IntField, " ) + name + STR( ") VALUES (?, ?)" ) );
-				std::shared_ptr< StmtType > stmtSelect;
+				std::shared_ptr< typename StatementTyper< StmtType >::Type > stmtSelect;
 
 				if ( valueIn )
 				{
@@ -1105,10 +1119,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( stmtInsert && stmtSelect )
 				{
-					ParameterCreator< EFieldType_SINT32 >::Create( stmtInsert, STR( "IntField" ) );
-					ParameterCreator< FieldType >::Create( stmtInsert, name );
-					ParameterCreator< EFieldType_SINT32 >::Create( stmtSelect, STR( "IntField" ) );
-					ParameterCreator< FieldType >::Create( stmtSelect, name );
+					ParameterCreator< EFieldType_SINT32 >::Create< StmtType >( stmtInsert, STR( "IntField" ) );
+					ParameterCreator< FieldType >::Create< StmtType >( stmtInsert, name );
+					ParameterCreator< EFieldType_SINT32 >::Create< StmtType >( stmtSelect, STR( "IntField" ) );
+					ParameterCreator< FieldType >::Create< StmtType >( stmtSelect, name );
 
 					BOOST_CHECK( stmtInsert->Initialise() == EErrorType_NONE );
 					BOOST_CHECK( stmtSelect->Initialise() == EErrorType_NONE );
@@ -1181,19 +1195,19 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 		}
 
-		template< class StmtType, EFieldType FieldType >
+		template< size_t StmtType, EFieldType FieldType >
 		inline void InsertAndRetrieveFastOtherIndex( DatabaseConnectionSPtr connection, const String & name, typename Helpers< FieldType >::ParamType const & valueIn, bool equal, String const & is )
 		{
 			InsertAndRetrieveFastOtherIndex< StmtType, FieldType >( connection, name, &valueIn, equal, is );
 		}
 
-		template< class StmtType, EFieldType FieldType >
+		template< size_t StmtType, EFieldType FieldType >
 		inline void InsertAndRetrieveFastOtherIndex( DatabaseConnectionSPtr connection, const String & name, bool equal, String const & is, std::random_device & generator )
 		{
 			InsertAndRetrieveFastOtherIndex< StmtType, FieldType >( connection, name, Helpers< FieldType >::GetRandomValue( generator ), equal, is );
 		}
 
-		template< typename StmtType >
+		template< size_t StmtType >
 		inline void TestDirectInsert( std::random_device & generator, DatabaseConnectionSPtr connection )
 		{
 			try
@@ -1233,14 +1247,14 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 					if ( stmtInsert )
 					{
-						CreateParameters( stmtInsert );
+						CreateParameters< StmtType >( stmtInsert );
 						BOOST_CHECK( stmtInsert->Initialise() == EErrorType_NONE );
 						int const inserts = 20;
 
 						for ( int i = 0; i < inserts; i++ )
 						{
 							uint32_t index = 0;
-							SetParametersValue( generator, index, i + 1, i, stmtInsert );
+							SetParametersValue< StmtType >( generator, index, i + 1, i, stmtInsert );
 							BOOST_CHECK( stmtInsert->ExecuteUpdate() );
 						}
 
@@ -1284,7 +1298,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 		}
 
-		template< typename StmtType >
+		template< size_t StmtType >
 		inline void TestDirectSelect( std::random_device & generator, DatabaseConnectionSPtr connection )
 		{
 			try
@@ -1337,7 +1351,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 		}
 
-		template< typename StmtType >
+		template< size_t StmtType >
 		inline void TestDirectUpdate( std::random_device & generator, DatabaseConnectionSPtr connection )
 		{
 			try
@@ -1375,14 +1389,14 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 					if ( stmtUpdate )
 					{
-						CreateParameters( stmtUpdate );
+						CreateParameters< StmtType >( stmtUpdate );
 						BOOST_CHECK( stmtUpdate->CreateParameter( STR( "IDTest" ), EFieldType_SINT64, EParameterType_IN ) );
 						BOOST_CHECK( stmtUpdate->Initialise() == EErrorType_NONE );
 
 						for ( int i = 0; i < 10; i++ )
 						{
 							uint32_t index = 0;
-							SetParametersValue( generator, index, i + 40, i, stmtUpdate );
+							SetParametersValue< StmtType >( generator, index, i + 40, i, stmtUpdate );
 							stmtUpdate->SetParameterValue( index++, min + i );
 							BOOST_CHECK( stmtUpdate->ExecuteUpdate() );
 						}
@@ -1405,7 +1419,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 		}
 
-		template< typename StmtType >
+		template< size_t StmtType >
 		inline void TestDirectDelete( std::random_device & generator, DatabaseConnectionSPtr connection )
 		{
 			try
@@ -1471,7 +1485,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 		}
 
-		template< typename StmtType >
+		template< size_t StmtType >
 		inline void TestStoredNoParamNoReturn( std::random_device & generator, DatabaseConnectionSPtr connection )
 		{
 			try
@@ -1505,7 +1519,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 		}
 
-		template< typename StmtType >
+		template< size_t StmtType >
 		inline void TestStoredNoParamReturn( std::random_device & generator, DatabaseConnectionSPtr connection, const String & where )
 		{
 			try
@@ -1564,7 +1578,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 		}
 
-		template< typename StmtType >
+		template< size_t StmtType >
 		inline void TestStoredInParamNoReturn( std::random_device & generator, DatabaseConnectionSPtr connection )
 		{
 			try
@@ -1630,7 +1644,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 		}
 
-		template< typename StmtType >
+		template< size_t StmtType >
 		inline void TestStoredInOutParamNoReturn( std::random_device & generator, DatabaseConnectionSPtr connection )
 		{
 			try
@@ -1704,7 +1718,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 		}
 
-		template< typename StmtType >
+		template< size_t StmtType >
 		inline void TestStoredInOutDtParamNoReturn( std::random_device & generator, DatabaseConnectionSPtr connection )
 		{
 			try
@@ -1780,12 +1794,12 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 		}
 
-		template< typename StmtType >
+		template< size_t StmtType >
 		inline void PerfDirectSelectActors( DatabaseConnectionSPtr connection, uint32_t testCount, const String & whereClause )
 		{
 			try
 			{
-				std::shared_ptr< StmtType > stmtGetActors;
+				std::shared_ptr< typename StatementTyper< StmtType >::Type > stmtGetActors;
 
 				if ( whereClause.empty() )
 				{
@@ -1839,7 +1853,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 		}
 
-		template< typename StmtType >
+		template< size_t StmtType >
 		inline void PerfStoredProcedureSelectActors( DatabaseConnectionSPtr connection, uint32_t testCount, const String & whereClause )
 		{
 			try
@@ -1891,7 +1905,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 		}
 
-		template< typename StmtType >
+		template< size_t StmtType >
 		inline void PerfDirectDeleteActors( DatabaseConnectionSPtr connection, uint32_t testCount )
 		{
 			try
@@ -1947,7 +1961,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 		}
 
-		template< typename StmtType >
+		template< size_t StmtType >
 		inline void PerfStoredProcedureDeleteActors( DatabaseConnectionSPtr connection, uint32_t testCount )
 		{
 			try
