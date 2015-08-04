@@ -78,7 +78,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		*/
 		inline DatabaseConnectionPostgreSqlSPtr DoGetPostgreSqlConnection()const
 		{
-		return _connectionPostgreSql.lock();
+			return _connectionPostgreSql.lock();
 		}
 
 	private:

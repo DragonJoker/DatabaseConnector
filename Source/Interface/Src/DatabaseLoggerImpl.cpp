@@ -177,10 +177,12 @@ BEGIN_NAMESPACE_DATABASE
 	void CLoggerImpl::DoLogLine( String const & timestamp, String const & line, FILE * logFile, ELogType logLevel, bool display )
 	{
 #if defined( NDEBUG )
+
 		if ( display )
 		{
 			DoPrintLine( line, logLevel );
 		}
+
 #endif
 
 		if ( logFile )

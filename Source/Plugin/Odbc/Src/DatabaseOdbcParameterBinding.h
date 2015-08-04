@@ -185,7 +185,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				_columnLenOrInd = _value.GetPtrSize();
 			}
 
-			OdbcCheck( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, (uint8_t*)_value.GetPtrValue(), _value.GetPtrSize(), &_columnLenOrInd ), SQL_HANDLE_STMT, _statement, INFO_ODBC_BindParameter + message.str() );
+			OdbcCheck( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, ( uint8_t * )_value.GetPtrValue(), _value.GetPtrSize(), &_columnLenOrInd ), SQL_HANDLE_STMT, _statement, INFO_ODBC_BindParameter + message.str() );
 			return errorType;
 		}
 

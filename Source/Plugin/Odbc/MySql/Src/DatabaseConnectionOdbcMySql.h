@@ -191,6 +191,14 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MYSQL
 		*/
 		virtual String DoWriteBool( bool value ) const;
 
+		/** Format a float to insert into a request or statement.
+		@param[in] value
+			Value to format.
+		@return
+			Formatted value.
+		*/
+		virtual String DoWriteFloat( float value ) const;
+
 		/** Convert a string from the database to a date.
 		@param[in] date
 			String representing a date.
@@ -231,7 +239,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MYSQL
 		@return
 			The created statement.
 		*/
-		virtual DatabaseStatementSPtr DoCreateStatement( const String & query);
+		virtual DatabaseStatementSPtr DoCreateStatement( const String & query );
 	};
 }
 END_NAMESPACE_DATABASE_ODBC_MYSQL

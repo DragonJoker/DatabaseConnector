@@ -89,7 +89,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		@return
 			The result.
 		*/
-		virtual bool DoExecuteUpdate( const String & query);
+		virtual bool DoExecuteUpdate( const String & query );
 
 		/** Execute directly a request.
 		@param[in]  query
@@ -101,7 +101,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		@return
 			The result.
 		*/
-		virtual DatabaseResultSPtr DoExecuteSelect( const String & query);
+		virtual DatabaseResultSPtr DoExecuteSelect( const String & query );
 
 	protected:
 		//! Connection identifier.

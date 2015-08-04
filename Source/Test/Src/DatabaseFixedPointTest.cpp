@@ -13,7 +13,7 @@
 
 #include "DatabaseFixedPointTest.h"
 
-#include "DatabaseTestUtils.h"
+#include "DatabaseTestHelpers.h"
 
 BEGIN_NAMESPACE_DATABASE_TEST
 {

@@ -13,16 +13,18 @@
 
 #include "DatabaseConnectionTest.h"
 
-#include "DatabaseTestUtils.h"
+#include "DatabaseTestHelpers.h"
 #include "DatabaseTestConnection.h"
 #include "DatabaseTestStatement.h"
 
+#include <DatabaseQuery.h>
+
 namespace std
 {
-	inline ostream& operator <<( ostream & out, const wstring & value )
+	inline ostream & operator <<( ostream & out, const wstring & value )
 	{
-		 out << NAMESPACE_DATABASE::StringUtils::ToStr( value );
-		 return out;
+		out << NAMESPACE_DATABASE::StringUtils::ToStr( value );
+		return out;
 	}
 }
 

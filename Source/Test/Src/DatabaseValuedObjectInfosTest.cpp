@@ -17,10 +17,10 @@
 
 namespace std
 {
-	inline ostream& operator <<( ostream & out, const wstring & value )
+	inline ostream & operator <<( ostream & out, const wstring & value )
 	{
-		 out << NAMESPACE_DATABASE::StringUtils::ToStr( value );
-		 return out;
+		out << NAMESPACE_DATABASE::StringUtils::ToStr( value );
+		return out;
 	}
 }
 
@@ -28,7 +28,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 {
 	namespace
 	{
-		template< EFieldType FieldType, typename Enable=void >
+		template< EFieldType FieldType, typename Enable = void >
 		struct FieldInfosChecks
 		{
 			static void All()
@@ -49,7 +49,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				BOOST_CHECK( infos->GetType() == FieldType );
 			}
 		};
-		
+
 		template< EFieldType FieldType >
 		struct FieldInfosChecks< FieldType, typename std::enable_if< SFieldTypeNeedsLimits< FieldType >::value >::type >
 		{
@@ -75,7 +75,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				BOOST_CHECK( infos->GetLimits() == FieldLimits );
 			}
 		};
-		
+
 		template< EFieldType FieldType >
 		struct FieldInfosChecks< FieldType, typename std::enable_if< SFieldTypeNeedsPrecision< FieldType >::value >::type >
 		{

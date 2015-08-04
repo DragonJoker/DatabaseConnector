@@ -147,7 +147,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 
 		result = PQdescribePrepared( connection->GetConnection(), _statement.c_str() );
 		PostgreSQLCheck( result, INFO_POSTGRESQL_STATEMENT_DESCRIBE, EDatabaseExceptionCodes_StatementError, connection->GetConnection() );
-		int count = PQnparams ( result );
+		int count = PQnparams( result );
 		index = 0;
 
 		for ( auto && parameter : arrayParams )

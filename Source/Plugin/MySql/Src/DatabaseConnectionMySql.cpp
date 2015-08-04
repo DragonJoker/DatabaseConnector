@@ -389,6 +389,18 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		return ( value ? STR( "1" ) : STR( "0" ) );
 	}
 
+	String CDatabaseConnectionMySql::DoWriteFloat( float value ) const
+	{
+		StringStream stream;
+		uint32_t decimals = GetPrecision( EFieldType_FLOAT32 );
+		stream << STR( "CAST( " );
+		stream.precision( decimals * 2 );
+		stream << value;
+		// float min == -3.40282e+038 => 39 digits before decimals separator
+		stream << STR( " AS DECIMAL( " ) << ( 39 + decimals ) << STR( ", " ) << decimals << STR( " ) )" );
+		return stream.str();
+	}
+
 	DateType CDatabaseConnectionMySql::DoParseDate( const String & date ) const
 	{
 		DateType dateObj;

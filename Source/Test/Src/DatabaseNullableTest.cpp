@@ -13,7 +13,7 @@
 
 #include "DatabaseNullableTest.h"
 
-#include "DatabaseTestUtils.h"
+#include "DatabaseTestHelpers.h"
 
 BEGIN_NAMESPACE_DATABASE_TEST
 {
@@ -47,7 +47,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		BOOST_CHECK_THROW( *value, CDatabaseException );
 		CLogger::LogInfo( StringStream() << "  Set to value" );
 		value = 42;
-		BOOST_CHECK( (bool)value );
+		BOOST_CHECK( ( bool )value );
 		BOOST_CHECK_EQUAL( *value, 42 );
 		CLogger::LogInfo( StringStream() << "  Set to None" );
 		value = None;

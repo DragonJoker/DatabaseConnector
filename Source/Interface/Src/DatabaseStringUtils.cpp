@@ -277,7 +277,7 @@ BEGIN_NAMESPACE_DATABASE
 
 				return l_strReturn;
 			}
-		
+
 			template< typename CharType > size_t str_vprintf( CharType * out, size_t max, const CharType * format, va_list vaList );
 
 			template<>

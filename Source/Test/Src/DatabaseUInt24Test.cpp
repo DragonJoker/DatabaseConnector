@@ -13,7 +13,7 @@
 
 #include "DatabaseUInt24Test.h"
 
-#include "DatabaseTestUtils.h"
+#include "DatabaseTestHelpers.h"
 
 BEGIN_NAMESPACE_DATABASE_TEST
 {
@@ -22,7 +22,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template< typename T, typename Enable = void > struct UInt24Check;
 
 		template< typename T >
-		struct UInt24Check< T, typename std::enable_if< ( sizeof( T ) <= sizeof( uint24_t ) ) && std::is_signed< T >::value && std::is_integral< T >::value >::type >
+		struct UInt24Check < T, typename std::enable_if < ( sizeof( T ) <= sizeof( uint24_t ) ) && std::is_signed< T >::value && std::is_integral< T >::value >::type >
 		{
 			static void Construction()
 			{
@@ -42,7 +42,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		};
 
 		template< typename T >
-		struct UInt24Check< T, typename std::enable_if< ( sizeof( T ) <= sizeof( uint24_t ) ) && std::is_unsigned< T >::value >::type >
+		struct UInt24Check < T, typename std::enable_if < ( sizeof( T ) <= sizeof( uint24_t ) ) && std::is_unsigned< T >::value >::type >
 		{
 			static void Construction()
 			{
@@ -62,7 +62,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		};
 
 		template< typename T >
-		struct UInt24Check< T, typename std::enable_if< ( sizeof( T ) > sizeof( uint24_t ) ) && std::is_integral< T >::value >::type >
+		struct UInt24Check < T, typename std::enable_if < ( sizeof( T ) > sizeof( uint24_t ) ) && std::is_integral< T >::value >::type >
 		{
 			static void Construction()
 			{

@@ -31,6 +31,7 @@
 #include "DatabaseRowTest.h"
 #include "DatabaseResultTest.h"
 #include "DatabaseQueryTest.h"
+#include "DatabaseStatementTest.h"
 #include "DatabaseMySqlTest.h"
 #include "DatabaseSqliteTest.h"
 #include "DatabasePostgreSqlTest.h"
@@ -59,6 +60,7 @@ std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseFieldTest > g_databaseFieldTe
 std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseRowTest > g_databaseRowTest;
 std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseResultTest > g_databaseResultTest;
 std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseQueryTest > g_databaseQueryTest;
+std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseStatementTest > g_databaseStatementTest;
 std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseMySqlTest > g_databaseMySqlTest;
 std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseSqliteTest > g_databaseSqliteTest;
 std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabasePostgreSqlTest > g_databasePostgreSqlTest;
@@ -81,7 +83,7 @@ void Startup( char * arg )
 	NAMESPACE_DATABASE::CLogger::Initialise( NAMESPACE_DATABASE::ELogType_DEBUG );
 #endif
 	NAMESPACE_DATABASE::CLogger::SetFileName( g_path + STR( "DatabaseTest.log" ) );
-	
+
 	g_databaseDateTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseDateTest >();
 	g_databaseTimeTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseTimeTest >();
 	g_databaseDateTimeTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseDateTimeTest >();
@@ -99,6 +101,7 @@ void Startup( char * arg )
 	g_databaseRowTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseRowTest >();
 	g_databaseResultTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseResultTest >();
 	g_databaseQueryTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseQueryTest >();
+	g_databaseStatementTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseStatementTest >();
 	g_databaseMySqlTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseMySqlTest >();
 	g_databaseSqliteTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseSqliteTest >();
 	g_databasePostgreSqlTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabasePostgreSqlTest >();
@@ -127,6 +130,7 @@ void Shutdown()
 	g_databaseRowTest.reset();
 	g_databaseResultTest.reset();
 	g_databaseQueryTest.reset();
+	g_databaseStatementTest.reset();
 	g_databaseMySqlTest.reset();
 	g_databaseSqliteTest.reset();
 	g_databasePostgreSqlTest.reset();
@@ -213,18 +217,19 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		TS_List.push_back( g_databaseRowTest->Init_Test_Suite() );
 		TS_List.push_back( g_databaseResultTest->Init_Test_Suite() );
 		TS_List.push_back( g_databaseQueryTest->Init_Test_Suite() );
+		TS_List.push_back( g_databaseStatementTest->Init_Test_Suite() );
 
 #if defined( TESTING_PLUGIN_SQLITE )
-		//TS_List.push_back( g_databaseSqliteTest->Init_Test_Suite() );
+		TS_List.push_back( g_databaseSqliteTest->Init_Test_Suite() );
 #endif
 #if defined( TESTING_PLUGIN_MYSQL )
-		//TS_List.push_back( g_databaseMySqlTest->Init_Test_Suite() );
+		TS_List.push_back( g_databaseMySqlTest->Init_Test_Suite() );
 #endif
 #if defined( TESTING_PLUGIN_POSTGRE )
-		//TS_List.push_back( g_databasePostgreSqlTest->Init_Test_Suite() );
+		TS_List.push_back( g_databasePostgreSqlTest->Init_Test_Suite() );
 #endif
 #if defined( TESTING_PLUGIN_ODBC )
-		//TS_List.push_back( g_databaseOdbcMySqlTest->Init_Test_Suite() );
+		TS_List.push_back( g_databaseOdbcMySqlTest->Init_Test_Suite() );
 		//TS_List.push_back( g_databaseOdbcMsSqlTest->Init_Test_Suite() );
 #endif
 

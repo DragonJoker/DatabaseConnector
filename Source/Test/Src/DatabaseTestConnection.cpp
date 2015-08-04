@@ -16,7 +16,7 @@
 #include "DatabaseTestConnection.h"
 
 #include "DatabaseTestStatement.h"
-#include "DatabaseTestUtils.h"
+#include "DatabaseTestHelpers.h"
 
 #include <DatabaseDate.h>
 #include <DatabaseDateTime.h>
@@ -41,78 +41,103 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			case EFieldType_BIT:
 				static_cast< CDatabaseValue< EFieldType_BIT > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_BIT >::GetRandomValue( generator ) );
 				break;
+
 			case EFieldType_SINT8:
 				static_cast< CDatabaseValue< EFieldType_SINT8 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_SINT8 >::GetRandomValue( generator ) );
 				break;
+
 			case EFieldType_SINT16:
 				static_cast< CDatabaseValue< EFieldType_SINT16 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_SINT16 >::GetRandomValue( generator ) );
 				break;
+
 			case EFieldType_SINT24:
 				static_cast< CDatabaseValue< EFieldType_SINT24 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_SINT24 >::GetRandomValue( generator ) );
 				break;
+
 			case EFieldType_SINT32:
 				static_cast< CDatabaseValue< EFieldType_SINT32 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_SINT32 >::GetRandomValue( generator ) );
 				break;
+
 			case EFieldType_SINT64:
 				static_cast< CDatabaseValue< EFieldType_SINT64 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_SINT64 >::GetRandomValue( generator ) );
 				break;
+
 			case EFieldType_UINT8:
 				static_cast< CDatabaseValue< EFieldType_UINT8 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_UINT8 >::GetRandomValue( generator ) );
 				break;
+
 			case EFieldType_UINT16:
 				static_cast< CDatabaseValue< EFieldType_UINT16 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_UINT16 >::GetRandomValue( generator ) );
 				break;
+
 			case EFieldType_UINT24:
 				static_cast< CDatabaseValue< EFieldType_UINT24 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_UINT24 >::GetRandomValue( generator ) );
 				break;
+
 			case EFieldType_UINT32:
 				static_cast< CDatabaseValue< EFieldType_UINT32 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_UINT32 >::GetRandomValue( generator ) );
 				break;
+
 			case EFieldType_UINT64:
 				static_cast< CDatabaseValue< EFieldType_UINT64 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_UINT64 >::GetRandomValue( generator ) );
 				break;
+
 			case EFieldType_FLOAT32:
 				static_cast< CDatabaseValue< EFieldType_FLOAT32 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_FLOAT32 >::GetRandomValue( generator ) );
 				break;
+
 			case EFieldType_FLOAT64:
 				static_cast< CDatabaseValue< EFieldType_FLOAT64 > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_FLOAT64 >::GetRandomValue( generator ) );
 				break;
+
 			case EFieldType_FIXED_POINT:
 				static_cast< CDatabaseValue< EFieldType_FIXED_POINT > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::GetRandomValue( generator, infos->GetPrecision() ) );
 				break;
+
 			case EFieldType_CHAR:
 				static_cast< CDatabaseValue< EFieldType_CHAR > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_CHAR >::GetRandomValue( generator, infos->GetLimits() ) );
 				break;
+
 			case EFieldType_VARCHAR:
 				static_cast< CDatabaseValue< EFieldType_VARCHAR > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_VARCHAR >::GetRandomValue( generator, infos->GetLimits() ) );
 				break;
+
 			case EFieldType_TEXT:
 				static_cast< CDatabaseValue< EFieldType_TEXT > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_TEXT >::GetRandomValue( generator ) );
 				break;
+
 			case EFieldType_NCHAR:
 				static_cast< CDatabaseValue< EFieldType_NCHAR > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_NCHAR >::GetRandomValue( generator, infos->GetLimits() ) );
 				break;
+
 			case EFieldType_NVARCHAR:
 				static_cast< CDatabaseValue< EFieldType_NVARCHAR > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_NVARCHAR >::GetRandomValue( generator, infos->GetLimits() ) );
 				break;
+
 			case EFieldType_NTEXT:
 				static_cast< CDatabaseValue< EFieldType_NTEXT > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_NTEXT >::GetRandomValue( generator ) );
 				break;
+
 			case EFieldType_DATE:
 				static_cast< CDatabaseValue< EFieldType_DATE > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_DATE >::GetRandomValue( generator ) );
 				break;
+
 			case EFieldType_DATETIME:
 				static_cast< CDatabaseValue< EFieldType_DATETIME > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_DATETIME >::GetRandomValue( generator ) );
 				break;
+
 			case EFieldType_TIME:
 				static_cast< CDatabaseValue< EFieldType_TIME > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_TIME >::GetRandomValue( generator ) );
 				break;
+
 			case EFieldType_BINARY:
 				static_cast< CDatabaseValue< EFieldType_BINARY > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_BINARY >::GetRandomValue( generator, infos->GetLimits() ) );
 				break;
+
 			case EFieldType_VARBINARY:
 				static_cast< CDatabaseValue< EFieldType_VARBINARY > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_VARBINARY >::GetRandomValue( generator, infos->GetLimits() ) );
 				break;
+
 			case EFieldType_BLOB:
 				static_cast< CDatabaseValue< EFieldType_BLOB > & >( field->GetObjectValue() ).SetValue( DatabaseUtils::Helpers< EFieldType_BLOB >::GetRandomValue( generator ) );
 				break;
@@ -125,7 +150,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	DatabaseRowSPtr CreateRow( DatabaseConnectionSPtr connection, const DatabaseValuedObjectInfosPtrArray & fieldInfos )
 	{
 		DatabaseRowSPtr row = std::make_shared< CDatabaseRow >();
-		
+
 		for ( auto infos : fieldInfos )
 		{
 			row->AddField( CreateField( connection, infos ) );

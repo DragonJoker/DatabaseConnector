@@ -30,7 +30,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	static const String TEST_FORMAT_STMT_DATE = STR( "{-d %Y-%m-%d}" );
 	static const String TEST_FORMAT_STMT_TIME = STR( "{-t %H:%M:%S}" );
 	static const String TEST_FORMAT_STMT_DATETIME = STR( "{-ts %Y-%m-%d %H:%M:%S}" );
-	
+
 	static const String TEST_GOOD_SERVER = STR( "TestServer" );
 	static const String TEST_GOOD_USER = STR( "TestUser" );
 	static const String TEST_GOOD_PASSWORD = STR( "TestPassword" );

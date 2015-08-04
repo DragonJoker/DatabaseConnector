@@ -34,6 +34,12 @@
 #include <pgtypes_timestamp.h>
 #include <catalog/pg_type.h>
 
+#ifdef max
+#	undef min
+#	undef max
+#	undef abs
+#endif
+
 BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 {
 	static const String ERROR_POSTGRESQL_CONNECTION = STR( "Couldn't create the connection" );
@@ -361,6 +367,18 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		return ( value ? STR( "true" ) : STR( "false" ) );
 	}
 
+	String CDatabaseConnectionPostgreSql::DoWriteFloat( float value ) const
+	{
+		StringStream stream;
+		uint32_t decimals = GetPrecision( EFieldType_FLOAT32 );
+		stream << STR( "CAST( " );
+		stream.precision( decimals );
+		stream << value;
+		// float min == -3.40282e+038 => 39 digits before decimals separator
+		stream << STR( " AS DECIMAL( " ) << ( 39 + decimals ) << STR( ", " ) << decimals << STR( " ) )" );
+		return stream.str();
+	}
+
 	DateType CDatabaseConnectionPostgreSql::DoParseDate( const String & date ) const
 	{
 		DateType dateObj;
@@ -444,7 +462,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			{
 				DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_POSTGRESQL_CONNECTION );
 			}
-			
+
 			PQconninfoOption * info = PQconninfo( _connection );
 
 			if ( !info )

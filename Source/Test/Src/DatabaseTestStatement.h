@@ -11,8 +11,8 @@
 *
 ***************************************************************************/
 
-#ifndef ___DATABASE_STATEMENT_TEST_H___
-#define ___DATABASE_STATEMENT_TEST_H___
+#ifndef ___DATABASE_TEST_STATEMENT_H___
+#define ___DATABASE_TEST_STATEMENT_H___
 
 #include "DatabaseTestPrerequisites.h"
 
@@ -105,4 +105,4 @@ BEGIN_NAMESPACE_DATABASE_TEST
 }
 END_NAMESPACE_DATABASE_TEST
 
-#endif // ___DATABASE_STATEMENT_TEST_H___
+#endif // ___DATABASE_TEST_STATEMENT_H___

@@ -281,7 +281,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			The result.
 		*/
-		virtual bool DoExecuteUpdate( const String & query);
+		virtual bool DoExecuteUpdate( const String & query );
 
 		/** Execute directly a request.
 		@param[in]  query
@@ -291,7 +291,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			The result.
 		*/
-		virtual DatabaseResultSPtr DoExecuteSelect( const String & query);
+		virtual DatabaseResultSPtr DoExecuteSelect( const String & query );
 
 		/** Create a statement from a request.
 		@param[in]  query
@@ -301,7 +301,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@return
 			The created statement.
 		*/
-		virtual DatabaseStatementSPtr DoCreateStatement( const String & query);
+		virtual DatabaseStatementSPtr DoCreateStatement( const String & query );
 
 	protected:
 		//! The connection

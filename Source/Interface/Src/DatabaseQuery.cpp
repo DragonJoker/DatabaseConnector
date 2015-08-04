@@ -29,10 +29,10 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			/** Constructor
 			*/
-			DatabaseExport SDummyValueUpdater(){}
+			DatabaseExport SDummyValueUpdater() {}
 
 			//!@copydoc CDatabaseParameter::SValueUpdater
-			DatabaseExport virtual void Update( const CDatabaseParameter & value ){}
+			DatabaseExport virtual void Update( const CDatabaseParameter & value ) {}
 		};
 	}
 

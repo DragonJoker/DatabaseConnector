@@ -860,13 +860,15 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			}
 			else
 			{
-				std::string value = Date::Format( _value.GetValue(), SQLITE_FORMAT_STMT_SDATE );
-				SQLiteCheck( sqlite3_bind_text( _statement, _index, value.c_str(), int( value.size() ), SQLITE_STATIC ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+				_holder = Date::Format( _value.GetValue(), SQLITE_FORMAT_STMT_SDATE );
+				SQLiteCheck( sqlite3_bind_text( _statement, _index, _holder.c_str(), int( _holder.size() ), SQLITE_STATIC ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _holder, EDatabaseExceptionCodes_StatementError, _connection );
 			}
 		}
 
 		//! The parameter value
 		CDatabaseValue< EFieldType_DATE > const & _value;
+		//! The string value holder
+		std::string _holder;
 	};
 
 	/** SSqliteBinding specialization for EFieldType_DATETIME
@@ -900,13 +902,15 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			}
 			else
 			{
-				std::string value = DateTime::Format( _value.GetValue(), SQLITE_FORMAT_STMT_SDATETIME );
-				SQLiteCheck( sqlite3_bind_text( _statement, _index, value.c_str(), int( value.size() ), SQLITE_STATIC ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+				_holder = DateTime::Format( _value.GetValue(), SQLITE_FORMAT_STMT_SDATETIME );
+				SQLiteCheck( sqlite3_bind_text( _statement, _index, _holder.c_str(), int( _holder.size() ), SQLITE_STATIC ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _holder, EDatabaseExceptionCodes_StatementError, _connection );
 			}
 		}
 
 		//! The parameter value
 		CDatabaseValue< EFieldType_DATETIME > const & _value;
+		//! The string value holder
+		std::string _holder;
 	};
 
 	/** SSqliteBinding specialization for EFieldType_TIME
@@ -940,13 +944,15 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			}
 			else
 			{
-				std::string value = Time::Format( _value.GetValue(), SQLITE_FORMAT_STMT_STIME );
-				SQLiteCheck( sqlite3_bind_text( _statement, _index, value.c_str(), int( value.size() ), SQLITE_STATIC ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetValue(), EDatabaseExceptionCodes_StatementError, _connection );
+				_holder = Time::Format( _value.GetValue(), SQLITE_FORMAT_STMT_STIME );
+				SQLiteCheck( sqlite3_bind_text( _statement, _index, _holder.c_str(), int( _holder.size() ), SQLITE_STATIC ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _holder, EDatabaseExceptionCodes_StatementError, _connection );
 			}
 		}
 
 		//! The parameter value
 		CDatabaseValue< EFieldType_TIME > const & _value;
+		//! The string value holder
+		std::string _holder;
 	};
 
 	/** SSqliteBinding specialization for EFieldType_BINARY

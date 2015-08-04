@@ -24,7 +24,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 	{
 		static const String ERROR_SQLITE_UNSUPPORTED_TYPE = STR( "Unsupported type, for column " );
 
-		static const TChar * INFO_SQLITE_PREPARATION = STR( "Couldn't prepare the statement" );
+		static const TChar * INFO_SQLITE_PREPARATION = STR( "Statement preparation" );
 
 		std::pair< int, int > RetrieveLimits( String const & type )
 		{
@@ -581,7 +581,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			}
 			else if ( upperType.find( "NUMERIC" ) != std::string::npos )
 			{
-				infos = std::make_shared< CDatabaseValuedObjectInfos >( columnName, EFieldType_FIXED_POINT, std::make_pair( 0, 0 ) );
+				infos = std::make_shared< CDatabaseValuedObjectInfos >( columnName, EFieldType_FIXED_POINT, std::make_pair( 10, 0 ) );
 			}
 			else if ( upperType.find( "DECIMAL" ) != String::npos )
 			{

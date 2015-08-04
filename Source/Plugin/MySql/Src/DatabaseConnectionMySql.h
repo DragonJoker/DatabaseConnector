@@ -215,6 +215,14 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		*/
 		virtual String DoWriteBool( bool value ) const;
 
+		/** Format a float to insert into a request or statement.
+		@param[in] value
+			Value to format.
+		@return
+			Formatted value.
+		*/
+		virtual String DoWriteFloat( float value ) const;
+
 		/** Convert a string from the database to a date.
 		@param[in] date
 			String representing a date.

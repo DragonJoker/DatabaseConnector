@@ -139,7 +139,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		The PostgreSQL database connection
 	*/
 	void PostgreSqlSendLongData( CDatabaseValueBase & value, std::string const & statement, PGconn * connection );
-	
+
 	/** Retrieves the Oid correponding to the given field type
 	@param[in] type
 		The field type

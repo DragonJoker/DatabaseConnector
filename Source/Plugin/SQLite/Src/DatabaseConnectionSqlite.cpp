@@ -476,7 +476,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		return result;
 	}
 
-	bool CDatabaseConnectionSqlite::DoExecuteUpdate( const String & query)
+	bool CDatabaseConnectionSqlite::DoExecuteUpdate( const String & query )
 	{
 		bool ret = false;
 
@@ -500,7 +500,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		return ret;
 	}
 
-	DatabaseResultSPtr CDatabaseConnectionSqlite::DoExecuteSelect( const String & query)
+	DatabaseResultSPtr CDatabaseConnectionSqlite::DoExecuteSelect( const String & query )
 	{
 		DatabaseResultSPtr ret;
 

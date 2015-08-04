@@ -17,10 +17,10 @@
 
 namespace std
 {
-	inline ostream& operator <<( ostream & out, const wstring & value )
+	inline ostream & operator <<( ostream & out, const wstring & value )
 	{
-		 out << NAMESPACE_DATABASE::StringUtils::ToStr( value );
-		 return out;
+		out << NAMESPACE_DATABASE::StringUtils::ToStr( value );
+		return out;
 	}
 }
 

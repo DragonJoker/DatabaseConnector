@@ -14,20 +14,21 @@
 #include "DatabaseParameterTest.h"
 
 #include "DatabaseTestConnection.h"
-#include "DatabaseTestUtils.h"
+#include "DatabaseTestHelpers.h"
 #include "DatabaseTestValuedObject.h"
 
 #include <DatabaseValuedObjectInfos.h>
+#include <DatabaseParameter.h>
 
 namespace std
 {
-	inline ostream& operator <<( ostream & out, const wstring & value )
+	inline ostream & operator <<( ostream & out, const wstring & value )
 	{
-		 out << NAMESPACE_DATABASE::StringUtils::ToStr( value );
-		 return out;
+		out << NAMESPACE_DATABASE::StringUtils::ToStr( value );
+		return out;
 	}
 
-	inline ostream& operator <<( ostream & out, const vector< uint8_t > & value )
+	inline ostream & operator <<( ostream & out, const vector< uint8_t > & value )
 	{
 		auto flags = out.setf( std::ios::hex, std::ios::basefield );
 
@@ -55,7 +56,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 		};
 
-		template< EFieldType FieldType, typename Enable=void >
+		template< EFieldType FieldType, typename Enable = void >
 		struct InfosCreator
 		{
 			static DatabaseValuedObjectInfosSPtr Create()

@@ -246,9 +246,9 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MYSQL
 
 	static const String ODBC_FORMAT_DATE = STR( "CAST('%Y-%m-%d' AS DATE)" );
 	static const String ODBC_FORMAT_TIME = STR( "CAST('%H:%M:%S' AS TIME)" );
-	static const String ODBC_FORMAT_DATETIME = STR( "CAST('%Y-%m-%d %H:%M:%S' AS TIMESTAMP)" );
-	static const String ODBC_FORMAT_DATETIME_DATE = STR( "CAST('%Y-%m-%d 00:00:00' AS TIMESTAMP)" );
-	static const String ODBC_FORMAT_DATETIME_TIME = STR( "CAST('0000-00-00 %H:%M:%S' AS TIMESTAMP)" );
+	static const String ODBC_FORMAT_DATETIME = STR( "CAST('%Y-%m-%d %H:%M:%S' AS DATETIME)" );
+	static const String ODBC_FORMAT_DATETIME_DATE = STR( "CAST('%Y-%m-%d 00:00:00' AS DATETIME)" );
+	static const String ODBC_FORMAT_DATETIME_TIME = STR( "CAST('0000-00-00 %H:%M:%S' AS DATETIME)" );
 	static const String ODBC_FORMAT_STMT_DATE = STR( "{-d %Y-%m-%d}" );
 	static const String ODBC_FORMAT_STMT_TIME = STR( "{-t %H:%M:%S}" );
 	static const String ODBC_FORMAT_STMT_DATETIME = STR( "{-ts %Y-%m-%d %H:%M:%S}" );
@@ -524,6 +524,18 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MYSQL
 	String CDatabaseConnectionOdbcMySql::DoWriteBool( bool value ) const
 	{
 		return ( value ? STR( "1" ) : STR( "0" ) );
+	}
+
+	String CDatabaseConnectionOdbcMySql::DoWriteFloat( float value ) const
+	{
+		StringStream stream;
+		uint32_t decimals = GetPrecision( EFieldType_FLOAT32 );
+		stream << STR( "CAST( " );
+		stream.precision( decimals );
+		stream << value;
+		// float min == -3.40282e+038 => 39 digits before decimals separator
+		stream << STR( " AS DECIMAL( " ) << ( 39 + decimals ) << STR( ", " ) << decimals << STR( " ) )" );
+		return stream.str();
 	}
 
 	DateType CDatabaseConnectionOdbcMySql::DoParseDate( const std::string & date ) const

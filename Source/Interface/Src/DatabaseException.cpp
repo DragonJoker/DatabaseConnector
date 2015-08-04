@@ -68,10 +68,10 @@ BEGIN_NAMESPACE_DATABASE
 
 	namespace
 	{
-		bool SymbolsInitialised = false;
 
 		void ShowBacktrace( std::stringstream & stream )
 		{
+			static bool SymbolsInitialised = false;
 			const int MaxFnNameLen( 255 );
 
 			void * backTrace[NumOfFnCallsToCapture - NumOfFnCallsToSkip];
@@ -95,8 +95,10 @@ BEGIN_NAMESPACE_DATABASE
 				// For now we just print out a message on sterr.
 				for ( unsigned int i = 0; i < num; ++i )
 				{
-					SymFromAddr( process, reinterpret_cast< DWORD64 >( backTrace[i] ), 0, symbol );
-					stream << "== " << std::string( symbol->Name, symbol->Name + symbol->NameLen ) << std::endl;
+					if ( SymFromAddr( process, reinterpret_cast< DWORD64 >( backTrace[i] ), 0, symbol ) )
+					{
+						stream << "== " << std::string( symbol->Name, symbol->Name + symbol->NameLen ) << std::endl;
+					}
 				}
 
 				free( symbol );
@@ -173,17 +175,20 @@ BEGIN_NAMESPACE_DATABASE
 
 					if ( pointers->ExceptionRecord->NumberParameters >= 2 )
 					{
-						switch( *pointers->ExceptionRecord->ExceptionInformation )
+						switch ( *pointers->ExceptionRecord->ExceptionInformation )
 						{
 						case 0:
 							error << ERROR_DB_READ_ATTEMPT;
 							break;
+
 						case 1:
 							error << ERROR_DB_WRITE_ATTEMPT;
 							break;
+
 						case 8:
 							error << ERROR_DB_DEP_VIOLATION;
 							break;
+
 						default:
 							break;
 						}
@@ -193,55 +198,70 @@ BEGIN_NAMESPACE_DATABASE
 					}
 
 					break;
+
 				case EXCEPTION_ARRAY_BOUNDS_EXCEEDED:
 					error << ERROR_DB_ARRAY_BOUNDS_EXCEEDED << std::endl;
 					break;
+
 				case EXCEPTION_BREAKPOINT:
 					error << ERROR_DB_BREAKPOINT;
 					break;
+
 				case EXCEPTION_DATATYPE_MISALIGNMENT:
 					error << ERROR_DB_DATATYPE_MISALIGNMENT << std::endl;
 					break;
+
 				case EXCEPTION_FLT_DENORMAL_OPERAND:
 					error << ERROR_DB_FLT_DENORMAL_OPERAND << std::endl;
 					break;
+
 				case EXCEPTION_FLT_DIVIDE_BY_ZERO:
 					error << ERROR_DB_FLT_DIVIDE_BY_ZERO << std::endl;
 					break;
+
 				case EXCEPTION_FLT_INEXACT_RESULT:
 					error << ERROR_DB_FLT_INEXACT_RESULT << std::endl;
 					break;
+
 				case EXCEPTION_FLT_INVALID_OPERATION:
 					error << ERROR_DB_FLT_INVALID_OPERATION << std::endl;
 					break;
+
 				case EXCEPTION_FLT_OVERFLOW:
 					error << ERROR_DB_FLT_OVERFLOW << std::endl;
 					break;
+
 				case EXCEPTION_FLT_STACK_CHECK:
 					error << ERROR_DB_FLT_STACK_CHECK << std::endl;
 					break;
+
 				case EXCEPTION_FLT_UNDERFLOW:
 					error << ERROR_DB_FLT_UNDERFLOW << std::endl;
 					break;
+
 				case EXCEPTION_ILLEGAL_INSTRUCTION:
 					error << ERROR_DB_ILLEGAL_INSTRUCTION << std::endl;
 					break;
+
 				case EXCEPTION_IN_PAGE_ERROR:
 					error << ERROR_DB_IN_PAGE_ERROR << std::endl;
 
 					if ( pointers->ExceptionRecord->NumberParameters >= 3 )
 					{
-						switch( *pointers->ExceptionRecord->ExceptionInformation )
+						switch ( *pointers->ExceptionRecord->ExceptionInformation )
 						{
 						case 0:
 							error << ERROR_DB_READ_ATTEMPT;
 							break;
+
 						case 1:
 							error << ERROR_DB_WRITE_ATTEMPT;
 							break;
+
 						case 8:
 							error << ERROR_DB_DEP_VIOLATION;
 							break;
+
 						default:
 							break;
 						}
@@ -251,24 +271,31 @@ BEGIN_NAMESPACE_DATABASE
 					}
 
 					break;
+
 				case EXCEPTION_INT_DIVIDE_BY_ZERO:
 					error << ERROR_DB_INT_DIVIDE_BY_ZERO << std::endl;
 					break;
+
 				case EXCEPTION_INT_OVERFLOW:
 					error << ERROR_DB_INT_OVERFLOW << std::endl;
 					break;
+
 				case EXCEPTION_INVALID_DISPOSITION:
 					error << ERROR_DB_INVALID_DISPOSITION << std::endl;
 					break;
+
 				case EXCEPTION_NONCONTINUABLE_EXCEPTION:
 					error << ERROR_DB_NONCONTINUABLE_EXCEPTION << std::endl;
 					break;
+
 				case EXCEPTION_PRIV_INSTRUCTION:
 					error << ERROR_DB_PRIV_INSTRUCTION << std::endl;
 					break;
+
 				case EXCEPTION_SINGLE_STEP:
 					error << ERROR_DB_SINGLE_STEP << std::endl;
 					break;
+
 				case EXCEPTION_STACK_OVERFLOW:
 					error << ERROR_DB_STACK_OVERFLOW << std::endl;
 					break;

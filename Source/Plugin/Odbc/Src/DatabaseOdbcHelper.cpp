@@ -216,6 +216,45 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			}
 		};
 
+		/** Specialisation for CHAR fields
+		*/
+		template<>
+		struct CInOdbcBind< char *, uint32_t >
+			: public CInOdbcBindBase
+		{
+			std::vector< char > _value;
+
+			/** Constructor
+			@param targetType
+				Data type.
+			@param stmt
+				The statement.
+			@param index
+				The column index.
+			*/
+			CInOdbcBind( SQLSMALLINT targetType, uint32_t limits )
+				: CInOdbcBindBase( targetType, limits + 1 )
+				, _value( limits + 1 )
+			{
+				_targetValuePtr = _value.data();
+			}
+
+			std::string GetValue()const
+			{
+				std::string ret = _value.data();
+
+				if ( ret.size() < _value.size() - 1 )
+				{
+					std::stringstream stream;
+					stream.width( _value.size() - 1 );
+					stream << std::left << ret;
+					ret = stream.str();
+				}
+
+				return ret;
+			}
+		};
+
 		/** Specialisation for pointer types
 		*/
 		template<>
@@ -240,6 +279,45 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			wchar_t const * GetValue()const
 			{
 				return _value.data();
+			}
+		};
+
+		/** Specialisation for NCHAR fields
+		*/
+		template<>
+		struct CInOdbcBind< wchar_t *, uint32_t >
+			: public CInOdbcBindBase
+		{
+			std::vector< wchar_t > _value;
+
+			/** Constructor
+			@param targetType
+				Data type.
+			@param stmt
+				The statement.
+			@param index
+				The column index.
+			*/
+			CInOdbcBind( SQLSMALLINT targetType, uint32_t limits )
+				: CInOdbcBindBase( targetType, limits + 1 )
+				, _value( limits + 1 )
+			{
+				_targetValuePtr = _value.data();
+			}
+
+			std::wstring GetValue()const
+			{
+				std::wstring ret = _value.data();
+
+				if ( ret.size() < _value.size() - 1 )
+				{
+					std::wstringstream stream;
+					stream.width( _value.size() - 1 );
+					stream << std::left << ret;
+					ret = stream.str();
+				}
+
+				return ret;
 			}
 		};
 
@@ -370,12 +448,12 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 		std::string StringFromOdbcString( CInOdbcBind< char * > const & bind )
 		{
-			return std::string( bind.GetValue(), bind.GetValue() + std::min< size_t >( strlen(bind.GetValue() ), bind._strLenOrInd ) );
+			return std::string( bind.GetValue(), bind.GetValue() + std::min< size_t >( strlen( bind.GetValue() ), bind._strLenOrInd ) );
 		}
 
 		std::wstring StringFromOdbcWString( CInOdbcBind< wchar_t * > const & bind )
 		{
-			return std::wstring( bind.GetValue(), bind.GetValue() + std::min< size_t >( wcslen(bind.GetValue() ), bind._strLenOrInd ) );
+			return std::wstring( bind.GetValue(), bind.GetValue() + std::min< size_t >( wcslen( bind.GetValue() ), bind._strLenOrInd ) );
 		}
 
 		ByteArray VectorFromOdbcBinary( CInOdbcBind< uint8_t * > const & bind )
@@ -462,15 +540,21 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				break;
 
 			case EFieldType_CHAR:
+				result = std::make_unique< CInOdbcBind< char *, uint32_t > >( SQL_C_CHAR, limits );
+				break;
+
 			case EFieldType_VARCHAR:
 			case EFieldType_TEXT:
 				result = std::make_unique< CInOdbcBind< char * > >( SQL_C_CHAR, limits );
 				break;
 
 			case EFieldType_NCHAR:
+				result = std::make_unique< CInOdbcBind< wchar_t *, uint32_t > >( SQL_C_WCHAR, limits );
+				break;
+
 			case EFieldType_NVARCHAR:
 			case EFieldType_NTEXT:
-				result = std::make_unique< CInOdbcBind< char * > >( SQL_C_WCHAR, limits );
+				result = std::make_unique< CInOdbcBind< wchar_t * > >( SQL_C_WCHAR, limits );
 				break;
 
 			case EFieldType_DATE:
@@ -755,7 +839,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				numericAttribute = 0;
 				OdbcCheck( SQLColAttribute( stmt, i, SQL_DESC_TYPE_NAME, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_TYPE_NAME );
 				String typeName = StringUtils::ToString( buffer );
-				
+
 				DatabaseValuedObjectInfosSPtr infos;
 				std::unique_ptr< CInOdbcBindBase > bind;
 
@@ -843,7 +927,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				break;
 
 			case EFieldType_CHAR:
-				static_cast< CDatabaseValue< EFieldType_CHAR > & >( value ).SetValue( StringFromOdbcString( static_cast< CInOdbcBind< char * > const & >( bind ) ) );
+				static_cast< CDatabaseValue< EFieldType_CHAR > & >( value ).SetValue( static_cast< CInOdbcBind< char *, uint32_t > const & >( bind ).GetValue() );
 				break;
 
 			case EFieldType_VARCHAR:
@@ -855,7 +939,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				break;
 
 			case EFieldType_NCHAR:
-				static_cast< CDatabaseValue< EFieldType_NCHAR > & >( value ).SetValue( StringFromOdbcWString( static_cast< CInOdbcBind< wchar_t * > const & >( bind ) ) );
+				static_cast< CDatabaseValue< EFieldType_NCHAR > & >( value ).SetValue( static_cast< CInOdbcBind< wchar_t *, uint32_t > const & >( bind ).GetValue() );
 				break;
 
 			case EFieldType_NVARCHAR:

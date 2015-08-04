@@ -107,7 +107,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		{
 			SQLDisconnect( _connectionHandle );
 		}
-		
+
 		StringStream connectionString;
 		connectionString << ODBC_DSN_DRIVER + _server;
 		connectionString << ODBC_DSN_DATABASE << database;

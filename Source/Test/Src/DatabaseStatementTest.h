@@ -1,16 +1,16 @@
 /************************************************************************//**
-* @file DatabaseInterfaceTest.h
+* @file DatabaseStatementTest.h
 * @author Sylvain Doremus
 * @version 1.0
 * @date 12/02/2014 14:29:35
 *
 *
-* @brief Class testing all Interface members
+* @brief Class testing CDatabaseStatement class
 *
 ***************************************************************************/
 
-#ifndef ___DATABASE_INTERFACE_TEST_H___
-#define ___DATABASE_INTERFACE_TEST_H___
+#ifndef ___DATABASE_STATEMENT_TEST_H___
+#define ___DATABASE_STATEMENT_TEST_H___
 
 #include "DatabaseTestPrerequisites.h"
 
@@ -20,18 +20,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 {
 	/** Database unit test class
 	*/
-	class CDatabaseInterfaceTest
+	class CDatabaseStatementTest
 	{
 		/** @name Default constructor / Destructor */
 		//!@{
 	public:
 		/** Default constructor.
 		*/
-		CDatabaseInterfaceTest();
+		CDatabaseStatementTest();
 
 		/** Destructor.
 		*/
-		~CDatabaseInterfaceTest();
+		~CDatabaseStatementTest();
 		//!@}
 
 	public:
@@ -53,13 +53,21 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		*/
 		//!@{
 
-		/** Test the basic CDatabaseQuery functions
+		/** Test CDatabaseStatement::Initialise function
 		*/
-		void TestCase_DatabaseQuery();
+		void TestCase_StatementInitialisation();
+
+		/** Test the CDatabaseStatement parameter management functions
+		*/
+		void TestCase_StatementParameterManagement();
+
+		/** Test the CDatabaseStatement execution methods
+		*/
+		void TestCase_StatementExecution();
 
 		//!@}
 	};
 }
 END_NAMESPACE_DATABASE_TEST
 
-#endif // ___DATABASE_INTERFACE_TEST_H___
+#endif // ___DATABASE_STATEMENT_TEST_H___

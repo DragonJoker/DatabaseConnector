@@ -68,15 +68,15 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			ret = DoExecuteUpdate();
 		}
-		catch( CDatabaseException & exc )
+		catch ( CDatabaseException & exc )
 		{
 			CLogger::LogError( ERROR_STATEMENT_EXECUTION + exc.GetFullDescription() );
 		}
-		catch( std::exception & exc )
+		catch ( std::exception & exc )
 		{
 			CLogger::LogError( ERROR_STATEMENT_EXECUTION + exc.what() );
 		}
-		catch( ... )
+		catch ( ... )
 		{
 			CLogger::LogError( ERROR_STATEMENT_EXECUTION + INFO_UNKNOWN_ERROR );
 		}
@@ -97,15 +97,15 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			ret = DoExecuteSelect();
 		}
-		catch( CDatabaseException & exc )
+		catch ( CDatabaseException & exc )
 		{
 			CLogger::LogError( ERROR_STATEMENT_EXECUTION + exc.GetFullDescription() );
 		}
-		catch( std::exception & exc )
+		catch ( std::exception & exc )
 		{
 			CLogger::LogError( ERROR_STATEMENT_EXECUTION + exc.what() );
 		}
-		catch( ... )
+		catch ( ... )
 		{
 			CLogger::LogError( ERROR_STATEMENT_EXECUTION + INFO_UNKNOWN_ERROR );
 		}

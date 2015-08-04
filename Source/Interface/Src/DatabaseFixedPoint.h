@@ -193,6 +193,22 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		static inline int8_t GetMaxPrecision();
 
+		/** Retrieves the precision needed for the given value
+		@param[in] value
+			The value
+		@return
+			The precision
+		*/
+		static inline uint8_t GetValuePrecision( float value );
+
+		/** Retrieves the precision needed for the given value
+		@param[in] value
+			The value
+		@return
+			The precision
+		*/
+		static inline uint16_t GetValuePrecision( double value );
+
 	private:
 		/** Adjusts the value to the decimals, checks the precision
 		@remarks

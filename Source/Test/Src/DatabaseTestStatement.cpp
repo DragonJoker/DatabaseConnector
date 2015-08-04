@@ -22,6 +22,10 @@
 
 BEGIN_NAMESPACE_DATABASE_TEST
 {
+	static const String ERROR_TEST_STATEMENT_EMPTY = STR( "The query is empty." );
+	static const String ERROR_TEST_STATEMENT_INCONSISTENCY = STR( "Number of parameters doesn't match the sizes of parameter containers." );
+	static const String ERROR_TEST_STATEMENT_INVALID = STR( "The query text is invalid." );
+
 	extern DatabaseRowSPtr CreateRow( DatabaseConnectionSPtr connection, const DatabaseValuedObjectInfosPtrArray & fieldInfos );
 	extern DatabaseValuedObjectInfosPtrArray CreateFieldsInfos();
 
@@ -60,24 +64,26 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 	EErrorType CDatabaseTestStatement::DoInitialise()
 	{
-		DatabaseTestConnectionSPtr connection = DoGetTestConnection();
-
-		if ( !connection )
+		if ( _query.empty() )
 		{
-			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_TEST_LOST_CONNECTION );
+			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_TEST_STATEMENT_EMPTY );
 		}
 
-		EErrorType eReturn = EErrorType_ERROR;
+		_paramsCount = uint32_t( std::count( _query.begin(), _query.end(), STR( '?' ) ) );
 
-		if ( !_query.empty() )
+		if ( _paramsCount != _arrayParams.size() )
 		{
-			_paramsCount = uint32_t( std::count( _query.begin(), _query.end(), STR( '?' ) ) );
-			_arrayQueries = StringUtils::Split( _query, STR( "?" ), _paramsCount + 1 );
-			eReturn = EErrorType_NONE;
+			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_TEST_STATEMENT_INCONSISTENCY );
 		}
 
-		BOOST_CHECK_EQUAL( _paramsCount, _arrayParams.size() );
-		return eReturn;
+		_arrayQueries = StringUtils::Split( _query, STR( "?" ), _paramsCount + 1, false );
+
+		if ( _arrayQueries.empty() )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_TEST_STATEMENT_INVALID );
+		}
+
+		return EErrorType_NONE;
 	}
 
 	bool CDatabaseTestStatement::DoExecuteUpdate()

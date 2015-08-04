@@ -132,13 +132,13 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		return DoExecuteUpdate( ODBC_SQL_TRANSACTION_ROLLBACK + name );
 	}
 
-	bool CDatabaseConnectionOdbc::DoExecuteUpdate( const String & query)
+	bool CDatabaseConnectionOdbc::DoExecuteUpdate( const String & query )
 	{
 		DatabaseResultSPtr ret;
 		return SqlExecute( shared_from_this(), InitialiseStatement( query, _connectionHandle ), &FinaliseStatement, ret ) == EErrorType_NONE;
 	}
 
-	DatabaseResultSPtr CDatabaseConnectionOdbc::DoExecuteSelect( const String & query)
+	DatabaseResultSPtr CDatabaseConnectionOdbc::DoExecuteSelect( const String & query )
 	{
 		DatabaseResultSPtr ret;
 		SqlExecute( shared_from_this(), InitialiseStatement( query, _connectionHandle ), &FinaliseStatement, ret );

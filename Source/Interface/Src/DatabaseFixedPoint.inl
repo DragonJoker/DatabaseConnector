@@ -39,9 +39,9 @@ BEGIN_NAMESPACE_DATABASE
 		template< typename T >
 		struct ValuePrecision< T, typename std::enable_if< std::is_signed< T >::value >::type >
 		{
-			static int8_t Get( T value )
+			static int16_t Get( T value )
 			{
-				int8_t precision = 0;
+				int16_t precision = 0;
 				value = abs( value );
 
 				while ( value >= 1 )
@@ -57,9 +57,9 @@ BEGIN_NAMESPACE_DATABASE
 		template< typename T >
 		struct ValuePrecision< T, typename std::enable_if< std::is_unsigned< T >::value >::type >
 		{
-			static int8_t Get( T value )
+			static int16_t Get( T value )
 			{
-				int8_t precision = 0;
+				int16_t precision = 0;
 
 				while ( value >= 1 )
 				{
@@ -74,9 +74,9 @@ BEGIN_NAMESPACE_DATABASE
 		template<>
 		struct ValuePrecision< int256_t, void >
 		{
-			static int8_t Get( int256_t value )
+			static int16_t Get( int256_t value )
 			{
-				int8_t precision = 0;
+				int16_t precision = 0;
 				value = abs( value );
 
 				while ( value >= 1 )
@@ -92,9 +92,9 @@ BEGIN_NAMESPACE_DATABASE
 		template<>
 		struct ValuePrecision< uint256_t, void >
 		{
-			static int8_t Get( uint256_t value )
+			static int16_t Get( uint256_t value )
 			{
-				int8_t precision = 0;
+				int16_t precision = 0;
 
 				while ( value >= 1 )
 				{
@@ -431,6 +431,16 @@ BEGIN_NAMESPACE_DATABASE
 	inline int8_t CFixedPoint::GetMaxPrecision()
 	{
 		return int8_t( 20 );
+	}
+
+	inline uint8_t CFixedPoint::GetValuePrecision( float value )
+	{
+		return uint8_t( ValuePrecision< float >::Get( value ) );
+	}
+
+	inline uint16_t CFixedPoint::GetValuePrecision( double value )
+	{
+		return uint16_t( ValuePrecision< double >::Get( value ) );
 	}
 
 	template< typename T >

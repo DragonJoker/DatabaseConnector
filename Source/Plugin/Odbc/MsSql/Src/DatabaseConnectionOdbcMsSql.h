@@ -231,7 +231,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		@return
 			The created statement.
 		*/
-		virtual DatabaseStatementSPtr DoCreateStatement( const String & query);
+		virtual DatabaseStatementSPtr DoCreateStatement( const String & query );
 	};
 }
 END_NAMESPACE_DATABASE_ODBC_MSSQL

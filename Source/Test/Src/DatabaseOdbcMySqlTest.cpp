@@ -24,7 +24,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 	static const String DATABASE_ODBC_MYSQL_TYPE = STR( "Database.Odbc.MySql" );
 
-	static STestConfig g_config = { false, false, STR( "=" ), true, true, false };
+	static STestConfig g_config = { false, false, STR( "=" ), true, true, false, false };
 
 	CDatabaseOdbcMySqlTest::CDatabaseOdbcMySqlTest()
 		: CDatabaseTest( DATABASE_ODBC_MYSQL_TYPE, DB_SERVER, DB_DATABASE, DB_USER, DB_PASS, g_config )

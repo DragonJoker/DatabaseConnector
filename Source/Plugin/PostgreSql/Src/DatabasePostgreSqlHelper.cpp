@@ -38,7 +38,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 	static const TChar * ERROR_POSTGRESQL_UNKNOWN = STR( "Unknown error encountered while executing query" );
 
 	//************************************************************************************************
-	
+
 	SInPostgreSqlBindBase::SInPostgreSqlBindBase( int index, PGresult * result )
 		: _result( result )
 		, _index( index )
@@ -382,7 +382,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 				char * escaped = PQgetvalue( _result, row, _index );
 				size_t length = 0;
 				uint8_t * value = PQunescapeBytea( reinterpret_cast< uint8_t * >( escaped ), &length );
-				
+
 				return std::vector< uint8_t >( value, value + length );
 			}
 		};
@@ -901,8 +901,18 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			Oid oid = PQftype( result, index );
 			int size = PQfsize( result, index );
 			EFieldType type = GetFieldTypeFromOid( oid );
-			arrayReturn.push_back( std::make_shared< CDatabaseValuedObjectInfos >( StringUtils::ToString( name ), type, size ) );
 			bind = std::move( GetInBind( type, index, result ) );
+
+			if ( type == EFieldType_FIXED_POINT )
+			{
+				const SInPostgreSqlBind< EFieldType_FIXED_POINT > & fixedBind = static_cast< const SInPostgreSqlBind< EFieldType_FIXED_POINT > & >( *bind );
+				arrayReturn.push_back( std::make_shared< CDatabaseValuedObjectInfos >( StringUtils::ToString( name ), type, std::make_pair( fixedBind._precision, fixedBind._decimals ) ) );
+			}
+			else
+			{
+				arrayReturn.push_back( std::make_shared< CDatabaseValuedObjectInfos >( StringUtils::ToString( name ), type, size ) );
+			}
+
 			++index;
 		}
 

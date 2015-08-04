@@ -104,7 +104,7 @@ namespace Database
 	*/
 	class CSystemExceptionHandler {};
 
-	// 
+	//
 	class CDatabase;
 	class CDatabaseConnection;
 	class CDatabaseField;

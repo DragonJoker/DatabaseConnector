@@ -52,15 +52,15 @@ BEGIN_NAMESPACE_DATABASE
 			ret = DoInitialise();
 			_initialised = true;
 		}
-		catch( CDatabaseException & exc )
+		catch ( CDatabaseException & exc )
 		{
 			CLogger::LogError( ERROR_DB_PARAMETER_INITIALISATION + exc.GetFullDescription() );
 		}
-		catch( std::exception & exc )
+		catch ( std::exception & exc )
 		{
 			CLogger::LogError( ERROR_DB_PARAMETER_INITIALISATION + exc.what() );
 		}
-		catch( ... )
+		catch ( ... )
 		{
 			CLogger::LogError( ERROR_DB_PARAMETER_INITIALISATION + INFO_UNKNOWN_ERROR );
 		}
@@ -74,15 +74,15 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			DoCleanup();
 		}
-		catch( CDatabaseException & exc )
+		catch ( CDatabaseException & exc )
 		{
 			CLogger::LogError( ERROR_DB_PARAMETER_CLEANUP + exc.GetFullDescription() );
 		}
-		catch( std::exception & exc )
+		catch ( std::exception & exc )
 		{
 			CLogger::LogError( ERROR_DB_PARAMETER_CLEANUP + exc.what() );
 		}
-		catch( ... )
+		catch ( ... )
 		{
 			CLogger::LogError( ERROR_DB_PARAMETER_CLEANUP + INFO_UNKNOWN_ERROR );
 		}

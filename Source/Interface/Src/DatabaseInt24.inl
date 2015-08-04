@@ -202,14 +202,14 @@ BEGIN_NAMESPACE_DATABASE
 
 	inline std::ostream & operator<<( std::ostream & out, const int24_t & value )
 	{
-		 out << int32_t( value );
-		 return out;
+		out << int32_t( value );
+		return out;
 	}
 
 	inline std::wostream & operator<<( std::wostream & out, const int24_t & value )
 	{
-		 out << int32_t( value );
-		 return out;
+		out << int32_t( value );
+		return out;
 	}
 
 	inline uint24_t::operator int24_t() const
@@ -368,14 +368,14 @@ BEGIN_NAMESPACE_DATABASE
 
 	inline std::ostream & operator<<( std::ostream & out, const uint24_t & value )
 	{
-		 out << uint32_t( value );
-		 return out;
+		out << uint32_t( value );
+		return out;
 	}
 
 	inline std::wostream & operator<<( std::wostream & out, const uint24_t & value )
 	{
-		 out << uint32_t( value );
-		 return out;
+		out << uint32_t( value );
+		return out;
 	}
 }
 END_NAMESPACE_DATABASE

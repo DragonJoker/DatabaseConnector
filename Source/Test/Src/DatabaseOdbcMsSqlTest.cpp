@@ -24,7 +24,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 	static const String DATABASE_ODBC_MSSQL_TYPE = STR( "Database.Odbc.MsSql" );
 
-	static STestConfig g_config = { true, false, STR( "=" ), false, true, true };
+	static STestConfig g_config = { true, false, STR( "=" ), false, true, true, true };
 
 	CDatabaseOdbcMsSqlTest::CDatabaseOdbcMsSqlTest()
 		: CDatabaseTest( DATABASE_ODBC_MSSQL_TYPE, DB_SERVER, DB_DATABASE, DB_USER, DB_PASS, g_config )

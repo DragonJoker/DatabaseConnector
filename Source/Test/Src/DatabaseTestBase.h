@@ -26,6 +26,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		bool hasInt24;
 		bool hasTinyInt;
 		bool hasUnsignedTiny;
+		bool hasDecentFloat32;
 	};
 
 	/** Database unit test class
@@ -63,10 +64,13 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		*  TCs' implementation
 		*/
 
-		/** Test insertion and retrieval of a value
+		/** Test insertion and retrieval of a value through CDatabaseQuery
 		*/
-		template< typename StmtType >
-		void TestCase_DatabaseFieldsInsertRetrieve( const String & name );
+		void TestCase_DatabaseQueryFieldsInsertRetrieve();
+
+		/** Test insertion and retrieval of a value through CDatabaseStatement
+		*/
+		void TestCase_DatabaseStatementFieldsInsertRetrieve();
 
 		/** Test insertion and retrieval of a value
 		*/

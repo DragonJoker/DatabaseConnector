@@ -619,7 +619,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			{
 				PostgreSQLCheck( NULL, INFO_ESCAPING_BINARY, EDatabaseExceptionCodes_ConnectionError, _connection );
 			}
-			
+
 			std::string value = StringUtils::ToString( reinterpret_cast< char * >( escaped ) );
 			PQfreemem( escaped );
 			_bind.length = int( length );
