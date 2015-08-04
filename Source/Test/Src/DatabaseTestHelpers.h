@@ -22,7 +22,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		template<> struct Helpers< EFieldType_BIT >
 		{
-			static const uint32_t Limit = -1;
+			static const uint32_t Limit;
 			typedef bool ParamType;
 			typedef ParamType FieldType;
 
@@ -35,7 +35,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		template<> struct Helpers< EFieldType_SINT8 >
 		{
-			static const uint32_t Limit = -1;
+			static const uint32_t Limit;
 			typedef int8_t ParamType;
 			typedef ParamType FieldType;
 
@@ -48,7 +48,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		template<> struct Helpers< EFieldType_UINT8 >
 		{
-			static const uint32_t Limit = -1;
+			static const uint32_t Limit;
 			typedef uint8_t ParamType;
 			typedef ParamType FieldType;
 
@@ -61,7 +61,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		template<> struct Helpers< EFieldType_SINT16 >
 		{
-			static const uint32_t Limit = -1;
+			static const uint32_t Limit;
 			typedef int16_t ParamType;
 			typedef ParamType FieldType;
 
@@ -74,7 +74,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		template<> struct Helpers< EFieldType_UINT16 >
 		{
-			static const uint32_t Limit = -1;
+			static const uint32_t Limit;
 			typedef uint16_t ParamType;
 			typedef ParamType FieldType;
 
@@ -87,7 +87,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		template<> struct Helpers< EFieldType_SINT24 >
 		{
-			static const uint32_t Limit = -1;
+			static const uint32_t Limit;
 			typedef int24_t ParamType;
 			typedef ParamType FieldType;
 
@@ -100,7 +100,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		template<> struct Helpers< EFieldType_UINT24 >
 		{
-			static const uint32_t Limit = -1;
+			static const uint32_t Limit;
 			typedef uint24_t ParamType;
 			typedef ParamType FieldType;
 
@@ -113,7 +113,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		template<> struct Helpers< EFieldType_SINT32 >
 		{
-			static const uint32_t Limit = -1;
+			static const uint32_t Limit;
 			typedef int32_t ParamType;
 			typedef ParamType FieldType;
 
@@ -126,7 +126,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		template<> struct Helpers< EFieldType_UINT32 >
 		{
-			static const uint32_t Limit = -1;
+			static const uint32_t Limit;
 			typedef uint32_t ParamType;
 			typedef ParamType FieldType;
 
@@ -139,7 +139,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		template<> struct Helpers< EFieldType_SINT64 >
 		{
-			static const uint32_t Limit = -1;
+			static const uint32_t Limit;
 			typedef int64_t ParamType;
 			typedef ParamType FieldType;
 
@@ -152,7 +152,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		template<> struct Helpers< EFieldType_UINT64 >
 		{
-			static const uint32_t Limit = -1;
+			static const uint32_t Limit;
 			typedef uint64_t ParamType;
 			typedef ParamType FieldType;
 
@@ -165,7 +165,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		template<> struct Helpers< EFieldType_FLOAT32 >
 		{
-			static const uint32_t Limit = -1;
+			static const uint32_t Limit;
 			typedef float ParamType;
 			typedef ParamType FieldType;
 
@@ -178,7 +178,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		template<> struct Helpers< EFieldType_FLOAT64 >
 		{
-			static const uint32_t Limit = -1;
+			static const uint32_t Limit;
 			typedef double ParamType;
 			typedef ParamType FieldType;
 
@@ -209,7 +209,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		template<> struct Helpers< EFieldType_DATE >
 		{
-			static const uint32_t Limit = -1;
+			static const uint32_t Limit;
 			typedef DateType ParamType;
 			typedef ParamType FieldType;
 
@@ -221,7 +221,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		template<> struct Helpers< EFieldType_DATETIME >
 		{
-			static const uint32_t Limit = -1;
+			static const uint32_t Limit;
 			typedef DateTimeType ParamType;
 			typedef ParamType FieldType;
 
@@ -233,7 +233,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		template<> struct Helpers< EFieldType_TIME >
 		{
-			static const uint32_t Limit = -1;
+			static const uint32_t Limit;
 			typedef TimeType ParamType;
 			typedef ParamType FieldType;
 
@@ -245,7 +245,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		template<> struct Helpers< EFieldType_CHAR >
 		{
-			static const uint32_t Limit = 20;
+			static const uint32_t Limit;
 			typedef std::string ParamType;
 			typedef std::string FieldType;
 
@@ -277,7 +277,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		template<> struct Helpers< EFieldType_VARCHAR >
 		{
-			static const uint32_t Limit = 20;
+			static const uint32_t Limit;
 			typedef std::string ParamType;
 			typedef std::string FieldType;
 
@@ -309,7 +309,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		template<> struct Helpers< EFieldType_NCHAR >
 		{
-			static const uint32_t Limit = 55;
+			static const uint32_t Limit;
 			typedef std::wstring ParamType;
 			typedef std::wstring FieldType;
 
@@ -341,7 +341,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		template<> struct Helpers< EFieldType_NVARCHAR >
 		{
-			static const uint32_t Limit = 55;
+			static const uint32_t Limit;
 			typedef std::wstring ParamType;
 			typedef std::wstring FieldType;
 
@@ -373,7 +373,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		template<> struct Helpers< EFieldType_TEXT >
 		{
-			static const uint32_t Limit = -1;
+			static const uint32_t Limit;
 			typedef std::string ParamType;
 			typedef std::string FieldType;
 
@@ -405,7 +405,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		template<> struct Helpers< EFieldType_NTEXT >
 		{
-			static const uint32_t Limit = -1;
+			static const uint32_t Limit;
 			typedef std::wstring ParamType;
 			typedef std::wstring FieldType;
 
@@ -437,7 +437,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		template<> struct Helpers< EFieldType_BINARY >
 		{
-			static const uint32_t Limit = 20;
+			static const uint32_t Limit;
 			typedef ByteArray ParamType;
 			typedef ParamType FieldType;
 
@@ -469,7 +469,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		template<> struct Helpers< EFieldType_VARBINARY >
 		{
-			static const uint32_t Limit = 255;
+			static const uint32_t Limit;
 			typedef ByteArray ParamType;
 			typedef ParamType FieldType;
 
@@ -501,7 +501,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		template<> struct Helpers< EFieldType_BLOB >
 		{
-			static const uint32_t Limit = -1;
+			static const uint32_t Limit;
 			typedef ByteArray ParamType;
 			typedef ParamType FieldType;
 

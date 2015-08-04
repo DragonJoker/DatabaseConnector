@@ -559,8 +559,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template< EFieldType FieldType, typename Enable = void >
 		struct ParameterCreator
 		{
-			template< size_t StmtType >
-			static void Create( std::shared_ptr< typename StatementTyper< StmtType >::Type > stmt, const String & name )
+			template< typename Statement >
+			static void Create( std::shared_ptr< Statement > stmt, const String & name )
 			{
 				BOOST_CHECK( stmt->CreateParameter( name, FieldType ) );
 			}
@@ -569,8 +569,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template< EFieldType FieldType >
 		struct ParameterCreator< FieldType, typename std::enable_if< SFieldTypeNeedsLimits< FieldType >::value >::type >
 		{
-			template< size_t StmtType >
-			static void Create( std::shared_ptr< typename StatementTyper< StmtType >::Type > stmt, const String & name )
+			template< typename Statement >
+			static void Create( std::shared_ptr< Statement > stmt, const String & name )
 			{
 				BOOST_CHECK( stmt->CreateParameter( name, FieldType, Helpers< FieldType >::Limit ) );
 			}
@@ -579,8 +579,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template< EFieldType FieldType >
 		struct ParameterCreator< FieldType, typename std::enable_if< SFieldTypeNeedsPrecision< FieldType >::value >::type >
 		{
-			template< size_t StmtType >
-			static void Create( std::shared_ptr< typename StatementTyper< StmtType >::Type > stmt, const String & name )
+			template< typename Statement >
+			static void Create( std::shared_ptr< Statement > stmt, const String & name )
 			{
 				BOOST_CHECK( stmt->CreateParameter( name, FieldType, Helpers< FieldType >::Precision ) );
 			}
@@ -598,16 +598,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			{
 				auto stmtInsert = CreateStmt< StmtType >( connection, STR( "INSERT INTO Test (" ) + name + STR( ") VALUES (?)" ) );
 				std::shared_ptr< typename StatementTyper< StmtType >::Type > stmtSelect;
-				String field;
-
-				if ( FieldType == EFieldType_FLOAT32 )
-				{
-					field = STR( "CAST( " ) + name + STR( " AS DECIMAL( " ) + StringUtils::ToString( 39 + connection->GetPrecision( FieldType ) ) + STR( ", " ) + StringUtils::ToString( connection->GetPrecision( FieldType ) ) + STR( " ) )" );
-				}
-				else
-				{
-					field = name;
-				}
+				String field = name;
 
 				if ( valueIn )
 				{
@@ -623,8 +614,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( stmtInsert && stmtSelect )
 				{
-					ParameterCreator< FieldType >::Create< StmtType >( stmtInsert, name );
-					ParameterCreator< FieldType >::Create< StmtType >( stmtSelect, name );
+					ParameterCreator< FieldType >::Create( stmtInsert, name );
+					ParameterCreator< FieldType >::Create( stmtSelect, name );
 
 					BOOST_CHECK( stmtInsert->Initialise() == EErrorType_NONE );
 					BOOST_CHECK( stmtSelect->Initialise() == EErrorType_NONE );
@@ -717,8 +708,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( stmtInsert && stmtSelect )
 				{
-					ParameterCreator< EFieldType_FLOAT32 >::Create< 0 >( stmtInsert, name );
-					ParameterCreator< EFieldType_FLOAT32 >::Create< 0 >( stmtSelect, name );
+					ParameterCreator< EFieldType_FLOAT32 >::Create( stmtInsert, name );
+					ParameterCreator< EFieldType_FLOAT32 >::Create( stmtSelect, name );
 
 					BOOST_CHECK( stmtInsert->Initialise() == EErrorType_NONE );
 					BOOST_CHECK( stmtSelect->Initialise() == EErrorType_NONE );
@@ -811,8 +802,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( stmtInsert && stmtSelect )
 				{
-					ParameterCreator< EFieldType_FLOAT32 >::Create< 1 >( stmtInsert, name );
-					ParameterCreator< EFieldType_FLOAT32 >::Create< 1 >( stmtSelect, name );
+					ParameterCreator< EFieldType_FLOAT32 >::Create( stmtInsert, name );
+					ParameterCreator< EFieldType_FLOAT32 >::Create( stmtSelect, name );
 
 					BOOST_CHECK( stmtInsert->Initialise() == EErrorType_NONE );
 					BOOST_CHECK( stmtSelect->Initialise() == EErrorType_NONE );
@@ -904,10 +895,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( stmtInsert && stmtSelect )
 				{
-					ParameterCreator< EFieldType_SINT32 >::Create< StmtType >( stmtInsert, STR( "IntField" ) );
-					ParameterCreator< FieldType >::Create< StmtType >( stmtInsert, name );
-					ParameterCreator< EFieldType_SINT32 >::Create< StmtType >( stmtSelect, STR( "IntField" ) );
-					ParameterCreator< FieldType >::Create< StmtType >( stmtSelect, name );
+					ParameterCreator< EFieldType_SINT32 >::Create( stmtInsert, STR( "IntField" ) );
+					ParameterCreator< FieldType >::Create( stmtInsert, name );
+					ParameterCreator< EFieldType_SINT32 >::Create( stmtSelect, STR( "IntField" ) );
+					ParameterCreator< FieldType >::Create( stmtSelect, name );
 
 					BOOST_CHECK( stmtInsert->Initialise() == EErrorType_NONE );
 					BOOST_CHECK( stmtSelect->Initialise() == EErrorType_NONE );
@@ -1014,8 +1005,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( stmtInsert && stmtSelect )
 				{
-					ParameterCreator< FieldType >::Create< StmtType >( stmtInsert, name );
-					ParameterCreator< FieldType >::Create< StmtType >( stmtSelect, name );
+					ParameterCreator< FieldType >::Create( stmtInsert, name );
+					ParameterCreator< FieldType >::Create( stmtSelect, name );
 
 					BOOST_CHECK( stmtInsert->Initialise() == EErrorType_NONE );
 					BOOST_CHECK( stmtSelect->Initialise() == EErrorType_NONE );
@@ -1119,10 +1110,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( stmtInsert && stmtSelect )
 				{
-					ParameterCreator< EFieldType_SINT32 >::Create< StmtType >( stmtInsert, STR( "IntField" ) );
-					ParameterCreator< FieldType >::Create< StmtType >( stmtInsert, name );
-					ParameterCreator< EFieldType_SINT32 >::Create< StmtType >( stmtSelect, STR( "IntField" ) );
-					ParameterCreator< FieldType >::Create< StmtType >( stmtSelect, name );
+					ParameterCreator< EFieldType_SINT32 >::Create( stmtInsert, STR( "IntField" ) );
+					ParameterCreator< FieldType >::Create( stmtInsert, name );
+					ParameterCreator< EFieldType_SINT32 >::Create( stmtSelect, STR( "IntField" ) );
+					ParameterCreator< FieldType >::Create( stmtSelect, name );
 
 					BOOST_CHECK( stmtInsert->Initialise() == EErrorType_NONE );
 					BOOST_CHECK( stmtSelect->Initialise() == EErrorType_NONE );

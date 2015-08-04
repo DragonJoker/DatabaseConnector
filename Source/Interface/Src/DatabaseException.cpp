@@ -27,6 +27,10 @@
 #	endif
 #endif
 
+#if !defined( _WIN32 )
+#	include <signal.h>
+#endif
+
 BEGIN_NAMESPACE_DATABASE
 {
 	const int NumOfFnCallsToCapture( 20 );
@@ -113,8 +117,9 @@ BEGIN_NAMESPACE_DATABASE
 #	endif
 #endif
 
-#if defined( _WIN32 )
 	static const String ERROR_DB_SYSTEM = STR( "System error: " );
+
+#if defined( _WIN32 )
 	static const String ERROR_DB_ACCESS_VIOLATION = STR( "The thread tried to read from or write to a virtual address for which it does not have the appropriate access." );
 	static const String ERROR_DB_ARRAY_BOUNDS_EXCEEDED = STR( "The thread tried to access an array element that is out of bounds and the underlying hardware supports bounds checking." );
 	static const String ERROR_DB_BREAKPOINT = STR( "A breakpoint was encountered." );
@@ -143,8 +148,8 @@ BEGIN_NAMESPACE_DATABASE
 		: public CSystemExceptionHandler
 	{
 	public:
-		CSehExceptionHandler( _se_translator_function function )
-			: _function( function )
+		CSehExceptionHandler()// _se_translator_function function )
+			//: _function( function )
 		{
 		}
 
@@ -314,6 +319,57 @@ BEGIN_NAMESPACE_DATABASE
 		DB_EXCEPT( EDatabaseExceptionCodes_SystemError, error.str() );
 	}
 
+#else
+	static const String ERROR_DB_ACCESS_VIOLATION = STR( "The thread tried to read from or write to a virtual address for which it does not have the appropriate access." );
+	static const String ERROR_DB_DIVIDE_BY_ZERO = STR( "The thread tried to divide a value by a divisor of zero." );
+
+	typedef void ( *SignalHandlerPointer )( int );
+	
+	class CSignalHandler
+		: public CSystemExceptionHandler
+	{
+	public:
+		CSignalHandler()// SignalHandlerPointer segvfunction, SignalHandlerPointer fpefunction )
+			//: _segvfunction( segvfunction )
+			//, _fpefunction( fpefunction )
+		{
+		}
+
+		SignalHandlerPointer GetSegvFunction()const
+		{
+			return _segvfunction;
+		}
+
+		SignalHandlerPointer GetFpeFunction()const
+		{
+			return _fpefunction;
+		}
+
+	private:
+		SignalHandlerPointer _segvfunction;
+		SignalHandlerPointer _fpefunction;
+	};
+	
+	void OsToDatabaseException( int signal )
+	{
+		StringStream error;
+		std::hex( error );
+		error << ERROR_DB_SYSTEM << STR( "(0x" ) << signal << STR( ") " );
+
+		switch ( signal )
+		{
+		case SIGSEGV:
+			error << ERROR_DB_ACCESS_VIOLATION << std::endl;
+			break;
+			
+		case SIGFPE:
+			error << ERROR_DB_DIVIDE_BY_ZERO << std::endl;
+			break;
+		}
+
+		DB_EXCEPT( EDatabaseExceptionCodes_SystemError, error.str() );
+	}
+	
 #endif
 
 	CDatabaseException::CDatabaseException( int number, const String & description, const std::string & source, const std::string & file, long line )
@@ -395,15 +451,20 @@ BEGIN_NAMESPACE_DATABASE
 	std::unique_ptr< CSystemExceptionHandler > CDatabaseException::LinkSystemErrors()
 	{
 #if defined( _WIN32 )
-		return std::make_unique< CSehExceptionHandler >( _set_se_translator( OsToDatabaseException ) );
+		return std::make_unique< CSehExceptionHandler >();//_set_se_translator( OsToDatabaseException ) );
+#else
+		return std::make_unique< CSignalHandler >();//signal( SIGSEGV, OsToDatabaseException ), signal( SIGFPE, OsToDatabaseException ) );
 #endif
 	}
 
 	void CDatabaseException::UnlinkSystemErrors( std::unique_ptr< CSystemExceptionHandler > && previous )
 	{
-#if defined( _WIN32 )
-		_set_se_translator( static_cast< const CSehExceptionHandler & >( *previous ).GetFunction() );
-#endif
+//#if defined( _WIN32 )
+//		_set_se_translator( static_cast< const CSehExceptionHandler & >( *previous ).GetFunction() );
+//#else
+//		signal( SIGSEGV, static_cast< const CSignalHandler & >( *previous ).GetSegvFunction() );
+//		signal( SIGFPE, static_cast< const CSignalHandler & >( *previous ).GetFpeFunction() );
+//#endif
 	}
 }
 END_NAMESPACE_DATABASE

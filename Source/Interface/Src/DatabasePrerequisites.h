@@ -160,42 +160,42 @@ namespace std
 	template< class T, typename Arg1 >
 	unique_ptr< T > make_unique( Arg1 && arg1 )
 	{
-		return unique_ptr< T >( new T( std::move( arg1 ) ) );
+		return unique_ptr< T >( new T( std::forward< Arg1 >( arg1 ) ) );
 	}
 	template< class T, typename Arg1, typename Arg2 >
 	unique_ptr< T > make_unique( Arg1 && arg1, Arg2 && arg2 )
 	{
-		return unique_ptr< T >( new T( std::move( arg1 ), std::move( arg2 ) ) );
+		return unique_ptr< T >( new T( std::forward< Arg1 >( arg1 ), std::forward< Arg2 >( arg2 ) ) );
 	}
 	template< class T, typename Arg1, typename Arg2, typename Arg3 >
 	unique_ptr< T > make_unique( Arg1 && arg1, Arg2 && arg2, Arg3 && arg3 )
 	{
-		return unique_ptr< T >( new T( std::move( arg1 ), std::move( arg2 ), std::move( arg3 ) ) );
+		return unique_ptr< T >( new T( std::forward< Arg1 >( arg1 ), std::forward< Arg2 >( arg2 ), std::forward< Arg3 >( arg3 ) ) );
 	}
 	template< class T, typename Arg1, typename Arg2, typename Arg3, typename Arg4 >
 	unique_ptr< T > make_unique( Arg1 && arg1, Arg2 && arg2, Arg3 && arg3, Arg4 && arg4 )
 	{
-		return unique_ptr< T >( new T( std::move( arg1 ), std::move( arg2 ), std::move( arg3 ), std::move( arg4 ) ) );
+		return unique_ptr< T >( new T( std::forward< Arg1 >( arg1 ), std::forward< Arg2 >( arg2 ), std::forward< Arg3 >( arg3 ), std::forward< Arg4 >( arg4 ) ) );
 	}
 	template< class T, typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5 >
 	unique_ptr< T > make_unique( Arg1 && arg1, Arg2 && arg2, Arg3 && arg3, Arg4 && arg4, Arg5 && arg5 )
 	{
-		return unique_ptr< T >( new T( std::move( arg1 ), std::move( arg2 ), std::move( arg3 ), std::move( arg4 ), std::move( arg5 ) ) );
+		return unique_ptr< T >( new T( std::forward< Arg1 >( arg1 ), std::forward< Arg2 >( arg2 ), std::forward< Arg3 >( arg3 ), std::forward< Arg4 >( arg4 ), std::forward< Arg5 >( arg5 ) ) );
 	}
 	template< class T, typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5, typename Arg6 >
 	unique_ptr< T > make_unique( Arg1 && arg1, Arg2 && arg2, Arg3 && arg3, Arg4 && arg4, Arg5 && arg5, Arg6 && arg6 )
 	{
-		return unique_ptr< T >( new T( std::move( arg1 ), std::move( arg2 ), std::move( arg3 ), std::move( arg4 ), std::move( arg5 ), std::move( arg6 ) ) );
+		return unique_ptr< T >( new T( std::forward< Arg1 >( arg1 ), std::forward< Arg2 >( arg2 ), std::forward< Arg3 >( arg3 ), std::forward< Arg4 >( arg4 ), std::forward< Arg5 >( arg5 ), std::forward< Arg6 >( arg6 ) ) );
 	}
 	template< class T, typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5, typename Arg6, typename Arg7 >
 	unique_ptr< T > make_unique( Arg1 && arg1, Arg2 && arg2, Arg3 && arg3, Arg4 && arg4, Arg5 && arg5, Arg6 && arg6, Arg7 && arg7 )
 	{
-		return unique_ptr< T >( new T( std::move( arg1 ), std::move( arg2 ), std::move( arg3 ), std::move( arg4 ), std::move( arg5 ), std::move( arg6 ), std::move( arg7 ) ) );
+		return unique_ptr< T >( new T( std::forward< Arg1 >( arg1 ), std::forward< Arg2 >( arg2 ), std::forward< Arg3 >( arg3 ), std::forward< Arg4 >( arg4 ), std::forward< Arg5 >( arg5 ), std::forward< Arg6 >( arg6 ), std::forward< Arg7 >( arg7 ) ) );
 	}
 	template< class T, typename Arg1, typename Arg2, typename Arg3, typename Arg4, typename Arg5, typename Arg6, typename Arg7, typename Arg8 >
 	unique_ptr< T > make_unique( Arg1 && arg1, Arg2 && arg2, Arg3 && arg3, Arg4 && arg4, Arg5 && arg5, Arg6 && arg6, Arg7 && arg7, Arg8 && arg8 )
 	{
-		return unique_ptr< T >( new T( std::move( arg1 ), std::move( arg2 ), std::move( arg3 ), std::move( arg4 ), std::move( arg5 ), std::move( arg6 ), std::move( arg7 ), std::move( arg8 ) ) );
+		return unique_ptr< T >( new T( std::forward< Arg1 >( arg1 ), std::forward< Arg2 >( arg2 ), std::forward< Arg3 >( arg3 ), std::forward< Arg4 >( arg4 ), std::forward< Arg5 >( arg5 ), std::forward< Arg6 >( arg6 ), std::forward< Arg7 >( arg7 ), std::forward< Arg8 >( arg8 ) ) );
 	}
 }
 #endif

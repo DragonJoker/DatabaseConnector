@@ -16,6 +16,8 @@
 
 #include <boost/locale.hpp>
 
+#include <clocale>
+
 BEGIN_NAMESPACE_DATABASE
 {
 	namespace StringUtils
@@ -59,12 +61,16 @@ BEGIN_NAMESPACE_DATABASE
 			{
 				void operator()( std::basic_string< char > const & p_strIn, std::basic_string< wchar_t > & p_strOut, std::locale const & p_locale = std::locale() )
 				{
+					using namespace std;
+
 					if ( !p_strIn.empty() )
 					{
-						const std::size_t l_size = p_strIn.size();
-						p_strOut.resize( l_size, L'#' );
-						std::use_facet< std::ctype< wchar_t > >( p_locale ).widen( p_strIn.data(), p_strIn.data() + p_strIn.size(), &p_strOut[0] );
-						//mbstowcs( &p_strOut[0], p_strIn.c_str(), l_size );
+					    std::string l_locale = setlocale( LC_CTYPE, "" );
+						size_t l_size = mbstowcs( NULL, p_strIn.c_str(), 0 ) + 1;
+						std::vector< wchar_t > l_dest( l_size );
+						l_size = mbstowcs( l_dest.data(), p_strIn.c_str(), l_size );
+						p_strOut.assign( l_dest.data(), l_dest.data() + l_size );
+						setlocale( LC_CTYPE, l_locale.c_str() );
 					}
 					else
 					{
@@ -78,10 +84,12 @@ BEGIN_NAMESPACE_DATABASE
 				{
 					if ( !p_strIn.empty() )
 					{
-						const std::size_t l_size = p_strIn.size();
-						p_strOut.resize( l_size, '#' );
-						std::use_facet< std::ctype< wchar_t > >( p_locale ).narrow( p_strIn.data(), p_strIn.data() + p_strIn.size(), '#', &p_strOut[0] );
-						//wcstombs( &p_strOut[0], p_strIn.c_str(), l_size );
+					    std::string l_locale = setlocale( LC_CTYPE, "" );
+						size_t l_size = wcstombs( NULL, p_strIn.c_str(), 0 ) + 1;
+						std::vector< char > l_dest( l_size );
+						l_size = wcstombs( l_dest.data(), p_strIn.c_str(), l_size );
+						p_strOut.assign( l_dest.data(), l_dest.data() + l_size );
+						setlocale( LC_CTYPE, l_locale.c_str() );
 					}
 					else
 					{
@@ -295,14 +303,14 @@ BEGIN_NAMESPACE_DATABASE
 			template< typename CharType >
 			void str_formalize( std::basic_string< CharType > & formattedString, int maxSize, const CharType * format, va_list vaList )
 			{
-				std::vector< CharType > strText( maxSize, 0 );
+				std::vector< CharType > strText( maxSize + 1, 0 );
 
 				try
 				{
 
-					if ( format != NULL )
+					if ( format )
 					{
-						size_t written = str_vprintf( strText.data(), maxSize, format, vaList );
+						size_t written = str_vprintf( strText.data(), maxSize + 1, format, vaList );
 						formattedString.assign( strText.data(), strText.data() + std::min( written, size_t( maxSize ) ) );
 					}
 				}
@@ -449,50 +457,6 @@ BEGIN_NAMESPACE_DATABASE
 			return detail::str_replace( p_str, p_find, p_replaced );
 		}
 
-		std::string ToStr( std::wstring const & p_str )
-		{
-			std::string l_strReturn;
-			std::wostringstream l_wstream;
-			detail::str_converter< wchar_t, char >()( p_str, l_strReturn, l_wstream.getloc() );
-			return l_strReturn;
-		}
-
-		std::wstring ToWStr( std::string const & p_str )
-		{
-			std::wstring l_strReturn;
-			std::wostringstream l_wstream;
-			detail::str_converter< char, wchar_t >()( p_str, l_strReturn, l_wstream.getloc() );
-			return l_strReturn;
-		}
-
-		String ToString( std::string const & p_strString )
-		{
-			String l_strReturn;
-			std::wostringstream l_wstream;
-			detail::str_converter< char, TChar >()( p_strString, l_strReturn, l_wstream.getloc() );
-			return l_strReturn;
-		}
-
-		String ToString( std::wstring const & p_strString )
-		{
-			String l_strReturn;
-			std::wostringstream l_wstream;
-			detail::str_converter< wchar_t, TChar >()( p_strString, l_strReturn, l_wstream.getloc() );
-			return l_strReturn;
-		}
-
-		String ToString( char p_char )
-		{
-			char l_szTmp[2] = { p_char, '\0' };
-			return ToString( l_szTmp );
-		}
-
-		String ToString( wchar_t p_wchar )
-		{
-			wchar_t l_wszTmp[2] = { p_wchar, L'\0' };
-			return ToString( l_wszTmp );
-		}
-
 		void Formalize( std::string & formattedString, int maxSize, const char * format, ... )
 		{
 			formattedString.clear();
@@ -519,6 +483,50 @@ BEGIN_NAMESPACE_DATABASE
 			}
 		}
 
+		std::string ToStr( std::wstring const & src )
+		{
+			std::string l_strReturn;
+			std::ostringstream l_stream;
+			detail::str_converter< wchar_t, char >()( src, l_strReturn, l_stream.getloc() );
+			return l_strReturn;
+		}
+
+		std::wstring ToWStr( std::string const & src )
+		{
+			std::wstring l_strReturn;
+			std::wostringstream l_wstream;
+			detail::str_converter< char, wchar_t >()( src, l_strReturn, l_wstream.getloc() );
+			return l_strReturn;
+		}
+
+		String ToString( std::string const & src )
+		{
+			String l_strReturn;
+			std::wostringstream l_wstream;
+			detail::str_converter< char, TChar >()( src, l_strReturn, l_wstream.getloc() );
+			return l_strReturn;
+		}
+
+		String ToString( std::wstring const & src )
+		{
+			String l_strReturn;
+			std::ostringstream l_stream;
+			detail::str_converter< wchar_t, TChar >()( src, l_strReturn, l_stream.getloc() );
+			return l_strReturn;
+		}
+
+		String ToString( char p_char )
+		{
+			char l_szTmp[2] = { p_char, '\0' };
+			return ToString( l_szTmp );
+		}
+
+		String ToString( wchar_t p_wchar )
+		{
+			wchar_t l_wszTmp[2] = { p_wchar, L'\0' };
+			return ToString( l_wszTmp );
+		}
+
 		std::string ToUtf8( const std::string & src, const std::string & charset )
 		{
 			std::wstring strUtf = boost::locale::conv::to_utf< wchar_t >( src, charset );
@@ -527,7 +535,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		std::string ToUtf8( const std::wstring & src, const std::wstring & charset )
 		{
-			return ToUtf8( StringUtils::ToStr( src ), StringUtils::ToStr( charset ) );
+			return boost::locale::conv::from_utf( src, StringUtils::ToStr( charset ) );
 		}
 	}
 

@@ -232,11 +232,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		b = 3;
 		BOOST_CHECK_EQUAL( int24_t( a / b ), int24_t( a ) / int24_t( b ) );
 		BOOST_CHECK_EQUAL( int24_t( a / b ), int24_t( 111 ) );
-		CLogger::LogInfo( StringStream() << "    Division by zero" );
-		b = 0;
-		auto previousHandler = CDatabaseException::LinkSystemErrors();
-		BOOST_CHECK_THROW( int24_t( a ) / int24_t( b ), CDatabaseException );
-		CDatabaseException::UnlinkSystemErrors( std::move( previousHandler ) );
 
 		CLogger::LogInfo( StringStream() << "**** End TestCase_Int24Division ****" );
 	}

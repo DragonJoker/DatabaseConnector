@@ -90,7 +90,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			{
 				CDatabaseParameter object( connection, infos, 0, EParameterType_IN, std::make_unique< SParameterValueUpdater >() );
 				BOOST_CHECK_NO_THROW( object.SetValue( DatabaseUtils::Helpers< FieldTypeA >::GetRandomValue( generator ) ) );
-				DatabaseUtils::Helpers< FieldTypeB >::ParamType value;
+				typename DatabaseUtils::Helpers< FieldTypeB >::ParamType value;
 
 				if ( AreTypesCompatibleGet( FieldTypeA, FieldTypeB ) )
 				{
@@ -100,20 +100,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				{
 					BOOST_CHECK_THROW( object.GetValue( value ), CDatabaseException );
 				}
-			}
-		};
-
-		template< EFieldType FieldTypeA, EFieldType FieldTypeB >
-		struct GetValueFastCheck
-		{
-			static void Check( std::random_device & generator, DatabaseConnectionSPtr connection, DatabaseValuedObjectInfosSPtr infos )
-			{
-				CDatabaseParameter object( connection, infos, 0, EParameterType_IN, std::make_unique< SParameterValueUpdater >() );
-				auto valueIn = DatabaseUtils::Helpers< FieldTypeA >::GetRandomValue( generator );
-				BOOST_CHECK_NO_THROW( object.SetValue( valueIn ) );
-				DatabaseUtils::Helpers< FieldTypeB >::ParamType valueOut;
-				BOOST_CHECK_NO_THROW( object.GetValueFast( valueOut ) );
-				BOOST_CHECK_EQUAL( valueIn, valueOut );
 			}
 		};
 
@@ -143,7 +129,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				CDatabaseParameter object( connection, infos, 0, EParameterType_IN, std::make_unique< SParameterValueUpdater >() );
 				auto valueIn = DatabaseUtils::Helpers< FieldTypeB >::GetRandomValue( generator );
 				BOOST_CHECK_NO_THROW( object.SetValueFast( valueIn ) );
-				DatabaseUtils::Helpers< FieldTypeA >::ParamType valueOut;
+				typename DatabaseUtils::Helpers< FieldTypeA >::ParamType valueOut;
 				object.GetValue( valueOut );
 				BOOST_CHECK_EQUAL( valueIn, valueOut );
 			}
@@ -228,16 +214,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				GetValueCheck< FieldType, EFieldType_BINARY >::Check( generator, connection, infos );
 				GetValueCheck< FieldType, EFieldType_VARBINARY >::Check( generator, connection, infos );
 				GetValueCheck< FieldType, EFieldType_BLOB >::Check( generator, connection, infos );
-			}
-
-			static void GetValueFastChecks( std::random_device & generator )
-			{
-				String connectionString;
-				DatabaseConnectionSPtr connection = std::make_shared< CDatabaseTestConnection >( TEST_GOOD_SERVER, TEST_GOOD_USER, TEST_GOOD_PASSWORD, connectionString );
-				connection->SelectDatabase( TEST_GOOD_DATABASE );
-				DatabaseValuedObjectInfosSPtr infos = InfosCreator< FieldType >::Create();
-
-				GetValueFastCheck< FieldType, FieldType >::Check( generator, connection, infos );
 			}
 
 			static void SetValueChecks( std::random_device & generator )

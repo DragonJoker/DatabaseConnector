@@ -83,7 +83,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				auto valueIn = DatabaseUtils::Helpers< FieldTypeA >::GetRandomValue( generator );
 				BOOST_CHECK( object.IsNull() );
 				BOOST_CHECK_NO_THROW( static_cast< CDatabaseValue< FieldTypeA > & >( object.GetObjectValue() ).SetValue( valueIn ) );
-				DatabaseUtils::Helpers< FieldTypeB >::ParamType valueOut;
+				typename DatabaseUtils::Helpers< FieldTypeB >::ParamType valueOut;
 
 				if ( AreTypesCompatibleGet( FieldTypeA, FieldTypeB ) )
 				{
@@ -103,7 +103,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			{
 				CDatabaseField object( connection, infos );
 				BOOST_CHECK( object.IsNull() );
-				CDatabaseNullable< DatabaseUtils::Helpers< FieldTypeB >::ParamType > valueOpt;
+				CDatabaseNullable< typename DatabaseUtils::Helpers< FieldTypeB >::ParamType > valueOpt;
 				BOOST_CHECK_NO_THROW( object.GetValueOpt( valueOpt ) );
 				BOOST_CHECK( !valueOpt );
 				auto value = DatabaseUtils::Helpers< FieldTypeA >::GetRandomValue( generator );
@@ -130,7 +130,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				BOOST_CHECK( object.IsNull() );
 				auto valueIn = DatabaseUtils::Helpers< FieldTypeA >::GetRandomValue( generator );
 				BOOST_CHECK_NO_THROW( static_cast< CDatabaseValue< FieldTypeA > & >( object.GetObjectValue() ).SetValue( valueIn ) );
-				DatabaseUtils::Helpers< FieldTypeB >::ParamType valueOut;
+				typename DatabaseUtils::Helpers< FieldTypeB >::ParamType valueOut;
 				BOOST_CHECK_NO_THROW( object.GetValueFast( valueOut ) );
 				BOOST_CHECK_EQUAL( valueIn, valueOut );
 			}
@@ -143,7 +143,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			{
 				CDatabaseField object( connection, infos );
 				BOOST_CHECK( object.IsNull() );
-				CDatabaseNullable< DatabaseUtils::Helpers< FieldTypeB >::ParamType > valueOpt;
+				CDatabaseNullable< typename DatabaseUtils::Helpers< FieldTypeB >::ParamType > valueOpt;
 				BOOST_CHECK_NO_THROW( object.GetValueOpt( valueOpt ) );
 				BOOST_CHECK( !valueOpt );
 				auto value = DatabaseUtils::Helpers< FieldTypeA >::GetRandomValue( generator );

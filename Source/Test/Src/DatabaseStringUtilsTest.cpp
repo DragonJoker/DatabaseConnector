@@ -121,22 +121,22 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	void CDatabaseStringUtilsTest::TestCase_StringUtilsConversions()
 	{
 		CLogger::LogInfo( StringStream() << "**** Start TestCase_StringUtilsConversions ****" );
-		std::wstring ws = L"ÂÄÊËÎÏÔÖÛÜ";
-		std::string s = "ÂÄÊËÎÏÔÖÛÜ";
+		std::wstring ws = L"Ã‚Ã„ÃŠÃ‹ÃŽÃÃ”Ã–Ã›Ãœ";
+		std::string s = "Ã‚Ã„ÃŠÃ‹ÃŽÃÃ”Ã–Ã›Ãœ";
 		std::string utf8 = "Ã‚Ã„ÃŠÃ‹ÃŽÃÃ”Ã–Ã›Ãœ";
 
 		CLogger::LogInfo( StringStream() << "  ToWStr" );
 		BOOST_CHECK_EQUAL( ws, StringUtils::ToWStr( s ) );
 		BOOST_CHECK_EQUAL( ws, StringUtils::ToWStr( ws ) );
 		CLogger::LogInfo( StringStream() << "  ToStr" );
-		BOOST_CHECK_EQUAL( s, StringUtils::ToStr( ws ) );
-		BOOST_CHECK_EQUAL( s, StringUtils::ToStr( s ) );
+		BOOST_CHECK_EQUAL( StringUtils::ToStr( ws ), s );
+		BOOST_CHECK_EQUAL( StringUtils::ToStr( s ), s );
 		CLogger::LogInfo( StringStream() << "  ToString" );
 		BOOST_CHECK_EQUAL( StringUtils::ToString( ws ), s );
 		BOOST_CHECK_EQUAL( StringUtils::ToString( s ), s );
 		CLogger::LogInfo( StringStream() << "  ToUtf8" );
-		BOOST_CHECK_EQUAL( StringUtils::ToUtf8( s, "Windows-1252" ), utf8 );
-		BOOST_CHECK_EQUAL( StringUtils::ToUtf8( ws, L"Windows-1252" ), utf8 );
+		BOOST_CHECK_EQUAL( StringUtils::ToUtf8( s, "UTF-8" ), utf8 );
+		BOOST_CHECK_EQUAL( StringUtils::ToUtf8( ws, L"UTF-8" ), utf8 );
 
 		CLogger::LogInfo( StringStream() << "**** End TestCase_StringUtilsConversions ****" );
 	}
@@ -222,19 +222,19 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		BOOST_CHECK_EQUAL( sreplace, "gsdg  sdfh sdh dshgh dfh dsfh dsfhsdfhsd fhsdfh dfhdsh" );
 		BOOST_CHECK_EQUAL( StringUtils::Replace( sreplace, "gsdg", "je" ), "je  sdfh sdh dshgh dfh dsfh dsfhsdfhsd fhsdfh dfhdsh" );
 		BOOST_CHECK_EQUAL( sreplace, "je  sdfh sdh dshgh dfh dsfh dsfhsdfhsd fhsdfh dfhdsh" );
-		BOOST_CHECK_EQUAL( StringUtils::Replace( sreplace, "dfhdsh", "voilà" ), "je  sdfh sdh dshgh dfh dsfh dsfhsdfhsd fhsdfh voilà" );
-		BOOST_CHECK_EQUAL( sreplace, "je  sdfh sdh dshgh dfh dsfh dsfhsdfhsd fhsdfh voilà" );
-		BOOST_CHECK_EQUAL( StringUtils::Replace( sreplace, "coin", "glop" ), "je  sdfh sdh dshgh dfh dsfh dsfhsdfhsd fhsdfh voilà" );
-		BOOST_CHECK_EQUAL( sreplace, "je  sdfh sdh dshgh dfh dsfh dsfhsdfhsd fhsdfh voilà" );
+		BOOST_CHECK_EQUAL( StringUtils::Replace( sreplace, "dfhdsh", "voilÃ " ), "je  sdfh sdh dshgh dfh dsfh dsfhsdfhsd fhsdfh voilÃ " );
+		BOOST_CHECK_EQUAL( sreplace, "je  sdfh sdh dshgh dfh dsfh dsfhsdfhsd fhsdfh voilÃ " );
+		BOOST_CHECK_EQUAL( StringUtils::Replace( sreplace, "coin", "glop" ), "je  sdfh sdh dshgh dfh dsfh dsfhsdfhsd fhsdfh voilÃ " );
+		BOOST_CHECK_EQUAL( sreplace, "je  sdfh sdh dshgh dfh dsfh dsfhsdfhsd fhsdfh voilÃ " );
 		std::wstring wreplace = L"gsdg,,sdfh,sdh,dshgh,dfh,dsfh,dsfhsdfhsd,fhsdfh,dfhdsh";
 		BOOST_CHECK_EQUAL( StringUtils::Replace( wreplace, L",", L" " ), L"gsdg  sdfh sdh dshgh dfh dsfh dsfhsdfhsd fhsdfh dfhdsh" );
 		BOOST_CHECK_EQUAL( wreplace, L"gsdg  sdfh sdh dshgh dfh dsfh dsfhsdfhsd fhsdfh dfhdsh" );
 		BOOST_CHECK_EQUAL( StringUtils::Replace( wreplace, L"gsdg", L"je" ), L"je  sdfh sdh dshgh dfh dsfh dsfhsdfhsd fhsdfh dfhdsh" );
 		BOOST_CHECK_EQUAL( wreplace, L"je  sdfh sdh dshgh dfh dsfh dsfhsdfhsd fhsdfh dfhdsh" );
-		BOOST_CHECK_EQUAL( StringUtils::Replace( wreplace, L"dfhdsh", L"voilà" ), L"je  sdfh sdh dshgh dfh dsfh dsfhsdfhsd fhsdfh voilà" );
-		BOOST_CHECK_EQUAL( wreplace, L"je  sdfh sdh dshgh dfh dsfh dsfhsdfhsd fhsdfh voilà" );
-		BOOST_CHECK_EQUAL( StringUtils::Replace( wreplace, L"coin", L"glop" ), L"je  sdfh sdh dshgh dfh dsfh dsfhsdfhsd fhsdfh voilà" );
-		BOOST_CHECK_EQUAL( wreplace, L"je  sdfh sdh dshgh dfh dsfh dsfhsdfhsd fhsdfh voilà" );
+		BOOST_CHECK_EQUAL( StringUtils::Replace( wreplace, L"dfhdsh", L"voilÃ " ), L"je  sdfh sdh dshgh dfh dsfh dsfhsdfhsd fhsdfh voilÃ " );
+		BOOST_CHECK_EQUAL( wreplace, L"je  sdfh sdh dshgh dfh dsfh dsfhsdfhsd fhsdfh voilÃ " );
+		BOOST_CHECK_EQUAL( StringUtils::Replace( wreplace, L"coin", L"glop" ), L"je  sdfh sdh dshgh dfh dsfh dsfhsdfhsd fhsdfh voilÃ " );
+		BOOST_CHECK_EQUAL( wreplace, L"je  sdfh sdh dshgh dfh dsfh dsfhsdfhsd fhsdfh voilÃ " );
 
 		CLogger::LogInfo( StringStream() << "**** End TestCase_StringUtilsReplace ****" );
 	}
@@ -244,7 +244,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		CLogger::LogInfo( StringStream() << "**** Start TestCase_StringUtilsFormalize ****" );
 
 		std::string sformalized;
-		auto previousHandler = CDatabaseException::LinkSystemErrors();
 		BOOST_CHECK_NO_THROW( StringUtils::Formalize( sformalized, 10, "%010i", 100 ) );
 		BOOST_CHECK_EQUAL( sformalized, "0000000100" );
 		BOOST_CHECK_NO_THROW( StringUtils::Formalize( sformalized, 9, "%010i", 100 ) );
@@ -253,8 +252,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		BOOST_CHECK_NE( sformalized, "100" );
 		BOOST_CHECK_NO_THROW( StringUtils::Formalize( sformalized, 9, "%.2f", 100.0f ) );
 		BOOST_CHECK_EQUAL( sformalized, "100.00" );
-		BOOST_CHECK_THROW( StringUtils::Formalize( sformalized, 9, "%s", 100 ), CDatabaseException );
-		CDatabaseException::UnlinkSystemErrors( std::move( previousHandler ) );
 
 		CLogger::LogInfo( StringStream() << "**** End TestCase_StringUtilsFormalize ****" );
 	}

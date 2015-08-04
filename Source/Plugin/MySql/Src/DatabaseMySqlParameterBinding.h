@@ -568,8 +568,9 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			: SOutMySqlBindBase( bind, type, parameter )
 			, _value( value )
 			, _length( 0 )
-			, _holder( { 0 } )
+			, _holder()
 		{
+			_holder.fill( 0 );
 			_bind.length = &_length;
 			_bind.buffer_length = static_cast< unsigned long >( _holder.size() );
 			bind.buffer = _holder.data();

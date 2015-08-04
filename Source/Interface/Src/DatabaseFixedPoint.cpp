@@ -14,6 +14,7 @@
 
 #include "DatabaseFixedPoint.h"
 #include "DatabaseStringUtils.h"
+#include "DatabaseLogger.h"
 
 BEGIN_NAMESPACE_DATABASE
 {
@@ -125,7 +126,7 @@ BEGIN_NAMESPACE_DATABASE
 				DB_EXCEPT( EDatabaseExceptionCodes_ArithmeticError, ERROR_DB_PRECISION_OVERFLOW );
 			}
 
-			val = int256_t( std::stoll( absval ) * GetDecimalMult( _decimals ) );
+			val = int256_t( std::stoll( absval ) * int64_t( GetDecimalMult( _decimals ) ) );
 		}
 		else if ( index > precision )
 		{
@@ -245,17 +246,23 @@ BEGIN_NAMESPACE_DATABASE
 
 	bool operator ==( const CFixedPoint & lhs, const CFixedPoint & rhs )
 	{
-		bool ret = lhs.ToInt64() == rhs.ToInt64();
-
-		if ( ret )
+		bool ret = lhs.GetRawValue() == rhs.GetRawValue() && lhs.GetDecimals() == rhs.GetDecimals();
+		
+		if ( !ret )
 		{
-			if ( lhs.GetDecimals() < rhs.GetDecimals() )
+			CLogger::LogDebug( std::stringstream() << "lhs: " << lhs.ToInt64() << ", rhs: " << rhs.ToInt64() );
+			ret = lhs.ToInt64() == rhs.ToInt64();
+
+			if ( ret )
 			{
-				ret = lhs.DoGetValueDecimals( rhs.GetDecimals() ) == rhs.DoGetValueDecimals();
-			}
-			else if ( lhs.GetDecimals() > rhs.GetDecimals() )
-			{
-				ret = lhs.DoGetValueDecimals() == rhs.DoGetValueDecimals( lhs.GetDecimals() );
+				if ( lhs.GetDecimals() < rhs.GetDecimals() )
+				{
+					ret = lhs.DoGetValueDecimals( rhs.GetDecimals() ) == rhs.DoGetValueDecimals();
+				}
+				else if ( lhs.GetDecimals() > rhs.GetDecimals() )
+				{
+					ret = lhs.DoGetValueDecimals() == rhs.DoGetValueDecimals( lhs.GetDecimals() );
+				}
 			}
 		}
 
@@ -269,13 +276,13 @@ BEGIN_NAMESPACE_DATABASE
 
 	std::ostream & operator <<( std::ostream & stream, const CFixedPoint & value )
 	{
-		stream << "[" << int16_t( value.GetDecimals() ) << "] " << StringUtils::ToStr( value.ToString() );
+		stream << "[" << int16_t( value.GetPrecision() ) << ", " << int16_t( value.GetDecimals() ) << ", " << value.GetRawValue() << "] " << StringUtils::ToStr( value.ToString() );
 		return stream;
 	}
 
 	std::wostream & operator <<( std::wostream & stream, const CFixedPoint & value )
 	{
-		stream << L"[" << int16_t( value.GetDecimals() ) << L"] " << StringUtils::ToWStr( value.ToString() );
+		stream << L"[" << int16_t( value.GetPrecision() ) << L", " << int16_t( value.GetDecimals() ) << L", " << value.GetRawValue() << L"] " << StringUtils::ToWStr( value.ToString() );
 		return stream;
 	}
 }

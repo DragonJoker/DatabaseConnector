@@ -81,7 +81,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			{
 				CDatabaseTestValuedObject< FieldTypeA > object( connection, infos );
 				BOOST_CHECK_NO_THROW( object.SetValue( DatabaseUtils::Helpers< FieldTypeA >::GetRandomValue( generator ) ) );
-				DatabaseUtils::Helpers< FieldTypeB >::ParamType value;
+				typename DatabaseUtils::Helpers< FieldTypeB >::ParamType value;
 
 				if ( AreTypesCompatibleGet( FieldTypeA, FieldTypeB ) )
 				{
@@ -102,7 +102,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				CDatabaseTestValuedObject< FieldTypeA > object( connection, infos );
 				auto valueIn = DatabaseUtils::Helpers< FieldTypeA >::GetRandomValue( generator );
 				BOOST_CHECK_NO_THROW( object.SetValue( valueIn ) );
-				DatabaseUtils::Helpers< FieldTypeB >::ParamType valueOut;
+				typename DatabaseUtils::Helpers< FieldTypeB >::ParamType valueOut;
 				BOOST_CHECK_NO_THROW( object.GetValueFast( valueOut ) );
 				BOOST_CHECK_EQUAL( valueIn, valueOut );
 			}
@@ -134,7 +134,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				CDatabaseTestValuedObject< FieldTypeA > object( connection, infos );
 				auto valueIn = DatabaseUtils::Helpers< FieldTypeB >::GetRandomValue( generator );
 				BOOST_CHECK_NO_THROW( object.SetValueFast( valueIn ) );
-				DatabaseUtils::Helpers< FieldTypeA >::ParamType valueOut;
+				typename DatabaseUtils::Helpers< FieldTypeA >::ParamType valueOut;
 				object.GetValue( valueOut );
 				BOOST_CHECK_EQUAL( valueIn, valueOut );
 			}
