@@ -49,7 +49,7 @@ BEGIN_NAMESPACE_DATABASE
 		/**@name Connection */
 		//@{
 
-		/** Initialize the connection to the database.
+		/** Initialise the connection to the database.
 		@param[out] connectionString
 			Connection string in case of error.
 		@return
@@ -67,7 +67,7 @@ BEGIN_NAMESPACE_DATABASE
 		/**@name Transactions */
 		//@{
 
-		/** Initialize a named transaction.
+		/** Initialise a named transaction.
 		@param[in] name
 			Transaction name.
 		*/
@@ -550,7 +550,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport virtual EErrorType DoConnect( String & connectionString ) = 0;
 
-		/** Initialize a named transaction.
+		/** Initialise a named transaction.
 		@param[in] name
 			Transaction name.
 		@return

@@ -1115,8 +1115,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					ParameterCreator< FieldType >::Create( stmtInsert, name );
 					ParameterCreator< FieldType >::Create( stmtSelect, name );
 
-					BOOST_CHECK( stmtInsert->Initialize() == EErrorType_NONE );
-					BOOST_CHECK( stmtSelect->Initialize() == EErrorType_NONE );
+					BOOST_CHECK( stmtInsert->Initialise() == EErrorType_NONE );
+					BOOST_CHECK( stmtSelect->Initialise() == EErrorType_NONE );
 
 					if ( valueIn )
 					{
@@ -1210,8 +1210,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					ParameterCreator< EFieldType_SINT32 >::Create( stmtSelect, STR( "IntField" ) );
 					ParameterCreator< FieldType >::Create( stmtSelect, name );
 
-					BOOST_CHECK( stmtInsert->Initialize() == EErrorType_NONE );
-					BOOST_CHECK( stmtSelect->Initialize() == EErrorType_NONE );
+					BOOST_CHECK( stmtInsert->Initialise() == EErrorType_NONE );
+					BOOST_CHECK( stmtSelect->Initialise() == EErrorType_NONE );
 
 					BOOST_CHECK_NO_THROW( stmtInsert->SetParameterValue( 0, 18 ) );
 					BOOST_CHECK_NO_THROW( stmtSelect->SetParameterValue( 0, 18 ) );
@@ -1318,8 +1318,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					ParameterCreator< FieldType >::Create( stmtInsert, name );
 					ParameterCreator< FieldType >::Create( stmtSelect, name );
 
-					BOOST_CHECK( stmtInsert->Initialize() == EErrorType_NONE );
-					BOOST_CHECK( stmtSelect->Initialize() == EErrorType_NONE );
+					BOOST_CHECK( stmtInsert->Initialise() == EErrorType_NONE );
+					BOOST_CHECK( stmtSelect->Initialise() == EErrorType_NONE );
 
 					if ( valueIn )
 					{
@@ -1425,8 +1425,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					ParameterCreator< EFieldType_SINT32 >::Create( stmtSelect, STR( "IntField" ) );
 					ParameterCreator< FieldType >::Create( stmtSelect, name );
 
-					BOOST_CHECK( stmtInsert->Initialize() == EErrorType_NONE );
-					BOOST_CHECK( stmtSelect->Initialize() == EErrorType_NONE );
+					BOOST_CHECK( stmtInsert->Initialise() == EErrorType_NONE );
+					BOOST_CHECK( stmtSelect->Initialise() == EErrorType_NONE );
 
 					BOOST_CHECK_NO_THROW( stmtInsert->SetParameterValueFast( 0, 18 ) );
 					BOOST_CHECK_NO_THROW( stmtSelect->SetParameterValueFast( 0, 18 ) );
@@ -1519,7 +1519,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( stmtGetCount )
 				{
-					BOOST_CHECK( stmtGetCount->Initialize() == EErrorType_NONE );
+					BOOST_CHECK( stmtGetCount->Initialise() == EErrorType_NONE );
 					DatabaseResultSPtr result = stmtGetCount->ExecuteSelect();
 
 					if ( result )
@@ -1549,7 +1549,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					if ( stmtInsert )
 					{
 						CreateParameters( stmtInsert );
-						BOOST_CHECK( stmtInsert->Initialize() == EErrorType_NONE );
+						BOOST_CHECK( stmtInsert->Initialise() == EErrorType_NONE );
 						int const inserts = 20;
 
 						for ( int i = 0; i < inserts; i++ )
@@ -1609,7 +1609,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( stmtSelect )
 				{
-					BOOST_CHECK( stmtSelect->Initialize() == EErrorType_NONE );
+					BOOST_CHECK( stmtSelect->Initialise() == EErrorType_NONE );
 					DatabaseResultSPtr result = stmtSelect->ExecuteSelect();
 
 					if ( result )
@@ -1663,7 +1663,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( stmtGetMin )
 				{
-					BOOST_CHECK( stmtGetMin->Initialize() == EErrorType_NONE );
+					BOOST_CHECK( stmtGetMin->Initialise() == EErrorType_NONE );
 					DatabaseResultSPtr result = stmtGetMin->ExecuteSelect();
 
 					if ( result )
@@ -1692,7 +1692,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					{
 						CreateParameters( stmtUpdate );
 						BOOST_CHECK( stmtUpdate->CreateParameter( STR( "IDTest" ), EFieldType_SINT64, EParameterType_IN ) );
-						BOOST_CHECK( stmtUpdate->Initialize() == EErrorType_NONE );
+						BOOST_CHECK( stmtUpdate->Initialise() == EErrorType_NONE );
 
 						for ( int i = 0; i < 10; i++ )
 						{
@@ -1731,7 +1731,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( stmtGetMin )
 				{
-					BOOST_CHECK( stmtGetMin->Initialize() == EErrorType_NONE );
+					BOOST_CHECK( stmtGetMin->Initialise() == EErrorType_NONE );
 					DatabaseResultSPtr result = stmtGetMin->ExecuteSelect();
 
 					if ( result )
@@ -1759,7 +1759,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					if ( stmtDelete )
 					{
 						BOOST_CHECK( stmtDelete->CreateParameter( STR( "IDTest" ), EFieldType_SINT64, EParameterType_IN ) );
-						BOOST_CHECK( stmtDelete->Initialize() == EErrorType_NONE );
+						BOOST_CHECK( stmtDelete->Initialise() == EErrorType_NONE );
 
 						for ( int i = 0; i < 5; i++ )
 						{
@@ -1796,7 +1796,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( stmtClear )
 				{
-					BOOST_CHECK( stmtClear->Initialize() == EErrorType_NONE );
+					BOOST_CHECK( stmtClear->Initialise() == EErrorType_NONE );
 
 					for ( int i = 0; i < 2; i++ )
 					{
@@ -1831,7 +1831,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				if ( stmtGetElements )
 				{
 					BOOST_CHECK( stmtGetElements->CreateParameter( STR( "Where" ), EFieldType_VARCHAR, 500 ) );
-					BOOST_CHECK( stmtGetElements->Initialize() == EErrorType_NONE );
+					BOOST_CHECK( stmtGetElements->Initialise() == EErrorType_NONE );
 
 					for ( int i = 0; i < 2; i++ )
 					{
@@ -1890,7 +1890,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( stmtGetMin )
 				{
-					BOOST_CHECK( stmtGetMin->Initialize() == EErrorType_NONE );
+					BOOST_CHECK( stmtGetMin->Initialise() == EErrorType_NONE );
 					DatabaseResultSPtr result = stmtGetMin->ExecuteSelect();
 
 					if ( result )
@@ -1918,7 +1918,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					if ( stmtDelete )
 					{
 						BOOST_CHECK( stmtDelete->CreateParameter( STR( "IDTest" ), EFieldType_SINT64 ) );
-						BOOST_CHECK( stmtDelete->Initialize() == EErrorType_NONE );
+						BOOST_CHECK( stmtDelete->Initialise() == EErrorType_NONE );
 
 						for ( int i = 0; i < 5; i++ )
 						{
@@ -1956,7 +1956,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( stmtGetCount )
 				{
-					BOOST_CHECK( stmtGetCount->Initialize() == EErrorType_NONE );
+					BOOST_CHECK( stmtGetCount->Initialise() == EErrorType_NONE );
 					DatabaseResultSPtr result = stmtGetCount->ExecuteSelect();
 
 					if ( result )
@@ -1987,7 +1987,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					{
 						BOOST_CHECK( stmtAddElement->CreateParameter( STR( "IDTest" ), EFieldType_SINT64, EParameterType_INOUT ) );
 						CreateParameters( stmtAddElement );
-						BOOST_CHECK( stmtAddElement->Initialize() == EErrorType_NONE );
+						BOOST_CHECK( stmtAddElement->Initialise() == EErrorType_NONE );
 						int64_t id( 1 );
 
 						for ( int i = 0; i < 10; i++ )
@@ -2030,7 +2030,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( stmtGetCount )
 				{
-					BOOST_CHECK( stmtGetCount->Initialize() == EErrorType_NONE );
+					BOOST_CHECK( stmtGetCount->Initialise() == EErrorType_NONE );
 					DatabaseResultSPtr result = stmtGetCount->ExecuteSelect();
 
 					if ( result )
@@ -2062,7 +2062,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 						BOOST_CHECK( stmtUpdateElement->CreateParameter( STR( "IDTest" ), EFieldType_SINT64, EParameterType_INOUT ) );
 						CreateParameters( stmtUpdateElement );
 						BOOST_CHECK( stmtUpdateElement->CreateParameter( STR( "Date" ), EFieldType_DATETIME, EParameterType_OUT ) );
-						BOOST_CHECK( stmtUpdateElement->Initialize() == EErrorType_NONE );
+						BOOST_CHECK( stmtUpdateElement->Initialise() == EErrorType_NONE );
 						int16_t type( 1 );
 
 						for ( int i = 0; i < 10; i++ )
@@ -2113,7 +2113,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( stmtGetActors )
 				{
-					stmtGetActors->Initialize();
+					stmtGetActors->Initialise();
 					std::clock_t start = std::clock();
 					DatabaseResultSPtr result = stmtGetActors->ExecuteSelect();
 					CLogger::LogInfo( StringStream() << "    Selected the elements in " << float( std::clock() - start ) / CLOCKS_PER_SEC << "seconds (no fetch)" );
@@ -2164,7 +2164,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				if ( stmtGetActors )
 				{
 					stmtGetActors->CreateParameter( STR( "Where" ), EFieldType_VARCHAR, 500 );
-					stmtGetActors->Initialize();
+					stmtGetActors->Initialise();
 					std::clock_t start = std::clock();
 					stmtGetActors->SetParameterValue( 0, whereClause );
 					DatabaseResultSPtr result = stmtGetActors->ExecuteSelect();
@@ -2216,7 +2216,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( stmtGetMin )
 				{
-					stmtGetMin->Initialize();
+					stmtGetMin->Initialise();
 					DatabaseResultSPtr result = stmtGetMin->ExecuteSelect();
 
 					if ( result && result->GetRowCount() )
@@ -2232,7 +2232,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					if ( stmtDelete )
 					{
 						stmtDelete->CreateParameter( STR( "id" ), EFieldType_SINT64 );
-						stmtDelete->Initialize();
+						stmtDelete->Initialise();
 						std::clock_t const start = std::clock();
 
 						for ( uint32_t i = 0; i < testCount; i++ )
@@ -2272,7 +2272,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( stmtGetMin )
 				{
-					stmtGetMin->Initialize();
+					stmtGetMin->Initialise();
 					DatabaseResultSPtr result = stmtGetMin->ExecuteSelect();
 
 					if ( result )
@@ -2291,7 +2291,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					if ( stmtDelete )
 					{
 						stmtDelete->CreateParameter( STR( "id" ), EFieldType_SINT64 );
-						stmtDelete->Initialize();
+						stmtDelete->Initialise();
 						std::clock_t const start = std::clock();
 
 						for ( uint32_t i = 0; i < testCount; i++ )

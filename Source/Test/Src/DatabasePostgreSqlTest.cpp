@@ -63,7 +63,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 	void CDatabasePostgreSqlTest::DoLoadPlugins()
 	{
-		LoadPlugins( InitializeSingletons(), false, false, false, false, true );
+		LoadPlugins( InitialiseSingletons(), false, false, false, false, true );
 	}
 }
 END_NAMESPACE_DATABASE_TEST

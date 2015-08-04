@@ -108,6 +108,7 @@ namespace Database
 	class CDatabase;
 	class CDatabaseConnection;
 	class CDatabaseField;
+	class CDatabaseValuedObject;
 	class CDatabaseValuedObjectInfos;
 	class CDatabaseValueBase;
 	template< EFieldType FieldType > struct SFieldTypeDataTyper;

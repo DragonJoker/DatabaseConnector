@@ -30,7 +30,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		//!@remarks Add the TC to the internal TS.
 		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseInterfaceTest::TestCase_DatabaseQuery, this ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseInterfaceTest::TestCase_DatabaseStatement, this ) ) );
 
 		//!@remarks Return the TS instance.
 		return testSuite;
@@ -43,15 +42,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 
 		//CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseQuery ****" );
-	}
-
-	void CDatabaseInterfaceTest::TestCase_DatabaseStatement()
-	{
-		//CLogger::LogInfo( StringStream() << "**** Start TestCase_DatabaseStatement ****" );
-
-
-
-		//CLogger::LogInfo( StringStream() << "**** End TestCase_DatabaseStatement ****" );
 	}
 }
 END_NAMESPACE_DATABASE_TEST

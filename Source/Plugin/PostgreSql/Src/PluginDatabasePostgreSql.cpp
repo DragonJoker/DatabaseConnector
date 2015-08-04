@@ -34,7 +34,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		return PostgreSql::PLUGIN_NAME_DATABASE_POSTGRESQL;
 	}
 
-	void CPluginDatabasePostgreSql::Initialize()
+	void CPluginDatabasePostgreSql::Initialise()
 	{
 	}
 

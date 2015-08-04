@@ -251,7 +251,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		*/
 		virtual void DoDisconnect();
 
-		/** Initialize a named transaction.
+		/** Initialise a named transaction.
 		@param[in] name
 			Transaction name.
 		@return

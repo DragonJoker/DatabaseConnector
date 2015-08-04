@@ -50,11 +50,11 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		*/
 		virtual DatabaseParameterSPtr DoCreateParameter( DatabaseValuedObjectInfosSPtr infos, EParameterType parameterType );
 
-		/** Initialize this statement.
+		/** Initialise this statement.
 		@return
 			Error code.
 		*/
-		virtual EErrorType DoInitialize();
+		virtual EErrorType DoInitialise();
 
 		/** Execute this statement.
 		@return

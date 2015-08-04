@@ -37,8 +37,8 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		///@copydoc Database::CPlugin::GetName
 		virtual const String GetName() const;
 
-		///@copydoc Database::CPlugin::Initialize
-		virtual void Initialize();
+		///@copydoc Database::CPlugin::Initialise
+		virtual void Initialise();
 
 		///@copydoc Database::CPlugin::Shutdown
 		virtual void Shutdown();

@@ -34,7 +34,7 @@ BEGIN_NAMESPACE_DATABASE
 		_mapConnections.clear();
 	}
 
-	void CDatabase::Initialize( const String & server, const String & userName, const String & password )
+	void CDatabase::Initialise( const String & server, const String & userName, const String & password )
 	{
 		std::unique_lock< std::recursive_mutex > lock( _mutex );
 		_server = server;

@@ -30,6 +30,7 @@
 #include "DatabaseFieldTest.h"
 #include "DatabaseRowTest.h"
 #include "DatabaseResultTest.h"
+#include "DatabaseQueryTest.h"
 #include "DatabaseMySqlTest.h"
 #include "DatabaseSqliteTest.h"
 #include "DatabasePostgreSqlTest.h"
@@ -57,6 +58,7 @@ std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseParameterTest > g_databasePar
 std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseFieldTest > g_databaseFieldTest;
 std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseRowTest > g_databaseRowTest;
 std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseResultTest > g_databaseResultTest;
+std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseQueryTest > g_databaseQueryTest;
 std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseMySqlTest > g_databaseMySqlTest;
 std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseSqliteTest > g_databaseSqliteTest;
 std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabasePostgreSqlTest > g_databasePostgreSqlTest;
@@ -96,6 +98,7 @@ void Startup( char * arg )
 	g_databaseFieldTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseFieldTest >();
 	g_databaseRowTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseRowTest >();
 	g_databaseResultTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseResultTest >();
+	g_databaseQueryTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseQueryTest >();
 	g_databaseMySqlTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseMySqlTest >();
 	g_databaseSqliteTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseSqliteTest >();
 	g_databasePostgreSqlTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabasePostgreSqlTest >();
@@ -123,6 +126,7 @@ void Shutdown()
 	g_databaseFieldTest.reset();
 	g_databaseRowTest.reset();
 	g_databaseResultTest.reset();
+	g_databaseQueryTest.reset();
 	g_databaseMySqlTest.reset();
 	g_databaseSqliteTest.reset();
 	g_databasePostgreSqlTest.reset();
@@ -208,6 +212,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		TS_List.push_back( g_databaseFieldTest->Init_Test_Suite() );
 		TS_List.push_back( g_databaseRowTest->Init_Test_Suite() );
 		TS_List.push_back( g_databaseResultTest->Init_Test_Suite() );
+		TS_List.push_back( g_databaseQueryTest->Init_Test_Suite() );
 
 #if defined( TESTING_PLUGIN_SQLITE )
 		//TS_List.push_back( g_databaseSqliteTest->Init_Test_Suite() );
@@ -230,7 +235,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 	}
 
-	String InitializeSingletons()
+	String InitialiseSingletons()
 	{
 		StringStream modulePath;
 		size_t index = g_path.substr( 0, g_path.size() - 1 ).rfind( PATH_SEP );
@@ -292,7 +297,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	DatabaseConnectionSPtr CreateConnection( CDatabase & database, const String & server, const String & user, const String & pwd )
 	{
 		String connectionResult;
-		database.Initialize( server, user, pwd );
+		database.Initialise( server, user, pwd );
 		database.CreateConnection( connectionResult );
 		DatabaseConnectionSPtr  result = database.RetrieveConnection();
 		return result;

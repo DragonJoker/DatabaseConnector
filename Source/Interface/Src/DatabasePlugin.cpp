@@ -48,8 +48,8 @@ BEGIN_NAMESPACE_DATABASE
 		if ( !_installed )
 		{
 
-			//!@remarks Initialize the factory.
-			_factory->Initialize();
+			//!@remarks Initialise the factory.
+			_factory->Initialise();
 
 			//!@remarks Register factory.
 			CFactoryManager::Instance().AddFactory( _factory );

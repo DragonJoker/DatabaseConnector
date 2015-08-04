@@ -698,7 +698,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			return result;
 		}
 
-		DatabaseValuedObjectInfosPtrArray InitializeColumns( SQLSMALLINT columnCount, std::vector< std::unique_ptr< CInOdbcBindBase > > & columns, SQLHSTMT stmt )
+		DatabaseValuedObjectInfosPtrArray InitialiseColumns( SQLSMALLINT columnCount, std::vector< std::unique_ptr< CInOdbcBindBase > > & columns, SQLHSTMT stmt )
 		{
 			static const SQLSMALLINT BUFFER_SIZE = 255;
 			EErrorType errorType = EErrorType_NONE;
@@ -1217,7 +1217,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			if ( numColumns )
 			{
 				std::vector< std::unique_ptr< CInOdbcBindBase > > arrayColumnData;
-				DatabaseValuedObjectInfosPtrArray columns = InitializeColumns( numColumns, arrayColumnData, statementHandle );
+				DatabaseValuedObjectInfosPtrArray columns = InitialiseColumns( numColumns, arrayColumnData, statementHandle );
 				pReturn = std::make_shared< CDatabaseResult >( columns );
 				FetchResultSet( connection, pReturn, arrayColumnData, statementHandle );
 			}

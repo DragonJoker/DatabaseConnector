@@ -34,7 +34,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		return MySql::PLUGIN_NAME_DATABASE_MYSQL;
 	}
 
-	void CPluginDatabaseMySql::Initialize()
+	void CPluginDatabaseMySql::Initialise()
 	{
 	}
 

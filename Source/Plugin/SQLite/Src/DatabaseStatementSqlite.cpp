@@ -27,7 +27,7 @@
 
 BEGIN_NAMESPACE_DATABASE_SQLITE
 {
-	static const String ERROR_SQLITE_MISSING_INITIALIZATION = STR( "Method Initialize must be called before calling method CreateParameter" );
+	static const String ERROR_SQLITE_MISSING_INITIALIZATION = STR( "Method Initialise must be called before calling method CreateParameter" );
 	static const String ERROR_SQLITE_CANT_PREPARE_STATEMENT = STR( "Couldn't prepare the statement" );
 	static const String ERROR_SQLITE_QUERY_INCONSISTENCY = STR( "Number of parameters doesn't match the sizes of parameter containers: " );
 	static const String ERROR_SQLITE_LOST_CONNECTION = STR( "The statement has lost his connection" );
@@ -68,21 +68,18 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_SQLITE_LOST_CONNECTION );
 		}
 
-		DatabaseParameterSPtr pReturn = std::make_shared< CDatabaseStatementParameterSqlite >( connection, infos, uint16_t( _arrayInParams.size() + 1 ), parameterType, std::make_unique< SValueUpdater >( this ) );
+		auto parameter = std::make_shared< CDatabaseStatementParameterSqlite >( connection, infos, uint16_t( _arrayInParams.size() + 1 ), parameterType, std::make_unique< SValueUpdater >( this ) );
+		DatabaseParameterSPtr ret = DoAddParameter( parameter );
 
-		if ( !DoAddParameter( pReturn ) )
+		if ( ret && parameterType == EParameterType_IN )
 		{
-			pReturn.reset();
-		}
-		else if ( parameterType == EParameterType_IN )
-		{
-			_arrayInParams.push_back( pReturn );
+			_arrayInParams.push_back( parameter );
 		}
 
-		return pReturn;
+		return ret;
 	}
 
-	EErrorType CDatabaseStatementSqlite::DoInitialize()
+	EErrorType CDatabaseStatementSqlite::DoInitialise()
 	{
 		DatabaseConnectionSqliteSPtr connection = DoGetSqliteConnection();
 
@@ -107,10 +104,10 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		auto && itQueries = _arrayQueries.begin();
 		auto && itParams = _arrayParams.begin();
 
-		_outInitializers.clear();
+		_outInitialisers.clear();
 		_arrayOutParams.clear();
 
-		_outInitializers.reserve( _arrayParams.size() );
+		_outInitialisers.reserve( _arrayParams.size() );
 		_arrayOutParams.reserve( _arrayParams.size() );
 
 		while ( itQueries != _arrayQueries.end() && itParams != _arrayParams.end() )
@@ -127,16 +124,16 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 				query << SQLITE_SQL_PARAM + parameter->GetName();
 				DatabaseStatementSPtr stmt = connection->CreateStatement( SQLITE_SQL_SET + parameter->GetName() + STR( " = " ) + SQLITE_SQL_DELIM );
 				stmt->CreateParameter( parameter->GetName(), parameter->GetType(), parameter->GetLimits(), EParameterType_IN );
-				stmt->Initialize();
-				_inOutInitializers.push_back( std::make_pair( stmt, parameter ) );
+				stmt->Initialise();
+				_inOutInitialisers.push_back( std::make_pair( stmt, parameter ) );
 				_arrayOutParams.push_back( parameter );
 			}
 			else if ( parameter->GetParamType() == EParameterType_OUT )
 			{
 				query << SQLITE_SQL_PARAM + parameter->GetName();
 				DatabaseStatementSPtr stmt = connection->CreateStatement( SQLITE_SQL_SET + parameter->GetName() + SQLITE_SQL_NULL );
-				stmt->Initialize();
-				_outInitializers.push_back( stmt );
+				stmt->Initialise();
+				_outInitialisers.push_back( stmt );
 				_arrayOutParams.push_back( parameter );
 			}
 
@@ -166,7 +163,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			}
 
 			_stmtOutParams = connection->CreateStatement( queryInOutParam.str() );
-			_stmtOutParams->Initialize();
+			_stmtOutParams->Initialise();
 		}
 
 		_statement = SqlitePrepareStatement( _query, DoGetSqliteConnection()->GetConnection() );
@@ -249,7 +246,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 		_arrayInParams.clear();
 		_arrayOutParams.clear();
-		_outInitializers.clear();
+		_outInitialisers.clear();
 		_arrayQueries.clear();
 		_paramsCount = 0;
 		_stmtOutParams.reset();
@@ -257,7 +254,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 	void CDatabaseStatementSqlite::DoPreExecute()
 	{
-		for ( auto && it : _inOutInitializers )
+		for ( auto && it : _inOutInitialisers )
 		{
 			DatabaseParameterSPtr parameter = it.second.lock();
 
@@ -273,7 +270,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			it.first->ExecuteUpdate();
 		}
 
-		for ( auto && statement : _outInitializers )
+		for ( auto && statement : _outInitialisers )
 		{
 			statement->ExecuteUpdate();
 		}

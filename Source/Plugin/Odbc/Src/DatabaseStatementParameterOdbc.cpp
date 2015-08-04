@@ -35,7 +35,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		// Empty
 	}
 
-	void CDatabaseStatementParameterOdbc::Initialize( SQLHSTMT statementHandle )
+	void CDatabaseStatementParameterOdbc::Initialise( SQLHSTMT statementHandle )
 	{
 		switch ( GetType() )
 		{
@@ -148,7 +148,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			break;
 		}
 
-		_binding->Initialize();
+		_binding->Initialise();
 	}
 }
 END_NAMESPACE_DATABASE_ODBC

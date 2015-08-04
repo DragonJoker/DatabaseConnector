@@ -14,6 +14,7 @@
 #include "DatabasePch.h"
 
 #include "DatabaseConnection.h"
+#include "DatabaseException.h"
 #include "DatabaseQuery.h"
 #include "DatabaseStringUtils.h"
 #include "DatabaseDate.h"

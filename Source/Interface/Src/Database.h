@@ -35,7 +35,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport virtual ~CDatabase();
 
-		/** Initialize data.
+		/** Initialise data.
 		@param[in] server
 			Server identifier (name or address).
 		@param[in] userName
@@ -43,7 +43,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] password
 			User password.
 		*/
-		DatabaseExport void Initialize( const String & server, const String & userName, const String & password );
+		DatabaseExport void Initialise( const String & server, const String & userName, const String & password );
 
 		/** Create a connection.
 		@param[out] connectionString

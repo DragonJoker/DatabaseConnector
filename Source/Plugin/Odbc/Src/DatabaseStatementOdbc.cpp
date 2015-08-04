@@ -27,7 +27,7 @@
 
 BEGIN_NAMESPACE_DATABASE_ODBC
 {
-	static const String ERROR_ODBC_MISSING_INITIALIZATION = STR( "Method Initialize must be called before calling method CreateParameter" );
+	static const String ERROR_ODBC_MISSING_INITIALIZATION = STR( "Method Initialise must be called before calling method CreateParameter" );
 	static const String ERROR_ODBC_STATEMENT_UNKNOWN_POINTER = STR( "The pointer given by SQLParamData is unknown to the statement" );
 	static const String ERROR_ODBC_LOST_CONNECTION = STR( "The statement has lost his connection" );
 
@@ -65,17 +65,10 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_ODBC_LOST_CONNECTION );
 		}
 
-		DatabaseParameterSPtr pReturn = std::make_shared< CDatabaseStatementParameterOdbc >( connection, infos, uint16_t( _arrayParams.size() + 1 ), parameterType, std::make_unique< SValueUpdater >( this ) );
-
-		if ( !DoAddParameter( pReturn ) )
-		{
-			pReturn.reset();
-		}
-
-		return pReturn;
+		return DoAddParameter( std::make_shared< CDatabaseStatementParameterOdbc >( connection, infos, uint16_t( _arrayParams.size() + 1 ), parameterType, std::make_unique< SValueUpdater >( this ) ) );
 	}
 
-	EErrorType CDatabaseStatementOdbc::DoInitialize()
+	EErrorType CDatabaseStatementOdbc::DoInitialise()
 	{
 		DatabaseConnectionOdbcSPtr connection = DoGetConnectionOdbc();
 
@@ -112,7 +105,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 		for ( DatabaseParameterPtrArray::iterator it = _arrayParams.begin(); it != _arrayParams.end(); ++it )
 		{
-			std::static_pointer_cast< CDatabaseStatementParameterOdbc >( *it )->Initialize( _statementHandle );
+			std::static_pointer_cast< CDatabaseStatementParameterOdbc >( *it )->Initialise( _statementHandle );
 		}
 
 		return errorType;

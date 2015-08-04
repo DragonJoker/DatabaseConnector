@@ -34,7 +34,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		return MsSql::PLUGIN_NAME_DATABASE_ODBC_MSSQL;
 	}
 
-	void CPluginDatabaseOdbcMsSql::Initialize()
+	void CPluginDatabaseOdbcMsSql::Initialise()
 	{
 	}
 

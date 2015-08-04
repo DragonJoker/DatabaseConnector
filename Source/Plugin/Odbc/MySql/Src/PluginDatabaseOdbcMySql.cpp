@@ -34,7 +34,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MYSQL
 		return MySql::PLUGIN_NAME_DATABASE_ODBC_MYSQL;
 	}
 
-	void CPluginDatabaseOdbcMySql::Initialize()
+	void CPluginDatabaseOdbcMySql::Initialise()
 	{
 		// Empty
 	}

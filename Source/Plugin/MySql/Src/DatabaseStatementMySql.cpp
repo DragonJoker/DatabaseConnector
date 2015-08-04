@@ -28,7 +28,7 @@
 
 BEGIN_NAMESPACE_DATABASE_MYSQL
 {
-	static const String ERROR_MYSQL_MISSING_INITIALIZATION = STR( "Method Initialize must be called before calling method CreateParameter" );
+	static const String ERROR_MYSQL_MISSING_INITIALIZATION = STR( "Method Initialise must be called before calling method CreateParameter" );
 	static const String ERROR_MYSQL_CANT_CREATE_STATEMENT = STR( "Couldn't create the statement" );
 	static const String ERROR_MYSQL_LOST_CONNECTION = STR( "The statement has lost his connection" );
 
@@ -70,21 +70,18 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_MYSQL_LOST_CONNECTION );
 		}
 
-		DatabaseParameterMySqlSPtr pReturn = std::make_shared< CDatabaseParameterMySql >( connection, infos, uint16_t( _arrayInParams.size() + 1 ), parameterType, std::make_unique< SValueUpdater >( this ) );
+		DatabaseParameterMySqlSPtr parameter = std::make_shared< CDatabaseParameterMySql >( connection, infos, uint16_t( _arrayInParams.size() + 1 ), parameterType, std::make_unique< SValueUpdater >( this ) );
+		DatabaseParameterSPtr ret = DoAddParameter( parameter );
 
-		if ( !DoAddParameter( pReturn ) )
+		if ( ret && parameterType == EParameterType_IN )
 		{
-			pReturn.reset();
-		}
-		else if ( parameterType == EParameterType_IN )
-		{
-			_arrayInParams.push_back( pReturn );
+			_arrayInParams.push_back( parameter );
 		}
 
-		return pReturn;
+		return ret;
 	}
 
-	EErrorType CDatabaseStatementMySql::DoInitialize()
+	EErrorType CDatabaseStatementMySql::DoInitialise()
 	{
 		DatabaseConnectionMySqlSPtr connection = DoGetMySqlConnection();
 
@@ -109,10 +106,10 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		auto && itQueries = _arrayQueries.begin();
 		auto && itParams = _arrayParams.begin();
 
-		_outInitializers.clear();
+		_outInitialisers.clear();
 		_arrayOutParams.clear();
 
-		_outInitializers.reserve( _arrayParams.size() );
+		_outInitialisers.reserve( _arrayParams.size() );
 		_arrayOutParams.reserve( _arrayParams.size() );
 		_bindings.reserve( _arrayParams.size() );
 
@@ -125,8 +122,8 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			{
 				query << MYSQL_SQL_PARAM + parameter->GetName();
 				DatabaseStatementSPtr stmt = connection->CreateStatement( MYSQL_SQL_SET + parameter->GetName() + MYSQL_SQL_NULL );
-				stmt->Initialize();
-				_outInitializers.push_back( stmt );
+				stmt->Initialise();
+				_outInitialisers.push_back( stmt );
 				_arrayOutParams.push_back( parameter );
 			}
 			else if ( parameter->GetParamType() == EParameterType_IN )
@@ -140,8 +137,8 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				query << MYSQL_SQL_PARAM + parameter->GetName();
 				DatabaseStatementSPtr stmt = connection->CreateStatement( MYSQL_SQL_SET + parameter->GetName() + STR( " = " ) + MYSQL_SQL_DELIM );
 				stmt->CreateParameter( parameter->GetName(), parameter->GetType(), parameter->GetLimits(), EParameterType_IN );
-				stmt->Initialize();
-				_inOutInitializers.push_back( std::make_pair( stmt, parameter ) );
+				stmt->Initialise();
+				_inOutInitialisers.push_back( std::make_pair( stmt, parameter ) );
 				_arrayOutParams.push_back( parameter );
 			}
 
@@ -171,7 +168,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			}
 
 			_stmtOutParams = connection->CreateStatement( queryInOutParam.str() );
-			_stmtOutParams->Initialize();
+			_stmtOutParams->Initialise();
 		}
 
 		_statement = mysql_stmt_init( connection->GetConnection() );
@@ -251,7 +248,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 		_arrayInParams.clear();
 		_arrayOutParams.clear();
-		_outInitializers.clear();
+		_outInitialisers.clear();
 		_arrayQueries.clear();
 		_paramsCount = 0;
 		_stmtOutParams.reset();
@@ -259,7 +256,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 	void CDatabaseStatementMySql::DoPreExecute()
 	{
-		for ( auto && it : _inOutInitializers )
+		for ( auto && it : _inOutInitialisers )
 		{
 			DatabaseParameterSPtr parameter = it.second.lock();
 
@@ -275,7 +272,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			it.first->ExecuteUpdate();
 		}
 
-		for ( auto && it : _outInitializers )
+		for ( auto && it : _outInitialisers )
 		{
 			it->ExecuteUpdate();
 		}

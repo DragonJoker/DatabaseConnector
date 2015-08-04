@@ -29,7 +29,7 @@
 #	pragma warning( disable: 4251 )    // needs to have dll-interface to be used by clients
 #	pragma warning( disable: 4275 )    // exported class derived from non-exported class
 #	pragma warning( disable: 4347 )    // "behavior change", function called instead of template
-#	pragma warning( disable: 4355 )    // "'this': used in member initializer list
+#	pragma warning( disable: 4355 )    // "'this': used in member initialiser list
 #	pragma warning( disable: 4428 )    // MSVC 9: universal-character-name encountered in source
 #	pragma warning( disable: 4505 )    // unreferenced function has been removed
 #	pragma warning( disable: 4510 )    // default constructor could not be generated

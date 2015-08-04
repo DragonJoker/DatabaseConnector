@@ -55,7 +55,7 @@ BEGIN_NAMESPACE_DATABASE
 		DECLARE_SMART_PTR( DatabaseTestConnection );
 		DECLARE_SMART_PTR( DatabaseTestStatement );
 
-		String InitializeSingletons();
+		String InitialiseSingletons();
 		void LoadPlugins( const String & path, bool mySql, bool sqlite, bool odbcMySql, bool odbcMsSql, bool postgreSql );
 		void UnloadPlugins();
 		CDatabase * InstantiateDatabase( const String & type );

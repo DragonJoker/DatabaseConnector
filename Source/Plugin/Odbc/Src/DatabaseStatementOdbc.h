@@ -49,13 +49,13 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		*/
 		virtual DatabaseParameterSPtr DoCreateParameter( DatabaseValuedObjectInfosSPtr infos, EParameterType parameterType );
 
-		/** Initialize this statement.
+		/** Initialise this statement.
 		@remarks
 			The statement *MUST* be initialised, *AFTER* all parameters have been created.
 		@return
 			Error code.
 		*/
-		virtual EErrorType DoInitialize();
+		virtual EErrorType DoInitialise();
 
 		/** Execute this statement.
 		@return

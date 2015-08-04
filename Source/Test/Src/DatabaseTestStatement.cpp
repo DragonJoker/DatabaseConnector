@@ -58,7 +58,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		return pReturn;
 	}
 
-	EErrorType CDatabaseTestStatement::DoInitialize()
+	EErrorType CDatabaseTestStatement::DoInitialise()
 	{
 		DatabaseTestConnectionSPtr connection = DoGetTestConnection();
 
@@ -73,6 +73,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		{
 			_paramsCount = uint32_t( std::count( _query.begin(), _query.end(), STR( '?' ) ) );
 			_arrayQueries = StringUtils::Split( _query, STR( "?" ), _paramsCount + 1 );
+			eReturn = EErrorType_NONE;
 		}
 
 		BOOST_CHECK_EQUAL( _paramsCount, _arrayParams.size() );

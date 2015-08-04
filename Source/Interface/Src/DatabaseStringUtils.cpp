@@ -151,7 +151,13 @@ BEGIN_NAMESPACE_DATABASE
 						}
 						else if ( l_pos == string_t::npos || l_numSplits == p_maxSplits )
 						{
-							l_arrayReturn.push_back( p_str.substr( l_start ) );
+							string_t remnants = p_str.substr( l_start );
+
+							if ( !remnants.empty() || p_bKeepVoid )
+							{
+								l_arrayReturn.push_back( remnants );
+							}
+
 							return l_arrayReturn;
 						}
 						else

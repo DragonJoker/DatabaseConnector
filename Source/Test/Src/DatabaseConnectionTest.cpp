@@ -309,15 +309,15 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			BOOST_CHECK_NO_THROW( query = connection->CreateQuery( wrongquery ) );
 			BOOST_CHECK_THROW( query->ExecuteSelect(), CDatabaseException );
 			BOOST_CHECK_THROW( query->ExecuteUpdate(), CDatabaseException );
-			BOOST_CHECK_NO_THROW( query->Initialize() );
+			BOOST_CHECK( query->Initialise() == EErrorType_NONE );
 			BOOST_CHECK( !query->ExecuteSelect() );
 			BOOST_CHECK( !query->ExecuteUpdate() );
 			BOOST_CHECK_NO_THROW( query = connection->CreateQuery( goodselect ) );
-			BOOST_CHECK_NO_THROW( query->Initialize() );
+			BOOST_CHECK( query->Initialise() == EErrorType_NONE );
 			BOOST_CHECK( query->ExecuteSelect() );
 			BOOST_CHECK( !query->ExecuteUpdate() );
 			BOOST_CHECK_NO_THROW( query = connection->CreateQuery( goodupdate ) );
-			BOOST_CHECK_NO_THROW( query->Initialize() );
+			BOOST_CHECK( query->Initialise() == EErrorType_NONE );
 			BOOST_CHECK( !query->ExecuteSelect() );
 			BOOST_CHECK( query->ExecuteUpdate() );
 		}
@@ -329,15 +329,15 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			BOOST_CHECK_NO_THROW( statement = connection->CreateStatement( wrongquery ) );
 			BOOST_CHECK_THROW( statement->ExecuteSelect(), CDatabaseException );
 			BOOST_CHECK_THROW( statement->ExecuteUpdate(), CDatabaseException );
-			BOOST_CHECK_NO_THROW( statement->Initialize() );
+			BOOST_CHECK( statement->Initialise() == EErrorType_NONE );
 			BOOST_CHECK( !statement->ExecuteSelect() );
 			BOOST_CHECK( !statement->ExecuteUpdate() );
 			BOOST_CHECK_NO_THROW( statement = connection->CreateStatement( goodselect ) );
-			BOOST_CHECK_NO_THROW( statement->Initialize() );
+			BOOST_CHECK( statement->Initialise() == EErrorType_NONE );
 			BOOST_CHECK( statement->ExecuteSelect() );
 			BOOST_CHECK( !statement->ExecuteUpdate() );
 			BOOST_CHECK_NO_THROW( statement = connection->CreateStatement( goodupdate ) );
-			BOOST_CHECK_NO_THROW( statement->Initialize() );
+			BOOST_CHECK( statement->Initialise() == EErrorType_NONE );
 			BOOST_CHECK( !statement->ExecuteSelect() );
 			BOOST_CHECK( statement->ExecuteUpdate() );
 		}

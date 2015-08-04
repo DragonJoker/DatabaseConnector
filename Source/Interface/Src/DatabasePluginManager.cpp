@@ -55,11 +55,11 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	}
 
-	void CPluginManager::InitializePlugins()
+	void CPluginManager::InitialisePlugins()
 	{
 		for ( auto && plugin : _plugins )
 		{
-			plugin->Initialize();
+			plugin->Initialise();
 		}
 	}
 
@@ -130,7 +130,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		_plugins.push_back( plugin );
 		plugin->Install();
-		plugin->Initialize();
+		plugin->Initialise();
 
 		CLogger::LogDebug( ( Format( INFO_DB_PLUGIN_SUCCESSFULLY_INSTALLED ) % plugin->GetName() ).str() );
 	}

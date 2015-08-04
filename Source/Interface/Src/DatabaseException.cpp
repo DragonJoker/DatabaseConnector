@@ -68,6 +68,8 @@ BEGIN_NAMESPACE_DATABASE
 
 	namespace
 	{
+		bool SymbolsInitialised = false;
+
 		void ShowBacktrace( std::stringstream & stream )
 		{
 			const int MaxFnNameLen( 255 );
@@ -78,16 +80,18 @@ BEGIN_NAMESPACE_DATABASE
 			::HANDLE process( ::GetCurrentProcess() );
 			stream << std::endl << "== Call Stack ==" << std::endl;
 
-			if ( process != INVALID_HANDLE_VALUE )
+			// symbol->Name type is char [1] so there is space for \0 already
+			SYMBOL_INFO * symbol( ( SYMBOL_INFO * ) malloc( sizeof( SYMBOL_INFO ) + ( MaxFnNameLen * sizeof( char ) ) ) );
+			symbol->MaxNameLen = MaxFnNameLen;
+			symbol->SizeOfStruct = sizeof( SYMBOL_INFO );
+
+			if ( !SymbolsInitialised )
 			{
-				// symbol->Name type is char [1] so there is space for \0 already
-				SYMBOL_INFO * symbol( ( SYMBOL_INFO * ) malloc( sizeof( SYMBOL_INFO ) + ( MaxFnNameLen * sizeof( char ) ) ) );
-				symbol->MaxNameLen = MaxFnNameLen;
-				symbol->SizeOfStruct = sizeof( SYMBOL_INFO );
+				SymbolsInitialised = SymInitialize( process, NULL, TRUE ) == TRUE;
+			}
 
-				SymInitialize( process, NULL, TRUE );
-
-
+			if ( SymbolsInitialised )
+			{
 				// For now we just print out a message on sterr.
 				for ( unsigned int i = 0; i < num; ++i )
 				{

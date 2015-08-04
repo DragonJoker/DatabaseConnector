@@ -146,7 +146,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		// Empty
 	}
 
-	EErrorType COutOdbcBindBase::Initialize()
+	EErrorType COutOdbcBindBase::Initialise()
 	{
 		EErrorType errorType = EErrorType_NONE;
 		OdbcCheck( SQLDescribeParam( _statement, _index, &_dataType, &_columnSize, &_decimalDigits, &_nullable ), SQL_HANDLE_STMT, _statement, INFO_ODBC_DescribeParam );

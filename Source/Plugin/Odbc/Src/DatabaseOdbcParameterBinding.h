@@ -49,11 +49,11 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			*/
 		virtual ~COutOdbcBindBase();
 
-		/** Initialize this binding.
+		/** Initialise this binding.
 		@return
 		    Error code.
 		*/
-		EErrorType Initialize();
+		EErrorType Initialise();
 
 		/** Binds the value to the statement
 		@return

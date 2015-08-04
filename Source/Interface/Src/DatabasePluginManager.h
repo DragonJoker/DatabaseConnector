@@ -26,10 +26,10 @@ BEGIN_NAMESPACE_DATABASE
 	class CPluginManager
 	{
 	public:
-		/** Initialize all loaded plugins - allows plugins to perform
-			actions once the renderer is initialized.
+		/** Initialise all loaded plugins - allows plugins to perform
+			actions once the renderer is initialised.
 		*/
-		DatabaseExport void InitializePlugins();
+		DatabaseExport void InitialisePlugins();
 
 		/** Shuts down all loaded plugins - allows things to be tidied up whilst
 			all plugins are still loaded.

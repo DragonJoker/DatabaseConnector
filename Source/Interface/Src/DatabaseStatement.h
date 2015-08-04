@@ -14,21 +14,17 @@
 #ifndef ___DATABASE_STATEMENT_H___
 #define ___DATABASE_STATEMENT_H___
 
-#include "DatabasePrerequisites.h"
+#include "DatabaseParameteredObject.h"
 
-#include "Database.h"
 #include "DatabaseParameter.h"
-#include "DatabaseException.h"
-
 #include "EErrorType.h"
-#include "EFieldType.h"
-#include "EParameterType.h"
 
 BEGIN_NAMESPACE_DATABASE
 {
 	/** Describes a database statement.
 	*/
 	class CDatabaseStatement
+		: public CDatabaseParameteredObject
 	{
 	public:
 		/** Constructor.
@@ -43,14 +39,6 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport virtual ~CDatabaseStatement();
 
-		/** Initialize query.
-		@remarks
-			The statement *MUST* be initialized, *AFTER* all parameters have been created.
-		@return
-			Error code.
-		*/
-		DatabaseExport EErrorType Initialize();
-
 		/** Execute a query that has no result set.
 		@return
 			Results.
@@ -62,10 +50,6 @@ BEGIN_NAMESPACE_DATABASE
 			Results.
 		*/
 		DatabaseExport DatabaseResultSPtr ExecuteSelect();
-
-		/** Clean query.
-		*/
-		DatabaseExport void Cleanup();
 
 		/** Create a statement parameter.
 		@param[in] name
@@ -107,86 +91,6 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport DatabaseParameterSPtr CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType = EParameterType_IN );
 
-		/** Retrieves a parameter, by index
-		@param[in] index
-			Parameter index.
-		*/
-		DatabaseExport DatabaseParameterSPtr GetParameter( uint32_t index )const;
-
-		/** Retrieves a parameter, by name
-		@param[in] name
-			Parameter name.
-		*/
-		DatabaseExport DatabaseParameterSPtr GetParameter( const String & name )const;
-
-		/** Get parameter type.
-		@param[in] index
-			Parameter index.
-		@return
-			Parameter type.
-		*/
-		DatabaseExport EFieldType GetParameterType( uint32_t index );
-
-		/** Set parameter value to NULL.
-		@param[in] index
-			Parameter index.
-		*/
-		DatabaseExport void SetParameterNull( uint32_t index );
-
-		/** Set parameter value to NULL.
-		@param[in] name
-			Parameter name.
-		*/
-		DatabaseExport void SetParameterNull( const String & name );
-
-		/** Set parameter value from another valued object.
-		@param[in] index
-			Parameter index.
-		@param[in] object
-			The object.
-		*/
-		DatabaseExport void SetParameterValue( uint32_t index, const CDatabaseValuedObject & object );
-
-		/** Set parameter value from another valued object.
-		@param[in] name
-			Parameter name.
-		@param[in] object
-			The object.
-		*/
-		DatabaseExport void SetParameterValue( const String & name, const CDatabaseValuedObject & object );
-
-		/** Set parameter value.
-		@param[in] index
-			Parameter index.
-		@param[in] value
-			Parameter value.
-		*/
-		template< typename T > void SetParameterValue( uint32_t index, const T & value );
-
-		/** Set parameter value.
-		@param[in] name
-			Parameter name.
-		@param[in] value
-			Parameter value.
-		*/
-		template< typename T > void SetParameterValue( const String & name, const T & value );
-
-		/** Set parameter value.
-		@param[in] index
-			Parameter index.
-		@param[in] value
-			Parameter value.
-		*/
-		template< typename T > void SetParameterValueFast( uint32_t index, const T & value );
-
-		/** Set parameter value.
-		@param[in] name
-			Parameter name.
-		@param[in] value
-			Parameter value.
-		*/
-		template< typename T > void SetParameterValueFast( const String & name, const T & value );
-
 		/** Get output value.
 		@param[in] index
 			Parameter index.
@@ -220,32 +124,6 @@ BEGIN_NAMESPACE_DATABASE
 		template< typename T > void GetOutputValue( const String & name, T & value );
 
 	protected:
-		/** Creates a parameter, given it's valued object informations
-		@param[in] infos
-			Parameter informations.
-		@param[in] parameterType
-			Parameter type.
-		@return
-			The created parameter
-		*/
-		DatabaseExport virtual DatabaseParameterSPtr DoCreateParameter( DatabaseValuedObjectInfosSPtr infos, EParameterType parameterType ) = 0;
-
-		/** Add parameter to query.
-		@param[in] parameter
-			Parameter to add.
-		@return
-			true if addition succeeds, false otherwise.
-		*/
-		DatabaseExport bool DoAddParameter( DatabaseParameterSPtr parameter );
-
-		/** Initialize query.
-		@remarks
-			The statement *MUST* be initialized, *AFTER* all parameters have been created.
-		@return
-			Error code.
-		*/
-		DatabaseExport virtual EErrorType DoInitialize() = 0;
-
 		/** Execute a query that has no result set.
 		@return
 			Results.
@@ -258,21 +136,13 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport virtual DatabaseResultSPtr DoExecuteSelect() = 0;
 
-		/** Clean query.
-		*/
-		DatabaseExport virtual void DoCleanup() = 0;
-
 	protected:
-		//! Array of parameters (addition order).
-		DatabaseParameterPtrArray _arrayParams;
 		//! Map of parameters by pointers.
 		std::map< const void *, CDatabaseParameter const * > _mapParamsByPointer;
 		//! Request text.
 		String _query;
 		//! Database connection.
 		DatabaseConnectionWPtr _connection;
-		//! Tells if the statement is initialised 
-		bool _initialised = false;
 
 		/** Inform parent statement from the value changes
 		*/

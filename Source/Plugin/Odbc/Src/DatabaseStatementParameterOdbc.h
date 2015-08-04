@@ -45,11 +45,11 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		*/
 		virtual ~CDatabaseStatementParameterOdbc();
 
-		/** Initializes parameter members from the given statement handle
+		/** Initialises parameter members from the given statement handle
 		@param statementHandle
 			The statement handle
 		*/
-		void Initialize( SQLHSTMT statementHandle );
+		void Initialise( SQLHSTMT statementHandle );
 
 		/** Retrieves the parameter binding
 		@return

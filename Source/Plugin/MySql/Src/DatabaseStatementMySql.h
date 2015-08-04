@@ -49,11 +49,11 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		*/
 		virtual DatabaseParameterSPtr DoCreateParameter( DatabaseValuedObjectInfosSPtr infos, EParameterType parameterType );
 
-		/** Initialize this statement.
+		/** Initialise this statement.
 		@return
 			Error code.
 		*/
-		virtual EErrorType DoInitialize();
+		virtual EErrorType DoInitialise();
 
 		/** Execute this statement.
 		@return
@@ -109,10 +109,10 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		std::vector< MYSQL_BIND > _bindings;
 		/// Array of out parameters
 		DatabaseParameterMySqlPtrArray _arrayOutParams;
-		/// Array of in/out parameter initializer queries
-		std::vector< std::pair< DatabaseStatementSPtr, DatabaseParameterWPtr > > _inOutInitializers;
-		/// Array of out parameter initializer queries
-		std::vector< DatabaseStatementSPtr > _outInitializers;
+		/// Array of in/out parameter initialiser queries
+		std::vector< std::pair< DatabaseStatementSPtr, DatabaseParameterWPtr > > _inOutInitialisers;
+		/// Array of out parameter initialiser queries
+		std::vector< DatabaseStatementSPtr > _outInitialisers;
 		/// The statement used to execute the out parameters retrieval query
 		DatabaseStatementSPtr _stmtOutParams;
 	};

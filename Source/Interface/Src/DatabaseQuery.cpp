@@ -15,29 +15,35 @@
 
 #include "DatabaseQuery.h"
 
-#include "Database.h"
-#include "DatabaseConnection.h"
 #include "DatabaseParameter.h"
 #include "DatabaseValuedObjectInfos.h"
-#include "DatabaseException.h"
-#include "DatabaseResult.h"
-#include "DatabaseRow.h"
-
-#include "DatabaseStringUtils.h"
-
-#include <algorithm>
 
 BEGIN_NAMESPACE_DATABASE
 {
-	static const String ERROR_DB_QUERY_INDEX = STR( "No query parameter at index: " );
-	static const String ERROR_DB_QUERY_NAME = STR( "No query parameter named: " );
+	namespace
+	{
+		/** Does nothing
+		*/
+		struct SDummyValueUpdater
+			: public CDatabaseParameter::SValueUpdater
+		{
+			/** Constructor
+			*/
+			DatabaseExport SDummyValueUpdater(){}
+
+			//!@copydoc CDatabaseParameter::SValueUpdater
+			DatabaseExport virtual void Update( const CDatabaseParameter & value ){}
+		};
+	}
+
+	static const String ERROR_DB_QUERY_EMPTY = STR( "The query is empty." );
 	static const String ERROR_DB_QUERY_INCONSISTENCY = STR( "Number of parameters doesn't match the sizes of parameter containers." );
-	static const String ERROR_DB_QUERY_ALREADY_ADDED_PARAMETER = STR( "Parameter with name [%1%] already exists." );
-	static const String WARNING_DB_QUERY_NULL_PARAMETER = STR( "Trying to add a null parameter." );
+	static const String ERROR_DB_QUERY_INVALID = STR( "The query text is invalid." );
 	static const String ERROR_DB_QUERY_NOT_INITIALISED = STR( "The query is not initialised." );
 
 	CDatabaseQuery::CDatabaseQuery( DatabaseConnectionSPtr connection, const String & query )
-		: _connection( connection )
+		: CDatabaseParameteredObject()
+		, _connection( connection )
 		, _paramsCount( 0 )
 		, _query( query )
 	{
@@ -47,20 +53,6 @@ BEGIN_NAMESPACE_DATABASE
 	CDatabaseQuery::~CDatabaseQuery()
 	{
 		Cleanup();
-	}
-
-	EErrorType CDatabaseQuery::Initialize()
-	{
-		EErrorType eReturn = EErrorType_ERROR;
-
-		if ( !_query.empty() )
-		{
-			_paramsCount = uint32_t( std::count( _query.begin(), _query.end(), STR( '?' ) ) );
-			_arrayQueries = StringUtils::Split( _query, STR( "?" ), _paramsCount + 1 );
-			eReturn = EErrorType_NONE;
-		}
-
-		return eReturn;
 	}
 
 	bool CDatabaseQuery::ExecuteUpdate()
@@ -99,12 +91,6 @@ BEGIN_NAMESPACE_DATABASE
 		return pReturn;
 	}
 
-	void CDatabaseQuery::Cleanup()
-	{
-		_paramsCount = 0;
-		_arrayQueries.clear();
-	}
-
 	DatabaseParameterSPtr CDatabaseQuery::CreateParameter( const String & name, EFieldType fieldType )
 	{
 		return DoCreateParameter( std::make_shared< CDatabaseValuedObjectInfos >( name, fieldType ) );
@@ -120,112 +106,43 @@ BEGIN_NAMESPACE_DATABASE
 		return DoCreateParameter( std::make_shared< CDatabaseValuedObjectInfos >( name, fieldType, precision ) );
 	}
 
-	DatabaseParameterSPtr CDatabaseQuery::GetParameter( uint32_t index )const
+	EErrorType CDatabaseQuery::DoInitialise()
 	{
-		try
+		if ( _query.empty() )
 		{
-			return _arrayParams[index];
-		}
-		catch ( CDatabaseException & exc )
-		{
-			CLogger::LogError( exc.GetFullDescription() );
-			throw;
-		}
-		catch ( ... )
-		{
-			StringStream message;
-			message << ERROR_DB_QUERY_INDEX << index;
-			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, message.str() );
-		}
-	}
-
-	DatabaseParameterSPtr CDatabaseQuery::GetParameter( const String & name )const
-	{
-		auto it = std::find_if( _arrayParams.begin(), _arrayParams.end(), [&name]( DatabaseParameterSPtr parameter )
-		{
-			return parameter->GetName() == name;
-		} );
-
-		if ( it == _arrayParams.end() )
-		{
-			StringStream message;
-			message << ERROR_DB_QUERY_NAME << name;
-			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, message.str() );
+			DB_EXCEPT( EDatabaseExceptionCodes_QueryError, ERROR_DB_QUERY_EMPTY );
 		}
 
-		return ( *it );
-	}
+		_paramsCount = uint32_t( std::count( _query.begin(), _query.end(), STR( '?' ) ) );
 
-	EFieldType CDatabaseQuery::GetParameterType( uint32_t index )
-	{
-		return GetParameter( index )->GetType();
-	}
-
-	void CDatabaseQuery::SetParameterNull( uint32_t index )
-	{
-		GetParameter( index )->SetNull();
-	}
-
-	void CDatabaseQuery::SetParameterNull( const String & name )
-	{
-		GetParameter( name )->SetNull();
-	}
-
-	void CDatabaseQuery::SetParameterValue( uint32_t index, const CDatabaseValuedObject & object )
-	{
-		GetParameter( index )->SetValue( object );
-	}
-
-	DatabaseParameterSPtr CDatabaseQuery::DoCreateParameter( DatabaseValuedObjectInfosSPtr infos )
-	{
-		DatabaseParameterSPtr pReturn = std::make_shared< CDatabaseParameter >( DoGetConnection(), infos, uint16_t( _arrayParams.size() + 1 ), EParameterType_IN, std::make_unique< SDummyValueUpdater >() );
-
-		if ( !DoAddParameter( pReturn ) )
-		{
-			pReturn.reset();
-		}
-
-		return pReturn;
-	}
-
-	bool CDatabaseQuery::DoAddParameter( DatabaseParameterSPtr parameter )
-	{
-		bool bReturn = false;
-
-		if ( parameter )
-		{
-			auto it = std::find_if( _arrayParams.begin(), _arrayParams.end(), [&parameter]( DatabaseParameterSPtr param )
-			{
-				return param->GetName() == parameter->GetName();
-			} );
-
-			if ( it == _arrayParams.end() )
-			{
-				_arrayParams.push_back( parameter );
-				bReturn = true;
-			}
-			else
-			{
-				Format format( ERROR_DB_QUERY_ALREADY_ADDED_PARAMETER );
-				format % parameter->GetName();
-				CLogger::LogError( format.str() );
-			}
-		}
-		else
-		{
-			CLogger::LogWarning( WARNING_DB_QUERY_NULL_PARAMETER );
-		}
-
-		return bReturn;
-	}
-
-	String CDatabaseQuery::DoPreExecute()
-	{
 		if ( _paramsCount != _arrayParams.size() )
 		{
 			DB_EXCEPT( EDatabaseExceptionCodes_QueryError, ERROR_DB_QUERY_INCONSISTENCY );
 		}
 
+		_arrayQueries = StringUtils::Split( _query, STR( "?" ), _paramsCount + 1, false );
+
+		if ( _arrayQueries.empty() )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_QueryError, ERROR_DB_QUERY_INVALID );
+		}
+
+		return EErrorType_NONE;
+	}
+
+	void CDatabaseQuery::DoCleanup()
+	{
+		_paramsCount = 0;
+		_arrayQueries.clear();
+	}
+
+	DatabaseParameterSPtr CDatabaseQuery::DoCreateParameter( DatabaseValuedObjectInfosSPtr infos, EParameterType parameterType )
+	{
+		return DoAddParameter( std::make_shared< CDatabaseParameter >( DoGetConnection(), infos, uint16_t( _arrayParams.size() + 1 ), parameterType, std::make_unique< SDummyValueUpdater >() ) );
+	}
+
+	String CDatabaseQuery::DoPreExecute()
+	{
 		StringStream query;
 		auto itQueries = _arrayQueries.begin();
 

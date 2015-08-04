@@ -30,7 +30,7 @@
 
 BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 {
-	static const String ERROR_POSTGRESQL_MISSING_INITIALIZATION = STR( "Method Initialize must be called before calling method CreateParameter" );
+	static const String ERROR_POSTGRESQL_MISSING_INITIALIZATION = STR( "Method Initialise must be called before calling method CreateParameter" );
 	static const String ERROR_POSTGRESQL_CANT_CREATE_STATEMENT = STR( "Couldn't create the statement" );
 	static const String ERROR_POSTGRESQL_LOST_CONNECTION = STR( "The statement has lost his connection" );
 
@@ -72,17 +72,10 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_POSTGRESQL_LOST_CONNECTION );
 		}
 
-		DatabaseParameterPostgreSqlSPtr pReturn = std::make_shared< CDatabaseParameterPostgreSql >( connection, infos, uint16_t( _arrayParams.size() + 1 ), parameterType, std::make_unique< SValueUpdater >( this ) );
-
-		if ( !DoAddParameter( pReturn ) )
-		{
-			pReturn.reset();
-		}
-
-		return pReturn;
+		return DoAddParameter( std::make_shared< CDatabaseParameterPostgreSql >( connection, infos, uint16_t( _arrayParams.size() + 1 ), parameterType, std::make_unique< SValueUpdater >( this ) ) );
 	}
 
-	EErrorType CDatabaseStatementPostgreSql::DoInitialize()
+	EErrorType CDatabaseStatementPostgreSql::DoInitialise()
 	{
 		DatabaseConnectionPostgreSqlSPtr connection = DoGetPostgreSqlConnection();
 

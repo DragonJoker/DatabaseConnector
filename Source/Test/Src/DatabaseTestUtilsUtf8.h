@@ -119,7 +119,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( stmtGetCount )
 				{
-					stmtGetCount->Initialize();
+					stmtGetCount->Initialise();
 					DatabaseResultSPtr result = stmtGetCount->ExecuteSelect();
 
 					if ( result && result->GetRowCount() )
@@ -137,7 +137,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					if ( stmtInsert )
 					{
 						CreateParameters( stmtInsert );
-						stmtInsert->Initialize();
+						stmtInsert->Initialise();
 						std::clock_t const start = std::clock();
 						int16_t type( 1 );
 
@@ -169,7 +169,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( stmtGetCount )
 				{
-					stmtGetCount->Initialize();
+					stmtGetCount->Initialise();
 					DatabaseResultSPtr result = stmtGetCount->ExecuteSelect();
 
 					if ( result && result->GetRowCount() )
@@ -187,7 +187,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					if ( stmtAddUpdate )
 					{
 						CreateParameters( stmtAddUpdate );
-						stmtAddUpdate->Initialize();
+						stmtAddUpdate->Initialise();
 						std::clock_t const start = std::clock();
 						int16_t type( 1 );
 
