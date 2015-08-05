@@ -383,10 +383,9 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 	{
 		DateType dateObj;
 
-		if ( !Date::IsDate( date, POSTGRESQL_FORMAT_DATE, dateObj )
-		&& !Date::IsDate( date, POSTGRESQL_FORMAT_STMT_DATE, dateObj ) )
+		if ( !Date::IsDate( date, POSTGRESQL_FORMAT_DATE, dateObj ) )
 		{
-			// date is already invalid
+			Date::IsDate( date, POSTGRESQL_FORMAT_STMT_DATE, dateObj );
 		}
 
 		return dateObj;
@@ -396,10 +395,9 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 	{
 		TimeType timeObj;
 
-		if ( !Time::IsTime( time, POSTGRESQL_FORMAT_TIME, timeObj )
-		&& !Time::IsTime( time, POSTGRESQL_FORMAT_STMT_TIME, timeObj ) )
+		if ( !Time::IsTime( time, POSTGRESQL_FORMAT_TIME, timeObj ) )
 		{
-			timeObj = TimeType();
+			Time::IsTime( time, POSTGRESQL_FORMAT_STMT_TIME, timeObj );
 		}
 
 		return timeObj;
@@ -411,10 +409,9 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 
 		if ( !DateTime::IsDateTime( dateTime, POSTGRESQL_FORMAT_DATETIME, dateTimeObj )
 		&& !DateTime::IsDateTime( dateTime, POSTGRESQL_FORMAT_STMT_DATETIME, dateTimeObj )
-		&& !DateTime::IsDateTime( dateTime, POSTGRESQL_FORMAT_DATE, dateTimeObj )
-		&& !DateTime::IsDateTime( dateTime, POSTGRESQL_FORMAT_STMT_DATE, dateTimeObj ) )
+		&& !DateTime::IsDateTime( dateTime, POSTGRESQL_FORMAT_DATE, dateTimeObj ) )
 		{
-			dateTimeObj = DateTimeType();
+			DateTime::IsDateTime( dateTime, POSTGRESQL_FORMAT_STMT_DATE, dateTimeObj );
 		}
 
 		return dateTimeObj;

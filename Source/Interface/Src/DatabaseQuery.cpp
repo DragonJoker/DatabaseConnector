@@ -41,18 +41,24 @@ BEGIN_NAMESPACE_DATABASE
 	static const String ERROR_DB_QUERY_INVALID = STR( "The query text is invalid." );
 	static const String ERROR_DB_QUERY_NOT_INITIALISED = STR( "The query is not initialised." );
 
+	static const String INFO_DB_CREATING_QUERY = STR( "Creating query object 0x%08X, with query text %s" );
+	static const String INFO_DB_DELETING_QUERY = STR( "Deleting query object 0x%08X" );
+	static const String INFO_DB_EXECUTING_UPDATE_QUERY = STR( "Executing Update on query object 0x%08X" );
+	static const String INFO_DB_EXECUTING_SELECT_QUERY = STR( "Executing Select on query object 0x%08X" );
+
 	CDatabaseQuery::CDatabaseQuery( DatabaseConnectionSPtr connection, const String & query )
 		: CDatabaseParameteredObject()
 		, _connection( connection )
 		, _paramsCount( 0 )
 		, _query( query )
 	{
-		// Empty
+		CLogger::LogInfo( ( Format( INFO_DB_CREATING_QUERY ) % this % query ).str() );
 	}
 
 	CDatabaseQuery::~CDatabaseQuery()
 	{
 		Cleanup();
+		CLogger::LogInfo( ( Format( INFO_DB_DELETING_QUERY ) % this ).str() );
 	}
 
 	bool CDatabaseQuery::ExecuteUpdate()
@@ -67,6 +73,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		if ( connection && connection->IsConnected() )
 		{
+			CLogger::LogInfo( ( Format( INFO_DB_EXECUTING_UPDATE_QUERY ) % this ).str() );
 			bReturn = connection->ExecuteUpdate( DoPreExecute() );
 		}
 
@@ -85,6 +92,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		if ( connection && connection->IsConnected() )
 		{
+			CLogger::LogInfo( ( Format( INFO_DB_EXECUTING_SELECT_QUERY ) % this ).str() );
 			pReturn = connection->ExecuteSelect( DoPreExecute() );
 		}
 

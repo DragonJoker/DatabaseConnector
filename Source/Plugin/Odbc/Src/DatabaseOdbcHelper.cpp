@@ -419,9 +419,9 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				SQLLEN precision = _precision;
 				SQLLEN scale = _scale;
 
-				OdbcCheck( SQLSetDescField( desc, index, SQL_DESC_TYPE, SQLPOINTER( SQL_C_NUMERIC ), 0 ), SQL_HANDLE_DESC, desc, INFO_ODBC_SetDescField + ODBC_OPTION_DESC_TYPE );
-				OdbcCheck( SQLSetDescField( desc, index, SQL_DESC_PRECISION, SQLPOINTER( precision ), 0 ), SQL_HANDLE_DESC, desc, INFO_ODBC_SetDescField + ODBC_OPTION_DESC_PRECISION );
-				OdbcCheck( SQLSetDescField( desc, index, SQL_DESC_SCALE, SQLPOINTER( scale ), 0 ), SQL_HANDLE_DESC, desc, INFO_ODBC_SetDescField + ODBC_OPTION_DESC_SCALE );
+				OdbcCheck( SQLSetDescField( desc, index, SQL_DESC_TYPE, SQLPOINTER( SQL_C_NUMERIC ), 0 ), SQL_HANDLE_DESC, desc, INFO_ODBC_SetDescField << ODBC_OPTION_DESC_TYPE );
+				OdbcCheck( SQLSetDescField( desc, index, SQL_DESC_PRECISION, SQLPOINTER( precision ), 0 ), SQL_HANDLE_DESC, desc, INFO_ODBC_SetDescField << ODBC_OPTION_DESC_PRECISION );
+				OdbcCheck( SQLSetDescField( desc, index, SQL_DESC_SCALE, SQLPOINTER( scale ), 0 ), SQL_HANDLE_DESC, desc, INFO_ODBC_SetDescField << ODBC_OPTION_DESC_SCALE );
 				return errorType;
 			}
 
@@ -1073,7 +1073,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		}
 	}
 
-	EErrorType SqlError( SQLSMALLINT typeHandle, SQLHANDLE handle, const String & query, bool error )
+	EErrorType SqlError( SQLSMALLINT typeHandle, SQLHANDLE handle, const std::basic_ostream< TChar > & query, bool error )
 	{
 		EErrorType errorType = EErrorType_ERROR;
 		SqlChar sqlState[10];
@@ -1096,7 +1096,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 					<< INFO_ODBC_NATIVE << nativeError
 					<< STR( ", " ) << sqlMessage
 					<< STR( ", " )
-					<< INFO_ODBC_REQUEST << query;
+					<< INFO_ODBC_REQUEST << query.rdbuf();
 
 			if ( nativeError == ODBC_RERUN_TRANSACTION_CODE )
 			{
@@ -1120,7 +1120,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				|| ( errorCount > 2 && errorType == EErrorType_RETRY ) )
 		{
 			StringStream LogInfo;
-			LogInfo << ERROR_ODBC_QUERY << query;
+			LogInfo << ERROR_ODBC_QUERY << query.rdbuf();
 
 			if ( error )
 			{
@@ -1141,6 +1141,11 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 	EErrorType SqlSuccess( SQLRETURN rc, SQLSMALLINT typeHandle, SQLHANDLE handle, const String & query )
 	{
+		return SqlSuccess( rc, typeHandle, handle, StringStream() << query );
+	}
+
+	EErrorType SqlSuccess( SQLRETURN rc, SQLSMALLINT typeHandle, SQLHANDLE handle, const std::basic_ostream< TChar > & query )
+	{
 		EErrorType errorType = EErrorType_ERROR;
 
 		if ( rc == SQL_SUCCESS )
@@ -1148,7 +1153,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			errorType = EErrorType_NONE;
 
 			StringStream LogInfo;
-			LogInfo << INFO_ODBC_QUERY_SUCCESS << query;
+			LogInfo << INFO_ODBC_QUERY_SUCCESS << query.rdbuf();
 			CLogger::LogDebug( LogInfo.str() );
 		}
 		else if ( rc == SQL_SUCCESS_WITH_INFO )
@@ -1311,7 +1316,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 			if ( res != SQL_NO_DATA && errorType == EErrorType_NONE )
 			{
-				CLogger::LogInfo( STR( "Additional result detected" ) );
+				CLogger::LogWarning( STR( "Additional result detected, I may drop it" ) );
 			}
 			else
 			{

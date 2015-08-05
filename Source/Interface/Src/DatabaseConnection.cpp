@@ -35,7 +35,8 @@ BEGIN_NAMESPACE_DATABASE
 	static const String ERROR_DB_CANT_COMMIT_TRANSACTION = STR( "Can't commit the transaction" );
 	static const String ERROR_DB_CANT_ROLLBACK_TRANSACTION = STR( "Can't rollback the transaction" );
 
-	static const String INFO_DB_EXECUTING_SELECT = STR( "Executing query: " );
+	static const String INFO_DB_EXECUTING_UPDATE = STR( "Executing No Result query" );
+	static const String INFO_DB_EXECUTING_SELECT = STR( "Executing Result query" );
 
 	CDatabaseConnection::CDatabaseConnection( const String & server, const String & userName, const String & password )
 		: _connected( false )
@@ -144,7 +145,6 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		DoCheckConnected();
 		DoCheckDatabaseSelected();
-		CLogger::LogInfo( INFO_DB_EXECUTING_SELECT + query );
 		bool ret = false;
 
 		try
@@ -177,7 +177,6 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		DoCheckConnected();
 		DoCheckDatabaseSelected();
-		CLogger::LogInfo( INFO_DB_EXECUTING_SELECT + query );
 		DatabaseResultSPtr ret;
 
 		try

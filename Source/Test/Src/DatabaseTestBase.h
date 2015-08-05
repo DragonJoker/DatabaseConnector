@@ -67,88 +67,88 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		/** Test insertion and retrieval of a value
 		*/
 		template< size_t StmtType >
-		void TestCase_DatabaseFieldsInsertRetrieve( const String & name );
+		void TestCase_DatabaseFieldsInsertRetrieve();
 
 		/** Test insertion and retrieval of a value
 		*/
 		template< size_t StmtType >
-		void TestCase_DatabaseFieldsInsertRetrieveOtherIndex( const String & name );
+		void TestCase_DatabaseFieldsInsertRetrieveOtherIndex();
 
 		/** Test insertion and retrieval of a value
 		*/
 		template< size_t StmtType >
-		void TestCase_DatabaseFieldsInsertRetrieveFast( const String & name );
+		void TestCase_DatabaseFieldsInsertRetrieveFast();
 
 		/** Test insertion and retrieval of a value
 		*/
 		template< size_t StmtType >
-		void TestCase_DatabaseFieldsInsertRetrieveFastOtherIndex( const String & name );
+		void TestCase_DatabaseFieldsInsertRetrieveFastOtherIndex();
 
 		/** Test direct query execution
 		*/
 		template< size_t StmtType >
-		void TestCase_DatabaseDirectQuery( const String & name );
+		void TestCase_DatabaseDirectQuery();
 
 		/** Test stored procedures execution
 		*/
 		template< size_t StmtType >
-		void TestCase_DatabaseStoredProcedure( const String & name );
+		void TestCase_DatabaseStoredProcedure();
 
 		/** Applies two functions in separate threads
 		*/
 		template< typename Action1, typename Action2 >
-		void MultithreadActions( Action1 action1, Action2 action2 );
+		void MultithreadActions();
 
 		/** Multithread test: one inserts, one inserts
 		*/
-		template< typename StmtTypeA, typename StmtTypeB >
-		void TestCase_MultithreadInsertAndInsert( const String & nameA, const String & nameB );
+		template< size_t StmtTypeA, size_t StmtTypeB >
+		void TestCase_MultithreadInsertAndInsert();
 
 		/** Multithread test: one inserts, one updates
 		*/
-		template< typename StmtTypeA, typename StmtTypeB >
-		void TestCase_MultithreadInsertAndUpdate( const String & nameA, const String & nameB );
+		template< size_t StmtTypeA, size_t StmtTypeB >
+		void TestCase_MultithreadInsertAndUpdate();
 
 		/** Multithread test: one inserts, one selects
 		*/
-		template< typename StmtTypeA, typename StmtTypeB >
-		void TestCase_MultithreadInsertAndSelect( const String & nameA, const String & nameB );
+		template< size_t StmtTypeA, size_t StmtTypeB >
+		void TestCase_MultithreadInsertAndSelect();
 
 		/** Multithread test: one inserts, one deletes
 		*/
-		template< typename StmtTypeA, typename StmtTypeB >
-		void TestCase_MultithreadInsertAndDelete( const String & nameA, const String & nameB );
+		template< size_t StmtTypeA, size_t StmtTypeB >
+		void TestCase_MultithreadInsertAndDelete();
 
 		/** Multithread test: one updates, one updates
 		*/
-		template< typename StmtTypeA, typename StmtTypeB >
-		void TestCase_MultithreadUpdateAndUpdate( const String & nameA, const String & nameB );
+		template< size_t StmtTypeA, size_t StmtTypeB >
+		void TestCase_MultithreadUpdateAndUpdate();
 
 		/** Multithread test: one updates, one selects
 		*/
-		template< typename StmtTypeA, typename StmtTypeB >
-		void TestCase_MultithreadUpdateAndSelect( const String & nameA, const String & nameB );
+		template< size_t StmtTypeA, size_t StmtTypeB >
+		void TestCase_MultithreadUpdateAndSelect();
 
 		/** Multithread test: one updates, one deletes
 		*/
-		template< typename StmtTypeA, typename StmtTypeB >
-		void TestCase_MultithreadUpdateAndDelete( const String & nameA, const String & nameB );
+		template< size_t StmtTypeA, size_t StmtTypeB >
+		void TestCase_MultithreadUpdateAndDelete();
 
 		/** Multithread test: one selects, one selects
 		*/
-		template< typename StmtTypeA, typename StmtTypeB >
-		void TestCase_MultithreadSelectAndSelect( const String & nameA, const String & nameB );
+		template< size_t StmtTypeA, size_t StmtTypeB >
+		void TestCase_MultithreadSelectAndSelect();
 
 		/** Multithread test: one selects, one deletes
 		*/
-		template< typename StmtTypeA, typename StmtTypeB >
-		void TestCase_MultithreadSelectAndDelete( const String & nameA, const String & nameB );
+		template< size_t StmtTypeA, size_t StmtTypeB >
+		void TestCase_MultithreadSelectAndDelete();
 
 #if defined( PERF_TEST )
 		/** Performance test
 		*/
 		template< size_t StmtType >
-		void TestCase_DatabasePerformances( const String & name );
+		void TestCase_DatabasePerformances();
 #endif
 
 		/** Test database creation

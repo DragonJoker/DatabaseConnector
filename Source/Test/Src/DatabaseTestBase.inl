@@ -426,16 +426,16 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	};
 
 	template< size_t StmtType >
-	void CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieve( const String & name )
+	void CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieve()
 	{
-		auto const guard = make_block_guard( [&name, this]()
+		auto const guard = make_block_guard( [this]()
 		{
-			CLogger::LogInfo( StringStream() << "**** Start " << _type << "_TestCase_Database" << name << "FieldsInsertRetrieve  ****" );
+			CLogger::LogInfo( StringStream() << "**** Start " << _type << "_TestCase_Database" << DatabaseUtils::Name[StmtType] << "FieldsInsertRetrieve  ****" );
 			DoLoadPlugins();
-		}, [&name, this]()
+		}, [this]()
 		{
 			UnloadPlugins();
-			CLogger::LogInfo( StringStream() << "**** End " << _type << "_TestCase_Database" << name << "FieldsInsertRetrieve  ****" );
+			CLogger::LogInfo( StringStream() << "**** End " << _type << "_TestCase_Database" << DatabaseUtils::Name[StmtType] << "FieldsInsertRetrieve  ****" );
 		} );
 		std::unique_ptr< CDatabase > database( InstantiateDatabase( _type ) );
 
@@ -499,16 +499,16 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	}
 
 	template< size_t StmtType >
-	void CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieveOtherIndex( const String & name )
+	void CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieveOtherIndex()
 	{
-		auto const guard = make_block_guard( [&name, this]()
+		auto const guard = make_block_guard( [this]()
 		{
-			CLogger::LogInfo( StringStream() << "**** Start " << _type << "_TestCase_Database" << name << "InsertAndRetrieveOtherIndex ****" );
+			CLogger::LogInfo( StringStream() << "**** Start " << _type << "_TestCase_Database" << DatabaseUtils::Name[StmtType] << "InsertAndRetrieveOtherIndex ****" );
 			DoLoadPlugins();
-		}, [&name, this]()
+		}, [this]()
 		{
 			UnloadPlugins();
-			CLogger::LogInfo( StringStream() << "**** End " << _type << "_TestCase_Database" << name << "InsertAndRetrieveOtherIndex ****" );
+			CLogger::LogInfo( StringStream() << "**** End " << _type << "_TestCase_Database" << DatabaseUtils::Name[StmtType] << "InsertAndRetrieveOtherIndex ****" );
 		} );
 		std::unique_ptr< CDatabase > database( InstantiateDatabase( _type ) );
 
@@ -572,16 +572,16 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	}
 
 	template< size_t StmtType >
-	void CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieveFast( const String & name )
+	void CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieveFast()
 	{
-		auto const guard = make_block_guard( [&name, this]()
+		auto const guard = make_block_guard( [this]()
 		{
-			CLogger::LogInfo( StringStream() << "**** Start " << _type << "_TestCase_Database" << name << "InsertAndRetrieveFast ****" );
+			CLogger::LogInfo( StringStream() << "**** Start " << _type << "_TestCase_Database" << DatabaseUtils::Name[StmtType] << "InsertAndRetrieveFast ****" );
 			DoLoadPlugins();
-		}, [&name, this]()
+		}, [this]()
 		{
 			UnloadPlugins();
-			CLogger::LogInfo( StringStream() << "**** End " << _type << "_TestCase_Database" << name << "InsertAndRetrieveFast ****" );
+			CLogger::LogInfo( StringStream() << "**** End " << _type << "_TestCase_Database" << DatabaseUtils::Name[StmtType] << "InsertAndRetrieveFast ****" );
 		} );
 		std::unique_ptr< CDatabase > database( InstantiateDatabase( _type ) );
 
@@ -653,16 +653,16 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	}
 
 	template< size_t StmtType >
-	void CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieveFastOtherIndex( const String & name )
+	void CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieveFastOtherIndex()
 	{
-		auto const guard = make_block_guard( [&name, this]()
+		auto const guard = make_block_guard( [this]()
 		{
-			CLogger::LogInfo( StringStream() << "**** Start " << _type << "_TestCase_Database" << name << "InsertAndRetrieveFastOtherIndex ****" );
+			CLogger::LogInfo( StringStream() << "**** Start " << _type << "_TestCase_Database" << DatabaseUtils::Name[StmtType] << "InsertAndRetrieveFastOtherIndex ****" );
 			DoLoadPlugins();
-		}, [&name, this]()
+		}, [this]()
 		{
 			UnloadPlugins();
-			CLogger::LogInfo( StringStream() << "**** End " << _type << "_TestCase_Database" << name << "InsertAndRetrieveFastOtherIndex ****" );
+			CLogger::LogInfo( StringStream() << "**** End " << _type << "_TestCase_Database" << DatabaseUtils::Name[StmtType] << "InsertAndRetrieveFastOtherIndex ****" );
 		} );
 		std::unique_ptr< CDatabase > database( InstantiateDatabase( _type ) );
 
@@ -734,16 +734,16 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	}
 
 	template< size_t StmtType >
-	void CDatabaseTest::TestCase_DatabaseDirectQuery( const String & name )
+	void CDatabaseTest::TestCase_DatabaseDirectQuery()
 	{
-		auto const guard = make_block_guard( [&name, this]()
+		auto const guard = make_block_guard( [this]()
 		{
-			CLogger::LogInfo( StringStream() << "**** Start " << _type << "_TestCase_Database" << name << "DirectQuery ****" );
+			CLogger::LogInfo( StringStream() << "**** Start " << _type << "_TestCase_Database" << DatabaseUtils::Name[StmtType] << "DirectQuery ****" );
 			DoLoadPlugins();
-		}, [&name, this]()
+		}, [this]()
 		{
 			UnloadPlugins();
-			CLogger::LogInfo( StringStream() << "**** End " << _type << "_TestCase_Database" << name << "DirectQuery ****" );
+			CLogger::LogInfo( StringStream() << "**** End " << _type << "_TestCase_Database" << DatabaseUtils::Name[StmtType] << "DirectQuery ****" );
 		} );
 		std::unique_ptr< CDatabase > database( InstantiateDatabase( _type ) );
 
@@ -774,16 +774,16 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	}
 
 	template< size_t StmtType >
-	void CDatabaseTest::TestCase_DatabaseStoredProcedure( const String & name )
+	void CDatabaseTest::TestCase_DatabaseStoredProcedure()
 	{
-		auto const guard = make_block_guard( [&name, this]()
+		auto const guard = make_block_guard( [this]()
 		{
-			CLogger::LogInfo( StringStream() << "**** Start " << _type << "_TestCase_Database" << name << "StoredProcedure ****" );
+			CLogger::LogInfo( StringStream() << "**** Start " << _type << "_TestCase_Database" << DatabaseUtils::Name[StmtType] << "StoredProcedure ****" );
 			DoLoadPlugins();
-		}, [&name, this]()
+		}, [this]()
 		{
 			UnloadPlugins();
-			CLogger::LogInfo( StringStream() << "**** End " << _type << "_TestCase_Database" << name << "StoredProcedure ****" );
+			CLogger::LogInfo( StringStream() << "**** End " << _type << "_TestCase_Database" << DatabaseUtils::Name[StmtType] << "StoredProcedure ****" );
 		} );
 		std::unique_ptr< CDatabase > database( InstantiateDatabase( _type ) );
 
@@ -817,7 +817,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	}
 
 	template< typename Action1, typename Action2 >
-	void CDatabaseTest::MultithreadActions( Action1 action1, Action2 action2 )
+	void CDatabaseTest::MultithreadActions()
 	{
 		std::unique_ptr< CDatabase > database( InstantiateDatabase( _type ) );
 
@@ -830,7 +830,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 #endif
 			CDatabase & db = *database;
 			String const & dbname = _database;
-			db.Initialize( _server, _user, _password );
+			db.Initialise( _server, _user, _password );
 
 			std::atomic_bool thread1;
 			std::atomic_bool thread2;
@@ -840,20 +840,20 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 			std::thread threads[2] =
 			{
-				std::thread( [&count, &db, &dbname, &action1, &thread1]()
+				std::thread( [&count, &db, &dbname, &thread1]()
 				{
-					DatabaseConnectionPtr connection = db.RetrieveConnection();
-					std::random_device generator;
+					DatabaseConnectionSPtr connection = db.RetrieveConnection();
 
 					if ( connection )
 					{
 						if ( connection->IsConnected() )
 						{
 							connection->SelectDatabase( dbname );
+							Action1 action1( connection );
 
 							for ( int i = 0; i < count; ++i )
 							{
-								action1( generator, connection );
+								action1.Run();
 							}
 
 							thread1 = true;
@@ -863,20 +863,20 @@ BEGIN_NAMESPACE_DATABASE_TEST
 						db.RemoveConnection();
 					}
 				} ),
-				std::thread( [&count, &db, &dbname, &action2, &thread2]()
+				std::thread( [&count, &db, &dbname, &thread2]()
 				{
-					DatabaseConnectionPtr connection = db.RetrieveConnection();
-					std::random_device generator;
+					DatabaseConnectionSPtr connection = db.RetrieveConnection();
 
 					if ( connection )
 					{
 						if ( connection->IsConnected() )
 						{
 							connection->SelectDatabase( dbname );
+							Action2 action2( connection );
 
 							for ( int i = 0; i < count; ++i )
 							{
-								action2( generator, connection );
+								action2.Run();
 							}
 
 							thread2 = true;
@@ -898,153 +898,153 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 	}
 
-	template< typename StmtTypeA, typename StmtTypeB >
-	void CDatabaseTest::TestCase_MultithreadInsertAndInsert( const String & nameA, const String & nameB )
+	template< size_t StmtTypeA, size_t StmtTypeB >
+	void CDatabaseTest::TestCase_MultithreadInsertAndInsert()
 	{
-		auto const guard = make_block_guard( [&nameA, &nameB, this]()
+		auto const guard = make_block_guard( [this]()
 		{
-			CLogger::LogInfo( StringStream() << "**** Start TestCase_Multithread" << nameA << "InsertAnd" << nameB << "Insert ****" );
+			CLogger::LogInfo( StringStream() << "**** Start " << _type << "_TestCase_Multithread" << DatabaseUtils::Name[StmtTypeA] << "InsertAnd" << DatabaseUtils::Name[StmtTypeB] << "Insert ****" );
 			DoLoadPlugins();
-		}, [&nameA, &nameB]()
+		}, [this]()
 		{
 			UnloadPlugins();
-			CLogger::LogInfo( StringStream() << "**** End TestCase_Multithread" << nameA << "InsertAnd" << nameB << "Insert ****" );
+			CLogger::LogInfo( StringStream() << "**** End " << _type << "_TestCase_Multithread" << DatabaseUtils::Name[StmtTypeA] << "InsertAnd" << DatabaseUtils::Name[StmtTypeB] << "Insert ****" );
 		} );
-		MultithreadActions( &DatabaseUtils::InsertElement< StmtTypeA >, &DatabaseUtils::InsertElement< StmtTypeB > );
+		MultithreadActions< DatabaseUtils::Insertor< StmtTypeA >, DatabaseUtils::Insertor< StmtTypeB > >();
 	}
 
-	template< typename StmtTypeA, typename StmtTypeB >
-	void CDatabaseTest::TestCase_MultithreadInsertAndUpdate( const String & nameA, const String & nameB )
+	template< size_t StmtTypeA, size_t StmtTypeB >
+	void CDatabaseTest::TestCase_MultithreadInsertAndUpdate()
 	{
-		auto const guard = make_block_guard( [&nameA, &nameB, this]()
+		auto const guard = make_block_guard( [this]()
 		{
-			CLogger::LogInfo( StringStream() << "**** Start TestCase_Multithread" << nameA << "InsertAnd" << nameB << "Update ****" );
+			CLogger::LogInfo( StringStream() << "**** Start " << _type << "_TestCase_Multithread" << DatabaseUtils::Name[StmtTypeA] << "InsertAnd" << DatabaseUtils::Name[StmtTypeB] << "Update ****" );
 			DoLoadPlugins();
-		}, [&nameA, &nameB]()
+		}, [this]()
 		{
 			UnloadPlugins();
-			CLogger::LogInfo( StringStream() << "**** End TestCase_Multithread" << nameA << "InsertAnd" << nameB << "Update ****" );
+			CLogger::LogInfo( StringStream() << "**** End " << _type << "_TestCase_Multithread" << DatabaseUtils::Name[StmtTypeA] << "InsertAnd" << DatabaseUtils::Name[StmtTypeB] << "Update ****" );
 		} );
-		MultithreadActions( &DatabaseUtils::InsertElement< StmtTypeA >, &DatabaseUtils::UpdateElement< StmtTypeB > );
+		MultithreadActions< DatabaseUtils::Insertor< StmtTypeA >, DatabaseUtils::Updator< StmtTypeB > >();
 	}
 
-	template< typename StmtTypeA, typename StmtTypeB >
-	void CDatabaseTest::TestCase_MultithreadInsertAndSelect( const String & nameA, const String & nameB )
+	template< size_t StmtTypeA, size_t StmtTypeB >
+	void CDatabaseTest::TestCase_MultithreadInsertAndSelect()
 	{
-		auto const guard = make_block_guard( [&nameA, &nameB, this]()
+		auto const guard = make_block_guard( [this]()
 		{
-			CLogger::LogInfo( StringStream() << "**** Start TestCase_Multithread" << nameA << "InsertAnd" << nameB << "Select ****" );
+			CLogger::LogInfo( StringStream() << "**** Start " << _type << "_TestCase_Multithread" << DatabaseUtils::Name[StmtTypeA] << "InsertAnd" << DatabaseUtils::Name[StmtTypeB] << "Select ****" );
 			DoLoadPlugins();
-		}, [&nameA, &nameB]()
+		}, [this]()
 		{
 			UnloadPlugins();
-			CLogger::LogInfo( StringStream() << "**** End TestCase_Multithread" << nameA << "InsertAnd" << nameB << "Select ****" );
+			CLogger::LogInfo( StringStream() << "**** End " << _type << "_TestCase_Multithread" << DatabaseUtils::Name[StmtTypeA] << "InsertAnd" << DatabaseUtils::Name[StmtTypeB] << "Select ****" );
 		} );
-		MultithreadActions( &DatabaseUtils::InsertElement< StmtTypeA >, &DatabaseUtils::SelectElement< StmtTypeB > );
+		MultithreadActions< DatabaseUtils::Insertor< StmtTypeA >, DatabaseUtils::Selector< StmtTypeB > >();
 	}
 
-	template< typename StmtTypeA, typename StmtTypeB >
-	void CDatabaseTest::TestCase_MultithreadInsertAndDelete( const String & nameA, const String & nameB )
+	template< size_t StmtTypeA, size_t StmtTypeB >
+	void CDatabaseTest::TestCase_MultithreadInsertAndDelete()
 	{
-		auto const guard = make_block_guard( [&nameA, &nameB, this]()
+		auto const guard = make_block_guard( [this]()
 		{
-			CLogger::LogInfo( StringStream() << "**** Start TestCase_Multithread" << nameA << "InsertAnd" << nameB << "Delete ****" );
+			CLogger::LogInfo( StringStream() << "**** Start " << _type << "_TestCase_Multithread" << DatabaseUtils::Name[StmtTypeA] << "InsertAnd" << DatabaseUtils::Name[StmtTypeB] << "Delete ****" );
 			DoLoadPlugins();
-		}, [&nameA, &nameB]()
+		}, [this]()
 		{
 			UnloadPlugins();
-			CLogger::LogInfo( StringStream() << "**** End TestCase_Multithread" << nameA << "InsertAnd" << nameB << "Delete ****" );
+			CLogger::LogInfo( StringStream() << "**** End " << _type << "_TestCase_Multithread" << DatabaseUtils::Name[StmtTypeA] << "InsertAnd" << DatabaseUtils::Name[StmtTypeB] << "Delete ****" );
 		} );
-		MultithreadActions( &DatabaseUtils::InsertElement< StmtTypeA >, &DatabaseUtils::DeleteElement< StmtTypeB > );
+		MultithreadActions< DatabaseUtils::Insertor< StmtTypeA >, DatabaseUtils::Deletor< StmtTypeB > >();
 	}
 
-	template< typename StmtTypeA, typename StmtTypeB >
-	void CDatabaseTest::TestCase_MultithreadUpdateAndUpdate( const String & nameA, const String & nameB )
+	template< size_t StmtTypeA, size_t StmtTypeB >
+	void CDatabaseTest::TestCase_MultithreadUpdateAndUpdate()
 	{
-		auto const guard = make_block_guard( [&nameA, &nameB, this]()
+		auto const guard = make_block_guard( [this]()
 		{
-			CLogger::LogInfo( StringStream() << "**** Start TestCase_Multithread" << nameA << "UpdateAnd" << nameB << "Update ****" );
+			CLogger::LogInfo( StringStream() << "**** Start " << _type << "_TestCase_Multithread" << DatabaseUtils::Name[StmtTypeA] << "UpdateAnd" << DatabaseUtils::Name[StmtTypeB] << "Update ****" );
 			DoLoadPlugins();
-		}, [&nameA, &nameB]()
+		}, [this]()
 		{
 			UnloadPlugins();
-			CLogger::LogInfo( StringStream() << "**** End TestCase_Multithread" << nameA << "UpdateAnd" << nameB << "Update ****" );
+			CLogger::LogInfo( StringStream() << "**** End " << _type << "_TestCase_Multithread" << DatabaseUtils::Name[StmtTypeA] << "UpdateAnd" << DatabaseUtils::Name[StmtTypeB] << "Update ****" );
 		} );
-		MultithreadActions( &DatabaseUtils::UpdateElement< StmtTypeA >, &DatabaseUtils::UpdateElement< StmtTypeB > );
+		MultithreadActions< DatabaseUtils::Updator< StmtTypeA >, DatabaseUtils::Updator< StmtTypeB > >();
 	}
 
-	template< typename StmtTypeA, typename StmtTypeB >
-	void CDatabaseTest::TestCase_MultithreadUpdateAndSelect( const String & nameA, const String & nameB )
+	template< size_t StmtTypeA, size_t StmtTypeB >
+	void CDatabaseTest::TestCase_MultithreadUpdateAndSelect()
 	{
-		auto const guard = make_block_guard( [&nameA, &nameB, this]()
+		auto const guard = make_block_guard( [this]()
 		{
-			CLogger::LogInfo( StringStream() << "**** Start TestCase_Multithread" << nameA << "UpdateAnd" << nameB << "Select ****" );
+			CLogger::LogInfo( StringStream() << "**** Start " << _type << "_TestCase_Multithread" << DatabaseUtils::Name[StmtTypeA] << "UpdateAnd" << DatabaseUtils::Name[StmtTypeB] << "Select ****" );
 			DoLoadPlugins();
-		}, [&nameA, &nameB]()
+		}, [this]()
 		{
 			UnloadPlugins();
-			CLogger::LogInfo( StringStream() << "**** End TestCase_Multithread" << nameA << "UpdateAnd" << nameB << "Select ****" );
+			CLogger::LogInfo( StringStream() << "**** End " << _type << "_TestCase_Multithread" << DatabaseUtils::Name[StmtTypeA] << "UpdateAnd" << DatabaseUtils::Name[StmtTypeB] << "Select ****" );
 		} );
-		MultithreadActions( &DatabaseUtils::UpdateElement< StmtTypeA >, &DatabaseUtils::SelectElement< StmtTypeB > );
+		MultithreadActions< DatabaseUtils::Updator< StmtTypeA >, DatabaseUtils::Selector< StmtTypeB > >();
 	}
 
-	template< typename StmtTypeA, typename StmtTypeB >
-	void CDatabaseTest::TestCase_MultithreadUpdateAndDelete( const String & nameA, const String & nameB )
+	template< size_t StmtTypeA, size_t StmtTypeB >
+	void CDatabaseTest::TestCase_MultithreadUpdateAndDelete()
 	{
-		auto const guard = make_block_guard( [&nameA, &nameB, this]()
+		auto const guard = make_block_guard( [this]()
 		{
-			CLogger::LogInfo( StringStream() << "**** Start TestCase_Multithread" << nameA << "UpdateAnd" << nameB << "Delete ****" );
+			CLogger::LogInfo( StringStream() << "**** Start " << _type << "_TestCase_Multithread" << DatabaseUtils::Name[StmtTypeA] << "UpdateAnd" << DatabaseUtils::Name[StmtTypeB] << "Delete ****" );
 			DoLoadPlugins();
-		}, [&nameA, &nameB]()
+		}, [this]()
 		{
 			UnloadPlugins();
-			CLogger::LogInfo( StringStream() << "**** End TestCase_Multithread" << nameA << "UpdateAnd" << nameB << "Delete ****" );
+			CLogger::LogInfo( StringStream() << "**** End " << _type << "_TestCase_Multithread" << DatabaseUtils::Name[StmtTypeA] << "UpdateAnd" << DatabaseUtils::Name[StmtTypeB] << "Delete ****" );
 		} );
-		MultithreadActions( &DatabaseUtils::UpdateElement< StmtTypeA >, &DatabaseUtils::DeleteElement< StmtTypeB > );
+		MultithreadActions< DatabaseUtils::Updator< StmtTypeA >, DatabaseUtils::Deletor< StmtTypeB > >();
 	}
 
-	template< typename StmtTypeA, typename StmtTypeB >
-	void CDatabaseTest::TestCase_MultithreadSelectAndSelect( const String & nameA, const String & nameB )
+	template< size_t StmtTypeA, size_t StmtTypeB >
+	void CDatabaseTest::TestCase_MultithreadSelectAndSelect()
 	{
-		auto const guard = make_block_guard( [&nameA, &nameB, this]()
+		auto const guard = make_block_guard( [this]()
 		{
-			CLogger::LogInfo( StringStream() << "**** Start TestCase_Multithread" << nameA << "SelectAnd" << nameB << "Select ****" );
+			CLogger::LogInfo( StringStream() << "**** Start " << _type << "_TestCase_Multithread" << DatabaseUtils::Name[StmtTypeA] << "SelectAnd" << DatabaseUtils::Name[StmtTypeB] << "Select ****" );
 			DoLoadPlugins();
-		}, [&nameA, &nameB]()
+		}, [this]()
 		{
 			UnloadPlugins();
-			CLogger::LogInfo( StringStream() << "**** End TestCase_Multithread" << nameA << "SelectAnd" << nameB << "Select ****" );
+			CLogger::LogInfo( StringStream() << "**** End " << _type << "_TestCase_Multithread" << DatabaseUtils::Name[StmtTypeA] << "SelectAnd" << DatabaseUtils::Name[StmtTypeB] << "Select ****" );
 		} );
-		MultithreadActions( &DatabaseUtils::SelectElement< StmtTypeA >, &DatabaseUtils::SelectElement< StmtTypeB > );
+		MultithreadActions< DatabaseUtils::Selector< StmtTypeA >, DatabaseUtils::Selector< StmtTypeB > >();
 	}
 
-	template< typename StmtTypeA, typename StmtTypeB >
-	void CDatabaseTest::TestCase_MultithreadSelectAndDelete( const String & nameA, const String & nameB )
+	template< size_t StmtTypeA, size_t StmtTypeB >
+	void CDatabaseTest::TestCase_MultithreadSelectAndDelete()
 	{
-		auto const guard = make_block_guard( [&nameA, &nameB, this]()
+		auto const guard = make_block_guard( [this]()
 		{
-			CLogger::LogInfo( StringStream() << "**** Start TestCase_Multithread" << nameA << "SelectAnd" << nameB << "Delete ****" );
+			CLogger::LogInfo( StringStream() << "**** Start " << _type << "_TestCase_Multithread" << DatabaseUtils::Name[StmtTypeA] << "SelectAnd" << DatabaseUtils::Name[StmtTypeB] << "Delete ****" );
 			DoLoadPlugins();
-		}, [&nameA, &nameB]()
+		}, [this]()
 		{
 			UnloadPlugins();
-			CLogger::LogInfo( StringStream() << "**** End TestCase_Multithread" << nameA << "SelectAnd" << nameB << "Delete ****" );
+			CLogger::LogInfo( StringStream() << "**** End " << _type << "_TestCase_Multithread" << DatabaseUtils::Name[StmtTypeA] << "SelectAnd" << DatabaseUtils::Name[StmtTypeB] << "Delete ****" );
 		} );
-		MultithreadActions( &DatabaseUtils::SelectElement< StmtTypeA >, &DatabaseUtils::DeleteElement< StmtTypeB > );
+		MultithreadActions< DatabaseUtils::Selector< StmtTypeA >, DatabaseUtils::Deletor< StmtTypeB > >();
 	}
 
 #if defined( PERF_TEST )
 	template< size_t StmtType >
-	void CDatabaseTest::TestCase_DatabasePerformances( const String & name )
+	void CDatabaseTest::TestCase_DatabasePerformances()
 	{
-		auto const guard = make_block_guard( [&name, this]()
+		auto const guard = make_block_guard( [this]()
 		{
-			CLogger::LogInfo( StringStream() << "**** Start " << _type << "_TestCase_Database" << name << "Performances ****" );
+			CLogger::LogInfo( StringStream() << "**** Start " << _type << "_TestCase_Database" << DatabaseUtils::Name[StmtType] << "Performances ****" );
 			DoLoadPlugins();
-		}, [&name, this]()
+		}, [this]()
 		{
 			UnloadPlugins();
-			CLogger::LogInfo( StringStream() << "**** End " << _type << "_TestCase_Database" << name << "Performances ****" );
+			CLogger::LogInfo( StringStream() << "**** End " << _type << "_TestCase_Database" << DatabaseUtils::Name[StmtType] << "Performances ****" );
 		} );
 		std::unique_ptr< CDatabase > database( InstantiateDatabase( _type ) );
 

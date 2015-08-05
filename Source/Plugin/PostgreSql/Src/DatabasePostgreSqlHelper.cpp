@@ -961,8 +961,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		{
 			PQclear( result );
 			StringStream message;
-			message << ERROR_POSTGRESQL_DRIVER << STR( " - " )
-					<< e.what();
+			message << ERROR_POSTGRESQL_DRIVER << STR( " - " ) << e.GetFullDescription();
 			CLogger::LogError( message );
 			POSTGRESQL_EXCEPT( EDatabaseExceptionCodes_GenericError, message.str() );
 		}
@@ -970,8 +969,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		{
 			PQclear( result );
 			StringStream message;
-			message << ERROR_POSTGRESQL_DRIVER << STR( " - " )
-					<< e.what();
+			message << ERROR_POSTGRESQL_DRIVER << STR( " - " ) << e.what();
 			CLogger::LogError( message );
 			POSTGRESQL_EXCEPT( EDatabaseExceptionCodes_GenericError, message.str() );
 		}
@@ -979,8 +977,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		{
 			PQclear( result );
 			StringStream message;
-			message << ERROR_POSTGRESQL_DRIVER << STR( " - " )
-					<< ERROR_POSTGRESQL_UNKNOWN;
+			message << ERROR_POSTGRESQL_DRIVER << STR( " - " ) << ERROR_POSTGRESQL_UNKNOWN;
 			CLogger::LogError( message );
 			POSTGRESQL_EXCEPT( EDatabaseExceptionCodes_UnknownError, message.str() );
 		}

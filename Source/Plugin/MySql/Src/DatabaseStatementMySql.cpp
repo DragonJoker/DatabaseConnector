@@ -32,9 +32,10 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	static const String ERROR_MYSQL_CANT_CREATE_STATEMENT = STR( "Couldn't create the statement" );
 	static const String ERROR_MYSQL_LOST_CONNECTION = STR( "The statement has lost his connection" );
 
-	static const String INFO_MYSQL_PREPARING_STATEMENT = STR( "Preparing statement for query: " );
 	static const String INFO_MYSQL_BIND_PARAMETER_NAME = STR( "BindParameter : " );
 	static const String INFO_MYSQL_BIND_PARAMETER_VALUE = STR( ", Value : " );
+
+	static const String DEBUG_MYSQL_PREPARING_STATEMENT = STR( "Preparing statement 0x%08X" );
 
 	static const TChar * INFO_MYSQL_STATEMENT_PREPARATION = STR( "Statement preparation" );
 	static const TChar * INFO_MYSQL_STATEMENT_PARAMS_BINDING = STR( "Statement parameters binding" );
@@ -98,7 +99,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			_arrayQueries = StringUtils::Split( _query, STR( "?" ), _paramsCount + 1 );
 		}
 
-		CLogger::LogInfo( INFO_MYSQL_PREPARING_STATEMENT + _query );
+		CLogger::LogDebug( ( Format( DEBUG_MYSQL_PREPARING_STATEMENT ) % this ).str() );
 		assert( _paramsCount == _arrayParams.size() );
 
 		StringStream query;

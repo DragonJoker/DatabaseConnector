@@ -84,9 +84,9 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 #endif
 			EErrorType errorType = EErrorType_NONE;
 			//OdbcCheck( SQLCloseCursor( statementHandle ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_CloseCursor );
-			OdbcCheck( SQLFreeStmt( statementHandle, SQL_CLOSE ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_FreeStmt + STR( " (Close)" ) );
-			OdbcCheck( SQLFreeStmt( statementHandle, SQL_UNBIND ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_FreeStmt + STR( " (Unbind)" ) );
-			OdbcCheck( SQLFreeStmt( statementHandle, SQL_RESET_PARAMS ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_FreeStmt + STR( " (ResetParams)" ) );
+			OdbcCheck( SQLFreeStmt( statementHandle, SQL_CLOSE ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_FreeStmt << STR( " (Close)" ) );
+			OdbcCheck( SQLFreeStmt( statementHandle, SQL_UNBIND ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_FreeStmt << STR( " (Unbind)" ) );
+			OdbcCheck( SQLFreeStmt( statementHandle, SQL_RESET_PARAMS ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_FreeStmt << STR( " (ResetParams)" ) );
 			SQLFreeHandle( SQL_HANDLE_STMT, statementHandle );
 		}
 	}

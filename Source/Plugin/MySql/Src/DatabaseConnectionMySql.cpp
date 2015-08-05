@@ -405,10 +405,9 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	{
 		DateType dateObj;
 
-		if ( !Date::IsDate( date, MYSQL_FORMAT_DATE, dateObj )
-		&& !Date::IsDate( date, MYSQL_FORMAT_STMT_DATE, dateObj ) )
+		if ( !Date::IsDate( date, MYSQL_FORMAT_DATE, dateObj ) )
 		{
-			// date is already invalid
+			Date::IsDate( date, MYSQL_FORMAT_STMT_DATE, dateObj );
 		}
 
 		return dateObj;
@@ -418,10 +417,9 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	{
 		TimeType timeObj;
 
-		if ( !Time::IsTime( time, MYSQL_FORMAT_TIME, timeObj )
-		&& !Time::IsTime( time, MYSQL_FORMAT_STMT_TIME, timeObj ) )
+		if ( !Time::IsTime( time, MYSQL_FORMAT_TIME, timeObj ) )
 		{
-			// time is already invalid
+			Time::IsTime( time, MYSQL_FORMAT_STMT_TIME, timeObj );
 		}
 
 		return timeObj;
@@ -433,10 +431,9 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 		if ( !DateTime::IsDateTime( dateTime, MYSQL_FORMAT_DATETIME, dateTimeObj )
 		&& !DateTime::IsDateTime( dateTime, MYSQL_FORMAT_STMT_DATETIME, dateTimeObj )
-		&& !DateTime::IsDateTime( dateTime, MYSQL_FORMAT_DATE, dateTimeObj )
-		&& !DateTime::IsDateTime( dateTime, MYSQL_FORMAT_STMT_DATE, dateTimeObj ) )
+		&& !DateTime::IsDateTime( dateTime, MYSQL_FORMAT_DATE, dateTimeObj ) )
 		{
-			// date/time is already invalid
+			DateTime::IsDateTime( dateTime, MYSQL_FORMAT_STMT_DATE, dateTimeObj );
 		}
 
 		return dateTimeObj;

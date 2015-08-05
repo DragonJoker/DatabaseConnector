@@ -112,6 +112,12 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	{
 		template< size_t StmtType > struct StatementTyper;
 
+		static const String Name[2] =
+		{
+			STR( "Query" ),
+			STR( "Statement" ),
+		};
+
 		template<>
 		struct StatementTyper< 0 >
 		{
@@ -161,8 +167,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			return result;
 		}
 
-		template< size_t StmtType >
-		inline void CreateParameters( std::shared_ptr< typename StatementTyper< StmtType >::Type > stmt )
+		template< typename Statement >
+		inline void CreateParameters( std::shared_ptr< Statement > stmt )
 		{
 			BOOST_CHECK( stmt->CreateParameter( STR( "IntField" ), EFieldType_SINT32 ) );
 			BOOST_CHECK( stmt->CreateParameter( STR( "IntegerField" ), EFieldType_SINT32 ) );
@@ -189,8 +195,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			BOOST_CHECK( stmt->CreateParameter( STR( "BlobField" ), EFieldType_BLOB ) );
 		}
 
-		template< size_t StmtType >
-		inline void UncheckedCreateParameters( std::shared_ptr< typename StatementTyper< StmtType >::Type > stmt )
+		template< typename Statement >
+		inline void UncheckedCreateParameters( std::shared_ptr< Statement > stmt )
 		{
 			stmt->CreateParameter( STR( "IntField" ), EFieldType_SINT32 );
 			stmt->CreateParameter( STR( "IntegerField" ), EFieldType_SINT32 );
@@ -217,8 +223,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			stmt->CreateParameter( STR( "BlobField" ), EFieldType_BLOB );
 		}
 
-		template< size_t StmtType >
-		inline void SetParametersValue( std::random_device & generator, uint32_t & index, int mult, int i, std::shared_ptr< typename StatementTyper< StmtType >::Type > stmt )
+		template< typename Statement >
+		inline void SetParametersValue( std::random_device & generator, uint32_t & index, int mult, int i, std::shared_ptr< Statement > stmt )
 		{
 			stmt->SetParameterValue( index++, Helpers< EFieldType_SINT32 >::GetRandomValue( generator ) );
 			stmt->SetParameterValue( index++, Helpers< EFieldType_SINT32 >::GetRandomValue( generator ) );
@@ -1164,135 +1170,205 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< size_t StmtType >
-		inline int64_t SelectID( std::random_device & generator, DatabaseConnectionSPtr connection )
+		struct IdSelector
 		{
-			auto stmtGetMax = CreateStmt< StmtType >( connection, QUERY_SELECT_MAX );
-			int64_t max = 0;
-
-			if ( stmtGetMax )
+			IdSelector( DatabaseConnectionSPtr connection )
+				: _stmtGetMax( CreateStmt< StmtType >( connection, QUERY_SELECT_MAX ) )
+				, _stmtGetMin( CreateStmt< StmtType >( connection, QUERY_SELECT_MIN ) )
 			{
-				stmtGetMax->Initialize();
-				DatabaseResultSPtr result = stmtGetMax->ExecuteSelect();
-
-				if ( result && result->GetRowCount() )
+				if ( _stmtGetMax )
 				{
-					result->GetFirstRow()->Get( 0, max );
+					_stmtGetMax->Initialise();
+				}
+
+				if ( _stmtGetMin )
+				{
+					_stmtGetMin->Initialise();
 				}
 			}
 
-			auto stmtGetMin = CreateStmt< StmtType >( connection, QUERY_SELECT_MIN );
-			int64_t min = 0;
-
-			if ( stmtGetMin )
+			inline int64_t GetValue()
 			{
-				stmtGetMin->Initialize();
-				DatabaseResultSPtr result = stmtGetMin->ExecuteSelect();
+				int64_t max = 0;
 
-				if ( result && result->GetRowCount() )
+				if ( _stmtGetMax )
 				{
-					result->GetFirstRow()->Get( 0, min );
+					DatabaseResultSPtr result = _stmtGetMax->ExecuteSelect();
+
+					if ( result && result->GetRowCount() )
+					{
+						result->GetFirstRow()->Get( 0, max );
+					}
+				}
+
+				int64_t min = 0;
+
+				if ( _stmtGetMin )
+				{
+					DatabaseResultSPtr result = _stmtGetMin->ExecuteSelect();
+
+					if ( result && result->GetRowCount() )
+					{
+						result->GetFirstRow()->Get( 0, min );
+					}
+				}
+
+				int64_t result = 0;
+
+				if ( max && min )
+				{
+					std::uniform_int_distribution< int64_t > distribution( min, max );
+					result = distribution( _generator );
+				}
+
+				return result;
+			}
+
+			std::random_device _generator;
+			std::shared_ptr< typename StatementTyper< StmtType >::Type > _stmtGetMax;
+			std::shared_ptr< typename StatementTyper< StmtType >::Type > _stmtGetMin;
+		};
+
+		template< size_t StmtType >
+		struct Insertor
+		{
+			Insertor( DatabaseConnectionSPtr connection )
+				: _statement( CreateStmt< StmtType >( connection, QUERY_DIRECT_INSERT_ELEMENT ) )
+			{
+				if ( _statement )
+				{
+					UncheckedCreateParameters( _statement );
+					_statement->Initialise();
 				}
 			}
 
-			int64_t result = 0;
-
-			if ( max && min )
+			inline void Run()
 			{
-				std::uniform_int_distribution< int64_t > distribution( min, max );
-				result = distribution( generator );
-			}
-
-			return result;
-		}
-
-		template< typename StmtType >
-		inline void InsertElement( std::random_device & generator, DatabaseConnectionSPtr connection )
-		{
-			auto stmtInsert = CreateStmt< StmtType >( connection, QUERY_DIRECT_INSERT_ELEMENT );
-
-			if ( stmtInsert )
-			{
-				UncheckedCreateParameters( stmtInsert );
-				stmtInsert->Initialize();
-				uint32_t index = 0;
-				SetParametersValue( generator, index, 1, 0, stmtInsert );
-				stmtInsert->ExecuteUpdate();
-			}
-		}
-
-		template< typename StmtType >
-		inline void SelectElement( std::random_device & generator, DatabaseConnectionSPtr connection )
-		{
-			int64_t id = SelectID< StmtType >( generator, connection );
-
-			if ( id )
-			{
-				auto stmtSelect = CreateStmt< StmtType >( connection, QUERY_DIRECT_SELECT_ELEMENT );
-
-				if ( stmtSelect )
+				if ( _statement )
 				{
-					stmtSelect->CreateParameter( STR( "IDTest" ), EFieldType_SINT64, EParameterType_IN );
-					stmtSelect->Initialize();
-					stmtSelect->SetParameterValue( 0, id );
-					stmtSelect->ExecuteUpdate();
-				}
-			}
-		}
-
-		template< typename StmtType >
-		inline void UpdateElement( std::random_device & generator, DatabaseConnectionSPtr connection )
-		{
-			int64_t id = SelectID< StmtType >( generator, connection );
-
-			if ( id )
-			{
-				auto stmtUpdate = CreateStmt< StmtType >( connection, QUERY_DIRECT_UPDATE_ELEMENT );
-
-				if ( stmtUpdate )
-				{
-					UncheckedCreateParameters( stmtUpdate );
-					stmtUpdate->CreateParameter( STR( "IDTest" ), EFieldType_SINT64, EParameterType_IN );
-					stmtUpdate->Initialize();
 					uint32_t index = 0;
-					SetParametersValue( generator, index, 1, 0, stmtUpdate );
-					stmtUpdate->SetParameterValue( index++, id );
-					stmtUpdate->ExecuteUpdate();
+					SetParametersValue( _generator, index, 1, 0, _statement );
+					_statement->ExecuteUpdate();
 				}
 			}
-		}
 
-		template< typename StmtType >
-		inline void DeleteElement( std::random_device & generator, DatabaseConnectionSPtr connection )
+			std::random_device _generator;
+			std::shared_ptr< typename StatementTyper< StmtType >::Type > _statement;
+		};
+
+		template< size_t StmtType >
+		struct Selector
 		{
-			auto stmtGetMin = CreateStmt< StmtType >( connection, QUERY_SELECT_MIN );
-			int64_t min = 0;
-
-			if ( stmtGetMin )
+			Selector( DatabaseConnectionSPtr connection )
+				: _selector( connection )
+				, _statement( CreateStmt< StmtType >( connection, QUERY_DIRECT_SELECT_ELEMENT ) )
 			{
-				stmtGetMin->Initialize();
-				DatabaseResultSPtr result = stmtGetMin->ExecuteSelect();
-
-				if ( result && result->GetRowCount() )
+				if ( _statement )
 				{
-					result->GetFirstRow()->Get( 0, min );
+					_statement->CreateParameter( STR( "IDTest" ), EFieldType_SINT64, EParameterType_IN );
+					_statement->Initialise();
 				}
 			}
 
-			if ( min )
+			inline void Run()
 			{
-				auto stmtDelete = CreateStmt< StmtType >( connection, QUERY_DIRECT_DELETE_ELEMENT );
-
-				if ( stmtDelete )
+				if ( _statement )
 				{
-					stmtDelete->CreateParameter( STR( "IDTest" ), EFieldType_SINT64, EParameterType_IN );
-					stmtDelete->Initialize();
-					stmtDelete->SetParameterValue( 0, min );
-					stmtDelete->ExecuteUpdate();
+					int64_t id = _selector.GetValue();
+
+					if ( id )
+					{
+						_statement->SetParameterValue( 0, id );
+						_statement->ExecuteUpdate();
+					}
 				}
 			}
-		}
 
-		template< typename StmtType, typename Action >
+			std::random_device _generator;
+			IdSelector< StmtType > _selector;
+			std::shared_ptr< typename StatementTyper< StmtType >::Type > _statement;
+		};
+
+		template< size_t StmtType >
+		struct Updator
+		{
+			Updator( DatabaseConnectionSPtr connection )
+				: _selector( connection )
+				, _statement( CreateStmt< StmtType >( connection, QUERY_DIRECT_UPDATE_ELEMENT ) )
+			{
+				if ( _statement )
+				{
+					UncheckedCreateParameters( _statement );
+					_statement->CreateParameter( STR( "IDTest" ), EFieldType_SINT64, EParameterType_IN );
+					_statement->Initialise();
+				}
+			}
+
+			inline void Run()
+			{
+				if ( _statement )
+				{
+					int64_t id = _selector.GetValue();
+
+					if ( id )
+					{
+						uint32_t index = 0;
+						SetParametersValue( _generator, index, 1, 0, _statement );
+						_statement->SetParameterValue( index++, id );
+						_statement->ExecuteUpdate();
+					}
+				}
+			}
+
+			std::random_device _generator;
+			IdSelector< StmtType > _selector;
+			std::shared_ptr< typename StatementTyper< StmtType >::Type > _statement;
+		};
+
+		template< size_t StmtType >
+		struct Deletor
+		{
+			Deletor( DatabaseConnectionSPtr connection )
+				: _stmtDelete( CreateStmt< StmtType >( connection, QUERY_DIRECT_DELETE_ELEMENT ) )
+				, _stmtGetMin( CreateStmt< StmtType >( connection, QUERY_SELECT_MIN ) )
+			{
+				if ( _stmtDelete )
+				{
+					_stmtDelete->CreateParameter( STR( "IDTest" ), EFieldType_SINT64, EParameterType_IN );
+					_stmtDelete->Initialise();
+				}
+
+				if ( _stmtGetMin )
+				{
+					_stmtGetMin->Initialise();
+				}
+			}
+
+			inline void Run()
+			{
+				if ( _stmtDelete && _stmtGetMin )
+				{
+					int64_t min = 0;
+					DatabaseResultSPtr result = _stmtGetMin->ExecuteSelect();
+
+					if ( result && result->GetRowCount() )
+					{
+						result->GetFirstRow()->Get( 0, min );
+					}
+
+					if ( min )
+					{
+						_stmtDelete->SetParameterValue( 0, min );
+						_stmtDelete->ExecuteUpdate();
+					}
+				}
+			}
+
+			std::shared_ptr< typename StatementTyper< StmtType >::Type > _stmtDelete;
+			std::shared_ptr< typename StatementTyper< StmtType >::Type > _stmtGetMin;
+		};
+
+		template< size_t StmtType, typename Action >
 		inline void TransactedAction( std::random_device & generator, Action action, DatabaseConnectionSPtr connection )
 		{
 			if ( connection->BeginTransaction() )
@@ -1302,7 +1378,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 		}
 
-		template< typename StmtType >
+		template< size_t StmtType >
 		inline void TestDirectInsert( std::random_device & generator, DatabaseConnectionSPtr connection )
 		{
 			try
@@ -1342,14 +1418,14 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 					if ( stmtInsert )
 					{
-						CreateParameters< StmtType >( stmtInsert );
+						CreateParameters( stmtInsert );
 						BOOST_CHECK( stmtInsert->Initialise() == EErrorType_NONE );
 						int const inserts = 20;
 
 						for ( int i = 0; i < inserts; i++ )
 						{
 							uint32_t index = 0;
-							SetParametersValue< StmtType >( generator, index, i + 1, i, stmtInsert );
+							SetParametersValue( generator, index, i + 1, i, stmtInsert );
 							BOOST_CHECK( stmtInsert->ExecuteUpdate() );
 						}
 
@@ -1486,14 +1562,14 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 					if ( stmtUpdate )
 					{
-						CreateParameters< StmtType >( stmtUpdate );
+						CreateParameters( stmtUpdate );
 						BOOST_CHECK( stmtUpdate->CreateParameter( STR( "IDTest" ), EFieldType_SINT64, EParameterType_IN ) );
 						BOOST_CHECK( stmtUpdate->Initialise() == EErrorType_NONE );
 
 						for ( int i = 0; i < 10; i++ )
 						{
 							uint32_t index = 0;
-							SetParametersValue< StmtType >( generator, index, i + 40, i, stmtUpdate );
+							SetParametersValue( generator, index, i + 40, i, stmtUpdate );
 							stmtUpdate->SetParameterValue( index++, min + i );
 							BOOST_CHECK( stmtUpdate->ExecuteUpdate() );
 						}

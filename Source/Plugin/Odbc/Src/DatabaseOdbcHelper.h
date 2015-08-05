@@ -22,19 +22,6 @@
 BEGIN_NAMESPACE_DATABASE_ODBC
 {
 	typedef std::function< void ( SQLHSTMT statementHandle, SQLRETURN info ) > FuncResultSetFullyFetched;
-	/** Manages an SQL error.
-	@param[in] typeHandle
-		Handle of type.
-	@param[in] handle
-		Handle.
-	@param[in] query
-		Query text.
-	@param[in] error
-		Tells if the messages are errors (true) or warnings (false)
-	@return
-		Error code.
-	*/
-	EErrorType SqlError( SQLSMALLINT typeHandle, SQLHANDLE handle, const String & query, bool error );
 
 	/** Manages an SQL success.
 	@param[in] rc
@@ -49,6 +36,20 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		Error code.
 	*/
 	EErrorType SqlSuccess( SQLRETURN rc, SQLSMALLINT typeHandle = 0, SQLHANDLE handle = NULL, const String & query = STR( "" ) );
+
+	/** Manages an SQL success.
+	@param[in] rc
+		Return code of SQL function.
+	@param[in] typeHandle
+		Handle of type.
+	@param[in] handle
+		Handle.
+	@param[in] message
+		A message text.
+	@return
+		Error code.
+	*/
+	EErrorType SqlSuccess( SQLRETURN rc, SQLSMALLINT typeHandle, SQLHANDLE handle, const std::basic_ostream< TChar > & message );
 
 	/** Retrieves the field type corresponding to concise type.
 	@param[in] sqlType

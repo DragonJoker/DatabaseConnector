@@ -222,16 +222,6 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		template<>
 		DatabaseFieldSPtr GetValue< EFieldType_NCHAR >( sqlite3_stmt * statement, int i, DatabaseConnectionSPtr connection, DatabaseValuedObjectInfosSPtr infos )
 		{
-			//const wchar_t * value = reinterpret_cast< const wchar_t * >( sqlite3_column_text16( statement, i ) );
-			//int iSize = sqlite3_column_bytes16( statement, i );
-			//DatabaseFieldSPtr field = std::make_shared< CDatabaseField >( connection, infos );
-
-			//if ( value && iSize != 0 )
-			//{
-			//	static_cast< CDatabaseValue< EFieldType_NCHAR > & >( field->GetObjectValue() ).SetValue( value );
-			//}
-
-			//return field;
 			const char * value = reinterpret_cast< const char * >( sqlite3_column_text( statement, i ) );
 			int iSize = sqlite3_column_bytes( statement, i );
 			DatabaseFieldSPtr field = std::make_shared< CDatabaseField >( connection, infos );
@@ -247,16 +237,6 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		template<>
 		DatabaseFieldSPtr GetValue< EFieldType_NVARCHAR >( sqlite3_stmt * statement, int i, DatabaseConnectionSPtr connection, DatabaseValuedObjectInfosSPtr infos )
 		{
-			//const wchar_t * value = reinterpret_cast< const wchar_t * >( sqlite3_column_text16( statement, i ) );
-			//int iSize = sqlite3_column_bytes16( statement, i );
-			//DatabaseFieldSPtr field = std::make_shared< CDatabaseField >( connection, infos );
-
-			//if ( value && iSize != 0 )
-			//{
-			//	static_cast< CDatabaseValue< EFieldType_NVARCHAR > & >( field->GetObjectValue() ).SetValue( value );
-			//}
-
-			//return field;
 			const char * value = reinterpret_cast< const char * >( sqlite3_column_text( statement, i ) );
 			int iSize = sqlite3_column_bytes( statement, i );
 			DatabaseFieldSPtr field = std::make_shared< CDatabaseField >( connection, infos );
@@ -272,16 +252,6 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		template<>
 		DatabaseFieldSPtr GetValue< EFieldType_NTEXT >( sqlite3_stmt * statement, int i, DatabaseConnectionSPtr connection, DatabaseValuedObjectInfosSPtr infos )
 		{
-			//const wchar_t * value = reinterpret_cast< const wchar_t * >( sqlite3_column_text16( statement, i ) );
-			//int iSize = sqlite3_column_bytes16( statement, i );
-			//DatabaseFieldSPtr field = std::make_shared< CDatabaseField >( connection, infos );
-
-			//if ( value && iSize != 0 )
-			//{
-			//	static_cast< CDatabaseValue< EFieldType_NTEXT > & >( field->GetObjectValue() ).SetValue( value );
-			//}
-
-			//return field;
 			const char * value = reinterpret_cast< const char * >( sqlite3_column_text( statement, i ) );
 			int iSize = sqlite3_column_bytes( statement, i );
 			DatabaseFieldSPtr field = std::make_shared< CDatabaseField >( connection, infos );

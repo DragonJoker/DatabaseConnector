@@ -34,13 +34,14 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 	static const String ERROR_POSTGRESQL_CANT_CREATE_STATEMENT = STR( "Couldn't create the statement" );
 	static const String ERROR_POSTGRESQL_LOST_CONNECTION = STR( "The statement has lost his connection" );
 
-	static const String INFO_POSTGRESQL_PREPARING_STATEMENT = STR( "Preparing statement for query: " );
 	static const String INFO_POSTGRESQL_BIND_PARAMETER_NAME = STR( "BindParameter : " );
 	static const String INFO_POSTGRESQL_BIND_PARAMETER_VALUE = STR( ", Value : " );
 
 	static const TChar * INFO_POSTGRESQL_STATEMENT_PREPARATION = STR( "Statement preparation" );
 	static const TChar * INFO_POSTGRESQL_STATEMENT_DESCRIBE = STR( "Statement describe" );
 	static const TChar * INFO_POSTGRESQL_STATEMENT_EXECUTION = STR( "Statement execution" );
+
+	static const String DEBUG_POSTGRESQL_PREPARING_STATEMENT = STR( "Preparing statement 0x%08X" );
 
 	static const String POSTGRESQL_SQL_DELIM = STR( "$" );
 	static const String POSTGRESQL_SQL_PARAM = STR( "@" );
@@ -92,7 +93,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			_arrayQueries = StringUtils::Split( _query, STR( "?" ), _paramsCount + 1 );
 		}
 
-		CLogger::LogInfo( INFO_POSTGRESQL_PREPARING_STATEMENT + _query );
+		CLogger::LogDebug( ( Format( DEBUG_POSTGRESQL_PREPARING_STATEMENT ) % this ).str() );
 		assert( _paramsCount == _arrayParams.size() );
 
 		StringStream query;

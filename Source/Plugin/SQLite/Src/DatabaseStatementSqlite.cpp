@@ -32,11 +32,12 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 	static const String ERROR_SQLITE_QUERY_INCONSISTENCY = STR( "Number of parameters doesn't match the sizes of parameter containers: " );
 	static const String ERROR_SQLITE_LOST_CONNECTION = STR( "The statement has lost his connection" );
 
-	static const TChar * INFO_SQLITE_STATEMENT_PREPARATION = STR( "Statement preparation" );
 	static const TChar * INFO_SQLITE_STATEMENT_FINALISATION = STR( "Statement finalisation" );
 	static const TChar * INFO_SQLITE_STATEMENT_CLEAR_BINDINGS = STR( "Statement bindings cleanup" );
 	static const TChar * INFO_SQLITE_STATEMENT_RESET = STR( "Statement resetting" );
 	static const TChar * INFO_SQLITE_STMT_PARAMS_COUNT = STR( "Bind Parameters count: " );
+
+	static const String DEBUG_SQLITE_PREPARING_STATEMENT = STR( "Preparing statement 0x%08X" );
 
 	static const String SQLITE_SQL_DELIM = STR( "?" );
 	static const String SQLITE_SQL_PARAM = STR( "@" );
@@ -96,7 +97,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			_arrayQueries = StringUtils::Split( _query, STR( "?" ), _paramsCount + 1 );
 		}
 
-		CLogger::LogInfo( STR( "Preparing statement for query : " ) + _query );
+		CLogger::LogDebug( ( Format( DEBUG_SQLITE_PREPARING_STATEMENT ) % this ).str() );
 		assert( _paramsCount == _arrayParams.size() );
 
 		StringStream query;
