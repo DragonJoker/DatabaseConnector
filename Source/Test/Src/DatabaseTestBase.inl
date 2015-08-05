@@ -14,32 +14,10 @@
 #include "DatabaseTestBase.h"
 #include "DatabaseTestUtils.h"
 
+#include <DatabaseBlockGuard.h>
+
 BEGIN_NAMESPACE_DATABASE_TEST
 {
-	template< typename CleanFunc >
-	struct SBlockGuard
-	{
-		template< typename InitFunc >
-		SBlockGuard( InitFunc init, CleanFunc clean )
-			: _clean( clean )
-		{
-			init();
-		};
-
-		~SBlockGuard()
-		{
-			_clean();
-		}
-
-		CleanFunc _clean;
-	};
-
-	template< typename InitFunc, typename CleanFunc >
-	SBlockGuard< CleanFunc > make_block_guard( InitFunc init, CleanFunc clean )
-	{
-		return SBlockGuard< CleanFunc >( init, clean );
-	}
-
 	template< EFieldType FieldType, uint8_t Precision = 0, uint8_t Decimals = 0 >
 	struct UniqueTest
 	{
@@ -826,7 +804,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 #if defined( NDEBUG )
 			int count = 200;
 #else
-			int count = 20;
+			int count = 200;
 #endif
 			CDatabase & db = *database;
 			String const & dbname = _database;

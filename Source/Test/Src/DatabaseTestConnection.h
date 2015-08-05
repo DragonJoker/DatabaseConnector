@@ -280,15 +280,15 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		*/
 		virtual bool DoExecuteUpdate( const String & query );
 
-		/** Execute directly a request.
-		@param[in]  query
+		/** Execute directly a request with a result set.
+		@param[in] query
 			Request text.
-		@param[out] result
-			Error code if the returned value is NULL.
+		@param[out] infos
+			The valued object infos array, if called from a CDatabaseQuery.
 		@return
 			The result.
 		*/
-		virtual DatabaseResultSPtr DoExecuteSelect( const String & query );
+		virtual DatabaseResultSPtr DoExecuteSelect( const String & query, DatabaseValuedObjectInfosPtrArray & infos );
 
 		/** Create a statement from a request.
 		@param[in]  query

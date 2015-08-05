@@ -12,6 +12,7 @@
 #include "DatabasePch.h"
 
 #include "DatabaseStringUtils.h"
+#include "DatabaseBlockGuard.h"
 #include "DatabaseException.h"
 
 #include <boost/locale.hpp>
@@ -26,22 +27,41 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			static const String ERROR_DB_FORMALIZE = STR( "Error while formatting: " );
 
+#if defined( _MSC_VER )
+
+			template< typename OutChar, typename InChar >
+			std::basic_string< OutChar > str_convert( std::basic_string< InChar > const & src )
+			{
+				std::basic_string< OutChar > dst;
+
+				if ( !src.empty() )
+				{
+					std::basic_ostringstream< OutChar > stream;
+					typedef typename std::codecvt< OutChar, InChar, std::mbstate_t > facet_type;
+					typedef typename facet_type::result result_type;
+
+					std::mbstate_t state = std::mbstate_t();
+					result_type result;
+					std::vector< OutChar > buffer( src.size() + 1 );
+					InChar const * endIn = NULL;
+					OutChar * endOut = NULL;
+
+					result = std::use_facet< facet_type >( stream.getloc() ).in( state,
+					src.data(), src.data() + src.size(), endIn,
+					&buffer.front(), &buffer.front() + src.size(), endOut );
+
+					dst = std::basic_string< OutChar >( &buffer.front(), endOut );
+				}
+
+				return dst;
+			}
+
+#else
+
 			template< typename OutChar, typename InChar >
 			std::basic_string< OutChar > str_convert( std::basic_string< InChar > const & )
 			{
 				static_assert( false, "Not implemented" );
-			}
-
-			template<>
-			std::basic_string< char > str_convert< char, char >( std::basic_string< char > const & src )
-			{
-				return src;
-			}
-
-			template<>
-			std::basic_string< wchar_t > str_convert< wchar_t, wchar_t >( std::basic_string< wchar_t > const & src )
-			{
-				return src;
 			}
 
 			template<>
@@ -51,12 +71,22 @@ BEGIN_NAMESPACE_DATABASE
 
 				if ( !src.empty() )
 				{
-					std::string loc = setlocale( LC_CTYPE, "" );
+					char * szloc = setlocale( LC_CTYPE, "" );
 					size_t size = mbstowcs( NULL, src.c_str(), 0 ) + 1;
-					std::vector< wchar_t > buffer( size );
-					size = mbstowcs( buffer.data(), src.c_str(), size );
-					dst.assign( buffer.data(), buffer.data() + size );
-					setlocale( LC_CTYPE, loc.c_str() );
+					wchar_t * buffer = NULL;
+					{
+						auto guard = make_block_guard( [&buffer, &size]()
+						{
+							buffer = new wchar_t[size + 1];
+						}, [&buffer]()
+						{
+							delete [] buffer;
+						} );
+
+						size = std::min( size, mbstowcs( buffer, src.c_str(), size ) );
+						setlocale( LC_CTYPE, szloc );
+						dst.assign( buffer, buffer + size );
+					}
 				}
 
 				return dst;
@@ -69,15 +99,39 @@ BEGIN_NAMESPACE_DATABASE
 
 				if ( !src.empty() )
 				{
-					std::string loc = setlocale( LC_CTYPE, "" );
+					char * szloc = setlocale( LC_CTYPE, "" );
 					size_t size = wcstombs( NULL, src.c_str(), 0 ) + 1;
-					std::vector< char > buffer( size );
-					size = wcstombs( buffer.data(), src.c_str(), size );
-					dst.assign( buffer.data(), buffer.data() + size );
-					setlocale( LC_CTYPE, loc.c_str() );
+					char * buffer = NULL;
+					{
+						auto guard = make_block_guard( [&buffer, &size]()
+						{
+							buffer = new char[size + 1];
+						}, [&buffer]()
+						{
+							delete [] buffer;
+						} );
+
+						size = std::min( size, wcstombs( buffer, src.c_str(), size ) );
+						setlocale( LC_CTYPE, szloc );
+						dst.assign( buffer, buffer + size );
+					}
 				}
 
 				return dst;
+			}
+
+#endif
+
+			template<>
+			std::basic_string< char > str_convert< char, char >( std::basic_string< char > const & src )
+			{
+				return src;
+			}
+
+			template<>
+			std::basic_string< wchar_t > str_convert< wchar_t, wchar_t >( std::basic_string< wchar_t > const & src )
+			{
+				return src;
 			}
 
 			template< typename CharType >

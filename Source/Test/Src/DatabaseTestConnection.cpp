@@ -556,11 +556,11 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		return query == STR( "TestUpdate" );
 	}
 
-	DatabaseResultSPtr CDatabaseTestConnection::DoExecuteSelect( const String & query )
+	DatabaseResultSPtr CDatabaseTestConnection::DoExecuteSelect( const String & query, DatabaseValuedObjectInfosPtrArray & infos )
 	{
-		DatabaseValuedObjectInfosPtrArray fieldsInfos = CreateFieldsInfos();
-		DatabaseResultSPtr result = std::make_shared< CDatabaseResult >( fieldsInfos );
-		result->AddRow( CreateRow( shared_from_this(), fieldsInfos ) );
+		infos = CreateFieldsInfos();
+		DatabaseResultSPtr result = std::make_shared< CDatabaseResult >( infos );
+		result->AddRow( CreateRow( shared_from_this(), infos ) );
 
 		return query == STR( "TestSelect" ) ? result : DatabaseResultSPtr();
 	}

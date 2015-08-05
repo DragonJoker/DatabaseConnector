@@ -220,7 +220,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		TS_List.push_back( g_databaseStatementTest->Init_Test_Suite() );
 
 #if defined( TESTING_PLUGIN_SQLITE )
-		TS_List.push_back( g_databaseSqliteTest->Init_Test_Suite() );
+		//TS_List.push_back( g_databaseSqliteTest->Init_Test_Suite() );
 #endif
 #if defined( TESTING_PLUGIN_MYSQL )
 		TS_List.push_back( g_databaseMySqlTest->Init_Test_Suite() );

@@ -181,7 +181,8 @@ BEGIN_NAMESPACE_DATABASE
 
 		try
 		{
-			ret = DoExecuteSelect( query );
+			DatabaseValuedObjectInfosPtrArray infos;
+			ret = DoExecuteSelect( query, infos );
 		}
 		catch ( CDatabaseException & exc )
 		{

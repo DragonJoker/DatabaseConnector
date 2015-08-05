@@ -220,7 +220,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		}
 
 		DoPreExecute();
-		DatabaseResultSPtr pReturn = connection->ExecuteSelect( _statement );
+		DatabaseResultSPtr pReturn = connection->ExecuteSelect( _statement, _infos );
 
 		if ( pReturn )
 		{

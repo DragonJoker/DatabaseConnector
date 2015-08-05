@@ -53,7 +53,6 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 	static const String ERROR_SQLITE_CONNECTION = STR( "Couldn't create the connection" );
 	static const String ERROR_SQLITE_DESTRUCTION = STR( "Couldn't destroy the database: " );
 	static const String ERROR_SQLITE_EXECUTION_ERROR = STR( "Couldn't execute the query" );
-	static const String ERROR_SQLITE_UNKNOWN_ERROR = STR( "Unknown error" );
 	static const String ERROR_SQLITE_NOT_CONNECTED = STR( "Not connected" );
 	static const String ERROR_SQLITE_ALREADY_IN_TRANSACTION = STR( "Already in a transaction" );
 	static const String ERROR_SQLITE_NOT_IN_TRANSACTION = STR( "Not in a transaction" );
@@ -126,16 +125,22 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 	bool CDatabaseConnectionSqlite::ExecuteUpdate( sqlite3_stmt * statement )
 	{
-		return ExecuteSelect( statement ) != nullptr;
+		DatabaseValuedObjectInfosPtrArray infos;
+		return ExecuteSelect( statement, infos ) != nullptr;
 	}
 
-	DatabaseResultSPtr CDatabaseConnectionSqlite::ExecuteSelect( sqlite3_stmt * statement )
+	DatabaseResultSPtr CDatabaseConnectionSqlite::ExecuteSelect( sqlite3_stmt * statement, DatabaseValuedObjectInfosPtrArray & infos )
 	{
 		DatabaseResultSPtr result;
 
 		try
 		{
-			result = SqliteFetchResult( statement, SqliteGetColumns( statement ), std::static_pointer_cast< CDatabaseConnectionSqlite >( shared_from_this() ) );
+			if ( infos.empty() )
+			{
+				infos = SqliteGetColumns( statement );
+			}
+
+			result = SqliteFetchResult( statement, infos, std::static_pointer_cast< CDatabaseConnectionSqlite >( shared_from_this() ) );
 		}
 		catch ( CDatabaseException & exc )
 		{
@@ -500,14 +505,14 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		return ret;
 	}
 
-	DatabaseResultSPtr CDatabaseConnectionSqlite::DoExecuteSelect( const String & query )
+	DatabaseResultSPtr CDatabaseConnectionSqlite::DoExecuteSelect( const String & query, DatabaseValuedObjectInfosPtrArray & infos )
 	{
 		DatabaseResultSPtr ret;
 
 		try
 		{
 			sqlite3_stmt * statement = SqlitePrepareStatement( query, _connection );
-			ret = ExecuteSelect( statement );
+			ret = ExecuteSelect( statement, infos );
 			SQLiteCheck( sqlite3_finalize( statement ), INFO_SQLITE_STATEMENT_FINALISATION, EDatabaseExceptionCodes_ConnectionError, _connection );
 		}
 		catch ( CDatabaseException & exc )

@@ -563,13 +563,19 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		return true;
 	}
 
-	DatabaseResultSPtr CDatabaseConnectionPostgreSql::DoExecuteSelect( const String & query )
+	DatabaseResultSPtr CDatabaseConnectionPostgreSql::DoExecuteSelect( const String & query, DatabaseValuedObjectInfosPtrArray & infos )
 	{
 		std::string strQuery = StringUtils::ToStr( query );
 		PGresult * result = PQexec( _connection, strQuery.c_str() );
 		PostgreSQLCheck( result, INFO_POSTGRESQL_QUERY_EXECUTION, EDatabaseExceptionCodes_StatementError, _connection );
 		std::vector< std::unique_ptr< SInPostgreSqlBindBase > > binds;
-		return PostgreSqlFetchResult( result, PostgreSqlGetColumns( result, binds ), std::static_pointer_cast< CDatabaseConnectionPostgreSql >( shared_from_this() ), binds );
+
+		if ( infos.empty() )
+		{
+			infos = PostgreSqlGetColumns( result, binds );
+		}
+
+		return PostgreSqlFetchResult( result, infos, std::static_pointer_cast< CDatabaseConnectionPostgreSql >( shared_from_this() ), binds );
 	}
 
 	DatabaseStatementSPtr CDatabaseConnectionPostgreSql::DoCreateStatement( const String & request )

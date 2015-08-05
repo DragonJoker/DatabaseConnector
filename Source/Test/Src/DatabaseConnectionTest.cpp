@@ -17,6 +17,7 @@
 #include "DatabaseTestConnection.h"
 #include "DatabaseTestStatement.h"
 
+#include <DatabaseBlockGuard.h>
 #include <DatabaseQuery.h>
 
 namespace std
@@ -65,7 +66,28 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		String wronguser = STR( "WrongUser" );
 		String wrongpassword = STR( "WrongPassword" );
 		String connectionString;
+		bool guarded = false;
 
+		try
+		{
+			auto guard = make_block_guard( [&guarded]()
+			{
+				CLogger::LogInfo( "Entering block guard" );
+				guarded = true;
+			}, [&guarded]()
+			{
+				guarded = false;
+				CLogger::LogInfo( "Leaving block guard" );
+			} );
+
+			BOOST_CHECK( guarded );
+			throw std::runtime_error( "coin" );
+		}
+		catch( std::exception & )
+		{
+		}
+
+		BOOST_CHECK( !guarded );
 		CLogger::LogInfo( StringStream() << "  Wrong server" );
 		{
 			DatabaseConnectionSPtr connection = std::make_shared< CDatabaseTestConnection >( wrongserver, gooduser, goodpassword, connectionString );

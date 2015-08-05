@@ -182,7 +182,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 		if ( eResult == EErrorType_NONE )
 		{
-			eResult = SqlExecute( connection, _statementHandle, std::bind( &CDatabaseStatementOdbc::OnResultSetFullyFetched, this, std::placeholders::_1, std::placeholders::_2 ), result );
+			eResult = SqlExecute( connection, _statementHandle, std::bind( &CDatabaseStatementOdbc::OnResultSetFullyFetched, this, std::placeholders::_1, std::placeholders::_2 ), _infos, result );
 		}
 
 		return eResult;

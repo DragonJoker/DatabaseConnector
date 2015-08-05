@@ -236,46 +236,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadSelectAndSelect< 1, 1 >, this ) ) );
 		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadSelectAndDelete< 1, 1 >, this ) ) );
 
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadInsertAndInsert< CDatabaseQuery, CDatabaseQuery >, this, STR( "Query" ), STR( "Query" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadInsertAndUpdate< CDatabaseQuery, CDatabaseQuery >, this, STR( "Query" ), STR( "Query" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadInsertAndSelect< CDatabaseQuery, CDatabaseQuery >, this, STR( "Query" ), STR( "Query" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadInsertAndDelete< CDatabaseQuery, CDatabaseQuery >, this, STR( "Query" ), STR( "Query" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadUpdateAndUpdate< CDatabaseQuery, CDatabaseQuery >, this, STR( "Query" ), STR( "Query" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadUpdateAndSelect< CDatabaseQuery, CDatabaseQuery >, this, STR( "Query" ), STR( "Query" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadUpdateAndDelete< CDatabaseQuery, CDatabaseQuery >, this, STR( "Query" ), STR( "Query" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadSelectAndSelect< CDatabaseQuery, CDatabaseQuery >, this, STR( "Query" ), STR( "Query" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadSelectAndDelete< CDatabaseQuery, CDatabaseQuery >, this, STR( "Query" ), STR( "Query" ) ) ) );
-
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadInsertAndInsert< CDatabaseQuery, CDatabaseStatement >, this, STR( "Query" ), STR( "Statement" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadInsertAndUpdate< CDatabaseQuery, CDatabaseStatement >, this, STR( "Query" ), STR( "Statement" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadInsertAndSelect< CDatabaseQuery, CDatabaseStatement >, this, STR( "Query" ), STR( "Statement" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadInsertAndDelete< CDatabaseQuery, CDatabaseStatement >, this, STR( "Query" ), STR( "Statement" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadUpdateAndUpdate< CDatabaseQuery, CDatabaseStatement >, this, STR( "Query" ), STR( "Statement" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadUpdateAndSelect< CDatabaseQuery, CDatabaseStatement >, this, STR( "Query" ), STR( "Statement" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadUpdateAndDelete< CDatabaseQuery, CDatabaseStatement >, this, STR( "Query" ), STR( "Statement" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadSelectAndSelect< CDatabaseQuery, CDatabaseStatement >, this, STR( "Query" ), STR( "Statement" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadSelectAndDelete< CDatabaseQuery, CDatabaseStatement >, this, STR( "Query" ), STR( "Statement" ) ) ) );
-
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadInsertAndInsert< CDatabaseStatement, CDatabaseQuery >, this, STR( "Statement" ), STR( "Query" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadInsertAndUpdate< CDatabaseStatement, CDatabaseQuery >, this, STR( "Statement" ), STR( "Query" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadInsertAndSelect< CDatabaseStatement, CDatabaseQuery >, this, STR( "Statement" ), STR( "Query" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadInsertAndDelete< CDatabaseStatement, CDatabaseQuery >, this, STR( "Statement" ), STR( "Query" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadUpdateAndUpdate< CDatabaseStatement, CDatabaseQuery >, this, STR( "Statement" ), STR( "Query" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadUpdateAndSelect< CDatabaseStatement, CDatabaseQuery >, this, STR( "Statement" ), STR( "Query" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadUpdateAndDelete< CDatabaseStatement, CDatabaseQuery >, this, STR( "Statement" ), STR( "Query" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadSelectAndSelect< CDatabaseStatement, CDatabaseQuery >, this, STR( "Statement" ), STR( "Query" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadSelectAndDelete< CDatabaseStatement, CDatabaseQuery >, this, STR( "Statement" ), STR( "Query" ) ) ) );
-
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadInsertAndInsert< CDatabaseStatement, CDatabaseStatement >, this, STR( "Statement" ), STR( "Statement" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadInsertAndUpdate< CDatabaseStatement, CDatabaseStatement >, this, STR( "Statement" ), STR( "Statement" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadInsertAndSelect< CDatabaseStatement, CDatabaseStatement >, this, STR( "Statement" ), STR( "Statement" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadInsertAndDelete< CDatabaseStatement, CDatabaseStatement >, this, STR( "Statement" ), STR( "Statement" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadUpdateAndUpdate< CDatabaseStatement, CDatabaseStatement >, this, STR( "Statement" ), STR( "Statement" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadUpdateAndSelect< CDatabaseStatement, CDatabaseStatement >, this, STR( "Statement" ), STR( "Statement" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadUpdateAndDelete< CDatabaseStatement, CDatabaseStatement >, this, STR( "Statement" ), STR( "Statement" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadSelectAndSelect< CDatabaseStatement, CDatabaseStatement >, this, STR( "Statement" ), STR( "Statement" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadSelectAndDelete< CDatabaseStatement, CDatabaseStatement >, this, STR( "Statement" ), STR( "Statement" ) ) ) );
-
 		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DestroyDatabase, this ) ) );
 
 		//!@remarks Return the TS instance.

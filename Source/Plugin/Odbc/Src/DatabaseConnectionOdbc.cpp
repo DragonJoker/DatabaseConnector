@@ -135,13 +135,14 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	bool CDatabaseConnectionOdbc::DoExecuteUpdate( const String & query )
 	{
 		DatabaseResultSPtr ret;
-		return SqlExecute( shared_from_this(), InitialiseStatement( query, _connectionHandle ), &FinaliseStatement, ret ) == EErrorType_NONE;
+		DatabaseValuedObjectInfosPtrArray infos;
+		return SqlExecute( shared_from_this(), InitialiseStatement( query, _connectionHandle ), &FinaliseStatement, infos, ret ) == EErrorType_NONE;
 	}
 
-	DatabaseResultSPtr CDatabaseConnectionOdbc::DoExecuteSelect( const String & query )
+	DatabaseResultSPtr CDatabaseConnectionOdbc::DoExecuteSelect( const String & query, DatabaseValuedObjectInfosPtrArray & infos )
 	{
 		DatabaseResultSPtr ret;
-		SqlExecute( shared_from_this(), InitialiseStatement( query, _connectionHandle ), &FinaliseStatement, ret );
+		SqlExecute( shared_from_this(), InitialiseStatement( query, _connectionHandle ), &FinaliseStatement, infos, ret );
 		return ret;
 	}
 }

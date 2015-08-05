@@ -27,6 +27,8 @@ BEGIN_NAMESPACE_DATABASE
 	class CDatabaseConnection
 		: public std::enable_shared_from_this< CDatabaseConnection >
 	{
+		friend class CDatabaseQuery;
+
 	public:
 		/**@name Construction */
 		//@{
@@ -577,8 +579,6 @@ BEGIN_NAMESPACE_DATABASE
 		/** Create a statement from a request.
 		@param[in]  query
 			Request text.
-		@param[out] result
-			Error code if the returned value is NULL.
 		@return
 			The created statement.
 		*/
@@ -587,22 +587,20 @@ BEGIN_NAMESPACE_DATABASE
 		/** Execute directly a request without result set.
 		@param[in]  query
 			Request text.
-		@param[out] result
-			Error code if the returned value is NULL.
 		@return
 			The result.
 		*/
 		DatabaseExport virtual bool DoExecuteUpdate( const String & query ) = 0;
 
 		/** Execute directly a request with a result set.
-		@param[in]  query
+		@param[in] query
 			Request text.
-		@param[out] result
-			Error code if the returned value is NULL.
+		@param[out] infos
+			The valued object infos array, if called from a CDatabaseQuery.
 		@return
 			The result.
 		*/
-		DatabaseExport virtual DatabaseResultSPtr DoExecuteSelect( const String & query ) = 0;
+		DatabaseExport virtual DatabaseResultSPtr DoExecuteSelect( const String & query, DatabaseValuedObjectInfosPtrArray & infos ) = 0;
 
 	protected:
 		//! Server identifier (name or address).

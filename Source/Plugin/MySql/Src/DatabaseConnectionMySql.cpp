@@ -162,15 +162,26 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		return result;
 	}
 
-	DatabaseResultSPtr CDatabaseConnectionMySql::ExecuteSelect( MYSQL_STMT * statement )
+	DatabaseResultSPtr CDatabaseConnectionMySql::ExecuteSelect( MYSQL_STMT * statement, DatabaseValuedObjectInfosPtrArray & infos )
 	{
 		DatabaseResultSPtr result;
 
 		try
 		{
-			bool hasResults = false;
-			MySQLCheck( mysql_stmt_execute( statement ), INFO_MYSQL_STATEMENT_EXECUTION, EDatabaseExceptionCodes_StatementError, _connection );
-			result = DoRetrieveResults( statement );
+			if ( statement )
+			{
+				MySQLCheck( mysql_stmt_execute( statement ), INFO_MYSQL_STATEMENT_EXECUTION, EDatabaseExceptionCodes_StatementError, _connection );
+				DatabaseConnectionMySqlSPtr connection = std::static_pointer_cast< CDatabaseConnectionMySql >( shared_from_this() );
+				std::vector< MYSQL_BIND > binds;
+				std::vector< std::unique_ptr< SInMySqlBindBase > > inbinds;
+
+				if ( infos.empty() )
+				{
+					infos = MySqlGetColumns( statement, connection, inbinds, binds );
+				}
+
+				result = MySqlFetchResult( statement, infos, connection, inbinds, binds );
+			}
 		}
 		catch ( CDatabaseException & exc )
 		{
@@ -564,46 +575,16 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		return ExecuteUpdate( _statement );
 	}
 
-	DatabaseResultSPtr CDatabaseConnectionMySql::DoExecuteSelect( const String & query )
+	DatabaseResultSPtr CDatabaseConnectionMySql::DoExecuteSelect( const String & query, DatabaseValuedObjectInfosPtrArray & infos )
 	{
 		std::string strQuery = StringUtils::ToStr( query );
 		MySQLCheck( mysql_stmt_prepare( _statement, strQuery.c_str(), uint32_t( strQuery.size() ) ), INFO_MYSQL_STATEMENT_PREPARATION, EDatabaseExceptionCodes_StatementError, _connection );
-		return ExecuteSelect( _statement );
+		return ExecuteSelect( _statement, infos );
 	}
 
 	DatabaseStatementSPtr CDatabaseConnectionMySql::DoCreateStatement( const String & request )
 	{
 		return std::make_shared< CDatabaseStatementMySql >( std::static_pointer_cast< CDatabaseConnectionMySql >( shared_from_this() ), request );
-	}
-
-	DatabaseResultSPtr CDatabaseConnectionMySql::DoRetrieveResults( MYSQL_STMT * statement )
-	{
-		DatabaseResultSPtr pResult;
-
-		try
-		{
-			if ( statement )
-			{
-				DatabaseConnectionMySqlSPtr connection = std::static_pointer_cast< CDatabaseConnectionMySql >( shared_from_this() );
-				std::vector< MYSQL_BIND > binds;
-				std::vector< std::unique_ptr< SInMySqlBindBase > > inbinds;
-				pResult = MySqlFetchResult( statement, MySqlGetColumns( statement, connection, inbinds, binds ), connection, inbinds, binds );
-			}
-		}
-		catch ( CDatabaseException & exc )
-		{
-			StringStream stream;
-			stream << ERROR_MYSQL_EXECUTION << exc.GetFullDescription();
-			CLogger::LogError( stream.str() );
-		}
-		catch ( std::exception & exc )
-		{
-			StringStream stream;
-			stream << ERROR_MYSQL_EXECUTION << exc.what();
-			CLogger::LogError( stream.str() );
-		}
-
-		return pResult;
 	}
 }
 END_NAMESPACE_DATABASE_MYSQL

@@ -121,6 +121,13 @@ BEGIN_NAMESPACE_DATABASE
 		_headers[ELogType_INFO] = STR( "" );
 		_headers[ELogType_WARNING] = STR( "***WARNING*** " );
 		_headers[ELogType_ERROR] = STR( "***ERROR*** " );
+		
+		std::cout.sync_with_stdio( false );
+		std::cerr.sync_with_stdio( false );
+		std::clog.sync_with_stdio( false );
+		std::wcout.sync_with_stdio( false );
+		std::wcerr.sync_with_stdio( false );
+		std::wclog.sync_with_stdio( false );
 
 		_cout = new CLogStreambuf< char, STMessageLogStreambufTraits< char > >( std::cout );
 		_cerr = new CLogStreambuf< char, STErrorLogStreambufTraits< char > >( std::cerr );

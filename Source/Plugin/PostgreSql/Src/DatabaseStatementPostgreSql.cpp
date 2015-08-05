@@ -189,9 +189,14 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		EErrorType eResult = EErrorType_NONE;
 		PGresult * pgresult = PQexecPrepared( connection->GetConnection(), _statement.c_str(), int( _arrayParams.size() ), _arrayValues.data(), _arrayLengths.data(), _arrayFormats.data(), 0 );
 		PostgreSQLCheck( pgresult, INFO_POSTGRESQL_STATEMENT_EXECUTION, EDatabaseExceptionCodes_StatementError, connection->GetConnection() );
-
 		std::vector< std::unique_ptr< SInPostgreSqlBindBase > > binds;
-		return PostgreSqlFetchResult( pgresult, PostgreSqlGetColumns( pgresult, binds ), connection, binds );
+
+		if ( _infos.empty() )
+		{
+			_infos = PostgreSqlGetColumns( pgresult, binds );
+		}
+
+		return PostgreSqlFetchResult( pgresult, _infos, connection, binds );
 	}
 
 	void CDatabaseStatementPostgreSql::DoCleanup()

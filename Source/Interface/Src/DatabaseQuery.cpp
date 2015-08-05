@@ -40,6 +40,8 @@ BEGIN_NAMESPACE_DATABASE
 	static const String ERROR_DB_QUERY_INCONSISTENCY = STR( "Number of parameters doesn't match the sizes of parameter containers." );
 	static const String ERROR_DB_QUERY_INVALID = STR( "The query text is invalid." );
 	static const String ERROR_DB_QUERY_NOT_INITIALISED = STR( "The query is not initialised." );
+	static const String ERROR_DB_QUERY_EXECUTION_ERROR = STR( "Query execution error: " );
+	static const String ERROR_DB_QUERY_LOST_CONNECTION = STR( "Query lost  it's connection" );
 
 	static const String INFO_DB_CREATING_QUERY = STR( "Creating query object 0x%08X, with query text %s" );
 	static const String INFO_DB_DELETING_QUERY = STR( "Deleting query object 0x%08X" );
@@ -68,13 +70,40 @@ BEGIN_NAMESPACE_DATABASE
 			DB_EXCEPT( EDatabaseExceptionCodes_QueryError, ERROR_DB_QUERY_NOT_INITIALISED );
 		}
 
-		bool bReturn = false;
 		DatabaseConnectionSPtr connection = DoGetConnection();
 
-		if ( connection && connection->IsConnected() )
+		if ( !connection  )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_QueryError, ERROR_DB_QUERY_LOST_CONNECTION );
+		}
+
+		bool bReturn = false;
+
+		connection->DoCheckConnected();
+		connection->DoCheckDatabaseSelected();
+
+		try
 		{
 			CLogger::LogInfo( ( Format( INFO_DB_EXECUTING_UPDATE_QUERY ) % this ).str() );
-			bReturn = connection->ExecuteUpdate( DoPreExecute() );
+			bReturn = connection->DoExecuteUpdate( DoPreExecute() );
+		}
+		catch ( CDatabaseException & exc )
+		{
+			StringStream stream;
+			stream << ERROR_DB_QUERY_EXECUTION_ERROR << exc.GetFullDescription();
+			CLogger::LogError( stream );
+		}
+		catch ( std::exception & exc )
+		{
+			StringStream stream;
+			stream << ERROR_DB_QUERY_EXECUTION_ERROR << STR( " - " ) << exc.what();
+			CLogger::LogError( stream );
+		}
+		catch ( ... )
+		{
+			StringStream stream;
+			stream << ERROR_DB_QUERY_EXECUTION_ERROR << STR( " - UNKNOWN" );
+			CLogger::LogError( stream );
 		}
 
 		return bReturn;
@@ -87,13 +116,39 @@ BEGIN_NAMESPACE_DATABASE
 			DB_EXCEPT( EDatabaseExceptionCodes_QueryError, ERROR_DB_QUERY_NOT_INITIALISED );
 		}
 
-		DatabaseResultSPtr pReturn;
 		DatabaseConnectionSPtr connection = DoGetConnection();
 
-		if ( connection && connection->IsConnected() )
+		if ( !connection  )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_QueryError, ERROR_DB_QUERY_LOST_CONNECTION );
+		}
+
+		connection->DoCheckConnected();
+		connection->DoCheckDatabaseSelected();
+		DatabaseResultSPtr pReturn;
+
+		try
 		{
 			CLogger::LogInfo( ( Format( INFO_DB_EXECUTING_SELECT_QUERY ) % this ).str() );
-			pReturn = connection->ExecuteSelect( DoPreExecute() );
+			pReturn = connection->DoExecuteSelect( DoPreExecute(), _infos );
+		}
+		catch ( CDatabaseException & exc )
+		{
+			StringStream stream;
+			stream << ERROR_DB_QUERY_EXECUTION_ERROR << exc.GetFullDescription();
+			CLogger::LogError( stream );
+		}
+		catch ( std::exception & exc )
+		{
+			StringStream stream;
+			stream << ERROR_DB_QUERY_EXECUTION_ERROR << STR( " - " ) << exc.what();
+			CLogger::LogError( stream );
+		}
+		catch ( ... )
+		{
+			StringStream stream;
+			stream << ERROR_DB_QUERY_EXECUTION_ERROR << STR( " - UNKNOWN" );
+			CLogger::LogError( stream );
 		}
 
 		return pReturn;

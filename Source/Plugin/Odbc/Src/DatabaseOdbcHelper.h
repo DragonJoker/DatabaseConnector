@@ -76,12 +76,14 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		Handle of statement to execute.
 	@param[in] onFullyfetched
 		Method called when the result set is fetched
+	@param[out] infos
+		Receives the valued object infos array.
 	@param[out] pReturn
 		Receives the result set, if any
 	@return
 		the result.
 	*/
-	EErrorType SqlExecute( DatabaseConnectionSPtr connection, SQLHSTMT statementHandle, FuncResultSetFullyFetched onFullyfetched, DatabaseResultSPtr & pReturn );
+	EErrorType SqlExecute( DatabaseConnectionSPtr connection, SQLHSTMT statementHandle, FuncResultSetFullyFetched onFullyfetched, DatabaseValuedObjectInfosPtrArray & infos, DatabaseResultSPtr & pReturn );
 }
 END_NAMESPACE_DATABASE_ODBC
 

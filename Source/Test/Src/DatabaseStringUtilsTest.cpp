@@ -125,6 +125,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		std::string s = "ÂÄÊËÎÏÔÖÛÜ";
 		std::string utf8 = "ÂÄÊËÎÏÔÖÛÜ";
 
+#if !defined( _WIN32 ) // Disabled with MSVC since Windos does not support UTF8 locales
 		CLogger::LogInfo( StringStream() << "  ToWStr" );
 		BOOST_CHECK_EQUAL( ws, StringUtils::ToWStr( s ) );
 		BOOST_CHECK_EQUAL( ws, StringUtils::ToWStr( ws ) );
@@ -137,7 +138,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		CLogger::LogInfo( StringStream() << "  ToUtf8" );
 		BOOST_CHECK_EQUAL( StringUtils::ToUtf8( s, "UTF-8" ), utf8 );
 		BOOST_CHECK_EQUAL( StringUtils::ToUtf8( ws, L"UTF-8" ), utf8 );
-
+#endif
 		CLogger::LogInfo( StringStream() << "**** End TestCase_StringUtilsConversions ****" );
 	}
 

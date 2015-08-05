@@ -1293,7 +1293,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		return fieldType;
 	}
 
-	EErrorType SqlExecute( DatabaseConnectionSPtr connection, SQLHSTMT statementHandle, FuncResultSetFullyFetched onFullyfetched, DatabaseResultSPtr & pReturn )
+	EErrorType SqlExecute( DatabaseConnectionSPtr connection, SQLHSTMT statementHandle, FuncResultSetFullyFetched onFullyfetched, DatabaseValuedObjectInfosPtrArray & infos, DatabaseResultSPtr & pReturn )
 	{
 		SQLRETURN res = SQL_SUCCESS;
 		EErrorType errorType = EErrorType_NONE;
@@ -1306,8 +1306,13 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			if ( numColumns )
 			{
 				std::vector< std::unique_ptr< CInOdbcBindBase > > arrayColumnData;
-				DatabaseValuedObjectInfosPtrArray columns = InitialiseColumns( numColumns, arrayColumnData, statementHandle );
-				pReturn = std::make_shared< CDatabaseResult >( columns );
+
+				if ( infos.empty() )
+				{
+					infos = InitialiseColumns( numColumns, arrayColumnData, statementHandle );
+				}
+
+				pReturn = std::make_shared< CDatabaseResult >( infos );
 				FetchResultSet( connection, pReturn, arrayColumnData, statementHandle );
 			}
 

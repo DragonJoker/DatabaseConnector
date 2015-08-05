@@ -85,10 +85,12 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		/** Executes a statement and retrieves the result set if needed
 		@param statement
 			The statement
+		@param[out] infos
+			The valued object infos array, if called from a CDatabaseQuery.
 		@return
 			The result
 		*/
-		DatabaseResultSPtr ExecuteSelect( sqlite3_stmt * statement );
+		DatabaseResultSPtr ExecuteSelect( sqlite3_stmt * statement, DatabaseValuedObjectInfosPtrArray & infos );
 
 	protected:
 		/** Creates a database.
@@ -276,8 +278,6 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		/** Execute directly a request.
 		@param[in]  query
 			Request text.
-		@param[out] result
-			Error code if the returned value is NULL.
 		@return
 			The result.
 		*/
@@ -286,18 +286,16 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		/** Execute directly a request.
 		@param[in]  query
 			Request text.
-		@param[out] result
-			Error code if the returned value is NULL.
+		@param[in] infos
+			The valued object infos array, if called from a CDatabaseQuery.
 		@return
 			The result.
 		*/
-		virtual DatabaseResultSPtr DoExecuteSelect( const String & query );
+		virtual DatabaseResultSPtr DoExecuteSelect( const String & query, DatabaseValuedObjectInfosPtrArray & infos );
 
 		/** Create a statement from a request.
 		@param[in]  query
 			Request text.
-		@param[out] result
-			Error code if the returned value is NULL.
 		@return
 			The created statement.
 		*/

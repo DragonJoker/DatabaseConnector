@@ -140,6 +140,8 @@ BEGIN_NAMESPACE_DATABASE
 		DatabaseConnectionWPtr _connection;
 		//! Number of parameters (i.e. number of "?").
 		uint32_t _paramsCount;
+		//! The valued object infos array, used to save the result set columns at first execution
+		DatabaseValuedObjectInfosPtrArray _infos;
 	};
 }
 END_NAMESPACE_DATABASE
