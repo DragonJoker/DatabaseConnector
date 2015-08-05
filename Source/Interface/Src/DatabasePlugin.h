@@ -86,8 +86,6 @@ BEGIN_NAMESPACE_DATABASE
 		CFactoryDatabase * _factory;
 		//! Plugin install state.
 		bool _installed;
-		//! The exception handler which was there before linking it to CDatabaseException
-		std::unique_ptr< CSystemExceptionHandler > _previousHandler;
 	};
 
 }

@@ -141,18 +141,6 @@ BEGIN_NAMESPACE_DATABASE
 		/** Override std::exception::what */
 		DatabaseExport const char * what() const throw();
 
-		/** Makes system errors to be translated in CDatabaseExceptions
-		@return
-			The previous system error handler
-		*/
-		DatabaseExport static std::unique_ptr< CSystemExceptionHandler > LinkSystemErrors();
-
-		/** Resets the system errors as before the previous call to LinkSystemErrors
-		@param[in] previous, to restore it
-			The previous system error handler
-		*/
-		DatabaseExport static void UnlinkSystemErrors( std::unique_ptr< CSystemExceptionHandler > && previous );
-
 	private:
 		//! The exception number
 		int _number;

@@ -144,24 +144,6 @@ BEGIN_NAMESPACE_DATABASE
 	static const String ERROR_DB_WRITE_ATTEMPT = STR( "The thread attempted to write to an inaccessible address 0x" );
 	static const String ERROR_DB_DEP_VIOLATION = STR( "The thread causes a user-mode data execution prevention (DEP) violation at address 0x" );
 
-	class CSehExceptionHandler
-		: public CSystemExceptionHandler
-	{
-	public:
-		CSehExceptionHandler()// _se_translator_function function )
-			//: _function( function )
-		{
-		}
-
-		_se_translator_function GetFunction()const
-		{
-			return _function;
-		}
-
-	private:
-		_se_translator_function _function;
-	};
-
 	void OsToDatabaseException( unsigned int code, EXCEPTION_POINTERS * pointers )
 	{
 		StringStream error;
@@ -319,37 +301,29 @@ BEGIN_NAMESPACE_DATABASE
 		DB_EXCEPT( EDatabaseExceptionCodes_SystemError, error.str() );
 	}
 
+	class CSehExceptionHandler
+		: public CSystemExceptionHandler
+	{
+	public:
+		CSehExceptionHandler()
+			: _function( _set_se_translator( OsToDatabaseException ) )
+		{
+			// Empty
+		}
+
+		~CSehExceptionHandler()
+		{
+			_set_se_translator( _function );
+		}
+
+	private:
+		_se_translator_function _function;
+	};
+
 #else
 	static const String ERROR_DB_ACCESS_VIOLATION = STR( "The thread tried to read from or write to a virtual address for which it does not have the appropriate access." );
 	static const String ERROR_DB_DIVIDE_BY_ZERO = STR( "The thread tried to divide a value by a divisor of zero." );
 
-	typedef void ( *SignalHandlerPointer )( int );
-	
-	class CSignalHandler
-		: public CSystemExceptionHandler
-	{
-	public:
-		CSignalHandler()// SignalHandlerPointer segvfunction, SignalHandlerPointer fpefunction )
-			//: _segvfunction( segvfunction )
-			//, _fpefunction( fpefunction )
-		{
-		}
-
-		SignalHandlerPointer GetSegvFunction()const
-		{
-			return _segvfunction;
-		}
-
-		SignalHandlerPointer GetFpeFunction()const
-		{
-			return _fpefunction;
-		}
-
-	private:
-		SignalHandlerPointer _segvfunction;
-		SignalHandlerPointer _fpefunction;
-	};
-	
 	void OsToDatabaseException( int signal )
 	{
 		StringStream error;
@@ -361,7 +335,7 @@ BEGIN_NAMESPACE_DATABASE
 		case SIGSEGV:
 			error << ERROR_DB_ACCESS_VIOLATION << std::endl;
 			break;
-			
+
 		case SIGFPE:
 			error << ERROR_DB_DIVIDE_BY_ZERO << std::endl;
 			break;
@@ -369,7 +343,31 @@ BEGIN_NAMESPACE_DATABASE
 
 		DB_EXCEPT( EDatabaseExceptionCodes_SystemError, error.str() );
 	}
-	
+
+	typedef void ( *SignalHandlerPointer )( int );
+
+	class CSignalHandler
+		: public CSystemExceptionHandler
+	{
+	public:
+		CSignalHandler()
+			: _segvfunction( signal( SIGSEGV, OsToDatabaseException ) )
+			, _fpefunction( signal( SIGFPE, OsToDatabaseException ) )
+		{
+			// Empty
+		}
+
+		~CSignalHandler()
+		{
+			signal( SIGSEGV, _segvfunction );
+			signal( SIGFPE, _fpefunction );
+		}
+
+	private:
+		SignalHandlerPointer _segvfunction;
+		SignalHandlerPointer _fpefunction;
+	};
+
 #endif
 
 	CDatabaseException::CDatabaseException( int number, const String & description, const std::string & source, const std::string & file, long line )
@@ -446,25 +444,6 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		GetFullDescription();
 		return _what.c_str();
-	}
-
-	std::unique_ptr< CSystemExceptionHandler > CDatabaseException::LinkSystemErrors()
-	{
-#if defined( _WIN32 )
-		return std::make_unique< CSehExceptionHandler >();//_set_se_translator( OsToDatabaseException ) );
-#else
-		return std::make_unique< CSignalHandler >();//signal( SIGSEGV, OsToDatabaseException ), signal( SIGFPE, OsToDatabaseException ) );
-#endif
-	}
-
-	void CDatabaseException::UnlinkSystemErrors( std::unique_ptr< CSystemExceptionHandler > && previous )
-	{
-//#if defined( _WIN32 )
-//		_set_se_translator( static_cast< const CSehExceptionHandler & >( *previous ).GetFunction() );
-//#else
-//		signal( SIGSEGV, static_cast< const CSignalHandler & >( *previous ).GetSegvFunction() );
-//		signal( SIGFPE, static_cast< const CSignalHandler & >( *previous ).GetFpeFunction() );
-//#endif
 	}
 }
 END_NAMESPACE_DATABASE

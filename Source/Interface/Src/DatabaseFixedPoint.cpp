@@ -126,7 +126,7 @@ BEGIN_NAMESPACE_DATABASE
 				DB_EXCEPT( EDatabaseExceptionCodes_ArithmeticError, ERROR_DB_PRECISION_OVERFLOW );
 			}
 
-			val = int256_t( std::stoll( absval ) * int64_t( GetDecimalMult( _decimals ) ) );
+			val = int256_t( std::stoll( absval ) * Get10Pow256( _decimals ) );
 		}
 		else if ( index > precision )
 		{
@@ -194,6 +194,25 @@ BEGIN_NAMESPACE_DATABASE
 		return result;
 	}
 
+	void Get10Pow256Rec( int32_t pow, int256_t & left, int256_t & right )
+	{
+		if ( pow > 1 )
+		{
+			Get10Pow256Rec( pow >> 1, left, left );
+			Get10Pow256Rec( pow >> 1, right, right );
+		}
+
+		right *= ( pow & 0x1 ? 10 : 1 );
+	}
+
+	int256_t CFixedPoint::Get10Pow256( int32_t pow )
+	{
+		int256_t left = 1;
+		int256_t right = 1;
+		Get10Pow256Rec( pow, left, right );
+		return left * right;
+	}
+
 	void CFixedPoint::DoAdjustValue()
 	{
 		if ( _precision )
@@ -247,7 +266,7 @@ BEGIN_NAMESPACE_DATABASE
 	bool operator ==( const CFixedPoint & lhs, const CFixedPoint & rhs )
 	{
 		bool ret = lhs.GetRawValue() == rhs.GetRawValue() && lhs.GetDecimals() == rhs.GetDecimals();
-		
+
 		if ( !ret )
 		{
 			CLogger::LogDebug( std::stringstream() << "lhs: " << lhs.ToInt64() << ", rhs: " << rhs.ToInt64() );

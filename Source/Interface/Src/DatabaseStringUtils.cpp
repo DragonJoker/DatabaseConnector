@@ -26,86 +26,59 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			static const String ERROR_DB_FORMALIZE = STR( "Error while formatting: " );
 
-			template< typename InChar, typename OutChar > struct str_converter;
-#if !defined( __GNUG__ )
-			template< typename InChar, typename OutChar > struct str_converter
+			template< typename OutChar, typename InChar >
+			std::basic_string< OutChar > str_convert( std::basic_string< InChar > const & )
 			{
-				void operator()( std::basic_string< InChar > const & p_strIn, std::basic_string< OutChar > & p_strOut, std::locale const & p_locale = std::locale() )
-				{
-					if ( !p_strIn.empty() )
-					{
-						typedef typename std::codecvt< OutChar, InChar, std::mbstate_t > facet_type;
-						typedef typename facet_type::result result_type;
+				static_assert( false, "Not implemented" );
+			}
 
-						std::mbstate_t l_state = std::mbstate_t();
-						result_type l_result;
-						std::vector< OutChar > l_buffer( p_strIn.size() + 1 );
-						InChar const * l_pEndIn = NULL;
-						OutChar * l_pEndOut = NULL;
-
-						l_result = std::use_facet< facet_type >( p_locale ).in( l_state,
-						p_strIn.data(), p_strIn.data() + p_strIn.size(), l_pEndIn,
-						&l_buffer.front(), &l_buffer.front() + p_strIn.size(), l_pEndOut
-																			  );
-
-						p_strOut = std::basic_string< OutChar >( &l_buffer.front(), l_pEndOut );
-					}
-					else
-					{
-						p_strOut.clear();
-					}
-				}
-			};
-#else
-			template<> struct str_converter< char, wchar_t >
+			template<>
+			std::basic_string< char > str_convert< char, char >( std::basic_string< char > const & src )
 			{
-				void operator()( std::basic_string< char > const & p_strIn, std::basic_string< wchar_t > & p_strOut, std::locale const & p_locale = std::locale() )
-				{
-					using namespace std;
+				return src;
+			}
 
-					if ( !p_strIn.empty() )
-					{
-					    std::string l_locale = setlocale( LC_CTYPE, "" );
-						size_t l_size = mbstowcs( NULL, p_strIn.c_str(), 0 ) + 1;
-						std::vector< wchar_t > l_dest( l_size );
-						l_size = mbstowcs( l_dest.data(), p_strIn.c_str(), l_size );
-						p_strOut.assign( l_dest.data(), l_dest.data() + l_size );
-						setlocale( LC_CTYPE, l_locale.c_str() );
-					}
-					else
-					{
-						p_strOut.clear();
-					}
-				}
-			};
-			template<> struct str_converter< wchar_t, char >
+			template<>
+			std::basic_string< wchar_t > str_convert< wchar_t, wchar_t >( std::basic_string< wchar_t > const & src )
 			{
-				void operator()( std::basic_string< wchar_t > const & p_strIn, std::basic_string< char > & p_strOut, std::locale const & p_locale = std::locale() )
-				{
-					if ( !p_strIn.empty() )
-					{
-					    std::string l_locale = setlocale( LC_CTYPE, "" );
-						size_t l_size = wcstombs( NULL, p_strIn.c_str(), 0 ) + 1;
-						std::vector< char > l_dest( l_size );
-						l_size = wcstombs( l_dest.data(), p_strIn.c_str(), l_size );
-						p_strOut.assign( l_dest.data(), l_dest.data() + l_size );
-						setlocale( LC_CTYPE, l_locale.c_str() );
-					}
-					else
-					{
-						p_strOut.clear();
-					}
-				}
-			};
-#endif
-			template< typename InChar >
-			struct str_converter< InChar, InChar >
+				return src;
+			}
+
+			template<>
+			std::basic_string< wchar_t > str_convert< wchar_t, char >( std::basic_string< char > const & src )
 			{
-				void operator()( std::basic_string< InChar > const & p_strIn, std::basic_string< InChar > & p_strOut, std::locale const & )
+				std::basic_string< wchar_t > dst;
+
+				if ( !src.empty() )
 				{
-					p_strOut = p_strIn;
+					std::string loc = setlocale( LC_CTYPE, "" );
+					size_t size = mbstowcs( NULL, src.c_str(), 0 ) + 1;
+					std::vector< wchar_t > buffer( size );
+					size = mbstowcs( buffer.data(), src.c_str(), size );
+					dst.assign( buffer.data(), buffer.data() + size );
+					setlocale( LC_CTYPE, loc.c_str() );
 				}
-			};
+
+				return dst;
+			}
+
+			template<>
+			std::basic_string< char > str_convert< char, wchar_t >( std::basic_string< wchar_t > const & src )
+			{
+				std::basic_string< char > dst;
+
+				if ( !src.empty() )
+				{
+					std::string loc = setlocale( LC_CTYPE, "" );
+					size_t size = wcstombs( NULL, src.c_str(), 0 ) + 1;
+					std::vector< char > buffer( size );
+					size = wcstombs( buffer.data(), src.c_str(), size );
+					dst.assign( buffer.data(), buffer.data() + size );
+					setlocale( LC_CTYPE, loc.c_str() );
+				}
+
+				return dst;
+			}
 
 			template< typename CharType >
 			std::basic_string< CharType > & str_replace( std::basic_string< CharType > & p_str, std::basic_string< CharType > const & p_find, std::basic_string< CharType > const & p_replaced )
@@ -485,34 +458,22 @@ BEGIN_NAMESPACE_DATABASE
 
 		std::string ToStr( std::wstring const & src )
 		{
-			std::string l_strReturn;
-			std::ostringstream l_stream;
-			detail::str_converter< wchar_t, char >()( src, l_strReturn, l_stream.getloc() );
-			return l_strReturn;
+			return detail::str_convert< char >( src );
 		}
 
 		std::wstring ToWStr( std::string const & src )
 		{
-			std::wstring l_strReturn;
-			std::wostringstream l_wstream;
-			detail::str_converter< char, wchar_t >()( src, l_strReturn, l_wstream.getloc() );
-			return l_strReturn;
+			return detail::str_convert< wchar_t >( src );
 		}
 
 		String ToString( std::string const & src )
 		{
-			String l_strReturn;
-			std::wostringstream l_wstream;
-			detail::str_converter< char, TChar >()( src, l_strReturn, l_wstream.getloc() );
-			return l_strReturn;
+			return detail::str_convert< TChar >( src );
 		}
 
 		String ToString( std::wstring const & src )
 		{
-			String l_strReturn;
-			std::ostringstream l_stream;
-			detail::str_converter< wchar_t, TChar >()( src, l_strReturn, l_stream.getloc() );
-			return l_strReturn;
+			return detail::str_convert< TChar >( src );
 		}
 
 		String ToString( char p_char )
@@ -535,7 +496,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		std::string ToUtf8( const std::wstring & src, const std::wstring & charset )
 		{
-			return boost::locale::conv::from_utf( src, StringUtils::ToStr( charset ) );
+			return ToUtf8( StringUtils::ToStr( src ), StringUtils::ToStr( charset ) );
 		}
 	}
 

@@ -13,8 +13,6 @@
 
 #include "DatabaseException.h"
 
-#include <boost/multiprecision/cpp_int.hpp>
-
 BEGIN_NAMESPACE_DATABASE
 {
 	namespace
@@ -25,9 +23,6 @@ BEGIN_NAMESPACE_DATABASE
 		static const String ERROR_DB_INTEGER_UNDERFLOW = STR( "Integer underflow" );
 
 		template< typename T > class SFixedPointOperations;
-
-		using boost::multiprecision::int256_t;
-		using boost::multiprecision::uint256_t;
 
 		static double GetDecimalMult( uint8_t decimals )
 		{
@@ -210,7 +205,7 @@ BEGIN_NAMESPACE_DATABASE
 
 				if ( lhs.IsSigned() )
 				{
-					int256_t mul = ( lhs.GetRawValue() * rhr ) / int256_t( int64_t( GetDecimalMult( lhs.GetDecimals() ) ) );
+					int256_t mul = ( lhs.GetRawValue() * rhr ) / CFixedPoint::Get10Pow256( lhs.GetDecimals() );
 
 					if ( rhs.GetDecimals() > lhs.GetDecimals() )
 					{
@@ -228,7 +223,7 @@ BEGIN_NAMESPACE_DATABASE
 				}
 				else
 				{
-					uint256_t mul = ( uint64_t( lhs.GetRawValue() ) * uint256_t( rhr ) ) / uint256_t( uint64_t( GetDecimalMult( lhs.GetDecimals() ) ) );
+					uint256_t mul = ( uint64_t( lhs.GetRawValue() ) * uint256_t( rhr ) ) / uint256_t( CFixedPoint::Get10Pow256( lhs.GetDecimals() ) );
 
 					if ( rhs.GetDecimals() > lhs.GetDecimals() )
 					{
@@ -260,11 +255,11 @@ BEGIN_NAMESPACE_DATABASE
 
 				if ( lhs.IsSigned() )
 				{
-					lhr = int256_t( lhr * int256_t( int64_t( GetDecimalMult( lhs.GetDecimals() ) ) ) ) / rhr;
+					lhr = int256_t( lhr * CFixedPoint::Get10Pow256( lhs.GetDecimals() ) ) / rhr;
 				}
 				else
 				{
-					lhr = uint256_t( lhr * uint256_t( uint64_t( GetDecimalMult( lhs.GetDecimals() ) ) ) ) / uint256_t( rhr );
+					lhr = uint256_t( lhr * uint256_t( CFixedPoint::Get10Pow256( lhs.GetDecimals() ) ) ) / uint256_t( rhr );
 				}
 
 				return DoShrinkValue( lhr, lhs, rhs );
@@ -277,7 +272,7 @@ BEGIN_NAMESPACE_DATABASE
 
 				if ( rhs.GetDecimals() > lhs.GetDecimals() )
 				{
-					result *= int256_t( int64_t( GetDecimalMult( rhs.GetDecimals() - lhs.GetDecimals() ) ) );
+					result *= CFixedPoint::Get10Pow256( rhs.GetDecimals() - lhs.GetDecimals() );
 				}
 
 				return result;
@@ -289,7 +284,7 @@ BEGIN_NAMESPACE_DATABASE
 
 				if ( rhs.GetDecimals() > lhs.GetDecimals() )
 				{
-					value /= int256_t( int64_t( GetDecimalMult( rhs.GetDecimals() - lhs.GetDecimals() ) ) );
+					value /= CFixedPoint::Get10Pow256( rhs.GetDecimals() - lhs.GetDecimals() );
 				}
 
 				result = int64_t( value );
@@ -306,7 +301,7 @@ BEGIN_NAMESPACE_DATABASE
 			{
 				if ( rhs.GetDecimals() > lhs.GetDecimals() )
 				{
-					value /= uint256_t( int64_t( GetDecimalMult( rhs.GetDecimals() - lhs.GetDecimals() ) ) );
+					value /= uint256_t( CFixedPoint::Get10Pow256( rhs.GetDecimals() - lhs.GetDecimals() ) );
 				}
 
 				uint64_t tmp = uint64_t( value );
@@ -357,7 +352,7 @@ BEGIN_NAMESPACE_DATABASE
 
 	inline int64_t CFixedPoint::ToInt64()const
 	{
-		return int64_t( _value / int256_t( int64_t( GetDecimalMult( _decimals ) ) ) );
+		return int64_t( _value / CFixedPoint::Get10Pow256( _decimals ) );
 	}
 
 	inline uint64_t CFixedPoint::ToUInt64()const

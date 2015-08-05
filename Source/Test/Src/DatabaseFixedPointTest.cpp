@@ -68,6 +68,11 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	{
 		CLogger::LogInfo( StringStream() << "**** Start TestCase_FixedPointOutOfRange ****" );
 
+		BOOST_CHECK_EQUAL( CFixedPoint::Get10Pow256( 0 ), int256_t( 1 ) );
+		BOOST_CHECK_EQUAL( CFixedPoint::Get10Pow256( 5 ), int256_t( 100000 ) );
+		BOOST_CHECK_EQUAL( CFixedPoint::Get10Pow256( 10 ), int256_t( 10000000000 ) );
+		BOOST_CHECK_EQUAL( CFixedPoint::Get10Pow256( 15 ), int256_t( 1000000000000000 ) );
+
 		CLogger::LogInfo( StringStream() << "  Invalid Precision inferior to min" );
 		BOOST_CHECK_THROW( CFixedPoint( 0, CFixedPoint::GetMinPrecision() - 1, 0 ), CDatabaseException );
 
@@ -93,13 +98,13 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		int decimals = 0;
 		int64_t value;
 		CLogger::LogInfo( StringStream() << "  Max Value" );
-		value = int64_t( std::numeric_limits< int64_t >::max() % int256_t( uint64_t( pow( 10, precision ) ) ) );
+		value = int64_t( std::numeric_limits< int64_t >::max() % CFixedPoint::Get10Pow256( precision ) );
 		CheckFixedPoint( precision, decimals, value, STR( "0" ) );
 		CLogger::LogInfo( StringStream() << "  Min Value" );
-		value = int64_t( std::numeric_limits< int64_t >::min() % int256_t( uint64_t( pow( 10, precision ) ) ) );
+		value = int64_t( std::numeric_limits< int64_t >::min() % CFixedPoint::Get10Pow256( precision ) );
 		CheckFixedPoint( precision, decimals, value, STR( "0" ) );
 		CLogger::LogInfo( StringStream() << "  Lowest Value" );
-		value = int64_t( std::numeric_limits< int64_t >::lowest() % int256_t( uint64_t( pow( 10, precision ) ) ) );
+		value = int64_t( std::numeric_limits< int64_t >::lowest() % CFixedPoint::Get10Pow256( precision ) );
 		CheckFixedPoint( precision, decimals, value, STR( "0" ) );
 		CLogger::LogInfo( StringStream() << "  Invalid Value (greater precision than allowed)" );
 		BOOST_CHECK_THROW( CFixedPoint( std::numeric_limits< int64_t >::max(), precision, decimals ), CDatabaseException );
@@ -114,13 +119,13 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		int decimals = 0;
 		int64_t value;
 		CLogger::LogInfo( StringStream() << "  Max Value" );
-		value = int64_t( std::numeric_limits< int64_t >::max() % int256_t( uint64_t( pow( 10, precision ) ) ) );
+		value = int64_t( std::numeric_limits< int64_t >::max() % CFixedPoint::Get10Pow256( precision ) );
 		CheckFixedPoint( precision, decimals, value, StringUtils::ToString( value ) );
 		CLogger::LogInfo( StringStream() << "  Min Value" );
-		value = int64_t( std::numeric_limits< int64_t >::min() % int256_t( uint64_t( pow( 10, precision ) ) ) );
+		value = int64_t( std::numeric_limits< int64_t >::min() % CFixedPoint::Get10Pow256( precision ) );
 		CheckFixedPoint( precision, decimals, value, StringUtils::ToString( value ) );
 		CLogger::LogInfo( StringStream() << "  Lowest Value" );
-		value = int64_t( std::numeric_limits< int64_t >::lowest() % int256_t( uint64_t( pow( 10, precision ) ) ) );
+		value = int64_t( std::numeric_limits< int64_t >::lowest() % CFixedPoint::Get10Pow256( precision ) );
 		CheckFixedPoint( precision, decimals, value, StringUtils::ToString( value ) );
 
 		CLogger::LogInfo( StringStream() << "**** End TestCase_FixedPointMaxPrecisionMinDecimals ****" );
@@ -135,15 +140,15 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		int64_t value;
 		String sval;
 		CLogger::LogInfo( StringStream() << "  Max Value" );
-		value = int64_t( std::numeric_limits< int64_t >::max() % int256_t( uint64_t( pow( 10, precision ) ) ) );
+		value = int64_t( std::numeric_limits< int64_t >::max() % CFixedPoint::Get10Pow256( precision ) );
 		sval = "0." + StringUtils::ToString( value );
 		CheckFixedPoint( precision, decimals, value, sval );
 		CLogger::LogInfo( StringStream() << "  Min Value" );
-		value = int64_t( std::numeric_limits< int64_t >::min() % int256_t( uint64_t( pow( 10, precision ) ) ) );
+		value = int64_t( std::numeric_limits< int64_t >::min() % CFixedPoint::Get10Pow256( precision ) );
 		sval = "-0." + StringUtils::ToString( uint64_t( abs( value ) ) );
 		CheckFixedPoint( precision, decimals, value, sval );
 		CLogger::LogInfo( StringStream() << "  Lowest Value" );
-		value = int64_t( std::numeric_limits< int64_t >::lowest() % int256_t( uint64_t( pow( 10, precision ) ) ) );
+		value = int64_t( std::numeric_limits< int64_t >::lowest() % CFixedPoint::Get10Pow256( precision ) );
 		sval = "-0." + StringUtils::ToString( uint64_t( abs( value ) ) );
 		CheckFixedPoint( precision, decimals, value, sval );
 
@@ -159,17 +164,17 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		int64_t value;
 		String sval;
 		CLogger::LogInfo( StringStream() << "  Max Value" );
-		value = int64_t( std::numeric_limits< int64_t >::max() % int256_t( uint64_t( pow( 10, precision ) ) ) );
+		value = int64_t( std::numeric_limits< int64_t >::max() % CFixedPoint::Get10Pow256( precision ) );
 		sval = StringUtils::ToString( value );
 		sval.insert( ( sval.rbegin() + decimals ).base(), STR( '.' ) );
 		CheckFixedPoint( precision, decimals, value, sval );
 		CLogger::LogInfo( StringStream() << "  Min Value" );
-		value = int64_t( std::numeric_limits< int64_t >::min() % int256_t( uint64_t( pow( 10, precision ) ) ) );
+		value = int64_t( std::numeric_limits< int64_t >::min() % CFixedPoint::Get10Pow256( precision ) );
 		sval = StringUtils::ToString( value );
 		sval.insert( ( sval.rbegin() + decimals ).base(), STR( '.' ) );
 		CheckFixedPoint( precision, decimals, value, sval );
 		CLogger::LogInfo( StringStream() << "  Lowest Value" );
-		value = int64_t( std::numeric_limits< int64_t >::lowest() % int256_t( uint64_t( pow( 10, precision ) ) ) );
+		value = int64_t( std::numeric_limits< int64_t >::lowest() % CFixedPoint::Get10Pow256( precision ) );
 		sval = StringUtils::ToString( value );
 		sval.insert( ( sval.rbegin() + decimals ).base(), STR( '.' ) );
 		CheckFixedPoint( precision, decimals, value, sval );

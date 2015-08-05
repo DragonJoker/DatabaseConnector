@@ -252,6 +252,15 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		BOOST_CHECK_NE( sformalized, "100" );
 		BOOST_CHECK_NO_THROW( StringUtils::Formalize( sformalized, 9, "%.2f", 100.0f ) );
 		BOOST_CHECK_EQUAL( sformalized, "100.00" );
+		std::wstring wformalized;
+		BOOST_CHECK_NO_THROW( StringUtils::Formalize( wformalized, 10, L"%010i", 100 ) );
+		BOOST_CHECK_EQUAL( wformalized, L"0000000100" );
+		BOOST_CHECK_NO_THROW( StringUtils::Formalize( wformalized, 9, L"%010i", 100 ) );
+		BOOST_CHECK_EQUAL( wformalized, L"000000010" );
+		BOOST_CHECK_NO_THROW( StringUtils::Formalize( wformalized, 9, L"%.2f", 100 ) );
+		BOOST_CHECK_NE( wformalized, L"100" );
+		BOOST_CHECK_NO_THROW( StringUtils::Formalize( wformalized, 9, L"%.2f", 100.0f ) );
+		BOOST_CHECK_EQUAL( wformalized, L"100.00" );
 
 		CLogger::LogInfo( StringStream() << "**** End TestCase_StringUtilsFormalize ****" );
 	}

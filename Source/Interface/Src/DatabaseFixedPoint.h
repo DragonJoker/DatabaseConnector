@@ -16,8 +16,13 @@
 
 #include "DatabasePrerequisites.h"
 
+#include <boost/multiprecision/cpp_int.hpp>
+
 BEGIN_NAMESPACE_DATABASE
 {
+	using boost::multiprecision::int256_t;
+	using boost::multiprecision::uint256_t;
+
 	/** Describes a fixed point numeric value with precision and scale
 	*/
 	class CFixedPoint
@@ -208,6 +213,14 @@ BEGIN_NAMESPACE_DATABASE
 			The precision
 		*/
 		static inline uint16_t GetValuePrecision( double value );
+
+		/** Retrieves the wanted power of 10
+		@param[in] pow
+			The power
+		@return
+			10 ^ pow
+		*/
+		DatabaseExport static int256_t Get10Pow256( int32_t pow );
 
 	private:
 		/** Adjusts the value to the decimals, checks the precision

@@ -586,11 +586,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 		};
 
-		template< EFieldType FieldType >
-		inline void InsertAndRetrieve( DatabaseConnectionSPtr connection, const String & name, typename Helpers< FieldType >::ParamType const * valueIn, bool equal, String const & is )
-		{
-		};
-
 		template< size_t StmtType, EFieldType FieldType >
 		inline void InsertAndRetrieve( DatabaseConnectionSPtr connection, const String & name, typename Helpers< FieldType >::ParamType const * valueIn, bool equal, String const & is )
 		{
@@ -672,16 +667,17 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			catch ( CDatabaseException & exc )
 			{
 				CLogger::LogError( exc.GetFullDescription() );
-				BOOST_CHECK( false );
+				throw;
 			}
 			catch ( std::exception & exc )
 			{
 				CLogger::LogError( exc.what() );
-				BOOST_CHECK( false );
+				throw;
 			}
 			catch ( ... )
 			{
-				BOOST_CHECK( false );
+				CLogger::LogError( "Unknown exception when executing InsertAndRetrieve" );
+				throw;
 			}
 		}
 
@@ -766,16 +762,17 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			catch ( CDatabaseException & exc )
 			{
 				CLogger::LogError( exc.GetFullDescription() );
-				BOOST_CHECK( false );
+				throw;
 			}
 			catch ( std::exception & exc )
 			{
 				CLogger::LogError( exc.what() );
-				BOOST_CHECK( false );
+				throw;
 			}
 			catch ( ... )
 			{
-				BOOST_CHECK( false );
+				CLogger::LogError( "Unknown exception when executing InsertAndRetrieve" );
+				throw;
 			}
 		}
 
@@ -860,16 +857,17 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			catch ( CDatabaseException & exc )
 			{
 				CLogger::LogError( exc.GetFullDescription() );
-				BOOST_CHECK( false );
+				throw;
 			}
 			catch ( std::exception & exc )
 			{
 				CLogger::LogError( exc.what() );
-				BOOST_CHECK( false );
+				throw;
 			}
 			catch ( ... )
 			{
-				BOOST_CHECK( false );
+				CLogger::LogError( "Unknown exception when executing InsertAndRetrieve" );
+				throw;
 			}
 		}
 
@@ -958,29 +956,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			catch ( CDatabaseException & exc )
 			{
 				CLogger::LogError( exc.GetFullDescription() );
-				BOOST_CHECK( false );
+				throw;
 			}
 			catch ( std::exception & exc )
 			{
 				CLogger::LogError( exc.what() );
-				BOOST_CHECK( false );
+				throw;
 			}
 			catch ( ... )
 			{
-				BOOST_CHECK( false );
+				CLogger::LogError( "Unknown exception when executing InsertAndRetrieveOtherIndex" );
+				throw;
 			}
-		}
-
-		template< size_t StmtType, EFieldType FieldType >
-		inline void InsertAndRetrieveOtherIndex( DatabaseConnectionSPtr connection, const String & name, typename Helpers< FieldType >::ParamType const & valueIn, bool equal, String const & is )
-		{
-			InsertAndRetrieveOtherIndex< StmtType, FieldType >( connection, name, &valueIn, equal, is );
-		}
-
-		template< size_t StmtType, EFieldType FieldType >
-		inline void InsertAndRetrieveOtherIndex( DatabaseConnectionSPtr connection, const String & name, bool equal, String const & is, std::random_device & generator )
-		{
-			InsertAndRetrieveOtherIndex< StmtType, FieldType >( connection, name, Helpers< FieldType >::GetRandomValue( generator ), equal, is );
 		}
 
 		template< size_t StmtType, EFieldType FieldType >
@@ -1063,29 +1050,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			catch ( CDatabaseException & exc )
 			{
 				CLogger::LogError( exc.GetFullDescription() );
-				BOOST_CHECK( false );
+				throw;
 			}
 			catch ( std::exception & exc )
 			{
 				CLogger::LogError( exc.what() );
-				BOOST_CHECK( false );
+				throw;
 			}
 			catch ( ... )
 			{
-				BOOST_CHECK( false );
+				CLogger::LogError( "Unknown exception when executing InsertAndRetrieveFast" );
+				throw;
 			}
-		}
-
-		template< size_t StmtType, EFieldType FieldType >
-		inline void InsertAndRetrieveFast( DatabaseConnectionSPtr connection, const String & name, typename Helpers< FieldType >::ParamType const & valueIn, bool equal, String const & is )
-		{
-			InsertAndRetrieveFast< StmtType, FieldType >( connection, name, &valueIn, equal, is );
-		}
-
-		template< size_t StmtType, EFieldType FieldType >
-		inline void InsertAndRetrieveFast( DatabaseConnectionSPtr connection, const String & name, bool equal, String const & is, std::random_device & generator )
-		{
-			InsertAndRetrieveFast< StmtType, FieldType >( connection, name, Helpers< FieldType >::GetRandomValue( generator ), equal, is );
 		}
 
 		template< size_t StmtType, EFieldType FieldType >
@@ -1173,29 +1149,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			catch ( CDatabaseException & exc )
 			{
 				CLogger::LogError( exc.GetFullDescription() );
-				BOOST_CHECK( false );
+				throw;
 			}
 			catch ( std::exception & exc )
 			{
 				CLogger::LogError( exc.what() );
-				BOOST_CHECK( false );
+				throw;
 			}
 			catch ( ... )
 			{
-				BOOST_CHECK( false );
+				CLogger::LogError( "Unknown exception when executing InsertAndRetrieveFastOtherIndex" );
+				throw;
 			}
-		}
-
-		template< size_t StmtType, EFieldType FieldType >
-		inline void InsertAndRetrieveFastOtherIndex( DatabaseConnectionSPtr connection, const String & name, typename Helpers< FieldType >::ParamType const & valueIn, bool equal, String const & is )
-		{
-			InsertAndRetrieveFastOtherIndex< StmtType, FieldType >( connection, name, &valueIn, equal, is );
-		}
-
-		template< size_t StmtType, EFieldType FieldType >
-		inline void InsertAndRetrieveFastOtherIndex( DatabaseConnectionSPtr connection, const String & name, bool equal, String const & is, std::random_device & generator )
-		{
-			InsertAndRetrieveFastOtherIndex< StmtType, FieldType >( connection, name, Helpers< FieldType >::GetRandomValue( generator ), equal, is );
 		}
 
 		template< size_t StmtType >
@@ -1276,16 +1241,17 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			catch ( CDatabaseException & exc )
 			{
 				CLogger::LogError( exc.GetFullDescription() );
-				BOOST_CHECK( false );
+				throw;
 			}
 			catch ( std::exception & exc )
 			{
 				CLogger::LogError( exc.what() );
-				BOOST_CHECK( false );
+				throw;
 			}
 			catch ( ... )
 			{
-				BOOST_CHECK( false );
+				CLogger::LogError( "Unknown exception when executing TestDirectInsert" );
+				throw;
 			}
 		}
 
@@ -1329,16 +1295,17 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			catch ( CDatabaseException & exc )
 			{
 				CLogger::LogError( exc.GetFullDescription() );
-				BOOST_CHECK( false );
+				throw;
 			}
 			catch ( std::exception & exc )
 			{
 				CLogger::LogError( exc.what() );
-				BOOST_CHECK( false );
+				throw;
 			}
 			catch ( ... )
 			{
-				BOOST_CHECK( false );
+				CLogger::LogError( "Unknown exception when executing TestDirectSelect" );
+				throw;
 			}
 		}
 
@@ -1397,16 +1364,17 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			catch ( CDatabaseException & exc )
 			{
 				CLogger::LogError( exc.GetFullDescription() );
-				BOOST_CHECK( false );
+				throw;
 			}
 			catch ( std::exception & exc )
 			{
 				CLogger::LogError( exc.what() );
-				BOOST_CHECK( false );
+				throw;
 			}
 			catch ( ... )
 			{
-				BOOST_CHECK( false );
+				CLogger::LogError( "Unknown exception when executing TestDirectUpdate" );
+				throw;
 			}
 		}
 
@@ -1463,16 +1431,17 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			catch ( CDatabaseException & exc )
 			{
 				CLogger::LogError( exc.GetFullDescription() );
-				BOOST_CHECK( false );
+				throw;
 			}
 			catch ( std::exception & exc )
 			{
 				CLogger::LogError( exc.what() );
-				BOOST_CHECK( false );
+				throw;
 			}
 			catch ( ... )
 			{
-				BOOST_CHECK( false );
+				CLogger::LogError( "Unknown exception when executing TestDirectDelete" );
+				throw;
 			}
 		}
 
@@ -1497,16 +1466,17 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			catch ( CDatabaseException & exc )
 			{
 				CLogger::LogError( exc.GetFullDescription() );
-				BOOST_CHECK( false );
+				throw;
 			}
 			catch ( std::exception & exc )
 			{
 				CLogger::LogError( exc.what() );
-				BOOST_CHECK( false );
+				throw;
 			}
 			catch ( ... )
 			{
-				BOOST_CHECK( false );
+				CLogger::LogError( "Unknown exception when executing TestStoredNoParamNoReturn" );
+				throw;
 			}
 		}
 
@@ -1556,16 +1526,17 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			catch ( CDatabaseException & exc )
 			{
 				CLogger::LogError( exc.GetFullDescription() );
-				BOOST_CHECK( false );
+				throw;
 			}
 			catch ( std::exception & exc )
 			{
 				CLogger::LogError( exc.what() );
-				BOOST_CHECK( false );
+				throw;
 			}
 			catch ( ... )
 			{
-				BOOST_CHECK( false );
+				CLogger::LogError( "Unknown exception when executing TestStoredNoParamReturn" );
+				throw;
 			}
 		}
 
@@ -1622,16 +1593,17 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			catch ( CDatabaseException & exc )
 			{
 				CLogger::LogError( exc.GetFullDescription() );
-				BOOST_CHECK( false );
+				throw;
 			}
 			catch ( std::exception & exc )
 			{
 				CLogger::LogError( exc.what() );
-				BOOST_CHECK( false );
+				throw;
 			}
 			catch ( ... )
 			{
-				BOOST_CHECK( false );
+				CLogger::LogError( "Unknown exception when executing TestStoredInParamNoReturn" );
+				throw;
 			}
 		}
 
@@ -1696,16 +1668,17 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			catch ( CDatabaseException & exc )
 			{
 				CLogger::LogError( exc.GetFullDescription() );
-				BOOST_CHECK( false );
+				throw;
 			}
 			catch ( std::exception & exc )
 			{
 				CLogger::LogError( exc.what() );
-				BOOST_CHECK( false );
+				throw;
 			}
 			catch ( ... )
 			{
-				BOOST_CHECK( false );
+				CLogger::LogError( "Unknown exception when executing TestStoredInOutParamNoReturn" );
+				throw;
 			}
 		}
 
@@ -1772,16 +1745,17 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			catch ( CDatabaseException & exc )
 			{
 				CLogger::LogError( exc.GetFullDescription() );
-				BOOST_CHECK( false );
+				throw;
 			}
 			catch ( std::exception & exc )
 			{
 				CLogger::LogError( exc.what() );
-				BOOST_CHECK( false );
+				throw;
 			}
 			catch ( ... )
 			{
-				BOOST_CHECK( false );
+				CLogger::LogError( "Unknown exception when executing TestStoredInOutDtParamNoReturn" );
+				throw;
 			}
 		}
 
@@ -1831,16 +1805,17 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			catch ( CDatabaseException & exc )
 			{
 				CLogger::LogError( exc.GetFullDescription() );
-				BOOST_CHECK( false );
+				throw;
 			}
 			catch ( std::exception & exc )
 			{
 				CLogger::LogError( exc.what() );
-				BOOST_CHECK( false );
+				throw;
 			}
 			catch ( ... )
 			{
-				BOOST_CHECK( false );
+				CLogger::LogError( "Unknown exception when executing PerfDirectSelectActors" );
+				throw;
 			}
 		}
 
@@ -1883,16 +1858,17 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			catch ( CDatabaseException & exc )
 			{
 				CLogger::LogError( exc.GetFullDescription() );
-				BOOST_CHECK( false );
+				throw;
 			}
 			catch ( std::exception & exc )
 			{
 				CLogger::LogError( exc.what() );
-				BOOST_CHECK( false );
+				throw;
 			}
 			catch ( ... )
 			{
-				BOOST_CHECK( false );
+				CLogger::LogError( "Unknown exception when executing PerfStoredProcedureSelectActors" );
+				throw;
 			}
 		}
 
@@ -1939,16 +1915,17 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			catch ( CDatabaseException & exc )
 			{
 				CLogger::LogError( exc.GetFullDescription() );
-				BOOST_CHECK( false );
+				throw;
 			}
 			catch ( std::exception & exc )
 			{
 				CLogger::LogError( exc.what() );
-				BOOST_CHECK( false );
+				throw;
 			}
 			catch ( ... )
 			{
-				BOOST_CHECK( false );
+				CLogger::LogError( "Unknown exception when executing PerfDirectDeleteActors" );
+				throw;
 			}
 		}
 
@@ -1998,16 +1975,17 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			catch ( CDatabaseException & exc )
 			{
 				CLogger::LogError( exc.GetFullDescription() );
-				BOOST_CHECK( false );
+				throw;
 			}
 			catch ( std::exception & exc )
 			{
 				CLogger::LogError( exc.what() );
-				BOOST_CHECK( false );
+				throw;
 			}
 			catch ( ... )
 			{
-				BOOST_CHECK( false );
+				CLogger::LogError( "Unknown exception when executing PerfStoredProcedureDeleteActors" );
+				throw;
 			}
 		}
 	}
