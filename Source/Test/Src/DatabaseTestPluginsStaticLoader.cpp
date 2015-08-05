@@ -126,7 +126,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	{
 		OnUnload();
 	}
-	
+
 	void CTestPluginsLoader::OnLoad()
 	{
 		_config._mySql->Load();

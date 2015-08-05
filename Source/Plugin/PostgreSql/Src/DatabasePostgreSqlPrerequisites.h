@@ -31,7 +31,7 @@ BEGIN_NAMESPACE_DATABASE
 		class CDatabasePostgreSql;
 		class CDatabaseStatementPostgreSql;
 		class CDatabaseParameterPostgreSql;
-		class CExceptionDatabasePostgreSql;
+		class CDatabaseExceptionPostgreSql;
 		class CPluginDatabasePostgreSql;
 		class CFactoryDatabasePostgreSql;
 		struct SOutPostgreSqlBindBase;

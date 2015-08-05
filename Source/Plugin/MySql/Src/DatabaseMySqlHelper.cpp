@@ -17,7 +17,7 @@
 #include "DatabaseConnectionMySql.h"
 #include "ExceptionDatabaseMySql.h"
 
-#include <DatabaseFieldInfos.h>
+#include <DatabaseValuedObjectInfos.h>
 
 BEGIN_NAMESPACE_DATABASE_MYSQL
 {
@@ -26,7 +26,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	static const String ERROR_MYSQL_STMT_METADATA = STR( "Could not retrieve metadata from the statement" );
 
 	static const TChar * INFO_MYSQL_SENDING_LONG_DATA = STR( "Long data sending" );
-	static const String INFO_MYSQL_STMT_ATTR_SET = STR( "Setting statement attribute" );
+	static const String INFO_MYSQL_STMT_ATTR_SET = STR( "Setting statement attribute: " );
 	static const String INFO_MYSQL_STMT_STORE_RESULT = STR( "Storing statement results" );
 	static const String INFO_MYSQL_STMT_BIND_RESULT = STR( "Binding statement results" );
 
@@ -189,6 +189,59 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			std::vector< T > _value;
 		};
 
+		/** SInMySqlBind specialisation for EFieldType_CHAR
+		*/
+		template<>
+		struct SInMySqlBind< EFieldType_CHAR >
+			: public SBufferInMySqlBind< char >
+		{
+			/** Constructor
+			@param[in] bind
+				The MySQL bind
+			@param[in] length
+				The buffer length
+			*/
+			SInMySqlBind( MYSQL_BIND & bind, uint32_t length )
+				: SBufferInMySqlBind< char >( bind, length + 1 )
+				, _fixedLength( length / 3 )
+			{
+			}
+
+			/** Retrieves the binding's value
+			@return
+				The value
+			*/
+			std::string GetValue( bool truncated )const
+			{
+				char * value = reinterpret_cast< char * >( _bind.buffer );
+				std::string result;
+
+				if ( truncated )
+				{
+					if ( _bind.buffer_length )
+					{
+						result.assign( value, value + _bind.buffer_length );
+					}
+				}
+				else
+				{
+					result.assign( value, value + *_bind.length );
+				}
+
+				if ( result.size() < _fixedLength )
+				{
+					std::stringstream stream;
+					stream.width( _fixedLength );
+					stream << std::left << result;
+					result = stream.str();
+				}
+
+				return result;
+			}
+
+			uint32_t _fixedLength;
+		};
+
 		/** Common holder for char buffers (VARCHAR and TEXT)
 		*/
 		struct SCharBufferInMySqlBind
@@ -230,24 +283,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			}
 		};
 
-		/** SInMySqlBind specialisation for EFieldType_CHAR
-		*/
-		template<>
-		struct SInMySqlBind< EFieldType_CHAR >
-			: public SCharBufferInMySqlBind
-		{
-			/** Constructor
-			@param[in] bind
-				The MySQL bind
-			@param[in] length
-				The buffer length
-			*/
-			SInMySqlBind( MYSQL_BIND & bind, uint32_t length )
-				: SCharBufferInMySqlBind( bind, length + 1 )
-			{
-			}
-		};
-
 		/** SInMySqlBind specialisation for EFieldType_VARCHAR
 		*/
 		template<>
@@ -282,6 +317,59 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				: SCharBufferInMySqlBind( bind, length + 1 )
 			{
 			}
+		};
+
+		/** SInMySqlBind specialisation for EFieldType_NCHAR
+		*/
+		template<>
+		struct SInMySqlBind< EFieldType_NCHAR >
+			: public SBufferInMySqlBind< char >
+		{
+			/** Constructor
+			@param[in] bind
+				The MySQL bind
+			@param[in] length
+				The buffer length
+			*/
+			SInMySqlBind( MYSQL_BIND & bind, uint32_t length )
+				: SBufferInMySqlBind< char >( bind, length + 1 )
+				, _fixedLength( length / 3 )
+			{
+			}
+
+			/** Retrieves the binding's value
+			@return
+				The value
+			*/
+			std::wstring GetValue( bool truncated )const
+			{
+				char * value = reinterpret_cast< char * >( _bind.buffer );
+				std::string result;
+
+				if ( truncated )
+				{
+					if ( _bind.buffer_length )
+					{
+						result.assign( value, value + _bind.buffer_length );
+					}
+				}
+				else
+				{
+					result.assign( value, value + *_bind.length );
+				}
+
+				if ( result.size() < _fixedLength )
+				{
+					std::stringstream stream;
+					stream.width( _fixedLength );
+					stream << std::left << result;
+					result = stream.str();
+				}
+
+				return StringUtils::ToWStr( result );
+			}
+
+			uint32_t _fixedLength;
 		};
 
 		/** Common holder for wchar_t buffers (NVARCHAR, and NTEXT)
@@ -324,25 +412,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 					result.assign( value, value + *_bind.length );
 				}
 
-				return CStrUtils::ToWStr( result );
-			}
-		};
-
-		/** SInMySqlBind specialisation for EFieldType_NCHAR
-		*/
-		template<>
-		struct SInMySqlBind< EFieldType_NCHAR >
-			: public SWCharBufferInMySqlBind
-		{
-			/** Constructor
-			@param[in] bind
-				The MySQL bind
-			@param[in] length
-				The buffer length
-			*/
-			SInMySqlBind( MYSQL_BIND & bind, uint32_t length )
-				: SWCharBufferInMySqlBind( bind, length + 1 )
-			{
+				return StringUtils::ToWStr( result );
 			}
 		};
 
@@ -442,10 +512,10 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			}
 		};
 
-		/** SInMySqlBind specialisation for EFieldType_LONG_VARBINARY
+		/** SInMySqlBind specialisation for EFieldType_BLOB
 		*/
 		template<>
-		struct SInMySqlBind< EFieldType_LONG_VARBINARY >
+		struct SInMySqlBind< EFieldType_BLOB >
 			: public SByteBufferInMySqlBind
 		{
 			/** Constructor
@@ -542,10 +612,10 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			@return
 				The value
 			*/
-			CDate GetValue()const
+			DateType GetValue()const
 			{
 				assert( _value.time_type == MYSQL_TIMESTAMP_DATE );
-				return CDate( _value.year, EDateMonth( _value.month - 1 ), _value.day );
+				return DateType( _value.year, _value.month, _value.day );
 			}
 		};
 
@@ -568,10 +638,10 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			@return
 				The value
 			*/
-			CDateTime GetValue()const
+			DateTimeType GetValue()const
 			{
 				assert( _value.time_type == MYSQL_TIMESTAMP_DATETIME );
-				return CDateTime( CDate( _value.year, EDateMonth( _value.month - 1 ), _value.day ), CTime( _value.hour, _value.minute, _value.second ) );
+				return DateTimeType( DateType( _value.year, _value.month, _value.day ), TimeType( _value.hour, _value.minute, _value.second ) );
 			}
 		};
 
@@ -590,10 +660,10 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			@return
 				The value
 			*/
-			CTime GetValue()const
+			TimeType GetValue()const
 			{
 				assert( _value.time_type == MYSQL_TIMESTAMP_TIME );
-				return CTime( _value.hour, _value.minute, _value.second );
+				return TimeType( _value.hour, _value.minute, _value.second );
 			}
 		};
 
@@ -819,8 +889,8 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				bind.is_unsigned = false;
 				break;
 
-			case EFieldType_LONG_VARBINARY:
-				result = std::make_unique< SInMySqlBind< EFieldType_LONG_VARBINARY > >( bind, length );
+			case EFieldType_BLOB:
+				result = std::make_unique< SInMySqlBind< EFieldType_BLOB > >( bind, length );
 				bind.is_unsigned = false;
 				break;
 			}
@@ -828,7 +898,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			return result;
 		}
 
-		void SetFieldValue( DatabaseFieldInfosSPtr infos, DatabaseFieldSPtr field, SInMySqlBindBase const & bind, int result )
+		void SetFieldValue( DatabaseValuedObjectInfosSPtr infos, DatabaseFieldSPtr field, SInMySqlBindBase const & bind, int result )
 		{
 			switch ( infos->GetType() )
 			{
@@ -932,8 +1002,8 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				static_cast< CDatabaseValue< EFieldType_VARBINARY > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< EFieldType_VARBINARY > const & >( bind ).GetValue() );
 				break;
 
-			case EFieldType_LONG_VARBINARY:
-				static_cast< CDatabaseValue< EFieldType_LONG_VARBINARY > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< EFieldType_LONG_VARBINARY > const & >( bind ).GetValue() );
+			case EFieldType_BLOB:
+				static_cast< CDatabaseValue< EFieldType_BLOB > & >( field->GetObjectValue() ).SetValue( static_cast< SInMySqlBind< EFieldType_BLOB > const & >( bind ).GetValue() );
 				break;
 
 			default:
@@ -942,7 +1012,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		}
 	}
 
-	DatabaseFieldInfosPtrArray MySqlGetColumns( MYSQL_STMT * stmt, DatabaseConnectionMySqlSPtr connection, std::vector< std::unique_ptr< SInMySqlBindBase > > & inbinds, std::vector< MYSQL_BIND > & binds )
+	DatabaseValuedObjectInfosPtrArray MySqlGetColumns( MYSQL_STMT * stmt, DatabaseConnectionMySqlSPtr connection, std::vector< std::unique_ptr< SInMySqlBindBase > > & inbinds, std::vector< MYSQL_BIND > & binds )
 	{
 		MySQLCheck( mysql_stmt_attr_set( stmt, STMT_ATTR_UPDATE_MAX_LENGTH, NULL ), ( INFO_MYSQL_STMT_ATTR_SET + MYSQL_ATTRIBUTE_UPDATE_MAX_LENGTH ).c_str(), EDatabaseExceptionCodes_StatementError, connection->GetConnection() );
 		MySQLCheck( mysql_stmt_store_result( stmt ), INFO_MYSQL_STMT_STORE_RESULT.c_str(), EDatabaseExceptionCodes_StatementError, connection->GetConnection() );
@@ -954,7 +1024,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_MYSQL_STMT_METADATA );
 		}
 
-		DatabaseFieldInfosPtrArray arrayReturn;
+		DatabaseValuedObjectInfosPtrArray arrayReturn;
 		uint32_t columnCount = mysql_num_fields( data );
 		binds.resize( columnCount, { 0 } );
 
@@ -963,7 +1033,16 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			bind = { 0 };
 			MYSQL_FIELD * field = mysql_fetch_field( data );
 			EFieldType type = GetFieldType( field->type, field->charsetnr, field->length );
-			arrayReturn.push_back( std::make_shared< CDatabaseFieldInfos >( CStrUtils::ToString( field->name ), type, field->length ) );
+
+			if ( type == EFieldType_FIXED_POINT )
+			{
+				arrayReturn.push_back( std::make_shared< CDatabaseValuedObjectInfos >( StringUtils::ToString( field->name ), type, std::make_pair( field->length, field->decimals ) ) );
+			}
+			else
+			{
+				arrayReturn.push_back( std::make_shared< CDatabaseValuedObjectInfos >( StringUtils::ToString( field->name ), type, field->length ) );
+			}
+
 			inbinds.emplace_back( GetInBind( type, field->type, bind, field->length, field->decimals, std::max( field->length, field->max_length ) ) );
 		}
 
@@ -971,7 +1050,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		return arrayReturn;
 	}
 
-	DatabaseResultSPtr MySqlFetchResult( MYSQL_STMT * statement, DatabaseFieldInfosPtrArray const & columns, DatabaseConnectionMySqlSPtr connection, std::vector< std::unique_ptr< SInMySqlBindBase > > const & inbinds, std::vector< MYSQL_BIND > & binds )
+	DatabaseResultSPtr MySqlFetchResult( MYSQL_STMT * statement, DatabaseValuedObjectInfosPtrArray const & columns, DatabaseConnectionMySqlSPtr connection, std::vector< std::unique_ptr< SInMySqlBindBase > > const & inbinds, std::vector< MYSQL_BIND > & binds )
 	{
 		DatabaseResultSPtr pReturn;
 
@@ -991,13 +1070,13 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 					for ( auto && bind : inbinds )
 					{
-						DatabaseFieldInfosSPtr infos;
+						DatabaseValuedObjectInfosSPtr infos;
 
 						try
 						{
 							infos = pReturn->GetFieldInfos( index++ );
 						}
-						catch ( CExceptionDatabase & )
+						catch ( CDatabaseException & )
 						{
 							throw;
 						}
@@ -1037,13 +1116,13 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				//}
 			}
 		}
-		catch ( const CExceptionDatabase & e )
+		catch ( const CDatabaseException & e )
 		{
 			StringStream message;
 			message << ERROR_MYSQL_DRIVER << STR( " - " )
 					<< e.what();
 			CLogger::LogError( message );
-			MYSQL_EXCEPT( EDatabaseMySqlExceptionCodes_GenericError, message.str() );
+			MYSQL_EXCEPT( EDatabaseExceptionCodes_GenericError, message.str() );
 		}
 		catch ( const std::exception & e )
 		{
@@ -1051,7 +1130,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			message << ERROR_MYSQL_DRIVER << STR( " - " )
 					<< e.what();
 			CLogger::LogError( message );
-			MYSQL_EXCEPT( EDatabaseMySqlExceptionCodes_GenericError, message.str() );
+			MYSQL_EXCEPT( EDatabaseExceptionCodes_GenericError, message.str() );
 		}
 		catch ( ... )
 		{
@@ -1059,7 +1138,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			message << ERROR_MYSQL_DRIVER << STR( " - " )
 					<< ERROR_MYSQL_UNKNOWN;
 			CLogger::LogError( message );
-			MYSQL_EXCEPT( EDatabaseMySqlExceptionCodes_UnknownError, message.str() );
+			MYSQL_EXCEPT( EDatabaseExceptionCodes_UnknownError, message.str() );
 		}
 
 		return pReturn;

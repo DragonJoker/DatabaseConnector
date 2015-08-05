@@ -73,6 +73,10 @@ if( Boost_UNIT_TEST_FRAMEWORK_FOUND )
 			set(BoostUnitTestLibraries "${Lib}")
 		endif()
 	ENDFOREACH()
+
+	if ( MSVC )
+		set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj" )
+	endif ()
 	
 	add_target(
 		${PROJECT_NAME}
@@ -129,6 +133,7 @@ if( Boost_UNIT_TEST_FRAMEWORK_FOUND )
 
 	copy_dll( ${PROJECT_NAME} "${Boost_UNIT_TEST_FRAMEWORK_LIBRARY_DEBUG}" Debug )
 	copy_dll( ${PROJECT_NAME} "${Boost_UNIT_TEST_FRAMEWORK_LIBRARY_RELEASE}" Release )
+	copy_dll( ${PROJECT_NAME} "${Boost_UNIT_TEST_FRAMEWORK_LIBRARY_RELEASE}" RelWithDebInfo )
 else()
 	message( STATUS "Test can't be built (missing Boost)" )
 endif()

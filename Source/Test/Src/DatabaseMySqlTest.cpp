@@ -24,7 +24,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 	static const String DATABASE_MYSQL_TYPE = STR( "Database.MySql" );
 
-	static STestConfig g_config = { false, true, STR( "=" ), true, true, false };
+	static STestConfig g_config = { false, true, STR( "=" ), true, true, false, false };
 
 	CDatabaseMySqlTest::CDatabaseMySqlTest()
 		: CDatabaseTest( DATABASE_MYSQL_TYPE, DB_SERVER, DB_DATABASE, DB_USER, DB_PASS, g_config )
@@ -63,7 +63,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 	void CDatabaseMySqlTest::DoLoadPlugins()
 	{
-		LoadPlugins( InitializeSingletons(), true, false, false, false, false );
+		LoadPlugins( InitialiseSingletons(), true, false, false, false, false );
 	}
 }
 END_NAMESPACE_DATABASE_TEST

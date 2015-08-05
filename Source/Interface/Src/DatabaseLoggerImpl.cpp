@@ -19,6 +19,7 @@
 #include "DatabaseLogger.h"
 #include "DatabaseStringUtils.h"
 #include "DatabaseDateTime.h"
+#include "DatabaseFileUtils.h"
 
 BEGIN_NAMESPACE_DATABASE
 {
@@ -65,7 +66,7 @@ BEGIN_NAMESPACE_DATABASE
 		}
 
 		FILE * file;
-		FOpen( file, CStrUtils::ToStr( logFilePath ).c_str(), "w" );
+		FileUtils::FOpen( file, StringUtils::ToStr( logFilePath ).c_str(), "w" );
 
 		if ( file )
 		{
@@ -75,19 +76,19 @@ BEGIN_NAMESPACE_DATABASE
 
 	void CLoggerImpl::PrintMessage( ELogType logLevel, std::string const & message )
 	{
-		DoPrintMessage( logLevel, CStrUtils::ToString( message ) );
+		DoPrintMessage( logLevel, StringUtils::ToString( message ) );
 	}
 
 	void CLoggerImpl::PrintMessage( ELogType logLevel, std::wstring const & message )
 	{
-		DoPrintMessage( logLevel, CStrUtils::ToString( message ) );
+		DoPrintMessage( logLevel, StringUtils::ToString( message ) );
 	}
 
 	void CLoggerImpl::LogMessageQueue( MessageQueue const & p_queue, bool display )
 	{
 		static const String LOG_TIMESTAMP = STR( "%Y-%m-%d %H:%M:%S" );
-		CDateTime today = CDateTime::Now();
-		String timeStamp = today.Format( LOG_TIMESTAMP );
+		DateTimeType today = boost::posix_time::second_clock::local_time();
+		String timeStamp = DateTime::Format( today, LOG_TIMESTAMP );
 
 		FILE * logFiles[ELogType_COUNT] = { NULL };
 		std::map< String, FILE * > opened;
@@ -104,7 +105,7 @@ BEGIN_NAMESPACE_DATABASE
 
 					if ( l_it == opened.end() )
 					{
-						Database::FOpen( file, CStrUtils::ToStr( _logFilePath[message->m_type] ).c_str(), "a" );
+						FileUtils::FOpen( file, StringUtils::ToStr( _logFilePath[message->m_type] ).c_str(), "a" );
 
 						if ( file )
 						{
@@ -125,7 +126,7 @@ BEGIN_NAMESPACE_DATABASE
 
 					if ( toLog.find( STR( '\n' ) ) != String::npos )
 					{
-						StringArray array = CStrUtils::Split( toLog, STR( "\n" ), uint32_t( std::count( toLog.begin(), toLog.end(), STR( '\n' ) ) + 1 ) );
+						StringArray array = StringUtils::Split( toLog, STR( "\n" ), uint32_t( std::count( toLog.begin(), toLog.end(), STR( '\n' ) ) + 1 ) );
 
 						for ( auto && line : array )
 						{
@@ -146,7 +147,7 @@ BEGIN_NAMESPACE_DATABASE
 		}
 		catch ( std::exception & )
 		{
-			//m_pConsole->Print( STR( "Couldn't open log file : " ) + CStrUtils::ToString( exc.what() ), true );
+			//m_pConsole->Print( STR( "Couldn't open log file : " ) + StringUtils::ToString( exc.what() ), true );
 		}
 	}
 
@@ -154,7 +155,7 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		if ( message.find( STR( '\n' ) ) != String::npos )
 		{
-			StringArray array = CStrUtils::Split( message, STR( "\n" ), uint32_t( std::count( message.begin(), message.end(), STR( '\n' ) ) + 1 ) );
+			StringArray array = StringUtils::Split( message, STR( "\n" ), uint32_t( std::count( message.begin(), message.end(), STR( '\n' ) ) + 1 ) );
 
 			for ( auto && line : array )
 			{
@@ -176,15 +177,17 @@ BEGIN_NAMESPACE_DATABASE
 	void CLoggerImpl::DoLogLine( String const & timestamp, String const & line, FILE * logFile, ELogType logLevel, bool display )
 	{
 #if defined( NDEBUG )
+
 		if ( display )
 		{
 			DoPrintLine( line, logLevel );
 		}
+
 #endif
 
 		if ( logFile )
 		{
-			std::string logLine = CStrUtils::ToStr( timestamp + STR( " - " ) + _headers[logLevel] + line );
+			std::string logLine = StringUtils::ToStr( timestamp + STR( " - " ) + _headers[logLevel] + line );
 			fwrite( logLine.c_str(), 1, logLine.size(), logFile );
 			fwrite( "\n", 1, 1, logFile );
 		}

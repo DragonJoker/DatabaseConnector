@@ -24,7 +24,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 	static const String DATABASE_POSTGRESQL_TYPE = STR( "Database.PostgreSql" );
 
-	static STestConfig g_config = { false, true, STR( "=" ), false, false, false };
+	static STestConfig g_config = { false, true, STR( "=" ), false, false, false, false };
 
 	CDatabasePostgreSqlTest::CDatabasePostgreSqlTest()
 		: CDatabaseTest( DATABASE_POSTGRESQL_TYPE, DB_SERVER, DB_DATABASE, DB_USER, DB_PASS, g_config )
@@ -63,7 +63,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 	void CDatabasePostgreSqlTest::DoLoadPlugins()
 	{
-		LoadPlugins( InitializeSingletons(), false, false, false, false, true );
+		LoadPlugins( InitialiseSingletons(), false, false, false, false, true );
 	}
 }
 END_NAMESPACE_DATABASE_TEST

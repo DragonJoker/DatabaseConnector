@@ -102,50 +102,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	{
 	}
 
-	std::string CDatabaseConnectionOdbc::WriteText( const std::string & text ) const
-	{
-		std::string strReturn( text );
-
-		if ( strReturn != ODBC_SQL_SNULL )
-		{
-			Replace( strReturn, "'", "''" );
-			Replace( strReturn, "\\", "\\\\" );
-			strReturn = "'" + strReturn + "'";
-		}
-
-		return strReturn;
-	}
-
-	std::wstring CDatabaseConnectionOdbc::WriteNText( const std::wstring & text ) const
-	{
-		String strReturn( CStrUtils::ToString( text ) );
-
-		if ( strReturn != ODBC_SQL_NULL )
-		{
-			Replace( strReturn, STR( "'" ), STR( "''" ) );
-			Replace( strReturn, STR( "\\" ), STR( "\\\\" ) );
-			strReturn = STR( "N'" ) + strReturn + STR( "'" );
-		}
-
-		return CStrUtils::ToWStr( strReturn );
-	}
-
-	String CDatabaseConnectionOdbc::WriteName( const String & text ) const
-	{
-		return STR( "[" ) + text + STR( "]" );
-	}
-
-	String CDatabaseConnectionOdbc::WriteBool( bool value ) const
-	{
-		return ( value ? STR( "1" ) : STR( "0" ) );
-	}
-
-	String CDatabaseConnectionOdbc::WriteBool( const String & value ) const
-	{
-		const String lowerCaseValue = CStrUtils::LowerCase( value );
-		return ( lowerCaseValue == STR( "x" ) || lowerCaseValue == STR( "oui" ) || lowerCaseValue == STR( "yes" ) || lowerCaseValue == STR( "y" ) || value == STR( "1" ) ? STR( "1" ) : STR( "0" ) );
-	}
-
 	HDBC CDatabaseConnectionOdbc::GetHdbc() const
 	{
 		return _connectionHandle;
@@ -176,13 +132,13 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		return DoExecuteUpdate( ODBC_SQL_TRANSACTION_ROLLBACK + name );
 	}
 
-	bool CDatabaseConnectionOdbc::DoExecuteUpdate( const String & query)
+	bool CDatabaseConnectionOdbc::DoExecuteUpdate( const String & query )
 	{
 		DatabaseResultSPtr ret;
 		return SqlExecute( shared_from_this(), InitialiseStatement( query, _connectionHandle ), &FinaliseStatement, ret ) == EErrorType_NONE;
 	}
 
-	DatabaseResultSPtr CDatabaseConnectionOdbc::DoExecuteSelect( const String & query)
+	DatabaseResultSPtr CDatabaseConnectionOdbc::DoExecuteSelect( const String & query )
 	{
 		DatabaseResultSPtr ret;
 		SqlExecute( shared_from_this(), InitialiseStatement( query, _connectionHandle ), &FinaliseStatement, ret );

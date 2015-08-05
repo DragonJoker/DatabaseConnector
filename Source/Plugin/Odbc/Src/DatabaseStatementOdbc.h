@@ -38,70 +38,36 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			*/
 		virtual ~CDatabaseStatementOdbc();
 
-		/** Create a parameter.
-		@param[in] name
-			Parameter name.
-		@param[in] fieldType
-			Date type.
-		@param[in] parameterType
-			Parameter type.
-		@return
-			Created parameter.
-		*/
-		virtual DatabaseParameterSPtr CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType );
-
-		/** Create a parameter which has limits (strings, etc.).
-		@param[in] name
-			Parameter name.
-		@param[in] fieldType
-			Date type.
-		@param[in] limits
-			Size limits.
-		@param[in] parameterType
-			Parameter type.
-		@return
-			Created parameter.
-		*/
-		virtual DatabaseParameterSPtr CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType );
-
-		/** Create a parameter which has limits (strings, etc.).
-		@param[in] name
-			Parameter name.
-		@param[in] fieldType
-			Date type.
-		@param[in] precision
-			Field precision.
-		@param[in] parameterType
-			Parameter type.
-		@return
-			Created parameter.
-		*/
-		virtual DatabaseParameterSPtr CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType );
-
 	private:
-		/** Initialize this statement.
+		/** Create a parameter.
+		@param[in] infos
+			Parameter informations.
+		@param[in] parameterType
+			Parameter type.
+		@return
+			Created parameter.
+		*/
+		virtual DatabaseParameterSPtr DoCreateParameter( DatabaseValuedObjectInfosSPtr infos, EParameterType parameterType );
+
+		/** Initialise this statement.
 		@remarks
 			The statement *MUST* be initialised, *AFTER* all parameters have been created.
 		@return
 			Error code.
 		*/
-		virtual EErrorType DoInitialize();
+		virtual EErrorType DoInitialise();
 
 		/** Execute this statement.
-		@param[out] result
-			Error code.
 		@return
 			The result.
 		*/
-		virtual bool DoExecuteUpdate( EErrorType * result = NULL );
+		virtual bool DoExecuteUpdate();
 
 		/** Execute this statement.
-		@param[out] result
-			Error code.
 		@return
 			The result.
 		*/
-		virtual DatabaseResultSPtr DoExecuteSelect( EErrorType * result = NULL );
+		virtual DatabaseResultSPtr DoExecuteSelect();
 
 		/** Clean statement.
 		*/

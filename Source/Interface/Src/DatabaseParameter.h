@@ -44,84 +44,20 @@ BEGIN_NAMESPACE_DATABASE
 		/** Constructor.
 		@param[in] connection
 			Database connection.
-		@param[in] name
-			Parameter name.
+		@param[in] infos
+			Valued object informations.
 		@param[in] index
 			Parameter index.
-		@param[in] fieldType
-			Field type.
 		@param[in] parameterType
 			Parameter type (in, inout, out).
 		@param[in] updater
 			The parent updater
 		*/
-		DatabaseExport CDatabaseParameter( DatabaseConnectionSPtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
-
-		/** Constructor.
-		@param[in] connection
-			Database connection.
-		@param[in] name
-			Parameter name.
-		@param[in] index
-			Parameter index.
-		@param[in] fieldType
-			Field type.
-		@param[in] limits
-			Filed limits (for VARCHAR, etc.)
-		@param[in] parameterType
-			Parameter type (in, inout, out).
-		@param[in] updater
-			The parent updater
-		*/
-		DatabaseExport CDatabaseParameter( DatabaseConnectionSPtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
-
-		/** Constructor.
-		@param[in] connection
-			Database connection.
-		@param[in] name
-			Parameter name.
-		@param[in] index
-			Parameter index.
-		@param[in] fieldType
-			Field type.
-		@param[in] precision
-			Field precision and scale (for FIXED_POINT)
-		@param[in] parameterType
-			Parameter type (in, inout, out).
-		@param[in] updater
-			The parent updater
-		*/
-		DatabaseExport CDatabaseParameter( DatabaseConnectionSPtr connection, const String & name, unsigned short index, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
+		DatabaseExport CDatabaseParameter( DatabaseConnectionSPtr connection, DatabaseValuedObjectInfosSPtr infos, unsigned short index, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
 
 		/** Desctructor.
 		*/
 		DatabaseExport virtual ~CDatabaseParameter();
-
-		/** Get field type.
-		@return
-			Field type.
-		*/
-		DatabaseExport virtual EFieldType GetType() const;
-
-		/** Get name.
-		@return
-			The name.
-		*/
-		DatabaseExport virtual const String & GetName() const;
-
-		/** Get limits.
-		@return
-			The limits.
-		@remarks
-			The reference is here to be able to pass this method to function wanting pointer.
-		*/
-		DatabaseExport virtual const uint32_t & GetLimits() const;
-
-		/** Get precision.
-		@return
-			The precision.
-		*/
-		DatabaseExport virtual const std::pair< uint32_t, uint32_t > & GetPrecision() const;
 
 		/** Get parameter index.
 		@return
@@ -143,21 +79,13 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport virtual void SetNull();
 
-		/** Set parameter value from a field.
-		@param[in] field
-			The field.
+		/** Set parameter value from another valued object.
+		@param[in] object
+			The valued object.
 		@remarks
-			If field type is different than the value type, the value is ignored.
+			If field type is incompatible with the value type, an exception will be thrown.
 		*/
-		DatabaseExport void SetValue( const CDatabaseField & field );
-
-		/** Set parameter value from another parameter.
-		@param[in] field
-			The field.
-		@remarks
-			If field type is different than the value type, the value is ignored.
-		*/
-		DatabaseExport void SetValue( const CDatabaseParameter & field );
+		DatabaseExport void SetValue( const CDatabaseValuedObject & object );
 
 		/** Set parameter value from another value.
 		@param[in] type
@@ -173,7 +101,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] value
 			New parameter value.
 		@remarks
-			If field type is different than the value type, the value is ignored.
+			If field type is incompatible with the value type, an exception will be thrown.
 		*/
 		template< typename T > inline void SetValue( const T & value )
 		{
@@ -187,7 +115,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] value
 			New parameter value.
 		@remarks
-			If field type is different than the value type, the value is ignored.
+			If field type is incompatible with the value type, The behaviour is undefined.
 		*/
 		template< typename T > inline void SetValueFast( const T & value )
 		{

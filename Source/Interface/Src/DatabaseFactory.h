@@ -40,7 +40,7 @@ BEGIN_NAMESPACE_DATABASE
 		@remarks
 			This function calls the RegisterServices() and RegisterObjectTypes() function.
 		*/
-		DatabaseExport void Initialize();
+		DatabaseExport void Initialise();
 
 		/** Returns the factory type name.
 		*/
@@ -117,13 +117,13 @@ BEGIN_NAMESPACE_DATABASE
 	protected:
 		/** Register creation functions to create new objects.
 		@remarks
-			This function is called by Initialize().
+			This function is called by Initialise().
 		*/
 		DatabaseExport virtual void RegisterServices() = 0;
 
 		/** Register the object types.
 		@remarks
-			This function is called by Initialize().
+			This function is called by Initialise().
 		*/
 		DatabaseExport virtual void RegisterObjectTypes() = 0;
 

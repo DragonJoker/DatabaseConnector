@@ -24,7 +24,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 	static const String DATABASE_SQLITE_TYPE = STR( "Database.SQLite" );
 
-	static STestConfig g_config = { false, true, STR( "=" ), true, true, false };
+	static STestConfig g_config = { false, true, STR( "=" ), true, true, false, true };
 
 	CDatabaseSqliteTest::CDatabaseSqliteTest()
 		: CDatabaseTest( DATABASE_SQLITE_TYPE, DB_SERVER, DB_DATABASE, DB_USER, DB_PASS, g_config )
@@ -63,7 +63,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 	void CDatabaseSqliteTest::DoLoadPlugins()
 	{
-		LoadPlugins( InitializeSingletons(), false, true, false, false, false );
+		LoadPlugins( InitialiseSingletons(), false, true, false, false, false );
 	}
 }
 END_NAMESPACE_DATABASE_TEST

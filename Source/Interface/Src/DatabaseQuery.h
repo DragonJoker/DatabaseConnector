@@ -14,21 +14,19 @@
 #ifndef ___DATABASE_QUERY_H___
 #define ___DATABASE_QUERY_H___
 
-#include "DatabasePrerequisites.h"
-
-#include "Database.h"
-#include "DatabaseParameter.h"
-#include "DatabaseException.h"
+#include "DatabaseParameteredObject.h"
 
 #include "EErrorType.h"
-#include "EFieldType.h"
-#include "EParameterType.h"
 
 BEGIN_NAMESPACE_DATABASE
 {
 	/** Describes a database query.
+	@remarks
+		It can't be used to execute stored procedures with output parameters.
+		For this purpose, use CDatabaseStatement
 	*/
 	class CDatabaseQuery
+		: public CDatabaseParameteredObject
 	{
 	public:
 		/** Constructor.
@@ -43,33 +41,17 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport virtual ~CDatabaseQuery();
 
-		/** Initialize query.
-		@remarks
-			The query *MUST* be initialized, *AFTER* all parameters have been created.
-		@return
-			Error code.
-		*/
-		DatabaseExport EErrorType Initialize();
-
 		/** Execute a query that has no result set.
-		@param[out] result
-			Error code.
 		@return
 			Results.
 		*/
-		DatabaseExport bool ExecuteUpdate( EErrorType * result = NULL );
+		DatabaseExport bool ExecuteUpdate();
 
 		/** Execute query that has a result set.
-		@param[out] result
-			Error code.
 		@return
 			Results.
 		*/
-		DatabaseExport DatabaseResultSPtr ExecuteSelect( EErrorType * result = NULL );
-
-		/** Clean query.
-		*/
-		DatabaseExport void Cleanup();
+		DatabaseExport DatabaseResultSPtr ExecuteSelect();
 
 		/** Create a query parameter.
 		@param[in] name
@@ -93,7 +75,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport DatabaseParameterSPtr CreateParameter( const String & name, EFieldType fieldType, uint32_t limits );
 
-		/** Create a query parameter for variable-sized parameter (with limits)
+		/** Create a query parameter for variable-sized parameter (with precision)
 		@param[in] name
 			Parameter name.
 		@param[in] fieldType
@@ -105,126 +87,26 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport DatabaseParameterSPtr CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision );
 
-		/** Retrieves a parameter, by index
-		@param[in] index
-			Parameter index.
-		*/
-		DatabaseExport DatabaseParameterSPtr GetParameter( uint32_t index )const;
-
-		/** Retrieves a parameter, by name
-		@param[in] name
-			Parameter name.
-		*/
-		DatabaseExport DatabaseParameterSPtr GetParameter( const String & name )const;
-
-		/** Get parameter type.
-		@param[in] index
-			Parameter index.
-		@return
-			Parameter type.
-		*/
-		DatabaseExport EFieldType GetParameterType( uint32_t index );
-
-		/** Set parameter value to NULL.
-		@param[in] index
-			Parameter index.
-		*/
-		DatabaseExport void SetParameterNull( uint32_t index );
-
-		/** Set parameter value to NULL.
-		@param[in] name
-			Parameter name.
-		*/
-		DatabaseExport void SetParameterNull( const String & name );
-
-		/** Set parameter value from another parameter.
-		@param[in] index
-			Parameter index.
-		@param[in] parameter
-			The parameter.
-		*/
-		DatabaseExport void SetParameterValue( uint32_t index, const CDatabaseParameter & parameter );
-
-		/** Set parameter value from another parameter.
-		@param[in] name
-			Parameter name.
-		@param[in] parameter
-			The parameter.
-		*/
-		DatabaseExport void SetParameterValue( const String & name, const CDatabaseParameter & parameter );
-
-		/** Set parameter value.
-		@param[in] index
-			Parameter index.
-		@param[in] value
-			Parameter value.
-		*/
-		template< typename T > void SetParameterValue( uint32_t index, const T & value );
-
-		/** Set parameter value.
-		@param[in] name
-			Parameter name.
-		@param[in] value
-			Parameter value.
-		*/
-		template< typename T > void SetParameterValue( const String & name, const T & value );
-
-		/** Set parameter value.
-		@param[in] index
-			Parameter index.
-		@param[in] value
-			Parameter value.
-		*/
-		template< typename T > void SetParameterValueFast( uint32_t index, const T & value );
-
-		/** Set parameter value.
-		@param[in] name
-			Parameter name.
-		@param[in] value
-			Parameter value.
-		*/
-		template< typename T > void SetParameterValueFast( const String & name, const T & value );
-
-		/** Get parameter value.
-		@param[in] index
-			Parameter index.
-		@return
-			Parameter value.
-		*/
-		template< typename T > T const & GetOutputValue( uint32_t index );
-
-		/** Get parameter value.
-		@param[in] name
-			Parameter name.
-		@return
-			Parameter value.
-		*/
-		template< typename T > T const & GetOutputValue( const String & name );
-
-		/** Get parameter value.
-		@param[in] index
-			Parameter index.
-		@param[out] value
-			Parameter value.
-		*/
-		template< typename T > void GetOutputValue( uint32_t index, T & value );
-
-		/** Get parameter value.
-		@param[in] name
-			Parameter name.
-		@param[out] value
-			Parameter value.
-		*/
-		template< typename T > void GetOutputValue( const String & name, T & value );
-
 	protected:
-		/** Add parameter to query.
-		@param[in] parameter
-			Parameter to add.
+		/** Initialise query.
+		@remarks
+			The query *MUST* be initialised, *AFTER* all parameters have been created.
 		@return
-			true if addition succeeds, false otherwise.
+			Error code.
 		*/
-		DatabaseExport bool DoAddParameter( DatabaseParameterSPtr parameter );
+		virtual EErrorType DoInitialise();
+
+		/** Clean query.
+		*/
+		virtual void DoCleanup();
+
+		/** Creates a parameter, given it's valued object informations
+		@param[in] infos
+			Parameter informations.
+		@return
+			The created parameter
+		*/
+		virtual DatabaseParameterSPtr DoCreateParameter( DatabaseValuedObjectInfosSPtr infos, EParameterType parameterType = EParameterType_IN );
 
 		/** Pre-execution action
 		@remarks
@@ -232,15 +114,13 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			The full query
 		*/
-		DatabaseExport String DoPreExecute();
+		String DoPreExecute();
 
 		/** Execute query.
-		@param[out] result
-			Error code.
 		@return
 			Results.
 		*/
-		DatabaseExport DatabaseResultSPtr DoExecute( EErrorType * result = NULL );
+		DatabaseResultSPtr DoExecute();
 
 		/** Retrieves the connection
 		@return
@@ -252,8 +132,6 @@ BEGIN_NAMESPACE_DATABASE
 		}
 
 	protected:
-		//! Array of parameters (addition order).
-		DatabaseParameterPtrArray _arrayParams;
 		//! Request text.
 		String _query;
 		//! Tokenized string (delimiter is "?").
@@ -262,23 +140,8 @@ BEGIN_NAMESPACE_DATABASE
 		DatabaseConnectionWPtr _connection;
 		//! Number of parameters (i.e. number of "?").
 		uint32_t _paramsCount;
-
-		/** Does nothing
-		*/
-		struct SDummyValueUpdater
-			: public CDatabaseParameter::SValueUpdater
-		{
-			/** Constructor
-			*/
-			DatabaseExport SDummyValueUpdater(){}
-
-			//!@copydoc CDatabaseParameter::SValueUpdater
-			DatabaseExport virtual void Update( const CDatabaseParameter & value ){}
-		};
 	};
 }
 END_NAMESPACE_DATABASE
-
-#include "DatabaseQuery.inl"
 
 #endif // ___DATABASE_QUERY_H___

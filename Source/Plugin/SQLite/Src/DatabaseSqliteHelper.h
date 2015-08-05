@@ -24,7 +24,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 	@param[in] connection
 		The database connection
 	*/
-	DatabaseFieldInfosPtrArray SqliteGetColumns( sqlite3_stmt * statement );
+	DatabaseValuedObjectInfosPtrArray SqliteGetColumns( sqlite3_stmt * statement );
 
 	/** Fetches given statement results
 	@param[in] statement
@@ -34,7 +34,27 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 	@param[in] connection
 		The database connection
 	*/
-	DatabaseResultSPtr SqliteFetchResult( sqlite3_stmt * statement, DatabaseFieldInfosPtrArray const & columns, DatabaseConnectionSqliteSPtr connection );
+	DatabaseResultSPtr SqliteFetchResult( sqlite3_stmt * statement, DatabaseValuedObjectInfosPtrArray const & columns, DatabaseConnectionSqliteSPtr connection );
+
+	/** Prepares a statement.
+	@remarks
+		Takes care of the fact that the database could be locked
+	@param[in] query
+		The statement's query
+	@param[in]
+		The connection on which the statement is to be prepared
+	*/
+	sqlite3_stmt * SqlitePrepareStatement( const String & query, sqlite3 * connection );
+
+	/** Prepares a statement.
+	@remarks
+		Takes care of the fact that the database could be locked
+	@param[in] query
+		The statement's query
+	@param[in]
+		The connection on which the statement is to be prepared
+	*/
+	sqlite3_stmt * SqlitePrepareStatement( const String & query, sqlite3 * connection );
 
 	/** Prepares a statement.
 	@remarks

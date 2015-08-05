@@ -18,6 +18,11 @@
 
 BEGIN_NAMESPACE_DATABASE
 {
+	bool CDatabaseField::IsNull() const
+	{
+		return GetObjectValue().IsNull();
+	}
+
 	template< typename T >
 	inline T CDatabaseField::GetValue() const
 	{
@@ -43,7 +48,7 @@ BEGIN_NAMESPACE_DATABASE
 	template< typename T >
 	inline void CDatabaseField::GetValueOpt( CDatabaseNullable< T > & value ) const
 	{
-		if ( GetObjectValue().IsNull() )
+		if ( this->IsNull() )
 		{
 			value = None;
 		}
@@ -80,7 +85,7 @@ BEGIN_NAMESPACE_DATABASE
 	template< typename T >
 	inline void CDatabaseField::GetValueOptFast( CDatabaseNullable< T > & value ) const
 	{
-		if ( GetObjectValue().IsNull() )
+		if ( this->IsNull() )
 		{
 			value = None;
 		}
@@ -90,11 +95,6 @@ BEGIN_NAMESPACE_DATABASE
 			DoGetValueFast( val );
 			value = val;
 		}
-	}
-
-	inline DatabaseFieldInfosSPtr CDatabaseField::DoGetInfos()const
-	{
-		return _infos.lock();
 	}
 }
 END_NAMESPACE_DATABASE

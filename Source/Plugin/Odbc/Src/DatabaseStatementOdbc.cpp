@@ -27,7 +27,7 @@
 
 BEGIN_NAMESPACE_DATABASE_ODBC
 {
-	static const String ERROR_ODBC_MISSING_INITIALIZATION = STR( "Method Initialize must be called before calling method CreateParameter" );
+	static const String ERROR_ODBC_MISSING_INITIALIZATION = STR( "Method Initialise must be called before calling method CreateParameter" );
 	static const String ERROR_ODBC_STATEMENT_UNKNOWN_POINTER = STR( "The pointer given by SQLParamData is unknown to the statement" );
 	static const String ERROR_ODBC_LOST_CONNECTION = STR( "The statement has lost his connection" );
 
@@ -56,7 +56,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		Cleanup();
 	}
 
-	DatabaseParameterSPtr CDatabaseStatementOdbc::CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType )
+	DatabaseParameterSPtr CDatabaseStatementOdbc::DoCreateParameter( DatabaseValuedObjectInfosSPtr infos, EParameterType parameterType )
 	{
 		DatabaseConnectionOdbcSPtr connection = DoGetConnectionOdbc();
 
@@ -65,55 +65,10 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_ODBC_LOST_CONNECTION );
 		}
 
-		DatabaseParameterSPtr pReturn = std::make_shared< CDatabaseStatementParameterOdbc >( connection, name, ( unsigned short )_arrayParams.size() + 1, fieldType, parameterType, std::make_unique< SValueUpdater >( this ) );
-
-		if ( !DoAddParameter( pReturn ) )
-		{
-			pReturn.reset();
-		}
-
-		return pReturn;
+		return DoAddParameter( std::make_shared< CDatabaseStatementParameterOdbc >( connection, infos, uint16_t( _arrayParams.size() + 1 ), parameterType, std::make_unique< SValueUpdater >( this ) ) );
 	}
 
-	DatabaseParameterSPtr CDatabaseStatementOdbc::CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType )
-	{
-		DatabaseConnectionOdbcSPtr connection = DoGetConnectionOdbc();
-
-		if ( !connection )
-		{
-			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_ODBC_LOST_CONNECTION );
-		}
-
-		DatabaseParameterSPtr pReturn = std::make_shared< CDatabaseStatementParameterOdbc >( connection, name, ( unsigned short )_arrayParams.size() + 1, fieldType, limits, parameterType, std::make_unique< SValueUpdater >( this ) );
-
-		if ( !DoAddParameter( pReturn ) )
-		{
-			pReturn.reset();
-		}
-
-		return pReturn;
-	}
-
-	DatabaseParameterSPtr CDatabaseStatementOdbc::CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType )
-	{
-		DatabaseConnectionOdbcSPtr connection = DoGetConnectionOdbc();
-
-		if ( !connection )
-		{
-			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_ODBC_LOST_CONNECTION );
-		}
-
-		DatabaseParameterSPtr pReturn = std::make_shared< CDatabaseStatementParameterOdbc >( connection, name, ( unsigned short )_arrayParams.size() + 1, fieldType, precision, parameterType, std::make_unique< SValueUpdater >( this ) );
-
-		if ( !DoAddParameter( pReturn ) )
-		{
-			pReturn.reset();
-		}
-
-		return pReturn;
-	}
-
-	EErrorType CDatabaseStatementOdbc::DoInitialize()
+	EErrorType CDatabaseStatementOdbc::DoInitialise()
 	{
 		DatabaseConnectionOdbcSPtr connection = DoGetConnectionOdbc();
 
@@ -145,40 +100,27 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		{
 			SQLSMALLINT count = 0;
 			OdbcCheck( SQLNumParams( _statementHandle, &count ), SQL_HANDLE_STMT, _statementHandle, INFO_ODBC_NumParams );
-			CLogger::LogDebug( DEBUG_ODBC_EXPECTED_PARAMETERS + CStrUtils::ToString( count ) );
+			CLogger::LogDebug( DEBUG_ODBC_EXPECTED_PARAMETERS + StringUtils::ToString( count ) );
 		}
 
 		for ( DatabaseParameterPtrArray::iterator it = _arrayParams.begin(); it != _arrayParams.end(); ++it )
 		{
-			std::static_pointer_cast< CDatabaseStatementParameterOdbc >( *it )->Initialize( _statementHandle );
+			std::static_pointer_cast< CDatabaseStatementParameterOdbc >( *it )->Initialise( _statementHandle );
 		}
 
 		return errorType;
 	}
 
-	bool CDatabaseStatementOdbc::DoExecuteUpdate( EErrorType * result )
+	bool CDatabaseStatementOdbc::DoExecuteUpdate()
 	{
 		DatabaseResultSPtr rs;
-		EErrorType error = DoExecute( rs );
-
-		if ( result )
-		{
-			*result = error;
-		}
-
-		return error == EErrorType_NONE;
+		return DoExecute( rs ) == EErrorType_NONE;
 	}
 
-	DatabaseResultSPtr CDatabaseStatementOdbc::DoExecuteSelect( EErrorType * result )
+	DatabaseResultSPtr CDatabaseStatementOdbc::DoExecuteSelect()
 	{
 		DatabaseResultSPtr rs;
-		EErrorType error = DoExecute( rs );
-
-		if ( result )
-		{
-			*result = error;
-		}
-
+		DoExecute( rs );
 		return rs;
 	}
 

@@ -26,20 +26,8 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 {
 	static const String ERROR_POSTGRESQL_PARAMETER_TYPE = STR( "Undefined parameter type when trying to set its binding." );
 
-	CDatabaseParameterPostgreSql::CDatabaseParameterPostgreSql( DatabaseConnectionPostgreSqlSPtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
-		: CDatabaseParameter( connection, name, index, fieldType, parameterType, std::move( updater ) )
-		, _statement()
-	{
-	}
-
-	CDatabaseParameterPostgreSql::CDatabaseParameterPostgreSql( DatabaseConnectionPostgreSqlSPtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
-		: CDatabaseParameter( connection, name, index, fieldType, limits, parameterType, std::move( updater ) )
-		, _statement()
-	{
-	}
-
-	CDatabaseParameterPostgreSql::CDatabaseParameterPostgreSql( DatabaseConnectionPostgreSqlSPtr connection, const String & name, unsigned short index, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
-		: CDatabaseParameter( connection, name, index, fieldType, precision, parameterType, std::move( updater ) )
+	CDatabaseParameterPostgreSql::CDatabaseParameterPostgreSql( DatabaseConnectionPostgreSqlSPtr connection, DatabaseValuedObjectInfosSPtr infos, unsigned short index, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater )
+		: CDatabaseParameter( connection, infos, index, parameterType, std::move( updater ) )
 		, _statement()
 	{
 	}
@@ -161,8 +149,8 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			_binding = MakeOutBind< EFieldType_VARBINARY >( *bind, GetObjectValue(), *this );
 			break;
 
-		case EFieldType_LONG_VARBINARY:
-			_binding = MakeOutBind< EFieldType_LONG_VARBINARY >( *bind, GetObjectValue(), *this );
+		case EFieldType_BLOB:
+			_binding = MakeOutBind< EFieldType_BLOB >( *bind, GetObjectValue(), *this );
 			break;
 
 		default:

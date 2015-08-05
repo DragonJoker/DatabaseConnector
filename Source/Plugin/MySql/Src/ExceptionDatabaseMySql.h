@@ -5,7 +5,7 @@
 * @date 3/18/2014 2:47:39 PM
 *
 *
-* @brief CExceptionDatabaseMySql class declaration and definition.
+* @brief CDatabaseExceptionMySql class declaration and definition.
 *
 * @details Should be thrown when a problem occured in the MYSQL database plugin.
 *
@@ -20,22 +20,10 @@
 
 BEGIN_NAMESPACE_DATABASE_MYSQL
 {
-	/** Static definitions of MYSQL database error codes.
-	*/
-	enum EDatabaseMySqlExceptionCodes
-	{
-		EDatabaseMySqlExceptionCodes_GenericError = 0,
-		EDatabaseMySqlExceptionCodes_UnknownError,
-		EDatabaseMySqlExceptionCodes_StatementError,
-		EDatabaseMySqlExceptionCodes_QueryError,
-
-		EDatabaseMySqlExceptionCodes_LastCode ///< Represent the maximum number of exception code. Must be always the last.
-	};
-
 	/** Should be thrown when a problem occured in the MYSQL database plugin.
 	*/
-	class CExceptionDatabaseMySql
-		: public CExceptionDatabase
+	class CDatabaseExceptionMySql
+		: public CDatabaseException
 	{
 	public:
 		/** Create a exception for the MYSQL database.
@@ -50,14 +38,14 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		@param line
 			Source file line number.
 		*/
-		CExceptionDatabaseMySql( int number, const String & description, const std::string & source, const std::string & file, long line )
-			: CExceptionDatabase( number, description, source, STR( "CExceptionDatabaseMySql" ), file, line )
+		CDatabaseExceptionMySql( int number, const String & description, const std::string & source, const std::string & file, long line )
+			: CDatabaseException( STR( "CDatabaseExceptionMySql" ), number, description, source, file, line )
 		{
 			// Empty
 		}
 	};
 
-#	define MYSQL_EXCEPT( number, description ) throw CExceptionDatabaseMySql( number, description, __FUNCTION__, __FILE__, __LINE__ )
+#	define MYSQL_EXCEPT( number, description ) throw CDatabaseExceptionMySql( number, description, __FUNCTION__, __FILE__, __LINE__ )
 }
 END_NAMESPACE_DATABASE_MYSQL
 

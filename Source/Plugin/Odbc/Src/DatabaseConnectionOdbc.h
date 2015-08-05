@@ -44,46 +44,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			*/
 		virtual ~CDatabaseConnectionOdbc();
 
-		/** Format a string to be supported by the DBMS.
-		@param[in] text
-			Text to format.
-		@return
-			The formatted text.
-		*/
-		virtual std::string WriteText( const std::string & text ) const;
-
-		/** Format a string to be supported by the DBMS.
-		@param[in] text
-			Text to format.
-		@return
-			The formatted text.
-		*/
-		virtual std::wstring WriteNText( const std::wstring & text ) const;
-
-		/** Format a string to be supported by the DBMS.
-		@param[in] text
-			Text to format.
-		@return
-			The formatted text.
-		*/
-		virtual String WriteName( const String & text ) const;
-
-		/** Format a boolean into a string to be supported by the DBMS.
-		@param[in] value
-			Boolean to format.
-		@return
-			The formatted boolean.
-		*/
-		virtual String WriteBool( bool value ) const;
-
-		/** Format a string representing a boolean into a string to be supported by the DBMS.
-		@param[in] value
-			Boolean to format.
-		@return
-			The formatted boolean.
-		*/
-		virtual String WriteBool( const String & value ) const;
-
 		/** Get the connection handle.
 		@return
 			The connection handle.
@@ -95,7 +55,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		*/
 		virtual void DoDisconnect();
 
-		/** Initialize a named transaction.
+		/** Initialise a named transaction.
 		@param[in] name
 			Transaction name.
 		@return
@@ -129,7 +89,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		@return
 			The result.
 		*/
-		virtual bool DoExecuteUpdate( const String & query);
+		virtual bool DoExecuteUpdate( const String & query );
 
 		/** Execute directly a request.
 		@param[in]  query
@@ -141,7 +101,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		@return
 			The result.
 		*/
-		virtual DatabaseResultSPtr DoExecuteSelect( const String & query);
+		virtual DatabaseResultSPtr DoExecuteSelect( const String & query );
 
 	protected:
 		//! Connection identifier.

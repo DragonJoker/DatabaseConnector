@@ -18,7 +18,7 @@
 #include "ExceptionDatabasePostgreSql.h"
 #include "DatabaseParameterPostgreSql.h"
 
-#include <DatabaseFieldInfos.h>
+#include <DatabaseValuedObjectInfos.h>
 
 #if defined( _WIN32 )
 #	include <Winsock2.h>
@@ -38,7 +38,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 	static const TChar * ERROR_POSTGRESQL_UNKNOWN = STR( "Unknown error encountered while executing query" );
 
 	//************************************************************************************************
-	
+
 	SInPostgreSqlBindBase::SInPostgreSqlBindBase( int index, PGresult * result )
 		: _result( result )
 		, _index( index )
@@ -301,7 +301,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			*/
 			std::wstring GetValue( int row )const
 			{
-				return CStrUtils::ToWStr( PQgetvalue( _result, row, _index ) );
+				return StringUtils::ToWStr( PQgetvalue( _result, row, _index ) );
 			}
 		};
 
@@ -382,7 +382,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 				char * escaped = PQgetvalue( _result, row, _index );
 				size_t length = 0;
 				uint8_t * value = PQunescapeBytea( reinterpret_cast< uint8_t * >( escaped ), &length );
-				
+
 				return std::vector< uint8_t >( value, value + length );
 			}
 		};
@@ -423,10 +423,10 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			}
 		};
 
-		/** SInPostgreSqlBind specialisation for EFieldType_LONG_VARBINARY
+		/** SInPostgreSqlBind specialisation for EFieldType_BLOB
 		*/
 		template<>
-		struct SInPostgreSqlBind< EFieldType_LONG_VARBINARY >
+		struct SInPostgreSqlBind< EFieldType_BLOB >
 			: public SByteBufferInPostgreSqlBind
 		{
 			/** Constructor
@@ -505,11 +505,11 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			@return
 				The value
 			*/
-			CDate GetValue( int row )const
+			DateType GetValue( int row )const
 			{
 				char * value = PQgetvalue( _result, row, _index );
-				CDate date;
-				CDate::IsDate( value, POSTGRE_FORMAT_DATE, date );
+				DateType date;
+				Date::IsDate( value, POSTGRE_FORMAT_DATE, date );
 				return date;
 			}
 		};
@@ -533,11 +533,11 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			@return
 				The value
 			*/
-			CDateTime GetValue( int row )const
+			DateTimeType GetValue( int row )const
 			{
 				char * value = PQgetvalue( _result, row, _index );
-				CDateTime date;
-				CDateTime::IsDateTime( value, POSTGRE_FORMAT_DATETIME, date );
+				DateTimeType date;
+				DateTime::IsDateTime( value, POSTGRE_FORMAT_DATETIME, date );
 				return date;
 			}
 		};
@@ -557,11 +557,11 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			@return
 				The value
 			*/
-			CTime GetValue( int row )const
+			TimeType GetValue( int row )const
 			{
 				char * value = PQgetvalue( _result, row, _index );
-				CTime date;
-				CTime::IsTime( value, POSTGRE_FORMAT_TIME, date );
+				TimeType date;
+				Time::IsTime( value, POSTGRE_FORMAT_TIME, date );
 				return date;
 			}
 		};
@@ -761,15 +761,15 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 				ret = std::make_unique< SInPostgreSqlBind< EFieldType_VARBINARY > >( index, result );
 				break;
 
-			case EFieldType_LONG_VARBINARY:
-				ret = std::make_unique< SInPostgreSqlBind< EFieldType_LONG_VARBINARY > >( index, result );
+			case EFieldType_BLOB:
+				ret = std::make_unique< SInPostgreSqlBind< EFieldType_BLOB > >( index, result );
 				break;
 			}
 
 			return ret;
 		}
 
-		void SetFieldValue( DatabaseFieldInfosSPtr infos, DatabaseFieldSPtr field, SInPostgreSqlBindBase const & bind, int row )
+		void SetFieldValue( DatabaseValuedObjectInfosSPtr infos, DatabaseFieldSPtr field, SInPostgreSqlBindBase const & bind, int row )
 		{
 			if ( !bind.IsNull( row ) )
 			{
@@ -875,8 +875,8 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 					static_cast< CDatabaseValue< EFieldType_VARBINARY > & >( field->GetObjectValue() ).SetValue( static_cast< SInPostgreSqlBind< EFieldType_VARBINARY > const & >( bind ).GetValue( row ) );
 					break;
 
-				case EFieldType_LONG_VARBINARY:
-					static_cast< CDatabaseValue< EFieldType_LONG_VARBINARY > & >( field->GetObjectValue() ).SetValue( static_cast< SInPostgreSqlBind< EFieldType_LONG_VARBINARY > const & >( bind ).GetValue( row ) );
+				case EFieldType_BLOB:
+					static_cast< CDatabaseValue< EFieldType_BLOB > & >( field->GetObjectValue() ).SetValue( static_cast< SInPostgreSqlBind< EFieldType_BLOB > const & >( bind ).GetValue( row ) );
 					break;
 
 				default:
@@ -888,9 +888,9 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 
 	//************************************************************************************************
 
-	DatabaseFieldInfosPtrArray PostgreSqlGetColumns( PGresult * result, std::vector< std::unique_ptr< SInPostgreSqlBindBase > > & binds )
+	DatabaseValuedObjectInfosPtrArray PostgreSqlGetColumns( PGresult * result, std::vector< std::unique_ptr< SInPostgreSqlBindBase > > & binds )
 	{
-		DatabaseFieldInfosPtrArray arrayReturn;
+		DatabaseValuedObjectInfosPtrArray arrayReturn;
 		int columnCount = PQnfields( result );
 		binds.resize( columnCount );
 		int index = 0;
@@ -901,15 +901,25 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			Oid oid = PQftype( result, index );
 			int size = PQfsize( result, index );
 			EFieldType type = GetFieldTypeFromOid( oid );
-			arrayReturn.push_back( std::make_shared< CDatabaseFieldInfos >( CStrUtils::ToString( name ), type, size ) );
 			bind = std::move( GetInBind( type, index, result ) );
+
+			if ( type == EFieldType_FIXED_POINT )
+			{
+				const SInPostgreSqlBind< EFieldType_FIXED_POINT > & fixedBind = static_cast< const SInPostgreSqlBind< EFieldType_FIXED_POINT > & >( *bind );
+				arrayReturn.push_back( std::make_shared< CDatabaseValuedObjectInfos >( StringUtils::ToString( name ), type, std::make_pair( fixedBind._precision, fixedBind._decimals ) ) );
+			}
+			else
+			{
+				arrayReturn.push_back( std::make_shared< CDatabaseValuedObjectInfos >( StringUtils::ToString( name ), type, size ) );
+			}
+
 			++index;
 		}
 
 		return arrayReturn;
 	}
 
-	DatabaseResultSPtr PostgreSqlFetchResult( PGresult * result, DatabaseFieldInfosPtrArray const & columns, DatabaseConnectionPostgreSqlSPtr connection, std::vector< std::unique_ptr< SInPostgreSqlBindBase > > const & binds )
+	DatabaseResultSPtr PostgreSqlFetchResult( PGresult * result, DatabaseValuedObjectInfosPtrArray const & columns, DatabaseConnectionPostgreSqlSPtr connection, std::vector< std::unique_ptr< SInPostgreSqlBindBase > > const & binds )
 	{
 		DatabaseResultSPtr pReturn;
 
@@ -926,13 +936,13 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 
 				for ( auto && bind : binds )
 				{
-					DatabaseFieldInfosSPtr infos;
+					DatabaseValuedObjectInfosSPtr infos;
 
 					try
 					{
 						infos = pReturn->GetFieldInfos( index++ );
 					}
-					catch ( CExceptionDatabase & )
+					catch ( CDatabaseException & )
 					{
 						throw;
 					}
@@ -947,14 +957,14 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 
 			PQclear( result );
 		}
-		catch ( const CExceptionDatabase & e )
+		catch ( const CDatabaseException & e )
 		{
 			PQclear( result );
 			StringStream message;
 			message << ERROR_POSTGRESQL_DRIVER << STR( " - " )
 					<< e.what();
 			CLogger::LogError( message );
-			POSTGRESQL_EXCEPT( EDatabasePostgreSqlExceptionCodes_GenericError, message.str() );
+			POSTGRESQL_EXCEPT( EDatabaseExceptionCodes_GenericError, message.str() );
 		}
 		catch ( const std::exception & e )
 		{
@@ -963,7 +973,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			message << ERROR_POSTGRESQL_DRIVER << STR( " - " )
 					<< e.what();
 			CLogger::LogError( message );
-			POSTGRESQL_EXCEPT( EDatabasePostgreSqlExceptionCodes_GenericError, message.str() );
+			POSTGRESQL_EXCEPT( EDatabaseExceptionCodes_GenericError, message.str() );
 		}
 		catch ( ... )
 		{
@@ -972,7 +982,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			message << ERROR_POSTGRESQL_DRIVER << STR( " - " )
 					<< ERROR_POSTGRESQL_UNKNOWN;
 			CLogger::LogError( message );
-			POSTGRESQL_EXCEPT( EDatabasePostgreSqlExceptionCodes_UnknownError, message.str() );
+			POSTGRESQL_EXCEPT( EDatabaseExceptionCodes_UnknownError, message.str() );
 		}
 
 		return pReturn;
@@ -1034,7 +1044,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		{
 			StringStream error;
 			error << STR( "Failure: " ) << msg << std::endl;
-			String postgresql = CStrUtils::ToString( PQerrorMessage( connection ) );
+			String postgresql = StringUtils::ToString( PQerrorMessage( connection ) );
 			error << postgresql;
 			PQclear( result );
 			DB_EXCEPT( code, error.str() );
@@ -1046,7 +1056,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		{
 			StringStream error;
 			error << msg << std::endl;
-			String postgresql = CStrUtils::ToString( PQerrorMessage( connection ) );
+			String postgresql = StringUtils::ToString( PQerrorMessage( connection ) );
 			error << STR( "(" ) << GetStatusName( status ) << STR( ") " ) << postgresql;
 
 			if ( status == PGRES_NONFATAL_ERROR )
@@ -1163,7 +1173,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			result = EOid_BYTEA;
 			break;
 
-		case EFieldType_LONG_VARBINARY:
+		case EFieldType_BLOB:
 			result = EOid_BYTEA;
 			break;
 		}

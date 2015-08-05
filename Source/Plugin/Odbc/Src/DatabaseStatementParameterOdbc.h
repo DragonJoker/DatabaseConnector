@@ -15,9 +15,9 @@
 #define ___DATABASE_STATEMENT_PARAMETER_ODBC_H___
 
 #include "DatabaseOdbcPrerequisites.h"
+#include "DatabaseOdbcParameterBinding.h"
 
 #include <DatabaseParameter.h>
-#include "DatabaseParameterOdbc.h"
 
 BEGIN_NAMESPACE_DATABASE_ODBC
 {
@@ -25,70 +25,49 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	*/
 	class CDatabaseStatementParameterOdbc
 		: public CDatabaseParameter
-		, public CDatabaseParameterOdbc
 	{
 	public:
 		/** Constructor.
 		@param[in] connection
 			Connection to database.
-		@param[in] name
-			Parameter name.
+		@param[in] infos
+			Parameter informations.
 		@param[in] index
 			Internal index.
-		@param[in] fieldType
-			Field type.
 		@param[in] parameterType
 			Parameter type.
 		@param[in] updater
 			The parent updater
 		*/
-		CDatabaseStatementParameterOdbc( DatabaseConnectionOdbcSPtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
-
-		/** Constructor.
-		@param[in] connection
-			Connection to database.
-		@param[in] name
-			Parameter name.
-		@param[in] index
-			Internal index.
-		@param[in] fieldType
-			Field type.
-		@param[in] limits
-			Field limits.
-		@param[in] parameterType
-			Parameter type.
-		@param[in] updater
-			The parent updater
-		*/
-		CDatabaseStatementParameterOdbc( DatabaseConnectionOdbcSPtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
-
-		/** Constructor.
-		@param[in] connection
-			Connection to database.
-		@param[in] name
-			Parameter name.
-		@param[in] index
-			Internal index.
-		@param[in] fieldType
-			Field type.
-		@param[in] precision
-			Field precision.
-		@param[in] parameterType
-			Parameter type.
-		@param[in] updater
-			The parent updater
-		*/
-		CDatabaseStatementParameterOdbc( DatabaseConnectionOdbcSPtr connection, const String & name, unsigned short index, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
+		CDatabaseStatementParameterOdbc( DatabaseConnectionOdbcSPtr connection, DatabaseValuedObjectInfosSPtr infos, unsigned short index, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
 
 		/** Destructor.
 		*/
 		virtual ~CDatabaseStatementParameterOdbc();
 
-		/** Initializes parameter members from the given statement handle
+		/** Initialises parameter members from the given statement handle
 		@param statementHandle
 			The statement handle
 		*/
-		void Initialize( SQLHSTMT statementHandle );
+		void Initialise( SQLHSTMT statementHandle );
+
+		/** Retrieves the parameter binding
+		@return
+			The binding
+		*/
+		const COutOdbcBindBase & GetBinding()const
+		{
+			return *_binding;
+		}
+
+		/** Retrieves the parameter binding
+		@return
+			The binding
+		*/
+		COutOdbcBindBase & GetBinding()
+		{
+			return *_binding;
+		}
 
 	private:
 		/** Set parameter value
@@ -236,19 +215,19 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
-		virtual void DoSetValue( const CDateTime & value )
+		virtual void DoSetValue( const DateTimeType & value )
 		{
 			DoSetAndUpdateValue( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
-		virtual void DoSetValue( const CDate & value )
+		virtual void DoSetValue( const DateType & value )
 		{
 			DoSetAndUpdateValue( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
-		virtual void DoSetValue( const CTime & value )
+		virtual void DoSetValue( const TimeType & value )
 		{
 			DoSetAndUpdateValue( value );
 		}
@@ -356,19 +335,19 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
-		virtual void DoSetValueFast( const CDate & value )
+		virtual void DoSetValueFast( const DateType & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
-		virtual void DoSetValueFast( const CDateTime & value )
+		virtual void DoSetValueFast( const DateTimeType & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
-		virtual void DoSetValueFast( const CTime & value )
+		virtual void DoSetValueFast( const TimeType & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}
@@ -378,6 +357,10 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		{
 			DoSetAndUpdateValueFast( value );
 		}
+
+	private:
+		//! The binding to ODBC parameter
+		std::unique_ptr< COutOdbcBindBase > _binding;
 	};
 }
 END_NAMESPACE_DATABASE_ODBC

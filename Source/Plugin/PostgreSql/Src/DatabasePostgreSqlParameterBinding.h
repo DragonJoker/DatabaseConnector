@@ -74,7 +74,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		TIMEOID,		// EFieldType_TIME,
 		BYTEAOID,		// EFieldType_BINARY,
 		BYTEAOID,		// EFieldType_VARBINARY,
-		BYTEAOID,		// EFieldType_LONG_VARBINARY,
+		BYTEAOID,		// EFieldType_BLOB,
 	};
 
 	/** Structure used to retrieve the PostgreSQL data types from the field type
@@ -183,21 +183,21 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 	*/
 	template<> struct SFieldTypePostgreSqlDataTyper< EFieldType_DATE >
 	{
-		typedef CDate FieldDataType;
+		typedef DateType FieldDataType;
 	};
 
 	/** Specialization for EFieldType_DATETIME
 	*/
 	template<> struct SFieldTypePostgreSqlDataTyper< EFieldType_DATETIME >
 	{
-		typedef CDateTime FieldDataType;
+		typedef DateTimeType FieldDataType;
 	};
 
 	/** Specialization for EFieldType_TIME
 	*/
 	template<> struct SFieldTypePostgreSqlDataTyper< EFieldType_TIME >
 	{
-		typedef CTime FieldDataType;
+		typedef TimeType FieldDataType;
 	};
 
 	/** Specialization for EFieldType_CHAR
@@ -256,9 +256,9 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		typedef uint8_t * FieldDataType;
 	};
 
-	/** Specialization for EFieldType_LONG_VARBINARY
+	/** Specialization for EFieldType_BLOB
 	*/
-	template<> struct SFieldTypePostgreSqlDataTyper< EFieldType_LONG_VARBINARY >
+	template<> struct SFieldTypePostgreSqlDataTyper< EFieldType_BLOB >
 	{
 		typedef uint8_t * FieldDataType;
 	};
@@ -292,7 +292,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			stream << _value.GetValue();
 			std::string value = stream.str();
 			_bind.length = int( value.size() );
-			assert( _bind.length < _holder.size() );
+			assert( value.size() < _holder.size() );
 			strcpy( _holder.data(), value.data() );
 			_bind.value = _holder.data();
 		}
@@ -332,7 +332,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			stream << int16_t( _value.GetValue() );
 			std::string value = stream.str();
 			_bind.length = int( value.size() );
-			assert( _bind.length < _holder.size() );
+			assert( value.size() < _holder.size() );
 			strcpy( _holder.data(), value.data() );
 			_bind.value = _holder.data();
 		}
@@ -372,7 +372,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			stream << uint16_t( _value.GetValue() );
 			std::string value = stream.str();
 			_bind.length = int( value.size() );
-			assert( _bind.length < _holder.size() );
+			assert( value.size() < _holder.size() );
 			strcpy( _holder.data(), value.data() );
 			_bind.value = _holder.data();
 		}
@@ -509,7 +509,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		//!@copydoc SOutPostgreSqlBindBase::DoUpdateValue
 		virtual void DoUpdateValue()
 		{
-			std::string value = CStrUtils::ToStr( reinterpret_cast< const wchar_t * >( _value.GetPtrValue() ) );
+			std::string value = StringUtils::ToStr( reinterpret_cast< const wchar_t * >( _value.GetPtrValue() ) );
 			_bind.length = int( value.size() );
 			_holder.resize( _bind.length + 1 );
 			strcpy( _holder.data(), value.c_str() );
@@ -619,8 +619,8 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			{
 				PostgreSQLCheck( NULL, INFO_ESCAPING_BINARY, EDatabaseExceptionCodes_ConnectionError, _connection );
 			}
-			
-			std::string value = CStrUtils::ToString( reinterpret_cast< char * >( escaped ) );
+
+			std::string value = StringUtils::ToString( reinterpret_cast< char * >( escaped ) );
 			PQfreemem( escaped );
 			_bind.length = int( length );
 			_holder.resize( length + 1 );
@@ -678,10 +678,10 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		}
 	};
 
-	/** SOutPostgreSqlBind specialization for EFieldType_LONG_VARBINARY
+	/** SOutPostgreSqlBind specialization for EFieldType_BLOB
 	*/
 	template<>
-	struct SOutPostgreSqlBind< EFieldType_LONG_VARBINARY >
+	struct SOutPostgreSqlBind< EFieldType_BLOB >
 		: public SBinaryOutPostgreSqlBind
 	{
 		/** Constructor
@@ -694,7 +694,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		@param parameter
 			The parameter
 		*/
-		SOutPostgreSqlBind( PGbind & bind, Oid type, CDatabaseValue< EFieldType_LONG_VARBINARY > & value, CDatabaseParameterPostgreSql & parameter )
+		SOutPostgreSqlBind( PGbind & bind, Oid type, CDatabaseValue< EFieldType_BLOB > & value, CDatabaseParameterPostgreSql & parameter )
 			: SBinaryOutPostgreSqlBind( bind, type, value, parameter )
 		{
 		}
@@ -761,9 +761,9 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		//!@copydoc SOutPostgreSqlBindBase::DoUpdateValue
 		virtual void DoUpdateValue()
 		{
-			std::string value = CStrUtils::ToStr( _value.GetValue().ToString() );
+			std::string value = StringUtils::ToStr( _value.GetValue().ToString() );
 			_bind.length = int( value.size() );
-			assert( _bind.length < _holder.size() );
+			assert( value.size() < _holder.size() );
 			strcpy( _holder.data(), value.data() );
 			_bind.value = _holder.data();
 		}
@@ -799,9 +799,9 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		//!@copydoc SOutPostgreSqlBindBase::DoUpdateValue
 		virtual void DoUpdateValue()
 		{
-			std::string value = _value.GetValue().Format( POSTGRE_FORMAT_DATE );
+			std::string value = Date::Format( _value.GetValue(), POSTGRE_FORMAT_DATE );
 			_bind.length = int( value.size() );
-			assert( _bind.length < _holder.size() );
+			assert( value.size() < _holder.size() );
 			strcpy( _holder.data(), value.data() );
 			_bind.value = reinterpret_cast< char * >( &_holder );
 		}
@@ -838,9 +838,9 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		//!@copydoc SOutPostgreSqlBindBase::DoUpdateValue
 		virtual void DoUpdateValue()
 		{
-			std::string value = _value.GetValue().Format( POSTGRE_FORMAT_DATETIME );
+			std::string value = DateTime::Format( _value.GetValue(), POSTGRE_FORMAT_DATETIME );
 			_bind.length = int( value.size() );
-			assert( _bind.length < _holder.size() );
+			assert( value.size() < _holder.size() );
 			strcpy( _holder.data(), value.data() );
 			_bind.value = reinterpret_cast< char * >( &_holder );
 		}
@@ -876,9 +876,9 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		//!@copydoc SOutPostgreSqlBindBase::DoUpdateValue
 		virtual void DoUpdateValue()
 		{
-			std::string value = _value.GetValue().Format( POSTGRE_FORMAT_TIME );
+			std::string value = Time::Format( _value.GetValue(), POSTGRE_FORMAT_TIME );
 			_bind.length = int( value.size() );
-			assert( _bind.length < _holder.size() );
+			assert( value.size() < _holder.size() );
 			strcpy( _holder.data(), value.data() );
 			_bind.value = reinterpret_cast< char * >( &_holder );
 		}

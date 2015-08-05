@@ -56,29 +56,29 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template< class StmtType >
 		inline void SetParametersValue( uint32_t & index, int mult, int i, std::shared_ptr< StmtType > stmt )
 		{
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_SINT32 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_SINT32 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_UINT8 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_SINT16 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_SINT24 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_SINT64 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_SINT16 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_SINT64 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_FLOAT64 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_FLOAT64 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_FLOAT64 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_FLOAT32 >::InitialiseValue() );
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue( 10, 0 ) );
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::InitialiseValue( 10, 5 ) );
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_BIT >::InitialiseValue() );
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_DATE >::InitialiseValue() );
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_DATETIME >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_SINT32 >::GetRandomValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_SINT32 >::GetRandomValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_UINT8 >::GetRandomValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_SINT16 >::GetRandomValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_SINT24 >::GetRandomValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_SINT64 >::GetRandomValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_SINT16 >::GetRandomValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_SINT64 >::GetRandomValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_FLOAT64 >::GetRandomValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_FLOAT64 >::GetRandomValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_FLOAT64 >::GetRandomValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_FLOAT32 >::GetRandomValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::GetRandomValue( 10, 0 ) );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_FIXED_POINT >::GetRandomValue( 10, 5 ) );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_BIT >::GetRandomValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_DATE >::GetRandomValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_DATETIME >::GetRandomValue() );
 			stmt->SetParameterValue( index++, "CHAR: Areva Intercontrôle " + std::to_string( mult * i + index ) );
 			stmt->SetParameterValue( index++, "VARCHAR: Areva Intercontrôle " + std::to_string( mult * i + index ) );
 			stmt->SetParameterValue( index++, "NCHAR: Areva Intercontrôle " + std::to_string( mult * i + index ) );
 			stmt->SetParameterValue( index++, "NVARCHAR: Areva Intercontrôle " + std::to_string( mult * i + index ) );
 			stmt->SetParameterValue( index++, "TEXT: Areva Intercontrôle " + std::to_string( mult * i + index ) );
-			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_VARBINARY >::InitialiseValue() );
+			stmt->SetParameterValue( index++, DatabaseUtils::Helpers< EFieldType_VARBINARY >::GetRandomValue() );
 		}
 
 		inline void DisplayValues( uint32_t & index, DatabaseRowSPtr row )
@@ -99,7 +99,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			CLogger::LogInfo( StringStream() << STR( "DecimalField : " ) << row->Get< CFixedPoint >( index++ ).ToString() );
 			CLogger::LogInfo( StringStream() << STR( "BooleanField : " ) << row->Get< bool >( index++ ) );
 			CLogger::LogInfo( StringStream() << STR( "DateField : " ) << row->Get< CDate >( index++ ) );
-			CLogger::LogInfo( StringStream() << STR( "DateTimeField : " ) << row->Get< CDateTime >( index++ ) );
+			CLogger::LogInfo( StringStream() << STR( "DateTimeField : " ) << row->Get< DateTimeType >( index++ ) );
 			CLogger::LogInfo( StringStream() << STR( "CharacterField : " ) << row->Get< std::string >( index++ ) );
 			CLogger::LogInfo( StringStream() << STR( "VarcharField : " ) << row->Get< std::string >( index++ ) );
 			CLogger::LogInfo( std::wstringstream() << L"NcharField : " << row->Get< std::wstring >( index++ ) );
@@ -108,7 +108,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			CLogger::LogInfo( StringStream() << STR( "BlobField : " ) << row->Get< ByteArray >( index++ ) );
 		}
 
-		template< typename StmtType >
+		template< size_t StmtType >
 		void PerfDirectInsertActors( DatabaseConnectionSPtr connection, uint32_t testCount )
 		{
 			try
@@ -119,7 +119,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( stmtGetCount )
 				{
-					stmtGetCount->Initialize();
+					stmtGetCount->Initialise();
 					DatabaseResultSPtr result = stmtGetCount->ExecuteSelect();
 
 					if ( result && result->GetRowCount() )
@@ -137,7 +137,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					if ( stmtInsert )
 					{
 						CreateParameters( stmtInsert );
-						stmtInsert->Initialize();
+						stmtInsert->Initialise();
 						std::clock_t const start = std::clock();
 						int16_t type( 1 );
 
@@ -158,7 +158,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 		}
 
-		template< typename StmtType >
+		template< size_t StmtType >
 		void PerfStoredProcedureInsertActors( DatabaseConnectionSPtr connection, uint32_t testCount )
 		{
 			try
@@ -169,7 +169,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 				if ( stmtGetCount )
 				{
-					stmtGetCount->Initialize();
+					stmtGetCount->Initialise();
 					DatabaseResultSPtr result = stmtGetCount->ExecuteSelect();
 
 					if ( result && result->GetRowCount() )
@@ -187,7 +187,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					if ( stmtAddUpdate )
 					{
 						CreateParameters( stmtAddUpdate );
-						stmtAddUpdate->Initialize();
+						stmtAddUpdate->Initialise();
 						std::clock_t const start = std::clock();
 						int16_t type( 1 );
 

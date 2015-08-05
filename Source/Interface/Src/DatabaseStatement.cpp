@@ -17,6 +17,7 @@
 
 #include "Database.h"
 #include "DatabaseParameter.h"
+#include "DatabaseValuedObjectInfos.h"
 #include "DatabaseException.h"
 
 #include "DatabaseStringUtils.h"
@@ -24,16 +25,12 @@
 
 BEGIN_NAMESPACE_DATABASE
 {
-	static const String ERROR_DB_STATEMENT_INDEX = STR( "No statement parameter at index: " );
-	static const String ERROR_DB_STATEMENT_NAME = STR( "No statement parameter named: " );
-	static const String ERROR_DB_STATEMENT_ALREADY_ADDED_PARAMETER = STR( "Parameter with name [%1%] already exists." );
-	static const String ERROR_STATEMENT_INITIALISATION = STR( "Statement initialisation failed: " );
+	static const String ERROR_DB_STATEMENT_NOT_INITIALISED = STR( "Statement is not initialised" );
 	static const String ERROR_STATEMENT_EXECUTION = STR( "Statement execution failed: " );
-	static const String ERROR_STATEMENT_CLEANUP = STR( "Statement cleanup failed: " );
 
 	static const String WARNING_DB_STATEMENT_NULL_PARAMETER = STR( "Trying to add a null parameter." );
 
-	static const String INFO_UNKNOWN_ERROR = "Unknown error";
+	static const String INFO_UNKNOWN_ERROR = STR( "Unknown error" );
 
 	CDatabaseStatement::SValueUpdater::SValueUpdater( CDatabaseStatement * stmt )
 		: _stmt( stmt )
@@ -46,7 +43,8 @@ BEGIN_NAMESPACE_DATABASE
 	}
 
 	CDatabaseStatement::CDatabaseStatement( DatabaseConnectionSPtr connection, const String & query )
-		: _connection( connection )
+		: CDatabaseParameteredObject()
+		, _connection( connection )
 		, _query( query )
 	{
 		// Empty
@@ -57,47 +55,28 @@ BEGIN_NAMESPACE_DATABASE
 		// Empty
 	}
 
-	EErrorType CDatabaseStatement::Initialize()
+	bool CDatabaseStatement::ExecuteUpdate()
 	{
-		EErrorType ret = EErrorType_ERROR;
-
-		try
+		if ( !_initialised )
 		{
-			ret = DoInitialize();
-		}
-		catch( CExceptionDatabase & exc )
-		{
-			CLogger::LogError( ERROR_STATEMENT_INITIALISATION + exc.GetFullDescription() );
-		}
-		catch( std::exception & exc )
-		{
-			CLogger::LogError( ERROR_STATEMENT_INITIALISATION + exc.what() );
-		}
-		catch( ... )
-		{
-			CLogger::LogError( ERROR_STATEMENT_INITIALISATION + INFO_UNKNOWN_ERROR );
+			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_DB_STATEMENT_NOT_INITIALISED );
 		}
 
-		return ret;
-	}
-
-	bool CDatabaseStatement::ExecuteUpdate( EErrorType * result )
-	{
 		bool ret = false;
 
 		try
 		{
-			ret = DoExecuteUpdate( result );
+			ret = DoExecuteUpdate();
 		}
-		catch( CExceptionDatabase & exc )
+		catch ( CDatabaseException & exc )
 		{
 			CLogger::LogError( ERROR_STATEMENT_EXECUTION + exc.GetFullDescription() );
 		}
-		catch( std::exception & exc )
+		catch ( std::exception & exc )
 		{
 			CLogger::LogError( ERROR_STATEMENT_EXECUTION + exc.what() );
 		}
-		catch( ... )
+		catch ( ... )
 		{
 			CLogger::LogError( ERROR_STATEMENT_EXECUTION + INFO_UNKNOWN_ERROR );
 		}
@@ -105,23 +84,28 @@ BEGIN_NAMESPACE_DATABASE
 		return ret;
 	}
 
-	DatabaseResultSPtr CDatabaseStatement::ExecuteSelect( EErrorType * result )
+	DatabaseResultSPtr CDatabaseStatement::ExecuteSelect()
 	{
+		if ( !_initialised )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_DB_STATEMENT_NOT_INITIALISED );
+		}
+
 		DatabaseResultSPtr ret;
 
 		try
 		{
-			ret = DoExecuteSelect( result );
+			ret = DoExecuteSelect();
 		}
-		catch( CExceptionDatabase & exc )
+		catch ( CDatabaseException & exc )
 		{
 			CLogger::LogError( ERROR_STATEMENT_EXECUTION + exc.GetFullDescription() );
 		}
-		catch( std::exception & exc )
+		catch ( std::exception & exc )
 		{
 			CLogger::LogError( ERROR_STATEMENT_EXECUTION + exc.what() );
 		}
-		catch( ... )
+		catch ( ... )
 		{
 			CLogger::LogError( ERROR_STATEMENT_EXECUTION + INFO_UNKNOWN_ERROR );
 		}
@@ -129,116 +113,19 @@ BEGIN_NAMESPACE_DATABASE
 		return ret;
 	}
 
-	void CDatabaseStatement::Cleanup()
+	DatabaseParameterSPtr CDatabaseStatement::CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType )
 	{
-		try
-		{
-			DoCleanup();
-		}
-		catch( CExceptionDatabase & exc )
-		{
-			CLogger::LogError( ERROR_STATEMENT_CLEANUP + exc.GetFullDescription() );
-		}
-		catch( std::exception & exc )
-		{
-			CLogger::LogError( ERROR_STATEMENT_CLEANUP + exc.what() );
-		}
-		catch( ... )
-		{
-			CLogger::LogError( ERROR_STATEMENT_CLEANUP + INFO_UNKNOWN_ERROR );
-		}
+		return DoCreateParameter( std::make_shared< CDatabaseValuedObjectInfos >( name, fieldType ), parameterType );
 	}
 
-	DatabaseParameterSPtr CDatabaseStatement::GetParameter( uint32_t index )const
+	DatabaseParameterSPtr CDatabaseStatement::CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType )
 	{
-		try
-		{
-			return _arrayParams[index];
-		}
-		catch ( CExceptionDatabase & exc )
-		{
-			CLogger::LogError( exc.GetFullDescription() );
-			throw;
-		}
-		catch ( ... )
-		{
-			StringStream message;
-			message << ERROR_DB_STATEMENT_INDEX << index;
-			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, message.str() );
-		}
+		return DoCreateParameter( std::make_shared< CDatabaseValuedObjectInfos >( name, fieldType, limits ), parameterType );
 	}
 
-	DatabaseParameterSPtr CDatabaseStatement::GetParameter( const String & name )const
+	DatabaseParameterSPtr CDatabaseStatement::CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType )
 	{
-		auto && it = std::find_if( _arrayParams.begin(), _arrayParams.end(), [&name]( DatabaseParameterSPtr parameter )
-		{
-			return parameter->GetName() == name;
-		} );
-
-		if ( it == _arrayParams.end() )
-		{
-			StringStream message;
-			message << ERROR_DB_STATEMENT_NAME << name;
-			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, message.str() );
-		}
-
-		return ( *it );
-	}
-
-	EFieldType CDatabaseStatement::GetParameterType( uint32_t index )
-	{
-		return GetParameter( index )->GetType();
-	}
-
-	void CDatabaseStatement::SetParameterNull( uint32_t index )
-	{
-		GetParameter( index )->SetNull();
-	}
-
-	void CDatabaseStatement::SetParameterNull( const String & name )
-	{
-		GetParameter( name )->SetNull();
-	}
-
-	void CDatabaseStatement::SetParameterValue( uint32_t index, const CDatabaseParameter & parameter )
-	{
-		GetParameter( index )->SetValue( parameter );
-	}
-
-	void CDatabaseStatement::SetParameterValue( const String & name, const CDatabaseParameter & parameter )
-	{
-		GetParameter( name )->SetValue( parameter );
-	}
-
-	bool CDatabaseStatement::DoAddParameter( DatabaseParameterSPtr parameter )
-	{
-		bool bReturn = false;
-
-		if ( parameter )
-		{
-			auto it = std::find_if( _arrayParams.begin(), _arrayParams.end(), [&parameter]( DatabaseParameterSPtr param )
-			{
-				return param->GetName() == parameter->GetName();
-			} );
-
-			if ( it == _arrayParams.end() )
-			{
-				_arrayParams.push_back( parameter );
-				bReturn = true;
-			}
-			else
-			{
-				Format format( ERROR_DB_STATEMENT_ALREADY_ADDED_PARAMETER );
-				format % parameter->GetName();
-				CLogger::LogError( format.str() );
-			}
-		}
-		else
-		{
-			CLogger::LogError( WARNING_DB_STATEMENT_NULL_PARAMETER );
-		}
-
-		return bReturn;
+		return DoCreateParameter( std::make_shared< CDatabaseValuedObjectInfos >( name, fieldType, precision ), parameterType );
 	}
 }
 END_NAMESPACE_DATABASE

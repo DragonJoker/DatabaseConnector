@@ -34,7 +34,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		return Sqlite::PLUGIN_NAME_DATABASE_SQLITE;
 	}
 
-	void CPluginDatabaseSqlite::Initialize()
+	void CPluginDatabaseSqlite::Initialise()
 	{
 	}
 

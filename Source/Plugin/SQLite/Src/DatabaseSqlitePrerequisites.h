@@ -32,7 +32,7 @@ BEGIN_NAMESPACE_DATABASE
 		class CDatabaseSqlite;
 		class CDatabaseStatementSqlite;
 		class CDatabaseStatementParameterSqlite;
-		class CExceptionDatabaseSqlite;
+		class CDatabaseExceptionSqlite;
 		class CPluginDatabaseSqlite;
 		class CFactoryDatabaseSqlite;
 		struct SSqliteBindingBase;

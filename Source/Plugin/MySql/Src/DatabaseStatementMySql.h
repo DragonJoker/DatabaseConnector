@@ -38,68 +38,34 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			*/
 		virtual ~CDatabaseStatementMySql();
 
-		/** Create a parameter.
-		@param[in] name
-			Parameter name.
-		@param[in] fieldType
-			Date type.
-		@param[in] parameterType
-			Parameter type.
-		@return
-			Created parameter.
-		*/
-		virtual DatabaseParameterSPtr CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType );
-
-		/** Create a parameter which has limits (strings, etc.).
-		@param[in] name
-			Parameter name.
-		@param[in] fieldType
-			Date type.
-		@param[in] limits
-			Size limits.
-		@param[in] parameterType
-			Parameter type.
-		@return
-			Created parameter.
-		*/
-		virtual DatabaseParameterSPtr CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType );
-
-		/** Create a parameter which has limits (strings, etc.).
-		@param[in] name
-			Parameter name.
-		@param[in] fieldType
-			Date type.
-		@param[in] precision
-			Field precision.
-		@param[in] parameterType
-			Parameter type.
-		@return
-			Created parameter.
-		*/
-		virtual DatabaseParameterSPtr CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType );
-
 	private:
-		/** Initialize this statement.
+		/** Create a parameter.
+		@param[in] infos
+			Parameter informations.
+		@param[in] parameterType
+			Parameter type.
+		@return
+			Created parameter.
+		*/
+		virtual DatabaseParameterSPtr DoCreateParameter( DatabaseValuedObjectInfosSPtr infos, EParameterType parameterType );
+
+		/** Initialise this statement.
 		@return
 			Error code.
 		*/
-		virtual EErrorType DoInitialize();
+		virtual EErrorType DoInitialise();
 
 		/** Execute this statement.
-		@param[out] result
-			Error code.
 		@return
 			The result.
 		*/
-		virtual bool DoExecuteUpdate( EErrorType * result = NULL );
+		virtual bool DoExecuteUpdate();
 
 		/** Execute this statement.
-		@param[out] result
-			Error code.
 		@return
 			The result.
 		*/
-		virtual DatabaseResultSPtr DoExecuteSelect( EErrorType * result = NULL );
+		virtual DatabaseResultSPtr DoExecuteSelect();
 
 		/** Clean statement.
 		*/
@@ -108,20 +74,16 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		/** Pre-execution action
 		@remarks
 			Computes the final query from parameters values
-		@param[out] result
-			Receives the error code
 		@return
 			The full query
 		*/
-		void DoPreExecute( EErrorType * result );
+		void DoPreExecute();
 
 		/** Pre-execution action
 		@remarks
 			Computes the final query from parameters values
-		@param[out] result
-			Receives the error code
 		*/
-		void DoPostExecute( EErrorType * result );
+		void DoPostExecute();
 
 		/** Retrieves the MySQL connection
 		@return
@@ -147,10 +109,10 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		std::vector< MYSQL_BIND > _bindings;
 		/// Array of out parameters
 		DatabaseParameterMySqlPtrArray _arrayOutParams;
-		/// Array of in/out parameter initializer queries
-		std::vector< std::pair< DatabaseStatementSPtr, DatabaseParameterWPtr > > _inOutInitializers;
-		/// Array of out parameter initializer queries
-		std::vector< DatabaseStatementSPtr > _outInitializers;
+		/// Array of in/out parameter initialiser queries
+		std::vector< std::pair< DatabaseStatementSPtr, DatabaseParameterWPtr > > _inOutInitialisers;
+		/// Array of out parameter initialiser queries
+		std::vector< DatabaseStatementSPtr > _outInitialisers;
 		/// The statement used to execute the out parameters retrieval query
 		DatabaseStatementSPtr _stmtOutParams;
 	};

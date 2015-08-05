@@ -19,6 +19,7 @@
 
 #include <DatabaseQuery.h>
 #include <DatabaseResult.h>
+#include <DatabaseFileUtils.h>
 
 #if defined( _WIN32 )
 #   include <windows.h>
@@ -57,13 +58,13 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			// Command path
 			StringStream commandStream;
 			commandStream << path << PATH_SEP << script;
-			std::string commandString = CStrUtils::ToStr( commandStream.str() );
+			std::string commandString = StringUtils::ToStr( commandStream.str() );
 
 			// Execute
 			spawn_pid_t processId = INVALID_PROCESS_ID;
-			String processPath = CStrUtils::ToString( commandString );
+			String processPath = StringUtils::ToString( commandString );
 
-			if ( !FileExists( processPath ) )
+			if ( !FileUtils::FileExists( processPath ) )
 			{
 				StringStream ss;
 				ss << ERROR_UNABLE_TO_SPAWN_PROCESS << STR( "File does not exist\n" );
@@ -123,7 +124,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 			for ( auto && argument : arguments )
 			{
-				strargs.push_back( CStrUtils::ToStr( argument ) );
+				strargs.push_back( StringUtils::ToStr( argument ) );
 			}
 
 			std::vector< const char * > args;
@@ -233,5 +234,35 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		return ExecuteScript( SCRIPT_FILES_DIR, SCRIPT_ODBC_UNINSTALL + SCRIPT_EXT, { database } );
 	}
 #endif
+
+	namespace DatabaseUtils
+	{
+		const uint32_t Helpers< EFieldType_BIT >::Limit = -1;
+		const uint32_t Helpers< EFieldType_SINT8 >::Limit = -1;
+		const uint32_t Helpers< EFieldType_SINT16 >::Limit = -1;
+		const uint32_t Helpers< EFieldType_SINT24 >::Limit = -1;
+		const uint32_t Helpers< EFieldType_SINT32 >::Limit = -1;
+		const uint32_t Helpers< EFieldType_SINT64 >::Limit = -1;
+		const uint32_t Helpers< EFieldType_UINT8 >::Limit = -1;
+		const uint32_t Helpers< EFieldType_UINT16 >::Limit = -1;
+		const uint32_t Helpers< EFieldType_UINT24 >::Limit = -1;
+		const uint32_t Helpers< EFieldType_UINT32 >::Limit = -1;
+		const uint32_t Helpers< EFieldType_UINT64 >::Limit = -1;
+		const uint32_t Helpers< EFieldType_FLOAT32 >::Limit = -1;
+		const uint32_t Helpers< EFieldType_FLOAT64 >::Limit = -1;
+		const std::pair< uint32_t, uint32_t > Helpers< EFieldType_FIXED_POINT >::Precision = std::make_pair( 10, 5 );
+		const uint32_t Helpers< EFieldType_CHAR >::Limit = 20;
+		const uint32_t Helpers< EFieldType_VARCHAR >::Limit = 20;
+		const uint32_t Helpers< EFieldType_TEXT >::Limit = -1;
+		const uint32_t Helpers< EFieldType_NCHAR >::Limit = 55;
+		const uint32_t Helpers< EFieldType_NVARCHAR >::Limit = 55;
+		const uint32_t Helpers< EFieldType_NTEXT >::Limit = -1;
+		const uint32_t Helpers< EFieldType_DATE >::Limit = -1;
+		const uint32_t Helpers< EFieldType_TIME >::Limit = -1;
+		const uint32_t Helpers< EFieldType_DATETIME >::Limit = -1;
+		const uint32_t Helpers< EFieldType_BINARY >::Limit = 20;
+		const uint32_t Helpers< EFieldType_VARBINARY >::Limit = 255;
+		const uint32_t Helpers< EFieldType_BLOB >::Limit = -1;
+	}
 }
 END_NAMESPACE_DATABASE_TEST

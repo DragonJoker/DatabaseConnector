@@ -17,7 +17,7 @@
 
 #include "ExceptionDatabaseOdbc.h"
 
-#include <DatabaseFieldInfos.h>
+#include <DatabaseValuedObjectInfos.h>
 #include <DatabaseField.h>
 #include <DatabaseResult.h>
 #include <DatabaseRow.h>
@@ -216,6 +216,45 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			}
 		};
 
+		/** Specialisation for CHAR fields
+		*/
+		template<>
+		struct CInOdbcBind< char *, uint32_t >
+			: public CInOdbcBindBase
+		{
+			std::vector< char > _value;
+
+			/** Constructor
+			@param targetType
+				Data type.
+			@param stmt
+				The statement.
+			@param index
+				The column index.
+			*/
+			CInOdbcBind( SQLSMALLINT targetType, uint32_t limits )
+				: CInOdbcBindBase( targetType, limits + 1 )
+				, _value( limits + 1 )
+			{
+				_targetValuePtr = _value.data();
+			}
+
+			std::string GetValue()const
+			{
+				std::string ret = _value.data();
+
+				if ( ret.size() < _value.size() - 1 )
+				{
+					std::stringstream stream;
+					stream.width( _value.size() - 1 );
+					stream << std::left << ret;
+					ret = stream.str();
+				}
+
+				return ret;
+			}
+		};
+
 		/** Specialisation for pointer types
 		*/
 		template<>
@@ -243,6 +282,45 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			}
 		};
 
+		/** Specialisation for NCHAR fields
+		*/
+		template<>
+		struct CInOdbcBind< wchar_t *, uint32_t >
+			: public CInOdbcBindBase
+		{
+			std::vector< wchar_t > _value;
+
+			/** Constructor
+			@param targetType
+				Data type.
+			@param stmt
+				The statement.
+			@param index
+				The column index.
+			*/
+			CInOdbcBind( SQLSMALLINT targetType, uint32_t limits )
+				: CInOdbcBindBase( targetType, limits + 1 )
+				, _value( limits + 1 )
+			{
+				_targetValuePtr = _value.data();
+			}
+
+			std::wstring GetValue()const
+			{
+				std::wstring ret = _value.data();
+
+				if ( ret.size() < _value.size() - 1 )
+				{
+					std::wstringstream stream;
+					stream.width( _value.size() - 1 );
+					stream << std::left << ret;
+					ret = stream.str();
+				}
+
+				return ret;
+			}
+		};
+
 		/** Specialisation for double stored as char pointers
 		*/
 		template<>
@@ -264,7 +342,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 			double GetValue()const
 			{
-				return CStrUtils::ToDouble( _value );
+				return std::stod( _value );
 			}
 		};
 
@@ -293,7 +371,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 			int32_t GetValue()const
 			{
-				return CStrUtils::ToInt( _value );
+				return std::stoi( _value );
 			}
 		};
 
@@ -370,12 +448,12 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 		std::string StringFromOdbcString( CInOdbcBind< char * > const & bind )
 		{
-			return std::string( bind.GetValue(), bind.GetValue() + std::min< size_t >( strlen(bind.GetValue() ), bind._strLenOrInd ) );
+			return std::string( bind.GetValue(), bind.GetValue() + std::min< size_t >( strlen( bind.GetValue() ), bind._strLenOrInd ) );
 		}
 
 		std::wstring StringFromOdbcWString( CInOdbcBind< wchar_t * > const & bind )
 		{
-			return std::wstring( bind.GetValue(), bind.GetValue() + std::min< size_t >( wcslen(bind.GetValue() ), bind._strLenOrInd ) );
+			return std::wstring( bind.GetValue(), bind.GetValue() + std::min< size_t >( wcslen( bind.GetValue() ), bind._strLenOrInd ) );
 		}
 
 		ByteArray VectorFromOdbcBinary( CInOdbcBind< uint8_t * > const & bind )
@@ -383,21 +461,20 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			return ByteArray( bind.GetValue(), bind.GetValue() + bind._strLenOrInd );
 		}
 
-		CDate CDateFromOdbcDate( SQL_DATE_STRUCT const & ts )
+		DateType DateFromOdbcDate( SQL_DATE_STRUCT const & ts )
 		{
-			return CDate( ts.year, EDateMonth( ts.month - 1 ), ts.day );
+			return DateType( ts.year, ts.month, ts.day );
 		}
 
-		CDateTime CDateTimeFromOdbcTimestamp( SQL_TIMESTAMP_STRUCT const & ts )
+		DateTimeType DateTimeFromOdbcTimestamp( SQL_TIMESTAMP_STRUCT const & ts )
 		{
-			CDateTime dateTime;
-			dateTime.SetDateTime( ts.year, EDateMonth( ts.month - 1 ), ts.day, ts.hour, ts.minute, ts.second );
+			DateTimeType dateTime( DateType( ts.year, ts.month, ts.day ), TimeType( ts.hour, ts.minute, ts.second ) );
 			return dateTime;
 		}
 
-		CTime CTimeFromOdbcTime( SQL_TIME_STRUCT const & ts )
+		TimeType TimeFromOdbcTime( SQL_TIME_STRUCT const & ts )
 		{
-			return CTime( ts.hour, ts.minute, ts.second );
+			return TimeType( ts.hour, ts.minute, ts.second );
 		}
 
 		std::unique_ptr< CInOdbcBindBase > GetBindFromFieldType( EFieldType type, uint32_t limits, uint32_t precision, uint32_t scale )
@@ -463,15 +540,21 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				break;
 
 			case EFieldType_CHAR:
+				result = std::make_unique< CInOdbcBind< char *, uint32_t > >( SQL_C_CHAR, limits );
+				break;
+
 			case EFieldType_VARCHAR:
 			case EFieldType_TEXT:
 				result = std::make_unique< CInOdbcBind< char * > >( SQL_C_CHAR, limits );
 				break;
 
 			case EFieldType_NCHAR:
+				result = std::make_unique< CInOdbcBind< wchar_t *, uint32_t > >( SQL_C_WCHAR, limits );
+				break;
+
 			case EFieldType_NVARCHAR:
 			case EFieldType_NTEXT:
-				result = std::make_unique< CInOdbcBind< char * > >( SQL_C_WCHAR, limits );
+				result = std::make_unique< CInOdbcBind< wchar_t * > >( SQL_C_WCHAR, limits );
 				break;
 
 			case EFieldType_DATE:
@@ -488,7 +571,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 			case EFieldType_BINARY:
 			case EFieldType_VARBINARY:
-			case EFieldType_LONG_VARBINARY:
+			case EFieldType_BLOB:
 				result = std::make_unique< CInOdbcBind< uint8_t * > >( SQL_C_BINARY, limits );
 				break;
 			}
@@ -508,14 +591,14 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				if ( dotIndex == String::npos )
 				{
 					String limit = type.substr( index + 1, type.find( STR( ")" ) ) - index );
-					result.first = CStrUtils::ToInt( CStrUtils::Trim( limit ) );
+					result.first = std::stoi( StringUtils::Trim( limit ) );
 				}
 				else
 				{
 					String limit1 = type.substr( index + 1, dotIndex - index );
-					result.first = CStrUtils::ToInt( CStrUtils::Trim( limit1 ) );
+					result.first = std::stoi( StringUtils::Trim( limit1 ) );
 					String limit2 = type.substr( dotIndex + 1, type.find( STR( ")" ) ) - dotIndex );
-					result.second = CStrUtils::ToInt( CStrUtils::Trim( limit2 ) );
+					result.second = std::stoi( StringUtils::Trim( limit2 ) );
 				}
 			}
 
@@ -524,7 +607,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 		EFieldType GetFieldTypeFromTypeName( const String & type, std::pair< uint32_t, uint32_t > & limprec )
 		{
-			String strTypel = CStrUtils::UpperCase( type );
+			String strTypel = StringUtils::UpperCase( type );
 			size_t index;
 			EFieldType result;
 
@@ -674,7 +757,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			}
 			else if ( strTypel.find( STR( "BLOB" ) ) != String::npos )
 			{
-				result = EFieldType_LONG_VARBINARY;
+				result = EFieldType_BLOB;
 				limprec.first = -1;
 			}
 			else if ( strTypel.find( STR( "VARBINARY" ) ) != String::npos )
@@ -699,11 +782,11 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			return result;
 		}
 
-		DatabaseFieldInfosPtrArray InitializeColumns( SQLSMALLINT columnCount, std::vector< std::unique_ptr< CInOdbcBindBase > > & columns, SQLHSTMT stmt )
+		DatabaseValuedObjectInfosPtrArray InitialiseColumns( SQLSMALLINT columnCount, std::vector< std::unique_ptr< CInOdbcBindBase > > & columns, SQLHSTMT stmt )
 		{
 			static const SQLSMALLINT BUFFER_SIZE = 255;
 			EErrorType errorType = EErrorType_NONE;
-			DatabaseFieldInfosPtrArray result;
+			DatabaseValuedObjectInfosPtrArray result;
 
 			for ( SQLSMALLINT i = 1; i <= columnCount; ++i )
 			{
@@ -713,7 +796,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 				// Retrieve the column name
 				OdbcCheck( SQLColAttribute( stmt, i, SQL_DESC_LABEL, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_LABEL );
-				String name = CStrUtils::ToString( buffer );
+				String name = StringUtils::ToString( buffer );
 
 				// Its length
 				std::memset( buffer, 0, BUFFER_SIZE );
@@ -755,9 +838,9 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				stringLength = 0;
 				numericAttribute = 0;
 				OdbcCheck( SQLColAttribute( stmt, i, SQL_DESC_TYPE_NAME, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_TYPE_NAME );
-				String typeName = CStrUtils::ToString( buffer );
-				
-				DatabaseFieldInfosSPtr infos;
+				String typeName = StringUtils::ToString( buffer );
+
+				DatabaseValuedObjectInfosSPtr infos;
 				std::unique_ptr< CInOdbcBindBase > bind;
 
 				if ( conciseType == SQL_NTS || conciseType == SQL_TINYINT || conciseType == SQL_CHAR || conciseType == SQL_VARCHAR )
@@ -765,7 +848,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 					if ( errorType == EErrorType_NONE )
 					{
 						std::pair< uint32_t, uint32_t > limprec( precision, scale );
-						infos = std::make_shared< CDatabaseFieldInfos >( name, GetFieldTypeFromTypeName( typeName, limprec ), std::make_pair( precision, scale ) );
+						infos = std::make_shared< CDatabaseValuedObjectInfos >( name, GetFieldTypeFromTypeName( typeName, limprec ), std::make_pair( precision, scale ) );
 						bind = GetBindFromFieldType( infos->GetType(), limits, precision, scale );
 					}
 				}
@@ -773,7 +856,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				{
 					EFieldType type = GetFieldTypeFromConciseType( conciseType, limits );
 					bind = GetBindFromFieldType( type, limits, precision, scale );
-					infos = std::make_shared< CDatabaseFieldInfos >( name, type, std::make_pair( precision, scale ) );
+					infos = std::make_shared< CDatabaseValuedObjectInfos >( name, type, std::make_pair( precision, scale ) );
 				}
 
 				columns.push_back( std::move( bind ) );
@@ -844,7 +927,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				break;
 
 			case EFieldType_CHAR:
-				static_cast< CDatabaseValue< EFieldType_CHAR > & >( value ).SetValue( StringFromOdbcString( static_cast< CInOdbcBind< char * > const & >( bind ) ) );
+				static_cast< CDatabaseValue< EFieldType_CHAR > & >( value ).SetValue( static_cast< CInOdbcBind< char *, uint32_t > const & >( bind ).GetValue() );
 				break;
 
 			case EFieldType_VARCHAR:
@@ -856,7 +939,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				break;
 
 			case EFieldType_NCHAR:
-				static_cast< CDatabaseValue< EFieldType_NCHAR > & >( value ).SetValue( StringFromOdbcWString( static_cast< CInOdbcBind< wchar_t * > const & >( bind ) ) );
+				static_cast< CDatabaseValue< EFieldType_NCHAR > & >( value ).SetValue( static_cast< CInOdbcBind< wchar_t *, uint32_t > const & >( bind ).GetValue() );
 				break;
 
 			case EFieldType_NVARCHAR:
@@ -868,15 +951,15 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				break;
 
 			case EFieldType_DATE:
-				static_cast< CDatabaseValue< EFieldType_DATE > & >( value ).SetValue( CDateFromOdbcDate( static_cast< CInOdbcBind< DATE_STRUCT > const & >( bind ).GetValue() ) );
+				static_cast< CDatabaseValue< EFieldType_DATE > & >( value ).SetValue( DateFromOdbcDate( static_cast< CInOdbcBind< DATE_STRUCT > const & >( bind ).GetValue() ) );
 				break;
 
 			case EFieldType_DATETIME:
-				static_cast< CDatabaseValue< EFieldType_DATETIME > & >( value ).SetValue( CDateTimeFromOdbcTimestamp( static_cast< CInOdbcBind< TIMESTAMP_STRUCT > const & >( bind ).GetValue() ) );
+				static_cast< CDatabaseValue< EFieldType_DATETIME > & >( value ).SetValue( DateTimeFromOdbcTimestamp( static_cast< CInOdbcBind< TIMESTAMP_STRUCT > const & >( bind ).GetValue() ) );
 				break;
 
 			case EFieldType_TIME:
-				static_cast< CDatabaseValue< EFieldType_TIME > & >( value ).SetValue( CTimeFromOdbcTime( static_cast< CInOdbcBind< TIME_STRUCT > const & >( bind ).GetValue() ) );
+				static_cast< CDatabaseValue< EFieldType_TIME > & >( value ).SetValue( TimeFromOdbcTime( static_cast< CInOdbcBind< TIME_STRUCT > const & >( bind ).GetValue() ) );
 				break;
 
 			case EFieldType_BINARY:
@@ -887,8 +970,8 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				static_cast< CDatabaseValue< EFieldType_VARBINARY > & >( value ).SetValue( VectorFromOdbcBinary( static_cast< CInOdbcBind< uint8_t * > const & >( bind ) ) );
 				break;
 
-			case EFieldType_LONG_VARBINARY:
-				static_cast< CDatabaseValue< EFieldType_LONG_VARBINARY > & >( value ).SetValue( VectorFromOdbcBinary( static_cast< CInOdbcBind< uint8_t * > const & >( bind ) ) );
+			case EFieldType_BLOB:
+				static_cast< CDatabaseValue< EFieldType_BLOB > & >( value ).SetValue( VectorFromOdbcBinary( static_cast< CInOdbcBind< uint8_t * > const & >( bind ) ) );
 				break;
 
 			default:
@@ -946,12 +1029,12 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 									SetFieldValue( field->GetType(), field->GetObjectValue(), *bind );
 								}
 							}
-							catch ( const CExceptionDatabase & e )
+							catch ( const CDatabaseException & e )
 							{
 								StringStream message;
 								message << ERROR_ODBC_DRIVER << std::endl;
 								message << e.what();
-								ODBC_EXCEPT( EDatabaseOdbcExceptionCodes_GenericError, message.str() );
+								ODBC_EXCEPT( EDatabaseExceptionCodes_GenericError, message.str() );
 							}
 
 							row->AddField( field );
@@ -975,14 +1058,14 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 					StringStream message;
 					message << ERROR_ODBC_DRIVER << std::endl;
 					message << e.what();
-					ODBC_EXCEPT( EDatabaseOdbcExceptionCodes_GenericError, message.str() );
+					ODBC_EXCEPT( EDatabaseExceptionCodes_GenericError, message.str() );
 				}
 				catch ( ... )
 				{
 					StringStream message;
 					message << ERROR_ODBC_DRIVER << std::endl;
 					message << ERROR_ODBC_UNKNOWN;
-					ODBC_EXCEPT( EDatabaseOdbcExceptionCodes_UnknownError, message.str() );
+					ODBC_EXCEPT( EDatabaseExceptionCodes_UnknownError, message.str() );
 				}
 			}
 
@@ -1170,7 +1253,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			break;
 
 		case SQL_LONGVARBINARY:
-			fieldType = EFieldType_LONG_VARBINARY;
+			fieldType = EFieldType_BLOB;
 			break;
 
 		case SQL_TYPE_DATE:
@@ -1218,7 +1301,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			if ( numColumns )
 			{
 				std::vector< std::unique_ptr< CInOdbcBindBase > > arrayColumnData;
-				DatabaseFieldInfosPtrArray columns = InitializeColumns( numColumns, arrayColumnData, statementHandle );
+				DatabaseValuedObjectInfosPtrArray columns = InitialiseColumns( numColumns, arrayColumnData, statementHandle );
 				pReturn = std::make_shared< CDatabaseResult >( columns );
 				FetchResultSet( connection, pReturn, arrayColumnData, statementHandle );
 			}

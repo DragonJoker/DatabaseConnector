@@ -26,10 +26,12 @@ BEGIN_NAMESPACE_DATABASE
 	{
 	public:
 		/** Constructor.
-		@param connection
+		@param[in] connection
 			The database connection.
+		@param[in] infos
+			Valued object informations.
 		*/
-		DatabaseExport CDatabaseValuedObject( DatabaseConnectionSPtr connection );
+		DatabaseExport CDatabaseValuedObject( DatabaseConnectionSPtr connection, DatabaseValuedObjectInfosSPtr infos );
 
 		/** Destructor.
 		*/
@@ -57,25 +59,25 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Field type.
 		*/
-		DatabaseExport virtual EFieldType GetType() const = 0;
+		DatabaseExport EFieldType GetType() const;
 
 		/** Get field type.
 		@return
 			Field type.
 		*/
-		DatabaseExport virtual const String & GetName() const = 0;
+		DatabaseExport const String & GetName() const;
 
 		/** Get field limits.
 		@return
 			Field limits.
 		*/
-		DatabaseExport virtual const uint32_t & GetLimits() const = 0;
+		DatabaseExport const uint32_t & GetLimits() const;
 
 		/** Get field precision.
 		@return
 			Field precision.
 		*/
-		DatabaseExport virtual const std::pair< uint32_t, uint32_t > & GetPrecision() const = 0;
+		DatabaseExport const std::pair< uint32_t, uint32_t > & GetPrecision() const;
 
 	protected:
 		/** Get value as boolean.
@@ -178,19 +180,19 @@ BEGIN_NAMESPACE_DATABASE
 		@param[out] value
 			Value as date/time.
 		*/
-		DatabaseExport virtual void DoGetValue( CDateTime & value ) const;
+		DatabaseExport virtual void DoGetValue( DateTimeType & value ) const;
 
 		/** Get value as date.
 		@param[out] value
 			Value as date.
 		*/
-		DatabaseExport virtual void DoGetValue( CDate & value ) const;
+		DatabaseExport virtual void DoGetValue( DateType & value ) const;
 
 		/** Get value as time.
 		@param[out] value
 			Value as time.
 		*/
-		DatabaseExport virtual void DoGetValue( CTime & value ) const;
+		DatabaseExport virtual void DoGetValue( TimeType & value ) const;
 
 		/** Get value as byte array.
 		@param[out] value
@@ -332,7 +334,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[out] value
 			Value as date/time.
 		*/
-		DatabaseExport virtual void DoGetValueFast( CDateTime & value ) const;
+		DatabaseExport virtual void DoGetValueFast( DateTimeType & value ) const;
 
 		/** Get value as date.
 		@remarks
@@ -340,7 +342,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[out] value
 			Value as date.
 		*/
-		DatabaseExport virtual void DoGetValueFast( CDate & value ) const;
+		DatabaseExport virtual void DoGetValueFast( DateType & value ) const;
 
 		/** Get value as time.
 		@remarks
@@ -348,7 +350,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[out] value
 			Value as time.
 		*/
-		DatabaseExport virtual void DoGetValueFast( CTime & value ) const;
+		DatabaseExport virtual void DoGetValueFast( TimeType & value ) const;
 
 		/** Get value as byte array.
 		@remarks
@@ -458,19 +460,19 @@ BEGIN_NAMESPACE_DATABASE
 		@param value
 			New parameter value.
 		*/
-		DatabaseExport virtual void DoSetValue( const CDateTime & value );
+		DatabaseExport virtual void DoSetValue( const DateTimeType & value );
 
 		/** Set parameter value as a date.
 		@param value
 			New parameter value.
 		*/
-		DatabaseExport virtual void DoSetValue( const CDate & value );
+		DatabaseExport virtual void DoSetValue( const DateType & value );
 
 		/** Set parameter value as a time.
 		@param value
 			New parameter value.
 		*/
-		DatabaseExport virtual void DoSetValue( const CTime & value );
+		DatabaseExport virtual void DoSetValue( const TimeType & value );
 
 		/** Set parameter value as a byte array.
 		@param value
@@ -612,7 +614,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param value
 			New parameter value.
 		*/
-		DatabaseExport virtual void DoSetValueFast( const CDate & value );
+		DatabaseExport virtual void DoSetValueFast( const DateType & value );
 
 		/** Set parameter value as a date/time.
 		@remarks
@@ -620,7 +622,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param value
 			New parameter value.
 		*/
-		DatabaseExport virtual void DoSetValueFast( const CDateTime & value );
+		DatabaseExport virtual void DoSetValueFast( const DateTimeType & value );
 
 		/** Set parameter value as a time.
 		@remarks
@@ -628,7 +630,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param value
 			New parameter value.
 		*/
-		DatabaseExport virtual void DoSetValueFast( const CTime & value );
+		DatabaseExport virtual void DoSetValueFast( const TimeType & value );
 
 		/** Set parameter value as a byte array.
 		@remarks
@@ -647,6 +649,8 @@ BEGIN_NAMESPACE_DATABASE
 	private:
 		//! The value.
 		mutable DatabaseValueBaseSPtr _value;
+		//! The value informations
+		DatabaseValuedObjectInfosSPtr _infos;
 		//! Database connection.
 		DatabaseConnectionWPtr _connection;
 	};

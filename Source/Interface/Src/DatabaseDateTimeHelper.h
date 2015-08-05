@@ -18,8 +18,7 @@
 
 BEGIN_NAMESPACE_DATABASE
 {
-	static const double GREGORIAN_MEAN_YEAR = 365.2425;
-	static int MonthMaxDays[12] = { 31, 28, 31, 30, 31 , 30 , 31 , 31 , 30 , 31 , 30 , 31 };
+	static int MonthMaxDays[13] = { -1, 31, 28, 31, 30, 31 , 30 , 31 , 31 , 30 , 31 , 30 , 31 };
 
 	/** Check if parameter number is a leap year.
 	@param year
@@ -28,62 +27,6 @@ BEGIN_NAMESPACE_DATABASE
 		true if leap year.
 	*/
 	DatabaseExport bool IsLeap( int year );
-
-	/** Check if a string is an integer.
-	@param value
-		String to check.
-	@return
-		true if value represents a string.
-	*/
-	DatabaseExport bool IsInteger( const std::string & value );
-
-	/** Replace a sub-string by another sub-string into a string.
-	@param[in,out] originalString
-		String where the replacement is made.
-	@param[in] searchedSubString
-		String to replace.
-	@param[in] replacementSubString
-		Replacement string.
-	*/
-	DatabaseExport int Replace( std::string & originalString, const std::string & searchedSubString, const std::string & replacementSubString );
-
-	/** Format a string.
-	@param[out] formattedString
-		Formatted string.
-	@param[in] maxSize
-		Maximum length.
-	@param[in] format
-		Format to use.
-	*/
-	DatabaseExport void Formalize( std::string & formattedString, int maxSize, const char * format, ... );
-
-	/** Check if a string is an integer.
-	@param value
-		String to check.
-	@return
-		true if value represents a string.
-	*/
-	DatabaseExport bool IsInteger( const std::wstring & value );
-
-	/** Replace a sub-string by another sub-string into a string.
-	@param[in,out] originalString
-		String where the replacement is made.
-	@param[in] searchedSubString
-		String to replace.
-	@param[in] replacementSubString
-		Replacement string.
-	*/
-	DatabaseExport int Replace( std::wstring & originalString, const std::wstring & searchedSubString, const std::wstring & replacementSubString );
-
-	/** Format a string.
-	@param[out] formattedString
-		Formatted string.
-	@param[in] maxSize
-		Maximum length.
-	@param[in] format
-		Format to use.
-	*/
-	DatabaseExport void Formalize( std::wstring & formattedString, int maxSize, const wchar_t * format, ... );
 
 	/** Retrieves count characters from the given string buffer and converts them to an integer
 	@remarks
@@ -96,10 +39,31 @@ BEGIN_NAMESPACE_DATABASE
 	template< typename CharType >
 	int stoi( CharType const *& in, size_t count )
 	{
+		if ( *in == '-' )
+		{
+			++count;
+		}
+
 		int result = std::stoi( std::basic_string< CharType >( in, in + count ) );
 		in += count;
 		return result;
 	}
+
+	/** Retrieves the date from a dCDateTime
+	@param[i] dateTime
+		The DateTimeType
+	@return
+		The date
+	*/
+	DatabaseExport DateType DateFromDateTime( DateTimeType const & dateTime );
+
+	/** Retrieves the time from a dCDateTime
+	@param[i] dateTime
+		The DateTimeType
+	@return
+		The time
+	*/
+	DatabaseExport TimeType TimeFromDateTime( DateTimeType const & dateTime );
 }
 END_NAMESPACE_DATABASE
 

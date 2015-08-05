@@ -32,6 +32,7 @@ add_target(
 
 copy_dll( ${PROJECT_NAME} ${PostgreSQL_LIBRARY} Debug )
 copy_dll( ${PROJECT_NAME} ${PostgreSQL_LIBRARY} Release )
+copy_dll( ${PROJECT_NAME} ${PostgreSQL_LIBRARY} RelWithDebInfo )
 
 set_property( TARGET ${PROJECT_NAME} PROPERTY FOLDER "Plugin/PostgreSQL" )
 add_target_astyle( ${PROJECT_NAME} ".h;.hpp;.inl;.cpp" )

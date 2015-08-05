@@ -21,7 +21,7 @@
 
 #define BEGIN_NAMESPACE_DATABASE_TEST   BEGIN_NAMESPACE_DATABASE { namespace Test
 #define NAMESPACE_DATABASE_TEST         NAMESPACE_DATABASE::Test
-#define END_NAMESPACE_DATABASE_TEST     END_NAMESPACE_DATABASE }
+#define END_NAMESPACE_DATABASE_TEST     } END_NAMESPACE_DATABASE
 
 #ifdef BOOST_STATIC_LIB
 #   define BOOST_TEST_MAIN
@@ -49,7 +49,13 @@ BEGIN_NAMESPACE_DATABASE
 {
 	namespace Test
 	{
-		String InitializeSingletons();
+		class CDatabaseTestConnection;
+		class CDatabaseTestStatement;
+
+		DECLARE_SMART_PTR( DatabaseTestConnection );
+		DECLARE_SMART_PTR( DatabaseTestStatement );
+
+		String InitialiseSingletons();
 		void LoadPlugins( const String & path, bool mySql, bool sqlite, bool odbcMySql, bool odbcMsSql, bool postgreSql );
 		void UnloadPlugins();
 		CDatabase * InstantiateDatabase( const String & type );
@@ -58,7 +64,7 @@ BEGIN_NAMESPACE_DATABASE
 		extern String const QUERY_DROP_TABLE;
 		extern String const QUERY_SELECT_MIN;
 		extern String const QUERY_GET_COUNT;
-		extern String const QUERY_INSERT_ELEMENT;
+		extern String const QUERY_DIRECT_INSERT_ELEMENT;
 		extern String const QUERY_DIRECT_SELECT_ELEMENT;
 		extern String const QUERY_DIRECT_SELECT_ALL_ELEMENTS;
 		extern String const QUERY_DIRECT_UPDATE_ELEMENT;

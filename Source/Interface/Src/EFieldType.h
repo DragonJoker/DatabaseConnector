@@ -14,6 +14,8 @@
 #ifndef ___DATABASE_FIELD_TYPE_H___
 #define ___DATABASE_FIELD_TYPE_H___
 
+#include "DatabasePrerequisites.h"
+
 BEGIN_NAMESPACE_DATABASE
 {
 	/** Enumeration of supported field types.
@@ -46,9 +48,37 @@ BEGIN_NAMESPACE_DATABASE
 		EFieldType_TIME,
 		EFieldType_BINARY,
 		EFieldType_VARBINARY,
-		EFieldType_LONG_VARBINARY,
+		EFieldType_BLOB,
 		EFieldType_COUNT
 	}	EFieldType;
+
+	/** Checks if the two given field types are compatible to set a value from typeFrom to typeTo
+	@param typeFrom, typeTo
+		The field types
+	@return
+		True if typeA and typeB are compatible
+	*/
+	DatabaseExport bool AreTypesCompatibleSet( EFieldType typeFrom, EFieldType typeTo );
+
+	/** Checks if the two given field types are compatible to get a value from typeFrom to typeTo
+	@param typeFrom, typeTo
+		The field types
+	@return
+		True if typeA and typeB are compatible
+	*/
+	DatabaseExport bool AreTypesCompatibleGet( EFieldType typeFrom, EFieldType typeTo );
+
+	/** Function used to tell if a field type needs limits
+	@param[in] type
+		The field type
+	*/
+	DatabaseExport bool NeedsLimits( EFieldType type );
+
+	/** Function used to tell if a field type needs precision
+	@param[in] type
+		The field type
+	*/
+	DatabaseExport bool NeedsPrecision( EFieldType type );
 }
 END_NAMESPACE_DATABASE
 

@@ -176,25 +176,25 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	boost::unit_test::test_suite * CDatabaseTest::Init_Test_Suite()
 	{
 		//!@remarks Create the internal TS instance.
-		testSuite = new boost::unit_test::test_suite( "CDatabaseSqliteTest" );
+		testSuite = new boost::unit_test::test_suite( "CDatabase" + _type + "Test" );
 
 		//!@remarks Add the TC to the internal TS.
 		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_CreateDatabase, this ) ) );
 
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieve< CDatabaseQuery >, this, STR( "Query" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieveOtherIndex< CDatabaseQuery >, this, STR( "Query" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieveFast< CDatabaseQuery >, this, STR( "Query" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieveFastOtherIndex< CDatabaseQuery >, this , STR( "Query" )) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseDirectQuery< CDatabaseQuery >, this, STR( "Query" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieve< 0 >, this, STR( "Query" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieveOtherIndex< 0 >, this, STR( "Query" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieveFast< 0 >, this, STR( "Query" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieveFastOtherIndex< 0 >, this , STR( "Query" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseDirectQuery< 0 >, this, STR( "Query" ) ) ) );
 
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieve< CDatabaseStatement >, this, STR( "Statement" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieveOtherIndex< CDatabaseStatement >, this, STR( "Statement" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieveFast< CDatabaseStatement >, this, STR( "Statement" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieveFastOtherIndex< CDatabaseStatement >, this, STR( "Statement" ) ) ) );
-		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseDirectQuery< CDatabaseStatement >, this, STR( "Statement" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieve< 1 >, this, STR( "Statement" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieveOtherIndex< 1 >, this, STR( "Statement" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieveFast< 1 >, this, STR( "Statement" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseFieldsInsertRetrieveFastOtherIndex< 1 >, this, STR( "Statement" ) ) ) );
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseDirectQuery< 1 >, this, STR( "Statement" ) ) ) );
 
-		//testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseStoredProcedure< CDatabaseQuery >, this ) ) );
-		//testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseStoredProcedure< CDatabaseStatement >, this ) ) );
+		//testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseStoredProcedure< 0 >, this ) ) );
+		//testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseStoredProcedure< 1 >, this ) ) );
 
 		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DestroyDatabase, this ) ) );
 
@@ -206,12 +206,12 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	{
 		auto const guard = make_block_guard( [this]()
 		{
-			CLogger::LogInfo( StringStream() << "**** Start TestCase_CreateDatabase ****" );
+			CLogger::LogInfo( StringStream() << "**** Start " + _type + "_TestCase_CreateDatabase ****" );
 			DoLoadPlugins();
-		}, []()
+		}, [this]()
 		{
 			UnloadPlugins();
-			CLogger::LogInfo( StringStream() << "**** End TestCase_CreateDatabase ****" );
+			CLogger::LogInfo( StringStream() << "**** End " + _type + "_TestCase_CreateDatabase ****" );
 		} );
 		std::unique_ptr< CDatabase > database( InstantiateDatabase( _type ) );
 
@@ -236,35 +236,33 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 	void CDatabaseTest::TestCase_DestroyDatabase()
 	{
-		CLogger::LogInfo( StringStream() << "**** Start TestCase_DestroyDatabase ****" );
+		auto const guard = make_block_guard( [this]()
 		{
-			auto const guard = make_block_guard( [this]()
-			{
-				DoLoadPlugins();
-			}, []()
-			{
-				UnloadPlugins();
-			} );
-			std::unique_ptr< CDatabase > database( InstantiateDatabase( _type ) );
+			CLogger::LogInfo( StringStream() << "**** Start " + _type + "_TestCase_DestroyDatabase ****" );
+			DoLoadPlugins();
+		}, [this]()
+		{
+			UnloadPlugins();
+			CLogger::LogInfo( StringStream() << "**** End " + _type + "_TestCase_DestroyDatabase ****" );
+		} );
+		std::unique_ptr< CDatabase > database( InstantiateDatabase( _type ) );
 
-			if ( database )
-			{
-				DatabaseConnectionSPtr connection = CreateConnection( *database, _server, _user, _password );
+		if ( database )
+		{
+			DatabaseConnectionSPtr connection = CreateConnection( *database, _server, _user, _password );
 
-				if ( connection )
+			if ( connection )
+			{
+				if ( connection->IsConnected() )
 				{
-					if ( connection->IsConnected() )
-					{
-						connection->SelectDatabase( _database );
-						connection->ExecuteUpdate( QUERY_DROP_TABLE );
-						connection->DestroyDatabase( _database );
-					}
-
-					database->RemoveConnection();
+					connection->SelectDatabase( _database );
+					connection->ExecuteUpdate( QUERY_DROP_TABLE );
+					connection->DestroyDatabase( _database );
 				}
+
+				database->RemoveConnection();
 			}
 		}
-		CLogger::LogInfo( StringStream() << "**** End TestCase_DestroyDatabase ****" );
 	}
 
 	void CDatabaseTest::DoFlushTable( DatabaseConnectionSPtr connection )

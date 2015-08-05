@@ -69,5 +69,15 @@ BEGIN_NAMESPACE_DATABASE
 
 		return _arrayFields[index];
 	}
+
+	bool CDatabaseRow::IsNull( uint32_t index )
+	{
+		return GetField( index )->IsNull();
+	}
+
+	bool CDatabaseRow::IsNull( const String & name )
+	{
+		return GetField( name )->IsNull();
+	}
 }
 END_NAMESPACE_DATABASE

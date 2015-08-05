@@ -17,7 +17,6 @@
 #include "DatabaseSqlitePrerequisites.h"
 
 #include <DatabaseParameter.h>
-#include "DatabaseParameterSqlite.h"
 #include "DatabaseSqliteHelper.h"
 
 BEGIN_NAMESPACE_DATABASE_SQLITE
@@ -26,15 +25,13 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 	*/
 	class CDatabaseStatementParameterSqlite
 		: public CDatabaseParameter
-		, public CDatabaseParameterSqlite
 	{
-
 	public:
 		/** Constructor.
 		@param[in] connection
 		    Connection to database.
-		@param[in] name
-		    Parameter name.
+		@param[in] infos
+		    Parameter informations.
 		@param[in] index
 		    Internal index.
 		@param[in] fieldType
@@ -44,47 +41,17 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		@param[in] updater
 		    The parent updater
 		 */
-		CDatabaseStatementParameterSqlite( DatabaseConnectionSqliteSPtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
-
-		/** Constructor.
-		@param[in] connection
-		    Connection to database.
-		@param[in] name
-		    Parameter name.
-		@param[in] index
-		    Internal index.
-		@param[in] fieldType
-		    Field type.
-		@param[in] limits
-		    Field limits.
-		@param[in] parameterType
-		    Parameter type.
-		@param[in] updater
-		    The parent updater
-		 */
-		CDatabaseStatementParameterSqlite( DatabaseConnectionSqliteSPtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
-
-		/** Constructor.
-		@param[in] connection
-		    Connection to database.
-		@param[in] name
-		    Parameter name.
-		@param[in] index
-		    Internal index.
-		@param[in] fieldType
-		    Field type.
-		@param[in] precision
-		    Field precision.
-		@param[in] parameterType
-		    Parameter type.
-		@param[in] updater
-		    The parent updater
-		 */
-		CDatabaseStatementParameterSqlite( DatabaseConnectionSqliteSPtr connection, const String & name, unsigned short index, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
+		CDatabaseStatementParameterSqlite( DatabaseConnectionSqliteSPtr connection, DatabaseValuedObjectInfosSPtr infos, unsigned short index, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
 
 		/** Destructor.
 		 */
 		virtual ~CDatabaseStatementParameterSqlite();
+
+		/** Retrieve the data type
+		@return
+			The type
+		*/
+		const int & GetDataType()const;
 
 		//!@copydoc Database::CDatabaseParameter::SetNull
 		virtual void SetNull();
@@ -241,19 +208,19 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
-		virtual void DoSetValue( const CDateTime & value )
+		virtual void DoSetValue( const DateTimeType & value )
 		{
 			DoSetAndUpdateValue( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
-		virtual void DoSetValue( const CDate & value )
+		virtual void DoSetValue( const DateType & value )
 		{
 			DoSetAndUpdateValue( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
-		virtual void DoSetValue( const CTime & value )
+		virtual void DoSetValue( const TimeType & value )
 		{
 			DoSetAndUpdateValue( value );
 		}
@@ -361,19 +328,19 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
-		virtual void DoSetValueFast( const CDate & value )
+		virtual void DoSetValueFast( const DateType & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
-		virtual void DoSetValueFast( const CDateTime & value )
+		virtual void DoSetValueFast( const DateTimeType & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
-		virtual void DoSetValueFast( const CTime & value )
+		virtual void DoSetValueFast( const TimeType & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}
@@ -384,10 +351,17 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			DoSetAndUpdateValueFast( value );
 		}
 
+	public:
+		//! The SQLite data types associated to Database::EFieldType
+		static int SqliteDataTypes[EFieldType_COUNT];
+
+	private:
 		//! The parameter value setter
 		std::unique_ptr< SSqliteBindingBase > _binding;
 		//! The prepared statement
 		sqlite3_stmt * _statement;
+		//! The SQLite data type
+		int _dataType;
 	};
 }
 END_NAMESPACE_DATABASE_SQLITE

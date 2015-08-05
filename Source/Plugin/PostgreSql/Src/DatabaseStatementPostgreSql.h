@@ -39,68 +39,34 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			*/
 		virtual ~CDatabaseStatementPostgreSql();
 
-		/** Create a parameter.
-		@param[in] name
-			Parameter name.
-		@param[in] fieldType
-			Date type.
-		@param[in] parameterType
-			Parameter type.
-		@return
-			Created parameter.
-		*/
-		virtual DatabaseParameterSPtr CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType );
-
-		/** Create a parameter which has limits (strings, etc.).
-		@param[in] name
-			Parameter name.
-		@param[in] fieldType
-			Date type.
-		@param[in] limits
-			Size limits.
-		@param[in] parameterType
-			Parameter type.
-		@return
-			Created parameter.
-		*/
-		virtual DatabaseParameterSPtr CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType );
-
-		/** Create a parameter which has limits (strings, etc.).
-		@param[in] name
-			Parameter name.
-		@param[in] fieldType
-			Date type.
-		@param[in] precision
-			Field precision.
-		@param[in] parameterType
-			Parameter type.
-		@return
-			Created parameter.
-		*/
-		virtual DatabaseParameterSPtr CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType );
-
 	private:
-		/** Initialize this statement.
+		/** Create a parameter.
+		@param[in] info
+			Parameter informations.
+		@param[in] parameterType
+			Parameter type.
+		@return
+			Created parameter.
+		*/
+		virtual DatabaseParameterSPtr DoCreateParameter( DatabaseValuedObjectInfosSPtr infos, EParameterType parameterType );
+
+		/** Initialise this statement.
 		@return
 			Error code.
 		*/
-		virtual EErrorType DoInitialize();
+		virtual EErrorType DoInitialise();
 
 		/** Execute this statement.
-		@param[out] result
-			Error code.
 		@return
 			The result.
 		*/
-		virtual bool DoExecuteUpdate( EErrorType * result = NULL );
+		virtual bool DoExecuteUpdate();
 
 		/** Execute this statement.
-		@param[out] result
-			Error code.
 		@return
 			The result.
 		*/
-		virtual DatabaseResultSPtr DoExecuteSelect( EErrorType * result = NULL );
+		virtual DatabaseResultSPtr DoExecuteSelect();
 
 		/** Clean statement.
 		*/
@@ -112,7 +78,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		*/
 		inline DatabaseConnectionPostgreSqlSPtr DoGetPostgreSqlConnection()const
 		{
-		return _connectionPostgreSql.lock();
+			return _connectionPostgreSql.lock();
 		}
 
 	private:

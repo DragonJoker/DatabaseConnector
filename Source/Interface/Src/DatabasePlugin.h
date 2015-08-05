@@ -39,7 +39,7 @@ BEGIN_NAMESPACE_DATABASE
 			the startup tasks necessary to install anything else that is not dependent
 			on system initialization, ie only dependent on the core. It must
 			not perform any operations that would create specific objects at this stage,
-			that should be done in Initialize ().
+			that should be done in Initialise ().
 		*/
 		DatabaseExport virtual void Install();
 
@@ -48,7 +48,7 @@ BEGIN_NAMESPACE_DATABASE
 			An implementation must be supplied for this method. It must perform
 			the cleanup tasks which haven't already been performed in Shutdown ()
 			(e.g. final deletion of custom instances, if you kept them around incase
-			the system was reinitialized). At this stage you cannot be sure what other
+			the system was reinitialised). At this stage you cannot be sure what other
 			plugins are still loaded or active. It must therefore not perform any
 			operations that would reference any specific objects - those
 			should have been sorted out in the 'Shutdown' method.
@@ -67,10 +67,10 @@ BEGIN_NAMESPACE_DATABASE
 		/** Perform any tasks the plugin needs to perform on full system initialization.
 		@remarks
 			An implementation must be supplied for this method. It is called
-			just after the system is fully initialized. You can use this hook to create
+			just after the system is fully initialised. You can use this hook to create
 			any resources which are have specific implementations.
 		*/
-		DatabaseExport virtual void Initialize() = 0;
+		DatabaseExport virtual void Initialise() = 0;
 
 		/** Perform any tasks the plugin needs to perform when the system is shut down.
 		@remarks

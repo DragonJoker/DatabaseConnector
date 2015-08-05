@@ -39,68 +39,34 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		*/
 		virtual ~CDatabaseStatementSqlite();
 
-		/** Create a parameter.
-		@param[in] name
-			Parameter name.
-		@param[in] fieldType
-			Date type.
-		@param[in] parameterType
-			Parameter type.
-		@return
-			Created parameter.
-		*/
-		virtual DatabaseParameterSPtr CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType );
-
-		/** Create a parameter which has limits (strings, etc.).
-		@param[in] name
-			Parameter name.
-		@param[in] fieldType
-			Date type.
-		@param[in] limits
-			Size limits.
-		@param[in] parameterType
-			Parameter type.
-		@return
-			Created parameter.
-		*/
-		virtual DatabaseParameterSPtr CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType );
-
-		/** Create a parameter which has limits (strings, etc.).
-		@param[in] name
-			Parameter name.
-		@param[in] fieldType
-			Date type.
-		@param[in] precision
-			Field precision.
-		@param[in] parameterType
-			Parameter type.
-		@return
-			Created parameter.
-		*/
-		virtual DatabaseParameterSPtr CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType );
-
 	private:
-		/** Initialize this statement.
+		/** Create a parameter.
+		@param[in] infos
+			Parameter informations.
+		@param[in] parameterType
+			Parameter type.
+		@return
+			Created parameter.
+		*/
+		virtual DatabaseParameterSPtr DoCreateParameter( DatabaseValuedObjectInfosSPtr infos, EParameterType parameterType );
+
+		/** Initialise this statement.
 		@return
 			Error code.
 		*/
-		virtual EErrorType DoInitialize();
+		virtual EErrorType DoInitialise();
 
 		/** Execute this statement.
-		@param[out] result
-			Error code.
 		@return
 			The result.
 		*/
-		virtual bool DoExecuteUpdate( EErrorType * result = NULL );
+		virtual bool DoExecuteUpdate();
 
 		/** Execute this statement.
-		@param[out] result
-			Error code.
 		@return
 			The result.
 		*/
-		virtual DatabaseResultSPtr DoExecuteSelect( EErrorType * result = NULL );
+		virtual DatabaseResultSPtr DoExecuteSelect();
 
 		/** Clean statement.
 		*/
@@ -109,28 +75,22 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		/** Effectively prepares the statement
 		@remarks
 			Replace '?' delimiters by '@paramName' for out an in/out parameters, in order to be able to retrieve their modified value
-		@param[out] result
-			Receives the error code
 		*/
-		void DoPrepareStatement( EErrorType * result );
+		void DoPrepareStatement();
 
 		/** Pre-execution action
 		@remarks
 			Computes the final query from parameters values
-		@param[out] result
-			Receives the error code
 		@return
 			The full query
 		*/
-		void DoPreExecute( EErrorType * result );
+		void DoPreExecute();
 
 		/** Pre-execution action
 		@remarks
 			Computes the final query from parameters values
-		@param[out] result
-			Receives the error code
 		*/
-		void DoPostExecute( EErrorType * result );
+		void DoPostExecute();
 
 		/** Retrieves the SQLite connection
 		@return
@@ -154,10 +114,10 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		DatabaseParameterPtrArray _arrayInParams;
 		//! Array of out parameters
 		DatabaseParameterPtrArray _arrayOutParams;
-		//! Array of in/out parameter initializer queries
-		std::vector< std::pair< DatabaseStatementSPtr, DatabaseParameterWPtr > > _inOutInitializers;
-		//! Array of out parameter initializer queries
-		std::vector< DatabaseStatementSPtr > _outInitializers;
+		//! Array of in/out parameter initialiser queries
+		std::vector< std::pair< DatabaseStatementSPtr, DatabaseParameterWPtr > > _inOutInitialisers;
+		//! Array of out parameter initialiser queries
+		std::vector< DatabaseStatementSPtr > _outInitialisers;
 		//! The statement used to execute the out parameters retrieval query
 		DatabaseStatementSPtr _stmtOutParams;
 	};

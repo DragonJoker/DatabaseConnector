@@ -26,14 +26,10 @@ BEGIN_NAMESPACE_DATABASE
 	{
 	public:
 		/** Constructor.
-		*/
-		DatabaseExport CDatabaseResult();
-
-		/** Constructor.
 		@param[in] arrayFieldInfos
 			Array of field informations for the future results.
 		*/
-		DatabaseExport CDatabaseResult( const DatabaseFieldInfosPtrArray & arrayFieldInfos );
+		DatabaseExport CDatabaseResult( const DatabaseValuedObjectInfosPtrArray & arrayFieldInfos );
 
 		/** Destructor.
 			*/
@@ -49,7 +45,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			Field informations.
 		*/
-		DatabaseExport DatabaseFieldInfosSPtr GetFieldInfos( uint32_t index ) const;
+		DatabaseExport DatabaseValuedObjectInfosSPtr GetFieldInfos( uint32_t index ) const;
 
 		/** Add a new row (result) to the result set.
 		@param[in] row
@@ -79,7 +75,7 @@ BEGIN_NAMESPACE_DATABASE
 		//! List of resulting rows.
 		DatabaseRowPtrList _listRows;
 		//! Array of field informations.
-		DatabaseFieldInfosPtrArray _arrayFieldInfos;
+		DatabaseValuedObjectInfosPtrArray _arrayFieldInfos;
 		//! Number of resulting rows.
 		uint32_t _rowCount;
 		//! Current row iterator.

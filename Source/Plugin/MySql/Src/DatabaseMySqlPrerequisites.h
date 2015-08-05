@@ -31,7 +31,7 @@ BEGIN_NAMESPACE_DATABASE
 		class CDatabaseMySql;
 		class CDatabaseStatementMySql;
 		class CDatabaseParameterMySql;
-		class CExceptionDatabaseMySql;
+		class CDatabaseExceptionMySql;
 		class CPluginDatabaseMySql;
 		class CFactoryDatabaseMySql;
 		struct SOutMySqlBindBase;

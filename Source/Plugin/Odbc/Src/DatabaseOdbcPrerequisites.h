@@ -48,7 +48,7 @@ BEGIN_NAMESPACE_DATABASE
 		class CDatabaseQueryOdbc;
 		class CDatabaseStatementParameterOdbc;
 		class CDatabaseQueryParameterOdbc;
-		class CExceptionDatabaseOdbc;
+		class CDatabaseExceptionOdbc;
 		class CPluginDatabaseOdbc;
 		class CFactoryDatabaseOdbc;
 

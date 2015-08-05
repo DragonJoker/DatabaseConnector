@@ -104,7 +104,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 	@return
 		The columns
 	*/
-	DatabaseFieldInfosPtrArray PostgreSqlGetColumns( PGresult * result, std::vector< std::unique_ptr< SInPostgreSqlBindBase > > & binds );
+	DatabaseValuedObjectInfosPtrArray PostgreSqlGetColumns( PGresult * result, std::vector< std::unique_ptr< SInPostgreSqlBindBase > > & binds );
 
 	/** Fetches the result set
 	@param[in] result
@@ -116,7 +116,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 	@return
 		The result set, which can be empty, for UPDATE or INSERT queries
 	*/
-	DatabaseResultSPtr PostgreSqlFetchResult( PGresult * result, DatabaseFieldInfosPtrArray const & columns, DatabaseConnectionPostgreSqlSPtr connection, std::vector< std::unique_ptr< SInPostgreSqlBindBase > > const & binds );
+	DatabaseResultSPtr PostgreSqlFetchResult( PGresult * result, DatabaseValuedObjectInfosPtrArray const & columns, DatabaseConnectionPostgreSqlSPtr connection, std::vector< std::unique_ptr< SInPostgreSqlBindBase > > const & binds );
 
 	/** Checks if the given code is acceptable, and if not, throws an exception
 	@param[in] code
@@ -139,7 +139,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		The PostgreSQL database connection
 	*/
 	void PostgreSqlSendLongData( CDatabaseValueBase & value, std::string const & statement, PGconn * connection );
-	
+
 	/** Retrieves the Oid correponding to the given field type
 	@param[in] type
 		The field type

@@ -41,7 +41,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			GetField( index )->GetValue( value );
 		}
-		catch ( const CExceptionDatabase & )
+		catch ( const CDatabaseException & )
 		{
 			// Rethrow
 			throw;
@@ -61,7 +61,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			GetField( name )->GetValue( value );
 		}
-		catch ( const CExceptionDatabase & )
+		catch ( const CDatabaseException & )
 		{
 			// Rethrow
 			throw;
@@ -97,7 +97,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			GetField( index )->GetValueOpt( value );
 		}
-		catch ( const CExceptionDatabase & )
+		catch ( const CDatabaseException & )
 		{
 			// Rethrow
 			throw;
@@ -117,7 +117,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			GetField( name )->GetValueOpt( value );
 		}
-		catch ( const CExceptionDatabase & )
+		catch ( const CDatabaseException & )
 		{
 			// Rethrow
 			throw;
@@ -137,7 +137,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			GetField( index )->GetValueFast( value );
 		}
-		catch ( const CExceptionDatabase & )
+		catch ( const CDatabaseException & )
 		{
 			// Rethrow
 			throw;
@@ -157,7 +157,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			GetField( name )->GetValueFast( value );
 		}
-		catch ( const CExceptionDatabase & )
+		catch ( const CDatabaseException & )
 		{
 			// Rethrow
 			throw;
@@ -177,7 +177,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			GetField( index )->GetValueOptFast( value );
 		}
-		catch ( const CExceptionDatabase & )
+		catch ( const CDatabaseException & )
 		{
 			// Rethrow
 			throw;
@@ -197,7 +197,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			GetField( name )->GetValueOptFast( value );
 		}
-		catch ( const CExceptionDatabase & )
+		catch ( const CDatabaseException & )
 		{
 			// Rethrow
 			throw;
@@ -208,12 +208,6 @@ BEGIN_NAMESPACE_DATABASE
 			message << ERROR_DB_ROW_NAME << name;
 			DB_EXCEPT( EDatabaseExceptionCodes_RowError, message.str() );
 		}
-	}
-
-	template< typename T >
-	inline T CDatabaseRow::GetDefault()
-	{
-		return T();
 	}
 }
 END_NAMESPACE_DATABASE

@@ -33,54 +33,16 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		/** Constructor.
 		@param[in] connection
 			Connection to database.
-		@param[in] name
-			Parameter name.
+		@param[in] infos
+			Parameter informations.
 		@param[in] index
 			Internal index.
-		@param[in] fieldType
-			Field type.
 		@param[in] parameterType
 			Parameter type.
 		@param[in] updater
 			The parent updater
 		*/
-		CDatabaseParameterPostgreSql( DatabaseConnectionPostgreSqlSPtr connection, const String & name, unsigned short index, EFieldType fieldType, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
-
-		/** Constructor.
-		@param[in] connection
-			Connection to database.
-		@param[in] name
-			Parameter name.
-		@param[in] index
-			Internal index.
-		@param[in] fieldType
-			Field type.
-		@param[in] limits
-			Field limits.
-		@param[in] parameterType
-			Parameter type.
-		@param[in] updater
-			The parent updater
-		*/
-		CDatabaseParameterPostgreSql( DatabaseConnectionPostgreSqlSPtr connection, const String & name, unsigned short index, EFieldType fieldType, uint32_t limits, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
-
-		/** Constructor.
-		@param[in] connection
-			Connection to database.
-		@param[in] name
-			Parameter name.
-		@param[in] index
-			Internal index.
-		@param[in] fieldType
-			Field type.
-		@param[in] precision
-			Field precision.
-		@param[in] parameterType
-			Parameter type.
-		@param[in] updater
-			The parent updater
-		*/
-		CDatabaseParameterPostgreSql( DatabaseConnectionPostgreSqlSPtr connection, const String & name, unsigned short index, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
+		CDatabaseParameterPostgreSql( DatabaseConnectionPostgreSqlSPtr connection, DatabaseValuedObjectInfosSPtr infos, unsigned short index, EParameterType parameterType, std::unique_ptr< SValueUpdater > updater );
 
 		/** Destructor.
 		*/
@@ -272,19 +234,19 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
-		virtual void DoSetValue( const CDateTime & value )
+		virtual void DoSetValue( const DateTimeType & value )
 		{
 			DoSetAndUpdateValue( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
-		virtual void DoSetValue( const CDate & value )
+		virtual void DoSetValue( const DateType & value )
 		{
 			DoSetAndUpdateValue( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValue
-		virtual void DoSetValue( const CTime & value )
+		virtual void DoSetValue( const TimeType & value )
 		{
 			DoSetAndUpdateValue( value );
 		}
@@ -392,19 +354,19 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
-		virtual void DoSetValueFast( const CDate & value )
+		virtual void DoSetValueFast( const DateType & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
-		virtual void DoSetValueFast( const CDateTime & value )
+		virtual void DoSetValueFast( const DateTimeType & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}
 
 		//!@copydoc Database::CDatabaseValuedObject::DoSetValueFast
-		virtual void DoSetValueFast( const CTime & value )
+		virtual void DoSetValueFast( const TimeType & value )
 		{
 			DoSetAndUpdateValueFast( value );
 		}

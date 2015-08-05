@@ -63,7 +63,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		MYSQL_TYPE_TIME,		// EFieldType_TIME,
 		MYSQL_TYPE_BLOB,		// EFieldType_BINARY,
 		MYSQL_TYPE_BLOB,		// EFieldType_VARBINARY,
-		MYSQL_TYPE_BLOB,		// EFieldType_LONG_VARBINARY,
+		MYSQL_TYPE_BLOB,		// EFieldType_BLOB,
 	};
 
 	/** Structure used to retrieve the MySQL data types from the field type
@@ -172,21 +172,21 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	*/
 	template<> struct SFieldTypeMySqlDataTyper< EFieldType_DATE >
 	{
-		typedef CDate FieldDataType;
+		typedef DateType FieldDataType;
 	};
 
 	/** Specialization for EFieldType_DATETIME
 	*/
 	template<> struct SFieldTypeMySqlDataTyper< EFieldType_DATETIME >
 	{
-		typedef CDateTime FieldDataType;
+		typedef DateTimeType FieldDataType;
 	};
 
 	/** Specialization for EFieldType_TIME
 	*/
 	template<> struct SFieldTypeMySqlDataTyper< EFieldType_TIME >
 	{
-		typedef CTime FieldDataType;
+		typedef TimeType FieldDataType;
 	};
 
 	/** Specialization for EFieldType_CHAR
@@ -245,9 +245,9 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		typedef uint8_t * FieldDataType;
 	};
 
-	/** Specialization for EFieldType_LONG_VARBINARY
+	/** Specialization for EFieldType_BLOB
 	*/
-	template<> struct SFieldTypeMySqlDataTyper< EFieldType_LONG_VARBINARY >
+	template<> struct SFieldTypeMySqlDataTyper< EFieldType_BLOB >
 	{
 		typedef uint8_t * FieldDataType;
 	};
@@ -408,7 +408,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		//!@copydoc SOutMySqlBindBase::UpdateValue
 		virtual void UpdateValue()
 		{
-			std::string str = CStrUtils::ToStr( reinterpret_cast< const wchar_t * >( _value.GetPtrValue() ) );
+			std::string str = StringUtils::ToStr( reinterpret_cast< const wchar_t * >( _value.GetPtrValue() ) );
 			( this->*_updateFunc )( str );
 		}
 
@@ -568,8 +568,9 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			: SOutMySqlBindBase( bind, type, parameter )
 			, _value( value )
 			, _length( 0 )
-			,_holder( { 0 } )
+			, _holder()
 		{
+			_holder.fill( 0 );
 			_bind.length = &_length;
 			_bind.buffer_length = static_cast< unsigned long >( _holder.size() );
 			bind.buffer = _holder.data();
@@ -595,7 +596,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	/** SOutMySqlBind specialization for CDate
 	*/
 	template<>
-	struct SOutMySqlBind< CDate >
+	struct SOutMySqlBind< DateType >
 		: public SOutMySqlBindBase
 	{
 		/** Constructor
@@ -621,9 +622,9 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		//!@copydoc SOutMySqlBindBase::UpdateValue
 		virtual void UpdateValue()
 		{
-			_holder.year = _value.GetValue().GetYear();
-			_holder.month = _value.GetValue().GetMonth() + 1;
-			_holder.day = _value.GetValue().GetMonthDay();
+			_holder.year = _value.GetValue().year();
+			_holder.month = _value.GetValue().month();
+			_holder.day = _value.GetValue().day();
 		}
 
 		//! The parameter value
@@ -632,10 +633,10 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		MYSQL_TIME _holder;
 	};
 
-	/** SOutMySqlBind specialization for CDateTime
+	/** SOutMySqlBind specialization for DateTimeType
 	*/
 	template<>
-	struct SOutMySqlBind< CDateTime >
+	struct SOutMySqlBind< DateTimeType >
 		: public SOutMySqlBindBase
 	{
 		/** Constructor
@@ -661,12 +662,12 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		//!@copydoc SOutMySqlBindBase::UpdateValue
 		virtual void UpdateValue()
 		{
-			_holder.year = _value.GetValue().GetYear();
-			_holder.month = _value.GetValue().GetMonth() + 1;
-			_holder.day = _value.GetValue().GetMonthDay();
-			_holder.hour = _value.GetValue().GetHour();
-			_holder.minute = _value.GetValue().GetMinute();
-			_holder.second = _value.GetValue().GetSecond();
+			_holder.year = _value.GetValue().date().year();
+			_holder.month = _value.GetValue().date().month();
+			_holder.day = _value.GetValue().date().day();
+			_holder.hour = _value.GetValue().time_of_day().hours();
+			_holder.minute = _value.GetValue().time_of_day().minutes();
+			_holder.second = _value.GetValue().time_of_day().seconds();
 		}
 
 		//! The parameter value
@@ -675,10 +676,10 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		MYSQL_TIME _holder;
 	};
 
-	/** SOutMySqlBind specialization for CTime
+	/** SOutMySqlBind specialization for TimeType
 	*/
 	template<>
-	struct SOutMySqlBind< CTime >
+	struct SOutMySqlBind< TimeType >
 		: public SOutMySqlBindBase
 	{
 		/** Constructor
@@ -704,9 +705,9 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		//!@copydoc SOutMySqlBindBase::UpdateValue
 		virtual void UpdateValue()
 		{
-			_holder.hour = _value.GetValue().GetHour();
-			_holder.minute = _value.GetValue().GetMinute();
-			_holder.second = _value.GetValue().GetSecond();
+			_holder.hour = _value.GetValue().hours();
+			_holder.minute = _value.GetValue().minutes();
+			_holder.second = _value.GetValue().seconds();
 		}
 
 		//! The parameter value

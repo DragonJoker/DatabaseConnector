@@ -10,8 +10,8 @@
 *
 ***************************************************************************/
 
-#ifndef ___DATABASE_PARAMETER_ODBC_H___
-#define ___DATABASE_PARAMETER_ODBC_H___
+#ifndef ___DATABASE_ODBC_PARAMETER_BINDING_H___
+#define ___DATABASE_ODBC_PARAMETER_BINDING_H___
 
 #include "DatabaseOdbcPrerequisites.h"
 
@@ -49,11 +49,11 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			*/
 		virtual ~COutOdbcBindBase();
 
-		/** Initialize this binding.
+		/** Initialise this binding.
 		@return
 		    Error code.
 		*/
-		EErrorType Initialize();
+		EErrorType Initialise();
 
 		/** Binds the value to the statement
 		@return
@@ -185,7 +185,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				_columnLenOrInd = _value.GetPtrSize();
 			}
 
-			OdbcCheck( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, (uint8_t*)_value.GetPtrValue(), _value.GetPtrSize(), &_columnLenOrInd ), SQL_HANDLE_STMT, _statement, INFO_ODBC_BindParameter + message.str() );
+			OdbcCheck( SQLBindParameter( _statement, _index, _inputOutputType, _valueType, _parameterType, _columnSize, 0, ( uint8_t * )_value.GetPtrValue(), _value.GetPtrSize(), &_columnLenOrInd ), SQL_HANDLE_STMT, _statement, INFO_ODBC_BindParameter + message.str() );
 			return errorType;
 		}
 
@@ -378,7 +378,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			}
 			else
 			{
-				std::string value = CStrUtils::ToStr( _value.GetValue().ToString() );
+				std::string value = StringUtils::ToStr( _value.GetValue().ToString() );
 				strcpy( _holder, value.c_str() );
 				_columnLenOrInd = value.size();
 				columnSize = SQLULEN( value.size() );
@@ -423,10 +423,10 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			StringStream message;
 			message << INFO_ODBC_BIND_PARAMETER_NAME << _name << STR( ", " ) << INFO_ODBC_BIND_PARAMETER_VALUE << STR( "[" ) << _value.GetValue() << STR( "]" );
 
-			CDate const & date = _value.GetValue();
-			_holder.year = date.GetYear();
-			_holder.month = int( date.GetMonth() ) + 1;
-			_holder.day = date.GetMonthDay();
+			DateType const & date = _value.GetValue();
+			_holder.year = date.year();
+			_holder.month = date.month();
+			_holder.day = date.day();
 
 			if ( _value.IsNull() || _value.GetPtrSize() == 0 )
 			{
@@ -478,10 +478,10 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			StringStream message;
 			message << INFO_ODBC_BIND_PARAMETER_NAME << _name << STR( ", " ) << INFO_ODBC_BIND_PARAMETER_VALUE << STR( "[" ) << _value.GetValue() << STR( "]" );
 
-			CTime const & date = _value.GetValue();
-			_holder.hour = date.GetHour();
-			_holder.minute = date.GetMinute();
-			_holder.second = date.GetSecond();
+			TimeType const & date = _value.GetValue();
+			_holder.hour = date.hours();
+			_holder.minute = date.minutes();
+			_holder.second = date.seconds();
 
 			if ( _value.IsNull() || _value.GetPtrSize() == 0 )
 			{
@@ -534,13 +534,13 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			message << INFO_ODBC_BIND_PARAMETER_NAME << _name << STR( ", " ) << INFO_ODBC_BIND_PARAMETER_VALUE << STR( "[" ) << _value.GetValue() << STR( "]" );
 			auto columnSize = _columnSize;
 
-			CDateTime const & date = _value.GetValue();
-			_holder.year = date.GetYear();
-			_holder.month = int( date.GetMonth() ) + 1;
-			_holder.day = date.GetMonthDay();
-			_holder.hour = date.GetHour();
-			_holder.minute = date.GetMinute();
-			_holder.second = date.GetSecond();
+			DateTimeType const & date = _value.GetValue();
+			_holder.year = date.date().year();
+			_holder.month = date.date().month();
+			_holder.day = date.date().day();
+			_holder.hour = date.time_of_day().hours();
+			_holder.minute = date.time_of_day().minutes();
+			_holder.second = date.time_of_day().seconds();
 
 			if ( _value.IsNull() || _value.GetPtrSize() == 0 )
 			{
@@ -978,12 +978,12 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		CDatabaseValue< EFieldType_VARBINARY > & _value;
 	};
 
-	/** COutOdbcBind specialisation for EFieldType_LONG_VARBINARY
+	/** COutOdbcBind specialisation for EFieldType_BLOB
 	@remarks
 		Sends data at execution, not at binding
 	*/
 	template<>
-	struct COutOdbcBind< EFieldType_LONG_VARBINARY >
+	struct COutOdbcBind< EFieldType_BLOB >
 		: public COutOdbcBindBase
 	{
 		/** Constructor.
@@ -996,8 +996,8 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		@param[in] value
 			Parameter value.
 		*/
-		COutOdbcBind( HSTMT statement, uint16_t index, EParameterType parameterType, const String & name, CDatabaseValue< EFieldType_LONG_VARBINARY > & value )
-			: COutOdbcBindBase( statement, index, EFieldType_LONG_VARBINARY, parameterType, name, value )
+		COutOdbcBind( HSTMT statement, uint16_t index, EParameterType parameterType, const String & name, CDatabaseValue< EFieldType_BLOB > & value )
+			: COutOdbcBindBase( statement, index, EFieldType_BLOB, parameterType, name, value )
 			, _value( value )
 		{
 		}
@@ -1026,7 +1026,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		}
 
 		//! The explicitly typed value
-		CDatabaseValue< EFieldType_LONG_VARBINARY > & _value;
+		CDatabaseValue< EFieldType_BLOB > & _value;
 	};
 
 	/** Function to facilitate the COutOdbcBindBase creation
@@ -1040,48 +1040,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	{
 		return std::make_unique< COutOdbcBind< Type > >( statement, parameter.GetIndex(), parameter.GetParamType(), parameter.GetName(), static_cast< CDatabaseValue< Type > & >( value ) );
 	}
-
-	/** Describes a parameter for ODBC.
-	*/
-	class CDatabaseParameterOdbc
-	{
-	public:
-		/** Constructor
-		*/
-		CDatabaseParameterOdbc();
-
-		/** Destructor
-		*/
-		virtual ~CDatabaseParameterOdbc();
-
-		/** Initializes parameter members from the given statement handle
-		@param statementHandle
-		    The statement handle
-		*/
-		void Initialize( SQLHSTMT statementHandle, CDatabaseParameter & parameter );
-
-		/** Retrieves the parameter binding
-		@return
-			The binding
-		*/
-		const COutOdbcBindBase & GetBinding()const
-		{
-			return *_binding;
-		}
-
-		/** Retrieves the parameter binding
-		@return
-			The binding
-		*/
-		COutOdbcBindBase & GetBinding()
-		{
-			return *_binding;
-		}
-
-	private:
-		std::unique_ptr< COutOdbcBindBase > _binding;
-	};
 }
 END_NAMESPACE_DATABASE_ODBC
 
-#endif // ___DATABASE_PARAMETER_ODBC_H___
+#endif // ___DATABASE_ODBC_PARAMETER_BINDING_H___

@@ -5,7 +5,7 @@
  * @date 3/18/2014 2:47:39 PM
  *
  *
- * @brief CExceptionDatabaseOdbc class declaration and definition.
+ * @brief CDatabaseExceptionOdbc class declaration and definition.
  *
  * @details Should be thrown when a problem occured in the ODBC database plugin.
  *
@@ -20,22 +20,10 @@
 
 BEGIN_NAMESPACE_DATABASE_ODBC
 {
-	/** Static definitions of ODBC database error codes.
-	*/
-	enum EDatabaseOdbcExceptionCodes
-	{
-		EDatabaseOdbcExceptionCodes_GenericError = 0,
-		EDatabaseOdbcExceptionCodes_UnknownError,
-		EDatabaseOdbcExceptionCodes_StatementError,
-		EDatabaseOdbcExceptionCodes_QueryError,
-
-		EDatabaseOdbcExceptionCodes_LastCode //!< Represent the maximum number of exception code. Must be always the last.
-	};
-
 	/** Should be thrown when a problem occured in the ODBC database plugin.
 	*/
-	class CExceptionDatabaseOdbc
-		: public CExceptionDatabase
+	class CDatabaseExceptionOdbc
+		: public CDatabaseException
 	{
 	public:
 		/** Create a exception for the ODBC database.
@@ -50,14 +38,14 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		@param line
 		    Source file line number.
 		*/
-		CExceptionDatabaseOdbc( int number, const String & description, const std::string & source, const std::string & file, long line )
-			: CExceptionDatabase( number, description, source, STR( "CExceptionDatabaseOdbc" ) /*typename*/, file, line )
+		CDatabaseExceptionOdbc( int number, const String & description, const std::string & source, const std::string & file, long line )
+			: CDatabaseException( STR( "CDatabaseExceptionOdbc" ), number, description, source, file, line )
 		{
 			// Empty
 		}
 	};
 
-#	define ODBC_EXCEPT( number, description ) throw CExceptionDatabaseOdbc( number, description, __FUNCTION__, __FILE__, __LINE__ )
+#	define ODBC_EXCEPT( number, description ) throw CDatabaseExceptionOdbc( number, description, __FUNCTION__, __FILE__, __LINE__ )
 }
 END_NAMESPACE_DATABASE_ODBC
 

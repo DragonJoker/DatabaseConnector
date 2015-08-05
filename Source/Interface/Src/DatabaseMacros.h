@@ -29,7 +29,7 @@
 #	pragma warning( disable: 4251 )    // needs to have dll-interface to be used by clients
 #	pragma warning( disable: 4275 )    // exported class derived from non-exported class
 #	pragma warning( disable: 4347 )    // "behavior change", function called instead of template
-#	pragma warning( disable: 4355 )    // "'this': used in member initializer list
+#	pragma warning( disable: 4355 )    // "'this': used in member initialiser list
 #	pragma warning( disable: 4428 )    // MSVC 9: universal-character-name encountered in source
 #	pragma warning( disable: 4505 )    // unreferenced function has been removed
 #	pragma warning( disable: 4510 )    // default constructor could not be generated
@@ -100,75 +100,6 @@
 											typedef std::unique_ptr<	C##class_name		>	class_name##UPtr;	\
 											typedef std::auto_ptr<		C##class_name		>	class_name##APtr;	\
 											typedef C##class_name *								class_name##RPtr
-
-#define DECLARE_MAP( key, value, name )		typedef std::map<			key,		value	>	name##Map;			\
-											typedef name##Map::iterator							name##MapIt;		\
-											typedef name##Map::reverse_iterator					name##MapRIt;		\
-											typedef name##Map::const_iterator					name##MapConstIt;	\
-											typedef name##Map::const_reverse_iterator			name##MapConstRIt;	\
-											typedef name##Map::value_type						name##Pair
-
-#define DECLARE_MULTIMAP( key, value, name )typedef std::multimap<		key,		value	>	name##MMap;			\
-											typedef name##MMap::iterator						name##MMapIt;		\
-											typedef name##MMap::reverse_iterator				name##MMapRIt;		\
-											typedef name##MMap::const_iterator					name##MMapConstIt;	\
-											typedef name##MMap::const_reverse_iterator			name##MMapConstRIt;	\
-											typedef name##MMap::value_type						name##Pair
-
-#define DECLARE_SET( key, name )			typedef std::set<			key					>	name##Set;			\
-											typedef name##Set::iterator							name##SetIt;		\
-											typedef name##Set::reverse_iterator					name##SetRIt;		\
-											typedef name##Set::const_iterator					name##SetConstIt;	\
-											typedef name##Set::const_reverse_iterator			name##SetConstRIt
-
-#define DECLARE_VECTOR( key, name )			typedef std::vector<		key					>	name##Array;		\
-											typedef name##Array::iterator						name##ArrayIt;		\
-											typedef name##Array::reverse_iterator				name##ArrayRIt;		\
-											typedef name##Array::const_iterator					name##ArrayConstIt;	\
-											typedef name##Array::const_reverse_iterator			name##ArrayConstRIt
-
-#define DECLARE_ARRAY( key, count, name )	typedef std::array<			key,		count	>	name##Array;		\
-											typedef name##Array::iterator						name##ArrayIt;		\
-											typedef name##Array::reverse_iterator				name##ArrayRIt;		\
-											typedef name##Array::const_iterator					name##ArrayConstIt;	\
-											typedef name##Array::const_reverse_iterator			name##ArrayConstRIt
-
-#define DECLARE_LIST( key, name )			typedef std::list<			key					>	name##List;			\
-											typedef name##List::iterator						name##ListIt;		\
-											typedef name##List::reverse_iterator				name##ListRIt;		\
-											typedef name##List::const_iterator					name##ListConstIt;	\
-											typedef name##List::const_reverse_iterator			name##ListConstRIt
-
-#define DECLARE_TPL_MAP( key, value, name )		typedef std::map<			key,		value	>		name##Map;			\
-												typedef typename name##Map::iterator					name##MapIt;		\
-												typedef typename name##Map::reverse_iterator			name##MapRIt;		\
-												typedef typename name##Map::const_iterator				name##MapConstIt;	\
-												typedef typename name##Map::const_reverse_iterator		name##MapConstRIt;	\
-												typedef typename name##Map::value_type					name##Pair
-
-#define DECLARE_TPL_SET( key, name )			typedef std::set<			key					>		name##Set;			\
-												typedef typename name##Set::iterator					name##SetIt;		\
-												typedef typename name##Set::reverse_iterator			name##SetRIt;		\
-												typedef typename name##Set::const_iterator				name##SetConstIt;	\
-												typedef typename name##Set::const_reverse_iterator		name##SetConstRIt
-
-#define DECLARE_TPL_VECTOR( key, name )			typedef std::vector<		key					>		name##Array;		\
-												typedef typename name##Array::iterator					name##ArrayIt;		\
-												typedef typename name##Array::reverse_iterator			name##ArrayRIt;		\
-												typedef typename name##Array::const_iterator			name##ArrayConstIt;	\
-												typedef typename name##Array::const_reverse_iterator	name##ArrayConstRIt
-
-#define DECLARE_TPL_ARRAY( key, count, name )	typedef std::array<			key,		count	>		name##Array;		\
-												typedef typename name##Array::iterator					name##ArrayIt;		\
-												typedef typename name##Array::reverse_iterator			name##ArrayRIt;		\
-												typedef typename name##Array::const_iterator			name##ArrayConstIt;	\
-												typedef typename name##Array::const_reverse_iterator	name##ArrayConstRIt
-
-#define DECLARE_TPL_LIST( key, name )			typedef std::list<			key					>		name##List;			\
-												typedef typename name##List::iterator					name##ListIt;		\
-												typedef typename name##List::reverse_iterator			name##ListRIt;		\
-												typedef typename name##List::const_iterator				name##ListConstIt;	\
-												typedef typename name##List::const_reverse_iterator		name##ListConstRIt
 
 #if !defined( DB_PARAM_UNUSED )
 #	define DB_PARAM_UNUSED( x )

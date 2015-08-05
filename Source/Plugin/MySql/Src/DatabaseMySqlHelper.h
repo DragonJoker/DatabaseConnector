@@ -101,7 +101,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	@return
 		The columns
 	*/
-	DatabaseFieldInfosPtrArray MySqlGetColumns( MYSQL_STMT * stmt, DatabaseConnectionMySqlSPtr connection, std::vector< std::unique_ptr< SInMySqlBindBase > > & inbinds, std::vector< MYSQL_BIND > & binds );
+	DatabaseValuedObjectInfosPtrArray MySqlGetColumns( MYSQL_STMT * stmt, DatabaseConnectionMySqlSPtr connection, std::vector< std::unique_ptr< SInMySqlBindBase > > & inbinds, std::vector< MYSQL_BIND > & binds );
 
 	/** Fetches the statement's results
 	@param[in] stmt
@@ -115,7 +115,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	@return
 		The result set, which can be empty, for UPDATE or INSERT queries
 	*/
-	DatabaseResultSPtr MySqlFetchResult( MYSQL_STMT * statement, DatabaseFieldInfosPtrArray const & columns, DatabaseConnectionMySqlSPtr connection, std::vector< std::unique_ptr< SInMySqlBindBase > > const & inbinds, std::vector< MYSQL_BIND > & binds );
+	DatabaseResultSPtr MySqlFetchResult( MYSQL_STMT * statement, DatabaseValuedObjectInfosPtrArray const & columns, DatabaseConnectionMySqlSPtr connection, std::vector< std::unique_ptr< SInMySqlBindBase > > const & inbinds, std::vector< MYSQL_BIND > & binds );
 
 	/** Checks if the given code is acceptable, and if not, throws an exception
 	@param[in] code

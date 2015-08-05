@@ -21,9 +21,9 @@ BEGIN_NAMESPACE_DATABASE
 	//! The minimal date, time and date/time size. Needed because ODBC writes at least 16 bytes of data if the parameter is out or in/out
 	static const size_t MIN_DATE_TIME_SIZE = 16;
 
-	DatabaseConnectionSPtr CDatabaseValueBase::DoGetConnection()
+	DatabaseConnectionSPtr CDatabaseValueBase::DoGetConnection()const
 	{
-	return _connection.lock();
+		return _connection.lock();
 	}
 
 	/** Describes a value, used in fields and parameters.
@@ -43,13 +43,14 @@ BEGIN_NAMESPACE_DATABASE
 			: CDatabaseValueBase( connection )
 			, _tValue( value_type() )
 		{
+			// Empty
 		}
 
 		/** Destructor.
 		*/
 		inline ~CDatabaseValue()
 		{
-			Reset();
+			// Empty
 		}
 
 		/** Defines this value from the given one
@@ -76,7 +77,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			The value.
 		*/
-		inline String GetQueryValue()
+		inline String GetQueryValue()const
 		{
 			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), *DoGetConnection() );
 		}
@@ -96,7 +97,14 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline const void * GetPtrValue()const
 		{
-			return ValuePolicy::Ptr( _tValue );
+			if ( !IsNull() )
+			{
+				return ValuePolicy::Ptr( _tValue );
+			}
+			else
+			{
+				return NULL;
+			}
 		}
 
 		/** Get the value.
@@ -106,13 +114,6 @@ BEGIN_NAMESPACE_DATABASE
 		inline const value_type & GetValue()const
 		{
 			return _tValue;
-		}
-
-		/** Re-initialize internal values.
-		*/
-		inline void Reset()
-		{
-			ValuePolicy::Reset( _tValue );
 		}
 
 	private:
@@ -153,7 +154,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline ~CDatabaseValue()
 		{
-			Reset();
+			// Empty
 		}
 
 		/** Defines this value from the given one
@@ -214,7 +215,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			The value.
 		*/
-		inline String GetQueryValue()
+		inline String GetQueryValue()const
 		{
 			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), *DoGetConnection() );
 		}
@@ -244,13 +245,6 @@ BEGIN_NAMESPACE_DATABASE
 		inline const value_type & GetValue()const
 		{
 			return _tValue;
-		}
-
-		/** Re-initialize internal values.
-		*/
-		inline void Reset()
-		{
-			ValuePolicy::Reset( _tValue );
 		}
 
 	private:
@@ -291,7 +285,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline ~CDatabaseValue()
 		{
-			Reset();
+			// Empty
 		}
 
 		/** Defines this value from the given one
@@ -338,7 +332,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			The value.
 		*/
-		inline String GetQueryValue()
+		inline String GetQueryValue()const
 		{
 			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), *DoGetConnection() );
 		}
@@ -368,13 +362,6 @@ BEGIN_NAMESPACE_DATABASE
 		inline const value_type & GetValue()const
 		{
 			return _tValue;
-		}
-
-		/** Re-initialize internal values.
-		*/
-		inline void Reset()
-		{
-			ValuePolicy::Reset( _tValue );
 		}
 
 	private:
@@ -415,7 +402,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline ~CDatabaseValue()
 		{
-			Reset();
+			// Empty
 		}
 
 		/** Defines this value from the given one
@@ -462,7 +449,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			The value.
 		*/
-		inline String GetQueryValue()
+		inline String GetQueryValue()const
 		{
 			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), *DoGetConnection() );
 		}
@@ -492,13 +479,6 @@ BEGIN_NAMESPACE_DATABASE
 		inline const value_type & GetValue()const
 		{
 			return _tValue;
-		}
-
-		/** Re-initialize internal values.
-		*/
-		inline void Reset()
-		{
-			ValuePolicy::Reset( _tValue );
 		}
 
 	private:
@@ -539,7 +519,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline ~CDatabaseValue()
 		{
-			Reset();
+			// Empty
 		}
 
 		/** Defines this value from the given one
@@ -551,7 +531,7 @@ BEGIN_NAMESPACE_DATABASE
 		inline void SetValue( CDatabaseValueBase const & value )
 		{
 			CDatabaseValue< EFieldType_NCHAR > const & val = static_cast< CDatabaseValue< EFieldType_NCHAR > const & >( value );
-			SetValue( val._tValue.c_str(), val.GetPtrSize() );
+			SetValue( val._tValue.c_str(), uint32_t( val._tValue.size() ) );
 		}
 
 		/** Set value.
@@ -600,7 +580,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			The value.
 		*/
-		inline String GetQueryValue()
+		inline String GetQueryValue()const
 		{
 			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), *DoGetConnection() );
 		}
@@ -630,13 +610,6 @@ BEGIN_NAMESPACE_DATABASE
 		inline const value_type & GetValue()const
 		{
 			return _tValue;
-		}
-
-		/** Re-initialize internal values.
-		*/
-		inline void Reset()
-		{
-			ValuePolicy::Reset( _tValue );
 		}
 
 	private:
@@ -677,7 +650,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline ~CDatabaseValue()
 		{
-			Reset();
+			// Empty
 		}
 
 		/** Defines this value from the given one
@@ -724,7 +697,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			The value.
 		*/
-		inline String GetQueryValue()
+		inline String GetQueryValue()const
 		{
 			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), *DoGetConnection() );
 		}
@@ -754,13 +727,6 @@ BEGIN_NAMESPACE_DATABASE
 		inline const value_type & GetValue()const
 		{
 			return _tValue;
-		}
-
-		/** Re-initialize internal values.
-		*/
-		inline void Reset()
-		{
-			ValuePolicy::Reset( _tValue );
 		}
 
 	private:
@@ -801,7 +767,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline ~CDatabaseValue()
 		{
-			Reset();
+			// Empty
 		}
 
 		/** Defines this value from the given one
@@ -848,7 +814,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			The value.
 		*/
-		inline String GetQueryValue()
+		inline String GetQueryValue()const
 		{
 			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), *DoGetConnection() );
 		}
@@ -878,13 +844,6 @@ BEGIN_NAMESPACE_DATABASE
 		inline const value_type & GetValue()const
 		{
 			return _tValue;
-		}
-
-		/** Re-initialize internal values.
-		*/
-		inline void Reset()
-		{
-			ValuePolicy::Reset( _tValue );
 		}
 
 	private:
@@ -925,7 +884,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline ~CDatabaseValue()
 		{
-			Reset();
+			// Empty
 		}
 
 		/** Defines this value from the given one
@@ -972,7 +931,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			The value.
 		*/
-		inline String GetQueryValue()
+		inline String GetQueryValue()const
 		{
 			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), *DoGetConnection() );
 		}
@@ -1002,13 +961,6 @@ BEGIN_NAMESPACE_DATABASE
 		inline const value_type & GetValue()const
 		{
 			return _tValue;
-		}
-
-		/** Re-initialize internal values.
-		*/
-		inline void Reset()
-		{
-			ValuePolicy::Reset( _tValue );
 		}
 
 	private:
@@ -1049,7 +1001,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline ~CDatabaseValue()
 		{
-			Reset();
+			// Empty
 		}
 
 		/** Defines this value from the given one
@@ -1096,7 +1048,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			The value.
 		*/
-		inline String GetQueryValue()
+		inline String GetQueryValue()const
 		{
 			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), *DoGetConnection() );
 		}
@@ -1128,13 +1080,6 @@ BEGIN_NAMESPACE_DATABASE
 			return _tValue;
 		}
 
-		/** Re-initialize internal values.
-		*/
-		inline void Reset()
-		{
-			ValuePolicy::Reset( _tValue );
-		}
-
 	private:
 		/** Set parameter value to NULL.
 		*/
@@ -1149,10 +1094,10 @@ BEGIN_NAMESPACE_DATABASE
 		value_type _tValue;
 	};
 
-	/** Describes a EFieldType_LONG_VARBINARY field value.
+	/** Describes a EFieldType_BLOB field value.
 	*/
 	template< typename ValuePolicy >
-	class CDatabaseValue< EFieldType_LONG_VARBINARY, ValuePolicy >
+	class CDatabaseValue< EFieldType_BLOB, ValuePolicy >
 		: public CDatabaseValueBase
 		, private ValuePolicy
 	{
@@ -1173,7 +1118,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline ~CDatabaseValue()
 		{
-			Reset();
+			// Empty
 		}
 
 		/** Defines this value from the given one
@@ -1184,7 +1129,7 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		inline void SetValue( CDatabaseValueBase const & value )
 		{
-			SetValue( static_cast< CDatabaseValue< EFieldType_LONG_VARBINARY > const & >( value )._tValue );
+			SetValue( static_cast< CDatabaseValue< EFieldType_BLOB > const & >( value )._tValue );
 		}
 
 		/** Set value.
@@ -1220,7 +1165,7 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			The value.
 		*/
-		inline String GetQueryValue()
+		inline String GetQueryValue()const
 		{
 			return ValuePolicy::ToQueryValue( _tValue, !IsNull(), *DoGetConnection() );
 		}
@@ -1250,13 +1195,6 @@ BEGIN_NAMESPACE_DATABASE
 		inline const value_type & GetValue()const
 		{
 			return _tValue;
-		}
-
-		/** Re-initialize internal values.
-		*/
-		inline void Reset()
-		{
-			ValuePolicy::Reset( _tValue );
 		}
 
 	private:

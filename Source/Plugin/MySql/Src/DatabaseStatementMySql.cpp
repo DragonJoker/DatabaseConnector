@@ -28,7 +28,7 @@
 
 BEGIN_NAMESPACE_DATABASE_MYSQL
 {
-	static const String ERROR_MYSQL_MISSING_INITIALIZATION = STR( "Method Initialize must be called before calling method CreateParameter" );
+	static const String ERROR_MYSQL_MISSING_INITIALIZATION = STR( "Method Initialise must be called before calling method CreateParameter" );
 	static const String ERROR_MYSQL_CANT_CREATE_STATEMENT = STR( "Couldn't create the statement" );
 	static const String ERROR_MYSQL_LOST_CONNECTION = STR( "The statement has lost his connection" );
 
@@ -61,7 +61,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		Cleanup();
 	}
 
-	DatabaseParameterSPtr CDatabaseStatementMySql::CreateParameter( const String & name, EFieldType fieldType, EParameterType parameterType )
+	DatabaseParameterSPtr CDatabaseStatementMySql::DoCreateParameter( DatabaseValuedObjectInfosSPtr infos, EParameterType parameterType )
 	{
 		DatabaseConnectionMySqlSPtr connection = DoGetMySqlConnection();
 
@@ -70,67 +70,18 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_MYSQL_LOST_CONNECTION );
 		}
 
-		DatabaseParameterMySqlSPtr pReturn = std::make_shared< CDatabaseParameterMySql >( connection, name, uint16_t( _arrayInParams.size() + 1 ), fieldType, parameterType, std::make_unique< SValueUpdater >( this ) );
+		DatabaseParameterMySqlSPtr parameter = std::make_shared< CDatabaseParameterMySql >( connection, infos, uint16_t( _arrayInParams.size() + 1 ), parameterType, std::make_unique< SValueUpdater >( this ) );
+		DatabaseParameterSPtr ret = DoAddParameter( parameter );
 
-		if ( !DoAddParameter( pReturn ) )
+		if ( ret && parameterType == EParameterType_IN )
 		{
-			pReturn.reset();
-		}
-		else if ( parameterType == EParameterType_IN )
-		{
-			_arrayInParams.push_back( pReturn );
+			_arrayInParams.push_back( parameter );
 		}
 
-		return pReturn;
+		return ret;
 	}
 
-	DatabaseParameterSPtr CDatabaseStatementMySql::CreateParameter( const String & name, EFieldType fieldType, uint32_t limits, EParameterType parameterType )
-	{
-		DatabaseConnectionMySqlSPtr connection = DoGetMySqlConnection();
-
-		if ( !connection )
-		{
-			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_MYSQL_LOST_CONNECTION );
-		}
-
-		DatabaseParameterMySqlSPtr pReturn = std::make_shared< CDatabaseParameterMySql >( connection, name, uint16_t( _arrayInParams.size() + 1 ), fieldType, limits, parameterType, std::make_unique< SValueUpdater >( this ) );
-
-		if ( !DoAddParameter( pReturn ) )
-		{
-			pReturn.reset();
-		}
-		else if ( parameterType == EParameterType_IN )
-		{
-			_arrayInParams.push_back( pReturn );
-		}
-
-		return pReturn;
-	}
-
-	DatabaseParameterSPtr CDatabaseStatementMySql::CreateParameter( const String & name, EFieldType fieldType, const std::pair< uint32_t, uint32_t > & precision, EParameterType parameterType )
-	{
-		DatabaseConnectionMySqlSPtr connection = DoGetMySqlConnection();
-
-		if ( !connection )
-		{
-			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_MYSQL_LOST_CONNECTION );
-		}
-
-		DatabaseParameterMySqlSPtr pReturn = std::make_shared< CDatabaseParameterMySql >( connection, name, uint16_t( _arrayInParams.size() + 1 ), fieldType, precision, parameterType, std::make_unique< SValueUpdater >( this ) );
-
-		if ( !DoAddParameter( pReturn ) )
-		{
-			pReturn.reset();
-		}
-		else if ( parameterType == EParameterType_IN )
-		{
-			_arrayInParams.push_back( pReturn );
-		}
-
-		return pReturn;
-	}
-
-	EErrorType CDatabaseStatementMySql::DoInitialize()
+	EErrorType CDatabaseStatementMySql::DoInitialise()
 	{
 		DatabaseConnectionMySqlSPtr connection = DoGetMySqlConnection();
 
@@ -144,7 +95,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		if ( !_query.empty() )
 		{
 			_paramsCount = uint32_t( std::count( _query.begin(), _query.end(), STR( '?' ) ) );
-			_arrayQueries = CStrUtils::Split( _query, STR( "?" ), _paramsCount + 1 );
+			_arrayQueries = StringUtils::Split( _query, STR( "?" ), _paramsCount + 1 );
 		}
 
 		CLogger::LogInfo( INFO_MYSQL_PREPARING_STATEMENT + _query );
@@ -155,10 +106,10 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		auto && itQueries = _arrayQueries.begin();
 		auto && itParams = _arrayParams.begin();
 
-		_outInitializers.clear();
+		_outInitialisers.clear();
 		_arrayOutParams.clear();
 
-		_outInitializers.reserve( _arrayParams.size() );
+		_outInitialisers.reserve( _arrayParams.size() );
 		_arrayOutParams.reserve( _arrayParams.size() );
 		_bindings.reserve( _arrayParams.size() );
 
@@ -171,8 +122,8 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			{
 				query << MYSQL_SQL_PARAM + parameter->GetName();
 				DatabaseStatementSPtr stmt = connection->CreateStatement( MYSQL_SQL_SET + parameter->GetName() + MYSQL_SQL_NULL );
-				stmt->Initialize();
-				_outInitializers.push_back( stmt );
+				stmt->Initialise();
+				_outInitialisers.push_back( stmt );
 				_arrayOutParams.push_back( parameter );
 			}
 			else if ( parameter->GetParamType() == EParameterType_IN )
@@ -186,8 +137,8 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				query << MYSQL_SQL_PARAM + parameter->GetName();
 				DatabaseStatementSPtr stmt = connection->CreateStatement( MYSQL_SQL_SET + parameter->GetName() + STR( " = " ) + MYSQL_SQL_DELIM );
 				stmt->CreateParameter( parameter->GetName(), parameter->GetType(), parameter->GetLimits(), EParameterType_IN );
-				stmt->Initialize();
-				_inOutInitializers.push_back( std::make_pair( stmt, parameter ) );
+				stmt->Initialise();
+				_inOutInitialisers.push_back( std::make_pair( stmt, parameter ) );
 				_arrayOutParams.push_back( parameter );
 			}
 
@@ -217,7 +168,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			}
 
 			_stmtOutParams = connection->CreateStatement( queryInOutParam.str() );
-			_stmtOutParams->Initialize();
+			_stmtOutParams->Initialise();
 		}
 
 		_statement = mysql_stmt_init( connection->GetConnection() );
@@ -231,7 +182,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_MYSQL_CANT_CREATE_STATEMENT );
 		}
 
-		std::string strQuery = CStrUtils::ToStr( _query );
+		std::string strQuery = StringUtils::ToStr( _query );
 		MySQLCheck( mysql_stmt_prepare( _statement, strQuery.c_str(), uint32_t( strQuery.size() ) ), INFO_MYSQL_STATEMENT_PREPARATION, EDatabaseExceptionCodes_StatementError, connection->GetConnection() );
 		MYSQL_RES * meta = mysql_stmt_param_metadata( _statement );
 		size_t index = 0;
@@ -247,7 +198,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		return eReturn;
 	}
 
-	bool CDatabaseStatementMySql::DoExecuteUpdate( EErrorType * result )
+	bool CDatabaseStatementMySql::DoExecuteUpdate()
 	{
 		DatabaseConnectionMySqlSPtr connection = DoGetMySqlConnection();
 
@@ -256,22 +207,18 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_MYSQL_LOST_CONNECTION );
 		}
 
-		DoPreExecute( result );
+		DoPreExecute();
+		bool bReturn = connection->ExecuteUpdate( _statement );
 
-		bool bReturn;
-		EErrorType eResult = EErrorType_NONE;
-		bReturn = connection->ExecuteUpdate( _statement );
-		DoPostExecute( result );
-
-		if ( result )
+		if ( bReturn )
 		{
-			*result = eResult;
+			DoPostExecute();
 		}
 
 		return bReturn;
 	}
 
-	DatabaseResultSPtr CDatabaseStatementMySql::DoExecuteSelect( EErrorType * result )
+	DatabaseResultSPtr CDatabaseStatementMySql::DoExecuteSelect()
 	{
 		DatabaseConnectionMySqlSPtr connection = DoGetMySqlConnection();
 
@@ -280,14 +227,12 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_MYSQL_LOST_CONNECTION );
 		}
 
-		DoPreExecute( result );
-		EErrorType eResult = EErrorType_NONE;
+		DoPreExecute();
 		DatabaseResultSPtr pReturn = connection->ExecuteSelect( _statement );
-		DoPostExecute( result );
 
-		if ( result )
+		if ( pReturn )
 		{
-			*result = eResult;
+			DoPostExecute();
 		}
 
 		return pReturn;
@@ -303,15 +248,15 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 		_arrayInParams.clear();
 		_arrayOutParams.clear();
-		_outInitializers.clear();
+		_outInitialisers.clear();
 		_arrayQueries.clear();
 		_paramsCount = 0;
 		_stmtOutParams.reset();
 	}
 
-	void CDatabaseStatementMySql::DoPreExecute( EErrorType * result )
+	void CDatabaseStatementMySql::DoPreExecute()
 	{
-		for ( auto && it : _inOutInitializers )
+		for ( auto && it : _inOutInitialisers )
 		{
 			DatabaseParameterSPtr parameter = it.second.lock();
 
@@ -321,19 +266,19 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			}
 			else
 			{
-				it.first->SetParameterValue( 0, *parameter );
+				it.first->SetParameterValue( 0, static_cast< const CDatabaseValuedObject & >( *parameter ) );
 			}
 
-			it.first->ExecuteUpdate( result );
+			it.first->ExecuteUpdate();
 		}
 
-		for ( auto && it : _outInitializers )
+		for ( auto && it : _outInitialisers )
 		{
-			it->ExecuteUpdate( result );
+			it->ExecuteUpdate();
 		}
 	}
 
-	void CDatabaseStatementMySql::DoPostExecute( EErrorType * result )
+	void CDatabaseStatementMySql::DoPostExecute()
 	{
 		if ( !_arrayOutParams.empty() )
 		{
@@ -355,14 +300,14 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 						{
 							field = row->GetField( parameter->GetName() );
 						}
-						catch ( CExceptionDatabase & exc )
+						catch ( CDatabaseException & exc )
 						{
 							CLogger::LogError( exc.GetFullDescription() );
 						}
 
 						if ( field )
 						{
-							parameter->SetValue( *field );
+							parameter->SetValue( static_cast< const CDatabaseValuedObject & >( *field ) );
 						}
 					}
 				}

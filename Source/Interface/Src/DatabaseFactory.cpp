@@ -27,7 +27,7 @@ BEGIN_NAMESPACE_DATABASE
 		// Empty
 	}
 
-	void CFactoryDatabase::Initialize()
+	void CFactoryDatabase::Initialise()
 	{
 		RegisterServices();
 		RegisterObjectTypes();
