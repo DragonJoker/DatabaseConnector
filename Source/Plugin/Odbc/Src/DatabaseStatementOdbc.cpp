@@ -66,7 +66,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_ODBC_LOST_CONNECTION );
 		}
 
-		return DoAddParameter( std::make_shared< CDatabaseStatementParameterOdbc >( connection, infos, uint16_t( _arrayParams.size() + 1 ), parameterType, std::make_unique< SValueUpdater >( this ) ) );
+		return DoAddParameter( std::make_shared< CDatabaseStatementParameterOdbc >( connection, infos, GetParametersCount() + 1, parameterType, std::make_unique< SValueUpdater >( this ) ) );
 	}
 
 	EErrorType CDatabaseStatementOdbc::DoInitialise()
@@ -104,9 +104,9 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			CLogger::LogDebug( DEBUG_ODBC_EXPECTED_PARAMETERS + StringUtils::ToString( count ) );
 		}
 
-		for ( DatabaseParameterPtrArray::iterator it = _arrayParams.begin(); it != _arrayParams.end(); ++it )
+		for ( auto && parameter : DoGetParameters() )
 		{
-			std::static_pointer_cast< CDatabaseStatementParameterOdbc >( *it )->Initialise( _statementHandle );
+			std::static_pointer_cast< CDatabaseStatementParameterOdbc >( parameter )->Initialise( _statementHandle );
 		}
 
 		return errorType;

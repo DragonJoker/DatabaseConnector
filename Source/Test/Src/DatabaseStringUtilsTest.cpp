@@ -15,15 +15,6 @@
 
 #include "DatabaseTestHelpers.h"
 
-namespace std
-{
-	inline ostream & operator <<( ostream & out, const wstring & value )
-	{
-		out << NAMESPACE_DATABASE::StringUtils::ToStr( value );
-		return out;
-	}
-}
-
 BEGIN_NAMESPACE_DATABASE_TEST
 {
 	CDatabaseStringUtilsTest::CDatabaseStringUtilsTest()
@@ -125,19 +116,14 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		std::string s = "ÂÄÊËÎÏÔÖÛÜ";
 		std::string utf8 = "ÂÄÊËÎÏÔÖÛÜ";
 
-#if !defined( _WIN32 ) // Disabled with MSVC since Windos does not support UTF8 locales
+#if 1// !defined( _WIN32 ) // Disabled with MSVC since Windos does not support UTF8 locales
 		CLogger::LogInfo( StringStream() << "  ToWStr" );
 		BOOST_CHECK_EQUAL( ws, StringUtils::ToWStr( s ) );
-		BOOST_CHECK_EQUAL( ws, StringUtils::ToWStr( ws ) );
 		CLogger::LogInfo( StringStream() << "  ToStr" );
 		BOOST_CHECK_EQUAL( StringUtils::ToStr( ws ), s );
-		BOOST_CHECK_EQUAL( StringUtils::ToStr( s ), s );
-		CLogger::LogInfo( StringStream() << "  ToString" );
-		BOOST_CHECK_EQUAL( StringUtils::ToString( ws ), s );
-		BOOST_CHECK_EQUAL( StringUtils::ToString( s ), s );
 		CLogger::LogInfo( StringStream() << "  ToUtf8" );
 		BOOST_CHECK_EQUAL( StringUtils::ToUtf8( s, "UTF-8" ), utf8 );
-		BOOST_CHECK_EQUAL( StringUtils::ToUtf8( ws, L"UTF-8" ), utf8 );
+		BOOST_CHECK_EQUAL( StringUtils::ToUtf8( ws, "UTF-8" ), utf8 );
 #endif
 		CLogger::LogInfo( StringStream() << "**** End TestCase_StringUtilsConversions ****" );
 	}

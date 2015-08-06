@@ -373,9 +373,9 @@ BEGIN_NAMESPACE_DATABASE
 	CDatabaseException::CDatabaseException( int number, const String & description, const std::string & source, const std::string & file, long line )
 		: _number( number )
 		, _description( description )
-		, _source( StringUtils::ToString( source ) )
+		, _source( source )
 		, _typeName( STR( "CDatabaseException" ) )
-		, _file( StringUtils::ToString( file ) )
+		, _file( file )
 		, _line( line )
 	{
 		std::stringstream stream;
@@ -386,9 +386,9 @@ BEGIN_NAMESPACE_DATABASE
 	CDatabaseException::CDatabaseException( const String & type, int number, const String & description, const std::string & source, const std::string & file, long line )
 		: _number( number )
 		, _description( description )
-		, _source( StringUtils::ToString( source ) )
+		, _source( source )
 		, _typeName( type )
-		, _file( StringUtils::ToString( file ) )
+		, _file( file )
 		, _line( line )
 	{
 		std::stringstream stream;
@@ -434,7 +434,7 @@ BEGIN_NAMESPACE_DATABASE
 
 			desc << _callstack;
 			_fullDesc = desc.str();
-			_what = StringUtils::ToStr( _fullDesc );
+			_what = _fullDesc;
 		}
 
 		return _fullDesc;

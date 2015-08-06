@@ -178,7 +178,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		_paramsCount = uint32_t( std::count( _query.begin(), _query.end(), STR( '?' ) ) );
 
-		if ( _paramsCount != _arrayParams.size() )
+		if ( _paramsCount != GetParametersCount() )
 		{
 			DB_EXCEPT( EDatabaseExceptionCodes_QueryError, ERROR_DB_QUERY_INCONSISTENCY );
 		}
@@ -201,7 +201,7 @@ BEGIN_NAMESPACE_DATABASE
 
 	DatabaseParameterSPtr CDatabaseQuery::DoCreateParameter( DatabaseValuedObjectInfosSPtr infos, EParameterType parameterType )
 	{
-		return DoAddParameter( std::make_shared< CDatabaseParameter >( DoGetConnection(), infos, uint16_t( _arrayParams.size() + 1 ), parameterType, std::make_unique< SDummyValueUpdater >() ) );
+		return DoAddParameter( std::make_shared< CDatabaseParameter >( DoGetConnection(), infos, GetParametersCount() + 1, parameterType, std::make_unique< SDummyValueUpdater >() ) );
 	}
 
 	String CDatabaseQuery::DoPreExecute()
@@ -209,7 +209,7 @@ BEGIN_NAMESPACE_DATABASE
 		StringStream query;
 		auto itQueries = _arrayQueries.begin();
 
-		for ( auto && parameter : _arrayParams )
+		for ( auto && parameter : DoGetParameters() )
 		{
 			query << ( *itQueries++ );
 			query << ( parameter )->GetObjectValue().GetQueryValue().c_str();

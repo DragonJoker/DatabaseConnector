@@ -66,7 +66,7 @@ BEGIN_NAMESPACE_DATABASE
 		}
 
 		FILE * file;
-		FileUtils::FOpen( file, StringUtils::ToStr( logFilePath ).c_str(), "w" );
+		FileUtils::FOpen( file, logFilePath.c_str(), "w" );
 
 		if ( file )
 		{
@@ -76,12 +76,12 @@ BEGIN_NAMESPACE_DATABASE
 
 	void CLoggerImpl::PrintMessage( ELogType logLevel, std::string const & message )
 	{
-		DoPrintMessage( logLevel, StringUtils::ToString( message ) );
+		DoPrintMessage( logLevel, message );
 	}
 
 	void CLoggerImpl::PrintMessage( ELogType logLevel, std::wstring const & message )
 	{
-		DoPrintMessage( logLevel, StringUtils::ToString( message ) );
+		DoPrintMessage( logLevel, StringUtils::ToStr( message ) );
 	}
 
 	void CLoggerImpl::LogMessageQueue( MessageQueue const & p_queue, bool display )
@@ -105,7 +105,7 @@ BEGIN_NAMESPACE_DATABASE
 
 					if ( l_it == opened.end() )
 					{
-						FileUtils::FOpen( file, StringUtils::ToStr( _logFilePath[message->m_type] ).c_str(), "a" );
+						FileUtils::FOpen( file, _logFilePath[message->m_type].c_str(), "a" );
 
 						if ( file )
 						{
@@ -144,10 +144,12 @@ BEGIN_NAMESPACE_DATABASE
 			{
 				fclose( it.second );
 			}
+
+			opened.clear();
 		}
 		catch ( std::exception & )
 		{
-			//m_pConsole->Print( STR( "Couldn't open log file : " ) + StringUtils::ToString( exc.what() ), true );
+			//m_pConsole->Print( STR( "Couldn't open log file : " ) + String( exc.what() ), true );
 		}
 	}
 
@@ -187,7 +189,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		if ( logFile )
 		{
-			std::string logLine = StringUtils::ToStr( timestamp + STR( " - " ) + _headers[logLevel] + line );
+			std::string logLine = timestamp + STR( " - " ) + _headers[logLevel] + line;
 			fwrite( logLine.c_str(), 1, logLine.size(), logFile );
 			fwrite( "\n", 1, 1, logFile );
 		}

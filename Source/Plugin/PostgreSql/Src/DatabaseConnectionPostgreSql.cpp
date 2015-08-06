@@ -173,7 +173,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 
 	std::wstring CDatabaseConnectionPostgreSql::DoWriteNText( const std::wstring & text ) const
 	{
-		std::string result( StringUtils::ToStr( text ) );
+		std::string result( StringUtils::ToUtf8( text, "UTF-8" ) );
 
 		if ( result != POSTGRESQL_SQL_NULL )
 		{
@@ -201,7 +201,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 
 		if ( escaped )
 		{
-			result = STR( "'" ) + StringUtils::ToString( reinterpret_cast< char * >( escaped ) ) + STR( "'" );
+			result = STR( "'" ) + String( reinterpret_cast< char * >( escaped ) ) + STR( "'" );
 			PQfreemem( escaped );
 		}
 		else
@@ -484,7 +484,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			}
 
 			PQconninfoFree( info );
-			connectionString = StringUtils::ToStr( stream.str() );
+			connectionString = stream.str();
 
 			ret = true;
 		}
@@ -556,8 +556,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 
 	bool CDatabaseConnectionPostgreSql::DoExecuteUpdate( const String & query )
 	{
-		std::string strQuery = StringUtils::ToStr( query );
-		PGresult * result = PQexec( _connection, strQuery.c_str() );
+		PGresult * result = PQexec( _connection, query.c_str() );
 		PostgreSQLCheck( result, INFO_POSTGRESQL_QUERY_EXECUTION, EDatabaseExceptionCodes_StatementError, _connection );
 		PQclear( result );
 		return true;
@@ -565,17 +564,15 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 
 	DatabaseResultSPtr CDatabaseConnectionPostgreSql::DoExecuteSelect( const String & query, DatabaseValuedObjectInfosPtrArray & infos )
 	{
-		std::string strQuery = StringUtils::ToStr( query );
-		PGresult * result = PQexec( _connection, strQuery.c_str() );
+		PGresult * result = PQexec( _connection, query.c_str() );
 		PostgreSQLCheck( result, INFO_POSTGRESQL_QUERY_EXECUTION, EDatabaseExceptionCodes_StatementError, _connection );
-		std::vector< std::unique_ptr< SInPostgreSqlBindBase > > binds;
 
 		if ( infos.empty() )
 		{
-			infos = PostgreSqlGetColumns( result, binds );
+			infos = PostgreSqlGetColumns( result );
 		}
 
-		return PostgreSqlFetchResult( result, infos, std::static_pointer_cast< CDatabaseConnectionPostgreSql >( shared_from_this() ), binds );
+		return PostgreSqlFetchResult( result, infos, std::static_pointer_cast< CDatabaseConnectionPostgreSql >( shared_from_this() ) );
 	}
 
 	DatabaseStatementSPtr CDatabaseConnectionPostgreSql::DoCreateStatement( const String & request )

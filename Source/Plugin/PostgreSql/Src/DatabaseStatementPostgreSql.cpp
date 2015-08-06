@@ -73,7 +73,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_POSTGRESQL_LOST_CONNECTION );
 		}
 
-		return DoAddParameter( std::make_shared< CDatabaseParameterPostgreSql >( connection, infos, uint16_t( _arrayParams.size() + 1 ), parameterType, std::make_unique< SValueUpdater >( this ) ) );
+		return DoAddParameter( std::make_shared< CDatabaseParameterPostgreSql >( connection, infos, GetParametersCount() + 1, parameterType, std::make_unique< SValueUpdater >( this ) ) );
 	}
 
 	EErrorType CDatabaseStatementPostgreSql::DoInitialise()
@@ -94,26 +94,27 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		}
 
 		CLogger::LogDebug( ( Format( DEBUG_POSTGRESQL_PREPARING_STATEMENT ) % this ).str() );
-		assert( _paramsCount == _arrayParams.size() );
+		assert( _paramsCount == GetParametersCount() );
 
 		StringStream query;
 		unsigned short i = 0;
 		auto && itQueries = _arrayQueries.begin();
-		auto && itParams = _arrayParams.begin();
+		auto && itParams = DoGetParameters().begin();
+		auto && itParamsEnd = DoGetParameters().end();
 
 		_arrayOutParams.clear();
 		std::vector< DatabaseParameterPostgreSqlSPtr > arrayParams;
 
-		arrayParams.reserve( _arrayParams.size() );
-		_arrayOutParams.reserve( _arrayParams.size() );
-		_bindings.reserve( _arrayParams.size() );
-		_arrayValues.resize( _arrayParams.size() );
-		_arrayLengths.resize( _arrayParams.size() );
-		_arrayFormats.resize( _arrayParams.size() );
-		_arrayOids.reserve( _arrayParams.size() );
+		arrayParams.reserve( GetParametersCount() );
+		_arrayOutParams.reserve( GetParametersCount() );
+		_bindings.reserve( GetParametersCount() );
+		_arrayValues.resize( GetParametersCount() );
+		_arrayLengths.resize( GetParametersCount() );
+		_arrayFormats.resize( GetParametersCount() );
+		_arrayOids.reserve( GetParametersCount() );
 		size_t index = 1;
 
-		while ( itQueries != _arrayQueries.end() && itParams != _arrayParams.end() )
+		while ( itQueries != _arrayQueries.end() && itParams != itParamsEnd )
 		{
 			query << ( *itQueries );
 			DatabaseParameterPostgreSqlSPtr parameter = std::static_pointer_cast< CDatabaseParameterPostgreSql >( *itParams );
@@ -141,8 +142,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 
 		_query = query.str();
 
-		std::string strQuery = StringUtils::ToStr( _query );
-		PGresult * result = PQprepare( connection->GetConnection(), _statement.c_str(), strQuery.c_str(), int( _arrayParams.size() ), _arrayOids.data() );
+		PGresult * result = PQprepare( connection->GetConnection(), _statement.c_str(), _query.c_str(), int( GetParametersCount() ), _arrayOids.data() );
 		PostgreSQLCheck( result, INFO_POSTGRESQL_STATEMENT_PREPARATION, EDatabaseExceptionCodes_StatementError, connection->GetConnection() );
 		PQclear( result );
 
@@ -171,7 +171,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		}
 
 		EErrorType eResult = EErrorType_NONE;
-		PGresult * pgresult = PQexecPrepared( connection->GetConnection(), _statement.c_str(), int( _arrayParams.size() ), _arrayValues.data(), _arrayLengths.data(), _arrayFormats.data(), 0 );
+		PGresult * pgresult = PQexecPrepared( connection->GetConnection(), _statement.c_str(), int( GetParametersCount() ), _arrayValues.data(), _arrayLengths.data(), _arrayFormats.data(), 0 );
 		PostgreSQLCheck( pgresult, INFO_POSTGRESQL_STATEMENT_EXECUTION, EDatabaseExceptionCodes_StatementError, connection->GetConnection() );
 		return true;
 	}
@@ -187,16 +187,15 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 
 		DatabaseResultSPtr pReturn;
 		EErrorType eResult = EErrorType_NONE;
-		PGresult * pgresult = PQexecPrepared( connection->GetConnection(), _statement.c_str(), int( _arrayParams.size() ), _arrayValues.data(), _arrayLengths.data(), _arrayFormats.data(), 0 );
+		PGresult * pgresult = PQexecPrepared( connection->GetConnection(), _statement.c_str(), int( GetParametersCount() ), _arrayValues.data(), _arrayLengths.data(), _arrayFormats.data(), 0 );
 		PostgreSQLCheck( pgresult, INFO_POSTGRESQL_STATEMENT_EXECUTION, EDatabaseExceptionCodes_StatementError, connection->GetConnection() );
-		std::vector< std::unique_ptr< SInPostgreSqlBindBase > > binds;
 
 		if ( _infos.empty() )
 		{
-			_infos = PostgreSqlGetColumns( pgresult, binds );
+			_infos = PostgreSqlGetColumns( pgresult );
 		}
 
-		return PostgreSqlFetchResult( pgresult, _infos, connection, binds );
+		return PostgreSqlFetchResult( pgresult, _infos, connection );
 	}
 
 	void CDatabaseStatementPostgreSql::DoCleanup()

@@ -408,7 +408,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		//!@copydoc SOutMySqlBindBase::UpdateValue
 		virtual void UpdateValue()
 		{
-			std::string str = StringUtils::ToStr( reinterpret_cast< const wchar_t * >( _value.GetPtrValue() ) );
+			std::string str = StringUtils::ToUtf8( reinterpret_cast< const wchar_t * >( _value.GetPtrValue() ), "UTF-8" );
 			( this->*_updateFunc )( str );
 		}
 

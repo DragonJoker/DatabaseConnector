@@ -49,7 +49,7 @@ BEGIN_NAMESPACE_DATABASE
 
 	/** Template class, holding character type dependant message text
 	*/
-	template< typename Char >
+	template< typename Char, typename Converter >
 	struct SBasicMessage
 		: public SMessageBase
 	{
@@ -70,17 +70,43 @@ BEGIN_NAMESPACE_DATABASE
 		//@copydoc Database::SMessageBase::GetMessage
 		virtual String GetMessage()
 		{
-			return StringUtils::ToString( m_message );
+			return Converter::ToString( m_message );
 		}
 
 		//! The message text
 		string_type m_message;
 	};
+	
+	/** Template class, used to convert message to String
+	*/
+	template< typename Char > struct SMsgConverter;
+	
+	/** SMsgConverter specialisation, for char (no conversion)
+	*/
+	template<>
+	struct SMsgConverter< char >
+	{
+		static String ToString( const std::string & msg )
+		{
+			return msg;
+		}
+	};
+	
+	/** SMsgConverter specialisation, for wchar_t
+	*/
+	template<>
+	struct SMsgConverter< wchar_t >
+	{
+		static String ToString( const std::wstring & msg )
+		{
+			return StringUtils::ToStr( msg );
+		}
+	};
 
 	//! A char message
-	typedef SBasicMessage< char > SMessage;
+	typedef SBasicMessage< char, SMsgConverter< char > > SMessage;
 	//! A wchar_t message
-	typedef SBasicMessage< wchar_t > SWMessage;
+	typedef SBasicMessage< wchar_t, SMsgConverter< wchar_t > > SWMessage;
 
 	/** Helper class for Logger
 	*/

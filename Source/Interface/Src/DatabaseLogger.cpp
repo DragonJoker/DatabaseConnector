@@ -78,7 +78,7 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		static void Log( std::basic_string< CharType > const & text )
 		{
-			CLogger::LogDebug( StringUtils::ToString( text ) );
+			CLogger::LogDebug( text );
 		}
 	};
 
@@ -87,7 +87,7 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		static void Log( std::basic_string< CharType > const & text )
 		{
-			CLogger::LogInfo( StringUtils::ToString( text ) );
+			CLogger::LogInfo( text );
 		}
 	};
 
@@ -96,7 +96,7 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		static void Log( std::basic_string< CharType > const & text )
 		{
-			CLogger::LogWarning( StringUtils::ToString( text ) );
+			CLogger::LogWarning( text );
 		}
 	};
 
@@ -105,7 +105,7 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		static void Log( std::basic_string< CharType > const & text )
 		{
-			CLogger::LogError( StringUtils::ToString( text ) );
+			CLogger::LogError( text );
 		}
 	};
 

@@ -743,8 +743,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			}
 			else
 			{
-				//SQLiteCheck( sqlite3_bind_text16( _statement, _index, _value.GetPtrValue(), _value.GetPtrSize(), SQLITE_STATIC ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetPtrValue(), EDatabaseExceptionCodes_StatementError, _connection );
-				_holder = StringUtils::ToStr( ( const wchar_t * )_value.GetPtrValue() );
+				_holder = StringUtils::ToUtf8( ( const wchar_t * )_value.GetPtrValue(), "UTF-8" );
 				SQLiteCheck( sqlite3_bind_text( _statement, _index, _holder.c_str(), int( _holder.size() ), SQLITE_STATIC ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetPtrValue(), EDatabaseExceptionCodes_StatementError, _connection );
 			}
 		}
@@ -786,8 +785,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			}
 			else
 			{
-				//SQLiteCheck( sqlite3_bind_text16( _statement, _index, _value.GetPtrValue(), _value.GetPtrSize(), SQLITE_STATIC ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetPtrValue(), EDatabaseExceptionCodes_StatementError, _connection );
-				_holder = StringUtils::ToStr( ( const wchar_t * )_value.GetPtrValue() );
+				_holder = StringUtils::ToUtf8( ( const wchar_t * )_value.GetPtrValue(), "UTF-8" );
 				SQLiteCheck( sqlite3_bind_text( _statement, _index, _holder.c_str(), int( _holder.size() ), SQLITE_STATIC ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetPtrValue(), EDatabaseExceptionCodes_StatementError, _connection );
 			}
 		}
@@ -829,8 +827,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			}
 			else
 			{
-				//SQLiteCheck( sqlite3_bind_text16( _statement, _index, _value.GetPtrValue(), _value.GetPtrSize(), SQLITE_STATIC ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetPtrValue(), EDatabaseExceptionCodes_StatementError, _connection );
-				_holder = StringUtils::ToStr( ( const wchar_t * )_value.GetPtrValue() );
+				_holder = StringUtils::ToUtf8( ( const wchar_t * )_value.GetPtrValue(), "UTF-8" );
 				SQLiteCheck( sqlite3_bind_text( _statement, _index, _holder.c_str(), int( _holder.size() ), SQLITE_STATIC ), StringStream() << INFO_SQLITE_SET_PARAMETER_VALUE << _value.GetPtrValue(), EDatabaseExceptionCodes_StatementError, _connection );
 			}
 		}

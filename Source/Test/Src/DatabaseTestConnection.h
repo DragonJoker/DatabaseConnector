@@ -21,6 +21,8 @@
 BEGIN_NAMESPACE_DATABASE_TEST
 {
 	static const String TEST_SQL_NULL = STR( "NULL" );
+	static const std::string TEST_SQL_SNULL = "NULL";
+	static const std::wstring TEST_SQL_WNULL = L"NULL";
 
 	static const String TEST_FORMAT_DATE = STR( "CAST('%Y-%m-%d' AS DATE)" );
 	static const String TEST_FORMAT_TIME = STR( "CAST('%H:%M:%S' AS TIME)" );

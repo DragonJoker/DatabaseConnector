@@ -285,7 +285,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	{
 		std::string strReturn( text );
 
-		if ( strReturn != TEST_SQL_NULL )
+		if ( strReturn != TEST_SQL_SNULL )
 		{
 			StringUtils::Replace( strReturn, "'", "''" );
 			StringUtils::Replace( strReturn, "\\", "\\\\" );
@@ -297,16 +297,16 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 	std::wstring CDatabaseTestConnection::DoWriteNText( const std::wstring & text ) const
 	{
-		String strReturn( StringUtils::ToString( text ) );
+		std::wstring strReturn( text );
 
-		if ( strReturn != TEST_SQL_NULL )
+		if ( strReturn != TEST_SQL_WNULL )
 		{
-			StringUtils::Replace( strReturn, STR( "'" ), STR( "''" ) );
-			StringUtils::Replace( strReturn, STR( "\\" ), STR( "\\\\" ) );
-			strReturn = STR( "N'" ) + strReturn + STR( "'" );
+			StringUtils::Replace( strReturn, L"'", L"''" );
+			StringUtils::Replace( strReturn, L"\\", L"\\\\" );
+			strReturn = L"N'" + strReturn + L"'";
 		}
 
-		return StringUtils::ToWStr( strReturn );
+		return strReturn;
 	}
 
 	String CDatabaseTestConnection::DoWriteBinary( const ByteArray & array ) const

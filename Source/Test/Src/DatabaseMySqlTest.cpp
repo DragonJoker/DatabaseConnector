@@ -15,6 +15,24 @@
 
 #include "DatabaseMySqlTest.h"
 
+namespace std
+{
+	inline ostream & operator <<( ostream & out, const NAMESPACE_DATABASE::ByteArray & value )
+	{
+		auto flags = out.setf( std::ios::hex, std::ios::basefield );
+
+		for ( auto && it : value )
+		{
+			out.width( 2 );
+			out.fill( '0' );
+			out << int( it );
+		}
+
+		out.setf( flags );
+		return out;
+	}
+}
+
 BEGIN_NAMESPACE_DATABASE_TEST
 {
 	static const String DB_DATABASE = STR( "db_test_mysql" );

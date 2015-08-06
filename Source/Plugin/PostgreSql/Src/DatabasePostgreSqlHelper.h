@@ -99,24 +99,20 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		The result set
 	@param[in] connection
 		The database connection
-	@param[out] binds
-		Receives the internal bindings
 	@return
 		The columns
 	*/
-	DatabaseValuedObjectInfosPtrArray PostgreSqlGetColumns( PGresult * result, std::vector< std::unique_ptr< SInPostgreSqlBindBase > > & binds );
+	DatabaseValuedObjectInfosPtrArray PostgreSqlGetColumns( PGresult * result );
 
 	/** Fetches the result set
 	@param[in] result
 		The result set
 	@param[in] columns
 		The columns
-	@param[in] binds
-		The internal bindings
 	@return
 		The result set, which can be empty, for UPDATE or INSERT queries
 	*/
-	DatabaseResultSPtr PostgreSqlFetchResult( PGresult * result, DatabaseValuedObjectInfosPtrArray const & columns, DatabaseConnectionPostgreSqlSPtr connection, std::vector< std::unique_ptr< SInPostgreSqlBindBase > > const & binds );
+	DatabaseResultSPtr PostgreSqlFetchResult( PGresult * result, DatabaseValuedObjectInfosPtrArray const & columns, DatabaseConnectionPostgreSqlSPtr connection );
 
 	/** Checks if the given code is acceptable, and if not, throws an exception
 	@param[in] code

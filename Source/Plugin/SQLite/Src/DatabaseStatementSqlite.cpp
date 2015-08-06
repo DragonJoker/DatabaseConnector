@@ -98,20 +98,21 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		}
 
 		CLogger::LogDebug( ( Format( DEBUG_SQLITE_PREPARING_STATEMENT ) % this ).str() );
-		assert( _paramsCount == _arrayParams.size() );
+		assert( _paramsCount == GetParametersCount() );
 
 		StringStream query;
 		unsigned short i = 0;
 		auto && itQueries = _arrayQueries.begin();
-		auto && itParams = _arrayParams.begin();
+		auto && itParams = DoGetParameters().begin();
+		auto && itParamsEnd = DoGetParameters().end();
 
 		_outInitialisers.clear();
 		_arrayOutParams.clear();
 
-		_outInitialisers.reserve( _arrayParams.size() );
-		_arrayOutParams.reserve( _arrayParams.size() );
+		_outInitialisers.reserve( GetParametersCount() );
+		_arrayOutParams.reserve( GetParametersCount() );
 
-		while ( itQueries != _arrayQueries.end() && itParams != _arrayParams.end() )
+		while ( itQueries != _arrayQueries.end() && itParams != itParamsEnd )
 		{
 			query << ( *itQueries );
 			DatabaseParameterSPtr parameter = ( *itParams );
@@ -170,7 +171,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		_statement = SqlitePrepareStatement( _query, DoGetSqliteConnection()->GetConnection() );
 		int count = sqlite3_bind_parameter_count( _statement );
 
-		if ( count == _arrayParams.size() )
+		if ( count == GetParametersCount() )
 		{
 			CLogger::LogDebug( StringStream() << INFO_SQLITE_STMT_PARAMS_COUNT << count );
 			eReturn = EErrorType_NONE;
@@ -178,7 +179,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		else
 		{
 			StringStream error;
-			error << ERROR_SQLITE_QUERY_INCONSISTENCY << _arrayParams.size() << STR( ", Expected: " ) << count;
+			error << ERROR_SQLITE_QUERY_INCONSISTENCY << GetParametersCount() << STR( ", Expected: " ) << count;
 			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, error.str() );
 		}
 

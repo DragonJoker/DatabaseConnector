@@ -28,6 +28,8 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 	static const String ODBC_SQL_USE_DATABASE = STR( "USE " );
 	static const String ODBC_SQL_DROP_DATABASE = STR( "DROP DATABASE " );
 	static const String ODBC_SQL_NULL = STR( "NULL" );
+	static const std::string ODBC_SQL_SNULL = "NULL" ;
+	static const std::wstring ODBC_SQL_WNULL = L"NULL";
 
 	static const String ODBC_DSN_DRIVER = STR( "DRIVER={SQL Server};SERVER=" );
 	static const String ODBC_DSN_DSN = STR( ";DSN=" );
@@ -143,7 +145,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 	{
 		std::string strReturn( text );
 
-		if ( strReturn != ODBC_SQL_NULL )
+		if ( strReturn != ODBC_SQL_SNULL )
 		{
 			StringUtils::Replace( strReturn, "'", "''" );
 			StringUtils::Replace( strReturn, "\\", "\\\\" );
@@ -155,16 +157,16 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 
 	std::wstring CDatabaseConnectionOdbcMsSql::DoWriteNText( const std::wstring & text ) const
 	{
-		String strReturn( StringUtils::ToString( text ) );
+		std::wstring strReturn( text );
 
-		if ( strReturn != ODBC_SQL_NULL )
+		if ( strReturn != ODBC_SQL_WNULL )
 		{
-			StringUtils::Replace( strReturn, STR( "'" ), STR( "''" ) );
-			StringUtils::Replace( strReturn, STR( "\\" ), STR( "\\\\" ) );
-			strReturn = STR( "N'" ) + strReturn + STR( "'" );
+			StringUtils::Replace( strReturn, L"'", L"''" );
+			StringUtils::Replace( strReturn, L"\\", L"\\\\" );
+			strReturn = L"N'" + strReturn + L"'";
 		}
 
-		return StringUtils::ToWStr( strReturn );
+		return strReturn;
 	}
 
 	String CDatabaseConnectionOdbcMsSql::DoWriteName( const String & text ) const

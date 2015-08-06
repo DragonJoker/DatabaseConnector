@@ -18,13 +18,7 @@
 
 namespace std
 {
-	inline ostream & operator <<( ostream & out, const wstring & value )
-	{
-		out << NAMESPACE_DATABASE::StringUtils::ToStr( value );
-		return out;
-	}
-
-	inline ostream & operator <<( ostream & out, const vector< uint8_t > & value )
+	inline ostream & operator <<( ostream & out, const NAMESPACE_DATABASE::ByteArray & value )
 	{
 		auto flags = out.setf( std::ios::hex, std::ios::basefield );
 
@@ -204,7 +198,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		static void QueryValueCompare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const ParamType & val )
 		{
-			BOOST_CHECK_EQUAL( value.GetQueryValue(), StringUtils::ToString( connection->WriteNText( val ) ) );
+			BOOST_CHECK_EQUAL( value.GetQueryValue(), StringUtils::ToStr( connection->WriteNText( val ) ) );
 		}
 		static void PtrValueCompare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const ParamType & val )
 		{
@@ -222,7 +216,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		static void QueryValueCompare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const ParamType & val )
 		{
-			BOOST_CHECK_EQUAL( value.GetQueryValue(), StringUtils::ToString( connection->WriteNText( val ) ) );
+			BOOST_CHECK_EQUAL( value.GetQueryValue(), StringUtils::ToStr( connection->WriteNText( val ) ) );
 		}
 		static void PtrValueCompare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const ParamType & val )
 		{
@@ -240,7 +234,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		static void QueryValueCompare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const ParamType & val )
 		{
-			BOOST_CHECK_EQUAL( value.GetQueryValue(), StringUtils::ToString( connection->WriteNText( val ) ) );
+			BOOST_CHECK_EQUAL( value.GetQueryValue(), StringUtils::ToStr( connection->WriteNText( val ) ) );
 		}
 		static void PtrValueCompare( DatabaseConnectionSPtr connection, const CDatabaseValue< ValueType > & value, const ParamType & val )
 		{

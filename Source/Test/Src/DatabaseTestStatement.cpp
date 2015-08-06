@@ -52,7 +52,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_TEST_LOST_CONNECTION );
 		}
 
-		DatabaseParameterSPtr pReturn = std::make_shared< CDatabaseParameter >( connection, infos, uint16_t( _arrayParams.size() + 1 ), parameterType, std::make_unique< SValueUpdater >( this ) );
+		DatabaseParameterSPtr pReturn = std::make_shared< CDatabaseParameter >( connection, infos, GetParametersCount() + 1, parameterType, std::make_unique< SValueUpdater >( this ) );
 
 		if ( !DoAddParameter( pReturn ) )
 		{
@@ -71,7 +71,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 		_paramsCount = uint32_t( std::count( _query.begin(), _query.end(), STR( '?' ) ) );
 
-		if ( _paramsCount != _arrayParams.size() )
+		if ( _paramsCount != GetParametersCount() )
 		{
 			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_TEST_STATEMENT_INCONSISTENCY );
 		}

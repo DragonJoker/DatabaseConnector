@@ -509,7 +509,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		//!@copydoc SOutPostgreSqlBindBase::DoUpdateValue
 		virtual void DoUpdateValue()
 		{
-			std::string value = StringUtils::ToStr( reinterpret_cast< const wchar_t * >( _value.GetPtrValue() ) );
+			std::string value = StringUtils::ToUtf8( reinterpret_cast< const wchar_t * >( _value.GetPtrValue() ), "UTF-8" );
 			_bind.length = int( value.size() );
 			_holder.resize( _bind.length + 1 );
 			strcpy( _holder.data(), value.c_str() );
@@ -620,7 +620,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 				PostgreSQLCheck( NULL, INFO_ESCAPING_BINARY, EDatabaseExceptionCodes_ConnectionError, _connection );
 			}
 
-			std::string value = StringUtils::ToString( reinterpret_cast< char * >( escaped ) );
+			std::string value( reinterpret_cast< char * >( escaped ) );
 			PQfreemem( escaped );
 			_bind.length = int( length );
 			_holder.resize( length + 1 );
@@ -761,7 +761,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		//!@copydoc SOutPostgreSqlBindBase::DoUpdateValue
 		virtual void DoUpdateValue()
 		{
-			std::string value = StringUtils::ToStr( _value.GetValue().ToString() );
+			std::string value = _value.GetValue().ToString();
 			_bind.length = int( value.size() );
 			assert( value.size() < _holder.size() );
 			strcpy( _holder.data(), value.data() );

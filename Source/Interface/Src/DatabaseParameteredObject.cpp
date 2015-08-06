@@ -40,7 +40,7 @@ BEGIN_NAMESPACE_DATABASE
 
 	CDatabaseParameteredObject::~CDatabaseParameteredObject()
 	{
-		// Empty
+		_parameters.clear();
 	}
 
 	EErrorType CDatabaseParameteredObject::Initialise()
@@ -90,24 +90,24 @@ BEGIN_NAMESPACE_DATABASE
 
 	DatabaseParameterSPtr CDatabaseParameteredObject::GetParameter( uint32_t index )const
 	{
-		if ( index >= _arrayParams.size() )
+		if ( index >= _parameters.size() )
 		{
 			StringStream message;
 			message << ERROR_DB_PARAMETER_INDEX << index;
 			DB_EXCEPT( EDatabaseExceptionCodes_ParameterError, message.str() );
 		}
 
-		return _arrayParams[index];
+		return _parameters[index];
 	}
 
 	DatabaseParameterSPtr CDatabaseParameteredObject::GetParameter( const String & name )const
 	{
-		auto it = std::find_if( _arrayParams.begin(), _arrayParams.end(), [&name]( DatabaseParameterSPtr parameter )
+		auto it = std::find_if( _parameters.begin(), _parameters.end(), [&name]( DatabaseParameterSPtr parameter )
 		{
 			return parameter->GetName() == name;
 		} );
 
-		if ( it == _arrayParams.end() )
+		if ( it == _parameters.end() )
 		{
 			StringStream message;
 			message << ERROR_DB_PARAMETER_NAME << name;
@@ -153,14 +153,14 @@ BEGIN_NAMESPACE_DATABASE
 
 		if ( parameter )
 		{
-			auto it = std::find_if( _arrayParams.begin(), _arrayParams.end(), [&parameter]( DatabaseParameterSPtr param )
+			auto it = std::find_if( _parameters.begin(), _parameters.end(), [&parameter]( DatabaseParameterSPtr param )
 			{
 				return param->GetName() == parameter->GetName();
 			} );
 
-			if ( it == _arrayParams.end() )
+			if ( it == _parameters.end() )
 			{
-				_arrayParams.push_back( parameter );
+				_parameters.push_back( parameter );
 				ret = parameter;
 			}
 			else

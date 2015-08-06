@@ -782,63 +782,80 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			return result;
 		}
 
-		DatabaseValuedObjectInfosPtrArray InitialiseColumns( SQLSMALLINT columnCount, std::vector< std::unique_ptr< CInOdbcBindBase > > & columns, SQLHSTMT stmt )
+		void GetBindings( const DatabaseValuedObjectInfosPtrArray & columns, std::vector< std::unique_ptr< CInOdbcBindBase > > & binds, SQLHSTMT stmt )
 		{
 			static const SQLSMALLINT BUFFER_SIZE = 255;
 			EErrorType errorType = EErrorType_NONE;
-			DatabaseValuedObjectInfosPtrArray result;
+			SQLSMALLINT index = 1;
+
+			for ( auto column : columns )
+			{
+				// Retrieve the column length
+				char buffer[BUFFER_SIZE] = { 0 };
+				SQLSMALLINT stringLength = 0;
+				SQLLEN numericAttribute = 0;
+				OdbcCheck( SQLColAttributeA( stmt, index++, SQL_DESC_LENGTH, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_LENGTH );
+				binds.emplace_back( GetBindFromFieldType( column->GetType(), uint32_t( numericAttribute ), column->GetPrecision().first, column->GetPrecision().second ) );
+			}
+		}
+
+		DatabaseValuedObjectInfosPtrArray InitialiseColumns( SQLSMALLINT columnCount, SQLHSTMT stmt )
+		{
+			static const SQLSMALLINT BUFFER_SIZE = 255;
+			EErrorType errorType = EErrorType_NONE;
+			DatabaseValuedObjectInfosPtrArray columns;
 
 			for ( SQLSMALLINT i = 1; i <= columnCount; ++i )
 			{
-				TCHAR buffer[BUFFER_SIZE] = { 0 };
+				char buffer[BUFFER_SIZE] = { 0 };
 				SQLSMALLINT stringLength = 0;
 				SQLLEN numericAttribute = 0;
 
 				// Retrieve the column name
-				OdbcCheck( SQLColAttribute( stmt, i, SQL_DESC_LABEL, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_LABEL );
-				String name = StringUtils::ToString( buffer );
+				OdbcCheck( SQLColAttributeA( stmt, i, SQL_DESC_LABEL, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_LABEL );
+				String name( buffer );
 
 				// Its length
 				std::memset( buffer, 0, BUFFER_SIZE );
 				stringLength = 0;
 				numericAttribute = 0;
-				OdbcCheck( SQLColAttribute( stmt, i, SQL_DESC_LENGTH, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_LENGTH );
+				OdbcCheck( SQLColAttributeA( stmt, i, SQL_DESC_LENGTH, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_LENGTH );
 				uint32_t limits = uint32_t( numericAttribute );
 
 				// Its precision (numeric types)
 				std::memset( buffer, 0, BUFFER_SIZE );
 				stringLength = 0;
 				numericAttribute = 0;
-				OdbcCheck( SQLColAttribute( stmt, i, SQL_DESC_PRECISION, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_PRECISION );
+				OdbcCheck( SQLColAttributeA( stmt, i, SQL_DESC_PRECISION, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_PRECISION );
 				uint32_t precision = uint32_t( numericAttribute );
 
 				// Its scale (numeric types)
 				std::memset( buffer, 0, BUFFER_SIZE );
 				stringLength = 0;
 				numericAttribute = 0;
-				OdbcCheck( SQLColAttribute( stmt, i, SQL_DESC_SCALE, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_SCALE );
+				OdbcCheck( SQLColAttributeA( stmt, i, SQL_DESC_SCALE, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_SCALE );
 				uint32_t scale = uint32_t( numericAttribute );
 
 				// Its SQL type
 				std::memset( buffer, 0, BUFFER_SIZE );
 				stringLength = 0;
 				numericAttribute = 0;
-				OdbcCheck( SQLColAttribute( stmt, i, SQL_DESC_TYPE, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_TYPE );
+				OdbcCheck( SQLColAttributeA( stmt, i, SQL_DESC_TYPE, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_TYPE );
 				SQLINTEGER sqlType = uint32_t( numericAttribute );
 
 				// Its concise type
 				std::memset( buffer, 0, BUFFER_SIZE );
 				stringLength = 0;
 				numericAttribute = 0;
-				OdbcCheck( SQLColAttribute( stmt, i, SQL_DESC_CONCISE_TYPE, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_CONCISE_TYPE );
+				OdbcCheck( SQLColAttributeA( stmt, i, SQL_DESC_CONCISE_TYPE, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_CONCISE_TYPE );
 				SQLINTEGER conciseType = SQLINTEGER( numericAttribute );
 
 				// Its type name
 				std::memset( buffer, 0, BUFFER_SIZE );
 				stringLength = 0;
 				numericAttribute = 0;
-				OdbcCheck( SQLColAttribute( stmt, i, SQL_DESC_TYPE_NAME, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_TYPE_NAME );
-				String typeName = StringUtils::ToString( buffer );
+				OdbcCheck( SQLColAttributeA( stmt, i, SQL_DESC_TYPE_NAME, SQLPOINTER( buffer ), BUFFER_SIZE, &stringLength, &numericAttribute ), SQL_HANDLE_STMT, stmt, INFO_ODBC_ColAttribute + ODBC_OPTION_DESC_TYPE_NAME );
+				String typeName( buffer );
 
 				DatabaseValuedObjectInfosSPtr infos;
 				std::unique_ptr< CInOdbcBindBase > bind;
@@ -849,21 +866,18 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 					{
 						std::pair< uint32_t, uint32_t > limprec( precision, scale );
 						infos = std::make_shared< CDatabaseValuedObjectInfos >( name, GetFieldTypeFromTypeName( typeName, limprec ), std::make_pair( precision, scale ) );
-						bind = GetBindFromFieldType( infos->GetType(), limits, precision, scale );
 					}
 				}
 				else
 				{
 					EFieldType type = GetFieldTypeFromConciseType( conciseType, limits );
-					bind = GetBindFromFieldType( type, limits, precision, scale );
 					infos = std::make_shared< CDatabaseValuedObjectInfos >( name, type, std::make_pair( precision, scale ) );
 				}
 
-				columns.push_back( std::move( bind ) );
-				result.push_back( infos );
+				columns.push_back( infos );
 			}
 
-			return result;
+			return columns;
 		}
 
 		void SetFieldValue( EFieldType type, CDatabaseValueBase & value, CInOdbcBindBase const & bind )
@@ -1305,13 +1319,13 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 			if ( numColumns )
 			{
-				std::vector< std::unique_ptr< CInOdbcBindBase > > arrayColumnData;
-
 				if ( infos.empty() )
 				{
-					infos = InitialiseColumns( numColumns, arrayColumnData, statementHandle );
+					infos = InitialiseColumns( numColumns, statementHandle );
 				}
 
+				std::vector< std::unique_ptr< CInOdbcBindBase > > arrayColumnData;
+				GetBindings( infos, arrayColumnData, statementHandle );
 				pReturn = std::make_shared< CDatabaseResult >( infos );
 				FetchResultSet( connection, pReturn, arrayColumnData, statementHandle );
 			}

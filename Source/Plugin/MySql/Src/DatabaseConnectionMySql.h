@@ -316,8 +316,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	protected:
 		//! The connection
 		MYSQL * _connection;
-		//! The global statement used to execute direct queries
-		MYSQL_STMT * _statement;
 	};
 }
 END_NAMESPACE_DATABASE_MYSQL

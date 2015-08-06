@@ -383,7 +383,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			}
 			else
 			{
-				std::string value = StringUtils::ToStr( _value.GetValue().ToString() );
+				std::string value = _value.GetValue().ToString();
 				strcpy( _holder, value.c_str() );
 				_columnLenOrInd = value.size();
 				columnSize = SQLULEN( value.size() );

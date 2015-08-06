@@ -89,33 +89,33 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		MYSQL_STMT * _statement;
 	};
 
+	/** Stores the statement result, to be able to get the fields limits;
+	@param[in] stmt
+		The statement
+	@param[in] connection
+		The database connection
+	*/
+	void MySqlStoreResult( MYSQL_STMT * stmt, DatabaseConnectionMySqlSPtr connection );
+
 	/** Retrieves the columns from the statement
 	@param[in] stmt
 		The statement
 	@param[in] connection
 		The database connection
-	@param[out] inbinds
-		Receives the internal bindings
-	@param[out]
-		Receives the MySQL bindings
 	@return
 		The columns
 	*/
-	DatabaseValuedObjectInfosPtrArray MySqlGetColumns( MYSQL_STMT * stmt, DatabaseConnectionMySqlSPtr connection, std::vector< std::unique_ptr< SInMySqlBindBase > > & inbinds, std::vector< MYSQL_BIND > & binds );
+	DatabaseValuedObjectInfosPtrArray MySqlGetColumns( MYSQL_STMT * stmt, DatabaseConnectionMySqlSPtr connection );
 
 	/** Fetches the statement's results
 	@param[in] stmt
 		The statement
 	@param[in] columns
 		The columns
-	@param[in] inbinds
-		The internal bindings
-	@param[in] binds
-		The MySQL bindings
 	@return
 		The result set, which can be empty, for UPDATE or INSERT queries
 	*/
-	DatabaseResultSPtr MySqlFetchResult( MYSQL_STMT * statement, DatabaseValuedObjectInfosPtrArray const & columns, DatabaseConnectionMySqlSPtr connection, std::vector< std::unique_ptr< SInMySqlBindBase > > const & inbinds, std::vector< MYSQL_BIND > & binds );
+	DatabaseResultSPtr MySqlFetchResult( MYSQL_STMT * statement, DatabaseValuedObjectInfosPtrArray const & columns, DatabaseConnectionMySqlSPtr connection );
 
 	/** Checks if the given code is acceptable, and if not, throws an exception
 	@param[in] code
@@ -126,8 +126,10 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		The exception code
 	@param[in] connection
 		The MySQL database connection, to retrieve a detailed error message
+	@param[in,opt] statement
+		Optional statement, to retrieve more infos
 	*/
-	void MySQLCheck( int code, TChar const * msg, EDatabaseExceptionCodes exc, MYSQL * connection );
+	void MySQLCheck( int code, TChar const * msg, EDatabaseExceptionCodes exc, MYSQL * connection, MYSQL_STMT * statement = NULL );
 
 	/** Sends data to the server, using mysql_stmt_send_long_data
 	@param[in] value

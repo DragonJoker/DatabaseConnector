@@ -20,121 +20,105 @@ BEGIN_NAMESPACE_DATABASE
 	*/
 	namespace StringUtils
 	{
-		/** Tests if the given String is upper case
-		@param[in] p_strToTest
-			The String to test
+		/** Tests if the given string is upper case
+		@param[in] toTest
+			The string to test
 		@return
 			\p true if p_strToTest is upper case
 		*/
-		DatabaseExport bool IsUpperCase( std::string const & p_strToTest );
+		DatabaseExport bool IsUpperCase( const std::string & toTest );
 
-		/** Tests if the given String is lower case
-		@param[in] p_strToTest
-			The String to test
+		/** Tests if the given string is lower case
+		@param[in] toTest
+			The string to test
 		@return
 			\p true if p_strToTest is lower case
 		*/
-		DatabaseExport bool IsLowerCase( std::string const & p_strToTest );
+		DatabaseExport bool IsLowerCase( const std::string & toTest );
 
-		/** Tests if the given String is upper case
-		@param[in] p_strToTest
-			The String to test
+		/** Tests if the given string is upper case
+		@param[in] toTest
+			The string to test
 		@return
 			\p true if p_strToTest is upper case
 		*/
-		DatabaseExport bool IsUpperCase( std::wstring const & p_strToTest );
+		DatabaseExport bool IsUpperCase( const std::wstring & toTest );
 
-		/** Tests if the given String is lower case
-		@param[in] p_strToTest
-			The String to test
+		/** Tests if the given string is lower case
+		@param[in] toTest
+			The string to test
 		@return
 			\p true if p_strToTest is lower case
 		*/
-		DatabaseExport bool IsLowerCase( std::wstring const & p_strToTest );
+		DatabaseExport bool IsLowerCase( const std::wstring & toTest );
 
-		/** Sets all characters in a String to upper case
-		@param[in] p_str
-			The String to modify
+		/** Sets all characters in a string to upper case
+		@param[in] str
+			The string to modify
 		@return
 			The modified String
 		*/
-		DatabaseExport std::string UpperCase( std::string const & p_str );
+		DatabaseExport std::string UpperCase( const std::string & str );
 
-		/** Sets all characters in a String to lower case
-		@param[in] p_str
-			The String to modify
+		/** Sets all characters in a string to lower case
+		@param[in] str
+			The string to modify
 		@return
 			The modified String
 		*/
-		DatabaseExport std::string LowerCase( std::string const & p_str );
+		DatabaseExport std::string LowerCase( const std::string & str );
 
-		/** Sets all characters in a String to upper case
-		@param[in] p_str
-			The String to modify
+		/** Sets all characters in a string to upper case
+		@param[in] str
+			The string to modify
 		@return
 			The modified String
 		*/
-		DatabaseExport std::wstring UpperCase( std::wstring const & p_str );
+		DatabaseExport std::wstring UpperCase( const std::wstring & str );
 
-		/** Sets all characters in a String to lower case
-		@param[in] p_str
-			The String to modify
+		/** Sets all characters in a string to lower case
+		@param[in] str
+			The string to modify
 		@return
 			The modified String
 		*/
-		DatabaseExport std::wstring LowerCase( std::wstring const & p_str );
+		DatabaseExport std::wstring LowerCase( const std::wstring & str );
 
-		/** Sets all characters in a String to upper case
-		@param[in,out] p_str
-			The String to modify, receives the modified String
+		/** Sets all characters in a string to upper case
+		@param[in,out] str
+			The string to modify, receives the modified string
 		@return
 			The modified String
 		*/
-		DatabaseExport std::string & ToUpperCase( std::string & p_str );
+		DatabaseExport std::string & ToUpperCase( std::string & str );
 
-		/** Sets all characters in a String to lower case
-		@param[in,out] p_str
-			The String to modify, receives the modified String
+		/** Sets all characters in a string to lower case
+		@param[in,out] str
+			The string to modify, receives the modified string
 		@return
 			The modified String
 		*/
-		DatabaseExport std::string & ToLowerCase( std::string & p_str );
+		DatabaseExport std::string & ToLowerCase( std::string & str );
 
-		/** Sets all characters in a String to upper case
-		@param[in,out] p_str
-			The String to modify, receives the modified String
+		/** Sets all characters in a string to upper case
+		@param[in,out] str
+			The string to modify, receives the modified string
 		@return
 			The modified String
 		*/
-		DatabaseExport std::wstring & ToUpperCase( std::wstring & p_str );
+		DatabaseExport std::wstring & ToUpperCase( std::wstring & str );
 
-		/** Sets all characters in a String to lower case
-		@param[in,out] p_str
-			The String to modify, receives the modified String
+		/** Sets all characters in a string to lower case
+		@param[in,out] str
+			The string to modify, receives the modified string
 		@return
 			The modified String
 		*/
-		DatabaseExport std::wstring & ToLowerCase( std::wstring & p_str );
+		DatabaseExport std::wstring & ToLowerCase( std::wstring & str );
 
-		/** Retrieves a std::wstring from a String
-		@param[in] p_str
-			The String
-		@return
-			The std::string
-		*/
-		DatabaseExport std::wstring ToWStr( std::string const & p_str );
-
-		/** Retrieves a std::string from a String
-		@param[in] p_str
-			The String
-		@return
-			The std::string
-		*/
-		DatabaseExport std::string ToStr( std::wstring const & p_str );
-
-		/** Cuts a String into substrings, using delimiter(s)
-		@param[in] p_str
-			The String to cut
+		/** Cuts a string into substrings, using delimiter(s)
+		@param[in] str
+			The string to cut
 		@param[in] p_delims
 			The delimiter(s)
 		@param[in] p_maxSplits
@@ -144,11 +128,11 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			The array containing the substrings
 		*/
-		DatabaseExport std::vector< std::string > Split( std::string const & p_str, std::string const & p_delims, uint32_t p_maxSplits = 10, bool p_bKeepVoid = true );
+		DatabaseExport std::vector< std::string > Split( const std::string & str, const std::string & p_delims, uint32_t p_maxSplits = 10, bool p_bKeepVoid = true );
 
-		/** Cuts a String into substrings, using delimiter(s)
-		@param[in] p_str
-			The String to cut
+		/** Cuts a string into substrings, using delimiter(s)
+		@param[in] str
+			The string to cut
 		@param[in] p_delims
 			The delimiter(s)
 		@param[in] p_maxSplits
@@ -158,11 +142,11 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			The array containing the substrings
 		*/
-		DatabaseExport std::vector< std::wstring > Split( std::wstring const & p_str, std::wstring const & p_delims, uint32_t p_maxSplits = 10, bool p_bKeepVoid = true );
+		DatabaseExport std::vector< std::wstring > Split( const std::wstring & str, const std::wstring & p_delims, uint32_t p_maxSplits = 10, bool p_bKeepVoid = true );
 
-		/** Removes spaces on the left and/or on the right of the given String
-		@param[in,out] p_str
-		 	The String to trim, receives the trimmed string
+		/** Removes spaces on the left and/or on the right of the given string
+		@param[in,out] str
+		 	The string to trim, receives the trimmed string
 		@param[in] p_bLeft
 		 	Tells if we remove the left spaces
 		@param[in] p_bRight
@@ -170,11 +154,11 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			The trimmed String
 		*/
-		DatabaseExport std::string & Trim( std::string & p_str, bool p_bLeft = true, bool p_bRight = true );
+		DatabaseExport std::string & Trim( std::string & str, bool p_bLeft = true, bool p_bRight = true );
 
-		/** Removes spaces on the left and/or on the right of the given String
-		@param[in,out] p_str
-		 	The String to trim, receives the trimmed string
+		/** Removes spaces on the left and/or on the right of the given string
+		@param[in,out] str
+		 	The string to trim, receives the trimmed string
 		@param[in] p_bLeft
 		 	Tells if we remove the left spaces
 		@param[in] p_bRight
@@ -182,171 +166,103 @@ BEGIN_NAMESPACE_DATABASE
 		@return
 			The trimmed String
 		*/
-		DatabaseExport std::wstring & Trim( std::wstring & p_str, bool p_bLeft = true, bool p_bRight = true );
+		DatabaseExport std::wstring & Trim( std::wstring & str, bool p_bLeft = true, bool p_bRight = true );
 
-		/** Replaces all occurences of a TChar by another one in a String
-		@param[in,out] p_str
-		 	The String to modify
-		@param[in] p_find
-		 	The TChar to replace
-		@param[in] p_replacement
-		 	The replacement TChar
+		/** Replaces all occurences of a TChar by another one in a string
+		@param[in,out] str
+		 	The string to modify
+		@param[in] find
+		 	The value to replace
+		@param[in] replacement
+		 	The replacement value
 		@return
 			A reference on the modified string
 		*/
-		DatabaseExport std::string & Replace( std::string & p_str, char p_find, char p_replacement );
+		DatabaseExport std::string & Replace( std::string & str, char find, char replacement );
 
-		/** Replaces all occurences of a String by a TChar in a String
-		@param[in,out] p_str
-		 	The String to modify
-		@param[in] p_find
-		 	The String to replace
-		@param[in] p_replacement
-		 	The replacement TChar
+		/** Replaces all occurences of a string by a TChar in a string
+		@param[in,out] str
+		 	The string to modify
+		@param[in] find
+		 	The value to replace
+		@param[in] replacement
+		 	The replacement value
 		@return
 			A reference on the modified string
 		*/
-		DatabaseExport std::string & Replace( std::string & p_str, std::string const & p_find, char p_replacement );
+		DatabaseExport std::string & Replace( std::string & str, const std::string & find, char replacement );
 
-		/** Replaces all occurences of a TChar by a String in a String
-		@param[in,out] p_str
-		 	The String to modify
-		@param[in] p_find
-		 	The TChar to replace
-		@param[in] p_replacement
-		 	The replacement String
+		/** Replaces all occurences of a TChar by a string in a string
+		@param[in,out] str
+		 	The string to modify
+		@param[in] find
+		 	The value to replace
+		@param[in] replacement
+		 	The replacement value
 		@return
 			A reference on the modified string
 		*/
-		DatabaseExport std::string & Replace( std::string & p_str, char p_find, std::string const & p_replacement );
+		DatabaseExport std::string & Replace( std::string & str, char find, const std::string & replacement );
 
-		/** Replaces all occurences of a String in another one by a third one
-		@param[in,out] p_str
-		 	The String to modify
-		@param[in] p_find
-		 	The String to replace
-		@param[in] p_replacement
-		 	The replacement String
+		/** Replaces all occurences of a string in another one by a third one
+		@param[in,out] str
+		 	The string to modify
+		@param[in] find
+		 	The value to replace
+		@param[in] replacement
+		 	The replacement value
 		@return
 			A reference on the modified string
 		*/
-		DatabaseExport std::string & Replace( std::string & p_str, std::string const & p_find, std::string const & p_replacement );
+		DatabaseExport std::string & Replace( std::string & str, const std::string & find, const std::string & replacement );
 
-		/** Replaces all occurences of a TChar by another one in a String
-		@param[in,out] p_str
-		 	The String to modify
-		@param[in] p_find
-		 	The TChar to replace
-		@param[in] p_replacement
-		 	The replacement TChar
+		/** Replaces all occurences of a TChar by another one in a string
+		@param[in,out] str
+		 	The string to modify
+		@param[in] find
+		 	The value to replace
+		@param[in] replacement
+		 	The replacement value
 		@return
 			A reference on the modified string
 		*/
-		DatabaseExport std::wstring & Replace( std::wstring & p_str, wchar_t p_find, wchar_t p_replacement );
+		DatabaseExport std::wstring & Replace( std::wstring & str, wchar_t find, wchar_t replacement );
 
-		/** Replaces all occurences of a String by a TChar in a String
-		@param[in,out] p_str
+		/** Replaces all occurences of a string by a TChar in a string
+		@param[in,out] str
 		 	The String to modify
-		@param[in] p_find
-		 	The String to replace
-		@param[in] p_replacement
-		 	The replacement TChar
+		@param[in] find
+		 	The value to replace
+		@param[in] replacement
+		 	The replacement value
 		@return
 			A reference on the modified string
 		*/
-		DatabaseExport std::wstring & Replace( std::wstring & p_str, std::wstring const & p_find, wchar_t p_replacement );
+		DatabaseExport std::wstring & Replace( std::wstring & str, const std::wstring & find, wchar_t replacement );
 
-		/** Replaces all occurences of a TChar by a String in a String
-		@param[in,out] p_str
-		 	The String to modify
-		@param[in] p_find
-		 	The TChar to replace
-		@param[in] p_replacement
-		 	The replacement String
+		/** Replaces all occurences of a TChar by a string in a string
+		@param[in,out] str
+		 	The string to modify
+		@param[in] find
+		 	The value to replace
+		@param[in] replacement
+		 	The replacement value
 		@return
 			A reference on the modified string
 		*/
-		DatabaseExport std::wstring & Replace( std::wstring & p_str, wchar_t p_find, std::wstring const & p_replacement );
+		DatabaseExport std::wstring & Replace( std::wstring & str, wchar_t find, const std::wstring & replacement );
 
-		/** Replaces all occurences of a String in another one by a third one
-		@param[in,out] p_str
+		/** Replaces all occurences of a string in another one by a third one
+		@param[in,out] str
 		 	The String to modify
-		@param[in] p_find
-		 	The String to replace
-		@param[in] p_replacement
-		 	The replacement String
+		@param[in] find
+		 	The value to replace
+		@param[in] replacement
+		 	The replacement value
 		@return
 			A reference on the modified string
 		*/
-		DatabaseExport std::wstring & Replace( std::wstring & p_str, std::wstring const & p_find, std::wstring const & p_replacement );
-
-		/** Retrieves a std::wstring from a String
-		@param[in] p_str
-			The String
-		@return
-			The std::string
-		*/
-		inline std::wstring ToWStr( std::wstring const & p_str )
-		{
-			return p_str;
-		}
-
-		/** Retrieves a std::string from a String
-		@param[in] p_str
-			The String
-		@return
-			The std::string
-		*/
-		inline std::string ToStr( std::string const & p_str )
-		{
-			return p_str;
-		}
-
-		/** Puts a value into a String
-		@param[in] p_tValue
-		 	The value
-		@return
-			The String containing the value
-		*/
-		template< typename T >
-		inline String ToString( T const & p_tValue )
-		{
-			StringStream l_streamReturn;
-			l_streamReturn <<  p_tValue;
-			return l_streamReturn.str();
-		}
-
-		/** Sets the String value to the given std::string
-		@param[in] p_strText
-		 	The std::string
-		@return
-			The String
-		*/
-		DatabaseExport String ToString( std::string const & p_strText );
-
-		/** Sets the String value to the given std::wstring
-		@param[in] p_strText
-		 	The std::wstring
-		@return
-			The String
-		*/
-		DatabaseExport String ToString( std::wstring const & p_strText );
-
-		/** Sets the String value to the given char
-		@param[in] p_char
-		 	The char
-		@return
-			The String
-		*/
-		DatabaseExport String ToString( char p_char );
-
-		/** Sets the String value to the given wchar_t
-		@param[in] p_wchar
-		 	The wchar_t
-		@return
-			The String
-		*/
-		DatabaseExport String ToString( wchar_t p_wchar );
+		DatabaseExport std::wstring & Replace( std::wstring & str, const std::wstring & find, const std::wstring & replacement );
 
 		/** Format a string.
 		@param[out] formattedString
@@ -368,21 +284,71 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport void Formalize( std::wstring & formattedString, int maxSize, const wchar_t * format, ... );
 
-		/** Converts a string in a given charset into an UTF-8 string
-		@param src
+		/** Puts a value into a String
+		@param[in] value
+		 	The value
+		@return
+			The String containing the value
+		*/
+		template< typename T >
+		inline String ToString( T const & value )
+		{
+			StringStream l_streamReturn;
+			l_streamReturn <<  value;
+			return l_streamReturn.str();
+		}
+
+		/** Sets the String value to the given char
+		@param[in] src
+		 	The char
+		@return
+			The String
+		*/
+		DatabaseExport String ToString( char src );
+
+		/** Sets the String value to the given wchar_t
+		@param[in] src
+		 	The wchar_t
+		@return
+			The String
+		*/
+		DatabaseExport String ToString( wchar_t src );
+
+		/** Converts a std::string in a given charset to a std::wstring in the same charset
+		@param[in] src
+			The string
+		@param[in] charset
+			The original string charset
+		@return
+			The std::string
+		*/
+		DatabaseExport std::wstring ToWStr( const std::string & src, const std::string & charset = "UTF-8" );
+
+		/** Converts a std::wstring in a given charset to a std::string in the same charset
+		@param[in] src
+			The string
+		@param[in] charset
+			The original string charset
+		@return
+			The std::string
+		*/
+		DatabaseExport std::string ToStr( const std::wstring & src, const std::string & charset = "UTF-8" );
+
+		/** Converts a std::string in a given charset into an UTF-8 string
+		@param[in] src
 			The original string
-		@param charset
+		@param[in] charset
 			The original string charset
 		*/
 		DatabaseExport std::string ToUtf8( const std::string & src, const std::string & charset );
 
-		/** Converts a string in a given charset into an UTF-8 string
-		@param src
+		/** Converts a std::wstring in a given charset into an UTF-8 string
+		@param[in] src
 			The original string
-		@param charset
+		@param[in] charset
 			The original string charset
 		*/
-		DatabaseExport std::string ToUtf8( const std::wstring & src, const std::wstring & charset );
+		DatabaseExport std::string ToUtf8( const std::wstring & src, const std::string & charset );
 	}
 
 	/** An empty String
@@ -417,7 +383,7 @@ BEGIN_NAMESPACE_DATABASE
 	@return
 		The stream.
 	*/
-	DatabaseExport std::ostream & operator <<( std::ostream & stream, std::wstring const & string );
+	DatabaseExport std::ostream & operator <<( std::ostream & stream, const std::wstring & string );
 
 	/** Stream operator
 	@param stream
@@ -428,72 +394,6 @@ BEGIN_NAMESPACE_DATABASE
 		The stream.
 	*/
 	DatabaseExport std::ostream & operator <<( std::ostream & stream, wchar_t const * string );
-
-	namespace
-	{
-		/** Helper structure used to cast a string for one char type to another char type
-		*/
-		template< typename CharOut, typename CharIn > struct StringCaster;
-
-		/** @copydoc Database::StringCaster
-		@remarks Specialisation for no convertion
-		*/
-		template< typename Char >
-		struct StringCaster< Char, Char >
-		{
-			static inline std::basic_string< Char > Cast( const Char * in )
-			{
-				return std::basic_string< Char >( in );
-			}
-		};
-
-		/** @copydoc Database::StringCaster
-		@remarks Specialisation for convertion to wchar_t
-		*/
-		template<>
-		struct StringCaster< wchar_t, char >
-		{
-			static inline std::wstring Cast( const char * in )
-			{
-				return StringUtils::ToWStr( std::string( in, in + strlen( in ) ) );
-			}
-		};
-
-		/** @copydoc Database::StringCaster
-		@remarks Specialisation for convertion to char
-		*/
-		template<>
-		struct StringCaster< char, wchar_t >
-		{
-			static inline std::string Cast( const wchar_t * in )
-			{
-				return StringUtils::ToStr( std::wstring( in, in + wcslen( in ) ) );
-			}
-		};
-	}
-
-	/** Helper function used to convert an input char type to an output char type
-	@param[in] in
-		The input string
-	@return
-		The output string
-	*/
-	template< typename CharOut, typename CharIn > std::basic_string< CharOut > StringCast( const CharIn * in )
-	{
-		return StringCaster< CharOut, CharIn >::Cast( in );
-	}
-
-	/** Helper function used to convert an input char type to an output char type
-	@param[in] in
-		The input string
-	@return
-		The output string
-	*/
-	template< typename CharOut, typename CharIn >
-	inline std::basic_string< CharOut > StringCast( const std::basic_string< CharIn > & in )
-	{
-		return StringCast< CharOut >( in.c_str() );
-	}
 }
 END_NAMESPACE_DATABASE
 

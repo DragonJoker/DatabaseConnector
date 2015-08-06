@@ -295,13 +295,13 @@ BEGIN_NAMESPACE_DATABASE
 
 	std::ostream & operator <<( std::ostream & stream, const CFixedPoint & value )
 	{
-		stream << "[" << int16_t( value.GetPrecision() ) << ", " << int16_t( value.GetDecimals() ) << ", " << value.GetRawValue() << "] " << StringUtils::ToStr( value.ToString() );
+		stream << "[" << int16_t( value.GetPrecision() ) << ", " << int16_t( value.GetDecimals() ) << ", " << value.GetRawValue() << "] " << value.ToString();
 		return stream;
 	}
 
 	std::wostream & operator <<( std::wostream & stream, const CFixedPoint & value )
 	{
-		stream << L"[" << int16_t( value.GetPrecision() ) << L", " << int16_t( value.GetDecimals() ) << L", " << value.GetRawValue() << L"] " << StringUtils::ToWStr( value.ToString() );
+		stream << L"[" << int16_t( value.GetPrecision() ) << L", " << int16_t( value.GetDecimals() ) << L", " << value.GetRawValue() << L"] " << StringUtils::ToWStr( value.ToString(), "ASCII" );
 		return stream;
 	}
 }

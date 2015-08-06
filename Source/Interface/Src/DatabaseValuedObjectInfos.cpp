@@ -160,18 +160,15 @@ BEGIN_NAMESPACE_DATABASE
 				break;
 
 			case EFieldType_NCHAR:
-				result = ( typeTo == EFieldType_CHAR ) || ( typeTo == EFieldType_VARCHAR ) || ( typeTo == EFieldType_TEXT )
-						 || ( typeTo == EFieldType_NVARCHAR ) || ( typeTo == EFieldType_NTEXT );
+				result = ( typeTo == EFieldType_NVARCHAR ) || ( typeTo == EFieldType_NTEXT );
 				break;
 
 			case EFieldType_NVARCHAR:
-				result = ( typeTo == EFieldType_CHAR ) || ( typeTo == EFieldType_VARCHAR ) || ( typeTo == EFieldType_TEXT )
-						 || ( typeTo == EFieldType_NCHAR ) || ( typeTo == EFieldType_NTEXT );
+				result = ( typeTo == EFieldType_NCHAR ) || ( typeTo == EFieldType_NTEXT );
 				break;
 
 			case EFieldType_NTEXT:
-				result = ( typeTo == EFieldType_CHAR ) || ( typeTo == EFieldType_VARCHAR ) || ( typeTo == EFieldType_TEXT )
-						 || ( typeTo == EFieldType_NCHAR ) || ( typeTo == EFieldType_NVARCHAR );
+				result = ( typeTo == EFieldType_NCHAR ) || ( typeTo == EFieldType_NVARCHAR );
 				break;
 
 			case EFieldType_DATE:
@@ -296,18 +293,15 @@ BEGIN_NAMESPACE_DATABASE
 				break;
 
 			case EFieldType_CHAR:
-				result = ( typeFrom == EFieldType_VARCHAR ) || ( typeFrom == EFieldType_TEXT )
-						 || ( typeFrom == EFieldType_NCHAR ) || ( typeFrom == EFieldType_NVARCHAR ) || ( typeFrom == EFieldType_NTEXT );
+				result = ( typeFrom == EFieldType_VARCHAR ) || ( typeFrom == EFieldType_TEXT );
 				break;
 
 			case EFieldType_VARCHAR:
-				result = ( typeFrom == EFieldType_CHAR ) || ( typeFrom == EFieldType_TEXT )
-						 || ( typeFrom == EFieldType_NCHAR ) || ( typeFrom == EFieldType_NVARCHAR ) || ( typeFrom == EFieldType_NTEXT );
+				result = ( typeFrom == EFieldType_CHAR ) || ( typeFrom == EFieldType_TEXT );
 				break;
 
 			case EFieldType_TEXT:
-				result = ( typeFrom == EFieldType_CHAR ) || ( typeFrom == EFieldType_VARCHAR )
-						 || ( typeFrom == EFieldType_NCHAR ) || ( typeFrom == EFieldType_NVARCHAR ) || ( typeFrom == EFieldType_NTEXT );
+				result = ( typeFrom == EFieldType_CHAR ) || ( typeFrom == EFieldType_VARCHAR );
 				break;
 
 			case EFieldType_NCHAR:

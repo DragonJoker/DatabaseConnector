@@ -716,23 +716,23 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 				switch ( sqlite3_column_type( statement, i ) )
 				{
 				case SQLITE_INTEGER:
-					arrayReturn.push_back( GetIntegerFieldInfos( type, StringUtils::ToString( pszName ), StringUtils::LowerCase( pszName ) ) );
+					arrayReturn.push_back( GetIntegerFieldInfos( type, pszName, StringUtils::LowerCase( pszName ) ) );
 					break;
 
 				case SQLITE_FLOAT:
-					arrayReturn.push_back( GetFloatFieldInfos( type, StringUtils::ToString( pszName ), StringUtils::LowerCase( pszName ) ) );
+					arrayReturn.push_back( GetFloatFieldInfos( type, pszName, StringUtils::LowerCase( pszName ) ) );
 					break;
 
 				case SQLITE_TEXT:
-					arrayReturn.push_back( GetStringFieldInfos( type, StringUtils::ToString( pszName ), StringUtils::LowerCase( pszName ) ) );
+					arrayReturn.push_back( GetStringFieldInfos( type, pszName, StringUtils::LowerCase( pszName ) ) );
 					break;
 
 				case SQLITE_BLOB:
-					arrayReturn.push_back( GetBlobFieldInfos( type, StringUtils::ToString( pszName ), StringUtils::LowerCase( pszName ) ) );
+					arrayReturn.push_back( GetBlobFieldInfos( type, pszName, StringUtils::LowerCase( pszName ) ) );
 					break;
 
 				case SQLITE_NULL:
-					arrayReturn.push_back( GetNullFieldInfos( type, StringUtils::ToString( pszName ), StringUtils::LowerCase( pszName ) ) );
+					arrayReturn.push_back( GetNullFieldInfos( type, pszName, StringUtils::LowerCase( pszName ) ) );
 					break;
 
 				default:
@@ -901,15 +901,14 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 	sqlite3_stmt * SqlitePrepareStatement( const String & query, sqlite3 * connection )
 	{
-		std::string query2 = StringUtils::ToStr( query );
 		sqlite3_stmt * statement = NULL;
-		int code = sqlite3_prepare_v2( connection, query2.c_str(), int( query2.size() ), &statement, NULL );
+		int code = sqlite3_prepare_v2( connection, query.c_str(), int( query.size() ), &statement, NULL );
 
 		while ( code == SQLITE_BUSY || code == SQLITE_LOCKED )
 		{
 			// Retry as long as the database is locked or busy
 			std::this_thread::sleep_for( std::chrono::milliseconds( 10 ) );
-			code = sqlite3_prepare_v2( connection, query2.c_str(), int( query2.size() ), &statement, NULL );
+			code = sqlite3_prepare_v2( connection, query.c_str(), int( query.size() ), &statement, NULL );
 		}
 
 		SQLiteCheck( code, INFO_SQLITE_PREPARATION, EDatabaseExceptionCodes_ConnectionError, connection );
@@ -921,7 +920,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		if ( code != SQLITE_OK )
 		{
 			StringStream error;
-			error << STR( "Error : " ) << msg << STR( " - " ) << StringUtils::ToString( sqlite3_errmsg( database ) );
+			error << STR( "Error : " ) << msg << STR( " - " ) << sqlite3_errmsg( database );
 			DB_EXCEPT( exc, error.str() );
 		}
 

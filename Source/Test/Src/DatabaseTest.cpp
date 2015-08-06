@@ -70,7 +70,7 @@ std::unique_ptr< NAMESPACE_DATABASE_TEST::CTestPluginsLoader > g_pluginsLoader;
 
 void Startup( char * arg )
 {
-	g_path = NAMESPACE_DATABASE::StringUtils::ToString( arg );
+	g_path = arg;
 	NAMESPACE_DATABASE::StringUtils::Replace( g_path, STR( '\\' ), NAMESPACE_DATABASE::PATH_SEP );
 	NAMESPACE_DATABASE::StringUtils::Replace( g_path, STR( '/' ), NAMESPACE_DATABASE::PATH_SEP );
 	g_path = g_path.substr( 0, g_path.rfind( NAMESPACE_DATABASE::PATH_SEP ) + 1 );
@@ -220,16 +220,16 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		TS_List.push_back( g_databaseStatementTest->Init_Test_Suite() );
 
 #if defined( TESTING_PLUGIN_SQLITE )
-		//TS_List.push_back( g_databaseSqliteTest->Init_Test_Suite() );
+		TS_List.push_back( g_databaseSqliteTest->Init_Test_Suite() );
 #endif
 #if defined( TESTING_PLUGIN_MYSQL )
-		TS_List.push_back( g_databaseMySqlTest->Init_Test_Suite() );
+		//TS_List.push_back( g_databaseMySqlTest->Init_Test_Suite() );
 #endif
 #if defined( TESTING_PLUGIN_POSTGRE )
 		TS_List.push_back( g_databasePostgreSqlTest->Init_Test_Suite() );
 #endif
 #if defined( TESTING_PLUGIN_ODBC )
-		TS_List.push_back( g_databaseOdbcMySqlTest->Init_Test_Suite() );
+		//TS_List.push_back( g_databaseOdbcMySqlTest->Init_Test_Suite() );
 		//TS_List.push_back( g_databaseOdbcMsSqlTest->Init_Test_Suite() );
 #endif
 

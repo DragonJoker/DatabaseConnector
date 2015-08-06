@@ -100,21 +100,22 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		}
 
 		CLogger::LogDebug( ( Format( DEBUG_MYSQL_PREPARING_STATEMENT ) % this ).str() );
-		assert( _paramsCount == _arrayParams.size() );
+		assert( _paramsCount == GetParametersCount() );
 
 		StringStream query;
 		unsigned short i = 0;
 		auto && itQueries = _arrayQueries.begin();
-		auto && itParams = _arrayParams.begin();
+		auto && itParams = DoGetParameters().begin();
+		auto && itParamsEnd = DoGetParameters().end();
 
 		_outInitialisers.clear();
 		_arrayOutParams.clear();
 
-		_outInitialisers.reserve( _arrayParams.size() );
-		_arrayOutParams.reserve( _arrayParams.size() );
-		_bindings.reserve( _arrayParams.size() );
+		_outInitialisers.reserve( GetParametersCount() );
+		_arrayOutParams.reserve( GetParametersCount() );
+		_bindings.reserve( GetParametersCount() );
 
-		while ( itQueries != _arrayQueries.end() && itParams != _arrayParams.end() )
+		while ( itQueries != _arrayQueries.end() && itParams != itParamsEnd )
 		{
 			query << ( *itQueries );
 			DatabaseParameterMySqlSPtr parameter = std::static_pointer_cast< CDatabaseParameterMySql >( *itParams );
@@ -183,8 +184,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_MYSQL_CANT_CREATE_STATEMENT );
 		}
 
-		std::string strQuery = StringUtils::ToStr( _query );
-		MySQLCheck( mysql_stmt_prepare( _statement, strQuery.c_str(), uint32_t( strQuery.size() ) ), INFO_MYSQL_STATEMENT_PREPARATION, EDatabaseExceptionCodes_StatementError, connection->GetConnection() );
+		MySQLCheck( mysql_stmt_prepare( _statement, _query.c_str(), uint32_t( _query.size() ) ), INFO_MYSQL_STATEMENT_PREPARATION, EDatabaseExceptionCodes_StatementError, connection->GetConnection() );
 		MYSQL_RES * meta = mysql_stmt_param_metadata( _statement );
 		size_t index = 0;
 
@@ -241,18 +241,19 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 	void CDatabaseStatementMySql::DoCleanup()
 	{
-		if ( _statement )
-		{
-			mysql_stmt_close( _statement );
-			_statement = NULL;
-		}
-
+		_bindings.clear();
 		_arrayInParams.clear();
 		_arrayOutParams.clear();
 		_outInitialisers.clear();
 		_arrayQueries.clear();
 		_paramsCount = 0;
 		_stmtOutParams.reset();
+
+		if ( _statement )
+		{
+			mysql_stmt_close( _statement );
+			_statement = NULL;
+		}
 	}
 
 	void CDatabaseStatementMySql::DoPreExecute()

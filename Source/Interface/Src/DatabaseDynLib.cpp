@@ -23,20 +23,12 @@
 
 #if defined( _WIN32 )
 #	include <Windows.h>
-#	if defined _UNICODE
-#		define DYNLIB_LOAD( a ) ::LoadLibraryExW( a, NULL, LOAD_WITH_ALTERED_SEARCH_PATH )
-#	else
-#		define DYNLIB_LOAD( a ) ::LoadLibraryExA( a, NULL, LOAD_WITH_ALTERED_SEARCH_PATH )
-#	endif
+#	define DYNLIB_LOAD( a ) ::LoadLibraryExA( a, NULL, LOAD_WITH_ALTERED_SEARCH_PATH )
 #	define DYNLIB_GETSYM( a, b ) ::GetProcAddress( a, b )
 #	define DYNLIB_UNLOAD( a ) !::FreeLibrary( a )
 #elif defined( __linux__ )
 #	include <dlfcn.h>
-#	if defined _UNICODE
-#		define DYNLIB_LOAD( a ) dlopen( CStringUtils::ToStr( a ).c_str(), RTLD_LAZY | RTLD_GLOBAL )
-#	else
-#		define DYNLIB_LOAD( a ) dlopen( a, RTLD_LAZY | RTLD_GLOBAL )
-#	endif
+#	define DYNLIB_LOAD( a ) dlopen( a, RTLD_LAZY | RTLD_GLOBAL )
 #	define DYNLIB_GETSYM( a, b ) dlsym( a, b )
 #	define DYNLIB_UNLOAD( a ) dlclose( a )
 #endif
@@ -125,7 +117,7 @@ BEGIN_NAMESPACE_DATABASE
 	void * CDynLib::GetSymbol( const String & strName ) const throw()
 	{
 		//!@remarks GetProcAddress doesn't have unicode version. Always use ANSI string.
-		return ( void * )DYNLIB_GETSYM( _handle, StringUtils::ToStr( strName ).c_str() );
+		return ( void * )DYNLIB_GETSYM( _handle, strName.c_str() );
 	}
 
 	String CDynLib::DynlibError()
@@ -154,7 +146,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		result = sErrorDescription;
 #	elif defined( __linux__ )
-		result = StringUtils::ToString( dlerror() );
+		result = dlerror();
 #	endif
 		return result;
 	}
