@@ -45,8 +45,8 @@ BEGIN_NAMESPACE_DATABASE
 
 	static const String INFO_DB_CREATING_QUERY = STR( "Creating query object 0x%08X, with query text %s" );
 	static const String INFO_DB_DELETING_QUERY = STR( "Deleting query object 0x%08X" );
-	static const String INFO_DB_EXECUTING_UPDATE_QUERY = STR( "Executing Update on query object 0x%08X" );
 	static const String INFO_DB_EXECUTING_SELECT_QUERY = STR( "Executing Select on query object 0x%08X" );
+	static const String INFO_DB_EXECUTING_UPDATE_QUERY = STR( "Executing Update on query object 0x%08X" );
 
 	CDatabaseQuery::CDatabaseQuery( DatabaseConnectionSPtr connection, const String & query )
 		: CDatabaseParameteredObject()
@@ -87,24 +87,7 @@ BEGIN_NAMESPACE_DATABASE
 			CLogger::LogInfo( ( Format( INFO_DB_EXECUTING_UPDATE_QUERY ) % this ).str() );
 			bReturn = connection->DoExecuteUpdate( DoPreExecute() );
 		}
-		catch ( CDatabaseException & exc )
-		{
-			StringStream stream;
-			stream << ERROR_DB_QUERY_EXECUTION_ERROR << exc.GetFullDescription();
-			CLogger::LogError( stream );
-		}
-		catch ( std::exception & exc )
-		{
-			StringStream stream;
-			stream << ERROR_DB_QUERY_EXECUTION_ERROR << STR( " - " ) << exc.what();
-			CLogger::LogError( stream );
-		}
-		catch ( ... )
-		{
-			StringStream stream;
-			stream << ERROR_DB_QUERY_EXECUTION_ERROR << STR( " - UNKNOWN" );
-			CLogger::LogError( stream );
-		}
+		COMMON_CATCH( ERROR_DB_QUERY_EXECUTION_ERROR )
 
 		return bReturn;
 	}
@@ -132,24 +115,7 @@ BEGIN_NAMESPACE_DATABASE
 			CLogger::LogInfo( ( Format( INFO_DB_EXECUTING_SELECT_QUERY ) % this ).str() );
 			pReturn = connection->DoExecuteSelect( DoPreExecute(), _infos );
 		}
-		catch ( CDatabaseException & exc )
-		{
-			StringStream stream;
-			stream << ERROR_DB_QUERY_EXECUTION_ERROR << exc.GetFullDescription();
-			CLogger::LogError( stream );
-		}
-		catch ( std::exception & exc )
-		{
-			StringStream stream;
-			stream << ERROR_DB_QUERY_EXECUTION_ERROR << STR( " - " ) << exc.what();
-			CLogger::LogError( stream );
-		}
-		catch ( ... )
-		{
-			StringStream stream;
-			stream << ERROR_DB_QUERY_EXECUTION_ERROR << STR( " - UNKNOWN" );
-			CLogger::LogError( stream );
-		}
+		COMMON_CATCH( ERROR_DB_QUERY_EXECUTION_ERROR )
 
 		return pReturn;
 	}

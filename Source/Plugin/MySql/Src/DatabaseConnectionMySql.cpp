@@ -68,7 +68,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	static const String MYSQL_SQL_CHARSET = STR( " CHARACTER SET utf8 COLLATE utf8_general_ci" );
 	static const String MYSQL_SQL_USE = STR( "USE " );
 	static const String MYSQL_SQL_DROP_DATABASE = STR( "DROP DATABASE " );
-	
+
 	static const String MYSQL_SQL_NULL = STR( "NULL" );
 	static const std::string MYSQL_SQL_SNULL = "NULL";
 	static const std::wstring MYSQL_SQL_WNULL = L"NULL";
@@ -148,18 +148,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			uint64_t affected = mysql_stmt_affected_rows( statement );
 			result = true;
 		}
-		catch ( CDatabaseException & exc )
-		{
-			StringStream stream;
-			stream << ERROR_MYSQL_EXECUTION << STR( " - " ) << exc.GetFullDescription();
-			CLogger::LogError( stream );
-		}
-		catch ( std::exception & exc )
-		{
-			StringStream stream;
-			stream << ERROR_MYSQL_EXECUTION << STR( " - " ) << exc.what();
-			CLogger::LogError( stream );
-		}
+		COMMON_CATCH( ERROR_MYSQL_EXECUTION )
 
 		return result;
 	}
@@ -184,18 +173,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				result = MySqlFetchResult( statement, infos, connection );
 			}
 		}
-		catch ( CDatabaseException & exc )
-		{
-			StringStream stream;
-			stream << ERROR_MYSQL_EXECUTION << STR( " - " ) << exc.GetFullDescription();
-			CLogger::LogError( stream );
-		}
-		catch ( std::exception & exc )
-		{
-			StringStream stream;
-			stream << ERROR_MYSQL_EXECUTION << STR( " - " ) << exc.what();
-			CLogger::LogError( stream );
-		}
+		COMMON_CATCH( ERROR_MYSQL_EXECUTION )
 
 		return result;
 	}
@@ -499,7 +477,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				error << mysql_error( _connection );
 				DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, error.str() );
 			}
-			
+
 			MySQLCheck( mysql_set_character_set( _connection, MYSQL_OPTION_UTF8 ), INFO_MYSQL_SETTING_CHARSET, EDatabaseExceptionCodes_ConnectionError, _connection );
 
 			CLogger::LogDebug( StringStream() << DEBUG_MYSQL_CONNECTED );
@@ -508,21 +486,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			CLogger::LogDebug( StringStream() << DEBUG_MYSQL_SERVER_VERSION << mysql_get_server_info( _connection ) );
 			DoSetConnected( true );
 		}
-		catch ( CDatabaseException & exc )
-		{
-			CLogger::LogError( StringStream() << ERROR_MYSQL_CONNECTION << STR( " - " ) << exc.GetFullDescription() );
-			ret = EErrorType_ERROR;
-		}
-		catch ( std::exception & exc )
-		{
-			CLogger::LogError( StringStream() << ERROR_MYSQL_CONNECTION << STR( " - " ) << exc.what() );
-			ret = EErrorType_ERROR;
-		}
-		catch ( ... )
-		{
-			CLogger::LogError( ERROR_MYSQL_CONNECTION );
-			ret = EErrorType_ERROR;
-		}
+		COMMON_CATCH( ERROR_MYSQL_CONNECTION )
 
 		return ret;
 	}

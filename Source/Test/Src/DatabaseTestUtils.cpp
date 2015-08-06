@@ -134,7 +134,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			if ( !processId )
 			{
 				//!@remarks Execute child process.
-				execv( processPath.c_str(), const_cast< char * const * >( args.data() ) );
+				execv( commandString.c_str(), const_cast< char * const * >( args.data() ) );
 				exit( 0 );
 			}
 			else

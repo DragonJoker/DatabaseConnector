@@ -30,7 +30,6 @@ BEGIN_NAMESPACE_DATABASE
 
 	static const String WARNING_DB_STATEMENT_NULL_PARAMETER = STR( "Trying to add a null parameter." );
 
-	static const String INFO_UNKNOWN_ERROR = STR( "Unknown error" );
 	static const String INFO_DB_CREATING_STATEMENT = STR( "Creating statement 0x%08X, with query %s" );
 	static const String INFO_DB_DELETING_STATEMENT = STR( "Deleting statement 0x%08X" );
 	static const String INFO_DB_EXECUTING_UPDATE_STATEMENT = STR( "Executing Update on statement 0x%08X" );
@@ -73,18 +72,7 @@ BEGIN_NAMESPACE_DATABASE
 			CLogger::LogInfo( ( Format( INFO_DB_EXECUTING_UPDATE_STATEMENT ) % this ).str() );
 			ret = DoExecuteUpdate();
 		}
-		catch ( CDatabaseException & exc )
-		{
-			CLogger::LogError( ERROR_STATEMENT_EXECUTION + exc.GetFullDescription() );
-		}
-		catch ( std::exception & exc )
-		{
-			CLogger::LogError( ERROR_STATEMENT_EXECUTION + exc.what() );
-		}
-		catch ( ... )
-		{
-			CLogger::LogError( ERROR_STATEMENT_EXECUTION + INFO_UNKNOWN_ERROR );
-		}
+		COMMON_CATCH( ERROR_STATEMENT_EXECUTION )
 
 		return ret;
 	}
@@ -103,18 +91,7 @@ BEGIN_NAMESPACE_DATABASE
 			CLogger::LogInfo( ( Format( INFO_DB_EXECUTING_SELECT_STATEMENT ) % this ).str() );
 			ret = DoExecuteSelect();
 		}
-		catch ( CDatabaseException & exc )
-		{
-			CLogger::LogError( ERROR_STATEMENT_EXECUTION + exc.GetFullDescription() );
-		}
-		catch ( std::exception & exc )
-		{
-			CLogger::LogError( ERROR_STATEMENT_EXECUTION + exc.what() );
-		}
-		catch ( ... )
-		{
-			CLogger::LogError( ERROR_STATEMENT_EXECUTION + INFO_UNKNOWN_ERROR );
-		}
+		COMMON_CATCH( ERROR_STATEMENT_EXECUTION )
 
 		return ret;
 	}

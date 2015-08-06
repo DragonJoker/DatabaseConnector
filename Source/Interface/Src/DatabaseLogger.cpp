@@ -121,7 +121,7 @@ BEGIN_NAMESPACE_DATABASE
 		_headers[ELogType_INFO] = STR( "" );
 		_headers[ELogType_WARNING] = STR( "***WARNING*** " );
 		_headers[ELogType_ERROR] = STR( "***ERROR*** " );
-		
+
 		std::cout.sync_with_stdio( false );
 		std::cerr.sync_with_stdio( false );
 		std::clog.sync_with_stdio( false );
@@ -201,6 +201,11 @@ BEGIN_NAMESPACE_DATABASE
 			logger._logLevel = logLevel;
 			logger.DoInitialiseThread();
 		}
+	}
+
+	void CLogger::SetLevel( ELogType logLevel )
+	{
+		GetSingleton()._logLevel = logLevel;
 	}
 
 	void CLogger::Cleanup()

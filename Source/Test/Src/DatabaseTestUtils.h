@@ -1442,10 +1442,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		template< size_t StmtType, typename Action >
 		inline void TransactedAction( std::random_device & generator, Action action, DatabaseConnectionSPtr connection )
 		{
-			if ( connection->BeginTransaction() )
+			if ( connection->BeginTransaction( String() ) )
 			{
 				action( generator, connection );
-				connection->Commit();
+				connection->Commit( String() );
 			}
 		}
 

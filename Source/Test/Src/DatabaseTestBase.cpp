@@ -196,6 +196,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		//testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseStoredProcedure< 0 >, this ) ) );
 		//testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DatabaseStoredProcedure< 1 >, this ) ) );
 
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::LoggerToWarnings, this ) ) );
+
 		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadInsertAndInsert< 0, 0 >, this ) ) );
 		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadInsertAndUpdate< 0, 0 >, this ) ) );
 		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadInsertAndSelect< 0, 0 >, this ) ) );
@@ -236,6 +238,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadSelectAndSelect< 1, 1 >, this ) ) );
 		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_MultithreadSelectAndDelete< 1, 1 >, this ) ) );
 
+		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::LoggerToDefault, this ) ) );
+
 		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseTest::TestCase_DestroyDatabase, this ) ) );
 
 		//!@remarks Return the TS instance.
@@ -272,6 +276,20 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				database->RemoveConnection();
 			}
 		}
+	}
+
+	void CDatabaseTest::LoggerToWarnings()
+	{
+		CLogger::SetLevel( ELogType_INFO );
+	}
+
+	void CDatabaseTest::LoggerToDefault()
+	{
+#if defined( NDEBUG )
+		CLogger::SetLevel( ELogType_INFO );
+#else
+		CLogger::SetLevel( ELogType_DEBUG );
+#endif
 	}
 
 	void CDatabaseTest::TestCase_DestroyDatabase()

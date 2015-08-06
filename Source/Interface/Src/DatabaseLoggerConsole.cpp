@@ -398,6 +398,54 @@ BEGIN_NAMESPACE_DATABASE
 		bool _allocated;
 		bool _console;
 	};
+#else
+	class CLinuxConsoleInfo
+		: public IConsole
+	{
+	public:
+		CLinuxConsoleInfo()
+		{
+		}
+
+		virtual ~CLinuxConsoleInfo()
+		{
+		}
+
+		void BeginLog( ELogType logLevel )
+		{
+			switch ( logLevel )
+			{
+			case ELogType_DEBUG:
+				_header = STR( "\033[36m" );
+				break;
+
+			case ELogType_INFO:
+				_header = STR( "\033[0m" );
+				break;
+
+			case ELogType_WARNING:
+				_header = STR( "\033[33m" );
+				break;
+
+			case ELogType_ERROR:
+				_header = STR( "\033[31m" );
+				break;
+			}
+		}
+
+		void Print( String const & toLog, bool newLine )
+		{
+			printf( "%s%s\033[0m", _header.c_str(), toLog.c_str() );
+
+			if ( newLine )
+			{
+				printf( "\n" );
+			}
+		}
+
+	private:
+		String _header;
+	};
 #endif
 	class CGenericConsoleInfo
 		: public IConsole
@@ -453,7 +501,7 @@ BEGIN_NAMESPACE_DATABASE
 #elif defined( _WIN32 )
 		_console = std::make_unique< CMswConsoleInfo >();
 #else
-		_console = std::make_unique< CGenericConsoleInfo >();
+		_console = std::make_unique< CLinuxConsoleInfo >();
 #endif
 	}
 

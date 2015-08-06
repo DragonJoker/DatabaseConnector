@@ -31,6 +31,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	static const String ERROR_MYSQL_MISSING_INITIALIZATION = STR( "Method Initialise must be called before calling method CreateParameter" );
 	static const String ERROR_MYSQL_CANT_CREATE_STATEMENT = STR( "Couldn't create the statement" );
 	static const String ERROR_MYSQL_LOST_CONNECTION = STR( "The statement has lost his connection" );
+	static const String ERROR_FIELD_RETRIEVAL = STR( "Field retrieval error" );
 
 	static const String INFO_MYSQL_BIND_PARAMETER_NAME = STR( "BindParameter : " );
 	static const String INFO_MYSQL_BIND_PARAMETER_VALUE = STR( ", Value : " );
@@ -302,10 +303,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 						{
 							field = row->GetField( parameter->GetName() );
 						}
-						catch ( CDatabaseException & exc )
-						{
-							CLogger::LogError( exc.GetFullDescription() );
-						}
+						COMMON_CATCH( ERROR_FIELD_RETRIEVAL )
 
 						if ( field )
 						{

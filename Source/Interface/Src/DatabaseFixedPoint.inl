@@ -37,12 +37,22 @@ BEGIN_NAMESPACE_DATABASE
 			static int16_t Get( T value )
 			{
 				int16_t precision = 0;
-				value = abs( value );
 
-				while ( value >= 1 )
+				if ( value < 0 )
 				{
-					++precision;
-					value /= 10;
+					while ( value <= -1 )
+					{
+						++precision;
+						value /= 10;
+					}
+				}
+				else
+				{
+					while ( value >= 1 )
+					{
+						++precision;
+						value /= 10;
+					}
 				}
 
 				return precision;
@@ -72,12 +82,22 @@ BEGIN_NAMESPACE_DATABASE
 			static int16_t Get( int256_t value )
 			{
 				int16_t precision = 0;
-				value = abs( value );
 
-				while ( value >= 1 )
+				if ( value < 0 )
 				{
-					++precision;
-					value /= 10;
+					while ( value <= -1 )
+					{
+						++precision;
+						value /= 10;
+					}
+				}
+				else
+				{
+					while ( value >= 1 )
+					{
+						++precision;
+						value /= 10;
+					}
 				}
 
 				return precision;

@@ -223,14 +223,14 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		TS_List.push_back( g_databaseSqliteTest->Init_Test_Suite() );
 #endif
 #if defined( TESTING_PLUGIN_MYSQL )
-		//TS_List.push_back( g_databaseMySqlTest->Init_Test_Suite() );
+		TS_List.push_back( g_databaseMySqlTest->Init_Test_Suite() );
 #endif
 #if defined( TESTING_PLUGIN_POSTGRE )
 		TS_List.push_back( g_databasePostgreSqlTest->Init_Test_Suite() );
 #endif
-#if defined( TESTING_PLUGIN_ODBC )
-		//TS_List.push_back( g_databaseOdbcMySqlTest->Init_Test_Suite() );
-		//TS_List.push_back( g_databaseOdbcMsSqlTest->Init_Test_Suite() );
+#if defined( TESTING_PLUGIN_ODBC ) && defined( _WIN32 )
+		TS_List.push_back( g_databaseOdbcMySqlTest->Init_Test_Suite() );
+		TS_List.push_back( g_databaseOdbcMsSqlTest->Init_Test_Suite() );
 #endif
 
 		//!@remarks Add the TS' sequences into the Master TS

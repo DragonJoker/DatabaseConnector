@@ -512,21 +512,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			connectionString = STR( "server=" ) + _server + STR( ";user=" ) + _userName + STR( ";password=" ) + _password;
 			DoSetConnected( _server == TEST_GOOD_SERVER && _userName == TEST_GOOD_USER && _password == TEST_GOOD_PASSWORD );
 		}
-		catch ( CDatabaseException & exc )
-		{
-			CLogger::LogError( StringStream() << ERROR_TEST_CONNECTION << STR( " - " ) << exc.GetFullDescription() );
-			ret = EErrorType_ERROR;
-		}
-		catch ( std::exception & exc )
-		{
-			CLogger::LogError( StringStream() << ERROR_TEST_CONNECTION << STR( " - " ) << exc.what() );
-			ret = EErrorType_ERROR;
-		}
-		catch ( ... )
-		{
-			CLogger::LogError( ERROR_TEST_CONNECTION );
-			ret = EErrorType_ERROR;
-		}
+		COMMON_CATCH( ERROR_TEST_CONNECTION )
 
 		return ret;
 	}

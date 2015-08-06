@@ -35,6 +35,11 @@ BEGIN_NAMESPACE_DATABASE
 		, _precision( precision )
 		, _signed( true )
 	{
+		if ( ValuePrecision< int32_t >::Get( value ) > precision )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_ArithmeticError, ERROR_DB_PRECISION_OVERFLOW );
+		}
+
 		DoAdjustValue();
 	}
 
@@ -44,6 +49,11 @@ BEGIN_NAMESPACE_DATABASE
 		, _precision( precision )
 		, _signed( false )
 	{
+		if ( ValuePrecision< uint32_t >::Get( value ) > precision )
+		{
+			DB_EXCEPT( EDatabaseExceptionCodes_ArithmeticError, ERROR_DB_PRECISION_OVERFLOW );
+		}
+
 		DoAdjustValue();
 	}
 
@@ -78,7 +88,7 @@ BEGIN_NAMESPACE_DATABASE
 	CFixedPoint::CFixedPoint( float value, uint8_t precision, uint8_t decimals )
 		: _decimals( decimals )
 		, _precision( precision )
-		, _signed( false )
+		, _signed( true )
 	{
 		if ( ValuePrecision< float >::Get( value ) > precision - decimals )
 		{
@@ -92,7 +102,7 @@ BEGIN_NAMESPACE_DATABASE
 	CFixedPoint::CFixedPoint( double value, uint8_t precision, uint8_t decimals )
 		: _decimals( decimals )
 		, _precision( precision )
-		, _signed( false )
+		, _signed( true )
 	{
 		if ( ValuePrecision< double >::Get( value ) > precision - decimals )
 		{
@@ -162,9 +172,9 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		String result;
 
-		if ( IsSigned() )
+		if ( IsSigned() && _value < 0 )
 		{
-			result = StringUtils::ToString( uint64_t( abs( _value ) ) );
+			result = StringUtils::ToString( -int256_t( _value ) );
 		}
 		else
 		{

@@ -49,6 +49,12 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport static void Initialise( ELogType logLevel );
 
+		/** Changes the logger level to the one given
+		@param[in] logLevel
+			The log level
+		*/
+		DatabaseExport static void SetLevel( ELogType logLevel );
+
 		/* Destroys the Logger instance
 		*/
 		DatabaseExport static void Cleanup();

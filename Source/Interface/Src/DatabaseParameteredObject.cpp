@@ -30,8 +30,6 @@ BEGIN_NAMESPACE_DATABASE
 
 	static const String WARNING_DB_PARAMETER_NULL = STR( "Trying to add a null parameter." );
 
-	static const String INFO_UNKNOWN_ERROR = STR( "Unknown error" );
-
 	CDatabaseParameteredObject::CDatabaseParameteredObject()
 		: _initialised( false )
 	{
@@ -52,18 +50,7 @@ BEGIN_NAMESPACE_DATABASE
 			ret = DoInitialise();
 			_initialised = true;
 		}
-		catch ( CDatabaseException & exc )
-		{
-			CLogger::LogError( ERROR_DB_PARAMETER_INITIALISATION + exc.GetFullDescription() );
-		}
-		catch ( std::exception & exc )
-		{
-			CLogger::LogError( ERROR_DB_PARAMETER_INITIALISATION + exc.what() );
-		}
-		catch ( ... )
-		{
-			CLogger::LogError( ERROR_DB_PARAMETER_INITIALISATION + INFO_UNKNOWN_ERROR );
-		}
+		COMMON_CATCH( ERROR_DB_PARAMETER_INITIALISATION )
 
 		return ret;
 	}
@@ -74,18 +61,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			DoCleanup();
 		}
-		catch ( CDatabaseException & exc )
-		{
-			CLogger::LogError( ERROR_DB_PARAMETER_CLEANUP + exc.GetFullDescription() );
-		}
-		catch ( std::exception & exc )
-		{
-			CLogger::LogError( ERROR_DB_PARAMETER_CLEANUP + exc.what() );
-		}
-		catch ( ... )
-		{
-			CLogger::LogError( ERROR_DB_PARAMETER_CLEANUP + INFO_UNKNOWN_ERROR );
-		}
+		COMMON_CATCH( ERROR_DB_PARAMETER_CLEANUP )
 	}
 
 	DatabaseParameterSPtr CDatabaseParameteredObject::GetParameter( uint32_t index )const

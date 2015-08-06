@@ -155,6 +155,14 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		*/
 		virtual void TestCase_CreateDatabase();
 
+		/** Not a test case, used to change logger level to warnings
+		*/
+		void LoggerToWarnings();
+
+		/** Not a test case, used to change logger level to default (debug or info, depending on build type)
+		*/
+		void LoggerToDefault();
+
 		/** Test database destruction
 		*/
 		virtual void TestCase_DestroyDatabase();

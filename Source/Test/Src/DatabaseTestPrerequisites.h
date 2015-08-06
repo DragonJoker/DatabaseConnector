@@ -63,6 +63,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		extern String const QUERY_DROP_TABLE;
 		extern String const QUERY_SELECT_MIN;
+		extern String const QUERY_SELECT_MAX;
 		extern String const QUERY_GET_COUNT;
 		extern String const QUERY_DIRECT_INSERT_ELEMENT;
 		extern String const QUERY_DIRECT_SELECT_ELEMENT;

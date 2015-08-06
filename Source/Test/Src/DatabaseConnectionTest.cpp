@@ -63,12 +63,12 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		{
 			auto guard = make_block_guard( [&guarded]()
 			{
-				CLogger::LogInfo( "Entering block guard" );
+				CLogger::LogInfo( StringStream() << "Entering block guard" );
 				guarded = true;
 			}, [&guarded]()
 			{
 				guarded = false;
-				CLogger::LogInfo( "Leaving block guard" );
+				CLogger::LogInfo( StringStream() << "Leaving block guard" );
 			} );
 
 			BOOST_CHECK( guarded );

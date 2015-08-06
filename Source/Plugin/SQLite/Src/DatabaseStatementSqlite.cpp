@@ -31,6 +31,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 	static const String ERROR_SQLITE_CANT_PREPARE_STATEMENT = STR( "Couldn't prepare the statement" );
 	static const String ERROR_SQLITE_QUERY_INCONSISTENCY = STR( "Number of parameters doesn't match the sizes of parameter containers: " );
 	static const String ERROR_SQLITE_LOST_CONNECTION = STR( "The statement has lost his connection" );
+	static const String ERROR_FIELD_RETRIEVAL = STR( "Field retrieval error" );
 
 	static const TChar * INFO_SQLITE_STATEMENT_FINALISATION = STR( "Statement finalisation" );
 	static const TChar * INFO_SQLITE_STATEMENT_CLEAR_BINDINGS = STR( "Statement bindings cleanup" );
@@ -298,10 +299,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 						{
 							field = row->GetField( parameter->GetName() );
 						}
-						catch ( CDatabaseException & exc )
-						{
-							CLogger::LogError( exc.GetFullDescription() );
-						}
+						COMMON_CATCH( ERROR_FIELD_RETRIEVAL )
 
 						if ( field )
 						{

@@ -28,44 +28,17 @@ BEGIN_NAMESPACE_DATABASE
 		namespace detail
 		{
 			static const String ERROR_DB_FORMALIZE = STR( "Error while formatting: " );
-			static const String ERROR_DB_NOT_IMPLEMENTED = STR( "Not implemented" );
 			static const String ERROR_DB_CONVERSION = STR( "Error while performing a strings conversion: " );
 
 			static const String INFO_UNKNOWN = STR( "UNKNOWN" );
 			std::mutex g_conversionMutex;
 
-#if defined( _MSC_VER )
-
-			//template< typename OutChar, typename InChar >
-			//std::basic_string< OutChar > str_convert( std::basic_string< InChar > const & src, const std::string & charset )
-			//{
-			//	std::basic_string< OutChar > dst;
-
-			//	if ( !src.empty() )
-			//	{
-			//		typedef typename std::codecvt< OutChar, InChar, std::mbstate_t > facet_type;
-			//		typedef typename facet_type::result result_type;
-
-			//		std::mbstate_t state = std::mbstate_t();
-			//		result_type result;
-			//		std::vector< OutChar > buffer( src.size() + 1 );
-			//		InChar const * endIn = NULL;
-			//		OutChar * endOut = NULL;
-
-			//		result = std::use_facet< facet_type >( boost::locale::generator().generate( charset ) ).in( state,
-			//		src.data(), src.data() + src.size(), endIn,
-			//		&buffer.front(), &buffer.front() + src.size(), endOut );
-
-			//		dst = std::basic_string< OutChar >( &buffer.front(), endOut );
-			//	}
-
-			//	return dst;
-			//}
+#if !defined( _MSC_VER )
 
 			template< typename OutChar, typename InChar >
 			std::basic_string< OutChar > str_convert( std::basic_string< InChar > const & )
 			{
-				static_assert( false, ERROR_DB_NOT_IMPLEMENTED );
+			//	static_assert( false, "Not implemented" );
 			}
 
 			template<>
@@ -602,31 +575,11 @@ BEGIN_NAMESPACE_DATABASE
 
 		std::string ToStr( const std::wstring & src, const std::string & charset )
 		{
-			//std::stringstream stream;
-			//std::locale loc( boost::locale::generator().generate( charset ) );
-			//for ( auto c : src )
-			//{
-			//	stream << std::use_facet< std::ctype< wchar_t > >( loc ).narrow( c );
-			//}
-			//return stream.str();
-
-			//return detail::str_convert< char >( src, charset );
-
 			return detail::str_convert< char >( src );
 		}
 
 		std::wstring ToWStr( const std::string & src, const std::string & charset )
 		{
-			//std::wstringstream stream;
-			//std::locale loc( boost::locale::generator().generate( charset ) );
-			//for ( auto c : src )
-			//{
-			//	stream << std::use_facet< std::ctype< wchar_t > >( loc ).widen( c );
-			//}
-			//return stream.str();
-
-			//return detail::str_convert< wchar_t >( src, charset );
-
 			return detail::str_convert< wchar_t >( src );
 		}
 

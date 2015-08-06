@@ -151,24 +151,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			ret = DoExecuteUpdate( query );
 		}
-		catch ( CDatabaseException & exc )
-		{
-			StringStream stream;
-			stream << ERROR_DB_EXECUTION_ERROR << exc.GetFullDescription();
-			CLogger::LogError( stream );
-		}
-		catch ( std::exception & exc )
-		{
-			StringStream stream;
-			stream << ERROR_DB_EXECUTION_ERROR << exc.what();
-			CLogger::LogError( stream );
-		}
-		catch ( ... )
-		{
-			StringStream stream;
-			stream << ERROR_DB_EXECUTION_ERROR << STR( "UNKNOWN" );
-			CLogger::LogError( stream );
-		}
+		COMMON_CATCH( ERROR_DB_EXECUTION_ERROR )
 
 		return ret;
 	}
@@ -184,24 +167,7 @@ BEGIN_NAMESPACE_DATABASE
 			DatabaseValuedObjectInfosPtrArray infos;
 			ret = DoExecuteSelect( query, infos );
 		}
-		catch ( CDatabaseException & exc )
-		{
-			StringStream stream;
-			stream << ERROR_DB_EXECUTION_ERROR << exc.GetFullDescription();
-			CLogger::LogError( stream );
-		}
-		catch ( std::exception & exc )
-		{
-			StringStream stream;
-			stream << ERROR_DB_EXECUTION_ERROR << STR( " - " ) << exc.what();
-			CLogger::LogError( stream );
-		}
-		catch ( ... )
-		{
-			StringStream stream;
-			stream << ERROR_DB_EXECUTION_ERROR << STR( " - UNKNOWN" );
-			CLogger::LogError( stream );
-		}
+		COMMON_CATCH( ERROR_DB_EXECUTION_ERROR )
 
 		return ret;
 	}
@@ -216,24 +182,7 @@ BEGIN_NAMESPACE_DATABASE
 			DoCreateDatabase( database );
 			ret = true;
 		}
-		catch ( CDatabaseException & exc )
-		{
-			StringStream stream;
-			stream << ERROR_DB_EXECUTION_ERROR << exc.GetFullDescription();
-			CLogger::LogError( stream );
-		}
-		catch ( std::exception & exc )
-		{
-			StringStream stream;
-			stream << ERROR_DB_EXECUTION_ERROR << exc.what();
-			CLogger::LogError( stream );
-		}
-		catch ( ... )
-		{
-			StringStream stream;
-			stream << ERROR_DB_EXECUTION_ERROR << STR( "UNKNOWN" );
-			CLogger::LogError( stream );
-		}
+		COMMON_CATCH( ERROR_DB_EXECUTION_ERROR )
 
 		return ret;
 	}
@@ -248,24 +197,7 @@ BEGIN_NAMESPACE_DATABASE
 			DoSelectDatabase( database );
 			ret = true;
 		}
-		catch ( CDatabaseException & exc )
-		{
-			StringStream stream;
-			stream << ERROR_DB_EXECUTION_ERROR << exc.GetFullDescription();
-			CLogger::LogError( stream );
-		}
-		catch ( std::exception & exc )
-		{
-			StringStream stream;
-			stream << ERROR_DB_EXECUTION_ERROR << exc.what();
-			CLogger::LogError( stream );
-		}
-		catch ( ... )
-		{
-			StringStream stream;
-			stream << ERROR_DB_EXECUTION_ERROR << STR( "UNKNOWN" );
-			CLogger::LogError( stream );
-		}
+		COMMON_CATCH( ERROR_DB_EXECUTION_ERROR )
 
 		return ret;
 	}
@@ -280,24 +212,7 @@ BEGIN_NAMESPACE_DATABASE
 			DoDestroyDatabase( database );
 			ret = true;
 		}
-		catch ( CDatabaseException & exc )
-		{
-			StringStream stream;
-			stream << ERROR_DB_EXECUTION_ERROR << exc.GetFullDescription();
-			CLogger::LogError( stream );
-		}
-		catch ( std::exception & exc )
-		{
-			StringStream stream;
-			stream << ERROR_DB_EXECUTION_ERROR << exc.what();
-			CLogger::LogError( stream );
-		}
-		catch ( ... )
-		{
-			StringStream stream;
-			stream << ERROR_DB_EXECUTION_ERROR << STR( "UNKNOWN" );
-			CLogger::LogError( stream );
-		}
+		COMMON_CATCH( ERROR_DB_EXECUTION_ERROR )
 
 		return ret;
 	}
