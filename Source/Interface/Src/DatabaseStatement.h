@@ -143,6 +143,8 @@ BEGIN_NAMESPACE_DATABASE
 		String _query;
 		//! Database connection.
 		DatabaseConnectionWPtr _connection;
+		//! The valued object infos array, used to save the result set columns at first execution
+		DatabaseValuedObjectInfosPtrArray _infos;
 
 		/** Inform parent statement from the value changes
 		*/

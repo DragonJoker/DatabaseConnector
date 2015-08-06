@@ -78,7 +78,7 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		static void Log( std::basic_string< CharType > const & text )
 		{
-			CLogger::LogDebug( StringUtils::ToString( text ) );
+			CLogger::LogDebug( text );
 		}
 	};
 
@@ -87,7 +87,7 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		static void Log( std::basic_string< CharType > const & text )
 		{
-			CLogger::LogInfo( StringUtils::ToString( text ) );
+			CLogger::LogInfo( text );
 		}
 	};
 
@@ -96,7 +96,7 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		static void Log( std::basic_string< CharType > const & text )
 		{
-			CLogger::LogWarning( StringUtils::ToString( text ) );
+			CLogger::LogWarning( text );
 		}
 	};
 
@@ -105,7 +105,7 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		static void Log( std::basic_string< CharType > const & text )
 		{
-			CLogger::LogError( StringUtils::ToString( text ) );
+			CLogger::LogError( text );
 		}
 	};
 
@@ -121,6 +121,13 @@ BEGIN_NAMESPACE_DATABASE
 		_headers[ELogType_INFO] = STR( "" );
 		_headers[ELogType_WARNING] = STR( "***WARNING*** " );
 		_headers[ELogType_ERROR] = STR( "***ERROR*** " );
+
+		std::cout.sync_with_stdio( false );
+		std::cerr.sync_with_stdio( false );
+		std::clog.sync_with_stdio( false );
+		std::wcout.sync_with_stdio( false );
+		std::wcerr.sync_with_stdio( false );
+		std::wclog.sync_with_stdio( false );
 
 		_cout = new CLogStreambuf< char, STMessageLogStreambufTraits< char > >( std::cout );
 		_cerr = new CLogStreambuf< char, STErrorLogStreambufTraits< char > >( std::cerr );
@@ -194,6 +201,11 @@ BEGIN_NAMESPACE_DATABASE
 			logger._logLevel = logLevel;
 			logger.DoInitialiseThread();
 		}
+	}
+
+	void CLogger::SetLevel( ELogType logLevel )
+	{
+		GetSingleton()._logLevel = logLevel;
 	}
 
 	void CLogger::Cleanup()

@@ -233,6 +233,8 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MYSQL
 	static const String ODBC_SQL_USE_DATABASE = STR( "USE " );
 	static const String ODBC_SQL_DROP_DATABASE = STR( "DROP DATABASE " );
 	static const String ODBC_SQL_NULL = STR( "NULL" );
+	static const std::string ODBC_SQL_SNULL = "NULL";
+	static const std::wstring ODBC_SQL_WNULL = L"NULL";
 
 	static const String ODBC_DSN_DSN = STR( "DSN=" );
 	static const String ODBC_DSN_UID = STR( ";UID=" );
@@ -349,7 +351,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MYSQL
 	{
 		std::string strReturn( text );
 
-		if ( strReturn != ODBC_SQL_NULL )
+		if ( strReturn != ODBC_SQL_SNULL )
 		{
 			StringUtils::Replace( strReturn, "'", "''" );
 			StringUtils::Replace( strReturn, "\\", "\\\\" );
@@ -361,16 +363,16 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MYSQL
 
 	std::wstring CDatabaseConnectionOdbcMySql::DoWriteNText( const std::wstring & text ) const
 	{
-		String strReturn( StringUtils::ToString( text ) );
+		std::wstring strReturn( text );
 
-		if ( strReturn != ODBC_SQL_NULL )
+		if ( strReturn != ODBC_SQL_WNULL )
 		{
-			StringUtils::Replace( strReturn, STR( "'" ), STR( "''" ) );
-			StringUtils::Replace( strReturn, STR( "\\" ), STR( "\\\\" ) );
-			strReturn = STR( "N'" ) + strReturn + STR( "'" );
+			StringUtils::Replace( strReturn, L"'", L"''" );
+			StringUtils::Replace( strReturn, L"\\", L"\\\\" );
+			strReturn = L"N'" + strReturn + L"'";
 		}
 
-		return StringUtils::ToWStr( strReturn );
+		return strReturn;
 	}
 
 	String CDatabaseConnectionOdbcMySql::DoWriteBinary( const ByteArray & array ) const

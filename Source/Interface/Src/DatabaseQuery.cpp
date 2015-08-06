@@ -40,6 +40,13 @@ BEGIN_NAMESPACE_DATABASE
 	static const String ERROR_DB_QUERY_INCONSISTENCY = STR( "Number of parameters doesn't match the sizes of parameter containers." );
 	static const String ERROR_DB_QUERY_INVALID = STR( "The query text is invalid." );
 	static const String ERROR_DB_QUERY_NOT_INITIALISED = STR( "The query is not initialised." );
+	static const String ERROR_DB_QUERY_EXECUTION_ERROR = STR( "Query execution error: " );
+	static const String ERROR_DB_QUERY_LOST_CONNECTION = STR( "Query lost  it's connection" );
+
+	static const String INFO_DB_CREATING_QUERY = STR( "Creating query object 0x%08X, with query text %s" );
+	static const String INFO_DB_DELETING_QUERY = STR( "Deleting query object 0x%08X" );
+	static const String INFO_DB_EXECUTING_SELECT_QUERY = STR( "Executing Select on query object 0x%08X" );
+	static const String INFO_DB_EXECUTING_UPDATE_QUERY = STR( "Executing Update on query object 0x%08X" );
 
 	CDatabaseQuery::CDatabaseQuery( DatabaseConnectionSPtr connection, const String & query )
 		: CDatabaseParameteredObject()
@@ -47,12 +54,13 @@ BEGIN_NAMESPACE_DATABASE
 		, _paramsCount( 0 )
 		, _query( query )
 	{
-		// Empty
+		CLogger::LogInfo( ( Format( INFO_DB_CREATING_QUERY ) % this % query ).str() );
 	}
 
 	CDatabaseQuery::~CDatabaseQuery()
 	{
 		Cleanup();
+		CLogger::LogInfo( ( Format( INFO_DB_DELETING_QUERY ) % this ).str() );
 	}
 
 	bool CDatabaseQuery::ExecuteUpdate()
@@ -62,13 +70,24 @@ BEGIN_NAMESPACE_DATABASE
 			DB_EXCEPT( EDatabaseExceptionCodes_QueryError, ERROR_DB_QUERY_NOT_INITIALISED );
 		}
 
-		bool bReturn = false;
 		DatabaseConnectionSPtr connection = DoGetConnection();
 
-		if ( connection && connection->IsConnected() )
+		if ( !connection  )
 		{
-			bReturn = connection->ExecuteUpdate( DoPreExecute() );
+			DB_EXCEPT( EDatabaseExceptionCodes_QueryError, ERROR_DB_QUERY_LOST_CONNECTION );
 		}
+
+		bool bReturn = false;
+
+		connection->DoCheckConnected();
+		connection->DoCheckDatabaseSelected();
+
+		try
+		{
+			CLogger::LogInfo( ( Format( INFO_DB_EXECUTING_UPDATE_QUERY ) % this ).str() );
+			bReturn = connection->DoExecuteUpdate( DoPreExecute() );
+		}
+		COMMON_CATCH( ERROR_DB_QUERY_EXECUTION_ERROR )
 
 		return bReturn;
 	}
@@ -80,13 +99,23 @@ BEGIN_NAMESPACE_DATABASE
 			DB_EXCEPT( EDatabaseExceptionCodes_QueryError, ERROR_DB_QUERY_NOT_INITIALISED );
 		}
 
-		DatabaseResultSPtr pReturn;
 		DatabaseConnectionSPtr connection = DoGetConnection();
 
-		if ( connection && connection->IsConnected() )
+		if ( !connection  )
 		{
-			pReturn = connection->ExecuteSelect( DoPreExecute() );
+			DB_EXCEPT( EDatabaseExceptionCodes_QueryError, ERROR_DB_QUERY_LOST_CONNECTION );
 		}
+
+		connection->DoCheckConnected();
+		connection->DoCheckDatabaseSelected();
+		DatabaseResultSPtr pReturn;
+
+		try
+		{
+			CLogger::LogInfo( ( Format( INFO_DB_EXECUTING_SELECT_QUERY ) % this ).str() );
+			pReturn = connection->DoExecuteSelect( DoPreExecute(), _infos );
+		}
+		COMMON_CATCH( ERROR_DB_QUERY_EXECUTION_ERROR )
 
 		return pReturn;
 	}
@@ -115,7 +144,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		_paramsCount = uint32_t( std::count( _query.begin(), _query.end(), STR( '?' ) ) );
 
-		if ( _paramsCount != _arrayParams.size() )
+		if ( _paramsCount != GetParametersCount() )
 		{
 			DB_EXCEPT( EDatabaseExceptionCodes_QueryError, ERROR_DB_QUERY_INCONSISTENCY );
 		}
@@ -138,7 +167,7 @@ BEGIN_NAMESPACE_DATABASE
 
 	DatabaseParameterSPtr CDatabaseQuery::DoCreateParameter( DatabaseValuedObjectInfosSPtr infos, EParameterType parameterType )
 	{
-		return DoAddParameter( std::make_shared< CDatabaseParameter >( DoGetConnection(), infos, uint16_t( _arrayParams.size() + 1 ), parameterType, std::make_unique< SDummyValueUpdater >() ) );
+		return DoAddParameter( std::make_shared< CDatabaseParameter >( DoGetConnection(), infos, GetParametersCount() + 1, parameterType, std::make_unique< SDummyValueUpdater >() ) );
 	}
 
 	String CDatabaseQuery::DoPreExecute()
@@ -146,7 +175,7 @@ BEGIN_NAMESPACE_DATABASE
 		StringStream query;
 		auto itQueries = _arrayQueries.begin();
 
-		for ( auto && parameter : _arrayParams )
+		for ( auto && parameter : DoGetParameters() )
 		{
 			query << ( *itQueries++ );
 			query << ( parameter )->GetObjectValue().GetQueryValue().c_str();

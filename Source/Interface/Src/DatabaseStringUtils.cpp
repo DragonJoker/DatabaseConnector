@@ -12,7 +12,10 @@
 #include "DatabasePch.h"
 
 #include "DatabaseStringUtils.h"
+
+#include "DatabaseBlockGuard.h"
 #include "DatabaseException.h"
+#include "DatabaseLogger.h"
 
 #include <boost/locale.hpp>
 
@@ -25,23 +28,17 @@ BEGIN_NAMESPACE_DATABASE
 		namespace detail
 		{
 			static const String ERROR_DB_FORMALIZE = STR( "Error while formatting: " );
+			static const String ERROR_DB_CONVERSION = STR( "Error while performing a strings conversion: " );
+
+			static const String INFO_UNKNOWN = STR( "UNKNOWN" );
+			std::mutex g_conversionMutex;
+
+#if !defined( _MSC_VER )
 
 			template< typename OutChar, typename InChar >
 			std::basic_string< OutChar > str_convert( std::basic_string< InChar > const & )
 			{
-				static_assert( false, "Not implemented" );
-			}
-
-			template<>
-			std::basic_string< char > str_convert< char, char >( std::basic_string< char > const & src )
-			{
-				return src;
-			}
-
-			template<>
-			std::basic_string< wchar_t > str_convert< wchar_t, wchar_t >( std::basic_string< wchar_t > const & src )
-			{
-				return src;
+			//	static_assert( false, "Not implemented" );
 			}
 
 			template<>
@@ -51,12 +48,119 @@ BEGIN_NAMESPACE_DATABASE
 
 				if ( !src.empty() )
 				{
-					std::string loc = setlocale( LC_CTYPE, "" );
+					try
+					{
+						std::unique_lock< std::mutex > lock( g_conversionMutex );
+						char * szloc = setlocale( LC_CTYPE, "" );
+						mbtowc( NULL, NULL, 0 );
+						size_t max = src.size();
+						int length = 1;
+						const char * in = src.c_str();
+						dst.reserve( src.size() );
+
+						while ( max > 0 && length >= 1 )
+						{
+							wchar_t wc;
+							length = mbtowc( &wc, in, max );
+
+							if ( length >= 1 )
+							{
+								dst += wc;
+								max -= length;
+								in += length;
+							}
+						}
+
+						setlocale( LC_CTYPE, szloc );
+					}
+					catch ( std::exception & exc )
+					{
+						CLogger::LogError( StringStream() << ERROR_DB_CONVERSION << exc.what() );
+					}
+					catch ( ... )
+					{
+						CLogger::LogError( StringStream() << ERROR_DB_CONVERSION << INFO_UNKNOWN );
+					}
+				}
+
+				return std::move( dst );
+			}
+
+			template<>
+			std::basic_string< char > str_convert< char, wchar_t >( std::basic_string< wchar_t > const & src )
+			{
+				std::basic_string< char > dst;
+
+				if ( !src.empty() )
+				{
+					try
+					{
+						std::unique_lock< std::mutex > lock( g_conversionMutex );
+						std::string szloc = setlocale( LC_CTYPE, "" );
+						size_t max = src.size();
+						int length = 1;
+						const wchar_t * in = src.c_str();
+						char buffer[32] = { 0 };
+						dst.reserve( 1 + src.size() * 2 );
+
+						while ( *in && length >= 1 )
+						{
+							length = wctomb( buffer, *in );
+
+							if ( length >= 1 )
+							{
+								dst += buffer;
+								in++;
+							}
+						}
+
+						setlocale( LC_CTYPE, szloc.c_str() );
+					}
+					catch ( std::exception & exc )
+					{
+						CLogger::LogError( StringStream() << ERROR_DB_CONVERSION << exc.what() );
+					}
+					catch ( ... )
+					{
+						CLogger::LogError( StringStream() << ERROR_DB_CONVERSION << INFO_UNKNOWN );
+					}
+				}
+
+				return std::move( dst );
+			}
+
+#else
+
+			template< typename OutChar, typename InChar >
+			std::basic_string< OutChar > str_convert( std::basic_string< InChar > const & )
+			{
+				static_assert( false, "Not implemented" );
+			}
+
+			template<>
+			std::basic_string< wchar_t > str_convert< wchar_t, char >( std::basic_string< char > const & src )
+			{
+				std::basic_string< wchar_t > dst;
+
+				if ( !src.empty() )
+				{
+					std::unique_lock< std::mutex > lock( g_conversionMutex );
+					char * szloc = setlocale( LC_CTYPE, "" );
 					size_t size = mbstowcs( NULL, src.c_str(), 0 ) + 1;
-					std::vector< wchar_t > buffer( size );
-					size = mbstowcs( buffer.data(), src.c_str(), size );
-					dst.assign( buffer.data(), buffer.data() + size );
-					setlocale( LC_CTYPE, loc.c_str() );
+					wchar_t * buffer = NULL;
+					{
+						auto guard = make_block_guard( [&buffer, &size]()
+						{
+							buffer = new wchar_t[size + 1];
+						}, [&buffer]()
+						{
+							delete [] buffer;
+						} );
+
+						size = std::min( size, mbstowcs( buffer, src.c_str(), size ) );
+						setlocale( LC_CTYPE, szloc );
+						dst.assign( buffer, buffer + size );
+					}
 				}
 
 				return dst;
@@ -69,16 +173,29 @@ BEGIN_NAMESPACE_DATABASE
 
 				if ( !src.empty() )
 				{
-					std::string loc = setlocale( LC_CTYPE, "" );
+					std::unique_lock< std::mutex > lock( g_conversionMutex );
+					char * szloc = setlocale( LC_CTYPE, "" );
 					size_t size = wcstombs( NULL, src.c_str(), 0 ) + 1;
-					std::vector< char > buffer( size );
-					size = wcstombs( buffer.data(), src.c_str(), size );
-					dst.assign( buffer.data(), buffer.data() + size );
-					setlocale( LC_CTYPE, loc.c_str() );
+					char * buffer = NULL;
+					{
+						auto guard = make_block_guard( [&buffer, &size]()
+						{
+							buffer = new char[size + 1];
+						}, [&buffer]()
+						{
+							delete [] buffer;
+						} );
+
+						size = std::min( size, wcstombs( buffer, src.c_str(), size ) );
+						setlocale( LC_CTYPE, szloc );
+						dst.assign( buffer, buffer + size );
+					}
 				}
 
 				return dst;
 			}
+
+#endif
 
 			template< typename CharType >
 			std::basic_string< CharType > & str_replace( std::basic_string< CharType > & p_str, std::basic_string< CharType > const & p_find, std::basic_string< CharType > const & p_replaced )
@@ -298,42 +415,42 @@ BEGIN_NAMESPACE_DATABASE
 
 		//*************************************************************************************************
 
-		bool IsUpperCase( std::string const & p_strToTest )
+		bool IsUpperCase( const std::string & p_strToTest )
 		{
 			return p_strToTest == detail::str_upper( p_strToTest );
 		}
 
-		bool IsLowerCase( std::string const & p_strToTest )
+		bool IsLowerCase( const std::string & p_strToTest )
 		{
 			return p_strToTest == detail::str_lower( p_strToTest );
 		}
 
-		bool IsUpperCase( std::wstring const & p_strToTest )
+		bool IsUpperCase( const std::wstring & p_strToTest )
 		{
 			return p_strToTest == detail::str_upper( p_strToTest );
 		}
 
-		bool IsLowerCase( std::wstring const & p_strToTest )
+		bool IsLowerCase( const std::wstring & p_strToTest )
 		{
 			return p_strToTest == detail::str_lower( p_strToTest );
 		}
 
-		std::string UpperCase( std::string const & p_str )
+		std::string UpperCase( const std::string & p_str )
 		{
 			return detail::str_upper( p_str );
 		}
 
-		std::string LowerCase( std::string const & p_str )
+		std::string LowerCase( const std::string & p_str )
 		{
 			return detail::str_lower( p_str );
 		}
 
-		std::wstring UpperCase( std::wstring const & p_str )
+		std::wstring UpperCase( const std::wstring & p_str )
 		{
 			return detail::str_upper( p_str );
 		}
 
-		std::wstring LowerCase( std::wstring const & p_str )
+		std::wstring LowerCase( const std::wstring & p_str )
 		{
 			return detail::str_lower( p_str );
 		}
@@ -362,12 +479,12 @@ BEGIN_NAMESPACE_DATABASE
 			return p_str;
 		}
 
-		std::vector< std::string > Split( std::string const & p_str, std::string const & p_delims, uint32_t p_maxSplits, bool p_bKeepVoid )
+		std::vector< std::string > Split( const std::string & p_str, const std::string & p_delims, uint32_t p_maxSplits, bool p_bKeepVoid )
 		{
 			return detail::str_split( p_str, p_delims, p_maxSplits, p_bKeepVoid );
 		}
 
-		std::vector< std::wstring > Split( std::wstring const & p_str, std::wstring const & p_delims, uint32_t p_maxSplits, bool p_bKeepVoid )
+		std::vector< std::wstring > Split( const std::wstring & p_str, const std::wstring & p_delims, uint32_t p_maxSplits, bool p_bKeepVoid )
 		{
 			return detail::str_split( p_str, p_delims, p_maxSplits, p_bKeepVoid );
 		}
@@ -389,19 +506,19 @@ BEGIN_NAMESPACE_DATABASE
 			return detail::str_replace( p_str, std::string( l_szFind ), std::string( l_szReplaced ) );
 		}
 
-		std::string & Replace( std::string & p_str, std::string const & p_find, char p_replaced )
+		std::string & Replace( std::string & p_str, const std::string & p_find, char p_replaced )
 		{
 			char l_szReplaced[2] = { p_replaced, STR( '\0' ) };
 			return detail::str_replace( p_str, p_find, std::string( l_szReplaced ) );
 		}
 
-		std::string & Replace( std::string & p_str, char p_find, std::string const & p_replaced )
+		std::string & Replace( std::string & p_str, char p_find, const std::string & p_replaced )
 		{
 			char l_szFind[2] = { p_find, STR( '\0' ) };
 			return detail::str_replace( p_str, std::string( l_szFind ), p_replaced );
 		}
 
-		std::string & Replace( std::string & p_str, std::string const & p_find, std::string const & p_replaced )
+		std::string & Replace( std::string & p_str, const std::string & p_find, const std::string & p_replaced )
 		{
 			return detail::str_replace( p_str, p_find, p_replaced );
 		}
@@ -413,19 +530,19 @@ BEGIN_NAMESPACE_DATABASE
 			return detail::str_replace( p_str, std::wstring( l_szFind ), std::wstring( l_szReplaced ) );
 		}
 
-		std::wstring & Replace( std::wstring & p_str, std::wstring const & p_find, wchar_t p_replaced )
+		std::wstring & Replace( std::wstring & p_str, const std::wstring & p_find, wchar_t p_replaced )
 		{
 			wchar_t l_szReplaced[2] = { p_replaced, STR( '\0' ) };
 			return detail::str_replace( p_str, p_find, std::wstring( l_szReplaced ) );
 		}
 
-		std::wstring & Replace( std::wstring & p_str, wchar_t p_find, std::wstring const & p_replaced )
+		std::wstring & Replace( std::wstring & p_str, wchar_t p_find, const std::wstring & p_replaced )
 		{
 			wchar_t l_szFind[2] = { p_find, STR( '\0' ) };
 			return detail::str_replace( p_str, std::wstring( l_szFind ), p_replaced );
 		}
 
-		std::wstring & Replace( std::wstring & p_str, std::wstring const & p_find, std::wstring const & p_replaced )
+		std::wstring & Replace( std::wstring & p_str, const std::wstring & p_find, const std::wstring & p_replaced )
 		{
 			return detail::str_replace( p_str, p_find, p_replaced );
 		}
@@ -456,36 +573,26 @@ BEGIN_NAMESPACE_DATABASE
 			}
 		}
 
-		std::string ToStr( std::wstring const & src )
+		std::string ToStr( const std::wstring & src, const std::string & charset )
 		{
 			return detail::str_convert< char >( src );
 		}
 
-		std::wstring ToWStr( std::string const & src )
+		std::wstring ToWStr( const std::string & src, const std::string & charset )
 		{
 			return detail::str_convert< wchar_t >( src );
-		}
-
-		String ToString( std::string const & src )
-		{
-			return detail::str_convert< TChar >( src );
-		}
-
-		String ToString( std::wstring const & src )
-		{
-			return detail::str_convert< TChar >( src );
 		}
 
 		String ToString( char p_char )
 		{
 			char l_szTmp[2] = { p_char, '\0' };
-			return ToString( l_szTmp );
+			return String( l_szTmp );
 		}
 
 		String ToString( wchar_t p_wchar )
 		{
 			wchar_t l_wszTmp[2] = { p_wchar, L'\0' };
-			return ToString( l_wszTmp );
+			return ToStr( l_wszTmp );
 		}
 
 		std::string ToUtf8( const std::string & src, const std::string & charset )
@@ -494,9 +601,9 @@ BEGIN_NAMESPACE_DATABASE
 			return boost::locale::conv::from_utf( strUtf, "UTF-8" );
 		}
 
-		std::string ToUtf8( const std::wstring & src, const std::wstring & charset )
+		std::string ToUtf8( const std::wstring & src, const std::string & charset )
 		{
-			return ToUtf8( StringUtils::ToStr( src ), StringUtils::ToStr( charset ) );
+			return ToUtf8( StringUtils::ToStr( src, charset ), charset );
 		}
 	}
 
@@ -530,13 +637,13 @@ BEGIN_NAMESPACE_DATABASE
 		return stream;
 	}
 
-	std::ostream & operator <<( std::ostream & stream, std::wstring const & string )
+	std::ostream & operator <<( std::ostream & stream, const std::wstring & string )
 	{
 		stream << NAMESPACE_DATABASE::StringUtils::ToStr( string );
 		return stream;
 	}
 
-	std::ostream & operator <<( std::ostream & stream, wchar_t const * string )
+	std::ostream & operator <<( std::ostream & stream, const wchar_t * string )
 	{
 		stream << NAMESPACE_DATABASE::StringUtils::ToStr( string );
 		return stream;

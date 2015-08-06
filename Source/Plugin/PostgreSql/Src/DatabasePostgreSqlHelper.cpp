@@ -884,47 +884,67 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 				}
 			}
 		}
+
+		void GetBindings( PGresult * result, const DatabaseValuedObjectInfosPtrArray & columns, std::vector< std::unique_ptr< SInPostgreSqlBindBase > > & binds )
+		{
+			int index = 0;
+
+			for ( auto & column : columns )
+			{
+				binds.emplace_back( GetInBind( column->GetType(), index++, result ) );
+			}
+		}
 	}
 
 	//************************************************************************************************
 
-	DatabaseValuedObjectInfosPtrArray PostgreSqlGetColumns( PGresult * result, std::vector< std::unique_ptr< SInPostgreSqlBindBase > > & binds )
+	DatabaseValuedObjectInfosPtrArray PostgreSqlGetColumns( PGresult * result )
 	{
-		DatabaseValuedObjectInfosPtrArray arrayReturn;
 		int columnCount = PQnfields( result );
-		binds.resize( columnCount );
 		int index = 0;
+		DatabaseValuedObjectInfosPtrArray columns( columnCount );
 
-		for ( auto && bind : binds )
+		for ( auto & column : columns )
 		{
 			char * name = PQfname( result, index );
 			Oid oid = PQftype( result, index );
 			int size = PQfsize( result, index );
 			EFieldType type = GetFieldTypeFromOid( oid );
-			bind = std::move( GetInBind( type, index, result ) );
 
 			if ( type == EFieldType_FIXED_POINT )
 			{
-				const SInPostgreSqlBind< EFieldType_FIXED_POINT > & fixedBind = static_cast< const SInPostgreSqlBind< EFieldType_FIXED_POINT > & >( *bind );
-				arrayReturn.push_back( std::make_shared< CDatabaseValuedObjectInfos >( StringUtils::ToString( name ), type, std::make_pair( fixedBind._precision, fixedBind._decimals ) ) );
+				int value = PQfmod( result, index );
+				uint32_t precision = 10;
+				uint32_t decimals = 0;
+
+				if ( value != -1 )
+				{
+					value -= VARHDRSZ;
+					decimals = 0x0000FFFF & value;
+					precision = ( ( value - decimals ) >> 16 );
+				}
+
+				column = std::make_shared< CDatabaseValuedObjectInfos >( name, type, std::make_pair( precision, decimals ) );
 			}
 			else
 			{
-				arrayReturn.push_back( std::make_shared< CDatabaseValuedObjectInfos >( StringUtils::ToString( name ), type, size ) );
+				column = std::make_shared< CDatabaseValuedObjectInfos >( name, type, size );
 			}
 
 			++index;
 		}
 
-		return arrayReturn;
+		return columns;
 	}
 
-	DatabaseResultSPtr PostgreSqlFetchResult( PGresult * result, DatabaseValuedObjectInfosPtrArray const & columns, DatabaseConnectionPostgreSqlSPtr connection, std::vector< std::unique_ptr< SInPostgreSqlBindBase > > const & binds )
+	DatabaseResultSPtr PostgreSqlFetchResult( PGresult * result, DatabaseValuedObjectInfosPtrArray const & columns, DatabaseConnectionPostgreSqlSPtr connection )
 	{
 		DatabaseResultSPtr pReturn;
 
 		try
 		{
+			std::vector< std::unique_ptr< SInPostgreSqlBindBase > > binds;
+			GetBindings( result, columns, binds );
 			pReturn = std::make_unique< CDatabaseResult >( columns );
 			int iNbColumns = int( columns.size() );
 			int rowCount = PQntuples( result );
@@ -961,8 +981,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		{
 			PQclear( result );
 			StringStream message;
-			message << ERROR_POSTGRESQL_DRIVER << STR( " - " )
-					<< e.what();
+			message << ERROR_POSTGRESQL_DRIVER << STR( " - " ) << e.GetFullDescription();
 			CLogger::LogError( message );
 			POSTGRESQL_EXCEPT( EDatabaseExceptionCodes_GenericError, message.str() );
 		}
@@ -970,8 +989,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		{
 			PQclear( result );
 			StringStream message;
-			message << ERROR_POSTGRESQL_DRIVER << STR( " - " )
-					<< e.what();
+			message << ERROR_POSTGRESQL_DRIVER << STR( " - " ) << e.what();
 			CLogger::LogError( message );
 			POSTGRESQL_EXCEPT( EDatabaseExceptionCodes_GenericError, message.str() );
 		}
@@ -979,8 +997,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		{
 			PQclear( result );
 			StringStream message;
-			message << ERROR_POSTGRESQL_DRIVER << STR( " - " )
-					<< ERROR_POSTGRESQL_UNKNOWN;
+			message << ERROR_POSTGRESQL_DRIVER << STR( " - " ) << ERROR_POSTGRESQL_UNKNOWN;
 			CLogger::LogError( message );
 			POSTGRESQL_EXCEPT( EDatabaseExceptionCodes_UnknownError, message.str() );
 		}
@@ -1044,7 +1061,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		{
 			StringStream error;
 			error << STR( "Failure: " ) << msg << std::endl;
-			String postgresql = StringUtils::ToString( PQerrorMessage( connection ) );
+			String postgresql( PQerrorMessage( connection ) );
 			error << postgresql;
 			PQclear( result );
 			DB_EXCEPT( code, error.str() );
@@ -1056,7 +1073,7 @@ BEGIN_NAMESPACE_DATABASE_POSTGRESQL
 		{
 			StringStream error;
 			error << msg << std::endl;
-			String postgresql = StringUtils::ToString( PQerrorMessage( connection ) );
+			String postgresql( PQerrorMessage( connection ) );
 			error << STR( "(" ) << GetStatusName( status ) << STR( ") " ) << postgresql;
 
 			if ( status == PGRES_NONFATAL_ERROR )

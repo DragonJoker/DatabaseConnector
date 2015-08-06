@@ -30,8 +30,6 @@ BEGIN_NAMESPACE_DATABASE
 
 	static const String WARNING_DB_PARAMETER_NULL = STR( "Trying to add a null parameter." );
 
-	static const String INFO_UNKNOWN_ERROR = STR( "Unknown error" );
-
 	CDatabaseParameteredObject::CDatabaseParameteredObject()
 		: _initialised( false )
 	{
@@ -40,7 +38,7 @@ BEGIN_NAMESPACE_DATABASE
 
 	CDatabaseParameteredObject::~CDatabaseParameteredObject()
 	{
-		// Empty
+		_parameters.clear();
 	}
 
 	EErrorType CDatabaseParameteredObject::Initialise()
@@ -52,18 +50,7 @@ BEGIN_NAMESPACE_DATABASE
 			ret = DoInitialise();
 			_initialised = true;
 		}
-		catch ( CDatabaseException & exc )
-		{
-			CLogger::LogError( ERROR_DB_PARAMETER_INITIALISATION + exc.GetFullDescription() );
-		}
-		catch ( std::exception & exc )
-		{
-			CLogger::LogError( ERROR_DB_PARAMETER_INITIALISATION + exc.what() );
-		}
-		catch ( ... )
-		{
-			CLogger::LogError( ERROR_DB_PARAMETER_INITIALISATION + INFO_UNKNOWN_ERROR );
-		}
+		COMMON_CATCH( ERROR_DB_PARAMETER_INITIALISATION )
 
 		return ret;
 	}
@@ -74,40 +61,29 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			DoCleanup();
 		}
-		catch ( CDatabaseException & exc )
-		{
-			CLogger::LogError( ERROR_DB_PARAMETER_CLEANUP + exc.GetFullDescription() );
-		}
-		catch ( std::exception & exc )
-		{
-			CLogger::LogError( ERROR_DB_PARAMETER_CLEANUP + exc.what() );
-		}
-		catch ( ... )
-		{
-			CLogger::LogError( ERROR_DB_PARAMETER_CLEANUP + INFO_UNKNOWN_ERROR );
-		}
+		COMMON_CATCH( ERROR_DB_PARAMETER_CLEANUP )
 	}
 
 	DatabaseParameterSPtr CDatabaseParameteredObject::GetParameter( uint32_t index )const
 	{
-		if ( index >= _arrayParams.size() )
+		if ( index >= _parameters.size() )
 		{
 			StringStream message;
 			message << ERROR_DB_PARAMETER_INDEX << index;
 			DB_EXCEPT( EDatabaseExceptionCodes_ParameterError, message.str() );
 		}
 
-		return _arrayParams[index];
+		return _parameters[index];
 	}
 
 	DatabaseParameterSPtr CDatabaseParameteredObject::GetParameter( const String & name )const
 	{
-		auto it = std::find_if( _arrayParams.begin(), _arrayParams.end(), [&name]( DatabaseParameterSPtr parameter )
+		auto it = std::find_if( _parameters.begin(), _parameters.end(), [&name]( DatabaseParameterSPtr parameter )
 		{
 			return parameter->GetName() == name;
 		} );
 
-		if ( it == _arrayParams.end() )
+		if ( it == _parameters.end() )
 		{
 			StringStream message;
 			message << ERROR_DB_PARAMETER_NAME << name;
@@ -153,14 +129,14 @@ BEGIN_NAMESPACE_DATABASE
 
 		if ( parameter )
 		{
-			auto it = std::find_if( _arrayParams.begin(), _arrayParams.end(), [&parameter]( DatabaseParameterSPtr param )
+			auto it = std::find_if( _parameters.begin(), _parameters.end(), [&parameter]( DatabaseParameterSPtr param )
 			{
 				return param->GetName() == parameter->GetName();
 			} );
 
-			if ( it == _arrayParams.end() )
+			if ( it == _parameters.end() )
 			{
-				_arrayParams.push_back( parameter );
+				_parameters.push_back( parameter );
 				ret = parameter;
 			}
 			else

@@ -31,8 +31,9 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	static const String ERROR_ODBC_STATEMENT_UNKNOWN_POINTER = STR( "The pointer given by SQLParamData is unknown to the statement" );
 	static const String ERROR_ODBC_LOST_CONNECTION = STR( "The statement has lost his connection" );
 
-	static const String INFO_ODBC_PREPARING_STATEMENT = STR( "Preparing statement for query: " );
-	static const String INFO_ODBC_EXECUTE_STATEMENT = STR( "Execute statement for query: " );
+	static const String INFO_ODBC_EXECUTE_STATEMENT = STR( "Execute statement 0x" );
+	
+	static const String DEBUG_ODBC_PREPARING_STATEMENT = STR( "Preparing statement 0x%08X" );
 
 	static const String INFO_ODBC_Prepare = STR( "SQLPrepare" );
 	static const String INFO_ODBC_AllocHandle = STR( "SQLAllocHandle: " );
@@ -65,7 +66,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			DB_EXCEPT( EDatabaseExceptionCodes_StatementError, ERROR_ODBC_LOST_CONNECTION );
 		}
 
-		return DoAddParameter( std::make_shared< CDatabaseStatementParameterOdbc >( connection, infos, uint16_t( _arrayParams.size() + 1 ), parameterType, std::make_unique< SValueUpdater >( this ) ) );
+		return DoAddParameter( std::make_shared< CDatabaseStatementParameterOdbc >( connection, infos, GetParametersCount() + 1, parameterType, std::make_unique< SValueUpdater >( this ) ) );
 	}
 
 	EErrorType CDatabaseStatementOdbc::DoInitialise()
@@ -79,7 +80,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 		EErrorType errorType;
 		HDBC hParentStmt = connection->GetHdbc();
-		CLogger::LogInfo( INFO_ODBC_PREPARING_STATEMENT + _query );
+		CLogger::LogDebug( ( Format( DEBUG_ODBC_PREPARING_STATEMENT ) % this ).str() );
 
 		errorType = SqlSuccess( SQLAllocHandle( SQL_HANDLE_STMT, hParentStmt, &_statementHandle ), SQL_HANDLE_STMT, hParentStmt, INFO_ODBC_AllocHandle );
 #if defined( WIN32 )
@@ -103,9 +104,9 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 			CLogger::LogDebug( DEBUG_ODBC_EXPECTED_PARAMETERS + StringUtils::ToString( count ) );
 		}
 
-		for ( DatabaseParameterPtrArray::iterator it = _arrayParams.begin(); it != _arrayParams.end(); ++it )
+		for ( auto && parameter : DoGetParameters() )
 		{
-			std::static_pointer_cast< CDatabaseStatementParameterOdbc >( *it )->Initialise( _statementHandle );
+			std::static_pointer_cast< CDatabaseStatementParameterOdbc >( parameter )->Initialise( _statementHandle );
 		}
 
 		return errorType;
@@ -161,7 +162,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				}
 			}
 
-			SqlSuccess( retCode, SQL_HANDLE_STMT, _statementHandle, INFO_ODBC_EXECUTE_STATEMENT + _query );
+			SqlSuccess( retCode, SQL_HANDLE_STMT, _statementHandle, StringStream() << INFO_ODBC_EXECUTE_STATEMENT << this );
 		}
 
 		return eResult;
@@ -181,7 +182,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 		if ( eResult == EErrorType_NONE )
 		{
-			eResult = SqlExecute( connection, _statementHandle, std::bind( &CDatabaseStatementOdbc::OnResultSetFullyFetched, this, std::placeholders::_1, std::placeholders::_2 ), result );
+			eResult = SqlExecute( connection, _statementHandle, std::bind( &CDatabaseStatementOdbc::OnResultSetFullyFetched, this, std::placeholders::_1, std::placeholders::_2 ), _infos, result );
 		}
 
 		return eResult;
@@ -218,9 +219,9 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		}
 
 		EErrorType errorType = EErrorType_NONE;
-		OdbcCheck( SQLFreeStmt( statementHandle, SQL_CLOSE ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_FreeStmt + STR( " (Close)" ) );
-		OdbcCheck( SQLFreeStmt( statementHandle, SQL_UNBIND ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_FreeStmt + STR( " (Unbind)" ) );
-		OdbcCheck( SQLFreeStmt( statementHandle, SQL_RESET_PARAMS ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_FreeStmt + STR( " (ResetParams)" ) );
+		OdbcCheck( SQLFreeStmt( statementHandle, SQL_CLOSE ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_FreeStmt << STR( " (Close)" ) );
+		OdbcCheck( SQLFreeStmt( statementHandle, SQL_UNBIND ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_FreeStmt << STR( " (Unbind)" ) );
+		OdbcCheck( SQLFreeStmt( statementHandle, SQL_RESET_PARAMS ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_FreeStmt << STR( " (ResetParams)" ) );
 
 #endif
 	}

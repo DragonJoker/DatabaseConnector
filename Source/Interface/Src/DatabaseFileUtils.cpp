@@ -42,7 +42,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			bool result = false;
 			struct stat buffer;
-			std::string strname = StringUtils::ToStr( name );
+			std::string strname = name;
 
 			if ( stat( strname.c_str(), &buffer ) == 0 )
 			{
@@ -69,9 +69,9 @@ BEGIN_NAMESPACE_DATABASE
 				if ( bReturn )
 				{
 #if defined( _MSC_VER )
-					bReturn = _mkdir( StringUtils::ToStr( pathFolder ).c_str() ) == 0;
+					bReturn = _mkdir( pathFolder.c_str() ) == 0;
 #else
-					bReturn = mkdir( StringUtils::ToStr( pathFolder ).c_str(), 777 ) == 0;
+					bReturn = mkdir( pathFolder.c_str(), 777 ) == 0;
 #endif
 				}
 			}
@@ -83,7 +83,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			try
 			{
-				return boost::filesystem::exists( StringUtils::ToStr( p_filename ).c_str() ) && boost::filesystem::is_directory( StringUtils::ToStr( p_filename ).c_str() );
+				return boost::filesystem::exists( p_filename ) && boost::filesystem::is_directory( p_filename );
 			}
 			catch ( std::exception & )
 			{

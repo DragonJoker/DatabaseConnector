@@ -112,6 +112,12 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	{
 		template< size_t StmtType > struct StatementTyper;
 
+		static const String Name[2] =
+		{
+			STR( "Query" ),
+			STR( "Statement" ),
+		};
+
 		template<>
 		struct StatementTyper< 0 >
 		{
@@ -161,8 +167,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			return result;
 		}
 
-		template< size_t StmtType >
-		inline void CreateParameters( std::shared_ptr< typename StatementTyper< StmtType >::Type > stmt )
+		template< typename Statement >
+		inline void CreateParameters( std::shared_ptr< Statement > stmt )
 		{
 			BOOST_CHECK( stmt->CreateParameter( STR( "IntField" ), EFieldType_SINT32 ) );
 			BOOST_CHECK( stmt->CreateParameter( STR( "IntegerField" ), EFieldType_SINT32 ) );
@@ -189,8 +195,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			BOOST_CHECK( stmt->CreateParameter( STR( "BlobField" ), EFieldType_BLOB ) );
 		}
 
-		template< size_t StmtType >
-		inline void UncheckedCreateParameters( std::shared_ptr< typename StatementTyper< StmtType >::Type > stmt )
+		template< typename Statement >
+		inline void UncheckedCreateParameters( std::shared_ptr< Statement > stmt )
 		{
 			stmt->CreateParameter( STR( "IntField" ), EFieldType_SINT32 );
 			stmt->CreateParameter( STR( "IntegerField" ), EFieldType_SINT32 );
@@ -217,8 +223,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			stmt->CreateParameter( STR( "BlobField" ), EFieldType_BLOB );
 		}
 
-		template< size_t StmtType >
-		inline void SetParametersValue( std::random_device & generator, uint32_t & index, int mult, int i, std::shared_ptr< typename StatementTyper< StmtType >::Type > stmt )
+		template< typename Statement >
+		inline void SetParametersValue( std::random_device & generator, uint32_t & index, int mult, int i, std::shared_ptr< Statement > stmt )
 		{
 			stmt->SetParameterValue( index++, Helpers< EFieldType_SINT32 >::GetRandomValue( generator ) );
 			stmt->SetParameterValue( index++, Helpers< EFieldType_SINT32 >::GetRandomValue( generator ) );
@@ -245,6 +251,29 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			stmt->SetParameterValue( index++, Helpers< EFieldType_BLOB >::GetRandomValue( generator ) );
 		}
 
+		inline std::wstring GetWString( uint32_t index, DatabaseRowSPtr row )
+		{
+			std::wstring ret;
+			DatabaseFieldSPtr field = row->GetField( index );
+
+			switch ( field->GetType() )
+			{
+			case EFieldType_CHAR:
+			case EFieldType_VARCHAR:
+			case EFieldType_TEXT:
+				ret = StringUtils::ToWStr( field->GetValue< std::string >() );
+				break;
+
+			case EFieldType_NCHAR:
+			case EFieldType_NVARCHAR:
+			case EFieldType_NTEXT:
+				ret = field->GetValue< std::wstring >();
+				break;
+			}
+
+			return ret;
+		}
+
 		inline void DisplayValues( uint32_t & index, DatabaseRowSPtr row )
 		{
 			CLogger::LogInfo( StringStream() << STR( "IntField : " ) << row->Get< int32_t >( index++ ) );
@@ -266,8 +295,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			CLogger::LogInfo( StringStream() << STR( "DateTimeField : " ) << row->Get< DateTimeType >( index++ ) );
 			CLogger::LogInfo( StringStream() << STR( "CharacterField : " ) << row->Get< std::string >( index++ ) );
 			CLogger::LogInfo( StringStream() << STR( "VarcharField : " ) << row->Get< std::string >( index++ ) );
-			CLogger::LogInfo( std::wstringstream() << L"NcharField : " << row->Get< std::wstring >( index++ ) );
-			CLogger::LogInfo( std::wstringstream() << L"NVarcharField : " << row->Get< std::wstring >( index++ ) );
+			CLogger::LogInfo( std::wstringstream() << L"NcharField : " << GetWString( index++, row ) );
+			CLogger::LogInfo( std::wstringstream() << L"NVarcharField : " << GetWString( index++, row ) );
 			CLogger::LogInfo( StringStream() << STR( "TextField : " ) << row->Get< std::string >( index++ ) );
 			CLogger::LogInfo( StringStream() << STR( "BlobField : " ) << row->Get< ByteArray >( index++ ) );
 		}
@@ -1164,78 +1193,283 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 
 		template< size_t StmtType >
+		struct Countor
+		{
+			Countor( DatabaseConnectionSPtr connection )
+				: _statement( CreateStmt< StmtType >( connection, QUERY_GET_COUNT ) )
+			{
+				if ( _statement )
+				{
+					_statement->Initialise();
+				}
+			}
+
+			inline int64_t GetValue()
+			{
+				int64_t count = 0;
+
+				if ( _statement )
+				{
+					DatabaseResultSPtr result = _statement->ExecuteSelect();
+
+					if ( result && result->GetRowCount() )
+					{
+						result->GetFirstRow()->Get( 0, count );
+					}
+				}
+
+				return count;
+			}
+
+			std::shared_ptr< typename StatementTyper< StmtType >::Type > _statement;
+		};
+
+		template< size_t StmtType >
+		struct IdSelector
+		{
+			IdSelector( DatabaseConnectionSPtr connection )
+				: _stmtGetMax( CreateStmt< StmtType >( connection, QUERY_SELECT_MAX ) )
+				, _stmtGetMin( CreateStmt< StmtType >( connection, QUERY_SELECT_MIN ) )
+			{
+				if ( _stmtGetMax )
+				{
+					_stmtGetMax->Initialise();
+				}
+
+				if ( _stmtGetMin )
+				{
+					_stmtGetMin->Initialise();
+				}
+			}
+
+			inline int64_t GetValue()
+			{
+				int64_t max = 0;
+
+				if ( _stmtGetMax )
+				{
+					DatabaseResultSPtr result = _stmtGetMax->ExecuteSelect();
+
+					if ( result && result->GetRowCount() )
+					{
+						result->GetFirstRow()->Get( 0, max );
+					}
+				}
+
+				int64_t min = 0;
+
+				if ( _stmtGetMin )
+				{
+					DatabaseResultSPtr result = _stmtGetMin->ExecuteSelect();
+
+					if ( result && result->GetRowCount() )
+					{
+						result->GetFirstRow()->Get( 0, min );
+					}
+				}
+
+				int64_t result = 0;
+
+				if ( max && min )
+				{
+					std::uniform_int_distribution< int64_t > distribution( min, max );
+					result = distribution( _generator );
+				}
+
+				return result;
+			}
+
+			std::random_device _generator;
+			std::shared_ptr< typename StatementTyper< StmtType >::Type > _stmtGetMax;
+			std::shared_ptr< typename StatementTyper< StmtType >::Type > _stmtGetMin;
+		};
+
+		template< size_t StmtType >
+		struct Insertor
+		{
+			Insertor( DatabaseConnectionSPtr connection )
+				: _statement( CreateStmt< StmtType >( connection, QUERY_DIRECT_INSERT_ELEMENT ) )
+			{
+				if ( _statement )
+				{
+					UncheckedCreateParameters( _statement );
+					_statement->Initialise();
+				}
+			}
+
+			inline bool Run()
+			{
+				bool ret = false;
+
+				if ( _statement )
+				{
+					uint32_t index = 0;
+					SetParametersValue( _generator, index, 1, 0, _statement );
+					ret = _statement->ExecuteUpdate();
+				}
+
+				return ret;
+			}
+
+			std::random_device _generator;
+			std::shared_ptr< typename StatementTyper< StmtType >::Type > _statement;
+		};
+
+		template< size_t StmtType >
+		struct Selector
+		{
+			Selector( DatabaseConnectionSPtr connection )
+				: _selector( connection )
+				, _statement( CreateStmt< StmtType >( connection, QUERY_DIRECT_SELECT_ELEMENT ) )
+			{
+				if ( _statement )
+				{
+					_statement->CreateParameter( STR( "IDTest" ), EFieldType_SINT64, EParameterType_IN );
+					_statement->Initialise();
+				}
+			}
+
+			inline bool Run()
+			{
+				bool ret = false;
+
+				if ( _statement )
+				{
+					int64_t id = _selector.GetValue();
+
+					if ( id )
+					{
+						_statement->SetParameterValue( 0, id );
+						ret = _statement->ExecuteUpdate();
+					}
+				}
+
+				return ret;
+			}
+
+			std::random_device _generator;
+			IdSelector< StmtType > _selector;
+			std::shared_ptr< typename StatementTyper< StmtType >::Type > _statement;
+		};
+
+		template< size_t StmtType >
+		struct Updator
+		{
+			Updator( DatabaseConnectionSPtr connection )
+				: _selector( connection )
+				, _statement( CreateStmt< StmtType >( connection, QUERY_DIRECT_UPDATE_ELEMENT ) )
+			{
+				if ( _statement )
+				{
+					UncheckedCreateParameters( _statement );
+					_statement->CreateParameter( STR( "IDTest" ), EFieldType_SINT64, EParameterType_IN );
+					_statement->Initialise();
+				}
+			}
+
+			inline bool Run()
+			{
+				bool ret = false;
+
+				if ( _statement )
+				{
+					int64_t id = _selector.GetValue();
+
+					if ( id )
+					{
+						uint32_t index = 0;
+						SetParametersValue( _generator, index, 1, 0, _statement );
+						_statement->SetParameterValue( index++, id );
+						ret = _statement->ExecuteUpdate();
+					}
+				}
+
+				return ret;
+			}
+
+			std::random_device _generator;
+			IdSelector< StmtType > _selector;
+			std::shared_ptr< typename StatementTyper< StmtType >::Type > _statement;
+		};
+
+		template< size_t StmtType >
+		struct Deletor
+		{
+			Deletor( DatabaseConnectionSPtr connection )
+				: _stmtDelete( CreateStmt< StmtType >( connection, QUERY_DIRECT_DELETE_ELEMENT ) )
+				, _stmtGetMin( CreateStmt< StmtType >( connection, QUERY_SELECT_MIN ) )
+			{
+				if ( _stmtDelete )
+				{
+					_stmtDelete->CreateParameter( STR( "IDTest" ), EFieldType_SINT64, EParameterType_IN );
+					_stmtDelete->Initialise();
+				}
+
+				if ( _stmtGetMin )
+				{
+					_stmtGetMin->Initialise();
+				}
+			}
+
+			inline bool Run()
+			{
+				bool ret = false;
+
+				if ( _stmtDelete && _stmtGetMin )
+				{
+					int64_t min = 0;
+					DatabaseResultSPtr result = _stmtGetMin->ExecuteSelect();
+
+					if ( result && result->GetRowCount() )
+					{
+						result->GetFirstRow()->Get( 0, min );
+					}
+
+					if ( min )
+					{
+						_stmtDelete->SetParameterValue( 0, min );
+						ret = _stmtDelete->ExecuteUpdate();
+					}
+				}
+
+				return ret;
+			}
+
+			std::shared_ptr< typename StatementTyper< StmtType >::Type > _stmtDelete;
+			std::shared_ptr< typename StatementTyper< StmtType >::Type > _stmtGetMin;
+		};
+
+		template< size_t StmtType, typename Action >
+		inline void TransactedAction( std::random_device & generator, Action action, DatabaseConnectionSPtr connection )
+		{
+			if ( connection->BeginTransaction( String() ) )
+			{
+				action( generator, connection );
+				connection->Commit( String() );
+			}
+		}
+
+		template< size_t StmtType >
 		inline void TestDirectInsert( std::random_device & generator, DatabaseConnectionSPtr connection )
 		{
 			try
 			{
-				auto stmtGetCount = CreateStmt< StmtType >( connection, QUERY_GET_COUNT );
-				BOOST_CHECK( stmtGetCount );
-				int64_t count = -1;
-
-				if ( stmtGetCount )
-				{
-					BOOST_CHECK( stmtGetCount->Initialise() == EErrorType_NONE );
-					DatabaseResultSPtr result = stmtGetCount->ExecuteSelect();
-
-					if ( result )
-					{
-						if ( result->GetRowCount() )
-						{
-							BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, count ) );
-						}
-						else
-						{
-							BOOST_CHECK( result->GetRowCount() );
-						}
-					}
-					else
-					{
-						BOOST_CHECK( result );
-					}
-				}
-
-				count++;
+				Countor< StmtType > countor( connection );
+				int64_t count = 0;
+				BOOST_CHECK_NO_THROW( count = countor.GetValue() + 1 );
 
 				if ( count )
 				{
-					auto stmtInsert = CreateStmt< StmtType >( connection, QUERY_DIRECT_INSERT_ELEMENT );
-					BOOST_CHECK( stmtInsert );
+					int const inserts = 20;
+					Insertor< StmtType > insertor( connection );
 
-					if ( stmtInsert )
+					for ( int i = 0; i < inserts; i++ )
 					{
-						CreateParameters< StmtType >( stmtInsert );
-						BOOST_CHECK( stmtInsert->Initialise() == EErrorType_NONE );
-						int const inserts = 20;
-
-						for ( int i = 0; i < inserts; i++ )
-						{
-							uint32_t index = 0;
-							SetParametersValue< StmtType >( generator, index, i + 1, i, stmtInsert );
-							BOOST_CHECK( stmtInsert->ExecuteUpdate() );
-						}
-
-						count--;
-						DatabaseResultSPtr result = stmtGetCount->ExecuteSelect();
-
-						if ( result )
-						{
-							if ( result->GetRowCount() )
-							{
-								int64_t field = 0;
-								BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, field ) );
-								BOOST_CHECK_EQUAL( field, count + inserts );
-								count++;
-							}
-							else
-							{
-								BOOST_CHECK( result->GetRowCount() );
-							}
-						}
-						else
-						{
-							BOOST_CHECK( result );
-						}
+						BOOST_CHECK( insertor.Run() );
 					}
+
+					count--;
+					BOOST_CHECK_EQUAL( countor.GetValue(), count + inserts );
 				}
 			}
 			catch ( CDatabaseException & exc )
@@ -1347,14 +1581,14 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 					if ( stmtUpdate )
 					{
-						CreateParameters< StmtType >( stmtUpdate );
+						CreateParameters( stmtUpdate );
 						BOOST_CHECK( stmtUpdate->CreateParameter( STR( "IDTest" ), EFieldType_SINT64, EParameterType_IN ) );
 						BOOST_CHECK( stmtUpdate->Initialise() == EErrorType_NONE );
 
 						for ( int i = 0; i < 10; i++ )
 						{
 							uint32_t index = 0;
-							SetParametersValue< StmtType >( generator, index, i + 40, i, stmtUpdate );
+							SetParametersValue( generator, index, i + 40, i, stmtUpdate );
 							stmtUpdate->SetParameterValue( index++, min + i );
 							BOOST_CHECK( stmtUpdate->ExecuteUpdate() );
 						}

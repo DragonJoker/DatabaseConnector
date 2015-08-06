@@ -146,9 +146,34 @@ namespace Database
 	typedef std::deque< std::unique_ptr< SMessageBase > > MessageQueue;
 
 	// Factory type constants
-	const String FACTORY_DATABASE_TYPE = STR( "Factory database" );
+	static const String FACTORY_DATABASE_TYPE = STR( "Factory database" );
 
+	static const String INFO_UNKNOWN_ERROR = STR( "Unknown error" );
 }
+
+#define COMMON_CATCH( text )\
+		catch ( CDatabaseException & exc )\
+		{\
+			StringStream stream;\
+			stream << text << std::endl;\
+			stream << exc.GetFullDescription();\
+			CLogger::LogError( stream );\
+		}\
+		catch ( std::exception & exc )\
+		{\
+			StringStream stream;\
+			stream << text << std::endl;\
+			stream << STR( "DESCRIPTION: " ) << exc.what();\
+			CLogger::LogError( stream );\
+		}\
+		catch ( ... )\
+		{\
+			StringStream stream;\
+			stream << text << std::endl;\
+			stream << STR( "DESCRIPTION: " ) << INFO_UNKNOWN_ERROR;\
+			CLogger::LogError( stream );\
+		}
+
 #if !DB_HAS_MAKE_UNIQUE
 namespace std
 {

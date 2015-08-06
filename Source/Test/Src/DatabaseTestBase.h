@@ -67,43 +67,101 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		/** Test insertion and retrieval of a value
 		*/
 		template< size_t StmtType >
-		void TestCase_DatabaseFieldsInsertRetrieve( const String & name );
+		void TestCase_DatabaseFieldsInsertRetrieve();
 
 		/** Test insertion and retrieval of a value
 		*/
 		template< size_t StmtType >
-		void TestCase_DatabaseFieldsInsertRetrieveOtherIndex( const String & name );
+		void TestCase_DatabaseFieldsInsertRetrieveOtherIndex();
 
 		/** Test insertion and retrieval of a value
 		*/
 		template< size_t StmtType >
-		void TestCase_DatabaseFieldsInsertRetrieveFast( const String & name );
+		void TestCase_DatabaseFieldsInsertRetrieveFast();
 
 		/** Test insertion and retrieval of a value
 		*/
 		template< size_t StmtType >
-		void TestCase_DatabaseFieldsInsertRetrieveFastOtherIndex( const String & name );
+		void TestCase_DatabaseFieldsInsertRetrieveFastOtherIndex();
 
 		/** Test direct query execution
 		*/
 		template< size_t StmtType >
-		void TestCase_DatabaseDirectQuery( const String & name );
+		void TestCase_DatabaseDirectQuery();
 
 		/** Test stored procedures execution
 		*/
 		template< size_t StmtType >
-		void TestCase_DatabaseStoredProcedure( const String & name );
+		void TestCase_DatabaseStoredProcedure();
+
+		/** Applies two functions in separate threads
+		*/
+		template< typename Action1, typename Action2 >
+		void MultithreadActions();
+
+		/** Multithread test: one inserts, one inserts
+		*/
+		template< size_t StmtTypeA, size_t StmtTypeB >
+		void TestCase_MultithreadInsertAndInsert();
+
+		/** Multithread test: one inserts, one updates
+		*/
+		template< size_t StmtTypeA, size_t StmtTypeB >
+		void TestCase_MultithreadInsertAndUpdate();
+
+		/** Multithread test: one inserts, one selects
+		*/
+		template< size_t StmtTypeA, size_t StmtTypeB >
+		void TestCase_MultithreadInsertAndSelect();
+
+		/** Multithread test: one inserts, one deletes
+		*/
+		template< size_t StmtTypeA, size_t StmtTypeB >
+		void TestCase_MultithreadInsertAndDelete();
+
+		/** Multithread test: one updates, one updates
+		*/
+		template< size_t StmtTypeA, size_t StmtTypeB >
+		void TestCase_MultithreadUpdateAndUpdate();
+
+		/** Multithread test: one updates, one selects
+		*/
+		template< size_t StmtTypeA, size_t StmtTypeB >
+		void TestCase_MultithreadUpdateAndSelect();
+
+		/** Multithread test: one updates, one deletes
+		*/
+		template< size_t StmtTypeA, size_t StmtTypeB >
+		void TestCase_MultithreadUpdateAndDelete();
+
+		/** Multithread test: one selects, one selects
+		*/
+		template< size_t StmtTypeA, size_t StmtTypeB >
+		void TestCase_MultithreadSelectAndSelect();
+
+		/** Multithread test: one selects, one deletes
+		*/
+		template< size_t StmtTypeA, size_t StmtTypeB >
+		void TestCase_MultithreadSelectAndDelete();
 
 #if defined( PERF_TEST )
 		/** Performance test
 		*/
 		template< size_t StmtType >
-		void TestCase_DatabasePerformances( const String & name );
+		void TestCase_DatabasePerformances();
 #endif
 
 		/** Test database creation
 		*/
 		virtual void TestCase_CreateDatabase();
+
+		/** Not a test case, used to change logger level to warnings
+		*/
+		void LoggerToWarnings();
+
+		/** Not a test case, used to change logger level to default (debug or info, depending on build type)
+		*/
+		void LoggerToDefault();
 
 		/** Test database destruction
 		*/

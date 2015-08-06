@@ -1010,13 +1010,37 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				break;
 			}
 		}
+
+		void GetBindings( MYSQL_STMT * stmt, DatabaseConnectionMySqlSPtr connection, DatabaseValuedObjectInfosPtrArray const & columns, std::vector< std::unique_ptr< SInMySqlBindBase > > & inbinds, std::vector< MYSQL_BIND > & binds )
+		{
+			MYSQL_RES * data = mysql_stmt_result_metadata( stmt );
+
+			if ( !data )
+			{
+				DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_MYSQL_STMT_METADATA );
+			}
+
+			binds.resize( columns.size() );
+			auto bindIt = binds.begin();
+
+			for ( auto & column : columns )
+			{
+				MYSQL_FIELD * field = mysql_fetch_field( data );
+				inbinds.emplace_back( GetInBind( column->GetType(), field->type, *bindIt++, field->length, field->decimals, std::max( field->length, field->max_length ) ) );
+			}
+
+			mysql_free_result( data );
+		}
 	}
 
-	DatabaseValuedObjectInfosPtrArray MySqlGetColumns( MYSQL_STMT * stmt, DatabaseConnectionMySqlSPtr connection, std::vector< std::unique_ptr< SInMySqlBindBase > > & inbinds, std::vector< MYSQL_BIND > & binds )
+	void MySqlStoreResult( MYSQL_STMT * stmt, DatabaseConnectionMySqlSPtr connection )
 	{
-		MySQLCheck( mysql_stmt_attr_set( stmt, STMT_ATTR_UPDATE_MAX_LENGTH, NULL ), ( INFO_MYSQL_STMT_ATTR_SET + MYSQL_ATTRIBUTE_UPDATE_MAX_LENGTH ).c_str(), EDatabaseExceptionCodes_StatementError, connection->GetConnection() );
-		MySQLCheck( mysql_stmt_store_result( stmt ), INFO_MYSQL_STMT_STORE_RESULT.c_str(), EDatabaseExceptionCodes_StatementError, connection->GetConnection() );
+		MySQLCheck( mysql_stmt_attr_set( stmt, STMT_ATTR_UPDATE_MAX_LENGTH, NULL ), ( INFO_MYSQL_STMT_ATTR_SET + MYSQL_ATTRIBUTE_UPDATE_MAX_LENGTH ).c_str(), EDatabaseExceptionCodes_StatementError, connection->GetConnection(), stmt );
+		MySQLCheck( mysql_stmt_store_result( stmt ), INFO_MYSQL_STMT_STORE_RESULT.c_str(), EDatabaseExceptionCodes_StatementError, connection->GetConnection(), stmt );
+	}
 
+	DatabaseValuedObjectInfosPtrArray MySqlGetColumns( MYSQL_STMT * stmt, DatabaseConnectionMySqlSPtr connection )
+	{
 		MYSQL_RES * data = mysql_stmt_result_metadata( stmt );
 
 		if ( !data )
@@ -1024,33 +1048,29 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_MYSQL_STMT_METADATA );
 		}
 
-		DatabaseValuedObjectInfosPtrArray arrayReturn;
 		uint32_t columnCount = mysql_num_fields( data );
-		binds.resize( columnCount, { 0 } );
+		DatabaseValuedObjectInfosPtrArray columns( columnCount );
 
-		for ( auto && bind : binds )
+		for ( auto & column : columns )
 		{
-			bind = { 0 };
 			MYSQL_FIELD * field = mysql_fetch_field( data );
 			EFieldType type = GetFieldType( field->type, field->charsetnr, field->length );
 
 			if ( type == EFieldType_FIXED_POINT )
 			{
-				arrayReturn.push_back( std::make_shared< CDatabaseValuedObjectInfos >( StringUtils::ToString( field->name ), type, std::make_pair( field->length, field->decimals ) ) );
+				column = std::make_shared< CDatabaseValuedObjectInfos >( field->name, type, std::make_pair( field->length, field->decimals ) );
 			}
 			else
 			{
-				arrayReturn.push_back( std::make_shared< CDatabaseValuedObjectInfos >( StringUtils::ToString( field->name ), type, field->length ) );
+				column = std::make_shared< CDatabaseValuedObjectInfos >( field->name, type, field->length );
 			}
-
-			inbinds.emplace_back( GetInBind( type, field->type, bind, field->length, field->decimals, std::max( field->length, field->max_length ) ) );
 		}
 
 		mysql_free_result( data );
-		return arrayReturn;
+		return columns;
 	}
 
-	DatabaseResultSPtr MySqlFetchResult( MYSQL_STMT * statement, DatabaseValuedObjectInfosPtrArray const & columns, DatabaseConnectionMySqlSPtr connection, std::vector< std::unique_ptr< SInMySqlBindBase > > const & inbinds, std::vector< MYSQL_BIND > & binds )
+	DatabaseResultSPtr MySqlFetchResult( MYSQL_STMT * statement, DatabaseValuedObjectInfosPtrArray const & columns, DatabaseConnectionMySqlSPtr connection )
 	{
 		DatabaseResultSPtr pReturn;
 
@@ -1058,9 +1078,12 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		{
 			if ( connection->IsConnected() )
 			{
+				std::vector< std::unique_ptr< SInMySqlBindBase > > inbinds;
+				std::vector< MYSQL_BIND > binds;
+				GetBindings( statement, connection, columns, inbinds, binds );
 				pReturn = std::make_unique< CDatabaseResult >( columns );
 				int iNbColumns = int( columns.size() );
-				MySQLCheck( mysql_stmt_bind_result( statement, binds.data() ), INFO_MYSQL_STMT_BIND_RESULT.c_str(), EDatabaseExceptionCodes_StatementError, connection->GetConnection() );
+				MySQLCheck( mysql_stmt_bind_result( statement, binds.data() ), INFO_MYSQL_STMT_BIND_RESULT.c_str(), EDatabaseExceptionCodes_StatementError, connection->GetConnection(), statement );
 				int result = 0;
 
 				while ( ( result = mysql_stmt_fetch( statement ) ) == 0 || result == MYSQL_DATA_TRUNCATED )
@@ -1144,14 +1167,21 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		return pReturn;
 	}
 
-	void MySQLCheck( int result, TChar const * msg, EDatabaseExceptionCodes code, MYSQL * connection )
+	void MySQLCheck( int result, TChar const * msg, EDatabaseExceptionCodes code, MYSQL * connection, MYSQL_STMT * statement )
 	{
 		if ( result )
 		{
 			StringStream error;
 			error << STR( "Failure: " ) << msg << std::endl;
 			String mysql = mysql_error( connection );
-			error << STR( "(" ) << result << STR( ") " ) << mysql;
+			error << STR( "  Driver: " ) << mysql_errno( connection ) << STR( " (" ) << mysql_sqlstate( connection ) << STR( ") - " ) << mysql;
+
+			if ( statement )
+			{
+				mysql = mysql_stmt_error( statement );
+				error << std::endl << STR( "  Statement: " ) << mysql_stmt_errno( statement ) << STR( " (" ) << mysql_stmt_sqlstate( statement ) << STR( ") - " ) << mysql;
+			}
+
 			DB_EXCEPT( code, error.str() );
 		}
 

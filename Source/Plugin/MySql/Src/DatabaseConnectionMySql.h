@@ -87,10 +87,12 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		/** Executes a statement and retrieves the result set if needed
 		@param statement
 			The statement
+		@param[out] infos
+			The valued object infos array, if called from a CDatabaseQuery or a CDatabaseStatement.
 		@return
 			The result
 		*/
-		DatabaseResultSPtr ExecuteSelect( MYSQL_STMT * statement );
+		DatabaseResultSPtr ExecuteSelect( MYSQL_STMT * statement, DatabaseValuedObjectInfosPtrArray & infos );
 
 	protected:
 		/** Creates a database.
@@ -286,8 +288,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		/** Execute directly a request.
 		@param[in]  query
 			Request text.
-		@param[out] result
-			Error code if the returned value is NULL.
 		@return
 			The result.
 		*/
@@ -296,36 +296,26 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		/** Execute directly a request.
 		@param[in]  query
 			Request text.
+		@param[out] infos
+			The valued object infos array, if called from a CDatabaseQuery.
 		@param[out] result
 			Error code if the returned value is NULL.
 		@return
 			The result.
 		*/
-		virtual DatabaseResultSPtr DoExecuteSelect( const String & query );
+		virtual DatabaseResultSPtr DoExecuteSelect( const String & query, DatabaseValuedObjectInfosPtrArray & infos );
 
 		/** Create a statement from a request.
 		@param[in]  query
 			Request text.
-		@param[out] result
-			Error code if the returned value is NULL.
 		@return
 			The created statement.
 		*/
 		virtual DatabaseStatementSPtr DoCreateStatement( const String & query );
 
-		/** Retrieves the result for the statement
-		@param statement
-			The statement
-		@param rs
-			The result set
-		*/
-		DatabaseResultSPtr DoRetrieveResults( MYSQL_STMT * statement );
-
 	protected:
 		//! The connection
 		MYSQL * _connection;
-		//! The global statement used to execute direct queries
-		MYSQL_STMT * _statement;
 	};
 }
 END_NAMESPACE_DATABASE_MYSQL

@@ -58,13 +58,12 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			// Command path
 			StringStream commandStream;
 			commandStream << path << PATH_SEP << script;
-			std::string commandString = StringUtils::ToStr( commandStream.str() );
+			std::string commandString = commandStream.str();
 
 			// Execute
 			spawn_pid_t processId = INVALID_PROCESS_ID;
-			String processPath = StringUtils::ToString( commandString );
 
-			if ( !FileUtils::FileExists( processPath ) )
+			if ( !FileUtils::FileExists( commandString ) )
 			{
 				StringStream ss;
 				ss << ERROR_UNABLE_TO_SPAWN_PROCESS << STR( "File does not exist\n" );
@@ -72,8 +71,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 
 #if defined( _WIN32 )
-			String command = processPath;
-			String commandLine = STR( "\"" ) + command + STR( "\"" );
+
+			String commandLine = STR( "\"" ) + commandString + STR( "\"" );
 			String sep;
 
 			for ( auto && argument : arguments )
@@ -117,20 +116,14 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			::CloseHandle( processId.hThread );
 			::CloseHandle( processId.hProcess );
 			nChildResult = int( code );
+
 #else
 
 			// Command arguments
-			std::vector< std::string > strargs;
-
-			for ( auto && argument : arguments )
-			{
-				strargs.push_back( StringUtils::ToStr( argument ) );
-			}
-
 			std::vector< const char * > args;
 			args.push_back( commandString.c_str() );
 
-			for ( auto && argument : strargs )
+			for ( auto && argument : arguments )
 			{
 				args.push_back( argument.c_str() );
 			}
@@ -141,7 +134,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			if ( !processId )
 			{
 				//!@remarks Execute child process.
-				execv( processPath.c_str(), const_cast< char * const * >( args.data() ) );
+				execv( commandString.c_str(), const_cast< char * const * >( args.data() ) );
 				exit( 0 );
 			}
 			else

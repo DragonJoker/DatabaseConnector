@@ -45,6 +45,8 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 	static const String SQLITE_SQL_NAMED_TRANSACTION_COMMIT = STR( "RELEASE " );
 	static const String SQLITE_SQL_NAMED_TRANSACTION_ROLLBACK = STR( "ROLLBACK TO " );
 	static const String SQLITE_SQL_NULL = STR( "NULL" );
+	static const std::string SQLITE_SQL_SNULL = "NULL";
+	static const std::wstring SQLITE_SQL_WNULL = L"NULL";
 
 	static const TChar * INFO_SQLITE_STATEMENT_FINALISATION = STR( "Statement finalisation" );
 	static const TChar * INFO_SQLITE_EXECUTING_SELECT = STR( "Executing select : " );
@@ -53,7 +55,6 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 	static const String ERROR_SQLITE_CONNECTION = STR( "Couldn't create the connection" );
 	static const String ERROR_SQLITE_DESTRUCTION = STR( "Couldn't destroy the database: " );
 	static const String ERROR_SQLITE_EXECUTION_ERROR = STR( "Couldn't execute the query" );
-	static const String ERROR_SQLITE_UNKNOWN_ERROR = STR( "Unknown error" );
 	static const String ERROR_SQLITE_NOT_CONNECTED = STR( "Not connected" );
 	static const String ERROR_SQLITE_ALREADY_IN_TRANSACTION = STR( "Already in a transaction" );
 	static const String ERROR_SQLITE_NOT_IN_TRANSACTION = STR( "Not in a transaction" );
@@ -126,16 +127,22 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 	bool CDatabaseConnectionSqlite::ExecuteUpdate( sqlite3_stmt * statement )
 	{
-		return ExecuteSelect( statement ) != nullptr;
+		DatabaseValuedObjectInfosPtrArray infos;
+		return ExecuteSelect( statement, infos ) != nullptr;
 	}
 
-	DatabaseResultSPtr CDatabaseConnectionSqlite::ExecuteSelect( sqlite3_stmt * statement )
+	DatabaseResultSPtr CDatabaseConnectionSqlite::ExecuteSelect( sqlite3_stmt * statement, DatabaseValuedObjectInfosPtrArray & infos )
 	{
 		DatabaseResultSPtr result;
 
 		try
 		{
-			result = SqliteFetchResult( statement, SqliteGetColumns( statement ), std::static_pointer_cast< CDatabaseConnectionSqlite >( shared_from_this() ) );
+			if ( infos.empty() )
+			{
+				infos = SqliteGetColumns( statement );
+			}
+
+			result = SqliteFetchResult( statement, infos, std::static_pointer_cast< CDatabaseConnectionSqlite >( shared_from_this() ) );
 		}
 		catch ( CDatabaseException & exc )
 		{
@@ -162,7 +169,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			}
 
 			FILE * file;
-			FileUtils::FOpen( file, StringUtils::ToStr( filePath ).c_str(), "w" );
+			FileUtils::FOpen( file, filePath.c_str(), "w" );
 
 			if ( file )
 			{
@@ -179,7 +186,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			sqlite3_close( _connection );
 		}
 
-		SQLiteCheck( sqlite3_open( StringUtils::ToStr( _server + PATH_SEP + database ).c_str(), &_connection ), StringStream() << INFO_SQLITE_SELECTION, EDatabaseExceptionCodes_ConnectionError, _connection );
+		SQLiteCheck( sqlite3_open( ( _server + PATH_SEP + database ).c_str(), &_connection ), StringStream() << INFO_SQLITE_SELECTION, EDatabaseExceptionCodes_ConnectionError, _connection );
 		_database = database;
 	}
 
@@ -203,7 +210,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			}
 			catch ( boost::filesystem::filesystem_error & exc )
 			{
-				String error = ERROR_SQLITE_DESTRUCTION + StringUtils::ToString( exc.what() );
+				String error = ERROR_SQLITE_DESTRUCTION + exc.what();
 				DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, error );
 			}
 		}
@@ -213,7 +220,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 	{
 		std::string strReturn( text );
 
-		if ( strReturn != SQLITE_SQL_NULL )
+		if ( strReturn != SQLITE_SQL_SNULL )
 		{
 			StringUtils::Replace( strReturn, "'", "''" );
 			StringUtils::Replace( strReturn, "\\", "\\\\" );
@@ -225,16 +232,16 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 
 	std::wstring CDatabaseConnectionSqlite::DoWriteNText( const std::wstring & text ) const
 	{
-		String strReturn( StringUtils::ToString( text ) );
+		std::wstring strReturn( text );
 
-		if ( strReturn != SQLITE_SQL_NULL )
+		if ( strReturn != SQLITE_SQL_WNULL )
 		{
-			StringUtils::Replace( strReturn, STR( "'" ), STR( "''" ) );
-			StringUtils::Replace( strReturn, STR( "\\" ), STR( "\\\\" ) );
-			strReturn = STR( "'" ) + strReturn + STR( "'" );
+			StringUtils::Replace( strReturn, L"'", L"''" );
+			StringUtils::Replace( strReturn, L"\\", L"\\\\" );
+			strReturn = L"'" + strReturn + L"'";
 		}
 
-		return StringUtils::ToWStr( strReturn );
+		return strReturn;
 	}
 
 	String CDatabaseConnectionSqlite::DoWriteBinary( const ByteArray & array ) const
@@ -500,14 +507,14 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		return ret;
 	}
 
-	DatabaseResultSPtr CDatabaseConnectionSqlite::DoExecuteSelect( const String & query )
+	DatabaseResultSPtr CDatabaseConnectionSqlite::DoExecuteSelect( const String & query, DatabaseValuedObjectInfosPtrArray & infos )
 	{
 		DatabaseResultSPtr ret;
 
 		try
 		{
 			sqlite3_stmt * statement = SqlitePrepareStatement( query, _connection );
-			ret = ExecuteSelect( statement );
+			ret = ExecuteSelect( statement, infos );
 			SQLiteCheck( sqlite3_finalize( statement ), INFO_SQLITE_STATEMENT_FINALISATION, EDatabaseExceptionCodes_ConnectionError, _connection );
 		}
 		catch ( CDatabaseException & exc )

@@ -730,10 +730,6 @@ BEGIN_NAMESPACE_DATABASE
 
 		switch ( GetType() )
 		{
-		case EFieldType_TEXT:
-			value = static_cast< CDatabaseValue< EFieldType_TEXT > & >( *_value ).GetValue();
-			break;
-
 		case EFieldType_CHAR:
 			value = static_cast< CDatabaseValue< EFieldType_CHAR > & >( *_value ).GetValue();
 			break;
@@ -742,16 +738,8 @@ BEGIN_NAMESPACE_DATABASE
 			value = static_cast< CDatabaseValue< EFieldType_VARCHAR > & >( *_value ).GetValue();
 			break;
 
-		case EFieldType_NTEXT:
-			value = StringUtils::ToStr( static_cast< CDatabaseValue< EFieldType_NTEXT > & >( *_value ).GetValue() );
-			break;
-
-		case EFieldType_NCHAR:
-			value = StringUtils::ToStr( static_cast< CDatabaseValue< EFieldType_NCHAR > & >( *_value ).GetValue() );
-			break;
-
-		case EFieldType_NVARCHAR:
-			value = StringUtils::ToStr( static_cast< CDatabaseValue< EFieldType_NVARCHAR > & >( *_value ).GetValue() );
+		case EFieldType_TEXT:
+			value = static_cast< CDatabaseValue< EFieldType_TEXT > & >( *_value ).GetValue();
 			break;
 
 		default:
@@ -765,10 +753,6 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		switch ( GetType() )
 		{
-		case EFieldType_TEXT:
-			value = StringUtils::ToWStr( static_cast< CDatabaseValue< EFieldType_TEXT > & >( *_value ).GetValue() );
-			break;
-
 		case EFieldType_CHAR:
 			value = StringUtils::ToWStr( static_cast< CDatabaseValue< EFieldType_CHAR > & >( *_value ).GetValue() );
 			break;
@@ -777,8 +761,8 @@ BEGIN_NAMESPACE_DATABASE
 			value = StringUtils::ToWStr( static_cast< CDatabaseValue< EFieldType_VARCHAR > & >( *_value ).GetValue() );
 			break;
 
-		case EFieldType_NTEXT:
-			value = static_cast< CDatabaseValue< EFieldType_NTEXT > & >( *_value ).GetValue();
+		case EFieldType_TEXT:
+			value = StringUtils::ToWStr( static_cast< CDatabaseValue< EFieldType_TEXT > & >( *_value ).GetValue() );
 			break;
 
 		case EFieldType_NCHAR:
@@ -787,6 +771,10 @@ BEGIN_NAMESPACE_DATABASE
 
 		case EFieldType_NVARCHAR:
 			value = static_cast< CDatabaseValue< EFieldType_NVARCHAR > & >( *_value ).GetValue();
+			break;
+
+		case EFieldType_NTEXT:
+			value = static_cast< CDatabaseValue< EFieldType_NTEXT > & >( *_value ).GetValue();
 			break;
 
 		default:
@@ -809,7 +797,7 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		case EFieldType_NVARCHAR:// ODBC stores date as NVARCHAR
-			value = GetConnection()->ParseDate( StringUtils::ToString( static_cast< CDatabaseValue< EFieldType_NVARCHAR > & >( *_value ).GetValue() ) );
+			value = GetConnection()->ParseDate( StringUtils::ToUtf8( static_cast< CDatabaseValue< EFieldType_NVARCHAR > & >( *_value ).GetValue(), "UTF-8" ) );
 			break;
 
 		default:
@@ -1711,7 +1699,7 @@ BEGIN_NAMESPACE_DATABASE
 			break;
 
 		case EFieldType_NCHAR:
-			static_cast< CDatabaseValue< EFieldType_NVARCHAR > & >( *_value ).SetValue( StringUtils::ToWStr( value ).c_str(), GetLimits() );
+			static_cast< CDatabaseValue< EFieldType_NCHAR > & >( *_value ).SetValue( StringUtils::ToWStr( value ).c_str(), GetLimits() );
 			break;
 
 		case EFieldType_NVARCHAR:
@@ -1733,18 +1721,6 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		switch ( GetType() )
 		{
-		case EFieldType_CHAR:
-			static_cast< CDatabaseValue< EFieldType_CHAR > & >( *_value ).SetValue( StringUtils::ToStr( value ).c_str(), GetLimits() );
-			break;
-
-		case EFieldType_VARCHAR:
-			static_cast< CDatabaseValue< EFieldType_VARCHAR > & >( *_value ).SetValue( StringUtils::ToStr( value ).c_str(), std::min( GetLimits(), uint32_t( value.size() ) ) );
-			break;
-
-		case EFieldType_TEXT:
-			static_cast< CDatabaseValue< EFieldType_TEXT > & >( *_value ).SetValue( StringUtils::ToStr( value ) );
-			break;
-
 		case EFieldType_NCHAR:
 			static_cast< CDatabaseValue< EFieldType_NCHAR > & >( *_value ).SetValue( value.c_str(), GetLimits() );
 			break;

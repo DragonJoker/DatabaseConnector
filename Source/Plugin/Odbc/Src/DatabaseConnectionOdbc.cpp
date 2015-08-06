@@ -84,9 +84,9 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 #endif
 			EErrorType errorType = EErrorType_NONE;
 			//OdbcCheck( SQLCloseCursor( statementHandle ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_CloseCursor );
-			OdbcCheck( SQLFreeStmt( statementHandle, SQL_CLOSE ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_FreeStmt + STR( " (Close)" ) );
-			OdbcCheck( SQLFreeStmt( statementHandle, SQL_UNBIND ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_FreeStmt + STR( " (Unbind)" ) );
-			OdbcCheck( SQLFreeStmt( statementHandle, SQL_RESET_PARAMS ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_FreeStmt + STR( " (ResetParams)" ) );
+			OdbcCheck( SQLFreeStmt( statementHandle, SQL_CLOSE ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_FreeStmt << STR( " (Close)" ) );
+			OdbcCheck( SQLFreeStmt( statementHandle, SQL_UNBIND ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_FreeStmt << STR( " (Unbind)" ) );
+			OdbcCheck( SQLFreeStmt( statementHandle, SQL_RESET_PARAMS ), SQL_HANDLE_STMT, statementHandle, INFO_ODBC_FreeStmt << STR( " (ResetParams)" ) );
 			SQLFreeHandle( SQL_HANDLE_STMT, statementHandle );
 		}
 	}
@@ -135,13 +135,14 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 	bool CDatabaseConnectionOdbc::DoExecuteUpdate( const String & query )
 	{
 		DatabaseResultSPtr ret;
-		return SqlExecute( shared_from_this(), InitialiseStatement( query, _connectionHandle ), &FinaliseStatement, ret ) == EErrorType_NONE;
+		DatabaseValuedObjectInfosPtrArray infos;
+		return SqlExecute( shared_from_this(), InitialiseStatement( query, _connectionHandle ), &FinaliseStatement, infos, ret ) == EErrorType_NONE;
 	}
 
-	DatabaseResultSPtr CDatabaseConnectionOdbc::DoExecuteSelect( const String & query )
+	DatabaseResultSPtr CDatabaseConnectionOdbc::DoExecuteSelect( const String & query, DatabaseValuedObjectInfosPtrArray & infos )
 	{
 		DatabaseResultSPtr ret;
-		SqlExecute( shared_from_this(), InitialiseStatement( query, _connectionHandle ), &FinaliseStatement, ret );
+		SqlExecute( shared_from_this(), InitialiseStatement( query, _connectionHandle ), &FinaliseStatement, infos, ret );
 		return ret;
 	}
 }

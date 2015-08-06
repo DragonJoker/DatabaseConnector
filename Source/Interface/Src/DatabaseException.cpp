@@ -31,37 +31,93 @@
 #	include <signal.h>
 #endif
 
+#if defined( __GNUG__ )
+#include <cxxabi.h>
+#else
+#endif
+
 BEGIN_NAMESPACE_DATABASE
 {
-	const int NumOfFnCallsToCapture( 20 );
-	const int NumOfFnCallsToSkip( 2 );
-
-#if defined( NDEBUG )
-
 	namespace
 	{
+#if defined( NDEBUG )
+
 		static void ShowBacktrace( std::stringstream & stream )
 		{
 		}
-	}
 
 #else
+	const int NumOfFnCallsToCapture( 20 );
+	const int NumOfFnCallsToSkip( 2 );
+
+#	if defined( __GNUG__ )
+
+	std::string Demangle( const std::string & name )
+	{
+		std::string ret( name );
+		std::string sub;
+		int status;
+		size_t lindex = name.find( "(" );
+		size_t rindex = name.find( "+" );
+
+		if ( lindex != std::string::npos && rindex != std::string::npos )
+		{
+			ret = name.substr( lindex + 1, rindex - 1 - lindex );
+		}
+
+		auto real = abi::__cxa_demangle( ret.c_str(), 0, 0, &status );
+
+		if ( !status )
+		{
+			ret = name.substr( 0, lindex + 1 ) + real + name.substr( rindex );
+		}
+		else
+		{
+			ret = name;
+		}
+
+		return ret;
+	}
+
+#	elif defined( _MSC_VER )
+
+	std::string Demangle( const std::string & name )
+	{
+		char real[1024] = { 0 };
+		std::string ret;
+
+		if ( UnDecorateSymbolName( name.c_str(), real, sizeof( real ), UNDNAME_COMPLETE ) )
+		{
+			ret = real;
+		}
+		else
+		{
+			ret = name;
+		}
+
+		return ret;
+	}
+
+#	else
+
+	std::string Demangle( const std::string & name )
+	{
+		return name;
+	}
+
+#	endif
 #	if !defined( _WIN32 )
 
-	namespace
-	{
 		void ShowBacktrace( std::stringstream & stream )
 		{
-			stream << std::endl << "== Call Stack ==" << std::endl;
-
-			// For now we just print out a message on sterr.
+			stream << "CALL STACK:" << std::endl;
 			void * backTrace[NumOfFnCallsToCapture];
 			unsigned int num( ::backtrace( backTrace, NumOfFnCallsToCapture ) );
 			char ** fnStrings( ::backtrace_symbols( backTrace, num ) );
 
 			for ( unsigned i = NumOfFnCallsToSkip; i < num; ++i )
 			{
-				stream << "== " << fnStrings[i] << std::endl;
+				stream << "== " << Demangle( fnStrings[i] ) << std::endl;
 			}
 
 			free( fnStrings );
@@ -69,9 +125,6 @@ BEGIN_NAMESPACE_DATABASE
 	}
 
 #	else
-
-	namespace
-	{
 
 		void ShowBacktrace( std::stringstream & stream )
 		{
@@ -82,7 +135,7 @@ BEGIN_NAMESPACE_DATABASE
 			unsigned int num( ::CaptureStackBackTrace( NumOfFnCallsToSkip, NumOfFnCallsToCapture - NumOfFnCallsToSkip, backTrace, NULL ) );
 
 			::HANDLE process( ::GetCurrentProcess() );
-			stream << std::endl << "== Call Stack ==" << std::endl;
+			stream << "CALL STACK:" << std::endl;
 
 			// symbol->Name type is char [1] so there is space for \0 already
 			SYMBOL_INFO * symbol( ( SYMBOL_INFO * ) malloc( sizeof( SYMBOL_INFO ) + ( MaxFnNameLen * sizeof( char ) ) ) );
@@ -112,10 +165,11 @@ BEGIN_NAMESPACE_DATABASE
 				stream << "== Unable to retrieve the call stack" << std::endl;
 			}
 		}
-	}
 
 #	endif
 #endif
+
+	}
 
 	static const String ERROR_DB_SYSTEM = STR( "System error: " );
 
@@ -373,9 +427,9 @@ BEGIN_NAMESPACE_DATABASE
 	CDatabaseException::CDatabaseException( int number, const String & description, const std::string & source, const std::string & file, long line )
 		: _number( number )
 		, _description( description )
-		, _source( StringUtils::ToString( source ) )
+		, _source( source )
 		, _typeName( STR( "CDatabaseException" ) )
-		, _file( StringUtils::ToString( file ) )
+		, _file( file )
 		, _line( line )
 	{
 		std::stringstream stream;
@@ -386,9 +440,9 @@ BEGIN_NAMESPACE_DATABASE
 	CDatabaseException::CDatabaseException( const String & type, int number, const String & description, const std::string & source, const std::string & file, long line )
 		: _number( number )
 		, _description( description )
-		, _source( StringUtils::ToString( source ) )
+		, _source( source )
 		, _typeName( type )
-		, _file( StringUtils::ToString( file ) )
+		, _file( file )
 		, _line( line )
 	{
 		std::stringstream stream;
@@ -425,16 +479,22 @@ BEGIN_NAMESPACE_DATABASE
 		if ( _fullDesc.empty() )
 		{
 			StringStream desc;
-			desc <<  STR( "DATABASE EXCEPTION [name: " ) << _typeName << STR( ", type: " ) << GetNumberName() << STR( "(" ) << _number << STR( ")]: " ) << _description << STR( " in " ) << _source;
+			desc <<  STR( "DATABASE EXCEPTION [name: " ) << _typeName << STR( ", type: " ) << GetNumberName() << STR( "(" ) << _number << STR( ")]" ) << std::endl;
+
+			if ( !_source.empty() )
+			{
+				desc << STR( "FUNCTION: " ) << _source << std::endl;
+			}
 
 			if ( _line > 0 )
 			{
-				desc << STR( ", file " ) << _file << STR( " (line " ) << _line << STR( ")" );
+				desc << STR( "FILE: " ) << _file << STR( " (line " ) << _line << STR( ")" ) << std::endl;
 			}
 
+			desc << STR( "DESCRIPTION: " ) << _description << std::endl;
 			desc << _callstack;
 			_fullDesc = desc.str();
-			_what = StringUtils::ToStr( _fullDesc );
+			_what = _fullDesc;
 		}
 
 		return _fullDesc;

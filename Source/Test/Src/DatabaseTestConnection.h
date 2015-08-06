@@ -21,6 +21,8 @@
 BEGIN_NAMESPACE_DATABASE_TEST
 {
 	static const String TEST_SQL_NULL = STR( "NULL" );
+	static const std::string TEST_SQL_SNULL = "NULL";
+	static const std::wstring TEST_SQL_WNULL = L"NULL";
 
 	static const String TEST_FORMAT_DATE = STR( "CAST('%Y-%m-%d' AS DATE)" );
 	static const String TEST_FORMAT_TIME = STR( "CAST('%H:%M:%S' AS TIME)" );
@@ -280,15 +282,15 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		*/
 		virtual bool DoExecuteUpdate( const String & query );
 
-		/** Execute directly a request.
-		@param[in]  query
+		/** Execute directly a request with a result set.
+		@param[in] query
 			Request text.
-		@param[out] result
-			Error code if the returned value is NULL.
+		@param[out] infos
+			The valued object infos array, if called from a CDatabaseQuery.
 		@return
 			The result.
 		*/
-		virtual DatabaseResultSPtr DoExecuteSelect( const String & query );
+		virtual DatabaseResultSPtr DoExecuteSelect( const String & query, DatabaseValuedObjectInfosPtrArray & infos );
 
 		/** Create a statement from a request.
 		@param[in]  query

@@ -107,6 +107,12 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport void SetParameterValue( const String & name, const CDatabaseValuedObject & object );
 
+		/** Retrieves the paramters count
+		@return
+			The count.
+		*/
+		inline uint16_t GetParametersCount() const;
+
 		/** Set parameter value.
 		@param[in] index
 			Parameter index.
@@ -168,9 +174,15 @@ BEGIN_NAMESPACE_DATABASE
 		*/
 		DatabaseExport DatabaseParameterSPtr DoAddParameter( DatabaseParameterSPtr parameter );
 
+		/** Retrieves the parameters
+		@return
+			The parameters.
+		*/
+		inline const DatabaseParameterPtrArray & DoGetParameters() const;
+
 	protected:
 		//! Array of parameters (addition order).
-		DatabaseParameterPtrArray _arrayParams;
+		DatabaseParameterPtrArray _parameters;
 		//! Tells if the object is initialised
 		bool _initialised;
 	};

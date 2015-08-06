@@ -14,6 +14,15 @@
 
 #include <random>
 
+namespace std
+{
+	inline ostream & operator <<( basic_ostream< char, char_traits< char > > & out, const wstring & value )
+	{
+		out << NAMESPACE_DATABASE::StringUtils::ToUtf8( value, "UTF-8" );
+		return out;
+	}
+}
+
 BEGIN_NAMESPACE_DATABASE_TEST
 {
 	namespace DatabaseUtils

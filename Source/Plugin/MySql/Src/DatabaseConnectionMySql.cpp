@@ -54,6 +54,8 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	static const TChar * INFO_MYSQL_STATEMENT_EXECUTION = STR( "Statement execution" );
 	static const TChar * INFO_MYSQL_STATEMENT_PREPARATION = STR( "Statement preparation" );
 	static const TChar * INFO_MYSQL_DATABASE_SELECTION = STR( "Database selection" );
+	static const TChar * INFO_MYSQL_ESCAPING_TEXT = STR( "Escaping text" );
+	static const TChar * INFO_MYSQL_SETTING_CHARSET = STR( "Setting charset" );
 	static const String INFO_MYSQL_EXECUTING_UPDATE = STR( "Executing update: " );
 	static const String INFO_MYSQL_EXECUTING_SELECT = STR( "Executing select: " );
 
@@ -68,8 +70,9 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	static const String MYSQL_SQL_DROP_DATABASE = STR( "DROP DATABASE " );
 
 	static const String MYSQL_SQL_NULL = STR( "NULL" );
+	static const std::string MYSQL_SQL_SNULL = "NULL";
+	static const std::wstring MYSQL_SQL_WNULL = L"NULL";
 
-	static const char * MYSQL_OPTION_NAMES = "SET NAMES 'utf8'";
 	static const char * MYSQL_OPTION_UTF8 = "utf8";
 
 	static const String MYSQL_FORMAT_DATE = STR( "CAST('%Y-%m-%d' AS DATE)" );
@@ -88,7 +91,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	CDatabaseConnectionMySql::CDatabaseConnectionMySql( const String & server, const String & userName, const String & password, String & connectionString )
 		: CDatabaseConnection( server, userName, password )
 		, _connection( NULL )
-		, _statement( NULL )
 	{
 		DoConnect( connectionString );
 	}
@@ -146,44 +148,32 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			uint64_t affected = mysql_stmt_affected_rows( statement );
 			result = true;
 		}
-		catch ( CDatabaseException & exc )
-		{
-			StringStream stream;
-			stream << ERROR_MYSQL_EXECUTION << STR( " - " ) << exc.GetFullDescription();
-			CLogger::LogError( stream );
-		}
-		catch ( std::exception & exc )
-		{
-			StringStream stream;
-			stream << ERROR_MYSQL_EXECUTION << STR( " - " ) << exc.what();
-			CLogger::LogError( stream );
-		}
+		COMMON_CATCH( ERROR_MYSQL_EXECUTION )
 
 		return result;
 	}
 
-	DatabaseResultSPtr CDatabaseConnectionMySql::ExecuteSelect( MYSQL_STMT * statement )
+	DatabaseResultSPtr CDatabaseConnectionMySql::ExecuteSelect( MYSQL_STMT * statement, DatabaseValuedObjectInfosPtrArray & infos )
 	{
 		DatabaseResultSPtr result;
 
 		try
 		{
-			bool hasResults = false;
-			MySQLCheck( mysql_stmt_execute( statement ), INFO_MYSQL_STATEMENT_EXECUTION, EDatabaseExceptionCodes_StatementError, _connection );
-			result = DoRetrieveResults( statement );
+			if ( statement )
+			{
+				MySQLCheck( mysql_stmt_execute( statement ), INFO_MYSQL_STATEMENT_EXECUTION, EDatabaseExceptionCodes_StatementError, _connection );
+				DatabaseConnectionMySqlSPtr connection = std::static_pointer_cast< CDatabaseConnectionMySql >( shared_from_this() );
+				MySqlStoreResult( statement, connection );
+
+				if ( infos.empty() )
+				{
+					infos = MySqlGetColumns( statement, connection );
+				}
+
+				result = MySqlFetchResult( statement, infos, connection );
+			}
 		}
-		catch ( CDatabaseException & exc )
-		{
-			StringStream stream;
-			stream << ERROR_MYSQL_EXECUTION << STR( " - " ) << exc.GetFullDescription();
-			CLogger::LogError( stream );
-		}
-		catch ( std::exception & exc )
-		{
-			StringStream stream;
-			stream << ERROR_MYSQL_EXECUTION << STR( " - " ) << exc.what();
-			CLogger::LogError( stream );
-		}
+		COMMON_CATCH( ERROR_MYSQL_EXECUTION )
 
 		return result;
 	}
@@ -197,8 +187,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	{
 		if ( _connection )
 		{
-			std::string query = StringUtils::ToStr( MYSQL_SQL_USE + database );
-			MySQLCheck( mysql_real_query( _connection, query.c_str(), uint32_t( query.size() ) ), INFO_MYSQL_DATABASE_SELECTION, EDatabaseExceptionCodes_ConnectionError, _connection );
+			MySQLCheck( mysql_select_db( _connection, database.c_str() ), INFO_MYSQL_DATABASE_SELECTION, EDatabaseExceptionCodes_ConnectionError, _connection );
 			_database = database;
 		}
 	}
@@ -210,30 +199,46 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 	std::string CDatabaseConnectionMySql::DoWriteText( const std::string & text ) const
 	{
-		std::string strReturn( text );
+		std::string result( text );
 
-		if ( strReturn != MYSQL_SQL_NULL )
+		if ( result != MYSQL_SQL_NULL )
 		{
-			StringUtils::Replace( strReturn, "'", "''" );
-			StringUtils::Replace( strReturn, "\\", "\\\\" );
-			strReturn = "'" + strReturn + "'";
+			std::vector< char > escaped( 1 + result.size() * 2 );
+			uint32_t length = mysql_real_escape_string( _connection, escaped.data(), result.c_str(), uint32_t( result.size() ) );
+
+			if ( length > 0 )
+			{
+				result = "'" + std::string( escaped.data(), escaped.data() + length ) + "'";
+			}
+			else
+			{
+				MySQLCheck( -1, INFO_MYSQL_ESCAPING_TEXT, EDatabaseExceptionCodes_ConnectionError, _connection );
+			}
 		}
 
-		return strReturn;
+		return result;
 	}
 
 	std::wstring CDatabaseConnectionMySql::DoWriteNText( const std::wstring & text ) const
 	{
-		String strReturn( StringUtils::ToString( text ) );
+		std::string result( StringUtils::ToUtf8( text, "UTF-8" ) );
 
-		if ( strReturn != MYSQL_SQL_NULL )
+		if ( result != MYSQL_SQL_NULL )
 		{
-			StringUtils::Replace( strReturn, STR( "'" ), STR( "''" ) );
-			StringUtils::Replace( strReturn, STR( "\\" ), STR( "\\\\" ) );
-			strReturn = STR( "N'" ) + strReturn + STR( "'" );
+			std::vector< char > escaped( 1 + result.size() * 2 );
+			uint32_t length = mysql_real_escape_string( _connection, escaped.data(), result.c_str(), uint32_t( result.size() ) );
+
+			if ( length > 0 )
+			{
+				result = "N'" + std::string( escaped.data(), escaped.data() + length ) + "'";
+			}
+			else
+			{
+				MySQLCheck( -1, INFO_MYSQL_ESCAPING_TEXT, EDatabaseExceptionCodes_ConnectionError, _connection );
+			}
 		}
 
-		return StringUtils::ToWStr( strReturn );
+		return StringUtils::ToWStr( result );
 	}
 
 	String CDatabaseConnectionMySql::DoWriteBinary( const ByteArray & array ) const
@@ -405,10 +410,9 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	{
 		DateType dateObj;
 
-		if ( !Date::IsDate( date, MYSQL_FORMAT_DATE, dateObj )
-		&& !Date::IsDate( date, MYSQL_FORMAT_STMT_DATE, dateObj ) )
+		if ( !Date::IsDate( date, MYSQL_FORMAT_DATE, dateObj ) )
 		{
-			// date is already invalid
+			Date::IsDate( date, MYSQL_FORMAT_STMT_DATE, dateObj );
 		}
 
 		return dateObj;
@@ -418,10 +422,9 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	{
 		TimeType timeObj;
 
-		if ( !Time::IsTime( time, MYSQL_FORMAT_TIME, timeObj )
-		&& !Time::IsTime( time, MYSQL_FORMAT_STMT_TIME, timeObj ) )
+		if ( !Time::IsTime( time, MYSQL_FORMAT_TIME, timeObj ) )
 		{
-			// time is already invalid
+			Time::IsTime( time, MYSQL_FORMAT_STMT_TIME, timeObj );
 		}
 
 		return timeObj;
@@ -433,10 +436,9 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 		if ( !DateTime::IsDateTime( dateTime, MYSQL_FORMAT_DATETIME, dateTimeObj )
 		&& !DateTime::IsDateTime( dateTime, MYSQL_FORMAT_STMT_DATETIME, dateTimeObj )
-		&& !DateTime::IsDateTime( dateTime, MYSQL_FORMAT_DATE, dateTimeObj )
-		&& !DateTime::IsDateTime( dateTime, MYSQL_FORMAT_STMT_DATE, dateTimeObj ) )
+		&& !DateTime::IsDateTime( dateTime, MYSQL_FORMAT_DATE, dateTimeObj ) )
 		{
-			// date/time is already invalid
+			DateTime::IsDateTime( dateTime, MYSQL_FORMAT_STMT_DATE, dateTimeObj );
 		}
 
 		return dateTimeObj;
@@ -455,16 +457,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, ERROR_MYSQL_CONNECTION );
 			}
 
-			if ( mysql_options( _connection, MYSQL_INIT_COMMAND, MYSQL_OPTION_NAMES ) )
-			{
-				CLogger::LogWarning( WARNING_MYSQL_UNKNOWN_OPTION + WARNING_MYSQL_INIT_COMMAND );
-			}
-
-			if ( mysql_options( _connection, MYSQL_SET_CHARSET_NAME, MYSQL_OPTION_UTF8 ) )
-			{
-				CLogger::LogWarning( WARNING_MYSQL_UNKNOWN_OPTION + WARNING_MYSQL_SET_CHARSET_NAME );
-			}
-
 			uint32_t timeout = 180;
 
 			if ( mysql_options( _connection, MYSQL_OPT_CONNECT_TIMEOUT, &timeout ) )
@@ -473,9 +465,9 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 			}
 
 			if ( !mysql_real_connect( _connection,
-									  StringUtils::ToStr( _server ).c_str(),
-									  StringUtils::ToStr( _userName ).c_str(),
-									  StringUtils::ToStr( _password ).c_str(),
+									  _server.c_str(),
+									  _userName.c_str(),
+									  _password.c_str(),
 									  NULL,
 									  0,
 									  NULL,
@@ -486,30 +478,15 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 				DB_EXCEPT( EDatabaseExceptionCodes_ConnectionError, error.str() );
 			}
 
+			MySQLCheck( mysql_set_character_set( _connection, MYSQL_OPTION_UTF8 ), INFO_MYSQL_SETTING_CHARSET, EDatabaseExceptionCodes_ConnectionError, _connection );
+
 			CLogger::LogDebug( StringStream() << DEBUG_MYSQL_CONNECTED );
 			CLogger::LogDebug( StringStream() << DEBUG_MYSQL_CLIENT_VERSION << mysql_get_client_info() );
 			CLogger::LogDebug( StringStream() << DEBUG_MYSQL_SERVER_HOST << mysql_get_host_info( _connection ) );
 			CLogger::LogDebug( StringStream() << DEBUG_MYSQL_SERVER_VERSION << mysql_get_server_info( _connection ) );
-
-			_statement = mysql_stmt_init( _connection );
-
 			DoSetConnected( true );
 		}
-		catch ( CDatabaseException & exc )
-		{
-			CLogger::LogError( StringStream() << ERROR_MYSQL_CONNECTION << STR( " - " ) << exc.GetFullDescription() );
-			ret = EErrorType_ERROR;
-		}
-		catch ( std::exception & exc )
-		{
-			CLogger::LogError( StringStream() << ERROR_MYSQL_CONNECTION << STR( " - " ) << exc.what() );
-			ret = EErrorType_ERROR;
-		}
-		catch ( ... )
-		{
-			CLogger::LogError( ERROR_MYSQL_CONNECTION );
-			ret = EErrorType_ERROR;
-		}
+		COMMON_CATCH( ERROR_MYSQL_CONNECTION )
 
 		return ret;
 	}
@@ -517,12 +494,6 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 	void CDatabaseConnectionMySql::DoDisconnect()
 	{
 		DoSetConnected( false );
-
-		if ( _statement )
-		{
-			mysql_stmt_close( _statement );
-			_statement = NULL;
-		}
 
 		if ( _connection )
 		{
@@ -562,51 +533,25 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 
 	bool CDatabaseConnectionMySql::DoExecuteUpdate( const String & query )
 	{
-		std::string strQuery = StringUtils::ToStr( query );
-		MySQLCheck( mysql_stmt_prepare( _statement, strQuery.c_str(), uint32_t( strQuery.size() ) ), INFO_MYSQL_STATEMENT_PREPARATION, EDatabaseExceptionCodes_StatementError, _connection );
-		return ExecuteUpdate( _statement );
+		MYSQL_STMT * statement = mysql_stmt_init( _connection );
+		MySQLCheck( mysql_stmt_prepare( statement, query.c_str(), uint32_t( query.size() ) ), INFO_MYSQL_STATEMENT_PREPARATION, EDatabaseExceptionCodes_StatementError, _connection );
+		auto ret = ExecuteUpdate( statement );
+		mysql_stmt_close( statement );
+		return ret;
 	}
 
-	DatabaseResultSPtr CDatabaseConnectionMySql::DoExecuteSelect( const String & query )
+	DatabaseResultSPtr CDatabaseConnectionMySql::DoExecuteSelect( const String & query, DatabaseValuedObjectInfosPtrArray & infos )
 	{
-		std::string strQuery = StringUtils::ToStr( query );
-		MySQLCheck( mysql_stmt_prepare( _statement, strQuery.c_str(), uint32_t( strQuery.size() ) ), INFO_MYSQL_STATEMENT_PREPARATION, EDatabaseExceptionCodes_StatementError, _connection );
-		return ExecuteSelect( _statement );
+		MYSQL_STMT * statement = mysql_stmt_init( _connection );
+		MySQLCheck( mysql_stmt_prepare( statement, query.c_str(), uint32_t( query.size() ) ), INFO_MYSQL_STATEMENT_PREPARATION, EDatabaseExceptionCodes_StatementError, _connection );
+		auto ret = ExecuteSelect( statement, infos );
+		mysql_stmt_close( statement );
+		return ret;
 	}
 
 	DatabaseStatementSPtr CDatabaseConnectionMySql::DoCreateStatement( const String & request )
 	{
 		return std::make_shared< CDatabaseStatementMySql >( std::static_pointer_cast< CDatabaseConnectionMySql >( shared_from_this() ), request );
-	}
-
-	DatabaseResultSPtr CDatabaseConnectionMySql::DoRetrieveResults( MYSQL_STMT * statement )
-	{
-		DatabaseResultSPtr pResult;
-
-		try
-		{
-			if ( statement )
-			{
-				DatabaseConnectionMySqlSPtr connection = std::static_pointer_cast< CDatabaseConnectionMySql >( shared_from_this() );
-				std::vector< MYSQL_BIND > binds;
-				std::vector< std::unique_ptr< SInMySqlBindBase > > inbinds;
-				pResult = MySqlFetchResult( statement, MySqlGetColumns( statement, connection, inbinds, binds ), connection, inbinds, binds );
-			}
-		}
-		catch ( CDatabaseException & exc )
-		{
-			StringStream stream;
-			stream << ERROR_MYSQL_EXECUTION << exc.GetFullDescription();
-			CLogger::LogError( stream.str() );
-		}
-		catch ( std::exception & exc )
-		{
-			StringStream stream;
-			stream << ERROR_MYSQL_EXECUTION << exc.what();
-			CLogger::LogError( stream.str() );
-		}
-
-		return pResult;
 	}
 }
 END_NAMESPACE_DATABASE_MYSQL

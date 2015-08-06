@@ -12,17 +12,9 @@
 #include "DatabaseTestPch.h"
 
 #include "DatabaseDateTest.h"
+#include "DatabaseTestHelpers.h"
 
 #include <DatabaseDate.h>
-
-namespace std
-{
-	inline ostream & operator <<( ostream & out, const wstring & value )
-	{
-		out << NAMESPACE_DATABASE::StringUtils::ToStr( value );
-		return out;
-	}
-}
 
 BEGIN_NAMESPACE_DATABASE_TEST
 {

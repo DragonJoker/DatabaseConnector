@@ -35,7 +35,8 @@ BEGIN_NAMESPACE_DATABASE
 	static const String ERROR_DB_CANT_COMMIT_TRANSACTION = STR( "Can't commit the transaction" );
 	static const String ERROR_DB_CANT_ROLLBACK_TRANSACTION = STR( "Can't rollback the transaction" );
 
-	static const String INFO_DB_EXECUTING_SELECT = STR( "Executing query: " );
+	static const String INFO_DB_EXECUTING_UPDATE = STR( "Executing No Result query" );
+	static const String INFO_DB_EXECUTING_SELECT = STR( "Executing Result query" );
 
 	CDatabaseConnection::CDatabaseConnection( const String & server, const String & userName, const String & password )
 		: _connected( false )
@@ -144,31 +145,13 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		DoCheckConnected();
 		DoCheckDatabaseSelected();
-		CLogger::LogInfo( INFO_DB_EXECUTING_SELECT + query );
 		bool ret = false;
 
 		try
 		{
 			ret = DoExecuteUpdate( query );
 		}
-		catch ( CDatabaseException & exc )
-		{
-			StringStream stream;
-			stream << ERROR_DB_EXECUTION_ERROR << exc.GetFullDescription();
-			CLogger::LogError( stream );
-		}
-		catch ( std::exception & exc )
-		{
-			StringStream stream;
-			stream << ERROR_DB_EXECUTION_ERROR << exc.what();
-			CLogger::LogError( stream );
-		}
-		catch ( ... )
-		{
-			StringStream stream;
-			stream << ERROR_DB_EXECUTION_ERROR << STR( "UNKNOWN" );
-			CLogger::LogError( stream );
-		}
+		COMMON_CATCH( ERROR_DB_EXECUTION_ERROR )
 
 		return ret;
 	}
@@ -177,31 +160,14 @@ BEGIN_NAMESPACE_DATABASE
 	{
 		DoCheckConnected();
 		DoCheckDatabaseSelected();
-		CLogger::LogInfo( INFO_DB_EXECUTING_SELECT + query );
 		DatabaseResultSPtr ret;
 
 		try
 		{
-			ret = DoExecuteSelect( query );
+			DatabaseValuedObjectInfosPtrArray infos;
+			ret = DoExecuteSelect( query, infos );
 		}
-		catch ( CDatabaseException & exc )
-		{
-			StringStream stream;
-			stream << ERROR_DB_EXECUTION_ERROR << exc.GetFullDescription();
-			CLogger::LogError( stream );
-		}
-		catch ( std::exception & exc )
-		{
-			StringStream stream;
-			stream << ERROR_DB_EXECUTION_ERROR << STR( " - " ) << exc.what();
-			CLogger::LogError( stream );
-		}
-		catch ( ... )
-		{
-			StringStream stream;
-			stream << ERROR_DB_EXECUTION_ERROR << STR( " - UNKNOWN" );
-			CLogger::LogError( stream );
-		}
+		COMMON_CATCH( ERROR_DB_EXECUTION_ERROR )
 
 		return ret;
 	}
@@ -216,24 +182,7 @@ BEGIN_NAMESPACE_DATABASE
 			DoCreateDatabase( database );
 			ret = true;
 		}
-		catch ( CDatabaseException & exc )
-		{
-			StringStream stream;
-			stream << ERROR_DB_EXECUTION_ERROR << exc.GetFullDescription();
-			CLogger::LogError( stream );
-		}
-		catch ( std::exception & exc )
-		{
-			StringStream stream;
-			stream << ERROR_DB_EXECUTION_ERROR << exc.what();
-			CLogger::LogError( stream );
-		}
-		catch ( ... )
-		{
-			StringStream stream;
-			stream << ERROR_DB_EXECUTION_ERROR << STR( "UNKNOWN" );
-			CLogger::LogError( stream );
-		}
+		COMMON_CATCH( ERROR_DB_EXECUTION_ERROR )
 
 		return ret;
 	}
@@ -248,24 +197,7 @@ BEGIN_NAMESPACE_DATABASE
 			DoSelectDatabase( database );
 			ret = true;
 		}
-		catch ( CDatabaseException & exc )
-		{
-			StringStream stream;
-			stream << ERROR_DB_EXECUTION_ERROR << exc.GetFullDescription();
-			CLogger::LogError( stream );
-		}
-		catch ( std::exception & exc )
-		{
-			StringStream stream;
-			stream << ERROR_DB_EXECUTION_ERROR << exc.what();
-			CLogger::LogError( stream );
-		}
-		catch ( ... )
-		{
-			StringStream stream;
-			stream << ERROR_DB_EXECUTION_ERROR << STR( "UNKNOWN" );
-			CLogger::LogError( stream );
-		}
+		COMMON_CATCH( ERROR_DB_EXECUTION_ERROR )
 
 		return ret;
 	}
@@ -280,24 +212,7 @@ BEGIN_NAMESPACE_DATABASE
 			DoDestroyDatabase( database );
 			ret = true;
 		}
-		catch ( CDatabaseException & exc )
-		{
-			StringStream stream;
-			stream << ERROR_DB_EXECUTION_ERROR << exc.GetFullDescription();
-			CLogger::LogError( stream );
-		}
-		catch ( std::exception & exc )
-		{
-			StringStream stream;
-			stream << ERROR_DB_EXECUTION_ERROR << exc.what();
-			CLogger::LogError( stream );
-		}
-		catch ( ... )
-		{
-			StringStream stream;
-			stream << ERROR_DB_EXECUTION_ERROR << STR( "UNKNOWN" );
-			CLogger::LogError( stream );
-		}
+		COMMON_CATCH( ERROR_DB_EXECUTION_ERROR )
 
 		return ret;
 	}

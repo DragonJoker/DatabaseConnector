@@ -82,10 +82,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		/** Execute directly a request.
 		@param[in]  query
 			Request text.
-		@param[out] result
-			Error code if the returned value is NULL.
-		@param[in] transactional
-			The request must execute inside a transaction or not.
 		@return
 			The result.
 		*/
@@ -94,14 +90,12 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		/** Execute directly a request.
 		@param[in]  query
 			Request text.
-		@param[out] result
-			Error code if the returned value is NULL.
-		@param[in] transactional
-			The request must execute inside a transaction or not.
+		@param[out] infos
+			The valued object infos array, if called from a CDatabaseQuery.
 		@return
 			The result.
 		*/
-		virtual DatabaseResultSPtr DoExecuteSelect( const String & query );
+		virtual DatabaseResultSPtr DoExecuteSelect( const String & query, DatabaseValuedObjectInfosPtrArray & infos );
 
 	protected:
 		//! Connection identifier.

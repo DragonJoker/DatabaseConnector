@@ -17,6 +17,11 @@
 
 BEGIN_NAMESPACE_DATABASE
 {
+	uint16_t CDatabaseParameteredObject::GetParametersCount() const
+	{
+		return uint16_t( _parameters.size() );
+	}
+
 	template< typename T >
 	void CDatabaseParameteredObject::SetParameterValue( uint32_t index, const T & value )
 	{
@@ -39,6 +44,11 @@ BEGIN_NAMESPACE_DATABASE
 	void CDatabaseParameteredObject::SetParameterValueFast( const String & name, const T & value )
 	{
 		GetParameter( name )->SetValueFast( value );
+	}
+
+	const DatabaseParameterPtrArray & CDatabaseParameteredObject::DoGetParameters() const
+	{
+		return _parameters;
 	}
 }
 END_NAMESPACE_DATABASE

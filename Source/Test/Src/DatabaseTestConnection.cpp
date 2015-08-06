@@ -285,7 +285,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	{
 		std::string strReturn( text );
 
-		if ( strReturn != TEST_SQL_NULL )
+		if ( strReturn != TEST_SQL_SNULL )
 		{
 			StringUtils::Replace( strReturn, "'", "''" );
 			StringUtils::Replace( strReturn, "\\", "\\\\" );
@@ -297,16 +297,16 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 	std::wstring CDatabaseTestConnection::DoWriteNText( const std::wstring & text ) const
 	{
-		String strReturn( StringUtils::ToString( text ) );
+		std::wstring strReturn( text );
 
-		if ( strReturn != TEST_SQL_NULL )
+		if ( strReturn != TEST_SQL_WNULL )
 		{
-			StringUtils::Replace( strReturn, STR( "'" ), STR( "''" ) );
-			StringUtils::Replace( strReturn, STR( "\\" ), STR( "\\\\" ) );
-			strReturn = STR( "N'" ) + strReturn + STR( "'" );
+			StringUtils::Replace( strReturn, L"'", L"''" );
+			StringUtils::Replace( strReturn, L"\\", L"\\\\" );
+			strReturn = L"N'" + strReturn + L"'";
 		}
 
-		return StringUtils::ToWStr( strReturn );
+		return strReturn;
 	}
 
 	String CDatabaseTestConnection::DoWriteBinary( const ByteArray & array ) const
@@ -512,21 +512,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			connectionString = STR( "server=" ) + _server + STR( ";user=" ) + _userName + STR( ";password=" ) + _password;
 			DoSetConnected( _server == TEST_GOOD_SERVER && _userName == TEST_GOOD_USER && _password == TEST_GOOD_PASSWORD );
 		}
-		catch ( CDatabaseException & exc )
-		{
-			CLogger::LogError( StringStream() << ERROR_TEST_CONNECTION << STR( " - " ) << exc.GetFullDescription() );
-			ret = EErrorType_ERROR;
-		}
-		catch ( std::exception & exc )
-		{
-			CLogger::LogError( StringStream() << ERROR_TEST_CONNECTION << STR( " - " ) << exc.what() );
-			ret = EErrorType_ERROR;
-		}
-		catch ( ... )
-		{
-			CLogger::LogError( ERROR_TEST_CONNECTION );
-			ret = EErrorType_ERROR;
-		}
+		COMMON_CATCH( ERROR_TEST_CONNECTION )
 
 		return ret;
 	}
@@ -556,11 +542,11 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		return query == STR( "TestUpdate" );
 	}
 
-	DatabaseResultSPtr CDatabaseTestConnection::DoExecuteSelect( const String & query )
+	DatabaseResultSPtr CDatabaseTestConnection::DoExecuteSelect( const String & query, DatabaseValuedObjectInfosPtrArray & infos )
 	{
-		DatabaseValuedObjectInfosPtrArray fieldsInfos = CreateFieldsInfos();
-		DatabaseResultSPtr result = std::make_shared< CDatabaseResult >( fieldsInfos );
-		result->AddRow( CreateRow( shared_from_this(), fieldsInfos ) );
+		infos = CreateFieldsInfos();
+		DatabaseResultSPtr result = std::make_shared< CDatabaseResult >( infos );
+		result->AddRow( CreateRow( shared_from_this(), infos ) );
 
 		return query == STR( "TestSelect" ) ? result : DatabaseResultSPtr();
 	}

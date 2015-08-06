@@ -66,6 +66,26 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 	*/
 	sqlite3_stmt * SqlitePrepareStatement( const String & query, sqlite3 * connection );
 
+	/** Prepares a statement.
+	@remarks
+		Takes care of the fact that the database could be locked
+	@param[in] query
+		The statement's query
+	@param[in]
+		The connection on which the statement is to be prepared
+	*/
+	sqlite3_stmt * SqlitePrepareStatement( const String & query, sqlite3 * connection );
+
+	/** Prepares a statement.
+	@remarks
+		Takes care of the fact that the database could be locked
+	@param[in] query
+		The statement's query
+	@param[in]
+		The connection on which the statement is to be prepared
+	*/
+	sqlite3_stmt * SqlitePrepareStatement( const String & query, sqlite3 * connection );
+
 	/** Checks the given code, throws an exception if it is not an acceptable one
 	@param[in] code
 		The code to test

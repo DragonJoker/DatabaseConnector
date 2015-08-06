@@ -848,7 +848,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			if ( valSet )
 			{
-				return StringUtils::ToString( connection.WriteText( value ) );
+				return connection.WriteText( value );
 			}
 			else
 			{
@@ -936,7 +936,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			if ( valSet )
 			{
-				return StringUtils::ToString( connection.WriteNText( value ) );
+				return StringUtils::ToStr( connection.WriteNText( value ) );
 			}
 			else
 			{
@@ -1133,7 +1133,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			if ( valSet )
 			{
-				return StringUtils::ToString( connection.WriteDate( value ) );
+				return connection.WriteDate( value );
 			}
 			else
 			{
@@ -1197,7 +1197,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			if ( valSet )
 			{
-				return StringUtils::ToString( connection.WriteTime( value ) );
+				return connection.WriteTime( value );
 			}
 			else
 			{
@@ -1261,7 +1261,7 @@ BEGIN_NAMESPACE_DATABASE
 		{
 			if ( valSet )
 			{
-				return StringUtils::ToString( connection.WriteDateTime( value ) );
+				return connection.WriteDateTime( value );
 			}
 			else
 			{

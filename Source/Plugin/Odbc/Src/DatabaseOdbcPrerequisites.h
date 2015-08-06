@@ -71,13 +71,13 @@ BEGIN_NAMESPACE_DATABASE
 		static const int SQL_XLONGVARCHAR = SQL_LONGVARCHAR;
 
 		// SQL execution
-#define OdbcCheck( func, handle_type, handle, text )\
+#define OdbcCheck( func, handle_type, handle, stream )\
 		{\
 			int attemptCount = 0;\
-			errorType = SqlSuccess( func, handle_type, handle, text );\
+			errorType = SqlSuccess( func, handle_type, handle, StringStream() << stream );\
 			while( errorType == EErrorType_RETRY && attemptCount < 10 )\
 			{\
-				errorType = SqlSuccess( func, handle_type, handle, text );\
+				errorType = SqlSuccess( func, handle_type, handle, StringStream() << stream );\
 				attemptCount++;\
 			}\
 			if( attemptCount == 10 )\

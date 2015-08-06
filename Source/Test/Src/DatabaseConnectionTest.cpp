@@ -17,16 +17,8 @@
 #include "DatabaseTestConnection.h"
 #include "DatabaseTestStatement.h"
 
+#include <DatabaseBlockGuard.h>
 #include <DatabaseQuery.h>
-
-namespace std
-{
-	inline ostream & operator <<( ostream & out, const wstring & value )
-	{
-		out << NAMESPACE_DATABASE::StringUtils::ToStr( value );
-		return out;
-	}
-}
 
 BEGIN_NAMESPACE_DATABASE_TEST
 {
@@ -65,7 +57,28 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		String wronguser = STR( "WrongUser" );
 		String wrongpassword = STR( "WrongPassword" );
 		String connectionString;
+		bool guarded = false;
 
+		try
+		{
+			auto guard = make_block_guard( [&guarded]()
+			{
+				CLogger::LogInfo( StringStream() << "Entering block guard" );
+				guarded = true;
+			}, [&guarded]()
+			{
+				guarded = false;
+				CLogger::LogInfo( StringStream() << "Leaving block guard" );
+			} );
+
+			BOOST_CHECK( guarded );
+			throw std::runtime_error( "coin" );
+		}
+		catch( std::exception & )
+		{
+		}
+
+		BOOST_CHECK( !guarded );
 		CLogger::LogInfo( StringStream() << "  Wrong server" );
 		{
 			DatabaseConnectionSPtr connection = std::make_shared< CDatabaseTestConnection >( wrongserver, gooduser, goodpassword, connectionString );
