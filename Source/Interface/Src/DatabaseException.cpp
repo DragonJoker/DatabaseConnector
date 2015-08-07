@@ -122,7 +122,6 @@ BEGIN_NAMESPACE_DATABASE
 
 			free( fnStrings );
 		}
-	}
 
 #	else
 
