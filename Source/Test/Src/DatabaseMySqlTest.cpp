@@ -13,6 +13,8 @@
 
 #include "DatabaseTestPch.h"
 
+#if defined( TESTING_PLUGIN_MYSQL )
+
 #include "DatabaseMySqlTest.h"
 
 namespace std
@@ -85,3 +87,5 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	}
 }
 END_NAMESPACE_DATABASE_TEST
+
+#endif

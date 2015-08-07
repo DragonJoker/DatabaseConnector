@@ -43,10 +43,10 @@ BEGIN_NAMESPACE_DATABASE
 	static const String ERROR_DB_QUERY_EXECUTION_ERROR = STR( "Query execution error: " );
 	static const String ERROR_DB_QUERY_LOST_CONNECTION = STR( "Query lost  it's connection" );
 
-	static const String INFO_DB_CREATING_QUERY = STR( "Creating query object 0x%08X, with query text %s" );
-	static const String INFO_DB_DELETING_QUERY = STR( "Deleting query object 0x%08X" );
-	static const String INFO_DB_EXECUTING_SELECT_QUERY = STR( "Executing Select on query object 0x%08X" );
-	static const String INFO_DB_EXECUTING_UPDATE_QUERY = STR( "Executing Update on query object 0x%08X" );
+	static const TChar * INFO_DB_CREATING_QUERY = STR( "Creating query object 0x%08X, with query text %s" );
+	static const TChar * INFO_DB_DELETING_QUERY = STR( "Deleting query object 0x%08X" );
+	static const TChar * INFO_DB_EXECUTING_SELECT_QUERY = STR( "Executing Select on query object 0x%08X" );
+	static const TChar * INFO_DB_EXECUTING_UPDATE_QUERY = STR( "Executing Update on query object 0x%08X" );
 
 	CDatabaseQuery::CDatabaseQuery( DatabaseConnectionSPtr connection, const String & query )
 		: CDatabaseParameteredObject()
@@ -54,13 +54,13 @@ BEGIN_NAMESPACE_DATABASE
 		, _paramsCount( 0 )
 		, _query( query )
 	{
-		CLogger::LogInfo( ( Format( INFO_DB_CREATING_QUERY ) % this % query ).str() );
+		CLogger::LogInfo( INFO_DB_CREATING_QUERY, this, query.c_str() );
 	}
 
 	CDatabaseQuery::~CDatabaseQuery()
 	{
 		Cleanup();
-		CLogger::LogInfo( ( Format( INFO_DB_DELETING_QUERY ) % this ).str() );
+		CLogger::LogInfo( INFO_DB_DELETING_QUERY, this );
 	}
 
 	bool CDatabaseQuery::ExecuteUpdate()
@@ -84,7 +84,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		try
 		{
-			CLogger::LogInfo( ( Format( INFO_DB_EXECUTING_UPDATE_QUERY ) % this ).str() );
+			CLogger::LogInfo( INFO_DB_EXECUTING_UPDATE_QUERY, this );
 			bReturn = connection->DoExecuteUpdate( DoPreExecute() );
 		}
 		COMMON_CATCH( ERROR_DB_QUERY_EXECUTION_ERROR )
@@ -112,7 +112,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		try
 		{
-			CLogger::LogInfo( ( Format( INFO_DB_EXECUTING_SELECT_QUERY ) % this ).str() );
+			CLogger::LogInfo( INFO_DB_EXECUTING_SELECT_QUERY, this );
 			pReturn = connection->DoExecuteSelect( DoPreExecute(), _infos );
 		}
 		COMMON_CATCH( ERROR_DB_QUERY_EXECUTION_ERROR )

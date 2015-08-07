@@ -403,6 +403,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		*/
 		~SOutMySqlBind()
 		{
+			_holder.clear();
 		}
 
 		//!@copydoc SOutMySqlBindBase::UpdateValue

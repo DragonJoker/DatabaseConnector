@@ -30,10 +30,10 @@ BEGIN_NAMESPACE_DATABASE
 
 	static const String WARNING_DB_STATEMENT_NULL_PARAMETER = STR( "Trying to add a null parameter." );
 
-	static const String INFO_DB_CREATING_STATEMENT = STR( "Creating statement 0x%08X, with query %s" );
-	static const String INFO_DB_DELETING_STATEMENT = STR( "Deleting statement 0x%08X" );
-	static const String INFO_DB_EXECUTING_UPDATE_STATEMENT = STR( "Executing Update on statement 0x%08X" );
-	static const String INFO_DB_EXECUTING_SELECT_STATEMENT = STR( "Executing Select on statement 0x%08X" );
+	static const TChar * INFO_DB_CREATING_STATEMENT = STR( "Creating statement 0x%08X, with query %s" );
+	static const TChar * INFO_DB_DELETING_STATEMENT = STR( "Deleting statement 0x%08X" );
+	static const TChar * INFO_DB_EXECUTING_UPDATE_STATEMENT = STR( "Executing Update on statement 0x%08X" );
+	static const TChar * INFO_DB_EXECUTING_SELECT_STATEMENT = STR( "Executing Select on statement 0x%08X" );
 
 	CDatabaseStatement::SValueUpdater::SValueUpdater( CDatabaseStatement * stmt )
 		: _stmt( stmt )
@@ -50,12 +50,12 @@ BEGIN_NAMESPACE_DATABASE
 		, _connection( connection )
 		, _query( query )
 	{
-		CLogger::LogInfo( ( Format( INFO_DB_CREATING_STATEMENT ) % this % query ).str() );
+		CLogger::LogInfo( INFO_DB_CREATING_STATEMENT, this, query.c_str() );
 	}
 
 	CDatabaseStatement::~CDatabaseStatement()
 	{
-		CLogger::LogInfo( ( Format( INFO_DB_DELETING_STATEMENT ) % this ).str() );
+		CLogger::LogInfo( INFO_DB_DELETING_STATEMENT, this );
 	}
 
 	bool CDatabaseStatement::ExecuteUpdate()
@@ -69,7 +69,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		try
 		{
-			CLogger::LogInfo( ( Format( INFO_DB_EXECUTING_UPDATE_STATEMENT ) % this ).str() );
+			CLogger::LogInfo( INFO_DB_EXECUTING_UPDATE_STATEMENT, this );
 			ret = DoExecuteUpdate();
 		}
 		COMMON_CATCH( ERROR_STATEMENT_EXECUTION )
@@ -88,7 +88,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		try
 		{
-			CLogger::LogInfo( ( Format( INFO_DB_EXECUTING_SELECT_STATEMENT ) % this ).str() );
+			CLogger::LogInfo( INFO_DB_EXECUTING_SELECT_STATEMENT, this );
 			ret = DoExecuteSelect();
 		}
 		COMMON_CATCH( ERROR_STATEMENT_EXECUTION )

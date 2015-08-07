@@ -478,13 +478,12 @@ BEGIN_NAMESPACE_DATABASE
 		if ( logLevel >= _logLevel )
 		{
 #if !defined( NDEBUG )
-			{
-				std::unique_lock< std::mutex > lock( _mutex );
-				_impl->PrintMessage( logLevel, message );
-			}
-#endif
+			std::unique_lock< std::mutex > lock( _mutex );
+			_impl->LogMessage( logLevel, message );
+#else
 			std::unique_lock< std::mutex > l_lock( _mutexQueue );
 			_queue.push_back( std::make_unique< SMessage >( logLevel, message ) );
+#endif
 		}
 	}
 
@@ -493,13 +492,12 @@ BEGIN_NAMESPACE_DATABASE
 		if ( logLevel >= _logLevel )
 		{
 #if !defined( NDEBUG )
-			{
-				std::unique_lock< std::mutex > lock( _mutex );
-				_impl->PrintMessage( logLevel, message );
-			}
-#endif
+			std::unique_lock< std::mutex > lock( _mutex );
+			_impl->LogMessage( logLevel, message );
+#else
 			std::unique_lock< std::mutex > l_lock( _mutexQueue );
 			_queue.push_back( std::make_unique< SWMessage >( logLevel, message ) );
+#endif
 		}
 	}
 

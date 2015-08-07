@@ -13,6 +13,8 @@
 
 #include "DatabaseTestPch.h"
 
+#if defined( TESTING_PLUGIN_SQLITE )
+
 #include "DatabaseSqliteTest.h"
 
 BEGIN_NAMESPACE_DATABASE_TEST
@@ -67,3 +69,5 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	}
 }
 END_NAMESPACE_DATABASE_TEST
+
+#endif

@@ -167,6 +167,36 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			return result;
 		}
 
+		template< EFieldType FieldType, typename Enable = void >
+		struct ParameterCreator
+		{
+			template< typename Statement >
+			static void Create( std::shared_ptr< Statement > stmt, const String & name )
+			{
+				BOOST_CHECK( stmt->CreateParameter( name, FieldType ) );
+			}
+		};
+
+		template< EFieldType FieldType >
+		struct ParameterCreator< FieldType, typename std::enable_if< SFieldTypeNeedsLimits< FieldType >::value >::type >
+		{
+			template< typename Statement >
+			static void Create( std::shared_ptr< Statement > stmt, const String & name )
+			{
+				BOOST_CHECK( stmt->CreateParameter( name, FieldType, Helpers< FieldType >::Limit ) );
+			}
+		};
+
+		template< EFieldType FieldType >
+		struct ParameterCreator< FieldType, typename std::enable_if< SFieldTypeNeedsPrecision< FieldType >::value >::type >
+		{
+			template< typename Statement >
+			static void Create( std::shared_ptr< Statement > stmt, const String & name )
+			{
+				BOOST_CHECK( stmt->CreateParameter( name, FieldType, Helpers< FieldType >::Precision ) );
+			}
+		};
+
 		template< typename Statement >
 		inline void CreateParameters( std::shared_ptr< Statement > stmt )
 		{
@@ -301,360 +331,95 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			CLogger::LogInfo( StringStream() << STR( "BlobField : " ) << row->Get< ByteArray >( index++ ) );
 		}
 
-		template< EFieldType FieldType >
-		struct Compare
+		template< size_t StmtType, EFieldType FieldType >
+		inline void FillStatement( std::shared_ptr< typename StatementTyper< StmtType >::Type > statement, const String & name, bool other, typename Helpers< FieldType >::ParamType const * valueIn )
 		{
-			typedef typename Helpers< FieldType >::ParamType param_type;
-			typedef typename Helpers< FieldType >::FieldType field_type;
+			uint32_t index = 0;
 
-			static void Equal( param_type const & a, field_type const & b )
+			if ( other )
 			{
-				BOOST_CHECK_EQUAL( a, b );
+				ParameterCreator< EFieldType_SINT32 >::Create( statement, STR( "IntField" ) );
+				ParameterCreator< FieldType >::Create( statement, name );
+				BOOST_CHECK( statement->Initialise() == EErrorType_NONE );
+				BOOST_CHECK_NO_THROW( statement->SetParameterValue( index++, 18 ) );
 			}
-			static void Different( param_type const & a, field_type const & b )
+			else
 			{
-				BOOST_CHECK_NE( a, b );
+				ParameterCreator< FieldType >::Create( statement, name );
+				BOOST_CHECK( statement->Initialise() == EErrorType_NONE );
 			}
-			void operator()( bool equal, param_type const & a, field_type const & b )
-			{
-				if ( equal )
-				{
-					Equal( a, b );
-				}
-				else
-				{
-					Different( a, b );
-				}
-			}
-		};
 
-		template<>
-		struct Compare< EFieldType_SINT8 >
-		{
-			typedef Helpers< EFieldType_SINT8 >::ParamType param_type;
-			typedef Helpers< EFieldType_SINT8 >::FieldType field_type;
-
-			static void Equal( param_type const & a, field_type const & b )
+			if ( valueIn )
 			{
-				BOOST_CHECK_EQUAL( int16_t( a ), int16_t( b ) );
+				BOOST_CHECK_NO_THROW( statement->SetParameterValue( index++, *valueIn ) );
 			}
-			static void Different( param_type const & a, field_type const & b )
+			else
 			{
-				BOOST_CHECK_NE( int16_t( a ), int16_t( b ) );
+				BOOST_CHECK_NO_THROW( statement->SetParameterNull( index++ ) );
 			}
-			void operator()( bool equal, param_type const & a, field_type const & b )
-			{
-				if ( equal )
-				{
-					Equal( a, b );
-				}
-				else
-				{
-					Different( a, b );
-				}
-			}
-		};
-
-		template<>
-		struct Compare< EFieldType_UINT8 >
-		{
-			typedef Helpers< EFieldType_UINT8 >::ParamType param_type;
-			typedef Helpers< EFieldType_UINT8 >::FieldType field_type;
-
-			static void Equal( param_type const & a, field_type const & b )
-			{
-				BOOST_CHECK_EQUAL( uint16_t( a ), uint16_t( b ) );
-			}
-			static void Different( param_type const & a, field_type const & b )
-			{
-				BOOST_CHECK_NE( int16_t( a ), uint16_t( b ) );
-			}
-			void operator()( bool equal, param_type const & a, field_type const & b )
-			{
-				if ( equal )
-				{
-					Equal( a, b );
-				}
-				else
-				{
-					Different( a, b );
-				}
-			}
-		};
-
-		template<>
-		struct Compare< EFieldType_FLOAT32 >
-		{
-			typedef Helpers< EFieldType_FLOAT32 >::ParamType param_type;
-			typedef Helpers< EFieldType_FLOAT32 >::FieldType field_type;
-
-			static void Equal( param_type const & a, field_type const & b )
-			{
-				// Can't compare, due to precision errors
-				//if ( a != b )
-				//{
-				//	if ( std::abs( a - b ) > std::numeric_limits< param_type >::epsilon() )
-				//	{
-				//		BOOST_CHECK_EQUAL( a, b );
-				//	}
-				//}
-			}
-			static void Different( param_type const & a, field_type const & b )
-			{
-				BOOST_CHECK_NE( a, b );
-			}
-			void operator()( bool equal, param_type const & a, field_type const & b )
-			{
-				if ( equal )
-				{
-					Equal( a, b );
-				}
-				else
-				{
-					Different( a, b );
-				}
-			}
-		};
-
-		template<>
-		struct Compare< EFieldType_FLOAT64 >
-		{
-			typedef Helpers< EFieldType_FLOAT64 >::ParamType param_type;
-			typedef Helpers< EFieldType_FLOAT64 >::FieldType field_type;
-
-			static void Equal( param_type const & a, field_type const & b )
-			{
-				// Can't compare, due to precision errors
-				//if ( a != b )
-				//{
-				//	if ( std::abs( a - b ) > std::numeric_limits< param_type >::epsilon() )
-				//	{
-				//		BOOST_CHECK_EQUAL( a, b );
-				//	}
-				//}
-			}
-			static void Different( param_type const & a, field_type const & b )
-			{
-				BOOST_CHECK_NE( a, b );
-			}
-			void operator()( bool equal, param_type const & a, field_type const & b )
-			{
-				if ( equal )
-				{
-					Equal( a, b );
-				}
-				else
-				{
-					Different( a, b );
-				}
-			}
-		};
-
-		template<>
-		struct Compare< EFieldType_CHAR >
-		{
-			typedef Helpers< EFieldType_CHAR >::ParamType param_type;
-			typedef Helpers< EFieldType_CHAR >::FieldType field_type;
-
-			static void Equal( param_type const & a, field_type const & b )
-			{
-				BOOST_CHECK_EQUAL( std::string( a ), std::string( b ) );
-			}
-			static void Different( param_type const & a, field_type const & b )
-			{
-				BOOST_CHECK_NE( std::string( a ), std::string( b ) );
-			}
-			void operator()( bool equal, param_type const & a, field_type const & b )
-			{
-				if ( equal )
-				{
-					Equal( a, b );
-				}
-				else
-				{
-					Different( a, b );
-				}
-			}
-		};
-
-		template<>
-		struct Compare< EFieldType_VARCHAR >
-		{
-			typedef Helpers< EFieldType_VARCHAR >::ParamType param_type;
-			typedef Helpers< EFieldType_VARCHAR >::FieldType field_type;
-
-			static void Equal( param_type const & a, field_type const & b )
-			{
-				BOOST_CHECK_EQUAL( std::string( a ), std::string( b ) );
-			}
-			static void Different( param_type const & a, field_type const & b )
-			{
-				BOOST_CHECK_NE( std::string( a ), std::string( b ) );
-			}
-			void operator()( bool equal, param_type const & a, field_type const & b )
-			{
-				if ( equal )
-				{
-					Equal( a, b );
-				}
-				else
-				{
-					Different( a, b );
-				}
-			}
-		};
-
-		template<>
-		struct Compare< EFieldType_NCHAR >
-		{
-			typedef Helpers< EFieldType_NCHAR >::ParamType param_type;
-			typedef Helpers< EFieldType_NCHAR >::FieldType field_type;
-
-			static void Equal( param_type const & a, field_type const & b )
-			{
-				BOOST_CHECK_EQUAL( StringUtils::ToStr( a ), StringUtils::ToStr( b ) );
-			}
-			static void Different( param_type const & a, field_type const & b )
-			{
-				BOOST_CHECK_NE( StringUtils::ToStr( a ), StringUtils::ToStr( b ) );
-			}
-			void operator()( bool equal, param_type const & a, field_type const & b )
-			{
-				if ( equal )
-				{
-					Equal( a, b );
-				}
-				else
-				{
-					Different( a, b );
-				}
-			}
-		};
-
-		template<>
-		struct Compare< EFieldType_NVARCHAR >
-		{
-			typedef Helpers< EFieldType_NVARCHAR >::ParamType param_type;
-			typedef Helpers< EFieldType_NVARCHAR >::FieldType field_type;
-
-			static void Equal( param_type const & a, field_type const & b )
-			{
-				BOOST_CHECK_EQUAL( StringUtils::ToStr( a ), StringUtils::ToStr( b ) );
-			}
-			static void Different( param_type const & a, field_type const & b )
-			{
-				BOOST_CHECK_NE( StringUtils::ToStr( a ), StringUtils::ToStr( b ) );
-			}
-			void operator()( bool equal, param_type const & a, field_type const & b )
-			{
-				if ( equal )
-				{
-					Equal( a, b );
-				}
-				else
-				{
-					Different( a, b );
-				}
-			}
-		};
-
-		template<>
-		struct Compare< EFieldType_VARBINARY >
-		{
-			typedef Helpers< EFieldType_VARBINARY >::ParamType param_type;
-			typedef Helpers< EFieldType_VARBINARY >::FieldType field_type;
-
-			static void Equal( param_type const & a, field_type const & b )
-			{
-				BOOST_CHECK_EQUAL_COLLECTIONS( a.begin(), a.end(), b.begin(), b.end() );
-			}
-			static void Different( param_type const & a, field_type const & b )
-			{
-				BOOST_CHECK( a != b );
-			}
-			void operator()( bool equal, param_type const & a, field_type const & b )
-			{
-				if ( equal )
-				{
-					Equal( a, b );
-				}
-				else
-				{
-					Different( a, b );
-				}
-			}
-		};
-
-		template< EFieldType FieldType, typename Enable = void >
-		struct ParameterCreator
-		{
-			template< typename Statement >
-			static void Create( std::shared_ptr< Statement > stmt, const String & name )
-			{
-				BOOST_CHECK( stmt->CreateParameter( name, FieldType ) );
-			}
-		};
-
-		template< EFieldType FieldType >
-		struct ParameterCreator< FieldType, typename std::enable_if< SFieldTypeNeedsLimits< FieldType >::value >::type >
-		{
-			template< typename Statement >
-			static void Create( std::shared_ptr< Statement > stmt, const String & name )
-			{
-				BOOST_CHECK( stmt->CreateParameter( name, FieldType, Helpers< FieldType >::Limit ) );
-			}
-		};
-
-		template< EFieldType FieldType >
-		struct ParameterCreator< FieldType, typename std::enable_if< SFieldTypeNeedsPrecision< FieldType >::value >::type >
-		{
-			template< typename Statement >
-			static void Create( std::shared_ptr< Statement > stmt, const String & name )
-			{
-				BOOST_CHECK( stmt->CreateParameter( name, FieldType, Helpers< FieldType >::Precision ) );
-			}
-		};
+		}
 
 		template< size_t StmtType, EFieldType FieldType >
-		inline void InsertAndRetrieve( DatabaseConnectionSPtr connection, const String & name, typename Helpers< FieldType >::ParamType const * valueIn, bool equal, String const & is )
+		inline std::shared_ptr< typename StatementTyper< StmtType >::Type > CreateInsertStatement( DatabaseConnectionSPtr connection, const String & name, bool other, typename Helpers< FieldType >::ParamType const * valueIn, String const & is )
+		{
+			auto statement = CreateStmt< StmtType >( connection, STR( "INSERT INTO Test (" ) + ( other ? String( "IntField, " ) : String() ) + name + STR( ") VALUES (" ) + ( other ? String( "?, " ) : String() ) + STR( "?)" ) );
+			
+			if ( statement )
+			{
+				FillStatement< StmtType, FieldType >( statement, name, other, valueIn );
+			}
+			else
+			{
+				BOOST_CHECK( statement );
+			}
+
+			return statement;
+		}
+
+		template< size_t StmtType, EFieldType FieldType >
+		inline std::shared_ptr< typename StatementTyper< StmtType >::Type > CreateSelectStatement( DatabaseConnectionSPtr connection, const String & name, bool other, typename Helpers< FieldType >::ParamType const * valueIn, String const & is )
+		{
+			auto statement = CreateStmt< StmtType >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE " ) + ( other ? String( "IntField = ? AND " ) : String() ) + name + STR( " " ) + ( valueIn ? String( "=" ) : is ) + STR( " ?" ) );
+
+			if ( statement )
+			{
+				FillStatement< StmtType, FieldType >( statement, name, other, valueIn );
+			}
+			else
+			{
+				BOOST_CHECK( statement );
+			}
+
+			return statement;
+		}
+
+		template<>
+		inline std::shared_ptr< typename StatementTyper< 0 >::Type > CreateSelectStatement< 0, EFieldType_FLOAT32 >( DatabaseConnectionSPtr connection, const String & name, bool other, Helpers< EFieldType_FLOAT32 >::ParamType const * valueIn, String const & is )
+		{
+			auto statement = CreateStmt< 0 >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE " ) + ( other ? String( "IntField = ? AND " ) : String() ) + STR( "CAST( " ) + name + STR( " AS DECIMAL( " ) + StringUtils::ToString( 39 + connection->GetPrecision( EFieldType_FLOAT32 ) ) + STR( ", " ) + StringUtils::ToString( connection->GetPrecision( EFieldType_FLOAT32 ) ) + STR( " ) )" ) + STR( " " ) + ( valueIn ? String( "=" ) : is ) + STR( " ?" ) );
+
+			if ( statement )
+			{
+				FillStatement< 0, EFieldType_FLOAT32 >( statement, name, other, valueIn );
+			}
+			else
+			{
+				BOOST_CHECK( statement );
+			}
+
+			return statement;
+		}
+
+		template< size_t StmtType, EFieldType FieldType, typename Function >
+		inline void DoInsertAndRetrieve( DatabaseConnectionSPtr connection, const String & name, typename Helpers< FieldType >::ParamType const * valueIn, bool equal, String const & is, bool other, Function function )
 		{
 			try
 			{
-				auto stmtInsert = CreateStmt< StmtType >( connection, STR( "INSERT INTO Test (" ) + name + STR( ") VALUES (?)" ) );
-				std::shared_ptr< typename StatementTyper< StmtType >::Type > stmtSelect;
-				String field = name;
-
-				if ( valueIn )
-				{
-					stmtSelect = CreateStmt< StmtType >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE " ) + field + STR( " = ?" ) );
-				}
-				else
-				{
-					stmtSelect = CreateStmt< StmtType >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE " ) + field + STR( " " ) + is + STR( " ?" ) );
-				}
-
-				BOOST_CHECK( stmtInsert );
-				BOOST_CHECK( stmtSelect );
+				auto stmtInsert = CreateInsertStatement< StmtType, FieldType >( connection, name, other, valueIn, is );
+				auto stmtSelect = CreateSelectStatement< StmtType, FieldType >( connection, name, other, valueIn, is );
 
 				if ( stmtInsert && stmtSelect )
 				{
-					ParameterCreator< FieldType >::Create( stmtInsert, name );
-					ParameterCreator< FieldType >::Create( stmtSelect, name );
-
-					BOOST_CHECK( stmtInsert->Initialise() == EErrorType_NONE );
-					BOOST_CHECK( stmtSelect->Initialise() == EErrorType_NONE );
-
-					if ( valueIn )
-					{
-						BOOST_CHECK_NO_THROW( stmtInsert->SetParameterValue( 0, *valueIn ) );
-						BOOST_CHECK_NO_THROW( stmtSelect->SetParameterValue( 0, *valueIn ) );
-					}
-					else
-					{
-						BOOST_CHECK_NO_THROW( stmtInsert->SetParameterNull( 0 ) );
-						BOOST_CHECK_NO_THROW( stmtSelect->SetParameterNull( 0 ) );
-					}
-
 					BOOST_CHECK( stmtInsert->ExecuteUpdate() );
 					DatabaseResultSPtr result = stmtSelect->ExecuteSelect();
 
@@ -665,15 +430,14 @@ BEGIN_NAMESPACE_DATABASE_TEST
 							if ( valueIn )
 							{
 								typename Helpers< FieldType >::FieldType valueOut;
-								BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, valueOut ) );
-								Compare< FieldType >()( equal, static_cast< CDatabaseValue< FieldType > const & >( stmtInsert->GetParameter( 0 )->GetObjectValue() ).GetValue(), valueOut );
+								BOOST_CHECK_NO_THROW( function( result, valueOut ) );
+								Helpers< FieldType >::Compare( equal, static_cast< CDatabaseValue< FieldType > const & >( stmtInsert->GetParameter( other ? 1 : 0 )->GetObjectValue() ).GetValue(), valueOut );
 							}
 							else
 							{
 								try
 								{
-									DatabaseFieldSPtr field = result->GetFirstRow()->GetField( 0 );
-									BOOST_CHECK( field->GetObjectValue().IsNull() );
+									BOOST_CHECK( result->GetFirstRow()->GetField( 0 )->GetObjectValue().IsNull() );
 								}
 								catch ( CDatabaseException & exc )
 								{
@@ -705,491 +469,45 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 			catch ( ... )
 			{
-				CLogger::LogError( "Unknown exception when executing InsertAndRetrieve" );
+				CLogger::LogError( "Unknown exception when executing DoInsertAndRetrieve" );
 				throw;
 			}
 		}
 
-		template<>
-		inline void InsertAndRetrieve< 0, EFieldType_FLOAT32 >( DatabaseConnectionSPtr connection, const String & name, typename Helpers< EFieldType_FLOAT32 >::ParamType const * valueIn, bool equal, String const & is )
+		template< size_t StmtType, EFieldType FieldType >
+		inline void InsertAndRetrieve( DatabaseConnectionSPtr connection, const String & name, typename Helpers< FieldType >::ParamType const * valueIn, bool equal, String const & is )
 		{
-			try
+			DoInsertAndRetrieve< StmtType, FieldType >( connection, name, valueIn, equal, is, false, []( DatabaseResultSPtr result, typename Helpers< FieldType >::FieldType & valueOut )
 			{
-				auto stmtInsert = CreateStmt< 0 >( connection, STR( "INSERT INTO Test (" ) + name + STR( ") VALUES (?)" ) );
-				std::shared_ptr< CDatabaseQuery > stmtSelect;
-				String field = STR( "CAST( " ) + name + STR( " AS DECIMAL( " ) + StringUtils::ToString( 39 + connection->GetPrecision( EFieldType_FLOAT32 ) ) + STR( ", " ) + StringUtils::ToString( connection->GetPrecision( EFieldType_FLOAT32 ) ) + STR( " ) )" );
-
-				if ( valueIn )
-				{
-					stmtSelect = CreateStmt< 0 >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE " ) + field + STR( " = ?" ) );
-				}
-				else
-				{
-					stmtSelect = CreateStmt< 0 >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE " ) + field + STR( " " ) + is + STR( " ?" ) );
-				}
-
-				BOOST_CHECK( stmtInsert );
-				BOOST_CHECK( stmtSelect );
-
-				if ( stmtInsert && stmtSelect )
-				{
-					ParameterCreator< EFieldType_FLOAT32 >::Create( stmtInsert, name );
-					ParameterCreator< EFieldType_FLOAT32 >::Create( stmtSelect, name );
-
-					BOOST_CHECK( stmtInsert->Initialise() == EErrorType_NONE );
-					BOOST_CHECK( stmtSelect->Initialise() == EErrorType_NONE );
-
-					if ( valueIn )
-					{
-						BOOST_CHECK_NO_THROW( stmtInsert->SetParameterValue( 0, *valueIn ) );
-						BOOST_CHECK_NO_THROW( stmtSelect->SetParameterValue( 0, *valueIn ) );
-					}
-					else
-					{
-						BOOST_CHECK_NO_THROW( stmtInsert->SetParameterNull( 0 ) );
-						BOOST_CHECK_NO_THROW( stmtSelect->SetParameterNull( 0 ) );
-					}
-
-					BOOST_CHECK( stmtInsert->ExecuteUpdate() );
-					DatabaseResultSPtr result = stmtSelect->ExecuteSelect();
-
-					if ( result )
-					{
-						if ( result->GetRowCount() )
-						{
-							if ( valueIn )
-							{
-								Helpers< EFieldType_FLOAT32 >::FieldType valueOut;
-								BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, valueOut ) );
-								Compare< EFieldType_FLOAT32 >()( equal, static_cast< CDatabaseValue< EFieldType_FLOAT32 > const & >( stmtInsert->GetParameter( 0 )->GetObjectValue() ).GetValue(), valueOut );
-							}
-							else
-							{
-								try
-								{
-									DatabaseFieldSPtr field = result->GetFirstRow()->GetField( 0 );
-									BOOST_CHECK( field->GetObjectValue().IsNull() );
-								}
-								catch ( CDatabaseException & exc )
-								{
-									CLogger::LogError( exc.GetFullDescription() );
-									BOOST_CHECK_NO_THROW( result->GetFirstRow()->GetField( 0 ) );
-								}
-							}
-						}
-						else
-						{
-							BOOST_CHECK( result->GetRowCount() );
-						}
-					}
-					else
-					{
-						BOOST_CHECK( result );
-					}
-				}
-			}
-			catch ( CDatabaseException & exc )
-			{
-				CLogger::LogError( exc.GetFullDescription() );
-				throw;
-			}
-			catch ( std::exception & exc )
-			{
-				CLogger::LogError( exc.what() );
-				throw;
-			}
-			catch ( ... )
-			{
-				CLogger::LogError( "Unknown exception when executing InsertAndRetrieve" );
-				throw;
-			}
-		}
-
-		template<>
-		inline void InsertAndRetrieve< 1, EFieldType_FLOAT32 >( DatabaseConnectionSPtr connection, const String & name, typename Helpers< EFieldType_FLOAT32 >::ParamType const * valueIn, bool equal, String const & is )
-		{
-			try
-			{
-				auto stmtInsert = CreateStmt< 1 >( connection, STR( "INSERT INTO Test (" ) + name + STR( ") VALUES (?)" ) );
-				std::shared_ptr< CDatabaseStatement > stmtSelect;
-				String field = name;
-
-				if ( valueIn )
-				{
-					stmtSelect = CreateStmt< 1 >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE " ) + field + STR( " = ?" ) );
-				}
-				else
-				{
-					stmtSelect = CreateStmt< 1 >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE " ) + field + STR( " " ) + is + STR( " ?" ) );
-				}
-
-				BOOST_CHECK( stmtInsert );
-				BOOST_CHECK( stmtSelect );
-
-				if ( stmtInsert && stmtSelect )
-				{
-					ParameterCreator< EFieldType_FLOAT32 >::Create( stmtInsert, name );
-					ParameterCreator< EFieldType_FLOAT32 >::Create( stmtSelect, name );
-
-					BOOST_CHECK( stmtInsert->Initialise() == EErrorType_NONE );
-					BOOST_CHECK( stmtSelect->Initialise() == EErrorType_NONE );
-
-					if ( valueIn )
-					{
-						BOOST_CHECK_NO_THROW( stmtInsert->SetParameterValue( 0, *valueIn ) );
-						BOOST_CHECK_NO_THROW( stmtSelect->SetParameterValue( 0, *valueIn ) );
-					}
-					else
-					{
-						BOOST_CHECK_NO_THROW( stmtInsert->SetParameterNull( 0 ) );
-						BOOST_CHECK_NO_THROW( stmtSelect->SetParameterNull( 0 ) );
-					}
-
-					BOOST_CHECK( stmtInsert->ExecuteUpdate() );
-					DatabaseResultSPtr result = stmtSelect->ExecuteSelect();
-
-					if ( result )
-					{
-						if ( result->GetRowCount() )
-						{
-							if ( valueIn )
-							{
-								Helpers< EFieldType_FLOAT32 >::FieldType valueOut;
-								BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, valueOut ) );
-								Compare< EFieldType_FLOAT32 >()( equal, static_cast< CDatabaseValue< EFieldType_FLOAT32 > const & >( stmtInsert->GetParameter( 0 )->GetObjectValue() ).GetValue(), valueOut );
-							}
-							else
-							{
-								try
-								{
-									DatabaseFieldSPtr field = result->GetFirstRow()->GetField( 0 );
-									BOOST_CHECK( field->GetObjectValue().IsNull() );
-								}
-								catch ( CDatabaseException & exc )
-								{
-									CLogger::LogError( exc.GetFullDescription() );
-									BOOST_CHECK_NO_THROW( result->GetFirstRow()->GetField( 0 ) );
-								}
-							}
-						}
-						else
-						{
-							BOOST_CHECK( result->GetRowCount() );
-						}
-					}
-					else
-					{
-						BOOST_CHECK( result );
-					}
-				}
-			}
-			catch ( CDatabaseException & exc )
-			{
-				CLogger::LogError( exc.GetFullDescription() );
-				throw;
-			}
-			catch ( std::exception & exc )
-			{
-				CLogger::LogError( exc.what() );
-				throw;
-			}
-			catch ( ... )
-			{
-				CLogger::LogError( "Unknown exception when executing InsertAndRetrieve" );
-				throw;
-			}
+				result->GetFirstRow()->Get( 0, valueOut );
+			} );
 		}
 
 		template< size_t StmtType, EFieldType FieldType >
 		inline void InsertAndRetrieveOtherIndex( DatabaseConnectionSPtr connection, const String & name, typename Helpers< FieldType >::ParamType const * valueIn, bool equal, String const & is )
 		{
-			try
+			DoInsertAndRetrieve< StmtType, FieldType >( connection, name, valueIn, equal, is, true, []( DatabaseResultSPtr result, typename Helpers< FieldType >::FieldType & valueOut )
 			{
-				auto stmtInsert = CreateStmt< StmtType >( connection, STR( "INSERT INTO Test (IntField, " ) + name + STR( ") VALUES (?, ?)" ) );
-				std::shared_ptr< typename StatementTyper< StmtType >::Type > stmtSelect;
-
-				if ( valueIn )
-				{
-					stmtSelect = CreateStmt< StmtType >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE IntField = ? AND " ) + name + STR( " = ?" ) );
-				}
-				else
-				{
-					stmtSelect = CreateStmt< StmtType >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE IntField = ? AND " ) + name + STR( " " ) + is + STR( " ?" ) );
-				}
-
-				BOOST_CHECK( stmtInsert );
-				BOOST_CHECK( stmtSelect );
-
-				if ( stmtInsert && stmtSelect )
-				{
-					ParameterCreator< EFieldType_SINT32 >::Create( stmtInsert, STR( "IntField" ) );
-					ParameterCreator< FieldType >::Create( stmtInsert, name );
-					ParameterCreator< EFieldType_SINT32 >::Create( stmtSelect, STR( "IntField" ) );
-					ParameterCreator< FieldType >::Create( stmtSelect, name );
-
-					BOOST_CHECK( stmtInsert->Initialise() == EErrorType_NONE );
-					BOOST_CHECK( stmtSelect->Initialise() == EErrorType_NONE );
-
-					BOOST_CHECK_NO_THROW( stmtInsert->SetParameterValue( 0, 18 ) );
-					BOOST_CHECK_NO_THROW( stmtSelect->SetParameterValue( 0, 18 ) );
-
-					if ( valueIn )
-					{
-						BOOST_CHECK_NO_THROW( stmtInsert->SetParameterValue( 1, *valueIn ) );
-						BOOST_CHECK_NO_THROW( stmtSelect->SetParameterValue( 1, *valueIn ) );
-					}
-					else
-					{
-						BOOST_CHECK_NO_THROW( stmtInsert->SetParameterNull( 1 ) );
-						BOOST_CHECK_NO_THROW( stmtSelect->SetParameterNull( 1 ) );
-					}
-
-					BOOST_CHECK( stmtInsert->ExecuteUpdate() );
-					DatabaseResultSPtr result = stmtSelect->ExecuteSelect();
-
-					if ( result )
-					{
-						if ( result->GetRowCount() )
-						{
-							if ( valueIn )
-							{
-								typename Helpers< FieldType >::FieldType valueOut;
-								BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, valueOut ) );
-								Compare< FieldType >()( equal, static_cast< CDatabaseValue< FieldType > const & >( stmtInsert->GetParameter( 1 )->GetObjectValue() ).GetValue(), valueOut );
-							}
-							else
-							{
-								try
-								{
-									DatabaseFieldSPtr field = result->GetFirstRow()->GetField( 0 );
-									BOOST_CHECK( field->GetObjectValue().IsNull() );
-								}
-								catch ( CDatabaseException & exc )
-								{
-									CLogger::LogError( exc.GetFullDescription() );
-									BOOST_CHECK_NO_THROW( result->GetFirstRow()->GetField( 0 ) );
-								}
-							}
-						}
-						else
-						{
-							BOOST_CHECK( result->GetRowCount() );
-						}
-					}
-					else
-					{
-						BOOST_CHECK( result );
-					}
-				}
-			}
-			catch ( CDatabaseException & exc )
-			{
-				CLogger::LogError( exc.GetFullDescription() );
-				throw;
-			}
-			catch ( std::exception & exc )
-			{
-				CLogger::LogError( exc.what() );
-				throw;
-			}
-			catch ( ... )
-			{
-				CLogger::LogError( "Unknown exception when executing InsertAndRetrieveOtherIndex" );
-				throw;
-			}
+				result->GetFirstRow()->Get( 0, valueOut );
+			} );
 		}
 
 		template< size_t StmtType, EFieldType FieldType >
 		inline void InsertAndRetrieveFast( DatabaseConnectionSPtr connection, const String & name, typename Helpers< FieldType >::ParamType const * valueIn, bool equal, String const & is )
 		{
-			try
+			DoInsertAndRetrieve< StmtType, FieldType >( connection, name, valueIn, equal, is, false, []( DatabaseResultSPtr result, typename Helpers< FieldType >::FieldType & valueOut )
 			{
-				auto stmtInsert = CreateStmt< StmtType >( connection, STR( "INSERT INTO Test (" ) + name + STR( ") VALUES (?)" ) );
-				std::shared_ptr< typename StatementTyper< StmtType >::Type > stmtSelect;
-
-				if ( valueIn )
-				{
-					stmtSelect = CreateStmt< StmtType >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE " ) + name + STR( " = ?" ) );
-				}
-				else
-				{
-					stmtSelect = CreateStmt< StmtType >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE " ) + name + STR( " " ) + is + STR( " ?" ) );
-				}
-
-				BOOST_CHECK( stmtInsert );
-				BOOST_CHECK( stmtSelect );
-
-				if ( stmtInsert && stmtSelect )
-				{
-					ParameterCreator< FieldType >::Create( stmtInsert, name );
-					ParameterCreator< FieldType >::Create( stmtSelect, name );
-
-					BOOST_CHECK( stmtInsert->Initialise() == EErrorType_NONE );
-					BOOST_CHECK( stmtSelect->Initialise() == EErrorType_NONE );
-
-					if ( valueIn )
-					{
-						BOOST_CHECK_NO_THROW( stmtInsert->SetParameterValueFast( 0, *valueIn ) );
-						BOOST_CHECK_NO_THROW( stmtSelect->SetParameterValueFast( 0, *valueIn ) );
-					}
-					else
-					{
-						BOOST_CHECK_NO_THROW( stmtInsert->SetParameterNull( 0 ) );
-						BOOST_CHECK_NO_THROW( stmtSelect->SetParameterNull( 0 ) );
-					}
-
-					BOOST_CHECK( stmtInsert->ExecuteUpdate() );
-					DatabaseResultSPtr result = stmtSelect->ExecuteSelect();
-
-					if ( result )
-					{
-						if ( result->GetRowCount() )
-						{
-							if ( valueIn )
-							{
-								typename Helpers< FieldType >::FieldType valueOut;
-								BOOST_CHECK_NO_THROW( result->GetFirstRow()->GetFast( 0, valueOut ) );
-								Compare< FieldType >()( equal, static_cast< CDatabaseValue< FieldType > const & >( stmtInsert->GetParameter( 0 )->GetObjectValue() ).GetValue(), valueOut );
-							}
-							else
-							{
-								try
-								{
-									DatabaseFieldSPtr field = result->GetFirstRow()->GetField( 0 );
-									BOOST_CHECK( field->GetObjectValue().IsNull() );
-								}
-								catch ( CDatabaseException & exc )
-								{
-									CLogger::LogError( exc.GetFullDescription() );
-									BOOST_CHECK_NO_THROW( result->GetFirstRow()->GetField( 0 ) );
-								}
-							}
-						}
-						else
-						{
-							BOOST_CHECK( result->GetRowCount() );
-						}
-					}
-					else
-					{
-						BOOST_CHECK( result );
-					}
-				}
-			}
-			catch ( CDatabaseException & exc )
-			{
-				CLogger::LogError( exc.GetFullDescription() );
-				throw;
-			}
-			catch ( std::exception & exc )
-			{
-				CLogger::LogError( exc.what() );
-				throw;
-			}
-			catch ( ... )
-			{
-				CLogger::LogError( "Unknown exception when executing InsertAndRetrieveFast" );
-				throw;
-			}
+				result->GetFirstRow()->GetFast( 0, valueOut );
+			} );
 		}
 
 		template< size_t StmtType, EFieldType FieldType >
 		inline void InsertAndRetrieveFastOtherIndex( DatabaseConnectionSPtr connection, const String & name, typename Helpers< FieldType >::ParamType const * valueIn, bool equal, String const & is )
 		{
-			try
+			DoInsertAndRetrieve< StmtType, FieldType >( connection, name, valueIn, equal, is, true, []( DatabaseResultSPtr result, typename Helpers< FieldType >::FieldType & valueOut )
 			{
-				auto stmtInsert = CreateStmt< StmtType >( connection, STR( "INSERT INTO Test (IntField, " ) + name + STR( ") VALUES (?, ?)" ) );
-				std::shared_ptr< typename StatementTyper< StmtType >::Type > stmtSelect;
-
-				if ( valueIn )
-				{
-					stmtSelect = CreateStmt< StmtType >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE IntField = ? AND " ) + name + STR( " = ?" ) );
-				}
-				else
-				{
-					stmtSelect = CreateStmt< StmtType >( connection, STR( "SELECT " ) + name + STR( " FROM Test WHERE IntField = ? AND " ) + name + STR( " " ) + is + STR( " ?" ) );
-				}
-
-				BOOST_CHECK( stmtInsert );
-				BOOST_CHECK( stmtSelect );
-
-				if ( stmtInsert && stmtSelect )
-				{
-					ParameterCreator< EFieldType_SINT32 >::Create( stmtInsert, STR( "IntField" ) );
-					ParameterCreator< FieldType >::Create( stmtInsert, name );
-					ParameterCreator< EFieldType_SINT32 >::Create( stmtSelect, STR( "IntField" ) );
-					ParameterCreator< FieldType >::Create( stmtSelect, name );
-
-					BOOST_CHECK( stmtInsert->Initialise() == EErrorType_NONE );
-					BOOST_CHECK( stmtSelect->Initialise() == EErrorType_NONE );
-
-					BOOST_CHECK_NO_THROW( stmtInsert->SetParameterValueFast( 0, 18 ) );
-					BOOST_CHECK_NO_THROW( stmtSelect->SetParameterValueFast( 0, 18 ) );
-
-					if ( valueIn )
-					{
-						BOOST_CHECK_NO_THROW( stmtInsert->SetParameterValueFast( 1, *valueIn ) );
-						BOOST_CHECK_NO_THROW( stmtSelect->SetParameterValueFast( 1, *valueIn ) );
-					}
-					else
-					{
-						BOOST_CHECK_NO_THROW( stmtInsert->SetParameterNull( 1 ) );
-						BOOST_CHECK_NO_THROW( stmtSelect->SetParameterNull( 1 ) );
-					}
-
-					BOOST_CHECK( stmtInsert->ExecuteUpdate() );
-					DatabaseResultSPtr result = stmtSelect->ExecuteSelect();
-
-					if ( result )
-					{
-						if ( result->GetRowCount() )
-						{
-							if ( valueIn )
-							{
-								typename Helpers< FieldType >::FieldType valueOut;
-								BOOST_CHECK_NO_THROW( result->GetFirstRow()->GetFast( 0, valueOut ) );
-								Compare< FieldType >()( equal, static_cast< CDatabaseValue< FieldType > const & >( stmtInsert->GetParameter( 1 )->GetObjectValue() ).GetValue(), valueOut );
-							}
-							else
-							{
-								try
-								{
-									DatabaseFieldSPtr field = result->GetFirstRow()->GetField( 0 );
-									BOOST_CHECK( field->GetObjectValue().IsNull() );
-								}
-								catch ( CDatabaseException & exc )
-								{
-									CLogger::LogError( exc.GetFullDescription() );
-									BOOST_CHECK_NO_THROW( result->GetFirstRow()->GetField( 0 ) );
-								}
-							}
-						}
-						else
-						{
-							BOOST_CHECK( result->GetRowCount() );
-						}
-					}
-					else
-					{
-						BOOST_CHECK( result );
-					}
-				}
-			}
-			catch ( CDatabaseException & exc )
-			{
-				CLogger::LogError( exc.GetFullDescription() );
-				throw;
-			}
-			catch ( std::exception & exc )
-			{
-				CLogger::LogError( exc.what() );
-				throw;
-			}
-			catch ( ... )
-			{
-				CLogger::LogError( "Unknown exception when executing InsertAndRetrieveFastOtherIndex" );
-				throw;
-			}
+				result->GetFirstRow()->GetFast( 0, valueOut );
+			} );
 		}
 
 		template< size_t StmtType >
@@ -1202,6 +520,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				{
 					_statement->Initialise();
 				}
+			}
+
+			~Countor()
+			{
 			}
 
 			inline int64_t GetValue()
@@ -1225,21 +547,56 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		};
 
 		template< size_t StmtType >
-		struct IdSelector
+		struct Minor
 		{
-			IdSelector( DatabaseConnectionSPtr connection )
+			Minor( DatabaseConnectionSPtr connection )
+				: _stmtGetMin( CreateStmt< StmtType >( connection, QUERY_SELECT_MIN ) )
+			{
+				if ( _stmtGetMin )
+				{
+					_stmtGetMin->Initialise();
+				}
+			}
+
+			~Minor()
+			{
+			}
+
+			inline int64_t GetValue()
+			{
+				int64_t max = 0;
+
+				if ( _stmtGetMin )
+				{
+					DatabaseResultSPtr result = _stmtGetMin->ExecuteSelect();
+
+					if ( result && result->GetRowCount() )
+					{
+						result->GetFirstRow()->Get( 0, max );
+					}
+				}
+
+				return max;
+			}
+
+		private:
+			std::shared_ptr< typename StatementTyper< StmtType >::Type > _stmtGetMin;
+		};
+
+		template< size_t StmtType >
+		struct Maxor
+		{
+			Maxor( DatabaseConnectionSPtr connection )
 				: _stmtGetMax( CreateStmt< StmtType >( connection, QUERY_SELECT_MAX ) )
-				, _stmtGetMin( CreateStmt< StmtType >( connection, QUERY_SELECT_MIN ) )
 			{
 				if ( _stmtGetMax )
 				{
 					_stmtGetMax->Initialise();
 				}
+			}
 
-				if ( _stmtGetMin )
-				{
-					_stmtGetMin->Initialise();
-				}
+			~Maxor()
+			{
 			}
 
 			inline int64_t GetValue()
@@ -1256,17 +613,29 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					}
 				}
 
-				int64_t min = 0;
+				return max;
+			}
 
-				if ( _stmtGetMin )
-				{
-					DatabaseResultSPtr result = _stmtGetMin->ExecuteSelect();
+			std::shared_ptr< typename StatementTyper< StmtType >::Type > _stmtGetMax;
+		};
 
-					if ( result && result->GetRowCount() )
-					{
-						result->GetFirstRow()->Get( 0, min );
-					}
-				}
+		template< size_t StmtType >
+		struct IdSelector
+		{
+			IdSelector( DatabaseConnectionSPtr connection )
+				: _maxor( connection )
+				, _minor( connection )
+			{
+			}
+
+			~IdSelector()
+			{
+			}
+
+			inline int64_t GetValue()
+			{
+				int64_t min = _minor.GetValue();
+				int64_t max = _maxor.GetValue();
 
 				int64_t result = 0;
 
@@ -1280,8 +649,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 
 			std::random_device _generator;
-			std::shared_ptr< typename StatementTyper< StmtType >::Type > _stmtGetMax;
-			std::shared_ptr< typename StatementTyper< StmtType >::Type > _stmtGetMin;
+			Minor< StmtType > _minor;
+			Maxor< StmtType > _maxor;
 		};
 
 		template< size_t StmtType >
@@ -1295,6 +664,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					UncheckedCreateParameters( _statement );
 					_statement->Initialise();
 				}
+			}
+
+			~Insertor()
+			{
 			}
 
 			inline bool Run()
@@ -1327,6 +700,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					_statement->CreateParameter( STR( "IDTest" ), EFieldType_SINT64, EParameterType_IN );
 					_statement->Initialise();
 				}
+			}
+
+			~Selector()
+			{
 			}
 
 			inline bool Run()
@@ -1367,6 +744,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				}
 			}
 
+			~Updator()
+			{
+			}
+
 			inline bool Run()
 			{
 				bool ret = false;
@@ -1397,33 +778,26 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		{
 			Deletor( DatabaseConnectionSPtr connection )
 				: _stmtDelete( CreateStmt< StmtType >( connection, QUERY_DIRECT_DELETE_ELEMENT ) )
-				, _stmtGetMin( CreateStmt< StmtType >( connection, QUERY_SELECT_MIN ) )
+				, _minor( connection )
 			{
 				if ( _stmtDelete )
 				{
 					_stmtDelete->CreateParameter( STR( "IDTest" ), EFieldType_SINT64, EParameterType_IN );
 					_stmtDelete->Initialise();
 				}
+			}
 
-				if ( _stmtGetMin )
-				{
-					_stmtGetMin->Initialise();
-				}
+			~Deletor()
+			{
 			}
 
 			inline bool Run()
 			{
 				bool ret = false;
 
-				if ( _stmtDelete && _stmtGetMin )
+				if ( _stmtDelete )
 				{
-					int64_t min = 0;
-					DatabaseResultSPtr result = _stmtGetMin->ExecuteSelect();
-
-					if ( result && result->GetRowCount() )
-					{
-						result->GetFirstRow()->Get( 0, min );
-					}
+					int64_t min = _minor.GetValue();
 
 					if ( min )
 					{
@@ -1436,7 +810,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			}
 
 			std::shared_ptr< typename StatementTyper< StmtType >::Type > _stmtDelete;
-			std::shared_ptr< typename StatementTyper< StmtType >::Type > _stmtGetMin;
+			Minor< StmtType > _minor;
 		};
 
 		template< size_t StmtType, typename Action >
@@ -1494,36 +868,12 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		{
 			try
 			{
-				auto stmtSelect = CreateStmt< StmtType >( connection, QUERY_DIRECT_SELECT_ALL_ELEMENTS );
-				BOOST_CHECK( stmtSelect );
+				int const selects = 10;
+				Selector< StmtType > selector( connection );
 
-				if ( stmtSelect )
+				for ( int i = 0; i < selects; i++ )
 				{
-					BOOST_CHECK( stmtSelect->Initialise() == EErrorType_NONE );
-					DatabaseResultSPtr result = stmtSelect->ExecuteSelect();
-
-					if ( result )
-					{
-						if ( result->GetRowCount() )
-						{
-							DatabaseRowSPtr row = result->GetFirstRow();
-
-							while ( row )
-							{
-								uint32_t index = 0;
-								DisplayValues( index, row );
-								row = result->GetNextRow();
-							}
-						}
-						else
-						{
-							BOOST_CHECK( result->GetRowCount() );
-						}
-					}
-					else
-					{
-						BOOST_CHECK( result );
-					}
+					BOOST_CHECK( selector.Run() );
 				}
 			}
 			catch ( CDatabaseException & exc )
@@ -1548,51 +898,12 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		{
 			try
 			{
-				auto stmtGetMin = CreateStmt< StmtType >( connection, QUERY_SELECT_MIN );
-				BOOST_CHECK( stmtGetMin );
-				int64_t min = 0;
+				int const updates = 10;
+				Updator< StmtType > updator( connection );
 
-				if ( stmtGetMin )
+				for ( int i = 0; i < updates; i++ )
 				{
-					BOOST_CHECK( stmtGetMin->Initialise() == EErrorType_NONE );
-					DatabaseResultSPtr result = stmtGetMin->ExecuteSelect();
-
-					if ( result )
-					{
-						if ( result->GetRowCount() )
-						{
-							BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, min ) );
-						}
-						else
-						{
-							BOOST_CHECK( result->GetRowCount() );
-						}
-					}
-					else
-					{
-						BOOST_CHECK( result );
-					}
-				}
-
-				if ( min )
-				{
-					auto stmtUpdate = CreateStmt< StmtType >( connection, QUERY_DIRECT_UPDATE_ELEMENT );
-					BOOST_CHECK( stmtUpdate );
-
-					if ( stmtUpdate )
-					{
-						CreateParameters( stmtUpdate );
-						BOOST_CHECK( stmtUpdate->CreateParameter( STR( "IDTest" ), EFieldType_SINT64, EParameterType_IN ) );
-						BOOST_CHECK( stmtUpdate->Initialise() == EErrorType_NONE );
-
-						for ( int i = 0; i < 10; i++ )
-						{
-							uint32_t index = 0;
-							SetParametersValue( generator, index, i + 40, i, stmtUpdate );
-							stmtUpdate->SetParameterValue( index++, min + i );
-							BOOST_CHECK( stmtUpdate->ExecuteUpdate() );
-						}
-					}
+					BOOST_CHECK( updator.Run() );
 				}
 			}
 			catch ( CDatabaseException & exc )
@@ -1617,49 +928,12 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		{
 			try
 			{
-				auto stmtGetMin = CreateStmt< StmtType >( connection, QUERY_SELECT_MIN );
-				BOOST_CHECK( stmtGetMin );
-				int64_t min = -1;
+				int const deletes = 10;
+				Deletor< StmtType > deletor( connection );
 
-				if ( stmtGetMin )
+				for ( int i = 0; i < deletes; i++ )
 				{
-					BOOST_CHECK( stmtGetMin->Initialise() == EErrorType_NONE );
-					DatabaseResultSPtr result = stmtGetMin->ExecuteSelect();
-
-					if ( result )
-					{
-						if ( result->GetRowCount() )
-						{
-							BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, min ) );
-						}
-						else
-						{
-							BOOST_CHECK( result->GetRowCount() );
-						}
-					}
-					else
-					{
-						BOOST_CHECK( result );
-					}
-				}
-
-				if ( min )
-				{
-					auto stmtDelete = CreateStmt< StmtType >( connection, QUERY_DIRECT_DELETE_ELEMENT );
-					BOOST_CHECK( stmtDelete );
-
-					if ( stmtDelete )
-					{
-						BOOST_CHECK( stmtDelete->CreateParameter( STR( "IDTest" ), EFieldType_SINT64, EParameterType_IN ) );
-						BOOST_CHECK( stmtDelete->Initialise() == EErrorType_NONE );
-
-						for ( int i = 0; i < 5; i++ )
-						{
-							int64_t id = min + i;
-							stmtDelete->SetParameterValue( 0, id );
-							BOOST_CHECK( stmtDelete->ExecuteUpdate() );
-						}
-					}
+					BOOST_CHECK( deletor.Run() );
 				}
 			}
 			catch ( CDatabaseException & exc )
@@ -1675,320 +949,6 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			catch ( ... )
 			{
 				CLogger::LogError( "Unknown exception when executing TestDirectDelete" );
-				throw;
-			}
-		}
-
-		template< size_t StmtType >
-		inline void TestStoredNoParamNoReturn( std::random_device & generator, DatabaseConnectionSPtr connection )
-		{
-			try
-			{
-				auto stmtClear = CreateStmt< StmtType >( connection, STR( "CALL ClearElementsTables" ) );
-				BOOST_CHECK( stmtClear );
-
-				if ( stmtClear )
-				{
-					BOOST_CHECK( stmtClear->Initialise() == EErrorType_NONE );
-
-					for ( int i = 0; i < 2; i++ )
-					{
-						BOOST_CHECK( stmtClear->ExecuteUpdate() );
-					}
-				}
-			}
-			catch ( CDatabaseException & exc )
-			{
-				CLogger::LogError( exc.GetFullDescription() );
-				throw;
-			}
-			catch ( std::exception & exc )
-			{
-				CLogger::LogError( exc.what() );
-				throw;
-			}
-			catch ( ... )
-			{
-				CLogger::LogError( "Unknown exception when executing TestStoredNoParamNoReturn" );
-				throw;
-			}
-		}
-
-		template< size_t StmtType >
-		inline void TestStoredNoParamReturn( std::random_device & generator, DatabaseConnectionSPtr connection, const String & where )
-		{
-			try
-			{
-				auto stmtGetElements = CreateStmt< StmtType >( connection, STR( "CALL GetElements(?)" ) );
-				BOOST_CHECK( stmtGetElements );
-
-				if ( stmtGetElements )
-				{
-					BOOST_CHECK( stmtGetElements->CreateParameter( STR( "Where" ), EFieldType_VARCHAR, 500 ) );
-					BOOST_CHECK( stmtGetElements->Initialise() == EErrorType_NONE );
-
-					for ( int i = 0; i < 2; i++ )
-					{
-						stmtGetElements->SetParameterValue( 0, where );
-						DatabaseResultSPtr result = stmtGetElements->ExecuteSelect();
-
-						if ( result )
-						{
-							if ( result->GetRowCount() )
-							{
-								DatabaseRowSPtr row = result->GetFirstRow();
-
-								while ( row )
-								{
-									uint32_t index = 0;
-									DisplayValues( index, row );
-									row = result->GetNextRow();
-								}
-							}
-							else
-							{
-								BOOST_CHECK( result->GetRowCount() );
-							}
-						}
-						else
-						{
-							BOOST_CHECK( result );
-						}
-					}
-				}
-			}
-			catch ( CDatabaseException & exc )
-			{
-				CLogger::LogError( exc.GetFullDescription() );
-				throw;
-			}
-			catch ( std::exception & exc )
-			{
-				CLogger::LogError( exc.what() );
-				throw;
-			}
-			catch ( ... )
-			{
-				CLogger::LogError( "Unknown exception when executing TestStoredNoParamReturn" );
-				throw;
-			}
-		}
-
-		template< size_t StmtType >
-		inline void TestStoredInParamNoReturn( std::random_device & generator, DatabaseConnectionSPtr connection )
-		{
-			try
-			{
-				auto stmtGetMin = CreateStmt< StmtType >( connection, QUERY_SELECT_MIN );
-				BOOST_CHECK( stmtGetMin );
-				int64_t min = 0;
-
-				if ( stmtGetMin )
-				{
-					BOOST_CHECK( stmtGetMin->Initialise() == EErrorType_NONE );
-					DatabaseResultSPtr result = stmtGetMin->ExecuteSelect();
-
-					if ( result )
-					{
-						if ( result->GetRowCount() )
-						{
-							BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, min ) );
-						}
-						else
-						{
-							BOOST_CHECK( result->GetRowCount() );
-						}
-					}
-					else
-					{
-						BOOST_CHECK( result );
-					}
-				}
-
-				if ( min )
-				{
-					auto stmtDelete = CreateStmt< StmtType >( connection, STR( "CALL DeleteElements(?)" ) );
-					BOOST_CHECK( stmtDelete );
-
-					if ( stmtDelete )
-					{
-						BOOST_CHECK( stmtDelete->CreateParameter( STR( "IDTest" ), EFieldType_SINT64 ) );
-						BOOST_CHECK( stmtDelete->Initialise() == EErrorType_NONE );
-
-						for ( int i = 0; i < 5; i++ )
-						{
-							int64_t id( min + i );
-							stmtDelete->SetParameterValue( 0, id );
-							BOOST_CHECK( stmtDelete->ExecuteUpdate() );
-						}
-					}
-				}
-			}
-			catch ( CDatabaseException & exc )
-			{
-				CLogger::LogError( exc.GetFullDescription() );
-				throw;
-			}
-			catch ( std::exception & exc )
-			{
-				CLogger::LogError( exc.what() );
-				throw;
-			}
-			catch ( ... )
-			{
-				CLogger::LogError( "Unknown exception when executing TestStoredInParamNoReturn" );
-				throw;
-			}
-		}
-
-		template< size_t StmtType >
-		inline void TestStoredInOutParamNoReturn( std::random_device & generator, DatabaseConnectionSPtr connection )
-		{
-			try
-			{
-				auto stmtGetCount = CreateStmt< StmtType >( connection, QUERY_GET_COUNT );
-				BOOST_CHECK( stmtGetCount );
-				int64_t count = -1;
-
-				if ( stmtGetCount )
-				{
-					BOOST_CHECK( stmtGetCount->Initialise() == EErrorType_NONE );
-					DatabaseResultSPtr result = stmtGetCount->ExecuteSelect();
-
-					if ( result )
-					{
-						if ( result->GetRowCount() )
-						{
-							BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, count ) );
-						}
-						else
-						{
-							BOOST_CHECK( result->GetRowCount() );
-						}
-					}
-					else
-					{
-						BOOST_CHECK( result );
-					}
-				}
-
-				count++;
-
-				if ( count )
-				{
-					auto stmtAddElement = CreateStmt< StmtType >( connection, STR( "CALL AddElement(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);" ) );
-					BOOST_CHECK( stmtAddElement );
-
-					if ( stmtAddElement )
-					{
-						BOOST_CHECK( stmtAddElement->CreateParameter( STR( "IDTest" ), EFieldType_SINT64, EParameterType_INOUT ) );
-						CreateParameters( stmtAddElement );
-						BOOST_CHECK( stmtAddElement->Initialise() == EErrorType_NONE );
-						int64_t id( 1 );
-
-						for ( int i = 0; i < 10; i++ )
-						{
-							uint32_t index = 0;
-							stmtAddElement->SetParameterNull( index++ );
-							SetParametersValue( generator, index, i + 40, i, stmtAddElement );
-							BOOST_CHECK( stmtAddElement->ExecuteUpdate() );
-							int64_t tmp;
-							stmtAddElement->GetOutputValue( 0, tmp );
-							BOOST_CHECK_EQUAL( i + count, tmp );
-						}
-					}
-				}
-			}
-			catch ( CDatabaseException & exc )
-			{
-				CLogger::LogError( exc.GetFullDescription() );
-				throw;
-			}
-			catch ( std::exception & exc )
-			{
-				CLogger::LogError( exc.what() );
-				throw;
-			}
-			catch ( ... )
-			{
-				CLogger::LogError( "Unknown exception when executing TestStoredInOutParamNoReturn" );
-				throw;
-			}
-		}
-
-		template< size_t StmtType >
-		inline void TestStoredInOutDtParamNoReturn( std::random_device & generator, DatabaseConnectionSPtr connection )
-		{
-			try
-			{
-				auto stmtGetCount = CreateStmt< StmtType >( connection, QUERY_GET_COUNT );
-				BOOST_CHECK( stmtGetCount );
-				int64_t count = -1;
-
-				if ( stmtGetCount )
-				{
-					BOOST_CHECK( stmtGetCount->Initialise() == EErrorType_NONE );
-					DatabaseResultSPtr result = stmtGetCount->ExecuteSelect();
-
-					if ( result )
-					{
-						if ( result->GetRowCount() )
-						{
-							BOOST_CHECK_NO_THROW( result->GetFirstRow()->Get( 0, count ) );
-						}
-						else
-						{
-							BOOST_CHECK( result->GetRowCount() );
-						}
-					}
-					else
-					{
-						BOOST_CHECK( result );
-					}
-				}
-
-				count++;
-
-				if ( count )
-				{
-					auto stmtUpdateElement = CreateStmt< StmtType >( connection, STR( "CALL UpdateElement(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);" ) );
-					BOOST_CHECK( stmtUpdateElement );
-
-					if ( stmtUpdateElement )
-					{
-						BOOST_CHECK( stmtUpdateElement->CreateParameter( STR( "IDTest" ), EFieldType_SINT64, EParameterType_INOUT ) );
-						CreateParameters( stmtUpdateElement );
-						BOOST_CHECK( stmtUpdateElement->CreateParameter( STR( "Date" ), EFieldType_DATETIME, EParameterType_OUT ) );
-						BOOST_CHECK( stmtUpdateElement->Initialise() == EErrorType_NONE );
-						int16_t type( 1 );
-
-						for ( int i = 0; i < 10; i++ )
-						{
-							uint32_t index = 0;
-							stmtUpdateElement->SetParameterNull( index++ );
-							SetParametersValue( generator, index, i + 40, i, stmtUpdateElement );
-							stmtUpdateElement->SetParameterNull( index++ );
-							BOOST_CHECK( stmtUpdateElement->ExecuteUpdate() );
-							int64_t tmp;
-							stmtUpdateElement->GetOutputValue( 0, tmp );
-							BOOST_CHECK_EQUAL( i + count, tmp );
-						}
-					}
-				}
-			}
-			catch ( CDatabaseException & exc )
-			{
-				CLogger::LogError( exc.GetFullDescription() );
-				throw;
-			}
-			catch ( std::exception & exc )
-			{
-				CLogger::LogError( exc.what() );
-				throw;
-			}
-			catch ( ... )
-			{
-				CLogger::LogError( "Unknown exception when executing TestStoredInOutDtParamNoReturn" );
 				throw;
 			}
 		}

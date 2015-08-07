@@ -343,19 +343,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MSSQL
 		return dateTimeObj;
 	}
 
-	EErrorType CDatabaseConnectionOdbcMsSql::DoConnect( String & connectionString )
-	{
-		EErrorType eReturn = EErrorType_ERROR;
-
-		if ( SqlSuccess( SQLAllocHandle( SQL_HANDLE_DBC, _environmentHandle, &_connectionHandle ), SQL_HANDLE_ENV, _environmentHandle, INFO_ODBC_AllocHandle ) == EErrorType_NONE )
-		{
-			DoSetConnected( true );
-			eReturn = EErrorType_NONE;
-		}
-
-		return eReturn;
-	}
-
 	DatabaseStatementSPtr CDatabaseConnectionOdbcMsSql::DoCreateStatement( const String & query )
 	{
 		return std::make_shared< CDatabaseStatementOdbc >( std::static_pointer_cast< CDatabaseConnectionOdbc >( shared_from_this() ), query );

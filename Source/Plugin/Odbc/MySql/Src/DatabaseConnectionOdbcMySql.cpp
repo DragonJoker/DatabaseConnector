@@ -256,7 +256,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MYSQL
 	static const String ODBC_FORMAT_STMT_DATETIME = STR( "{-ts %Y-%m-%d %H:%M:%S}" );
 
 	CDatabaseConnectionOdbcMySql::CDatabaseConnectionOdbcMySql( SQLHENV sqlEnvironmentHandle, const String & server, const String & userName, const String & password, String & connectionString )
-		:   CDatabaseConnectionOdbc( sqlEnvironmentHandle, server, userName, password, connectionString )
+		: CDatabaseConnectionOdbc( sqlEnvironmentHandle, server, userName, password, connectionString )
 	{
 		DoConnect( connectionString );
 	}
@@ -314,6 +314,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MYSQL
 			SQLDisconnect( _connectionHandle );
 		}
 
+		_database.clear();
 		String connectionString = ODBC_DSN_DSN + database;
 
 		if ( _userName.size() > 0 )
@@ -559,13 +560,6 @@ BEGIN_NAMESPACE_DATABASE_ODBC_MYSQL
 		DateTimeType dateTimeObj;
 		DateTime::IsDateTime( dateTime, ODBC_FORMAT_STMT_DATETIME, dateTimeObj );
 		return dateTimeObj;
-	}
-
-	EErrorType CDatabaseConnectionOdbcMySql::DoConnect( String & connectionString )
-	{
-		EErrorType result = SqlSuccess( SQLAllocHandle( SQL_HANDLE_DBC, _environmentHandle, &_connectionHandle ), SQL_HANDLE_ENV, _environmentHandle, INFO_ODBC_AllocHandle );
-		DoSetConnected( result == EErrorType_NONE );
-		return result;
 	}
 
 	DatabaseStatementSPtr CDatabaseConnectionOdbcMySql::DoCreateStatement( const String & query )

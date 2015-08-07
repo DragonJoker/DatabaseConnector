@@ -13,7 +13,7 @@
 
 #include "DatabaseTestPch.h"
 
-#include "DatabaseTestPluginsStaticLoader.h"
+#include "DatabaseTestPluginsLoader.h"
 
 #include <DatabasePluginManager.h>
 
@@ -24,10 +24,19 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	{
 	}
 
+	CPluginConfigBase::~CPluginConfigBase()
+	{
+	}
+
 #if defined( STATIC_LIB )
 	template< typename PluginType >
-	CPluginConfig( bool load )
+	CPluginConfig::CPluginConfig( bool load )
 		: CPluginConfigBase( load )
+	{
+	}
+
+	template< typename PluginType >
+	CPluginConfig::~CPluginConfig()
 	{
 	}
 
@@ -60,18 +69,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 #else
 	namespace
 	{
-#if defined( _WIN32 )
+#	if defined( _WIN32 )
 		static const String LIB_PREFIX;
 		static const String LIB_EXT = STR( ".dll" );
-#else
+#	else
 		static const String LIB_PREFIX = STR( "lib" );
 		static const String LIB_EXT = STR( ".so" );
-#endif
-#if defined( NDEBUG )
+#	endif
+#	if defined( NDEBUG )
 		static const String LIB_SUFFIX;
-#else
+#	else
 		static const String LIB_SUFFIX = "d";
-#endif
+#	endif
 
 		String GetLibName( const String & name )
 		{
@@ -83,6 +92,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		: CPluginConfigBase( load )
 		, _path( path )
 		, _plugin( name )
+	{
+	}
+
+	CPluginConfig::~CPluginConfig()
 	{
 	}
 
@@ -125,6 +138,11 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	void CTestPluginsLoader::Unload()
 	{
 		OnUnload();
+		_config._mySql.reset();
+		_config._sqlite.reset();
+		_config._odbcMySql.reset();
+		_config._odbcMsSql.reset();
+		_config._postgreSql.reset();
 	}
 
 	void CTestPluginsLoader::OnLoad()

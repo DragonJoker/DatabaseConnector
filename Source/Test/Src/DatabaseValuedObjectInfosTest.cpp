@@ -11,6 +11,8 @@
 
 #include "DatabaseTestPch.h"
 
+#if defined( TESTING_INTERFACE )
+
 #include "DatabaseValuedObjectInfosTest.h"
 
 #include <DatabaseValuedObjectInfos.h>
@@ -149,3 +151,5 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	}
 }
 END_NAMESPACE_DATABASE_TEST
+
+#endif

@@ -131,7 +131,7 @@ BEGIN_NAMESPACE_DATABASE
 
 		if ( index == String::npos )
 		{
-			if ( absval.size() > precision - decimals )
+			if ( absval.size() > uint8_t( precision - decimals ) )
 			{
 				DB_EXCEPT( EDatabaseExceptionCodes_ArithmeticError, ERROR_DB_PRECISION_OVERFLOW );
 			}

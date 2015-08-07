@@ -11,6 +11,8 @@
 
 #include "DatabaseTestPch.h"
 
+#if defined( TESTING_INTERFACE )
+
 #include "DatabaseRowTest.h"
 
 #include "DatabaseTestConnection.h"
@@ -576,3 +578,5 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	}
 }
 END_NAMESPACE_DATABASE_TEST
+
+#endif

@@ -93,7 +93,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 
 	CDatabaseConnectionOdbc::CDatabaseConnectionOdbc( SQLHENV sqlEnvironmentHandle, const String & server, const String & userName, const String & password, String & connectionString )
 		: CDatabaseConnection( server, userName, password )
-		, _connectionHandle( NULL )
+		, _connectionHandle( SQL_NULL_HDBC )
 		, _environmentHandle( sqlEnvironmentHandle )
 	{
 	}
@@ -107,11 +107,28 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		return _connectionHandle;
 	}
 
+	EErrorType CDatabaseConnectionOdbc::DoConnect( String & connectionString )
+	{
+		EErrorType eReturn = EErrorType_ERROR;
+
+		if ( SqlSuccess( SQLAllocHandle( SQL_HANDLE_DBC, _environmentHandle, &_connectionHandle ), SQL_HANDLE_ENV, _environmentHandle, INFO_ODBC_AllocHandle ) == EErrorType_NONE )
+		{
+			DoSetConnected( true );
+			eReturn = EErrorType_NONE;
+		}
+
+		return eReturn;
+	}
+
 	void CDatabaseConnectionOdbc::DoDisconnect()
 	{
 		if ( _connectionHandle != SQL_NULL_HDBC )
 		{
-			SQLDisconnect( _connectionHandle );
+			if ( !_database.empty() )
+			{
+				SQLDisconnect( _connectionHandle );
+			}
+
 			SQLFreeHandle( SQL_HANDLE_DBC, _connectionHandle );
 			_connectionHandle = NULL;
 		}

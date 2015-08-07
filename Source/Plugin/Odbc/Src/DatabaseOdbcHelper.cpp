@@ -82,6 +82,11 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				, _targetValuePtr( NULL )
 			{
 			}
+			/** Destructor
+			*/
+			virtual ~CInOdbcBindBase()
+			{
+			}
 
 			/** Initialised the column binding
 			@param stmt
@@ -1328,6 +1333,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 				GetBindings( infos, arrayColumnData, statementHandle );
 				pReturn = std::make_shared< CDatabaseResult >( infos );
 				FetchResultSet( connection, pReturn, arrayColumnData, statementHandle );
+				arrayColumnData.clear();
 			}
 
 			res = SQLMoreResults( statementHandle );

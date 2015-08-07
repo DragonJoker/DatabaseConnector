@@ -11,6 +11,8 @@
 
 #include "DatabaseTestPch.h"
 
+#if defined( TESTING_INTERFACE )
+
 #include "DatabaseNullableTest.h"
 
 #include "DatabaseTestHelpers.h"
@@ -58,3 +60,5 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	}
 }
 END_NAMESPACE_DATABASE_TEST
+
+#endif

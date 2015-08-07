@@ -776,17 +776,15 @@ BEGIN_NAMESPACE_DATABASE_TEST
 					connection->SelectDatabase( _database );
 					std::random_device generator;
 					CLogger::LogInfo( StringStream() << " No parameter, No Return" );
-					BOOST_CHECK_NO_THROW( DatabaseUtils::TestStoredNoParamNoReturn< StmtType >( generator, connection ) );
 					CLogger::LogInfo( StringStream() << " No parameter, Return" );
-					BOOST_CHECK_NO_THROW( DatabaseUtils::TestStoredNoParamReturn< StmtType >( generator, connection, STR( "" ) ) );
 					CLogger::LogInfo( StringStream() << " In parameters, No Return" );
-					BOOST_CHECK_NO_THROW( DatabaseUtils::TestStoredInParamNoReturn< StmtType >( generator, connection ) );
 					CLogger::LogInfo( StringStream() << " In parameters, Return" );
-					BOOST_CHECK_NO_THROW( DatabaseUtils::TestStoredNoParamReturn< StmtType >( generator, connection, STR( "WHERE ACTOR_ID > 5" ) ) );
-					CLogger::LogInfo( StringStream() << " In/Out INTEGER parameter, No Return" );
-					BOOST_CHECK_NO_THROW( DatabaseUtils::TestStoredInOutParamNoReturn< StmtType >( generator, connection ) );
-					CLogger::LogInfo( StringStream() << " In/Out INTEGER and DATETIME parameters, No Return" );
-					BOOST_CHECK_NO_THROW( DatabaseUtils::TestStoredInOutDtParamNoReturn< StmtType >( generator, connection ) );
+					CLogger::LogInfo( StringStream() << " Out parameters, No Return" );
+					CLogger::LogInfo( StringStream() << " Out parameters, Return" );
+					CLogger::LogInfo( StringStream() << " In/Out parameters, No Return" );
+					CLogger::LogInfo( StringStream() << " In/Out parameters, Return" );
+					CLogger::LogInfo( StringStream() << " Every kind of parameters, No Return" );
+					CLogger::LogInfo( StringStream() << " Every kind of parameters, Return" );
 				}
 
 				database->RemoveConnection();

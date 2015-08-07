@@ -40,6 +40,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				std::uniform_int_distribution< int > distribution( 0, 1 );
 				return distribution( generator ) == 1;
 			}
+
+			static void Compare( bool equal, ParamType const & a, FieldType const & b )
+			{
+				if ( equal )
+				{
+					BOOST_CHECK_EQUAL( a, b );
+				}
+				else
+				{
+					BOOST_CHECK_NE( a, b );
+				}
+			}
 		};
 
 		template<> struct Helpers< EFieldType_SINT8 >
@@ -52,6 +64,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			{
 				std::uniform_int_distribution< int > distribution( std::numeric_limits< ParamType >::lowest(), std::numeric_limits< ParamType >::max() );
 				return ParamType( distribution( generator ) );
+			}
+
+			static void Compare( bool equal, ParamType const & a, FieldType const & b )
+			{
+				if ( equal )
+				{
+					BOOST_CHECK_EQUAL( int16_t( a ), int16_t( b ) );
+				}
+				else
+				{
+					BOOST_CHECK_NE( int16_t( a ), int16_t( b ) );
+				}
 			}
 		};
 
@@ -66,6 +90,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				std::uniform_int_distribution< int > distribution( std::numeric_limits< ParamType >::lowest(), std::numeric_limits< ParamType >::max() );
 				return distribution( generator );
 			}
+
+			static void Compare( bool equal, ParamType const & a, FieldType const & b )
+			{
+				if ( equal )
+				{
+					BOOST_CHECK_EQUAL( uint16_t( a ), uint16_t( b ) );
+				}
+				else
+				{
+					BOOST_CHECK_NE( uint16_t( a ), uint16_t( b ) );
+				}
+			}
 		};
 
 		template<> struct Helpers< EFieldType_SINT16 >
@@ -78,6 +114,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			{
 				std::uniform_int_distribution< ParamType > distribution( std::numeric_limits< ParamType >::lowest(), std::numeric_limits< ParamType >::max() );
 				return distribution( generator );
+			}
+
+			static void Compare( bool equal, ParamType const & a, FieldType const & b )
+			{
+				if ( equal )
+				{
+					BOOST_CHECK_EQUAL( a, b );
+				}
+				else
+				{
+					BOOST_CHECK_NE( a, b );
+				}
 			}
 		};
 
@@ -92,6 +140,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				std::uniform_int_distribution< ParamType > distribution( std::numeric_limits< ParamType >::lowest(), std::numeric_limits< ParamType >::max() );
 				return distribution( generator );
 			}
+
+			static void Compare( bool equal, ParamType const & a, FieldType const & b )
+			{
+				if ( equal )
+				{
+					BOOST_CHECK_EQUAL( a, b );
+				}
+				else
+				{
+					BOOST_CHECK_NE( a, b );
+				}
+			}
 		};
 
 		template<> struct Helpers< EFieldType_SINT24 >
@@ -104,6 +164,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			{
 				std::uniform_int_distribution< int32_t > distribution( 0xFF800000, 0x007FFFFF );
 				return ParamType( distribution( generator ) );
+			}
+
+			static void Compare( bool equal, ParamType const & a, FieldType const & b )
+			{
+				if ( equal )
+				{
+					BOOST_CHECK_EQUAL( a, b );
+				}
+				else
+				{
+					BOOST_CHECK_NE( a, b );
+				}
 			}
 		};
 
@@ -118,6 +190,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				std::uniform_int_distribution< uint32_t > distribution( 0, 0x00FFFFFF );
 				return ParamType( distribution( generator ) );
 			}
+
+			static void Compare( bool equal, ParamType const & a, FieldType const & b )
+			{
+				if ( equal )
+				{
+					BOOST_CHECK_EQUAL( a, b );
+				}
+				else
+				{
+					BOOST_CHECK_NE( a, b );
+				}
+			}
 		};
 
 		template<> struct Helpers< EFieldType_SINT32 >
@@ -130,6 +214,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			{
 				std::uniform_int_distribution< ParamType > distribution( std::numeric_limits< ParamType >::lowest(), std::numeric_limits< ParamType >::max() );
 				return distribution( generator );
+			}
+
+			static void Compare( bool equal, ParamType const & a, FieldType const & b )
+			{
+				if ( equal )
+				{
+					BOOST_CHECK_EQUAL( a, b );
+				}
+				else
+				{
+					BOOST_CHECK_NE( a, b );
+				}
 			}
 		};
 
@@ -144,6 +240,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				std::uniform_int_distribution< ParamType > distribution( std::numeric_limits< ParamType >::lowest(), std::numeric_limits< ParamType >::max() );
 				return distribution( generator );
 			}
+
+			static void Compare( bool equal, ParamType const & a, FieldType const & b )
+			{
+				if ( equal )
+				{
+					BOOST_CHECK_EQUAL( a, b );
+				}
+				else
+				{
+					BOOST_CHECK_NE( a, b );
+				}
+			}
 		};
 
 		template<> struct Helpers< EFieldType_SINT64 >
@@ -156,6 +264,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			{
 				std::uniform_int_distribution< ParamType > distribution( std::numeric_limits< ParamType >::lowest(), std::numeric_limits< ParamType >::max() );
 				return distribution( generator );
+			}
+
+			static void Compare( bool equal, ParamType const & a, FieldType const & b )
+			{
+				if ( equal )
+				{
+					BOOST_CHECK_EQUAL( a, b );
+				}
+				else
+				{
+					BOOST_CHECK_NE( a, b );
+				}
 			}
 		};
 
@@ -170,6 +290,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				std::uniform_int_distribution< ParamType > distribution( std::numeric_limits< ParamType >::lowest(), std::numeric_limits< ParamType >::max() );
 				return distribution( generator );
 			}
+
+			static void Compare( bool equal, ParamType const & a, FieldType const & b )
+			{
+				if ( equal )
+				{
+					BOOST_CHECK_EQUAL( a, b );
+				}
+				else
+				{
+					BOOST_CHECK_NE( a, b );
+				}
+			}
 		};
 
 		template<> struct Helpers< EFieldType_FLOAT32 >
@@ -183,6 +315,22 @@ BEGIN_NAMESPACE_DATABASE_TEST
 				std::uniform_real_distribution< ParamType > fdistribution( -1000000.0000, 1000000.0000 );
 				return ParamType( fdistribution( generator ) );
 			}
+
+			static void Different( ParamType const & a, FieldType const & b )
+			{
+			}
+
+			static void Compare( bool equal, ParamType const & a, FieldType const & b )
+			{
+				if ( equal )
+				{
+					// Can't compare, due to precision errors
+				}
+				else
+				{
+					BOOST_CHECK_NE( a, b );
+				}
+			}
 		};
 
 		template<> struct Helpers< EFieldType_FLOAT64 >
@@ -195,6 +343,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			{
 				std::uniform_real_distribution< ParamType > fdistribution( -1000000000000.0000000, 1000000000000.0000000 );
 				return ParamType( fdistribution( generator ) );
+			}
+
+			static void Compare( bool equal, ParamType const & a, FieldType const & b )
+			{
+				if ( equal )
+				{
+					// Can't compare, due to precision errors
+				}
+				else
+				{
+					BOOST_CHECK_NE( a, b );
+				}
 			}
 		};
 
@@ -212,7 +372,19 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 			static ParamType GetRandomValue( std::random_device & generator, const std::pair< uint32_t, uint32_t > & precision )
 			{
-				return GetRandomValue( generator, precision.first, precision.second );
+				return GetRandomValue( generator, uint8_t( precision.first ), uint8_t( precision.second ) );
+			}
+
+			static void Compare( bool equal, ParamType const & a, FieldType const & b )
+			{
+				if ( equal )
+				{
+					BOOST_CHECK_EQUAL( a, b );
+				}
+				else
+				{
+					BOOST_CHECK_NE( a, b );
+				}
 			}
 		};
 
@@ -226,6 +398,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			{
 				return boost::gregorian::day_clock::local_day();
 			}
+
+			static void Compare( bool equal, ParamType const & a, FieldType const & b )
+			{
+				if ( equal )
+				{
+					BOOST_CHECK_EQUAL( a, b );
+				}
+				else
+				{
+					BOOST_CHECK_NE( a, b );
+				}
+			}
 		};
 
 		template<> struct Helpers< EFieldType_DATETIME >
@@ -238,6 +422,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			{
 				return boost::posix_time::second_clock::local_time();
 			}
+
+			static void Compare( bool equal, ParamType const & a, FieldType const & b )
+			{
+				if ( equal )
+				{
+					BOOST_CHECK_EQUAL( a, b );
+				}
+				else
+				{
+					BOOST_CHECK_NE( a, b );
+				}
+			}
 		};
 
 		template<> struct Helpers< EFieldType_TIME >
@@ -249,6 +445,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			static ParamType GetRandomValue( std::random_device & generator )
 			{
 				return boost::posix_time::second_clock::local_time().time_of_day();
+			}
+
+			static void Compare( bool equal, ParamType const & a, FieldType const & b )
+			{
+				if ( equal )
+				{
+					BOOST_CHECK_EQUAL( a, b );
+				}
+				else
+				{
+					BOOST_CHECK_NE( a, b );
+				}
 			}
 		};
 
@@ -282,6 +490,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			{
 				return GetRandomValue( generator, Limit );
 			}
+
+			static void Compare( bool equal, ParamType const & a, FieldType const & b )
+			{
+				if ( equal )
+				{
+					BOOST_CHECK_EQUAL( a, b );
+				}
+				else
+				{
+					BOOST_CHECK_NE( a, b );
+				}
+			}
 		};
 
 		template<> struct Helpers< EFieldType_VARCHAR >
@@ -314,69 +534,17 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			{
 				return GetRandomValue( generator, Limit );
 			}
-		};
 
-		template<> struct Helpers< EFieldType_NCHAR >
-		{
-			static const uint32_t Limit;
-			typedef std::wstring ParamType;
-			typedef std::wstring FieldType;
-
-			static ParamType GetRandomValue( std::random_device & generator, size_t size )
+			static void Compare( bool equal, ParamType const & a, FieldType const & b )
 			{
-				std::uniform_int_distribution< int > distribution( 32, 126 );
-				std::wstringstream text;
-
-				for ( size_t i = 0; i < size; ++i )
+				if ( equal )
 				{
-					wchar_t c = wchar_t( distribution( generator ) );
-
-					if ( c == L'\\' )
-					{
-						c = L'/';
-					}
-
-					text << c;
-				};
-
-				return text.str();
-			}
-
-			static ParamType GetRandomValue( std::random_device & generator )
-			{
-				return GetRandomValue( generator, Limit );
-			}
-		};
-
-		template<> struct Helpers< EFieldType_NVARCHAR >
-		{
-			static const uint32_t Limit;
-			typedef std::wstring ParamType;
-			typedef std::wstring FieldType;
-
-			static ParamType GetRandomValue( std::random_device & generator, size_t size )
-			{
-				std::uniform_int_distribution< int > distribution( 32, 126 );
-				std::wstringstream text;
-
-				for ( size_t i = 0; i < size; ++i )
+					BOOST_CHECK_EQUAL( a, b );
+				}
+				else
 				{
-					wchar_t c = wchar_t( distribution( generator ) );
-
-					if ( c == L'\\' )
-					{
-						c = L'/';
-					}
-
-					text << c;
-				};
-
-				return text.str();
-			}
-
-			static ParamType GetRandomValue( std::random_device & generator )
-			{
-				return GetRandomValue( generator, Limit );
+					BOOST_CHECK_NE( a, b );
+				}
 			}
 		};
 
@@ -410,6 +578,106 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			{
 				return GetRandomValue( generator, 500 );
 			}
+
+			static void Compare( bool equal, ParamType const & a, FieldType const & b )
+			{
+				if ( equal )
+				{
+					BOOST_CHECK_EQUAL( a, b );
+				}
+				else
+				{
+					BOOST_CHECK_NE( a, b );
+				}
+			}
+		};
+
+		template<> struct Helpers< EFieldType_NCHAR >
+		{
+			static const uint32_t Limit;
+			typedef std::wstring ParamType;
+			typedef std::wstring FieldType;
+
+			static ParamType GetRandomValue( std::random_device & generator, size_t size )
+			{
+				std::uniform_int_distribution< int > distribution( 32, 126 );
+				std::wstringstream text;
+
+				for ( size_t i = 0; i < size; ++i )
+				{
+					wchar_t c = wchar_t( distribution( generator ) );
+
+					if ( c == L'\\' )
+					{
+						c = L'/';
+					}
+
+					text << c;
+				};
+
+				return text.str();
+			}
+
+			static ParamType GetRandomValue( std::random_device & generator )
+			{
+				return GetRandomValue( generator, Limit );
+			}
+
+			static void Compare( bool equal, ParamType const & a, FieldType const & b )
+			{
+				if ( equal )
+				{
+					BOOST_CHECK_EQUAL( a, b );
+				}
+				else
+				{
+					BOOST_CHECK_NE( a, b );
+				}
+			}
+		};
+
+		template<> struct Helpers< EFieldType_NVARCHAR >
+		{
+			static const uint32_t Limit;
+			typedef std::wstring ParamType;
+			typedef std::wstring FieldType;
+
+			static ParamType GetRandomValue( std::random_device & generator, size_t size )
+			{
+				std::uniform_int_distribution< int > distribution( 32, 126 );
+				std::wstringstream text;
+
+				for ( size_t i = 0; i < size; ++i )
+				{
+					wchar_t c = wchar_t( distribution( generator ) );
+
+					if ( c == L'\\' )
+					{
+						c = L'/';
+					}
+
+					text << c;
+				};
+
+				return text.str();
+			}
+
+			static ParamType GetRandomValue( std::random_device & generator )
+			{
+				return GetRandomValue( generator, Limit );
+			}
+
+			static void Compare( bool equal, ParamType const & a, FieldType const & b )
+			{
+				if ( equal )
+				{
+					BOOST_CHECK_EQUAL( a, b );
+				}
+				else
+				{
+					BOOST_CHECK_NE( a, b );
+				}
+			}
 		};
 
 		template<> struct Helpers< EFieldType_NTEXT >
@@ -441,6 +709,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			static ParamType GetRandomValue( std::random_device & generator )
 			{
 				return GetRandomValue( generator, 500 );
+			}
+
+			static void Compare( bool equal, ParamType const & a, FieldType const & b )
+			{
+				if ( equal )
+				{
+					BOOST_CHECK_EQUAL( a, b );
+				}
+				else
+				{
+					BOOST_CHECK_NE( a, b );
+				}
 			}
 		};
 
@@ -474,6 +754,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			{
 				return GetRandomValue( generator, Limit );
 			}
+
+			static void Compare( bool equal, ParamType const & a, FieldType const & b )
+			{
+				if ( equal )
+				{
+					BOOST_CHECK_EQUAL_COLLECTIONS( a.begin(), a.end(), b.begin(), b.end() );
+				}
+				else
+				{
+					BOOST_CHECK( a != b );
+				}
+			}
 		};
 
 		template<> struct Helpers< EFieldType_VARBINARY >
@@ -506,6 +798,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			{
 				return GetRandomValue( generator, Limit );
 			}
+
+			static void Compare( bool equal, ParamType const & a, FieldType const & b )
+			{
+				if ( equal )
+				{
+					BOOST_CHECK_EQUAL_COLLECTIONS( a.begin(), a.end(), b.begin(), b.end() );
+				}
+				else
+				{
+					BOOST_CHECK( a != b );
+				}
+			}
 		};
 
 		template<> struct Helpers< EFieldType_BLOB >
@@ -537,6 +841,18 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			static ParamType GetRandomValue( std::random_device & generator )
 			{
 				return GetRandomValue( generator, 1024 );
+			}
+
+			static void Compare( bool equal, ParamType const & a, FieldType const & b )
+			{
+				if ( equal )
+				{
+					BOOST_CHECK_EQUAL_COLLECTIONS( a.begin(), a.end(), b.begin(), b.end() );
+				}
+				else
+				{
+					BOOST_CHECK( a != b );
+				}
 			}
 		};
 	}

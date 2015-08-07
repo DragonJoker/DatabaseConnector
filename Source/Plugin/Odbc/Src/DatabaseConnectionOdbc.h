@@ -51,6 +51,14 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		HDBC GetHdbc() const;
 
 	protected:
+		/** Connect to the database.
+		@param[out] connectionString
+			Connection string in case of error.
+		@return
+			Error code, EErrorType_NONE if no problem.
+		*/
+		virtual EErrorType DoConnect( String & connectionString );
+
 		/** Disconnect from the database.
 		*/
 		virtual void DoDisconnect();

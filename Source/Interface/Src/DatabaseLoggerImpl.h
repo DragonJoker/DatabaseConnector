@@ -146,7 +146,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] message
 			The message.
 		*/
-		void PrintMessage( ELogType logLevel, std::string const & message );
+		void LogMessage( ELogType logLevel, std::string const & message );
 
 		/** Prints a message to the console
 		@param[in] logLevel
@@ -154,7 +154,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] message
 			The message.
 		*/
-		void PrintMessage( ELogType logLevel, std::wstring const & message );
+		void LogMessage( ELogType logLevel, std::wstring const & message );
 
 		/** Logs a message queue
 		@param[in] queue
@@ -171,15 +171,7 @@ BEGIN_NAMESPACE_DATABASE
 		@param[in] message
 			The message.
 		*/
-		void DoPrintMessage( ELogType logLevel, String const & message );
-
-		/** Prints a line to the console
-		@param[in] line
-			The line
-		@param[in] logType
-			The log level
-		*/
-		void DoPrintLine( String const & line, ELogType logType );
+		void DoLogMessage( ELogType logLevel, String const & message );
 
 		/** Logs a line in the given file
 		@param[in] timestamp

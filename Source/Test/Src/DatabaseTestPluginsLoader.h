@@ -33,6 +33,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		*/
 		CPluginConfigBase( bool load );
 
+		/** Destructor
+		*/
+		virtual ~CPluginConfigBase();
+
 		/** Loads the plugin, if needed
 		*/
 		virtual void Load() = 0;
@@ -55,6 +59,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		*/
 		CPluginConfig( bool load );
 
+		/** Destructor
+		*/
+		virtual ~CPluginConfig();
+
 		/** Loads the plugin, if needed
 		*/
 		void Load();
@@ -76,6 +84,10 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		/** Constructor
 		*/
 		CPluginConfig( bool load, const String & path, const String & name );
+
+		/** Destructor
+		*/
+		virtual ~CPluginConfig();
 
 		/** Loads the plugin, if needed
 		*/

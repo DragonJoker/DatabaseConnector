@@ -35,7 +35,11 @@ add_target(
 	"${MySQL_LINK_FLAGS}"
 )
 
-copy_dll( DatabasePluginMySql ${MySQL_client_LIBRARY_DEBUG} Debug )
+if ( MySQL_client_LIBRARY_DEBUG )
+	copy_dll( DatabasePluginMySql ${MySQL_client_LIBRARY_DEBUG} Debug )
+else ()
+	copy_dll( DatabasePluginMySql ${MySQL_client_LIBRARY_RELEASE} Debug )
+endif ()
 copy_dll( DatabasePluginMySql ${MySQL_client_LIBRARY_RELEASE} Release )
 copy_dll( DatabasePluginMySql ${MySQL_client_LIBRARY_RELEASE} RelWithDebInfo )
 

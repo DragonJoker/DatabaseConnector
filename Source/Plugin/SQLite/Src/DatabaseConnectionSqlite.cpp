@@ -184,6 +184,7 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		if ( !_database.empty() )
 		{
 			sqlite3_close( _connection );
+			_connection = NULL;
 		}
 
 		SQLiteCheck( sqlite3_open( ( _server + PATH_SEP + database ).c_str(), &_connection ), StringStream() << INFO_SQLITE_SELECTION, EDatabaseExceptionCodes_ConnectionError, _connection );
@@ -199,9 +200,10 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 			StringUtils::Replace( filePath, STR( "\\" ), PATH_SEP );
 			StringUtils::Replace( filePath, STR( "/" ), PATH_SEP );
 
-			if ( !_database.empty() )
+			if ( _database == database )
 			{
 				sqlite3_close( _connection );
+				_connection = NULL;
 			}
 
 			try
@@ -429,7 +431,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 		if ( IsConnected() )
 		{
 			DoSetConnected( false );
-			sqlite3_close( _connection );
+
+			if ( _connection )
+			{
+				sqlite3_close( _connection );
+			}
 		}
 
 		_connection = NULL;

@@ -74,14 +74,14 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	}
 
-	void CLoggerImpl::PrintMessage( ELogType logLevel, std::string const & message )
+	void CLoggerImpl::LogMessage( ELogType logLevel, std::string const & message )
 	{
-		DoPrintMessage( logLevel, message );
+		DoLogMessage( logLevel, message );
 	}
 
-	void CLoggerImpl::PrintMessage( ELogType logLevel, std::wstring const & message )
+	void CLoggerImpl::LogMessage( ELogType logLevel, std::wstring const & message )
 	{
-		DoPrintMessage( logLevel, StringUtils::ToStr( message ) );
+		DoLogMessage( logLevel, StringUtils::ToStr( message ) );
 	}
 
 	void CLoggerImpl::LogMessageQueue( MessageQueue const & p_queue, bool display )
@@ -153,39 +153,41 @@ BEGIN_NAMESPACE_DATABASE
 		}
 	}
 
-	void CLoggerImpl::DoPrintMessage( ELogType logLevel, String const & message )
+	void CLoggerImpl::DoLogMessage( ELogType logLevel, String const & message )
 	{
-		if ( message.find( STR( '\n' ) ) != String::npos )
-		{
-			StringArray array = StringUtils::Split( message, STR( "\n" ), uint32_t( std::count( message.begin(), message.end(), STR( '\n' ) ) + 1 ) );
+		static const String LOG_TIMESTAMP = STR( "%Y-%m-%d %H:%M:%S" );
+		DateTimeType today = boost::posix_time::second_clock::local_time();
+		String timeStamp = DateTime::Format( today, LOG_TIMESTAMP );
+		FILE * file;
+		FileUtils::FOpen( file, _logFilePath[logLevel].c_str(), "a" );
 
-			for ( auto && line : array )
+		if ( file )
+		{
+			if ( message.find( STR( '\n' ) ) != String::npos )
 			{
-				DoPrintLine( line, logLevel );
-			}
-		}
-		else
-		{
-			DoPrintLine( message, logLevel );
-		}
-	}
+				StringArray array = StringUtils::Split( message, STR( "\n" ), uint32_t( std::count( message.begin(), message.end(), STR( '\n' ) ) + 1 ) );
 
-	void CLoggerImpl::DoPrintLine( String const & line, ELogType logLevel )
-	{
-		_console->BeginLog( logLevel );
-		_console->Print( line, true );
+				for ( auto && line : array )
+				{
+					DoLogLine( timeStamp, line, file, logLevel, true );
+				}
+			}
+			else
+			{
+				DoLogLine( timeStamp, message, file, logLevel, true );
+			}
+
+			fclose( file );
+		}
 	}
 
 	void CLoggerImpl::DoLogLine( String const & timestamp, String const & line, FILE * logFile, ELogType logLevel, bool display )
 	{
-#if defined( NDEBUG )
-
 		if ( display )
 		{
-			DoPrintLine( line, logLevel );
+			_console->BeginLog( logLevel );
+			_console->Print( line, true );
 		}
-
-#endif
 
 		if ( logFile )
 		{
