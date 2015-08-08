@@ -43,10 +43,17 @@ BEGIN_NAMESPACE_DATABASE
 	static const String ERROR_DB_QUERY_EXECUTION_ERROR = STR( "Query execution error: " );
 	static const String ERROR_DB_QUERY_LOST_CONNECTION = STR( "Query lost  it's connection" );
 
+#if defined( _X64 )
+	static const TChar * INFO_DB_CREATING_QUERY = STR( "Creating query object 0x%016X, with query text %s" );
+	static const TChar * INFO_DB_DELETING_QUERY = STR( "Deleting query object 0x%016X" );
+	static const TChar * INFO_DB_EXECUTING_SELECT_QUERY = STR( "Executing Select on query object 0x%016X" );
+	static const TChar * INFO_DB_EXECUTING_UPDATE_QUERY = STR( "Executing Update on query object 0x%016X" );
+#else
 	static const TChar * INFO_DB_CREATING_QUERY = STR( "Creating query object 0x%08X, with query text %s" );
 	static const TChar * INFO_DB_DELETING_QUERY = STR( "Deleting query object 0x%08X" );
 	static const TChar * INFO_DB_EXECUTING_SELECT_QUERY = STR( "Executing Select on query object 0x%08X" );
 	static const TChar * INFO_DB_EXECUTING_UPDATE_QUERY = STR( "Executing Update on query object 0x%08X" );
+#endif
 
 	CDatabaseQuery::CDatabaseQuery( DatabaseConnectionSPtr connection, const String & query )
 		: CDatabaseParameteredObject()

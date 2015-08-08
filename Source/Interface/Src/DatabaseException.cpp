@@ -47,63 +47,63 @@ BEGIN_NAMESPACE_DATABASE
 		}
 
 #else
-	const int NumOfFnCallsToCapture( 20 );
-	const int NumOfFnCallsToSkip( 2 );
+		const int NumOfFnCallsToCapture( 20 );
+		const int NumOfFnCallsToSkip( 2 );
 
 #	if defined( __GNUG__ )
 
-	std::string Demangle( const std::string & name )
-	{
-		std::string ret( name );
-		std::string sub;
-		int status;
-		size_t lindex = name.find( "(" );
-		size_t rindex = name.find( "+" );
-
-		if ( lindex != std::string::npos && rindex != std::string::npos )
+		std::string Demangle( const std::string & name )
 		{
-			ret = name.substr( lindex + 1, rindex - 1 - lindex );
-		}
+			std::string ret( name );
+			std::string sub;
+			int status;
+			size_t lindex = name.find( "(" );
+			size_t rindex = name.find( "+" );
 
-		auto real = abi::__cxa_demangle( ret.c_str(), 0, 0, &status );
+			if ( lindex != std::string::npos && rindex != std::string::npos )
+			{
+				ret = name.substr( lindex + 1, rindex - 1 - lindex );
+			}
 
-		if ( !status )
-		{
-			ret = name.substr( 0, lindex + 1 ) + real + name.substr( rindex );
-		}
-		else
-		{
-			ret = name;
-		}
+			auto real = abi::__cxa_demangle( ret.c_str(), 0, 0, &status );
 
-		return ret;
-	}
+			if ( !status )
+			{
+				ret = name.substr( 0, lindex + 1 ) + real + name.substr( rindex );
+			}
+			else
+			{
+				ret = name;
+			}
+
+			return ret;
+		}
 
 #	elif defined( _MSC_VER )
 
-	std::string Demangle( const std::string & name )
-	{
-		char real[1024] = { 0 };
-		std::string ret;
-
-		if ( UnDecorateSymbolName( name.c_str(), real, sizeof( real ), UNDNAME_COMPLETE ) )
+		std::string Demangle( const std::string & name )
 		{
-			ret = real;
-		}
-		else
-		{
-			ret = name;
-		}
+			char real[1024] = { 0 };
+			std::string ret;
 
-		return ret;
-	}
+			if ( UnDecorateSymbolName( name.c_str(), real, sizeof( real ), UNDNAME_COMPLETE ) )
+			{
+				ret = real;
+			}
+			else
+			{
+				ret = name;
+			}
+
+			return ret;
+		}
 
 #	else
 
-	std::string Demangle( const std::string & name )
-	{
-		return name;
-	}
+		std::string Demangle( const std::string & name )
+		{
+			return name;
+		}
 
 #	endif
 #	if !defined( _WIN32 )
@@ -122,7 +122,6 @@ BEGIN_NAMESPACE_DATABASE
 
 			free( fnStrings );
 		}
-	}
 
 #	else
 

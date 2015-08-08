@@ -38,7 +38,11 @@ BEGIN_NAMESPACE_DATABASE_SQLITE
 	static const TChar * INFO_SQLITE_STATEMENT_RESET = STR( "Statement resetting" );
 	static const TChar * INFO_SQLITE_STMT_PARAMS_COUNT = STR( "Bind Parameters count: " );
 
+#if defined( _X64 )
+	static const String DEBUG_SQLITE_PREPARING_STATEMENT = STR( "Preparing statement 0x%016X" );
+#else
 	static const String DEBUG_SQLITE_PREPARING_STATEMENT = STR( "Preparing statement 0x%08X" );
+#endif
 
 	static const String SQLITE_SQL_DELIM = STR( "?" );
 	static const String SQLITE_SQL_PARAM = STR( "@" );

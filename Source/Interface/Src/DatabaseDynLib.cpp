@@ -104,14 +104,14 @@ BEGIN_NAMESPACE_DATABASE
 
 	void CDynLib::Unload()
 	{
-		//CLogManager::Get().LogInfo( "Unloading library " + _name );
-
-		if ( DYNLIB_UNLOAD( _handle ) )
+		if ( DYNLIB_UNLOAD( _handle ) || !_handle )
 		{
 			StringStream ss;
 			ss << ( Format( ERROR_DB_UNLOAD_DYNAMIC_LIB ) % _name ).str() << ERROR_DB_TEXT_DYNAMIC_LIB_SYSTEM << DynlibError();
 			DB_EXCEPT( EDatabaseExceptionCodes_InternalError, ss.str() );
 		}
+
+		_handle = NULL;
 	}
 
 	void * CDynLib::GetSymbol( const String & strName ) const throw()

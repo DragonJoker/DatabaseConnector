@@ -122,13 +122,6 @@ BEGIN_NAMESPACE_DATABASE
 		_headers[ELogType_WARNING] = STR( "***WARNING*** " );
 		_headers[ELogType_ERROR] = STR( "***ERROR*** " );
 
-		std::cout.sync_with_stdio( false );
-		std::cerr.sync_with_stdio( false );
-		std::clog.sync_with_stdio( false );
-		std::wcout.sync_with_stdio( false );
-		std::wcerr.sync_with_stdio( false );
-		std::wclog.sync_with_stdio( false );
-
 		_cout = new CLogStreambuf< char, STMessageLogStreambufTraits< char > >( std::cout );
 		_cerr = new CLogStreambuf< char, STErrorLogStreambufTraits< char > >( std::cerr );
 		_clog = new CLogStreambuf< char, STDebugLogStreambufTraits< char > >( std::clog );
@@ -235,8 +228,7 @@ BEGIN_NAMESPACE_DATABASE
 			char buffer[256];
 			va_list vaList;
 			va_start( vaList, format );
-			std::string format( format );
-			vsnprintf( buffer, 256, format.c_str(), vaList );
+			vsnprintf( buffer, 256, format, vaList );
 			va_end( vaList );
 			LogDebug( std::string( buffer ) );
 		}
@@ -261,11 +253,10 @@ BEGIN_NAMESPACE_DATABASE
 			wchar_t buffer[256];
 			va_list vaList;
 			va_start( vaList, format );
-			std::wstring format( format );
 #if defined( _MSC_VER ) || !defined( _WIN32 )
-			vswprintf( buffer, 256, format.c_str(), vaList );
+			vswprintf( buffer, 256, format, vaList );
 #else
-			vswprintf( buffer, format.c_str(), vaList );
+			vswprintf( buffer, format, vaList );
 #endif
 			va_end( vaList );
 			LogDebug( std::wstring( buffer ) );
@@ -291,8 +282,7 @@ BEGIN_NAMESPACE_DATABASE
 			char buffer[256];
 			va_list vaList;
 			va_start( vaList, format );
-			std::string format( format );
-			vsnprintf( buffer, 256, format.c_str(), vaList );
+			vsnprintf( buffer, 256, format, vaList );
 			va_end( vaList );
 			LogInfo( std::string( buffer ) );
 		}
@@ -317,11 +307,10 @@ BEGIN_NAMESPACE_DATABASE
 			wchar_t buffer[256];
 			va_list vaList;
 			va_start( vaList, format );
-			std::wstring format( format );
 #if defined( _MSC_VER ) || !defined( _WIN32 )
-			vswprintf( buffer, 256, format.c_str(), vaList );
+			vswprintf( buffer, 256, format, vaList );
 #else
-			vswprintf( buffer, format.c_str(), vaList );
+			vswprintf( buffer, format, vaList );
 #endif
 			va_end( vaList );
 			LogInfo( std::wstring( buffer ) );
@@ -347,8 +336,7 @@ BEGIN_NAMESPACE_DATABASE
 			char buffer[256];
 			va_list vaList;
 			va_start( vaList, format );
-			std::string format( format );
-			vsnprintf( buffer, 256, format.c_str(), vaList );
+			vsnprintf( buffer, 256, format, vaList );
 			va_end( vaList );
 			LogWarning( std::string( buffer ) );
 		}
@@ -373,11 +361,10 @@ BEGIN_NAMESPACE_DATABASE
 			wchar_t buffer[256];
 			va_list vaList;
 			va_start( vaList, format );
-			std::wstring format( format );
 #if defined( _MSC_VER ) || !defined( _WIN32 )
-			vswprintf( buffer, 256, format.c_str(), vaList );
+			vswprintf( buffer, 256, format, vaList );
 #else
-			vswprintf( buffer, format.c_str(), vaList );
+			vswprintf( buffer, format, vaList );
 #endif
 			va_end( vaList );
 			LogWarning( std::wstring( buffer ) );
@@ -403,8 +390,7 @@ BEGIN_NAMESPACE_DATABASE
 			char buffer[256];
 			va_list vaList;
 			va_start( vaList, format );
-			std::string format( format );
-			vsnprintf( buffer, 256, format.c_str(), vaList );
+			vsnprintf( buffer, 256, format, vaList );
 			va_end( vaList );
 			LogError( std::string( buffer ) );
 		}
@@ -429,11 +415,10 @@ BEGIN_NAMESPACE_DATABASE
 			wchar_t buffer[256];
 			va_list vaList;
 			va_start( vaList, format );
-			std::wstring format( format );
 #if defined( _MSC_VER ) || !defined( _WIN32 )
-			vswprintf( buffer, 256, format.c_str(), vaList );
+			vswprintf( buffer, 256, format, vaList );
 #else
-			vswprintf( buffer, format.c_str(), vaList );
+			vswprintf( buffer, format, vaList );
 #endif
 			va_end( vaList );
 			LogError( std::wstring( buffer ) );

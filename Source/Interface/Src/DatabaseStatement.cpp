@@ -30,10 +30,17 @@ BEGIN_NAMESPACE_DATABASE
 
 	static const String WARNING_DB_STATEMENT_NULL_PARAMETER = STR( "Trying to add a null parameter." );
 
+#if defined( _X64 )
+	static const TChar * INFO_DB_CREATING_STATEMENT = STR( "Creating statement 0x%016X, with query %s" );
+	static const TChar * INFO_DB_DELETING_STATEMENT = STR( "Deleting statement 0x%016X" );
+	static const TChar * INFO_DB_EXECUTING_UPDATE_STATEMENT = STR( "Executing Update on statement 0x%016X" );
+	static const TChar * INFO_DB_EXECUTING_SELECT_STATEMENT = STR( "Executing Select on statement 0x%016X" );
+#else
 	static const TChar * INFO_DB_CREATING_STATEMENT = STR( "Creating statement 0x%08X, with query %s" );
 	static const TChar * INFO_DB_DELETING_STATEMENT = STR( "Deleting statement 0x%08X" );
 	static const TChar * INFO_DB_EXECUTING_UPDATE_STATEMENT = STR( "Executing Update on statement 0x%08X" );
 	static const TChar * INFO_DB_EXECUTING_SELECT_STATEMENT = STR( "Executing Select on statement 0x%08X" );
+#endif
 
 	CDatabaseStatement::SValueUpdater::SValueUpdater( CDatabaseStatement * stmt )
 		: _stmt( stmt )
