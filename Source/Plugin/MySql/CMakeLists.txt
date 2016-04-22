@@ -35,9 +35,9 @@ add_target(
 	"${MySQL_LINK_FLAGS}"
 )
 
-copy_dll( DatabasePluginMySql ${MySQL_client_LIBRARY_DEBUG} Debug )
-copy_dll( DatabasePluginMySql ${MySQL_client_LIBRARY_RELEASE} Release )
-copy_dll( DatabasePluginMySql ${MySQL_client_LIBRARY_RELEASE} RelWithDebInfo )
+copy_dll( DatabasePluginMySql "${MySQL_client_LIBRARY_DEBUG}" Debug )
+copy_dll( DatabasePluginMySql "${MySQL_client_LIBRARY_RELEASE}" Release )
+copy_dll( DatabasePluginMySql "${MySQL_client_LIBRARY_RELEASE}" RelWithDebInfo )
 
 set_property( TARGET DatabasePluginMySql PROPERTY FOLDER "Plugin/MySQL" )
 add_target_astyle( DatabasePluginMySql ".h;.hpp;.inl;.cpp" )

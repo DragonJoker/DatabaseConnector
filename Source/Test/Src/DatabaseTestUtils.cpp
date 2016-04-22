@@ -165,7 +165,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 	}
 
-#if defined( WIN32 )
+#if defined( _WIN32 )
 	static const String SCRIPT_EXT = STR( ".bat" );
 #else
 	static const String SCRIPT_EXT = STR( ".sh" );
@@ -206,7 +206,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		return ExecuteScript( SCRIPT_FILES_DIR, SCRIPT_ODBC_UNINSTALL + SCRIPT_EXT, { database } );
 	}
 
-#if defined( WIN32 )
+#if defined( _WIN32 )
 	int InstallDatabaseMsSql( const String & database, const String & user, const String & pass )
 	{
 		return ExecuteScript( SCRIPT_FILES_DIR, SCRIPT_DATABASE_CREATE + MSSQL + SCRIPT_EXT, { database, user, pass } );

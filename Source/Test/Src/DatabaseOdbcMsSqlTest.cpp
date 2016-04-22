@@ -70,8 +70,8 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	{
 		CLogger::LogInfo( StringStream() << "**** Start TestCase_CreateDatabase ****" );
 #if defined( _WIN32 )
-		//InstallDatabaseMsSql( DB_DATABASE, DB_USER, DB_PASS );
-		//InstallSourceOdbcMsSql( DB_DATABASE );
+		InstallDatabaseMsSql( DB_DATABASE, DB_USER, DB_PASS );
+		InstallSourceOdbcMsSql( DB_DATABASE );
 #endif
 		{
 			auto const guard = make_block_guard( [this]()

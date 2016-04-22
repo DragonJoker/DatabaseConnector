@@ -83,7 +83,7 @@ BEGIN_NAMESPACE_DATABASE_ODBC
 		CLogger::LogDebug( ( Format( DEBUG_ODBC_PREPARING_STATEMENT ) % this ).str() );
 
 		errorType = SqlSuccess( SQLAllocHandle( SQL_HANDLE_STMT, hParentStmt, &_statementHandle ), SQL_HANDLE_STMT, hParentStmt, INFO_ODBC_AllocHandle );
-#if defined( WIN32 )
+#if defined( _WIN32 )
 
 		if ( errorType == EErrorType_NONE )
 		{

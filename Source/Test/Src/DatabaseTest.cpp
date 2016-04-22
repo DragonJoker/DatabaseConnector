@@ -229,7 +229,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		TS_List.push_back( g_databasePostgreSqlTest->Init_Test_Suite() );
 #endif
 #if defined( TESTING_PLUGIN_ODBC ) && defined( _WIN32 )
-		TS_List.push_back( g_databaseOdbcMySqlTest->Init_Test_Suite() );
+		//TS_List.push_back( g_databaseOdbcMySqlTest->Init_Test_Suite() );
 		TS_List.push_back( g_databaseOdbcMsSqlTest->Init_Test_Suite() );
 #endif
 
