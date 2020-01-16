@@ -16,7 +16,7 @@
 #include "DatabaseMySql.h"
 #include "DatabaseConnectionMySql.h"
 
-#include <mysql.h>
+#include <mysql/mysql.h>
 
 #undef min
 #undef max

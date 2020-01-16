@@ -28,7 +28,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	boost::unit_test::test_suite * CDatabaseDateTimeTest::Init_Test_Suite()
 	{
 		//!@remarks Create the internal TS instance.
-		testSuite = new boost::unit_test::test_suite( "CDatabaseInterfaceTest" );
+		testSuite = new boost::unit_test::test_suite( "CDatabaseInterfaceTest", __FILE__, __LINE__ );
 
 		//!@remarks Add the TC to the internal TS.
 		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseDateTimeTest::TestCase_FormatDateTime, this ) ) );

@@ -30,7 +30,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	boost::unit_test::test_suite * CDatabaseQueryTest::Init_Test_Suite()
 	{
 		//!@remarks Create the internal TS instance.
-		testSuite = new boost::unit_test::test_suite( "CDatabaseQueryTest" );
+		testSuite = new boost::unit_test::test_suite( "CDatabaseQueryTest", __FILE__, __LINE__ );
 
 		//!@remarks Add the TC to the internal TS.
 		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseQueryTest::TestCase_QueryInitialisation, this ) ) );

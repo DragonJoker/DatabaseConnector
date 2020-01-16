@@ -18,7 +18,7 @@
 
 #include <DatabaseException.h>
 
-#include <mysql.h>
+#include <mysql/mysql.h>
 
 BEGIN_NAMESPACE_DATABASE_MYSQL
 {
@@ -38,9 +38,9 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		}
 
 		//! Tells if the value is NULL
-		my_bool _null = 0;
+		bool _null = false;
 		//! Receives the error code
-		my_bool _error = 0;
+		bool _error = false;
 		//! The bind
 		MYSQL_BIND & _bind;
 	};

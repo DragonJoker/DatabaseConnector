@@ -156,12 +156,12 @@ BEGIN_NAMESPACE_DATABASE
 
 		std::string Print( const DateTimeType & dateTime, const std::string & format )
 		{
-			int year = dateTime.date().year();
-			int month = dateTime.date().month();
-			int day = dateTime.date().day();
-			int hours = dateTime.time_of_day().hours();
-			int minutes = dateTime.time_of_day().minutes();
-			int seconds = dateTime.time_of_day().seconds();
+			auto year = dateTime.date().year();
+			auto month = dateTime.date().month();
+			auto day = dateTime.date().day();
+			auto hours = dateTime.time_of_day().hours();
+			auto minutes = dateTime.time_of_day().minutes();
+			auto seconds = dateTime.time_of_day().seconds();
 			std::string result;
 			StringUtils::Formalize( result, 1024, format.c_str(), year, month, day, hours, minutes, seconds );
 			return result;
@@ -169,12 +169,12 @@ BEGIN_NAMESPACE_DATABASE
 
 		std::wstring Print( const DateTimeType & dateTime, const std::wstring & format )
 		{
-			int year = dateTime.date().year();
-			int month = dateTime.date().month();
-			int day = dateTime.date().day();
-			int hours = dateTime.time_of_day().hours();
-			int minutes = dateTime.time_of_day().minutes();
-			int seconds = dateTime.time_of_day().seconds();
+			auto year = dateTime.date().year();
+			auto month = dateTime.date().month();
+			auto day = dateTime.date().day();
+			auto hours = dateTime.time_of_day().hours();
+			auto minutes = dateTime.time_of_day().minutes();
+			auto seconds = dateTime.time_of_day().seconds();
 			std::wstring result;
 			StringUtils::Formalize( result, 1024, format.c_str(), year, month, day, hours, minutes, seconds );
 			return result;

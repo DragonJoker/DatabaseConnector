@@ -28,8 +28,8 @@
 #include <DatabaseStringUtils.h>
 #include <DatabaseLogger.h>
 
-#include <mysql.h>
-#include <mysql_time.h>
+#include <mysql/mysql.h>
+#include <mysql/mysql_time.h>
 
 #if defined( _WIN32 )
 #	undef min

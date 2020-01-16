@@ -133,7 +133,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	boost::unit_test::test_suite * CDatabaseInt24Test::Init_Test_Suite()
 	{
 		//!@remarks Create the internal TS instance.
-		testSuite = new boost::unit_test::test_suite( "CDatabaseInt24Test" );
+		testSuite = new boost::unit_test::test_suite( "CDatabaseInt24Test", __FILE__, __LINE__ );
 
 		//!@remarks Add the TC to the internal TS.
 		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseInt24Test::TestCase_Int24Construction, this ) ) );

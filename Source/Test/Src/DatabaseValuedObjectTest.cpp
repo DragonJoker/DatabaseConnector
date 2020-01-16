@@ -240,7 +240,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	boost::unit_test::test_suite * CDatabaseValuedObjectTest::Init_Test_Suite()
 	{
 		//!@remarks Create the internal TS instance.
-		testSuite = new boost::unit_test::test_suite( "CDatabaseValuedObjectTest" );
+		testSuite = new boost::unit_test::test_suite( "CDatabaseValuedObjectTest", __FILE__, __LINE__ );
 
 		//!@remarks Add the TC to the internal TS.
 		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseValuedObjectTest::TestCase_ValuedObjectGetValue, this ) ) );

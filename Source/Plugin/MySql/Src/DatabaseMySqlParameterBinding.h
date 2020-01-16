@@ -22,8 +22,8 @@
 #include <DatabaseStringUtils.h>
 #include <DatabaseLogger.h>
 
-#include <mysql.h>
-#include <mysql_time.h>
+#include <mysql/mysql.h>
+#include <mysql/mysql_time.h>
 
 #undef min
 #undef max
@@ -662,12 +662,12 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		//!@copydoc SOutMySqlBindBase::UpdateValue
 		virtual void UpdateValue()
 		{
-			_holder.year = _value.GetValue().date().year();
-			_holder.month = _value.GetValue().date().month();
-			_holder.day = _value.GetValue().date().day();
-			_holder.hour = _value.GetValue().time_of_day().hours();
-			_holder.minute = _value.GetValue().time_of_day().minutes();
-			_holder.second = _value.GetValue().time_of_day().seconds();
+			_holder.year = unsigned( _value.GetValue().date().year() );
+			_holder.month = unsigned( _value.GetValue().date().month() );
+			_holder.day = unsigned( _value.GetValue().date().day() );
+			_holder.hour = unsigned( _value.GetValue().time_of_day().hours() );
+			_holder.minute = unsigned( _value.GetValue().time_of_day().minutes() );
+			_holder.second = unsigned( _value.GetValue().time_of_day().seconds() );
 		}
 
 		//! The parameter value
@@ -705,9 +705,9 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		//!@copydoc SOutMySqlBindBase::UpdateValue
 		virtual void UpdateValue()
 		{
-			_holder.hour = _value.GetValue().hours();
-			_holder.minute = _value.GetValue().minutes();
-			_holder.second = _value.GetValue().seconds();
+			_holder.hour = unsigned( _value.GetValue().hours() );
+			_holder.minute = unsigned( _value.GetValue().minutes() );
+			_holder.second = unsigned( _value.GetValue().seconds() );
 		}
 
 		//! The parameter value

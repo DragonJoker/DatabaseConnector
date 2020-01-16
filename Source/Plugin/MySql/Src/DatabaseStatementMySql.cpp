@@ -24,7 +24,7 @@
 
 #include <DatabaseRow.h>
 
-#include <mysql.h>
+#include <mysql/mysql.h>
 
 BEGIN_NAMESPACE_DATABASE_MYSQL
 {

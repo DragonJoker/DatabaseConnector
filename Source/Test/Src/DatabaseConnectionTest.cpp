@@ -33,7 +33,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	boost::unit_test::test_suite * CDatabaseConnectionTest::Init_Test_Suite()
 	{
 		//!@remarks Create the internal TS instance.
-		testSuite = new boost::unit_test::test_suite( "CDatabaseConnectionTest" );
+		testSuite = new boost::unit_test::test_suite( "CDatabaseConnectionTest", __FILE__, __LINE__ );
 
 		//!@remarks Add the TC to the internal TS.
 		testSuite->add( BOOST_TEST_CASE( std::bind( &CDatabaseConnectionTest::TestCase_ConnectionChecks, this ) ) );

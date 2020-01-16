@@ -1200,7 +1200,7 @@ BEGIN_NAMESPACE_DATABASE_MYSQL
 		unsigned long const chunk = 1024;
 		unsigned long remaining = value.GetPtrSize();
 		char * data = reinterpret_cast< char * >( value.GetPtrValue() );
-		my_bool ret = 0;
+		bool ret = false;
 
 		while ( remaining && !ret )
 		{

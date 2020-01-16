@@ -34,15 +34,12 @@
 #include <boost/test/framework.hpp>
 #include <boost/test/execution_monitor.hpp>
 #include <boost/test/debug.hpp>
-#include <boost/test/unit_test_suite_impl.hpp>
 #include <boost/test/unit_test_log.hpp>
 #include <boost/test/unit_test_monitor.hpp>
-#include <boost/test/test_observer.hpp>
 #include <boost/test/results_collector.hpp>
 #include <boost/test/progress_monitor.hpp>
 #include <boost/test/results_reporter.hpp>
 #include <boost/test/test_tools.hpp>
-#include <boost/test/detail/unit_test_parameters.hpp>
 #include <boost/test/detail/global_typedef.hpp>
 
 BEGIN_NAMESPACE_DATABASE

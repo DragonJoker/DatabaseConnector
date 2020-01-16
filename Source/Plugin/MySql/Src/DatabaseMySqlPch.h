@@ -45,7 +45,7 @@
 #	undef abs
 #endif
 
-#include <mysql.h>
+#include <mysql/mysql.h>
 
 #include "DatabaseMySqlPrerequisites.h"
 

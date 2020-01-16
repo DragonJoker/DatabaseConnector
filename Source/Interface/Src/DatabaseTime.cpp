@@ -100,9 +100,9 @@ BEGIN_NAMESPACE_DATABASE
 				throw std::out_of_range( "Time::Format - Not a date time" );
 			}
 
-			int hours = time.hours();
-			int minutes = time.minutes();
-			int seconds = time.seconds();
+			auto hours = time.hours();
+			auto minutes = time.minutes();
+			auto seconds = time.seconds();
 
 			if ( hours < 0 || hours > 23 )
 			{
@@ -133,9 +133,9 @@ BEGIN_NAMESPACE_DATABASE
 				throw std::out_of_range( "Time::Format - Not a date time" );
 			}
 
-			int hours = time.hours();
-			int minutes = time.minutes();
-			int seconds = time.seconds();
+			auto hours = time.hours();
+			auto minutes = time.minutes();
+			auto seconds = time.seconds();
 
 			if ( hours < 0 || hours > 23 )
 			{
@@ -166,9 +166,9 @@ BEGIN_NAMESPACE_DATABASE
 				throw std::out_of_range( "Time::Print - Not a date time" );
 			}
 
-			int hours = time.hours();
-			int minutes = time.minutes();
-			int seconds = time.seconds();
+			auto hours = time.hours();
+			auto minutes = time.minutes();
+			auto seconds = time.seconds();
 
 			if ( hours < 0 || hours > 23 )
 			{
@@ -197,9 +197,9 @@ BEGIN_NAMESPACE_DATABASE
 				throw std::out_of_range( "Time::Print - Not a date time" );
 			}
 
-			int hours = time.hours();
-			int minutes = time.minutes();
-			int seconds = time.seconds();
+			auto hours = time.hours();
+			auto minutes = time.minutes();
+			auto seconds = time.seconds();
 
 			if ( hours < 0 || hours > 23 )
 			{
