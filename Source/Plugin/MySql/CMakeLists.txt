@@ -5,34 +5,32 @@ set( ${PROJECT_NAME}_VERSION_MAJOR	0 )
 set( ${PROJECT_NAME}_VERSION_MINOR	1 )
 set( ${PROJECT_NAME}_VERSION_BUILD	0 )
 
-# Include directories
-include_directories(
-	${CMAKE_CURRENT_SOURCE_DIR}/Src 
-	${DATABASE_SOURCE_DIR}/Interface/Src
-	${MySQL_INCLUDE_DIRS}
-)
-
-set( MySqlLibraries "")
-FOREACH(Lib ${MySQL_LIBRARIES})
-	if (MySqlLibraries)
-		set(MySqlLibraries "${MySqlLibraries}|${Lib}")
-	else()
-		set(MySqlLibraries "${Lib}")
-	endif()
-ENDFOREACH()
-
 set( DefaultTarget DatabasePluginMySql )
 
 add_target(
 	DatabasePluginMySql
 	plugin
-	"Database"
-	"Database;${MySqlLibraries};${MinLibraries}"
+	""
+	""
 	"DatabaseMySqlPch.h"
 	"DatabaseMySqlPch.cpp"
 	""
 	""
 	"${MySQL_LINK_FLAGS}"
+)
+add_library( dbConnector::MySQL
+	ALIAS
+	${PROJECT_NAME}
+)
+target_include_directories( ${PROJECT_NAME}
+	PRIVATE
+		${CMAKE_CURRENT_SOURCE_DIR}/Src 
+		${MySQL_INCLUDE_DIRS}
+)
+target_link_libraries( ${PROJECT_NAME}
+	PRIVATE
+		Database
+		${MySQL_LIBRARIES}
 )
 
 copy_dll( DatabasePluginMySql "${MySQL_client_LIBRARY_DEBUG}" Debug )

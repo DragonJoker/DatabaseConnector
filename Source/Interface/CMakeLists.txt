@@ -10,37 +10,39 @@ set( BinsDependencies
 	${PROJECT_NAME}
 )
 
-include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
+if ( MSVC )
+	set( DBG_LIBS DbgHelp )
+endif ()
 
 add_target(
 	${PROJECT_NAME}
 	api_dll
 	""
-	"${MinLibraries}"
+	""
 	"DatabasePch.h"
 	"DatabasePch.cpp"
 	""	""	""
 )
+add_library( dbConnector::${PROJECT_NAME}
+	ALIAS
+	${PROJECT_NAME}
+)
+target_include_directories( ${PROJECT_NAME}
+	PUBLIC
+		${Boost_INCLUDE_DIR}
+		${CMAKE_SOURCE_DIR}/Interface/Src
+		${CMAKE_BINARY_DIR}/Interface
+)
+target_link_libraries( ${PROJECT_NAME}
+	PUBLIC
+		${Boost_LIBRARIES}
+		${CMAKE_DL_LIBS}
+		${DBG_LIBS}
+)
 
 if ( WIN32 )
 	include( InstallRequiredSystemLibraries )
-	target_link_libraries( ${PROJECT_NAME} Dbghelp )
-else ()
-	target_link_libraries( ${PROJECT_NAME} dl )
 endif ()
-
-copy_dll( ${PROJECT_NAME} "${Boost_DATE_TIME_LIBRARY_DEBUG}" Debug )
-copy_dll( ${PROJECT_NAME} "${Boost_DATE_TIME_LIBRARY_RELEASE}" Release )
-copy_dll( ${PROJECT_NAME} "${Boost_DATE_TIME_LIBRARY_RELEASE}" RelWithDebInfo )
-copy_dll( ${PROJECT_NAME} "${Boost_FILESYSTEM_LIBRARY_DEBUG}" Debug )
-copy_dll( ${PROJECT_NAME} "${Boost_FILESYSTEM_LIBRARY_RELEASE}" Release )
-copy_dll( ${PROJECT_NAME} "${Boost_FILESYSTEM_LIBRARY_RELEASE}" RelWithDebInfo )
-copy_dll( ${PROJECT_NAME} "${Boost_LOCALE_LIBRARY_DEBUG}" Debug )
-copy_dll( ${PROJECT_NAME} "${Boost_LOCALE_LIBRARY_RELEASE}" Release )
-copy_dll( ${PROJECT_NAME} "${Boost_LOCALE_LIBRARY_RELEASE}" RelWithDebInfo )
-copy_dll( ${PROJECT_NAME} "${Boost_SYSTEM_LIBRARY_DEBUG}" Debug )
-copy_dll( ${PROJECT_NAME} "${Boost_SYSTEM_LIBRARY_RELEASE}" Release )
-copy_dll( ${PROJECT_NAME} "${Boost_SYSTEM_LIBRARY_RELEASE}" RelWithDebInfo )
 
 set_property( TARGET ${PROJECT_NAME} PROPERTY FOLDER "Interface" )
 add_target_astyle( ${PROJECT_NAME} ".h;.hpp;.inl;.cpp" )

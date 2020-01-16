@@ -1,4 +1,4 @@
-cmake_minimum_required( VERSION 2.8.10 )
+cmake_minimum_required( VERSION 3.1 )
 #--------------------------------------------------------------------------------------------------
 #	Initial configurations
 #--------------------------------------------------------------------------------------------------
@@ -44,52 +44,11 @@ set_property( GLOBAL PROPERTY USE_FOLDERS ON )
 #--------------------------------------------------------------------------------------------------
 #	Looking for needed libraries
 #--------------------------------------------------------------------------------------------------
-set( Boost_USE_STATIC_LIBS OFF )
-set( Boost_USE_STATIC_RUNTIME OFF )
-set( Boost_USE_MULTITHREADED ON )
-
-set( Boost_NEEDED TRUE )
-
-if (CMAKE_COMPILER_IS_GNUCXX)
-	DumpCompilerVersion( COMPILER_VERSION )
-	msg_debug( "GCC version : ${COMPILER_VERSION}" )
-	if (${COMPILER_VERSION} LESS "46" OR MINGW)
-		find_package( Boost COMPONENTS filesystem thread system chrono date_time locale )
-	else()
-		find_package( Boost COMPONENTS filesystem system date_time locale )
-	endif ()
-elseif ( CMAKE_CXX_COMPILER_ID MATCHES "Clang" )
-	COMPILER_DUMPVERSION( COMPILER_VERSION )
-	msg_debug( "clang version : ${COMPILER_VERSION}" )
-    find_package( Boost COMPONENTS filesystem system date_time locale )
-elseif (BORLAND)
-	find_package( Boost COMPONENTS thread filesystem system date_time locale )
-elseif (NOT MSVC11 AND NOT MSVC12)
-	find_package( Boost COMPONENTS thread filesystem system chrono date_time locale )
-else()
-		find_package( Boost COMPONENTS filesystem system date_time locale )
-endif ()
+find_package( Boost REQUIRED filesystem system date_time locale )
 
 #--------------------------------------------------------------------------------------------------
 #	Adding include dirs to include search path
 #--------------------------------------------------------------------------------------------------
-include_directories( Interface/Src )
-include_directories( ${CMAKE_CURRENT_BINARY_DIR}/Interface/Src )
-
-if( Boost_FOUND AND Boost_NEEDED )
-	include_directories( ${Boost_INCLUDE_DIRS} )
-    link_directories( ${Boost_LIBRARY_DIRS} )
-endif()
-
-#Boost Libs
-set( BoostLibraries "")
-FOREACH(Lib ${Boost_LIBRARIES})
-	if (BoostLibraries)
-		set(BoostLibraries "${BoostLibraries}|${Lib}")
-	else()
-		set(BoostLibraries "${Lib}")
-	endif()
-ENDFOREACH()
 
 if( MSVC )
 	# We remove the existing /Zm flag to replace it by /Zm300
@@ -105,11 +64,8 @@ msg_debug( "CMAKE_BUILD_TYPE : ${CMAKE_BUILD_TYPE}")
 msg_debug( "CMAKE_C_FLAGS    : ${CMAKE_C_FLAGS}" )
 msg_debug( "CMAKE_CXX_FLAGS  : ${CMAKE_CXX_FLAGS}" )
 
-SET( MinLibraries
-	${BoostLibraries}
-)
-
-SET( BinsDependencies "" )
+set( MinLibraries "" )
+set( BinsDependencies "" )
 
 set( DATABASE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR} )
 
@@ -220,11 +176,11 @@ if( Boost_FOUND )
 		GROUP Development
 		INSTALL_TYPES Developer Full
 	)
-	
+
 	PluginSetup()
 else()
 	SET( msg "Database projects can't be built because of following missing libraries :" )
-	if( Boost_NEEDED AND NOT Boost_FOUND )
+	if( NOT Boost_FOUND )
 		SET( msg "${msg}\n\tBoost" )
 	endif()
 	MESSAGE( SEND_ERROR ${msg} )
