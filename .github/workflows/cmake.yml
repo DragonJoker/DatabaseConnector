@@ -1,0 +1,79 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  release:
+    types:
+      - created
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        # os: [[ubuntu-latest,x64-linux], [windows-latest,x64-windows], [macos-latest,x64-osx]]
+        os: [[windows-latest,x64-windows]]
+        buildType: [Release]
+
+    runs-on: ${{ matrix.os[0] }}
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup vcpkg
+      uses: lukka/run-vcpkg@v4
+      with:
+        vcpkgGitCommitId: '7e3d3beac5ca6fe8aab4599d4e1d8ce270ccdea8'
+        setupOnly: true
+
+    - name: Install dependencies from vcpkg
+      run: $VCPKG_ROOT/vcpkg install boost-date-time:${{ matrix.os[1] }} boost-filesystem:${{ matrix.os[1] }} boost-locale:${{ matrix.os[1] }} boost-system:${{ matrix.os[1] }} libmysql:${{ matrix.os[1] }} libpq:${{ matrix.os[1] }}
+      shell: bash
+
+    - name: Checkout submodules
+      run: |
+        git submodule update --init -- "Source/CMake"
+
+    - name: Create Build Environment
+      run: cmake -E make_directory ${{runner.workspace}}/build-${{ matrix.buildType }}
+
+    - name: Configure CMake (Windows)
+      shell: bash
+      working-directory: ${{runner.workspace}}/build-${{ matrix.buildType }}
+      run: cmake $GITHUB_WORKSPACE/Source -DCMAKE_BUILD_TYPE=${{ matrix.buildType }} -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/package/databaseconnector -DBUILD_MySQL_PLUGIN=ON -DBUILD_ODBC_PLUGIN=OFF -DBUILD_SQLite_PLUGIN=ON -DBUILD_PostgreSql_PLUGIN=ON -DPROJECTS_USE_PRECOMPILED_HEADERS=ON
+      if: runner.os == 'Windows'
+
+    - name: Configure CMake (Non Windows)
+      shell: bash
+      working-directory: ${{runner.workspace}}/build-${{ matrix.buildType }}
+      run: cmake $GITHUB_WORKSPACE/Source -DCMAKE_BUILD_TYPE=${{ matrix.buildType }} -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/package/databaseconnector -DBUILD_MySQL_PLUGIN=ON -DBUILD_ODBC_PLUGIN=OFF -DBUILD_SQLite_PLUGIN=ON -DBUILD_PostgreSql_PLUGIN=ON -DPROJECTS_USE_PRECOMPILED_HEADERS=OFF
+      if: runner.os != 'Windows'
+
+    - name: Build
+      working-directory: ${{runner.workspace}}/build-${{ matrix.buildType }}
+      shell: bash
+      run: cmake --build . --parallel 2 --config ${{ matrix.buildType }}
+
+    - name: Test
+      working-directory: ${{runner.workspace}}/build-${{ matrix.buildType }}
+      shell: bash
+      run: ctest -C ${{ matrix.buildType }}
+
+    - name: Prepare package
+      if: github.event_name == 'push'
+      working-directory: ${{runner.workspace}}/build-${{ matrix.buildType }}
+      shell: bash
+      run: |
+        cmake --install . --config ${{ matrix.buildType }}
+        7z a $GITHUB_WORKSPACE/DatabaseConnector-${{ matrix.os[1] }}.zip $GITHUB_WORKSPACE/package/databaseconnector/
+
+    - name: Upload package
+      if: github.event_name == 'push'
+      uses: actions/upload-artifact@v2
+      with:
+        name: DatabaseConnector-${{ matrix.os[1] }}.zip
+        path: ${{ github.workspace }}/DatabaseConnector-${{ matrix.os[1] }}.zip
