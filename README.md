@@ -61,9 +61,11 @@ connection->ExecuteUpdate( "UPDATE MyTable SET Name='coin' WHERE Id=1" );
 auto statement = connection->CreateStatement( "UPDATE MyTable SET Name=? WHERE Id=?" );
 auto name = statement->CreateParameter( "Name", EFieldType_VARCHAR, 255 );
 auto id = statement->CreateParameter( "Id", EFieldType_UINT32, 255 );
+
 name->SetValue( "coin" );
 id->SetValue( 1u );
 statement->ExecuteUpdate();
+
 name->SetValue( "glop" );
 id->SetValue( 2u );
 statement->ExecuteUpdate();
