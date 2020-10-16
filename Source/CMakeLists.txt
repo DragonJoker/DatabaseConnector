@@ -41,10 +41,14 @@ option( BUILD_STATIC "Build Static" FALSE )
 # Organize projects into folders
 set_property( GLOBAL PROPERTY USE_FOLDERS ON )
 
+if ( VCPKG_TRIPLET )
+	set( DC_CONFIG CONFIG )
+endif ()
+
 #--------------------------------------------------------------------------------------------------
 #	Looking for needed libraries
 #--------------------------------------------------------------------------------------------------
-find_package( Boost REQUIRED filesystem system date_time locale )
+find_package( Boost ${DC_CONFIG} QUIET REQUIRED filesystem system date_time locale )
 
 #--------------------------------------------------------------------------------------------------
 #	Adding include dirs to include search path
@@ -95,7 +99,7 @@ if( Boost_FOUND )
 		set( CPACK_PACKAGE_VENDOR "DragonJoker" )
 		set( CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_RELEASE}.${PROJECTS_PLATFORM}" )
 		set( CPACK_OUTPUT_FILE_PREFIX "${PROJECTS_SETUP_OUTPUT_DIR}/${CMAKE_BUILD_TYPE}" )
-		set( CPACK_RESOURCE_FILE_LICENSE "${PARENT_DIR}/LGPL.txt" )
+		set( CPACK_RESOURCE_FILE_LICENSE "${PARENT_DIR}/LICENSE" )
 
 		if ( "${PROJECTS_PACKAGE_WIX}" STREQUAL "ON" )
 			set( CPACK_GENERATOR "WIX" )
@@ -124,7 +128,7 @@ if( Boost_FOUND )
 			set( CPACK_RPM_PACKAGE_SUMMARY "${MAIN_PROJECT_NAME}" )
 			set( CPACK_RPM_PACKAGE_ARCHITECTURE "${CMAKE_SYSTEM_ARCHITECTURE}" )
 			set( CPACK_RPM_PACKAGE_GROUP "Development/Tools/Other" )
-			set( CPACK_RPM_PACKAGE_LICENSE "LGPL" )
+			set( CPACK_RPM_PACKAGE_LICENSE "MIT" )
 			set( CPACK_RPM_SPEC_MORE_DEFINE "%define _rpmdir ${PROJECT_PACKAGE_DIR}" )
 			set( CPACK_RPM_SPEC_MORE_DEFINE "%define _rpmfilename ${CPACK_PACKAGE_FILE_NAME}.rpm" )
 			set( CPACK_RPM_SPEC_MORE_DEFINE "%define _unpackaged_files_terminate_build 0" )

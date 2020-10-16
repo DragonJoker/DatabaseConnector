@@ -17,8 +17,8 @@ Drivers
 - ODBC.
 
 
-Example
--------
+Examples
+--------
 ```cpp
 // Select database driver
 auto database = Database::CFactoryManager::Instance().CreateInstance( "Database.MySql" );
@@ -49,4 +49,10 @@ if ( result && result->GetRowCount() )
 
 // Execute an update
 connection->ExecuteUpdate( "UPDATE MyTable SET Name='coin' WHERE Id=1" );
+
+// Prepare and execute statement
+auto statement = connection->CreateStatement( "UPDATE MyTable SET Name=? WHERE Id=1" );
+auto param = statement->CreateParameter( "Name", EFieldType_VARCHAR, 255 );
+param->SetValue( "coin" );
+statement->ExecuteUpdate();
 ```
