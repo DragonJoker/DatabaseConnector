@@ -15,3 +15,38 @@ Drivers
 - MySQL.
 - PostgreSQL.
 - ODBC.
+
+
+Example
+-------
+```cpp
+// Select database driver
+auto database = Database::CFactoryManager::Instance().CreateInstance( "Database.MySql" );
+database->Initialise( dbHost, dbUser, dbPass );
+
+// Connect to database
+Database::String res;
+database->CreateConnection( res );
+auto connection = database->RetrieveConnection();
+connection->SelectDatabase( dbName );
+
+// Execute a select
+Database::DatabaseResultSPtr result = connection->ExecuteSelect( "SELECT Id, Name FROM MyTable" );
+if ( result && result->GetRowCount() )
+{
+	uint64_t rowCount = result->GetRowCount();
+
+	for ( uint64_t i = 0 ; i < rowCount ; i++ )
+	{
+		auto row = result->GetNextRow();
+		uint32_t id;
+		row->Get( 0, id );
+		String name;
+		row->Get( 1, name );
+		std::cout << id << " - " << name << std::endl;
+	}
+}
+
+// Execute an update
+connection->ExecuteUpdate( "UPDATE MyTable SET Name='coin' WHERE Id=1" );
+```

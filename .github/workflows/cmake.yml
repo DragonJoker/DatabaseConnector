@@ -44,13 +44,13 @@ jobs:
     - name: Configure CMake (Windows)
       shell: bash
       working-directory: ${{runner.workspace}}/build-${{ matrix.buildType }}
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.buildType }} -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/package/databaseconnector -DBUILD_MySQL_PLUGIN=ON -DBUILD_ODBC_PLUGIN=OFF -DBUILD_SQLite_PLUGIN=ON -DBUILD_PostgreSql_PLUGIN=ON -DPROJECTS_USE_PRECOMPILED_HEADERS=ON
+      run: cmake $GITHUB_WORKSPACE/Source -DCMAKE_BUILD_TYPE=${{ matrix.buildType }} -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/package/databaseconnector -DBUILD_MySQL_PLUGIN=ON -DBUILD_ODBC_PLUGIN=OFF -DBUILD_SQLite_PLUGIN=ON -DBUILD_PostgreSql_PLUGIN=ON -DPROJECTS_USE_PRECOMPILED_HEADERS=ON
       if: runner.os == 'Windows'
 
     - name: Configure CMake (Non Windows)
       shell: bash
       working-directory: ${{runner.workspace}}/build-${{ matrix.buildType }}
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.buildType }} -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/package/databaseconnector -DBUILD_MySQL_PLUGIN=ON -DBUILD_ODBC_PLUGIN=OFF -DBUILD_SQLite_PLUGIN=ON -DBUILD_PostgreSql_PLUGIN=ON -DPROJECTS_USE_PRECOMPILED_HEADERS=OFF
+      run: cmake $GITHUB_WORKSPACE/Source -DCMAKE_BUILD_TYPE=${{ matrix.buildType }} -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/package/databaseconnector -DBUILD_MySQL_PLUGIN=ON -DBUILD_ODBC_PLUGIN=OFF -DBUILD_SQLite_PLUGIN=ON -DBUILD_PostgreSql_PLUGIN=ON -DPROJECTS_USE_PRECOMPILED_HEADERS=OFF
       if: runner.os != 'Windows'
 
     - name: Build
