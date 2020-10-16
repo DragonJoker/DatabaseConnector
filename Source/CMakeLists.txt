@@ -36,8 +36,6 @@ include( CompilationFlags )
 include( AStyleUtils )
 include( ExternalDependencies )
 
-option( BUILD_STATIC "Build Static" FALSE )
-
 # Organize projects into folders
 set_property( GLOBAL PROPERTY USE_FOLDERS ON )
 
