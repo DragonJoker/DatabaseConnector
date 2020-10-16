@@ -17,6 +17,8 @@ endif ()
 add_target(
 	${PROJECT_NAME}
 	api_dll
+	"${CMAKE_CURRENT_SOURCE_DIR}/Src"
+	"${CMAKE_CURRENT_SOURCE_DIR}/Src"
 	""
 	""
 	"DatabasePch.h"

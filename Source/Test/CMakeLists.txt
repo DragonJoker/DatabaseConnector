@@ -81,6 +81,8 @@ if( Boost_UNIT_TEST_FRAMEWORK_FOUND )
 	add_target(
 		${PROJECT_NAME}
 		bin_dos
+		"${CMAKE_CURRENT_SOURCE_DIR}/Src"
+		"${CMAKE_CURRENT_SOURCE_DIR}/Src"
 		"${BinsDependencies}"
 		"${BinsDependencies};${BoostUnitTestLibraries};${MinLibraries};"
 		"DatabaseTestPch.h"

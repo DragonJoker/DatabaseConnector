@@ -16,6 +16,8 @@ include_directories(
 add_target(
     DatabasePluginOdbcMsSql
     plugin
+	"${CMAKE_CURRENT_SOURCE_DIR}/Src"
+	"${CMAKE_CURRENT_SOURCE_DIR}/Src"
     "Database"
     "Database;DatabasePluginOdbc;${ODBC_LIBRARIES_DYNAMIC};${MinLibraries}"
     "DatabaseOdbcMsSqlPch.h"

@@ -8,6 +8,8 @@ set( ${PROJECT_NAME}_VERSION_BUILD	0 )
 add_target(
 	${PROJECT_NAME}
 	plugin
+	"${CMAKE_CURRENT_SOURCE_DIR}/Src"
+	"${CMAKE_CURRENT_SOURCE_DIR}/Src"
 	""
 	""
 	"DatabasePostgreSqlPch.h"
