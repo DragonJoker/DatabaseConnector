@@ -33,9 +33,11 @@ target_link_libraries( ${PROJECT_NAME}
 		${MySQL_LIBRARIES}
 )
 
-copy_dll( DatabasePluginMySql "${MySQL_client_LIBRARY_DEBUG}" Debug )
-copy_dll( DatabasePluginMySql "${MySQL_client_LIBRARY_RELEASE}" Release )
-copy_dll( DatabasePluginMySql "${MySQL_client_LIBRARY_RELEASE}" RelWithDebInfo )
+if ( NOT VCPKG_TARGET_TRIPLET )
+	copy_dll( DatabasePluginMySql "${MySQL_client_LIBRARY_DEBUG}" Debug )
+	copy_dll( DatabasePluginMySql "${MySQL_client_LIBRARY_RELEASE}" Release )
+	copy_dll( DatabasePluginMySql "${MySQL_client_LIBRARY_RELEASE}" RelWithDebInfo )
+endif ()
 
 set_property( TARGET DatabasePluginMySql PROPERTY FOLDER "Plugin/MySQL" )
 add_target_astyle( DatabasePluginMySql ".h;.hpp;.inl;.cpp" )
