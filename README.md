@@ -1,12 +1,14 @@
-<p align="center">
-  <a href="https://github.com/DragonJoker/DatabaseConnector/actions?query=workflow%3ABuild+event%3Apush"><img alt="Build status" src="https://github.com/DragonJoker/DatabaseConnector/workflows/Build/badge.svg?event=push"></a>
-</p>
-
-
 DatabaseConnector
 =================
 
 This library allows connecting to and working with a database, independently from teh chosen driver.
+
+Features
+-------
+
+- Immediate mode for queries.
+- Prepared statements, with support for output values.
+- Transactions.
 
 Drivers
 -------
@@ -19,19 +21,20 @@ Drivers
 
 Examples
 --------
+- **Connection to a database:**
 ```cpp
 // Select database driver
 auto database = Database::CFactoryManager::Instance().CreateInstance( "Database.MySql" );
 database->Initialise( dbHost, dbUser, dbPass );
 
 // Connect to database
-Database::String res;
-database->CreateConnection( res );
 auto connection = database->RetrieveConnection();
 connection->SelectDatabase( dbName );
+```
 
-// Execute a select
-Database::DatabaseResultSPtr result = connection->ExecuteSelect( "SELECT Id, Name FROM MyTable" );
+- **Execute a select in immediate mode:**
+```cpp
+auto result = connection->ExecuteSelect( "SELECT Id, Name FROM MyTable" );
 if ( result && result->GetRowCount() )
 {
 	uint64_t rowCount = result->GetRowCount();
@@ -46,13 +49,41 @@ if ( result && result->GetRowCount() )
 		std::cout << id << " - " << name << std::endl;
 	}
 }
+```
 
-// Execute an update
+- **Execute an update in immediate mode:**
+```cpp
 connection->ExecuteUpdate( "UPDATE MyTable SET Name='coin' WHERE Id=1" );
+```
 
-// Prepare and execute statement
-auto statement = connection->CreateStatement( "UPDATE MyTable SET Name=? WHERE Id=1" );
-auto param = statement->CreateParameter( "Name", EFieldType_VARCHAR, 255 );
-param->SetValue( "coin" );
+- **Prepare and execute statement:**
+```cpp
+auto statement = connection->CreateStatement( "UPDATE MyTable SET Name=? WHERE Id=?" );
+auto name = statement->CreateParameter( "Name", EFieldType_VARCHAR, 255 );
+auto id = statement->CreateParameter( "Id", EFieldType_UINT32, 255 );
+name->SetValue( "coin" );
+id->SetValue( 1u );
 statement->ExecuteUpdate();
+name->SetValue( "glop" );
+id->SetValue( 2u );
+statement->ExecuteUpdate();
+```
+
+- **Handle transactions:**
+```cpp
+auto statement = connection->CreateStatement( "UPDATE MyTable SET Name=? WHERE Id=?" );
+auto name = statement->CreateParameter( "Name", EFieldType_VARCHAR, 255 );
+auto id = statement->CreateParameter( "Id", EFieldType_UINT32, 255 );
+
+connection->BeginTransaction( "UpdateTransaction1" );
+name->SetValue( "coin" );
+id->SetValue( 1u );
+statement->ExecuteUpdate();
+connection->RollBack( "UpdateTransaction1" );
+
+connection->BeginTransaction( "UpdateTransaction2" );
+name->SetValue( "glop" );
+id->SetValue( 2u );
+statement->ExecuteUpdate();
+connection->Commit( "UpdateTransaction2" );
 ```
