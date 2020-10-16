@@ -21,8 +21,8 @@ add_target(
 	"${CMAKE_CURRENT_SOURCE_DIR}/Src"
 	""
 	""
-	"DatabasePch.h"
-	"DatabasePch.cpp"
+	"Src/DatabasePch.h"
+	"Src/DatabasePch.cpp"
 	""	""	""
 )
 add_library( dbConnector::${PROJECT_NAME}

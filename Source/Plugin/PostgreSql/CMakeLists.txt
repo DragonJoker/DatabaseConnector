@@ -12,8 +12,8 @@ add_target(
 	"${CMAKE_CURRENT_SOURCE_DIR}/Src"
 	""
 	""
-	"DatabasePostgreSqlPch.h"
-	"DatabasePostgreSqlPch.cpp"
+	"Src/DatabasePostgreSqlPch.h"
+	"Src/DatabasePostgreSqlPch.cpp"
 )
 add_library( dbConnector::PostgreSQL
 	ALIAS

@@ -20,8 +20,8 @@ add_target(
 	"${CMAKE_CURRENT_SOURCE_DIR}/Src"
     "Database"
     "Database;DatabasePluginOdbc;${ODBC_LIBRARIES_DYNAMIC};${MinLibraries}"
-    "DatabaseOdbcMsSqlPch.h"
-    "DatabaseOdbcMsSqlPch.cpp"
+    "Src/DatabaseOdbcMsSqlPch.h"
+    "Src/DatabaseOdbcMsSqlPch.cpp"
     "" "" ""
 )
 

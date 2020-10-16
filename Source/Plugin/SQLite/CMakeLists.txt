@@ -14,8 +14,8 @@ add_target(
 	"${CMAKE_CURRENT_SOURCE_DIR}/Src"
 	""
 	""
-	"DatabaseSqlitePch.h"
-	"DatabaseSqlitePch.cpp"
+	"Src/DatabaseSqlitePch.h"
+	"Src/DatabaseSqlitePch.cpp"
 	"" "" ""
 )
 add_library( dbConnector::SQLite

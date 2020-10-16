@@ -98,7 +98,6 @@
 #define DECLARE_SMART_PTR( class_name )		typedef std::shared_ptr<	C##class_name		>	class_name##SPtr;	\
 											typedef std::weak_ptr<		C##class_name		>	class_name##WPtr;	\
 											typedef std::unique_ptr<	C##class_name		>	class_name##UPtr;	\
-											typedef std::auto_ptr<		C##class_name		>	class_name##APtr;	\
 											typedef C##class_name *								class_name##RPtr
 
 #if !defined( DB_PARAM_UNUSED )

@@ -12,8 +12,8 @@ add_target(
 	"${CMAKE_CURRENT_SOURCE_DIR}/Src"
 	""
 	""
-	"DatabaseOdbcPch.h"
-	"DatabaseOdbcPch.cpp"
+	"Src/DatabaseOdbcPch.h"
+	"Src/DatabaseOdbcPch.cpp"
 	"" "" ""
 )
 add_library( dbConnector::ODBC
