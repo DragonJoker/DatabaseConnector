@@ -36,8 +36,6 @@ include( CompilationFlags )
 include( AStyleUtils )
 include( ExternalDependencies )
 
-option( BUILD_STATIC "Build Static" FALSE )
-
 # Organize projects into folders
 set_property( GLOBAL PROPERTY USE_FOLDERS ON )
 
@@ -80,6 +78,24 @@ if( Boost_FOUND )
 	PluginInit()
 
 	PluginBuild()
+
+	install(
+		TARGETS Database ${DATABASE_INSTEXP_LIST}
+		EXPORT DatabaseConnector
+		RUNTIME DESTINATION bin
+		LIBRARY DESTINATION lib
+		ARCHIVE DESTINATION lib
+	)
+	install( EXPORT DatabaseConnector
+		FILE DatabaseConnectorConfig.cmake
+		NAMESPACE dbConnector::
+		DESTINATION lib/cmake/database-connector
+	)
+	include(CMakePackageConfigHelpers)
+	write_basic_package_version_file( DatabaseConnectorConfigVersion.cmake
+		VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_BUILD}
+		COMPATIBILITY AnyNewerVersion
+	)
 
 	add_subdirectory( Test )
 

@@ -49,6 +49,10 @@ function( PluginBuild )
 		add_subdirectory( Plugin/SQLite )
 		set( Sqlite ${Build} PARENT_SCOPE )
 	endif()
+	set( DATABASE_INSTEXP_LIST
+		${DATABASE_INSTEXP_LIST}
+		PARENT_SCOPE
+	)
 endfunction( PluginBuild )
 
 function( PluginSummary msg )

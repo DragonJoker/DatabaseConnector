@@ -17,9 +17,19 @@
 #include "DatabaseTestPrerequisites.h"
 
 #if defined( STATIC_LIB )
-#   include <PluginDatabaseMySql.h>
-#   include <PluginDatabaseOdbcMySql.h>
-#   include <PluginDatabaseOdbcMsSql.h>
+#	if defined( TESTING_PLUGIN_MYSQL )
+#		include <PluginDatabaseMySql.h>
+#	endif
+#	if defined( TESTING_PLUGIN_SQLITE )
+#		include <PluginDatabaseSqlite.h>
+#	endif
+#	if defined( TESTING_PLUGIN_POSTGRE )
+#		include <PluginDatabasePostgreSql.h>
+#	endif
+#	if defined( TESTING_PLUGIN_ODBC )
+#		include <PluginDatabaseOdbcMsSql.h>
+#		include <PluginDatabaseOdbcMySql.h>
+#	endif
 #endif
 
 BEGIN_NAMESPACE_DATABASE_TEST
@@ -96,16 +106,24 @@ BEGIN_NAMESPACE_DATABASE_TEST
 	*/
 	struct SPluginsConfig
 	{
+#if defined( TESTING_PLUGIN_MYSQL )
 		//! The MySQL plugin
 		std::unique_ptr< CPluginConfigBase > _mySql;
+#endif
+#if defined( TESTING_PLUGIN_SQLITE )
 		//! The SQLite plugin
 		std::unique_ptr< CPluginConfigBase > _sqlite;
+#endif
+#if defined( TESTING_PLUGIN_ODBC )
 		//! The ODBC MySQL plugin
 		std::unique_ptr< CPluginConfigBase > _odbcMySql;
 		//! The ODBC MSSQL plugin
 		std::unique_ptr< CPluginConfigBase > _odbcMsSql;
+#endif
+#if defined( TESTING_PLUGIN_POSTGRE )
 		//! The PostgreSQL plugin
 		std::unique_ptr< CPluginConfigBase > _postgreSql;
+#endif
 	};
 
 	/** Class used to load pluginsm dynamically or statically

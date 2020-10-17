@@ -114,11 +114,19 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 	void CTestPluginsLoader::Load( SPluginsConfig && config )
 	{
+#if defined( TESTING_PLUGIN_MYSQL )
 		_config._mySql = std::move( config._mySql );
+#endif
+#if defined( TESTING_PLUGIN_SQLITE )
 		_config._sqlite = std::move( config._sqlite );
+#endif
+#if defined( TESTING_PLUGIN_ODBC )
 		_config._odbcMySql = std::move( config._odbcMySql );
 		_config._odbcMsSql = std::move( config._odbcMsSql );
+#endif
+#if defined( TESTING_PLUGIN_POSTGRE )
 		_config._postgreSql = std::move( config._postgreSql );
+#endif
 		OnLoad();
 	}
 
@@ -129,20 +137,36 @@ BEGIN_NAMESPACE_DATABASE_TEST
 
 	void CTestPluginsLoader::OnLoad()
 	{
+#if defined( TESTING_PLUGIN_MYSQL )
 		_config._mySql->Load();
+#endif
+#if defined( TESTING_PLUGIN_SQLITE )
 		_config._sqlite->Load();
+#endif
+#if defined( TESTING_PLUGIN_ODBC )
 		_config._odbcMySql->Load();
 		_config._odbcMsSql->Load();
+#endif
+#if defined( TESTING_PLUGIN_POSTGRE )
 		_config._postgreSql->Load();
+#endif
 	}
 
 	void CTestPluginsLoader::OnUnload()
 	{
+#if defined( TESTING_PLUGIN_MYSQL )
 		_config._mySql->Unload();
+#endif
+#if defined( TESTING_PLUGIN_SQLITE )
 		_config._sqlite->Unload();
+#endif
+#if defined( TESTING_PLUGIN_ODBC )
 		_config._odbcMySql->Unload();
 		_config._odbcMsSql->Unload();
+#endif
+#if defined( TESTING_PLUGIN_POSTGRE )
 		_config._postgreSql->Unload();
+#endif
 	}
 }
 END_NAMESPACE_DATABASE_TEST

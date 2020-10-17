@@ -5,3 +5,4 @@ build/
 *.gch
 *.msi
 /build_vc14
+/package
