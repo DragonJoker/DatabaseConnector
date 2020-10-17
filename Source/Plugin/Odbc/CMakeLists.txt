@@ -60,8 +60,7 @@ target_link_libraries( ${PROJECT_NAME}
 		Database
 		${ODBC_LIBRARIES}
 )
-
-set_property( TARGET ${PROJECT_NAME} PROPERTY FOLDER "Plugin/Odbc" )
+set_property( TARGET ${PROJECT_NAME} PROPERTY FOLDER "Plugin" )
 add_target_astyle( ${PROJECT_NAME} ".h;.hpp;.inl;.cpp" )
 
 install_target( ${PROJECT_NAME} lib Src )
@@ -69,4 +68,8 @@ install_target( ${PROJECT_NAME} lib Src )
 add_subdirectory( MsSql )
 add_subdirectory( MySql )
 
+set( DATABASE_INSTEXP_LIST
+	${DATABASE_INSTEXP_LIST}
+	PARENT_SCOPE
+)
 set( Build "yes" PARENT_SCOPE )

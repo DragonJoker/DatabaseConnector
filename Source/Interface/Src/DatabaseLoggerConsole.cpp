@@ -38,8 +38,7 @@ BEGIN_NAMESPACE_DATABASE
 	public:
 		CMsvcConsoleInfo()
 			: _oldCodePage( 0 )
-			, _screenBuffer( INVALID_HANDLE_VALUE )
-			, _oldInfos( NULL )
+			, _handle( INVALID_HANDLE_VALUE )
 			, _allocated( false )
 			, _console( false )
 		{
@@ -65,17 +64,6 @@ BEGIN_NAMESPACE_DATABASE
 
 		virtual ~CMsvcConsoleInfo()
 		{
-			if ( _oldInfos )
-			{
-				::SetCurrentConsoleFontEx( _screenBuffer, FALSE, _oldInfos );
-				delete _oldInfos;
-			}
-
-			if ( _screenBuffer != INVALID_HANDLE_VALUE )
-			{
-				::CloseHandle( _screenBuffer );
-			}
-
 			if ( _console )
 			{
 				::SetConsoleOutputCP( _oldCodePage );
@@ -110,105 +98,50 @@ BEGIN_NAMESPACE_DATABASE
 				break;
 			}
 
-			::SetConsoleTextAttribute( _screenBuffer, attributes );
+			::SetConsoleTextAttribute( _handle, attributes );
 		}
 
 		void Print( String const & toLog, bool newLine )
 		{
-			::OutputDebugStringA( toLog.c_str() );
-			DWORD written = 0;
+			if ( ::IsDebuggerPresent() )
+			{
+				int length = ::MultiByteToWideChar( CP_UTF8, 0u, toLog.c_str(), -1, nullptr, 0u );
+
+				if ( length > 0 )
+				{
+					std::vector< wchar_t > buffer( size_t( length + 1 ), wchar_t{} );
+					::MultiByteToWideChar( CP_UTF8, 0u, toLog.c_str(), -1, buffer.data(), length );
+					std::wstring converted{ buffer.begin(), buffer.end() };
+					::OutputDebugStringW( converted.c_str() );
+				}
+
+				if ( newLine )
+				{
+					::OutputDebugStringW( L"\n" );
+				}
+			}
+
+			printf( "%s", toLog.c_str() );
 
 			if ( newLine )
 			{
-				::OutputDebugStringA( "\n" );
-				CONSOLE_SCREEN_BUFFER_INFO csbiInfo;
-
-				if ( ::GetConsoleScreenBufferInfo( _screenBuffer, &csbiInfo ) )
-				{
-					csbiInfo.dwCursorPosition.X = 0;
-					::WriteConsoleA( _screenBuffer, toLog.c_str(), DWORD( toLog.size() ), &written, NULL );
-					SHORT offsetY = SHORT( 1 + written / csbiInfo.dwSize.X );
-
-					if ( ( csbiInfo.dwSize.Y - offsetY ) <= csbiInfo.dwCursorPosition.Y )
-					{
-						// The cursor is on the last row
-						// The scroll rectangle is from second row to last displayed row
-						SMALL_RECT scrollRect;
-						scrollRect.Top = 1;
-						scrollRect.Bottom = csbiInfo.dwSize.Y - 1;
-						scrollRect.Left = 0;
-						scrollRect.Right = csbiInfo.dwSize.X - 1;
-						// The destination for the scroll rectangle is one row up.
-						COORD coordDest;
-						coordDest.X = 0;
-						coordDest.Y = 0;
-						// Set the fill character and attributes.
-						CHAR_INFO fill;
-						fill.Attributes = 0;
-						fill.Char.AsciiChar = char( ' ' );
-						// Scroll
-						::ScrollConsoleScreenBuffer( _screenBuffer, &scrollRect, NULL, coordDest, &fill );
-					}
-					else
-					{
-						// The cursor isn't on the last row
-						csbiInfo.dwCursorPosition.Y += offsetY;
-					}
-
-					::SetConsoleCursorPosition( _screenBuffer, csbiInfo.dwCursorPosition );
-				}
-			}
-			else
-			{
-				::WriteConsole( _screenBuffer, toLog.c_str(), DWORD( toLog.size() ), &written, NULL );
+				printf( "\n" );
 			}
 		}
 
 	private:
 		void DoInitialiseConsole()
 		{
-			_screenBuffer = ::CreateConsoleScreenBuffer( GENERIC_WRITE | GENERIC_READ, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL );
-
-			if ( _screenBuffer != INVALID_HANDLE_VALUE && ::SetConsoleActiveScreenBuffer( _screenBuffer ) )
-			{
-				_oldInfos = new CONSOLE_FONT_INFOEX;
-				CONSOLE_FONT_INFOEX * oldInfos = _oldInfos;
-				oldInfos->cbSize = sizeof( CONSOLE_FONT_INFOEX );
-
-				if ( ::GetCurrentConsoleFontEx( _screenBuffer, FALSE, oldInfos ) )
-				{
-					CONSOLE_FONT_INFOEX newInfos = { 0 };
-					newInfos.cbSize = sizeof( CONSOLE_FONT_INFOEX );
-					newInfos.dwFontSize = oldInfos->dwFontSize;
-					newInfos.FontWeight = oldInfos->FontWeight;
-					newInfos.nFont = 6;
-					newInfos.FontFamily = 54;
-					wcscpy( newInfos.FaceName, L"Lucida Console" );
-
-					if ( !::SetCurrentConsoleFontEx( _screenBuffer, FALSE, &newInfos ) )
-					{
-						delete _oldInfos;
-						_oldInfos = NULL;
-					}
-				}
-				else
-				{
-					delete _oldInfos;
-					_oldInfos = NULL;
-				}
-
-				COORD coord = { 160, 9999 };
-				::SetConsoleScreenBufferSize( _screenBuffer, coord );
-			}
+			FILE * dump;
+			( void )freopen_s( &dump, "conout$", "w", stdout );
+			( void )freopen_s( &dump, "conout$", "w", stderr );
+			_handle = ::GetStdHandle( STD_OUTPUT_HANDLE );
 
 			_oldCodePage = ::GetConsoleOutputCP();
 			::EnumSystemCodePagesA( &DoCodePageProc, CP_INSTALLED );
-
-			FILE * dump;
-			freopen_s( &dump, "conout$", "w", stdout );
-			freopen_s( &dump, "conout$", "w", stderr );
 			_console = true;
 		}
+
 		static BOOL __stdcall DoCodePageProc( TChar * szCodePage )
 		{
 			BOOL ret = TRUE;
@@ -227,8 +160,7 @@ BEGIN_NAMESPACE_DATABASE
 
 	private:
 		uint32_t _oldCodePage;
-		HANDLE _screenBuffer;
-		CONSOLE_FONT_INFOEX * _oldInfos;
+		HANDLE _handle;
 		bool _allocated;
 		bool _console;
 	};

@@ -32,11 +32,19 @@
 #include "DatabaseResultTest.h"
 #include "DatabaseQueryTest.h"
 #include "DatabaseStatementTest.h"
-#include "DatabaseMySqlTest.h"
-#include "DatabaseSqliteTest.h"
-#include "DatabasePostgreSqlTest.h"
-#include "DatabaseOdbcMySqlTest.h"
-#include "DatabaseOdbcMsSqlTest.h"
+#if TESTING_PLUGIN_MYSQL
+#	include "DatabaseMySqlTest.h"
+#endif
+#if TESTING_PLUGIN_SQLITE
+#	include "DatabaseSqliteTest.h"
+#endif
+#if TESTING_PLUGIN_POSTGRE
+#	include "DatabasePostgreSqlTest.h"
+#endif
+#if TESTING_PLUGIN_ODBC && defined( _WIN32 )
+#	include "DatabaseOdbcMySqlTest.h"
+#	include "DatabaseOdbcMsSqlTest.h"
+#endif
 #include "DatabaseTestPluginsStaticLoader.h"
 
 #include <boost/test/unit_test.hpp>
@@ -61,11 +69,19 @@ std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseRowTest > g_databaseRowTest;
 std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseResultTest > g_databaseResultTest;
 std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseQueryTest > g_databaseQueryTest;
 std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseStatementTest > g_databaseStatementTest;
+#if TESTING_PLUGIN_MYSQL
 std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseMySqlTest > g_databaseMySqlTest;
+#endif
+#if TESTING_PLUGIN_SQLITE
 std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseSqliteTest > g_databaseSqliteTest;
+#endif
+#if TESTING_PLUGIN_POSTGRE
 std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabasePostgreSqlTest > g_databasePostgreSqlTest;
+#endif
+#if TESTING_PLUGIN_ODBC && defined( _WIN32 )
 std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseOdbcMySqlTest > g_databaseOdbcMySqlTest;
 std::unique_ptr< NAMESPACE_DATABASE_TEST::CDatabaseOdbcMsSqlTest > g_databaseOdbcMsSqlTest;
+#endif
 std::unique_ptr< NAMESPACE_DATABASE_TEST::CTestPluginsLoader > g_pluginsLoader;
 
 void Startup( char * arg )
@@ -102,11 +118,19 @@ void Startup( char * arg )
 	g_databaseResultTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseResultTest >();
 	g_databaseQueryTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseQueryTest >();
 	g_databaseStatementTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseStatementTest >();
+#if TESTING_PLUGIN_MYSQL
 	g_databaseMySqlTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseMySqlTest >();
+#endif
+#if TESTING_PLUGIN_SQLITE
 	g_databaseSqliteTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseSqliteTest >();
+#endif
+#if TESTING_PLUGIN_POSTGRE
 	g_databasePostgreSqlTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabasePostgreSqlTest >();
+#endif
+#if TESTING_PLUGIN_ODBC && defined( _WIN32 )
 	g_databaseOdbcMySqlTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseOdbcMySqlTest >();
 	g_databaseOdbcMsSqlTest = std::make_unique< NAMESPACE_DATABASE_TEST::CDatabaseOdbcMsSqlTest >();
+#endif
 	g_pluginsLoader = std::make_unique< NAMESPACE_DATABASE_TEST::CTestPluginsLoader >();
 }
 
@@ -131,11 +155,19 @@ void Shutdown()
 	g_databaseResultTest.reset();
 	g_databaseQueryTest.reset();
 	g_databaseStatementTest.reset();
+#if TESTING_PLUGIN_MYSQL
 	g_databaseMySqlTest.reset();
+#endif
+#if TESTING_PLUGIN_SQLITE
 	g_databaseSqliteTest.reset();
+#endif
+#if TESTING_PLUGIN_POSTGRE
 	g_databasePostgreSqlTest.reset();
+#endif
+#if TESTING_PLUGIN_ODBC && defined( _WIN32 )
 	g_databaseOdbcMySqlTest.reset();
 	g_databaseOdbcMsSqlTest.reset();
+#endif
 	NAMESPACE_DATABASE::CLogger::Cleanup();
 }
 
@@ -264,27 +296,51 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		return result;
 	}
 
+#if defined( TESTING_PLUGIN_MYSQL )
 	static const String MYSQL_PLUGIN = STR( "DatabasePluginMySql" );
+#endif
+#if defined( TESTING_PLUGIN_SQLITE )
 	static const String SQLITE_PLUGIN = STR( "DatabasePluginSqlite" );
+#endif
+#if defined( TESTING_PLUGIN_ODBC )
 	static const String ODBC_MYSQL_PLUGIN = STR( "DatabasePluginOdbcMySql" );
 	static const String ODBC_MSSQL_PLUGIN = STR( "DatabasePluginOdbcMsSql" );
+#endif
+#if defined( TESTING_PLUGIN_POSTGRE )
 	static const String POSTGRESQL_PLUGIN = STR( "DatabasePluginPostgreSql" );
+#endif
 
 	void LoadPlugins( const String & path, bool mySql, bool sqlite, bool odbcMySql, bool odbcMsSql, bool postgreSql )
 	{
 		SPluginsConfig pluginsConfig;
 #if !defined( STATIC_LIB )
+#	if defined( TESTING_PLUGIN_MYSQL )
 		pluginsConfig._mySql = std::make_unique< CPluginConfig >( mySql, path, MYSQL_PLUGIN );
+#	endif
+#	if defined( TESTING_PLUGIN_SQLITE )
 		pluginsConfig._sqlite = std::make_unique< CPluginConfig >( sqlite, path, SQLITE_PLUGIN );
+#	endif
+#	if defined( TESTING_PLUGIN_ODBC )
 		pluginsConfig._odbcMySql = std::make_unique< CPluginConfig >( odbcMySql, path, ODBC_MYSQL_PLUGIN );
 		pluginsConfig._odbcMsSql = std::make_unique< CPluginConfig >( odbcMsSql, path, ODBC_MSSQL_PLUGIN );
+#	endif
+#	if defined( TESTING_PLUGIN_POSTGRE )
 		pluginsConfig._postgreSql = std::make_unique< CPluginConfig >( postgreSql, path, POSTGRESQL_PLUGIN );
+#	endif
 #else
+#	if defined( TESTING_PLUGIN_MYSQL )
 		pluginsConfig._mySql = std::make_unique< CPluginConfig< MySql::CDatabasePluginMySql > >( mySql );
+#	endif
+#	if defined( TESTING_PLUGIN_SQLITE )
 		pluginsConfig._sqlite = std::make_unique< CPluginConfig< Sqlite::CDatabasePluginSqlite > >( sqlite );
+#	endif
+#	if defined( TESTING_PLUGIN_ODBC )
 		pluginsConfig._odbcMySql = std::make_unique< CPluginConfig< Odbc::MySql::CDatabasePluginOdbcMySql > >( odbcMySql );
 		pluginsConfig._odbcMsSql = std::make_unique< CPluginConfig< Odbc::MsSql::CDatabasePluginOdbcMsSql > >( odbcMsSql );
+#	endif
+#	if defined( TESTING_PLUGIN_POSTGRE )
 		pluginsConfig._postgreSql = std::make_unique< CPluginConfig< PostgreSql::CDatabasePluginPostgreSql > >( postgreSql );
+#	endif
 #endif
 		g_pluginsLoader->Load( std::move( pluginsConfig ) );
 	}

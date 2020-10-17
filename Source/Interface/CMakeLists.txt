@@ -126,8 +126,9 @@ add_library( dbConnector::${PROJECT_NAME}
 target_include_directories( ${PROJECT_NAME}
 	PUBLIC
 		${Boost_INCLUDE_DIR}
-		${CMAKE_SOURCE_DIR}/Interface/Src
-		${CMAKE_BINARY_DIR}/Interface
+		$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/Interface/Src>
+		$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/Interface>
+		$<INSTALL_INTERFACE:include>
 )
 target_link_libraries( ${PROJECT_NAME}
 	PUBLIC

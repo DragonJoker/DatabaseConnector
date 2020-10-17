@@ -78,8 +78,12 @@ if ( NOT VCPKG_TARGET_TRIPLET )
 	copy_dll( ${PROJECT_NAME} ${PostgreSQL_LIBRARY} Release )
 	copy_dll( ${PROJECT_NAME} ${PostgreSQL_LIBRARY} RelWithDebInfo )
 endif ()
-
-set_property( TARGET ${PROJECT_NAME} PROPERTY FOLDER "Plugin/PostgreSQL" )
+set( DATABASE_INSTEXP_LIST
+	${DATABASE_INSTEXP_LIST}
+	${PROJECT_NAME}
+	PARENT_SCOPE
+)
+set_property( TARGET ${PROJECT_NAME} PROPERTY FOLDER "Plugin" )
 add_target_astyle( ${PROJECT_NAME} ".h;.hpp;.inl;.cpp" )
 
 install_target( ${PROJECT_NAME} plugin Src )

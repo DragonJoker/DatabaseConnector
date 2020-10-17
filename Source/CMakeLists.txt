@@ -79,6 +79,24 @@ if( Boost_FOUND )
 
 	PluginBuild()
 
+	install(
+		TARGETS Database ${DATABASE_INSTEXP_LIST}
+		EXPORT DatabaseConnector
+		RUNTIME DESTINATION bin
+		LIBRARY DESTINATION lib
+		ARCHIVE DESTINATION lib
+	)
+	install( EXPORT DatabaseConnector
+		FILE DatabaseConnectorConfig.cmake
+		NAMESPACE dbConnector::
+		DESTINATION lib/cmake/databaseconnector
+	)
+	include(CMakePackageConfigHelpers)
+	write_basic_package_version_file( DatabaseConnectorConfigVersion.cmake
+		VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_BUILD}
+		COMPATIBILITY AnyNewerVersion
+	)
+
 	add_subdirectory( Test )
 
 	SET( msg "Database following plugins will be built" )

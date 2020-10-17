@@ -69,8 +69,12 @@ target_link_libraries( ${PROJECT_NAME}
 	PRIVATE
 		Database
 )
-
-set_property( TARGET ${PROJECT_NAME} PROPERTY FOLDER "Plugin/SQLite" )
+set( DATABASE_INSTEXP_LIST
+	${DATABASE_INSTEXP_LIST}
+	${PROJECT_NAME}
+	PARENT_SCOPE
+)
+set_property( TARGET ${PROJECT_NAME} PROPERTY FOLDER "Plugin" )
 add_target_astyle( ${PROJECT_NAME} ".h;.hpp;.inl;.cpp" )
 
 install_target( ${PROJECT_NAME} plugin Src )
