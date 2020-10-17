@@ -89,7 +89,7 @@ if( Boost_FOUND )
 	install( EXPORT DatabaseConnector
 		FILE DatabaseConnectorConfig.cmake
 		NAMESPACE dbConnector::
-		DESTINATION lib/cmake/databaseconnector
+		DESTINATION lib/cmake/database-connector
 	)
 	include(CMakePackageConfigHelpers)
 	write_basic_package_version_file( DatabaseConnectorConfigVersion.cmake
