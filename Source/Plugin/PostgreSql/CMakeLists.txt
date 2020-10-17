@@ -86,6 +86,4 @@ set( DATABASE_INSTEXP_LIST
 set_property( TARGET ${PROJECT_NAME} PROPERTY FOLDER "Plugin" )
 add_target_astyle( ${PROJECT_NAME} ".h;.hpp;.inl;.cpp" )
 
-install_target( ${PROJECT_NAME} plugin Src )
-
 set( Build "yes" PARENT_SCOPE )

@@ -128,7 +128,7 @@ target_include_directories( ${PROJECT_NAME}
 		${Boost_INCLUDE_DIR}
 		$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/Interface/Src>
 		$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/Interface>
-		$<INSTALL_INTERFACE:include>
+		$<INSTALL_INTERFACE:include/Database>
 )
 target_link_libraries( ${PROJECT_NAME}
 	PUBLIC
@@ -144,4 +144,6 @@ endif ()
 set_property( TARGET ${PROJECT_NAME} PROPERTY FOLDER "Interface" )
 add_target_astyle( ${PROJECT_NAME} ".h;.hpp;.inl;.cpp" )
 
-install_target( ${PROJECT_NAME} api_dll Src )
+target_install_headers( ${PROJECT_NAME}
+	Src
+)
