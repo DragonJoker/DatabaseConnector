@@ -63,8 +63,6 @@ target_link_libraries( ${PROJECT_NAME}
 set_property( TARGET ${PROJECT_NAME} PROPERTY FOLDER "Plugin" )
 add_target_astyle( ${PROJECT_NAME} ".h;.hpp;.inl;.cpp" )
 
-install_target( ${PROJECT_NAME} lib Src )
-
 add_subdirectory( MsSql )
 add_subdirectory( MySql )
 
