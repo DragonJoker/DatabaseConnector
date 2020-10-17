@@ -272,6 +272,12 @@ BEGIN_NAMESPACE_DATABASE_TEST
 		}
 	}
 
+#if defined( _WIN32 )
+#	define BIN_DIR STR( "bin" )
+#else
+#	define BIN_DIR STR( "lib" )
+#endif
+
 	String InitialiseSingletons()
 	{
 		StringStream modulePath;
@@ -286,7 +292,7 @@ BEGIN_NAMESPACE_DATABASE_TEST
 			modulePath << STR( ".." ) << PATH_SEP;
 		}
 
-		modulePath << STR( "lib" ) << PATH_SEP << STR( "DatabaseConnector" ) << PATH_SEP;
+		modulePath << BIN_DIR << PATH_SEP << STR( "DatabaseConnector" ) << PATH_SEP;
 		String result = modulePath.str();
 
 		CPluginManager::Instance().SetApplicationPath( result );
